@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9134754834502766656
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8006793888724303539}
+  - component: {fileID: 6945789338299263238}
+  m_Layer: 0
+  m_Name: GamePoolManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8006793888724303539
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9134754834502766656}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 75.79361, y: 10.388638, z: 41.510807}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6945789338299263238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9134754834502766656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7469abdefa8ce24488b752af97ea4c1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: Sword
+    prefab: {fileID: 4316638647348942652, guid: ca4fa1627bd9dd344b32a3c9c22bd4f1, type: 3}
+    size: 1
+  - tag: Slash Prefab
+    prefab: {fileID: 3545761778305609661, guid: 00b45e0be5d17ac4d889550dc353cdd3, type: 3}
+    size: 2
+  - tag: Bow
+    prefab: {fileID: 4551001115370886643, guid: 45fc7006ee8269f4286d6cf75928a0a1, type: 3}
+    size: 1
+  - tag: Arrow
+    prefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
+    size: 50
+  - tag: Staff
+    prefab: {fileID: 6839322275408168106, guid: 183a87f62a2300d41ad28290408fcf33, type: 3}
+    size: 1
+  - tag: Bullet
+    prefab: {fileID: 6830296691463287077, guid: 66c20cb6f80fd5c47b4712f4d04150ba, type: 3}
+    size: 10
+  - tag: Blue_slime
+    prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+    size: 20
+  - tag: FinalBossA
+    prefab: {fileID: 3235174918318939483, guid: 1a8a3d179bc29054ca90fe7e600ab92e, type: 3}
+    size: 1
+  - tag: Enemie1
+    prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
+    size: 20
+  - tag: GrapeProjectile
+    prefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+    size: 20
+  - tag: Grape Projectile Splatter
+    prefab: {fileID: 8241566449722613216, guid: 6fc13cc823337b94899a25bb84387e60, type: 3}
+    size: 20
+  - tag: GrapeShadow
+    prefab: {fileID: 4040728627607984930, guid: 214664c51c2bac94f986e6a2cd0a0972, type: 3}
+    size: 20
+  - tag: FinalBossB
+    prefab: {fileID: 8853189013130719682, guid: e43eed79906560c48be22740ddce3f5f, type: 3}
+    size: 1
+  - tag: Ghost
+    prefab: {fileID: 237821646944878469, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
+    size: 20
+  - tag: Ghost_Bullet
+    prefab: {fileID: 237821646944878469, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
+    size: 5
+  - tag: FinalBossC
+    prefab: {fileID: 237821646944878469, guid: 3ad08b9d866071f479714c8f73f8685f, type: 3}
+    size: 1
+  - tag: Gold Coin
+    prefab: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
+    size: 20
+  - tag: Health
+    prefab: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
+    size: 20
+  - tag: Stamina
+    prefab: {fileID: 6665777931767919178, guid: ea450cde76b9ade4a95e612a90c23e67, type: 3}
+    size: 20
+  - tag: Barrel VFX
+    prefab: {fileID: 724470073289127030, guid: 7b418587ca1a19745ba312bce0b1ceb8, type: 3}
+    size: 5
+  - tag: Bush VFX
+    prefab: {fileID: 724470073289127030, guid: be762be0fae4e8b4098aa1bd8fb6bff6, type: 3}
+    size: 5
+  - tag: crate VFX
+    prefab: {fileID: 724470073289127030, guid: c2237eec9357dc74aa3d045a9db6c914, type: 3}
+    size: 5
+  - tag: Death VFX
+    prefab: {fileID: 724470073289127030, guid: 624ea55b45189ef449d76ba59b4a1f6c, type: 3}
+    size: 5
+  - tag: Ghost Death VFX
+    prefab: {fileID: 3742472245823238563, guid: 47788c52bf7a36447914397de7f72960, type: 3}
+    size: 5
+  - tag: Portal VFX
+    prefab: {fileID: 1334557155237366933, guid: a6c73f10735fe294a9b093604f357335, type: 3}
+    size: 5
+  - tag: Projectile VFX
+    prefab: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
+    size: 5
+  - tag: Slime Death VFX
+    prefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
+    size: 5

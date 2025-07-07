@@ -1,0 +1,214 @@
+# UI System Organization Guide
+
+## UI Folder Structure (4 Categories)
+
+### 1. **HealthBar/** - Health and Status UI
+**Purpose**: Player health, experience, and status displays
+**Files**:
+- `LevelUI.cs` - Level display and experience bar
+- `ResultPopupController.cs` - Game result popups and notifications
+
+**Guidelines**:
+- Handle all health-related UI elements
+- Manage experience bar and level progression display
+- Control result screens and game over popups
+- Update in real-time based on PlayerStats changes
+
+### 2. **SkillUI/** - Skill and Combat UI
+**Purpose**: Skill buttons, combat feedback, and ability displays
+**Files**:
+- `SkillUIController.cs` - Unified skill UI management
+- `AttackButtonController.cs` - Attack input handling
+- `MagicLaser.cs` - Magic effect visualizations
+
+**Guidelines**:
+- Automatically detect character class and show appropriate skills
+- Handle skill cooldowns and availability states
+- Provide visual feedback for skill activation
+- Coordinate with SkillController for skill execution
+
+### 3. **EquipmentUI/** - Inventory and Equipment
+**Purpose**: Inventory management, weapon display, and equipment interaction
+**Files**:
+- `ActiveInventory.cs` - Main inventory system
+- `InventorySlot.cs` - Individual inventory slot management
+- `WeaponInfo.cs` - Weapon information display
+- `MouseFollow.cs` - Item dragging and mouse interaction
+
+**Guidelines**:
+- Handle all inventory operations (add, remove, move items)
+- Display weapon stats and information
+- Manage drag-and-drop functionality
+- Integrate with ItemData and weapon systems
+
+### 4. **MenuUI/** - Navigation and Scene Management
+**Purpose**: Main menus, scene transitions, and game flow
+**Files**:
+- `LobbyUIController.cs` - Lobby scene interface
+- `LoadingSceneController.cs` - Loading screen management
+- `PauseMenuController.cs` - In-game pause functionality
+
+**Guidelines**:
+- Control scene transitions (Lobby → Loading → Scene1 → Scene2 → Scene3)
+- Handle pause/resume functionality
+- Manage main menu navigation
+- Provide loading screen feedback
+
+## UI Development Standards
+
+### Component Organization
+```csharp
+[Header("UI References")]
+public Button skillButton;
+public Image cooldownOverlay;
+public TextMeshProUGUI skillText;
+
+[Header("Settings")]
+[Range(0.1f, 5f)]
+public float animationDuration = 1f;
+```
+
+### Event Handling
+```csharp
+// Use UnityEvents for Inspector-assignable callbacks
+public UnityEvent OnSkillActivated;
+public UnityEvent<float> OnHealthChanged;
+
+// Subscribe to events in OnEnable/OnDisable
+private void OnEnable()
+{
+    PlayerStats.OnHealthChanged += UpdateHealthDisplay;
+}
+
+private void OnDisable()
+{
+    PlayerStats.OnHealthChanged -= UpdateHealthDisplay;
+}
+```
+
+### Animation and Feedback
+- Use Unity's Animation system for UI transitions
+- Implement smooth transitions between states
+- Provide visual feedback for user interactions
+- Use consistent animation timing across all UI elements
+
+### Responsive Design
+- Support different screen resolutions
+- Use Unity's Canvas Scaler for scaling
+- Test on various aspect ratios
+- Ensure UI elements remain accessible
+
+## Cross-System Integration
+
+### Player System Integration
+```csharp
+// Connect UI to PlayerStats
+public class HealthBarController : MonoBehaviour
+{
+    [Header("References")]
+    public PlayerStats playerStats;
+    public Slider healthSlider;
+    public TextMeshProUGUI healthText;
+    
+    private void Start()
+    {
+        if (playerStats != null)
+        {
+            playerStats.OnHealthChanged += UpdateHealthDisplay;
+        }
+    }
+    
+    private void UpdateHealthDisplay(float currentHealth, float maxHealth)
+    {
+        healthSlider.value = currentHealth / maxHealth;
+        healthText.text = $"{currentHealth:F0} / {maxHealth:F0}";
+    }
+}
+```
+
+### Weapon System Integration
+```csharp
+// Connect UI to weapon switching
+public class WeaponUIController : MonoBehaviour
+{
+    [Header("Weapon Display")]
+    public Image weaponIcon;
+    public TextMeshProUGUI weaponName;
+    
+    public void UpdateWeaponDisplay(IWeapon weapon)
+    {
+        weaponIcon.sprite = weapon.WeaponIcon;
+        weaponName.text = weapon.WeaponName;
+    }
+}
+```
+
+### Character Class Integration
+```csharp
+// Auto-detect character class for skill UI
+public class SkillUIController : MonoBehaviour
+{
+    private void Start()
+    {
+        DetectCharacterClass();
+        SetupSkillUI();
+    }
+    
+    private void DetectCharacterClass()
+    {
+        if (FindObjectOfType<Warrior>() != null)
+        {
+            characterClass = CharacterClass.Warrior;
+        }
+        else if (FindObjectOfType<Assassin>() != null)
+        {
+            characterClass = CharacterClass.Assassin;
+        }
+        else if (FindObjectOfType<Wizard>() != null)
+        {
+            characterClass = CharacterClass.Wizard;
+        }
+    }
+}
+```
+
+## Performance Optimization
+
+### UI Performance Guidelines
+- Use object pooling for frequently created/destroyed UI elements
+- Minimize Layout Group recalculations
+- Use Canvas Groups for batch alpha changes
+- Separate static and dynamic UI elements into different canvases
+
+### Memory Management
+- Unsubscribe from events in OnDestroy
+- Use weak references for large UI hierarchies
+- Cache UI component references
+- Avoid creating UI elements at runtime when possible
+
+## Testing and Quality Assurance
+
+### UI Testing Checklist
+- [ ] All UI elements respond to input correctly
+- [ ] Transitions are smooth and consistent
+- [ ] UI scales properly on different resolutions
+- [ ] All text is readable and properly formatted
+- [ ] No UI elements overlap or clip
+- [ ] Loading screens function properly
+- [ ] Menu navigation works as expected
+
+### Character-Specific Testing
+- [ ] Warrior skills display correctly
+- [ ] Assassin skills display correctly
+- [ ] Wizard skills display correctly
+- [ ] Weapon switching updates UI properly
+- [ ] Health/MP bars update in real-time
+- [ ] Inventory operations work smoothly
+
+### Scene Transition Testing
+- [ ] Lobby → Loading transition works
+- [ ] Loading → Scene1 transition works
+- [ ] Scene1 → Scene2 transition works
+- [ ] Scene2 → Scene3 transition works
+- [ ] Pause menu functions in all scenes
+- [ ] Loading screens show proper progress

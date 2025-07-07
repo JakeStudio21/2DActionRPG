@@ -1,0 +1,103 @@
+# Origin-2DTopDownRPG Project Structure Guide
+
+## Project Overview
+This is a **99% complete Unity 2D Top-Down Action RPG** with professional-grade organization and architecture. The project follows a systematic 8-category folder structure for maximum maintainability and scalability.
+
+## Scripts Folder Organization (8 Categories)
+
+### 1. **Managers/** (19 files)
+Core game management systems:
+- `GameControl.cs` - Main game state controller
+- `FSMStageController.cs` - Finite State Machine for stage progression
+- `SpawnManager.cs` - Enemy and object spawning
+- `LobbyManager.cs` - Lobby scene management
+- `DifficultyManager.cs` - Dynamic difficulty scaling
+- `TitleManager.cs` - Title screen management
+- Other core managers for centralized control
+
+### 2. **Player/** (16 files)
+Player-related systems:
+- **Character Classes**: `Warrior.cs`, `Assassin.cs`, `Wizard.cs`
+- `PlayerController.cs` - Main player input and movement
+- `PlayerStats.cs` - HP, MP, ATK, DEF, speed management
+- `PlayerLevel.cs` - Experience and leveling system
+- `SkillController.cs` - Skill system coordination
+- `ActiveWeapon.cs` - Weapon switching and management
+
+### 3. **Weapon/** (6 files)
+Weapon system implementation:
+- `IWeapon.cs` - Weapon interface
+- `Sword.cs`, `Bow.cs`, `Staff.cs` - Weapon implementations
+- `Projectile.cs` - Projectile mechanics
+- `SlashAnim.cs` - Melee attack animations
+
+### 4. **UI/** (4 subcategories)
+User interface organized by purpose:
+- **HealthBar/**: `LevelUI.cs`, `ResultPopupController.cs`
+- **SkillUI/**: `SkillUIController.cs`, `AttackButtonController.cs`, `MagicLaser.cs`
+- **EquipmentUI/**: `ActiveInventory.cs`, `InventorySlot.cs`, `WeaponInfo.cs`, `MouseFollow.cs`
+- **MenuUI/**: `LobbyUIController.cs`, `LoadingSceneController.cs`, `PauseMenuController.cs`
+
+### 5. **Enemies/** (4 subcategories)
+Enemy system organization:
+- **AI/**: Enemy behavior and pathfinding
+- **Health/**: Enemy health and damage systems
+- **Boss/**: Boss-specific mechanics and patterns
+- **Projectile/**: Enemy projectile systems
+
+### 6. **Systems/** (3 files)
+Core game systems:
+- `SoundManager.cs` - Audio management
+- `SaveManager.cs` - Game save/load functionality
+- `ShopManager.cs` - Economy and shop systems
+
+### 7. **Items/** (4 files)
+Item and inventory systems:
+- `Pickup.cs` - Item pickup mechanics
+- `ItemData.cs` - Item data structures
+- `Inventory.cs` - Inventory management
+
+### 8. **Misc/** (12 files)
+Utility and miscellaneous systems:
+- `VFXManager.cs` - Visual effects management
+- `CameraShake.cs` - Screen shake effects
+- `EconomyManager.cs` - Economic systems
+- Other utility classes
+
+## Asset Organization
+
+### Core Asset Categories
+- **Animation/**: 8 categories (Player, BlueSlime, Enemie1, Sword, Bow, Staff, GoldCoin, Torche)
+- **Prefabs/**: 7 categories (Enemies 10+, Weapons 6+, VFX 10+, Scene Management 9+, Pickup 2+, Environment 7+)
+- **Sprites/**: 8 categories (Player, BlueSlime, Enemie1, Ghost, UI 37+, Objects, Vegetation, Rocks)
+- **Materials/**: 12 materials (UI, Weapon, VFX, Shader)
+- **Scriptable Objects/**: 6 data assets
+- **Tilemap/**: 161+ tiles with rule system
+- **Settings/**: URP rendering pipeline configuration
+- **Scenes/**: 7 scenes with Lobby → Loading → Scene1 → Scene2 → Scene3 flow
+
+## File Naming and Organization Rules
+
+1. **Always maintain the 8-category Scripts structure**
+2. **Use proper spelling**: "Assassin" not "Assasin"
+3. **Follow Unity naming conventions**: PascalCase for classes and files
+4. **Organize by functionality, not file type**
+5. **Keep related systems together in appropriate folders**
+6. **Maintain zero errors and zero warnings in Unity Console**
+
+## Current Completion Status
+- **Core Gameplay**: 100%
+- **Player System**: 100%
+- **UI System**: 95%
+- **Audio System**: 95%
+- **VFX System**: 100%
+- **Balancing System**: 100%
+- **Project Structure**: 100%
+- **Overall**: 99% complete
+
+## Development Principles
+- **Professional-grade organization**: Every file has a logical place
+- **Scalable architecture**: Easy to add new features without breaking existing systems
+- **Maintainable codebase**: Clear separation of concerns and responsibilities
+- **Zero technical debt**: No compile errors or warnings allowed
+- **Systematic approach**: Follow established patterns and conventions

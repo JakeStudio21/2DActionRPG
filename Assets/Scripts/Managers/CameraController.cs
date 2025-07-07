@@ -1,0 +1,188 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Cinemachine;
+
+public class CameraController : Singleton<CameraController>
+{
+    private CinemachineStateDrivenCamera stateDrivenCamera;
+    private CinemachineVirtualCamera cinemachineVirtualCamera;
+
+    public void SetPlayerCameraFollow() 
+    {
+        StartCoroutine(SetPlayerCameraFollowCoroutine());
+    }
+
+    private IEnumerator SetPlayerCameraFollowCoroutine()
+    {
+        // 플레이어가 스폰될 때까지 대기
+        PlayerController playerController = null;
+        float timeout = 10f; // 10초 타임아웃으로 증가
+        float elapsed = 0f;
+
+        Debug.Log("[CameraController] 플레이어 검색 시작...");
+
+        while (playerController == null && elapsed < timeout)
+        {
+            // 다양한 방법으로 플레이어 검색
+            playerController = FindObjectOfType<PlayerController>();
+            
+            if (playerController == null)
+            {
+                // PlayerController를 찾지 못한 경우 다른 방법들 시도
+                GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+                if (playerObj != null)
+                {
+                    playerController = playerObj.GetComponent<PlayerController>();
+                    Debug.Log("[CameraController] Tag로 플레이어 발견!");
+                }
+            }
+            
+            if (playerController == null)
+            {
+                elapsed += 0.2f;
+                yield return new WaitForSeconds(0.2f);
+                Debug.Log($"[CameraController] 플레이어 검색 중... ({elapsed:F1}초)");
+                
+                // 5초마다 씬의 모든 오브젝트 목록 출력 (디버깅용)
+                if (elapsed % 5f < 0.2f)
+                {
+                    LogSceneObjects();
+                }
+            }
+        }
+
+        if (playerController == null)
+        {
+            Debug.LogError("[CameraController] 플레이어를 찾을 수 없습니다! 카메라 설정을 건너뜁니다.");
+            LogSceneObjects(); // 최종 실패 시 오브젝트 목록 출력
+            yield break;
+        }
+
+        Debug.Log($"[CameraController] 플레이어를 찾았습니다! ({playerController.name}) 카메라 설정을 시작합니다.");
+
+        // 카메라 찾기 및 설정
+        yield return StartCoroutine(SetupCameras(playerController));
+    }
+
+    private IEnumerator SetupCameras(PlayerController playerController)
+    {
+        Debug.Log("[CameraController] 카메라 설정 시작");
+        
+        // State-Driven Camera 우선 검색
+        stateDrivenCamera = FindObjectOfType<CinemachineStateDrivenCamera>();
+        
+        if (stateDrivenCamera != null)
+        {
+            Debug.Log("[CameraController] State-Driven Camera 발견");
+            stateDrivenCamera.Follow = playerController.transform;
+            stateDrivenCamera.LookAt = playerController.transform;
+            Debug.Log($"[CameraController] State-Driven Camera 설정 완료 - Follow: {stateDrivenCamera.Follow?.name}, LookAt: {stateDrivenCamera.LookAt?.name}");
+        }
+        else
+        {
+            Debug.Log("[CameraController] State-Driven Camera 없음, Virtual Camera 검색 중...");
+            // Virtual Camera 검색
+            cinemachineVirtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
+            if (cinemachineVirtualCamera != null)
+            {
+                Debug.Log("[CameraController] Virtual Camera 발견");
+                cinemachineVirtualCamera.Follow = playerController.transform;
+                cinemachineVirtualCamera.LookAt = playerController.transform;
+                Debug.Log($"[CameraController] Virtual Camera 설정 완료 - Follow: {cinemachineVirtualCamera.Follow?.name}, LookAt: {cinemachineVirtualCamera.LookAt?.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[CameraController] Cinemachine 카메라를 찾을 수 없습니다!");
+                LogCameraObjects(); // 카메라 관련 오브젝트 검색
+            }
+        }
+
+        // 한 프레임 대기 후 Main Camera 설정
+        yield return null;
+
+        // Main Camera 설정
+        Camera mainCam = Camera.main;
+        if (mainCam != null) 
+        {
+            mainCam.orthographic = true;
+            mainCam.transform.rotation = Quaternion.identity;
+            Debug.Log($"[CameraController] Main Camera 설정 완료 - {mainCam.name}");
+        }
+        else
+        {
+            Debug.LogWarning("[CameraController] Main Camera를 찾을 수 없습니다!");
+        }
+
+        // Virtual Camera Transform 설정
+        if (cinemachineVirtualCamera != null)
+        {
+            cinemachineVirtualCamera.transform.rotation = Quaternion.identity;
+        }
+
+        Debug.Log("[CameraController] 모든 카메라 설정 완료!");
+    }
+
+    /// <summary>
+    /// 수동으로 카메라 재설정을 요청할 수 있는 메서드
+    /// </summary>
+    public void ResetCameraSettings()
+    {
+        Debug.Log("[CameraController] 카메라 재설정 요청됨");
+        SetPlayerCameraFollow();
+    }
+    
+    /// <summary>
+    /// 디버깅용: 씬의 모든 오브젝트 목록 출력
+    /// </summary>
+    private void LogSceneObjects()
+    {
+        Debug.Log("[CameraController] === 씬 오브젝트 목록 ===");
+        GameObject[] allObjects = FindObjectsOfType<GameObject>();
+        int playerCount = 0;
+        
+        foreach (var obj in allObjects)
+        {
+            if (obj.name.ToLower().Contains("player") || obj.GetComponent<PlayerController>() != null)
+            {
+                playerCount++;
+                Debug.Log($"[CameraController] 플레이어 관련 오브젝트: {obj.name} (active: {obj.activeInHierarchy})");
+                if (obj.GetComponent<PlayerController>() != null)
+                {
+                    Debug.Log($"[CameraController] PlayerController 발견: {obj.name}");
+                }
+            }
+        }
+        
+        Debug.Log($"[CameraController] 전체 오브젝트 수: {allObjects.Length}, 플레이어 관련: {playerCount}");
+    }
+    
+    /// <summary>
+    /// 디버깅용: 카메라 관련 오브젝트 목록 출력
+    /// </summary>
+    private void LogCameraObjects()
+    {
+        Debug.Log("[CameraController] === 카메라 오브젝트 목록 ===");
+        
+        var allCameras = FindObjectsOfType<Camera>();
+        Debug.Log($"[CameraController] Camera 컴포넌트 수: {allCameras.Length}");
+        foreach (var cam in allCameras)
+        {
+            Debug.Log($"[CameraController] Camera: {cam.name} (tag: {cam.tag}, active: {cam.gameObject.activeInHierarchy})");
+        }
+        
+        var virtualCameras = FindObjectsOfType<CinemachineVirtualCamera>();
+        Debug.Log($"[CameraController] Virtual Camera 수: {virtualCameras.Length}");
+        foreach (var vcam in virtualCameras)
+        {
+            Debug.Log($"[CameraController] Virtual Camera: {vcam.name} (active: {vcam.gameObject.activeInHierarchy})");
+        }
+        
+        var stateDrivenCameras = FindObjectsOfType<CinemachineStateDrivenCamera>();
+        Debug.Log($"[CameraController] State-Driven Camera 수: {stateDrivenCameras.Length}");
+        foreach (var sdcam in stateDrivenCameras)
+        {
+            Debug.Log($"[CameraController] State-Driven Camera: {sdcam.name} (active: {sdcam.gameObject.activeInHierarchy})");
+        }
+    }
+}

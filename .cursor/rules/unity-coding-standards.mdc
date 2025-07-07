@@ -1,0 +1,176 @@
+# Unity C# Coding Standards
+
+## General Coding Principles
+
+### Naming Conventions
+- **Classes**: PascalCase (`PlayerController`, `EnemyHealth`)
+- **Methods**: PascalCase (`TakeDamage`, `UpdateHealth`)
+- **Properties**: PascalCase (`CurrentHealth`, `MaxMana`)
+- **Fields**: camelCase (`currentHealth`, `maxMana`)
+- **Private fields**: camelCase with underscore prefix (`_currentHealth`, `_isAlive`)
+- **Constants**: ALL_CAPS (`MAX_HEALTH`, `DEFAULT_SPEED`)
+- **Enums**: PascalCase (`WeaponType`, `EnemyState`)
+
+### Project-Specific Naming
+- **Character Classes**: `Warrior`, `Assassin` (not "Assasin"), `Wizard`
+- **Enemy Types**: `BlueSlime`, `Enemie1`, `FinalBoss`
+- **Weapon Types**: `Sword`, `Bow`, `Staff`
+- **UI Controllers**: End with `Controller` (`SkillUIController`, `LobbyUIController`)
+- **Managers**: End with `Manager` (`GameManager`, `SpawnManager`)
+
+## Unity-Specific Best Practices
+
+### MonoBehaviour Lifecycle
+```csharp
+// Always follow proper Unity lifecycle order
+void Awake()     // Initialize references
+void Start()     // Initialize gameplay logic
+void Update()    // Per-frame updates
+void FixedUpdate()  // Physics updates
+void LateUpdate()   // Camera/UI updates
+void OnDestroy()    // Cleanup
+```
+
+### Component Management
+- Use `GetComponent<>()` sparingly - cache references in Awake/Start
+- Always check for null before using components
+- Use `RequireComponent` attribute for dependencies
+- Make reference variables public for Unity Inspector access
+
+### Performance Guidelines
+- Use object pooling for frequently spawned objects (projectiles, VFX)
+- Avoid `FindObjectOfType` and `GameObject.Find` in Update loops
+- Cache frequently accessed components and transforms
+- Use `CompareTag()` instead of `tag == "TagName"`
+
+## Architecture Patterns
+
+### Manager Pattern
+- All managers should be singletons or use dependency injection
+- Managers handle cross-system communication
+- Example: `GameManager`, `SpawnManager`, `DifficultyManager`
+
+### Interface Usage
+- Use interfaces for weapon systems (`IWeapon`)
+- Implement interfaces for modular systems
+- Follow composition over inheritance
+
+### Component-Based Architecture
+- Separate concerns into focused components
+- Use Unity's component system effectively
+- Example: `PlayerController` + `PlayerStats` + `PlayerLevel`
+
+## Error Handling
+
+### Unity Console Standards
+- **Zero errors allowed** - all compile errors must be fixed immediately
+- **Zero warnings allowed** - maintain clean console output
+- Use `Debug.Log()` for development, remove for production
+- Use `Debug.LogError()` for actual errors
+- Use `Debug.LogWarning()` for potential issues
+
+### Exception Handling
+```csharp
+// Always validate references
+if (component == null)
+{
+    Debug.LogError($"Missing component on {gameObject.name}");
+    return;
+}
+
+// Use try-catch for risky operations
+try
+{
+    // Risky operation
+}
+catch (System.Exception e)
+{
+    Debug.LogError($"Error in {GetType().Name}: {e.Message}");
+}
+```
+
+## Code Organization
+
+### File Structure
+- One class per file
+- File name must match class name exactly
+- Use regions to organize large classes
+- Keep classes focused and single-purpose
+
+### Documentation
+```csharp
+/// <summary>
+/// Manages player health and damage interactions
+/// </summary>
+public class PlayerHealth : MonoBehaviour
+{
+    /// <summary>
+    /// Current health value
+    /// </summary>
+    [SerializeField] private float currentHealth;
+    
+    /// <summary>
+    /// Reduces health by specified amount
+    /// </summary>
+    /// <param name="damage">Amount of damage to take</param>
+    public void TakeDamage(float damage)
+    {
+        // Implementation
+    }
+}
+```
+
+## Unity Inspector Best Practices
+
+### Serialized Fields
+- Use `[SerializeField]` for private fields that need Inspector access
+- Make reference variables public for easy Inspector assignment
+- Use `[Header("Section Name")]` to organize Inspector sections
+- Use `[Range(min, max)]` for numeric constraints
+- Use `[Tooltip("Description")]` for field explanations
+
+### Inspector Organization
+```csharp
+[Header("Health Settings")]
+[SerializeField] private float maxHealth = 100f;
+[SerializeField] private float currentHealth;
+
+[Header("Movement Settings")]
+[Range(1f, 10f)]
+[SerializeField] private float moveSpeed = 5f;
+
+[Header("References")]
+public Transform playerTransform;
+public PlayerStats playerStats;
+```
+
+## System Integration
+
+### Event System
+- Use UnityEvents for Inspector-assignable events
+- Use C# events for code-based event handling
+- Avoid direct component references across systems
+
+### Data Management
+- Use ScriptableObjects for game data
+- Implement proper save/load systems
+- Use JSON or Unity's built-in serialization
+
+### Scene Management
+- Follow the scene flow: Lobby → Loading → Scene1 → Scene2 → Scene3
+- Use proper scene transition management
+- Implement loading screens for heavy operations
+
+## Quality Assurance
+
+### Testing Standards
+- Test all character classes (Warrior, Assassin, Wizard)
+- Verify all weapon types work correctly
+- Test UI systems across all categories
+- Validate save/load functionality
+
+### Performance Standards
+- Maintain 60 FPS target
+- Use Unity Profiler to identify bottlenecks
+- Optimize draw calls and batch operations
+- Monitor memory usage and garbage collection

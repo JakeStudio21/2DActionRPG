@@ -1,0 +1,261 @@
+# Debugging & Bug Analysis Practices
+
+## Bug Analysis Methodology
+
+### Comprehensive Investigation Process
+When analyzing bugs, follow this systematic approach:
+
+1. **Examine All Related Files**
+   - Scripts directly involved in the bug
+   - Scene files where the bug occurs
+   - Asset files (prefabs, materials, animations)
+   - Configuration files (ScriptableObjects, settings)
+
+2. **Root Cause Analysis**
+   - Identify the underlying technical cause
+   - Understand why the bug occurs
+   - Trace the execution flow leading to the issue
+   - Consider Unity lifecycle implications
+
+3. **Multiple Solution Approaches**
+   - Present several viable solutions
+   - Explain pros and cons of each approach
+   - Recommend the best solution with justification
+   - Consider long-term maintainability
+
+4. **Technical Deep Dive**
+   - Include Unity-specific technical details
+   - Explain MonoBehaviour lifecycle interactions
+   - Address component dependencies
+   - Consider performance implications
+
+## Unity-Specific Debugging
+
+### Unity Console Management
+- **Zero Errors Policy**: All compilation errors must be resolved immediately
+- **Zero Warnings Policy**: Maintain clean console output
+- **Logging Strategy**: Use appropriate Debug.Log levels
+- **Error Categorization**: Distinguish between critical and minor issues
+
+### Component Debugging
+```csharp
+// Always validate component references
+private void ValidateComponents()
+{
+    if (requiredComponent == null)
+    {
+        Debug.LogError($"Missing required component on {gameObject.name}", this);
+        enabled = false;
+        return;
+    }
+}
+
+// Use Unity's built-in debugging tools
+[System.Diagnostics.Conditional("UNITY_EDITOR")]
+private void DebugDraw()
+{
+    Debug.DrawLine(transform.position, target.position, Color.red);
+}
+```
+
+### Performance Debugging
+- **Unity Profiler**: Use for frame rate analysis
+- **Memory Profiler**: Track garbage collection and memory leaks
+- **Physics Debugger**: Visualize colliders and raycasts
+- **Animation Debugger**: Verify state machine transitions
+
+## Bug Analysis Framework
+
+### File System Analysis
+When investigating bugs, systematically examine:
+
+**Scripts Hierarchy**:
+- **Managers/**: Check for manager initialization issues
+- **Player/**: Verify character class interactions
+- **Weapon/**: Validate weapon switching and attacks
+- **UI/**: Confirm UI system communication
+- **Enemies/**: Review AI behavior and health systems
+- **Systems/**: Check save/load and audio systems
+- **Items/**: Verify pickup and inventory mechanics
+- **Misc/**: Review utility and helper classes
+
+**Asset Dependencies**:
+- **Prefabs/**: Check for missing component references
+- **Scenes/**: Verify scene setup and object hierarchy
+- **Materials/**: Confirm shader and texture assignments
+- **Animations/**: Check animation controller states
+- **ScriptableObjects/**: Validate data consistency
+
+### Common Bug Categories
+
+#### 1. **Initialization Issues**
+- Components not properly initialized in Awake/Start
+- Race conditions between script initialization
+- Missing references assigned in Inspector
+- Singleton pattern implementation problems
+
+#### 2. **Unity Lifecycle Problems**
+- Incorrect order of Unity message functions
+- Update/FixedUpdate timing issues
+- OnEnable/OnDisable event subscription problems
+- Coroutine lifecycle management
+
+#### 3. **Reference Errors**
+- Null reference exceptions
+- Missing component dependencies
+- Broken prefab connections
+- Scene reference issues
+
+#### 4. **State Management**
+- Inconsistent object states
+- Animation state machine issues
+- Game state transitions
+- UI state synchronization
+
+## Debugging Tools & Techniques
+
+### Unity Editor Debugging
+```csharp
+// Use conditional compilation for debug code
+#if UNITY_EDITOR
+    [Header("Debug Settings")]
+    public bool debugMode = false;
+    
+    private void OnDrawGizmos()
+    {
+        if (debugMode)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        }
+    }
+#endif
+```
+
+### Runtime Debugging
+```csharp
+// Implement comprehensive logging
+private void LogDebugInfo()
+{
+    Debug.Log($"[{GetType().Name}] State: {currentState}, " +
+              $"Health: {currentHealth}/{maxHealth}, " +
+              $"Position: {transform.position}", this);
+}
+
+// Use assertions for validation
+private void ValidateState()
+{
+    Debug.Assert(currentHealth >= 0, "Health cannot be negative");
+    Debug.Assert(currentHealth <= maxHealth, "Health exceeds maximum");
+}
+```
+
+### Performance Monitoring
+```csharp
+// Monitor frame rate
+public class PerformanceMonitor : MonoBehaviour
+{
+    private float frameTime;
+    private float fps;
+    
+    void Update()
+    {
+        frameTime += (Time.unscaledDeltaTime - frameTime) * 0.1f;
+        fps = 1.0f / frameTime;
+        
+        if (fps < 30f)
+        {
+            Debug.LogWarning($"Low FPS detected: {fps:F1}");
+        }
+    }
+}
+```
+
+## Bug Resolution Process
+
+### Step-by-Step Resolution
+1. **Reproduce the Bug**
+   - Create reliable reproduction steps
+   - Identify exact conditions causing the issue
+   - Test across different scenarios
+
+2. **Isolate the Problem**
+   - Narrow down to specific components or systems
+   - Use Unity's debugging tools to trace execution
+   - Create minimal test cases
+
+3. **Implement Solution**
+   - Choose the most appropriate fix
+   - Test thoroughly across all affected systems
+   - Verify no new issues are introduced
+
+4. **Validate Fix**
+   - Test original reproduction scenario
+   - Perform regression testing
+   - Check performance impact
+
+### Code Review Checklist
+- [ ] All Unity console errors resolved
+- [ ] No warnings in console output
+- [ ] Proper null reference checking
+- [ ] Appropriate use of Unity lifecycle methods
+- [ ] Performance considerations addressed
+- [ ] Edge cases handled
+- [ ] Code follows project conventions
+
+## Common Unity Pitfalls
+
+### MonoBehaviour Lifecycle
+- **Awake vs Start**: Use Awake for internal initialization, Start for external references
+- **Update vs FixedUpdate**: Use Update for input/UI, FixedUpdate for physics
+- **OnEnable vs Start**: OnEnable called every time object becomes active
+
+### Component Management
+- **GetComponent Caching**: Cache frequently accessed components
+- **Component Dependencies**: Use RequireComponent for mandatory components
+- **Destroy vs DestroyImmediate**: Use Destroy for runtime, DestroyImmediate for editor
+
+### Memory Management
+- **Event Unsubscription**: Always unsubscribe in OnDestroy
+- **Coroutine Cleanup**: Stop coroutines when objects are destroyed
+- **Object Pooling**: Use for frequently created/destroyed objects
+
+## Testing & Validation
+
+### Comprehensive Testing Strategy
+1. **Unit Testing**: Test individual components in isolation
+2. **Integration Testing**: Test component interactions
+3. **System Testing**: Test complete game systems
+4. **Performance Testing**: Validate frame rate and memory usage
+5. **Edge Case Testing**: Test boundary conditions and error states
+
+### Character-Specific Testing
+- **Warrior**: Test dash attack, health scaling, defensive abilities
+- **Assassin**: Test multi-arrow, shadow dash, movement speed
+- **Wizard**: Test fireball, teleport, mana management
+
+### System Integration Testing
+- **Player-Weapon**: Test weapon switching and attack mechanics
+- **Player-Enemy**: Test damage calculation and collision
+- **UI-Systems**: Test UI updates with game state changes
+- **Save-Load**: Test data persistence and restoration
+
+## Documentation & Communication
+
+### Bug Report Format
+```
+**Bug Title**: [Clear, descriptive title]
+**Severity**: [Critical/High/Medium/Low]
+**Steps to Reproduce**: [Numbered list of exact steps]
+**Expected Behavior**: [What should happen]
+**Actual Behavior**: [What actually happens]
+**Environment**: [Unity version, platform, build type]
+**Additional Info**: [Screenshots, logs, related files]
+```
+
+### Solution Documentation
+- **Root Cause**: Technical explanation of why the bug occurred
+- **Solution**: Step-by-step fix implementation
+- **Testing**: Validation steps and test results
+- **Impact**: Changes made and potential side effects
+- **Prevention**: How to avoid similar issues in the future
