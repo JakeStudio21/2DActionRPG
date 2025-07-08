@@ -104,6 +104,9 @@ public class PlayerSpawner : MonoBehaviour
         
         Debug.Log("[PlayerSpawner] 플레이어 후처리 시작");
         
+        // ⭐ 추가: PlayerAttackInput 컴포넌트 자동 추가
+        AddPlayerAttackInput();
+        
         // 카메라 설정 (더 안전한 방식)
         yield return StartCoroutine(SetupPlayerCameraCoroutine());
         
@@ -203,22 +206,45 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void EquipStartingWeapon()
     {
+        Debug.Log("[PlayerSpawner] 무기 장착 시작");
+        
+        // null 체크들
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("[PlayerSpawner] GameManager.Instance가 null입니다!");
+            return;
+        }
+
         // ⭐ 수정: 런타임 데이터 사용
-        var runtimeData = GameManager.Instance?.GetRuntimePlayerData();
+        var runtimeData = GameManager.Instance.GetRuntimePlayerData();
         if (runtimeData == null)
         {
             Debug.LogError("[PlayerSpawner] 런타임 플레이어 데이터를 가져올 수 없습니다.");
             return;
         }
 
+        Debug.Log($"[PlayerSpawner] 런타임 데이터: selectedType={runtimeData.selectedType}, weaponName={runtimeData.weaponName}");
+
         string weaponNameToEquip = runtimeData.weaponName;
+        if (string.IsNullOrEmpty(weaponNameToEquip))
+        {
+            Debug.LogError("[PlayerSpawner] weaponName이 비어있습니다!");
+            return;
+        }
+
         WeaponInfo weaponInfoToEquip = GetWeaponInfoByName(weaponNameToEquip);
 
         if (weaponInfoToEquip == null)
         {
-            Debug.LogWarning($"[PlayerSpawner] '{weaponNameToEquip}'에 해당하는 무기 정보를 찾을 수 없습니다.");
+            Debug.LogError($"[PlayerSpawner] '{weaponNameToEquip}'에 해당하는 무기 정보를 찾을 수 없습니다!");
+            Debug.LogError($"[PlayerSpawner] 현재 WeaponInfo 상태:");
+            Debug.LogError($"  - swordWeaponInfo: {(swordWeaponInfo != null ? swordWeaponInfo.name : "NULL")}");
+            Debug.LogError($"  - bowWeaponInfo: {(bowWeaponInfo != null ? bowWeaponInfo.name : "NULL")}");
+            Debug.LogError($"  - staffWeaponInfo: {(staffWeaponInfo != null ? staffWeaponInfo.name : "NULL")}");
             return;
         }
+
+        Debug.Log($"[PlayerSpawner] 무기 정보 찾음: {weaponInfoToEquip.name}");
 
         // 무기 장착 시도 (실패해도 치명적이지 않음)
         try
@@ -227,7 +253,8 @@ public class PlayerSpawner : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[PlayerSpawner] 무기 장착 중 오류 발생: {e.Message}");
+            Debug.LogError($"[PlayerSpawner] 무기 장착 중 오류 발생: {e.Message}");
+            Debug.LogError($"[PlayerSpawner] 스택 트레이스: {e.StackTrace}");
         }
     }
 
@@ -236,13 +263,18 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private WeaponInfo GetWeaponInfoByName(string weaponName)
     {
-        return weaponName switch
+        Debug.Log($"[PlayerSpawner] 무기 검색: {weaponName}");
+        
+        WeaponInfo result = weaponName switch
         {
             "Sword" => swordWeaponInfo,
             "Bow" => bowWeaponInfo,
             "Staff" => staffWeaponInfo,
             _ => null
         };
+        
+        Debug.Log($"[PlayerSpawner] 무기 검색 결과: {(result != null ? result.name : "NOT FOUND")}");
+        return result;
     }
 
     /// <summary>
@@ -250,12 +282,29 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void EquipWeaponToPlayer(WeaponInfo weaponInfo)
     {
+        Debug.Log($"[PlayerSpawner] 무기 장착 시도: {weaponInfo.name}");
+        
+        if (weaponInfo.weaponPrefab == null)
+        {
+            Debug.LogError($"[PlayerSpawner] WeaponInfo '{weaponInfo.name}'의 weaponPrefab이 null입니다!");
+            return;
+        }
+
+        Debug.Log($"[PlayerSpawner] 무기 프리팹 확인됨: {weaponInfo.weaponPrefab.name}");
+
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon == null)
         {
-            Debug.LogWarning("[PlayerSpawner] ActiveWeapon 오브젝트를 찾을 수 없습니다. 무기 장착을 건너뜁니다.");
+            Debug.LogError("[PlayerSpawner] ActiveWeapon 오브젝트를 찾을 수 없습니다. 무기 장착을 건너뜁니다.");
+            
+            // 씬에서 모든 ActiveWeapon 찾기 시도
+            var allActiveWeapons = FindObjectsOfType<ActiveWeapon>();
+            Debug.LogError($"[PlayerSpawner] 씬에서 찾은 ActiveWeapon 개수: {allActiveWeapons.Length}");
+            
             return;
         }
+
+        Debug.Log($"[PlayerSpawner] ActiveWeapon 찾음: {activeWeapon.name}");
 
         activeWeapon.EquipWeapon(weaponInfo);
         Debug.Log($"[PlayerSpawner] 자동 장착 완료: {weaponInfo.name}");
@@ -267,6 +316,45 @@ public class PlayerSpawner : MonoBehaviour
     public GameObject GetSpawnedPlayer()
     {
         return spawnedPlayer;
+    }
+
+    /// <summary>
+    /// 스폰된 플레이어에 PlayerAttackInput 컴포넌트 자동 추가
+    /// </summary>
+    private void AddPlayerAttackInput()
+    {
+        Debug.Log("🔵 [PlayerSpawner] AddPlayerAttackInput() 시작");
+        
+        if (spawnedPlayer == null)
+        {
+            Debug.LogError("🔴 [PlayerSpawner] 스폰된 플레이어가 없어서 PlayerAttackInput을 추가할 수 없습니다!");
+            return;
+        }
+
+        Debug.Log("🔵 [PlayerSpawner] 스폰된 플레이어: " + spawnedPlayer.name);
+
+        // 이미 PlayerAttackInput이 있는지 확인
+        var existingInput = spawnedPlayer.GetComponent<PlayerAttackInput>();
+        if (existingInput != null)
+        {
+            Debug.Log("🟡 [PlayerSpawner] PlayerAttackInput이 이미 존재합니다.");
+            return;
+        }
+
+        // PlayerAttackInput 컴포넌트 추가
+        var playerAttackInput = spawnedPlayer.AddComponent<PlayerAttackInput>();
+        if (playerAttackInput != null)
+        {
+            Debug.Log("✅ [PlayerSpawner] PlayerAttackInput 컴포넌트 자동 추가 완료!");
+            
+            // 추가된 컴포넌트 확인
+            var verifyInput = spawnedPlayer.GetComponent<PlayerAttackInput>();
+            Debug.Log("🔍 [PlayerSpawner] 컴포넌트 추가 확인: " + (verifyInput != null ? "성공" : "실패"));
+        }
+        else
+        {
+            Debug.LogError("🔴 [PlayerSpawner] PlayerAttackInput 컴포넌트 추가 실패!");
+        }
     }
 }
 

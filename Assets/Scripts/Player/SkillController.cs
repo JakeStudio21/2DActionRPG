@@ -60,8 +60,16 @@ public class SkillController : MonoBehaviour
             }
         }
 
-        // S키 입력 시 스킬 발사
-        if (Input.GetKeyDown(KeyCode.S) && Time.time >= lastSkillTime + cooldownTime)
+        // S키 입력은 PlayerAttackInput에서 처리하고 TriggerSkill() 호출
+        // (중복 방지를 위해 주석처리)
+    }
+
+    /// <summary>
+    /// 외부에서 스킬 실행 요청 (PlayerAttackInput에서 호출)
+    /// </summary>
+    public void TriggerSkill()
+    {
+        if (Time.time >= lastSkillTime + cooldownTime)
         {
             FireSkill();
             lastSkillTime = Time.time;

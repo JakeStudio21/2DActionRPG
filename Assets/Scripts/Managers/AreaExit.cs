@@ -15,15 +15,30 @@ public class AreaExit : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.GetComponent<PlayerController>())
+        if (!other.gameObject.GetComponent<PlayerController>() && !other.CompareTag("Player"))
         {
-            SceneManagement.Instance.SetTransitionName(SceneTransitionName);
-            // UIFade.Instance.FadeToBlack();
-            StartCoroutine(LoadSceneRoutine());
+            return;
         }
 
-        if (other.CompareTag("Player"))
+        // ⭐ 수정: FSMStageController 사용
+        if (FSMStageController.Instance != null)
         {
+            // 전환 정보 설정
+            FSMStageController.Instance.SetTransitionInfo(SceneTransitionName);
+            
+            // 보스 격파 확인 후 씬 전환
+            if (FSMStageController.Instance.TryTransitionWithBossCheck(sceneToLoad))
+            {
+                Debug.Log($"[AreaExit] FSMStageController를 통한 씬 전환: {sceneToLoad}");
+            }
+        }
+        else
+        {
+            // ⭐ 백업: 기존 시스템 사용 (FSMStageController가 없는 경우)
+            Debug.LogWarning("[AreaExit] FSMStageController가 없습니다. 기존 시스템 사용.");
+            
+            SceneManagement.Instance.SetTransitionName(SceneTransitionName);
+            
             // 씬에 있는 모든 EnemyHealth 중 isBoss == true인 오브젝트 찾기
             EnemyHealth boss = FindObjectsOfType<EnemyHealth>()
                 .FirstOrDefault(e => e.isBoss);
@@ -32,7 +47,7 @@ public class AreaExit : MonoBehaviour
             if ((boss == null) || (boss != null && boss.isDead))
             {
                 Debug.Log("보스가 죽었으니 씬 이동!");
-                SceneManager.LoadScene(sceneToLoad);
+                StartCoroutine(LoadSceneRoutine());
             }
             else
             {

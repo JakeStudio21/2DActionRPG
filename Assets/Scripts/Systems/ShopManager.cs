@@ -1,25 +1,56 @@
 using UnityEngine;
 
+/// <summary>
+/// 상점 관리 매니저 (PlayerManager와 통합)
+/// </summary>
 public class ShopManager : Singleton<ShopManager>
 {
-    public int playerGold;
-
+    /// <summary>
+    /// 아이템 구매 시도 (PlayerManager와 통합)
+    /// </summary>
     public bool TryBuyItem(ItemData item, int price)
     {
-        if (playerGold >= price)
+        if (PlayerManager.Instance == null)
         {
-            playerGold -= price;
-            // 인벤토리에 아이템 추가 (Inventory 필요)
+            Debug.LogError("[ShopManager] PlayerManager를 찾을 수 없습니다!");
+            return false;
+        }
+
+        // PlayerManager를 통해 골드 확인 및 소모
+        if (PlayerManager.Instance.SpendGold(price))
+        {
+            // 인벤토리에 아이템 추가
             Inventory inventory = FindObjectOfType<Inventory>();
             if (inventory != null)
+            {
                 inventory.AddItem(item);
-            Debug.Log($"{item.itemName} 구매 성공! 남은 골드: {playerGold}");
-            return true;
+                Debug.Log($"[ShopManager] {item.itemName} 구매 성공! 남은 골드: {PlayerManager.Instance.GetCurrentGold()}");
+                return true;
+            }
+            else
+            {
+                // 인벤토리가 없으면 골드 환불
+                PlayerManager.Instance.AddGold(price);
+                Debug.LogError("[ShopManager] 인벤토리를 찾을 수 없어 구매를 취소했습니다.");
+                return false;
+            }
         }
         else
         {
-            Debug.Log($"{item.itemName} 구매 실패! 골드 부족");
+            Debug.Log($"[ShopManager] {item.itemName} 구매 실패! 골드 부족 (필요: {price}, 보유: {PlayerManager.Instance.GetCurrentGold()})");
             return false;
         }
+    }
+
+    /// <summary>
+    /// 현재 플레이어 골드 확인
+    /// </summary>
+    public int GetPlayerGold()
+    {
+        if (PlayerManager.Instance != null)
+        {
+            return PlayerManager.Instance.GetCurrentGold();
+        }
+        return 0;
     }
 } 

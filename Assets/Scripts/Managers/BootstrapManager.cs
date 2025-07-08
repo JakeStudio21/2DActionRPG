@@ -21,23 +21,58 @@ public class BootstrapManager : MonoBehaviour
     /// </summary>
     private void InitializeManagers()
     {
-        // GameManager 초기화
-        if (GameManager.Instance == null && gameManagerPrefab != null)
-        {
-            GameObject gameManager = Instantiate(gameManagerPrefab);
-            gameManager.name = "GameManager";
-            Debug.Log("[BootstrapManager] GameManager 생성");
-        }
+        Debug.Log("[BootstrapManager] 매니저 초기화 시작");
         
-        // GamePoolManager 초기화
-        if (GamePoolManager.Instance == null && gamePoolManagerPrefab != null)
+        try
         {
-            GameObject poolManager = Instantiate(gamePoolManagerPrefab);
-            poolManager.name = "GamePoolManager";
-            Debug.Log("[BootstrapManager] GamePoolManager 생성");
+            // GameManager 초기화
+            if (GameManager.Instance == null)
+            {
+                if (gameManagerPrefab != null)
+                {
+                    GameObject gameManager = Instantiate(gameManagerPrefab);
+                    gameManager.name = "GameManager";
+                    Debug.Log("[BootstrapManager] GameManager 생성 성공");
+                }
+                else
+                {
+                    Debug.LogError("[BootstrapManager] GameManager 프리팹이 할당되지 않았습니다!");
+                }
+            }
+            else
+            {
+                Debug.Log("[BootstrapManager] GameManager가 이미 존재합니다.");
+            }
+            
+            // GamePoolManager 초기화
+            if (GamePoolManager.Instance == null)
+            {
+                if (gamePoolManagerPrefab != null)
+                {
+                    GameObject poolManager = Instantiate(gamePoolManagerPrefab);
+                    poolManager.name = "GamePoolManager";
+                    Debug.Log("[BootstrapManager] GamePoolManager 생성 성공");
+                }
+                else
+                {
+                    Debug.LogError("[BootstrapManager] GamePoolManager 프리팹이 할당되지 않았습니다!");
+                }
+            }
+            else
+            {
+                Debug.Log("[BootstrapManager] GamePoolManager가 이미 존재합니다.");
+            }
+            
+            Debug.Log("[BootstrapManager] 매니저 초기화 완료");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[BootstrapManager] 매니저 초기화 중 오류 발생: {e.Message}");
+            Debug.LogError($"[BootstrapManager] 스택 트레이스: {e.StackTrace}");
         }
         
         // 부트스트랩 완료 후 자신은 제거
+        Debug.Log("[BootstrapManager] 자신을 제거합니다.");
         Destroy(gameObject);
     }
 }

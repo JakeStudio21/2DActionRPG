@@ -64,10 +64,10 @@ public class AttackJoystickInput : MonoBehaviour
         var direction = (joystickFound && attackJoystick != null) ? attackJoystick.Direction : Vector2.zero;
         
         // ⭐ 디버그: 방향 값 출력 (1초마다)
-        if (Time.frameCount % 60 == 0 && direction.magnitude > 0.1f)
-        {
-            Debug.Log($"[AttackJoystickInput] GetAttackDirection: {direction}");
-        }
+        // if (Time.frameCount % 60 == 0 && direction.magnitude > 0.1f)
+        // {
+        //     Debug.Log($"[AttackJoystickInput] GetAttackDirection: {direction}");
+        // }
         
         return direction;
     }

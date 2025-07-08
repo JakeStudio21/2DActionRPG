@@ -17,12 +17,10 @@ GameObject:
   - component: {fileID: 2672591166014962016}
   - component: {fileID: 4488842488211035026}
   - component: {fileID: 6406295324804413922}
-  - component: {fileID: 832187965925701419}
-  - component: {fileID: 7951551086282983158}
   - component: {fileID: 1737266867653641368}
   - component: {fileID: -7864033259713871080}
   - component: {fileID: 2120048153462600689}
-  - component: {fileID: 5326179330975202687}
+  - component: {fileID: 8031469924270498991}
   m_Layer: 0
   m_Name: FinalBossC
   m_TagString: Untagged
@@ -169,15 +167,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 237821646944878469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed07d693c32bea44badc29edf24d51ca, type: 3}
+  m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   roamChangeDirFloat: 2
-  attackRange: 5
-  enemyType: {fileID: 7951551086282983158}
+  attackRange: 0
+  enemyType: {fileID: 0}
   attackCooldown: 2
-  projectileDamage: 10
-  stopMovingWhileAttacking: 1
+  projectileDamage: 1
+  stopMovingWhileAttacking: 0
 --- !u!114 &4806062633314010792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,7 +185,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 237821646944878469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48253ac252bd9d74fa270166e8dfe45f, type: 3}
+  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
@@ -200,15 +198,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 237821646944878469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10729d92d4836ac4283a7482d3ac911a, type: 3}
+  m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  knockBackThrust: 10
+  maxHealth: 100
+  knockBackThrust: 15
   deathVFXPrefab: {fileID: 3742472245823238563, guid: 47788c52bf7a36447914397de7f72960, type: 3}
-  experienceGiven: 100
+  experienceGiven: 50
   isBoss: 1
-  bossId: FinalBossC
+  bossId: 
   isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
@@ -239,40 +237,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
   restoreDefaultMatTime: 0.2
---- !u!114 &832187965925701419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7902f38cbd00dda44bbe133245be1d2c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &7951551086282983158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aeddecc1f1f438a478487f588085a75e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
-  bulletMoveSpeed: 6
-  burstCount: 12
-  projectilesPerBurst: 14
-  angleSpread: 359
-  startingDistance: 0.3
-  timeBetweenBursts: 1
-  restTime: 0.1
-  stagger: 1
-  oscillate: 1
 --- !u!210 &1737266867653641368
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -313,7 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!114 &5326179330975202687
+--- !u!114 &8031469924270498991
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -322,10 +286,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 237821646944878469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddaf3e596f8ab814b91943a96bbff7e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 1735c0492d8c1ba47ac4ab0be9c72b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 30
+  bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
+  bulletMoveSpeed: 6
+  burstCount: 12
+  projectilesPerBurst: 14
+  angleSpread: 359
+  startingDistance: 0.3
+  timeBetweenBursts: 1
+  restTime: 0.1
+  stagger: 1
+  oscillate: 1
 --- !u!1 &6522507364873470527
 GameObject:
   m_ObjectHideFlags: 0

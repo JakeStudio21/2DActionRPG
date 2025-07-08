@@ -663,7 +663,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 804caf4af6575c74d8ba42e228917c1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeWeapon: {fileID: 7429681287523315572}
+  enableKeyboardInput: 1
+  showDebugLogs: 0
 --- !u!114 &7968133305553475948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,8 +678,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arrowPrefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
-  firePoint: {fileID: 7264508375256867420}
-  arrowSpeed: 10
   cooldownTime: 2
+  arrowSpeed: 10
   arrowCount: 5
   spreadAngle: 15

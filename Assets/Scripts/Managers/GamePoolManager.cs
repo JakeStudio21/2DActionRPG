@@ -32,30 +32,72 @@ public class GamePoolManager : Singleton<GamePoolManager>
     /// </summary>
     private void InitializePools()
     {
+        Debug.Log("[GamePoolManager] 풀 초기화 시작");
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
         
         foreach (Pool pool in pools)
         {
-            Queue<GameObject> objectPool = new Queue<GameObject>();
-            
-            for (int i = 0; i < pool.size; i++)
+            // null 체크 및 유효성 검사
+            if (pool == null)
             {
-                // ⭐ 핵심 수정: 비활성화 상태로 생성
-                GameObject obj = Instantiate(pool.prefab);
-                
-                // ⭐ 즉시 비활성화하여 OnEnable 문제 방지
-                if (obj.activeInHierarchy)
-                {
-                    obj.SetActive(false);
-                }
-                
-                obj.transform.SetParent(transform); // 풀 매니저 하위로 정리
-                objectPool.Enqueue(obj);
+                Debug.LogError("[GamePoolManager] null 풀 발견! 건너뜁니다.");
+                continue;
             }
             
-            poolDictionary.Add(pool.tag, objectPool);
-            Debug.Log($"[GamePoolManager] 풀 생성: {pool.tag} ({pool.size}개)");
+            if (string.IsNullOrEmpty(pool.tag))
+            {
+                Debug.LogError("[GamePoolManager] 빈 태그를 가진 풀 발견! 건너뜁니다.");
+                continue;
+            }
+            
+            if (pool.prefab == null)
+            {
+                Debug.LogError($"[GamePoolManager] '{pool.tag}' 풀의 프리팹이 null입니다! 건너뜁니다.");
+                continue;
+            }
+            
+            // 이미 존재하는 태그 체크
+            if (poolDictionary.ContainsKey(pool.tag))
+            {
+                Debug.LogWarning($"[GamePoolManager] 중복된 태그 '{pool.tag}' 발견! 건너뜁니다.");
+                continue;
+            }
+            
+            Queue<GameObject> objectPool = new Queue<GameObject>();
+            
+            try
+            {
+                for (int i = 0; i < pool.size; i++)
+                {
+                    // ⭐ 핵심 수정: 비활성화 상태로 생성
+                    GameObject obj = Instantiate(pool.prefab);
+                    
+                    if (obj == null)
+                    {
+                        Debug.LogError($"[GamePoolManager] '{pool.tag}' 프리팹 인스턴스 생성 실패!");
+                        continue;
+                    }
+                    
+                    // ⭐ 즉시 비활성화하여 OnEnable 문제 방지
+                    if (obj.activeInHierarchy)
+                    {
+                        obj.SetActive(false);
+                    }
+                    
+                    obj.transform.SetParent(transform); // 풀 매니저 하위로 정리
+                    objectPool.Enqueue(obj);
+                }
+                
+                poolDictionary.Add(pool.tag, objectPool);
+                Debug.Log($"[GamePoolManager] 풀 생성 성공: {pool.tag} ({objectPool.Count}개)");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[GamePoolManager] '{pool.tag}' 풀 생성 중 오류: {e.Message}");
+            }
         }
+        
+        Debug.Log($"[GamePoolManager] 풀 초기화 완료. 총 {poolDictionary.Count}개 풀 생성됨.");
     }
 
     /// <summary>

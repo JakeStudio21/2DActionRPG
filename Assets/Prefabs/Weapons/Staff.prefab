@@ -160,12 +160,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6839322275408168106}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1825def3da3b5ff479a5b37e5036009d, type: 3}
+  m_Script: {fileID: 11500000, guid: 94e48b81963b28b41a4d282c37bb6b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   weaponInfo: {fileID: 11400000, guid: 0535f65c77337cf4cb66260b5726c252, type: 2}
   MagicLaser: {fileID: 3370992678563519775, guid: 80d2170f1cd40d9448e9c72ac954a703, type: 3}
-  magicLaserSpawnPoint: {fileID: 1291109884573859176}
+  magicLaserSpawnPoint: {fileID: 0}
 --- !u!212 &-8590444824740983545
 SpriteRenderer:
   m_ObjectHideFlags: 0

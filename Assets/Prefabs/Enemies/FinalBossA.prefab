@@ -166,13 +166,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed07d693c32bea44badc29edf24d51ca, type: 3}
+  m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   roamChangeDirFloat: 2
   attackRange: 0
   enemyType: {fileID: 0}
   attackCooldown: 2
+  projectileDamage: 1
   stopMovingWhileAttacking: 0
 --- !u!114 &5709947880115937855
 MonoBehaviour:
@@ -183,7 +184,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48253ac252bd9d74fa270166e8dfe45f, type: 3}
+  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
@@ -217,15 +218,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10729d92d4836ac4283a7482d3ac911a, type: 3}
+  m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
+  maxHealth: 100
   knockBackThrust: 15
   deathVFXPrefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
-  experienceGiven: 100
+  experienceGiven: 50
   isBoss: 1
-  bossId: FinalBossA
+  bossId: 
   isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
@@ -293,7 +294,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddaf3e596f8ab814b91943a96bbff7e0, type: 3}
+  m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 30
+  currentState: 0
+  attackDamage: 1
+  attackRange: 1
+  attackCooldown: 1.5
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  animator: {fileID: 0}
+  audioSource: {fileID: 0}
+  attackSound: {fileID: 0}

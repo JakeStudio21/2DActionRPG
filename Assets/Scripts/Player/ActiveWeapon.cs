@@ -34,6 +34,7 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     private void Update() {
         Attack();
         // [변경] 무기 방향 처리: IWeapon의 UpdateDirection 호출
+        // ✅ 조이스틱 방향은 무기 방향 조절용으로 사용 (공격 감지와 분리)
         Vector2 dir = attackJoystickInput != null ? attackJoystickInput.GetAttackDirection() : Vector2.zero;
         var playerController = FindObjectOfType<PlayerController>();
         bool facingLeft = playerController != null && playerController.FacingLeft;
@@ -50,11 +51,13 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     }
 
     public void NewWeapon(MonoBehaviour newWeapon) {
+        Debug.Log("🔵 [ActiveWeapon] NewWeapon 호출 - 새 무기: " + (newWeapon != null ? newWeapon.name : "NULL"));
 
         CurrentActiveWeapon = newWeapon;
 
         AttackCooldown();
         timeBetweenAttacks = (CurrentActiveWeapon as IWeapon).GetWeaponInfo().weaponCooldown;
+        Debug.Log("🟢 [ActiveWeapon] 무기 쿨다운 설정됨: " + timeBetweenAttacks + "초");
     }
 
     public void WeaponNull() {
@@ -86,31 +89,74 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
 
     private void AttackCooldown() {
         isAttacking = true;
+        Debug.Log("🔵 [ActiveWeapon] AttackCooldown 시작 - timeBetweenAttacks: " + timeBetweenAttacks);
         StopAllCoroutines();
         StartCoroutine(TimeBetweenAttacksRoutine());
     }
 
 // Unity에서 공격 쿨타임(재사용 대기시간)을 구현하기 위한 코루틴
     private IEnumerator TimeBetweenAttacksRoutine() {
+        Debug.Log("🔵 [ActiveWeapon] 쿨다운 코루틴 시작 - 대기시간: " + timeBetweenAttacks + "초");
         yield return new WaitForSeconds(timeBetweenAttacks);
         isAttacking = false;
+        Debug.Log("🟢 [ActiveWeapon] 쿨다운 완료! isAttacking = false");
     }
 
     private void Attack() {
-        // 기존의 키보드/마우스 입력(Input System)을 유지하기 위해 attackButtonDown을 확인합니다.
-        // if (attackButtonDown)
+        // ⭐ 추가: 여러 입력 방식으로 기본공격 감지
+        bool shouldAttack = false;
+        
+        // 🔴 1. AttackJoystickInput을 통한 조이스틱 공격 - 완전 비활성화
+        // if (attackJoystickInput != null)
         // {
-        //     PerformAttack();
+        //     Vector2 attackDirection = attackJoystickInput.GetAttackDirection();
+        //     if (attackDirection.magnitude > 0.1f)
+        //     {
+        //         shouldAttack = true;
+        //     }
         // }
+        
+        // 2. GameControl을 통한 통합 입력 (키보드/마우스 포함) - 이것도 비활성화됨
+        var gameControl = GameControl.Instance;
+        if (gameControl != null && gameControl.AttackPressed)
+        {
+            shouldAttack = true;
+        }
+        
+        // 🔴 3. 백업 입력은 GameControl.cs에서 처리 (중복 방지) - 모두 비활성화됨
+        // 이제 오직 PlayerAttackInput.cs의 A키만 PerformAttack()을 직접 호출
+        
+        // ⭐ 공격 실행 - shouldAttack는 항상 false가 되어 실행되지 않음
+        if (shouldAttack)
+        {
+            PerformAttack();
+        }
     }
 
     // 이 함수는 UI 버튼에서 직접 호출할 수 있도록 public으로 만듭니다.
     public void PerformAttack()
     {
+        Debug.Log("🔵 [ActiveWeapon] PerformAttack() 시작");
+        Debug.Log("🔵 [ActiveWeapon] isAttacking: " + isAttacking);
+        Debug.Log("🔵 [ActiveWeapon] CurrentActiveWeapon: " + (CurrentActiveWeapon != null ? CurrentActiveWeapon.name : "NULL"));
+        
         if (!isAttacking && CurrentActiveWeapon)
         {
+            Debug.Log("🟢 [ActiveWeapon] 공격 조건 만족, 공격 실행!");
             AttackCooldown();
             (CurrentActiveWeapon as IWeapon).Attack();
+            Debug.Log("🟢 [ActiveWeapon] IWeapon.Attack() 호출 완료");
+        }
+        else
+        {
+            if (isAttacking)
+            {
+                Debug.LogWarning("🟡 [ActiveWeapon] 이미 공격 중입니다 (쿨다운)");
+            }
+            if (CurrentActiveWeapon == null)
+            {
+                Debug.LogError("🔴 [ActiveWeapon] CurrentActiveWeapon이 null입니다!");
+            }
         }
     }
 }

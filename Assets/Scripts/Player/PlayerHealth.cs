@@ -75,12 +75,8 @@ public class PlayerHealth : Singleton<PlayerHealth>
             return;
         }
 
-        // 발사체(GrapeLandSplatter)에 대한 처리
-        GrapeLandSplatter grapeSplatter = other.gameObject.GetComponent<GrapeLandSplatter>();
-        if (grapeSplatter != null)
-        {
-            TakeDamage(grapeSplatter.damageAmount, other.transform);
-        }
+        // ⭐ 제거: GrapeLandSplatter는 이제 VFX만 담당 (데미지 없음)
+        // GrapeProjectile이 직접 데미지를 처리하므로 여기서는 제거
     }
 
     public void HealPlayer() {

@@ -19,9 +19,8 @@ GameObject:
   - component: {fileID: 2733928855307480320}
   - component: {fileID: 4795855821891295909}
   - component: {fileID: 4822367794375699013}
-  - component: {fileID: 3483880470552431240}
   - component: {fileID: 9183738283701349947}
-  - component: {fileID: 4829054556671060052}
+  - component: {fileID: 5475579419691053063}
   m_Layer: 0
   m_Name: Enemie1
   m_TagString: Untagged
@@ -168,14 +167,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed07d693c32bea44badc29edf24d51ca, type: 3}
+  m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   roamChangeDirFloat: 2
-  attackRange: 5
-  enemyType: {fileID: 3483880470552431240}
+  attackRange: 0
+  enemyType: {fileID: 0}
   attackCooldown: 2
-  projectileDamage: 5
+  projectileDamage: 1
   stopMovingWhileAttacking: 0
 --- !u!114 &5184943769860111882
 MonoBehaviour:
@@ -186,7 +185,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48253ac252bd9d74fa270166e8dfe45f, type: 3}
+  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
@@ -220,12 +219,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10729d92d4836ac4283a7482d3ac911a, type: 3}
+  m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 5
-  knockBackThrust: 10
-  deathVFXPrefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
+  maxHealth: 100
+  knockBackThrust: 15
+  deathVFXPrefab: {fileID: 724470073289127030, guid: 624ea55b45189ef449d76ba59b4a1f6c, type: 3}
   experienceGiven: 10
   isBoss: 0
   bossId: 
@@ -274,19 +273,6 @@ MonoBehaviour:
   goldCoin: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
   healthGlobe: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
   staminaGlobe: {fileID: 6665777931767919178, guid: ea450cde76b9ade4a95e612a90c23e67, type: 3}
---- !u!114 &3483880470552431240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0c168b2958df7c48b96d62d623d1e43, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grapeProjectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
 --- !u!114 &9183738283701349947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,7 +286,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!114 &4829054556671060052
+--- !u!114 &5475579419691053063
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -309,10 +295,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddaf3e596f8ab814b91943a96bbff7e0, type: 3}
+  m_Script: {fileID: 11500000, guid: e7ef4357949de3141b3db28bd422464c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 10
+  grapeProjectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+  projectileSpawnPoint: {fileID: 0}
+  projectileSpeed: 5
+  attackSound: {fileID: 0}
 --- !u!1 &9119814869723337947
 GameObject:
   m_ObjectHideFlags: 0

@@ -78,12 +78,14 @@ public class Pickup : MonoBehaviour
         switch (pickUpType)
         {
             case PickUpType.GoldCoin:
-                EconomyManager.Instance.UpdateCurrentGold();
-                
-                var playerManager = FindObjectOfType<PlayerManager>();
-                if (playerManager != null)
+                // ⭐ 수정: PlayerManager로 통합하여 중복 제거
+                if (PlayerManager.Instance != null)
                 {
-                    playerManager.SyncGoldFromEconomy();
+                    PlayerManager.Instance.AddGold(1);
+                }
+                else
+                {
+                    Debug.LogWarning("[Pickup] PlayerManager를 찾을 수 없습니다!");
                 }
                 
                 Debug.Log("GoldCoin");

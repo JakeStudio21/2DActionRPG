@@ -480,15 +480,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 556843222}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c54c630b06c87d54ca924824f574a79d, type: 3}
+  m_Script: {fileID: 11500000, guid: 3374ff14291237d45a2a31ab59dbbceb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerNameInfoText: {fileID: 71694578}
   warriorButton: {fileID: 1078222922}
   assassinButton: {fileID: 1981818409}
   playButton: {fileID: 1867047388}
-  warriorPanelImage: {fileID: 401726500}
-  assassinPanelImage: {fileID: 2078510741}
+  warriorPanelImage: {fileID: 168317093}
+  assassinPanelImage: {fileID: 790889481}
 --- !u!4 &556843224
 Transform:
   m_ObjectHideFlags: 0

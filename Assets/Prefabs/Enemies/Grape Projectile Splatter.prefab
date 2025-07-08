@@ -10,10 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4393949791210904652}
   - component: {fileID: 2251215753320211350}
-  - component: {fileID: 3922442550000017226}
-  - component: {fileID: 2941956509444291844}
   - component: {fileID: -2444908729748381331}
   - component: {fileID: 3755043317086231540}
+  - component: {fileID: -5608750745646154688}
   m_Layer: 0
   m_Name: Grape Projectile Splatter
   m_TagString: Untagged
@@ -88,54 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!70 &3922442550000017226
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8241566449722613216}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0.023369774, y: -0.14309426}
-  m_Size: {x: 1.3690616, y: 0.611057}
-  m_Direction: 1
---- !u!114 &2941956509444291844
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8241566449722613216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1207fda1dff2a1e459fcf992c94feabc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageAmount: 1
 --- !u!114 &-2444908729748381331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,3 +113,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeTime: 0.5
+  fadeOnStart: 0
+  destroyOnComplete: 1
+--- !u!114 &-5608750745646154688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8241566449722613216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a60f5d4826eb3f94096162f6abaa2890, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageAmount: 1
