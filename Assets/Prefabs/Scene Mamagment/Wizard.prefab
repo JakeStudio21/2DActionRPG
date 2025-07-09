@@ -373,7 +373,6 @@ GameObject:
   - component: {fileID: 2541682511758850633}
   - component: {fileID: 5734504649737104247}
   - component: {fileID: 3411945224194783882}
-  - component: {fileID: 556237627517144063}
   - component: {fileID: 6403347020822746970}
   - component: {fileID: 4451406008786218953}
   - component: {fileID: 472274624499914740}
@@ -608,21 +607,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   knockBackTime: 0.2
---- !u!114 &556237627517144063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d0e68e4da9730f4fbf97692a38d9246, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fullStaminaImage: {fileID: 21300000, guid: 0b9b5e146ef0f65429d4d3d387226663, type: 3}
-  emptyStaminaImage: {fileID: 21300000, guid: 2cd70069b4d697f46b9b7016ac27cf24, type: 3}
-  timeBetweenStaminaRefresh: 3
 --- !u!114 &6403347020822746970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -663,7 +647,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 804caf4af6575c74d8ba42e228917c1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeWeapon: {fileID: 7429681287523315572}
+  enableKeyboardInput: 1
+  showDebugLogs: 1
 --- !u!114 &7968133305553475948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,8 +662,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arrowPrefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
-  firePoint: {fileID: 7264508375256867420}
-  arrowSpeed: 10
   cooldownTime: 2
+  arrowSpeed: 10
   arrowCount: 5
   spreadAngle: 15

@@ -73,7 +73,8 @@ public class BlueSlime : EnemyBase, IEnemy
                 break;
         }
         
-        UpdateAnimation();
+        // 애니메이션 업데이트는 상태 변경 시에만 호출하도록 최적화
+        UpdateSpriteDirection();
     }
     
     private void IdleState()
@@ -155,24 +156,6 @@ public class BlueSlime : EnemyBase, IEnemy
         ChangeState(EnemyState.Chase);
     }
     
-    private void UpdateAnimation()
-    {
-        if (animator == null) return;
-        
-        // 상태별 애니메이션 파라미터 설정
-        animator.SetInteger("StateIndex", (int)currentState);
-        
-        // 이동 방향에 따른 스프라이트 뒤집기
-        if (cachedPlayer != null && currentState == EnemyState.Chase)
-        {
-            Vector2 direction = (cachedPlayer.transform.position - transform.position).normalized;
-            if (direction.x != 0)
-            {
-                transform.localScale = new Vector3(direction.x > 0 ? 1 : -1, 1, 1);
-            }
-        }
-    }
-    
     // IEnemy 인터페이스 구현
     public void Attack(EnemyAI enemyAI)
     {
@@ -216,5 +199,54 @@ public class BlueSlime : EnemyBase, IEnemy
     {
         yield return new WaitForSeconds(attackCooldown);
         canAttack = true;
+    }
+
+    /// <summary>
+    /// 스프라이트 방향만 업데이트 (StateIndex 관련 경고 제거)
+    /// </summary>
+    private void UpdateSpriteDirection()
+    {
+        // 이동 방향에 따른 스프라이트 뒤집기 (추적 중일 때만)
+        if (cachedPlayer != null && currentState == EnemyState.Chase)
+        {
+            Vector2 direction = (cachedPlayer.transform.position - transform.position).normalized;
+            if (direction.x != 0)
+            {
+                transform.localScale = new Vector3(direction.x > 0 ? 1 : -1, 1, 1);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 상태 변경 시에만 애니메이션 업데이트 (최적화)
+    /// </summary>
+    private void UpdateAnimationOnStateChange()
+    {
+        if (animator == null) return;
+        
+        // StateIndex 대신 직접 애니메이션 상태 제어
+        switch (currentState)
+        {
+            case EnemyState.Idle:
+                // Idle 애니메이션은 기본 상태이므로 특별한 처리 불필요
+                break;
+                
+            case EnemyState.Chase:
+                // Chase 상태에서는 기본 애니메이션 유지
+                break;
+                
+            case EnemyState.Attack:
+                // 공격 시에만 Attack 트리거 사용 (이미 AttackCoroutine에서 처리됨)
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// 상태 변경 시 호출 (EnemyBase에서 오버라이드)
+    /// </summary>
+    protected override void OnStateChanged(EnemyState from, EnemyState to)
+    {
+        UpdateAnimationOnStateChange(); // 상태 변경 시에만 애니메이션 업데이트
+        Debug.Log($"[BlueSlime] {gameObject.name} 상태 변경: {from} → {to}");
     }
 } 

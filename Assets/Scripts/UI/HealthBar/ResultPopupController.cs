@@ -6,6 +6,7 @@ using System.Collections;
 
 public class ResultPopupController : MonoBehaviour
 {
+    [Header("UI Elements")]
     public GameObject popupPanel;        // ResultPopupPanel
     public GameObject victoryImage;      // Victory 이미지
     public GameObject defeatImage;       // Defeat 이미지

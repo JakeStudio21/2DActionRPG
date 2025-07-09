@@ -99,9 +99,6 @@ MonoBehaviour:
   - tag: Health
     prefab: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
     size: 20
-  - tag: Stamina
-    prefab: {fileID: 6665777931767919178, guid: ea450cde76b9ade4a95e612a90c23e67, type: 3}
-    size: 20
   - tag: Barrel VFX
     prefab: {fileID: 724470073289127030, guid: 7b418587ca1a19745ba312bce0b1ceb8, type: 3}
     size: 5

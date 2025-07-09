@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!11 &1
+MonoManager:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_ExternalVersionControlSupport: Visible Meta Files
+  m_SerializationMode: 2
+  m_LineEndingsForNewScripts: 0
+  m_DefaultBehaviorMode: 0
+  m_PrefabRegularEnvironment: {fileID: 0}
+  m_PrefabUIEnvironment: {fileID: 0}
+  m_ScriptExecutionOrder:
+  - first: {fileID: 11500000, guid: 33a53fedd8d571e41b41a20a2d141d1b, type: 3}
+    second: -200
+  - first: {fileID: 11500000, guid: 6e1504eea15f8cb4e860dcc8f5a713f1, type: 3}
+    second: -100 

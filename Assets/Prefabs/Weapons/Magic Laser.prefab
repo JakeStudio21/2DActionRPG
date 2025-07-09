@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 5480784040477402983}
   - component: {fileID: 6966297060400070277}
   - component: {fileID: 5008231354457172521}
-  - component: {fileID: 6436045618197314202}
   - component: {fileID: 2322045281235893831}
   - component: {fileID: -8780562011930412512}
+  - component: {fileID: 2239424440755985618}
   m_Layer: 0
   m_Name: Magic Laser
   m_TagString: Untagged
@@ -164,19 +164,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0c26e755b753dc4c9c0bba5b5ceabc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6436045618197314202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3370992678563519775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 429c32094dab8ea479d27931210ae91a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  laserGrowTime: 0.22
 --- !u!114 &2322045281235893831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,10 +173,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3370992678563519775}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ab42e587dd043e4d9203e6e211b981b, type: 3}
+  m_Script: {fileID: 11500000, guid: f6fd0ee1e652fa048964d7d7de627a29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeTime: 0.4
+  laserGrowTime: 2
 --- !u!114 &-8780562011930412512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203,3 +190,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!114 &2239424440755985618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3370992678563519775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 109eb1db7e636fa47949a7ac3cf845fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeTime: 2
+  fadeOnStart: 0
+  destroyOnComplete: 1

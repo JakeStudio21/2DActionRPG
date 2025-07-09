@@ -6,31 +6,109 @@ public class SkillUIController : MonoBehaviour
     public Image cooldownImage;
     [Tooltip("스킬 쿨다운 시간(초) - 여기서만 입력!")]
     public float cooldownTime = 2f; // 쿨다운 시간은 여기서만 입력!
+    
     private SkillController skillController;
+    private float lastUpdateTime;
+    private const float UPDATE_INTERVAL = 0.1f; // UI 업데이트 간격 (0.1초)
 
     void Start()
     {
-        Debug.Log("[SkillUI] Start 실행됨");
-        skillController = FindObjectOfType<SkillController>();
-        if (skillController == null)
-            Debug.LogWarning("[SkillUI] SkillController를 찾지 못함!");
-        else
-            Debug.Log("[SkillUI] SkillController를 정상적으로 찾음!");
-
-        if (skillController != null)
-        {
-            // SkillController의 쿨다운 시간은 항상 UI에서 입력한 값으로 동기화
-            skillController.cooldownTime = cooldownTime;
-        }
+        Debug.Log("[SkillUI] SkillUIController 초기화 시작");
+        InitializeSkillController();
+        ValidateComponents();
     }
 
     void Update()
     {
+        // UI 업데이트를 0.1초마다만 실행하여 성능 최적화
+        if (Time.time - lastUpdateTime >= UPDATE_INTERVAL)
+        {
+            UpdateCooldownUI();
+            lastUpdateTime = Time.time;
+        }
+    }
+
+    /// <summary>
+    /// SkillController 초기화 및 쿨다운 시간 동기화
+    /// </summary>
+    private void InitializeSkillController()
+    {
+        skillController = FindObjectOfType<SkillController>();
+        if (skillController == null)
+        {
+            Debug.LogWarning("[SkillUI] SkillController를 찾지 못함! 씬에 SkillController가 있는지 확인하세요.");
+            return;
+        }
+
+        Debug.Log("[SkillUI] SkillController를 정상적으로 찾음!");
+        
+        // SkillController의 쿨다운 시간은 항상 UI에서 입력한 값으로 동기화
+        skillController.cooldownTime = cooldownTime;
+        Debug.Log($"[SkillUI] 쿨다운 시간 동기화 완료: {cooldownTime}초");
+    }
+
+    /// <summary>
+    /// 필수 컴포넌트들이 올바르게 할당되었는지 검증
+    /// </summary>
+    private void ValidateComponents()
+    {
+        if (cooldownImage == null)
+        {
+            Debug.LogWarning("[SkillUI] CooldownImage가 할당되지 않았습니다! Inspector에서 할당해주세요.");
+        }
+        else
+        {
+            Debug.Log("[SkillUI] 모든 컴포넌트가 정상적으로 할당됨");
+        }
+    }
+
+    /// <summary>
+    /// 쿨다운 UI 업데이트 (성능 최적화됨)
+    /// </summary>
+    private void UpdateCooldownUI()
+    {
         if (skillController != null && cooldownImage != null)
         {
             float remain = skillController.GetCooldownRemaining();
-            cooldownImage.fillAmount = remain / skillController.CooldownTime;
-            Debug.Log($"[SkillUI] remain: {remain}, fill: {cooldownImage.fillAmount}, cooldown: {skillController.CooldownTime}");
+            float newFillAmount = remain / skillController.CooldownTime;
+            
+            // fillAmount가 실제로 변경되었을 때만 업데이트
+            if (Mathf.Abs(cooldownImage.fillAmount - newFillAmount) > 0.01f)
+            {
+                cooldownImage.fillAmount = newFillAmount;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 스킬 버튼이 클릭되었을 때 호출되는 공용 메서드
+    /// Unity Button의 OnClick 이벤트에서 호출됩니다.
+    /// </summary>
+    public void OnSkillButtonPressed()
+    {
+        if (skillController == null)
+        {
+            Debug.LogWarning("[SkillUI] 스킬 버튼이 눌렸지만 SkillController를 찾을 수 없습니다!");
+            // SkillController를 다시 찾아보기
+            InitializeSkillController();
+            return;
+        }
+
+        // SkillController의 스킬 활성화 메서드 호출 (TriggerSkill 사용)
+        skillController.TriggerSkill();
+        Debug.Log("[SkillUI] 스킬 버튼 클릭 - 스킬 활성화 요청");
+    }
+
+    /// <summary>
+    /// 런타임에서 쿨다운 시간을 변경할 때 사용하는 공용 메서드
+    /// </summary>
+    public void SetCooldownTime(float newCooldownTime)
+    {
+        cooldownTime = newCooldownTime;
+        if (skillController != null)
+        {
+            skillController.cooldownTime = cooldownTime;
+            Debug.Log($"[SkillUI] 쿨다운 시간이 {newCooldownTime}초로 변경됨");
         }
     }
 } 

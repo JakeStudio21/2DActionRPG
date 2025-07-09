@@ -186,9 +186,10 @@ public class PlayerController : Singleton<PlayerController>
 
      private void Dash() 
      {
-          if ( !isDashing && Stamina.Instance.CurrentStamina > 0 ) 
+          // Stamina 체크 제거 - 이제 스태미나 제한 없이 대시 가능
+          if ( !isDashing ) 
           {
-               Stamina.Instance.UseStamina();              
+               // Stamina.Instance.UseStamina(); // 주석처리              
                isDashing = true;
                moveSpeed += dashspeed;
                myTrailRenderer.emitting = true;

@@ -142,6 +142,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa49b180baeba8745a7260432d4d2ea3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &3371216426920252758
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1261431982474399400}
+  - component: {fileID: 2037765482293775017}
+  m_Layer: 0
+  m_Name: SaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1261431982474399400
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3371216426920252758}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7166106308255166314}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2037765482293775017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3371216426920252758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33a53fedd8d571e41b41a20a2d141d1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4551174199403022705
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,7 +197,7 @@ GameObject:
   - component: {fileID: 707569810263958521}
   - component: {fileID: 3308584340945169312}
   m_Layer: 0
-  m_Name: EconomyManager
+  m_Name: PlayerManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,9 +227,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4551174199403022705}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53902a4307dc3ed43ae5d2efbcced2ac, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e1504eea15f8cb4e860dcc8f5a713f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterIndex: 0
+  currentGold: 0
 --- !u!1 &7290968884572180690
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,6 +266,7 @@ Transform:
   - {fileID: 5721320510519839973}
   - {fileID: 707569810263958521}
   - {fileID: 1185670323770083567}
+  - {fileID: 1261431982474399400}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3372882857287383389

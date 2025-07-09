@@ -159,13 +159,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6830296691463287077}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 307c69a49daae984eb99dce0d1913082, type: 3}
+  m_Script: {fileID: 11500000, guid: 593d99897da702340afd15fa81edfc3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 8
+  moveSpeed: 22
   particleOnHitPrefabVFX: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
   isEnemyProjectile: 1
-  projectileRange: 30
+  projectileRange: 10
+  arrowEffectPrefabs: []
 --- !u!114 &-1754987645752490569
 MonoBehaviour:
   m_ObjectHideFlags: 0

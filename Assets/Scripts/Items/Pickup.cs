@@ -7,7 +7,7 @@ public class Pickup : MonoBehaviour
     private enum PickUpType
     {
         GoldCoin,
-        StaminaGlobe,
+        // StaminaGlobe, // 주석처리
         HealthGlobe,
     }
     [SerializeField] private PickUpType pickUpType;
@@ -97,10 +97,11 @@ public class Pickup : MonoBehaviour
                 Debug.Log("HealthGlobe");
                 break;
             
-            case PickUpType.StaminaGlobe:
-                Stamina.Instance.RefreshStamina();
-                Debug.Log("StaminaGlobe");
-                break;
+            // StaminaGlobe 케이스 완전 주석처리
+            // case PickUpType.StaminaGlobe:
+            //     Stamina.Instance.RefreshStamina();
+            //     Debug.Log("StaminaGlobe");
+            //     break;
         }
     }
 }
