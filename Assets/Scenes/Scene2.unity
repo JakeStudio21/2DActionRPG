@@ -161,6 +161,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8817179748382050284, guid: 97653905a8b68b942a2b2a51c4336370, type: 3}
   m_PrefabInstance: {fileID: 1460045169}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &89701617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 89701618}
+  m_Layer: 0
+  m_Name: 'PlayerSpawnPoint '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &89701618
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89701617}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -3.8999999, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &92578788 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2730600031695642617, guid: 28f4793c27a739349b61d368325722d8, type: 3}
@@ -389,9 +420,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 568a1d5ee86c5d141acf05a4c0c09711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetAreaName: 
+  portalName: 
+  requiresBossDefeat: 0
+  directTargetPosition: {fileID: 0}
+  portalGate: {fileID: 0}
   sceneToLoad: Scene1
   SceneTransitionName: EEntry
-  portalGate: {fileID: 0}
 --- !u!61 &138018454
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -54786,9 +54821,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 568a1d5ee86c5d141acf05a4c0c09711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetAreaName: 
+  portalName: 
+  requiresBossDefeat: 0
+  directTargetPosition: {fileID: 0}
+  portalGate: {fileID: 2057471751}
   sceneToLoad: Scene3
   SceneTransitionName: WEntry
-  portalGate: {fileID: 2057471751}
 --- !u!61 &1328761902
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -61300,6 +61339,57 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6288148089884935818, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
   m_PrefabInstance: {fileID: 1885942205}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1887795617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1887795619}
+  - component: {fileID: 1887795618}
+  m_Layer: 0
+  m_Name: PlayerSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1887795618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887795617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 289422e6503f31441a0a3a70b057a49d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warriorPrefab: {fileID: 7542120236176968360, guid: d94ca6159cff23349bd27586688d7d67, type: 3}
+  assassinPrefab: {fileID: 7542120236176968360, guid: 120398e7ca312d242813fdcb88cc86b6, type: 3}
+  wizardPrefab: {fileID: 7542120236176968360, guid: 84e73233890426b4880d50f618a47421, type: 3}
+  swordWeaponInfo: {fileID: 11400000, guid: 2640a11ddbbe5c047b06868581cc8070, type: 2}
+  bowWeaponInfo: {fileID: 11400000, guid: 623a0a1784bb1a94bbfde7624c0e127e, type: 2}
+  staffWeaponInfo: {fileID: 11400000, guid: 0535f65c77337cf4cb66260b5726c252, type: 2}
+  spawnPoint: {fileID: 89701618}
+--- !u!4 &1887795619
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887795617}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -5.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1890507038
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -62658,7 +62748,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1480355546}
   - {fileID: 619394802}
-  - {fileID: 1144675097}
   - {fileID: 1953800541}
   - {fileID: 346649876}
   - {fileID: 988684900}
@@ -62667,4 +62756,7 @@ SceneRoots:
   - {fileID: 983902064}
   - {fileID: 820630333}
   - {fileID: 29733076}
+  - {fileID: 1144675097}
   - {fileID: 138018455}
+  - {fileID: 1887795619}
+  - {fileID: 89701618}

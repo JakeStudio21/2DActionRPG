@@ -4,14 +4,41 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq; // LINQ 사용
 
-
+/// <summary>
+/// ⭐ 수정: 씬 내 포털 이동 시스템 (기존 씬 이동에서 변경)
+/// FSMStageController를 통한 통합 관리
+/// </summary>
 public class AreaExit : MonoBehaviour
 {
-    [SerializeField] private string sceneToLoad;
-    [SerializeField] private string SceneTransitionName;
+    [Header("포털 설정")]
+    [SerializeField] private string targetAreaName; // AreaEntrance의 transitionName과 매칭
+    [SerializeField] private string portalName; // 포털 식별자 (디버그용)
+    [SerializeField] private bool requiresBossDefeat = false; // 보스 격파 필요 여부
+    
+    [Header("직접 위치 설정 (선택사항)")]
+    [SerializeField] private Transform directTargetPosition; // AreaEntrance 대신 직접 위치 지정 가능
+    
+    [Header("포털 게이트")]
     [SerializeField] private GameObject portalGate; // 문 오브젝트 연결
 
-    private float waitToLoadTime = 1f;
+    [Header("⭐ 사용 중단 예정 (기존 호환성)")]
+    [SerializeField] private string sceneToLoad; // 사용 안함 (기존 호환성 유지)
+    [SerializeField] private string SceneTransitionName; // targetAreaName으로 대체됨
+
+    private void Start()
+    {
+        // 기존 필드값을 새 필드로 마이그레이션
+        if (string.IsNullOrEmpty(targetAreaName) && !string.IsNullOrEmpty(SceneTransitionName))
+        {
+            targetAreaName = SceneTransitionName;
+            Debug.Log($"[AreaExit] 기존 SceneTransitionName '{SceneTransitionName}'을 targetAreaName으로 마이그레이션");
+        }
+        
+        if (string.IsNullOrEmpty(portalName))
+        {
+            portalName = gameObject.name;
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -20,134 +47,133 @@ public class AreaExit : MonoBehaviour
             return;
         }
 
-        // ⭐ 수정: FSMStageController 사용
+        // ⭐ 수정: FSMStageController를 통한 포털 이동
         if (FSMStageController.Instance != null)
         {
-            // 전환 정보 설정
-            FSMStageController.Instance.SetTransitionInfo(SceneTransitionName);
+            Debug.Log($"[AreaExit] 포털 '{portalName}' 트리거 - 목표: {targetAreaName}");
             
-            // 보스 격파 확인 후 씬 전환
-            if (FSMStageController.Instance.TryTransitionWithBossCheck(sceneToLoad))
+            // 직접 위치가 지정된 경우
+            if (directTargetPosition != null)
             {
-                Debug.Log($"[AreaExit] FSMStageController를 통한 씬 전환: {sceneToLoad}");
+                bool success = FSMStageController.Instance.TryPortalMovementWithBossCheck(
+                    directTargetPosition.position, 
+                    targetAreaName, 
+                    requiresBossDefeat
+                );
+                
+                if (success)
+                {
+                    Debug.Log($"[AreaExit] 직접 위치로 포털 이동: {directTargetPosition.position}");
+                }
+                return;
+            }
+
+            // AreaEntrance를 찾아서 해당 위치로 이동
+            AreaEntrance targetEntrance = FindTargetAreaEntrance();
+            if (targetEntrance != null)
+            {
+                bool success = FSMStageController.Instance.TryPortalMovementWithBossCheck(
+                    targetEntrance.transform.position, 
+                    targetAreaName, 
+                    requiresBossDefeat
+                );
+                
+                if (success)
+                {
+                    Debug.Log($"[AreaExit] AreaEntrance로 포털 이동: {targetEntrance.transform.position}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[AreaExit] '{targetAreaName}' 이름의 AreaEntrance를 찾을 수 없습니다!");
             }
         }
         else
         {
-            // ⭐ 백업: 기존 시스템 사용 (FSMStageController가 없는 경우)
-            Debug.LogWarning("[AreaExit] FSMStageController가 없습니다. 기존 시스템 사용.");
-            
-            SceneManagement.Instance.SetTransitionName(SceneTransitionName);
-            
-            // 씬에 있는 모든 EnemyHealth 중 isBoss == true인 오브젝트 찾기
-            EnemyHealth boss = FindObjectsOfType<EnemyHealth>()
-                .FirstOrDefault(e => e.isBoss);
+            Debug.LogError("[AreaExit] FSMStageController를 찾을 수 없습니다!");
+        }
+    }
 
-            // 보스가 null(이미 Destroy됨) 이거나, isDead==true면 씬 이동
-            if ((boss == null) || (boss != null && boss.isDead))
+    /// <summary>
+    /// 목표 AreaEntrance 찾기
+    /// </summary>
+    private AreaEntrance FindTargetAreaEntrance()
+    {
+        AreaEntrance[] entrances = FindObjectsOfType<AreaEntrance>();
+        
+        foreach (var entrance in entrances)
+        {
+            // Reflection으로 transitionName 가져오기
+            var field = entrance.GetType().GetField("transitionName", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (field != null)
             {
-                Debug.Log("보스가 죽었으니 씬 이동!");
-                StartCoroutine(LoadSceneRoutine());
-            }
-            else
-            {
-                Debug.Log("보스를 먼저 처치해야 합니다!");
+                string entranceName = (string)field.GetValue(entrance);
+                if (entranceName == targetAreaName)
+                {
+                    return entrance;
+                }
             }
         }
+        
+        return null;
     }
 
     private void Update()
     {
-        EnemyHealth boss = FindObjectsOfType<EnemyHealth>()
-            .FirstOrDefault(e => e.isBoss);
+        UpdatePortalGate();
+    }
 
-        // 보스가 없거나(이미 Destroy됨), 죽었으면 문을 비활성화
-        if ((boss == null) || (boss != null && boss.isDead))
+    /// <summary>
+    /// 포털 게이트 상태 업데이트
+    /// </summary>
+    private void UpdatePortalGate()
+    {
+        if (portalGate == null) return;
+
+        bool shouldGateBeOpen = !requiresBossDefeat || IsBossDefeated();
+        
+        // 게이트가 닫혀있어야 할 때는 활성화, 열려있어야 할 때는 비활성화
+        if (portalGate.activeSelf == shouldGateBeOpen)
         {
-            if (portalGate != null && portalGate.activeSelf)
+            portalGate.SetActive(!shouldGateBeOpen);
+            
+            if (!shouldGateBeOpen)
             {
-                Debug.Log("문 비활성화!");
-                portalGate.SetActive(false);
+                Debug.Log($"[AreaExit] '{portalName}' 포털 게이트 닫힘 (보스 격파 필요)");
             }
-        }
-        else
-        {
-            if (portalGate != null && !portalGate.activeSelf)
+            else
             {
-                Debug.Log("문 활성화!");
-                portalGate.SetActive(true);
+                Debug.Log($"[AreaExit] '{portalName}' 포털 게이트 열림 (보스 격파 완료)");
             }
         }
     }
 
-
-    private IEnumerator LoadSceneRoutine()
+    /// <summary>
+    /// 보스 격파 여부 확인
+    /// </summary>
+    private bool IsBossDefeated()
     {
-        while (waitToLoadTime >= 0)
+        EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
+        
+        foreach (var enemy in allEnemies)
         {
-            waitToLoadTime -= Time.deltaTime;
-            yield return null;
+            if (enemy.isBoss && !enemy.isDead)
+            {
+                return false; // 살아있는 보스가 있음
+            }
         }
+        return true; // 모든 보스가 죽었거나 보스가 없음
+    }
 
-        SceneManager.LoadScene(sceneToLoad);
+    /// <summary>
+    /// 포털 정보 가져오기 (디버그용)
+    /// </summary>
+    public string GetPortalInfo()
+    {
+        return $"Portal: {portalName} → {targetAreaName} (Boss Required: {requiresBossDefeat})";
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-// public class AreaExit : MonoBehaviour
-// {
-//     [SerializeField] private string sceneToLoad;
-//     [SerializeField] private string SceneTransitionName;
-
-//     private float waitToLoadTime = 1f;
-
-//     private void OnTriggerEnter2D(Collider2D other)
-//     {
-//         if (other.gameObject.GetComponent<PlayerController>())
-//         {
-//             SceneManagement.Instance.SetTransitionName(SceneTransitionName);
-//             UIFade.Instance.FadeToBlack();
-//             StartCoroutine(LoadSceneRoutine());
-//         }
-        
-//         if (other.CompareTag("Player"))
-//         {
-//             // 씬에 있는 모든 EnemyHealth 중 isBoss == true인 오브젝트 찾기
-//             EnemyHealth boss = FindObjectsOfType<EnemyHealth>()
-//                 .FirstOrDefault(e => e.isBoss);
-
-//             if (boss != null && boss.isDead)
-//             {
-//                 // 보스가 죽었으면 씬 이동
-//                 SceneManager.LoadScene(sceneToLoad);
-//             }
-//             else
-//             {
-//                 Debug.Log("보스를 먼저 처치해야 합니다!");
-//             }
-//         }
-
-
-//     }
-
-//     private IEnumerator LoadSceneRoutine() {
-//         while (waitToLoadTime >= 0)
-//         {
-//             waitToLoadTime -= Time.deltaTime;
-//             yield return null;
-//         }
-
-//         SceneManager.LoadScene(sceneToLoad);
-//     }
-// }
+// ⭐ 기존 코드 제거됨 (씬 이동 로직)

@@ -113,9 +113,19 @@ public class PlayerHealth : Singleton<PlayerHealth>
             }
             currentHealth = 0;
             GetComponent<Animator>().SetTrigger(DEATH_HASH);
-            StartCoroutine(DeathLoadSceneRoutine());
             
-            // 추가: 플레이어 입력 비활성화 등이 필요하다면 여기서 처리
+            // ⭐ 수정: FSMStageController를 통한 Defeat 처리
+            if (FSMStageController.Instance != null)
+            {
+                FSMStageController.Instance.TriggerDefeat();
+                StartCoroutine(DeathLoadSceneRoutine()); // 기존 팝업 표시 로직 유지
+            }
+            else
+            {
+                // 백업: 기존 방식
+                Debug.LogWarning("[PlayerHealth] FSMStageController를 찾을 수 없습니다. 기존 방식 사용.");
+                StartCoroutine(DeathLoadSceneRoutine());
+            }
         }
     }
 

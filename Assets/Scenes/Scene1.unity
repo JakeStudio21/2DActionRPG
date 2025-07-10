@@ -178,6 +178,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime (21)
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -307,6 +311,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b35ae152e9cb2549b8967f930ca17bc, type: 3}
+--- !u!1 &113968291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 113968292}
+  m_Layer: 0
+  m_Name: PortalSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &113968292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113968291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -19.2, y: -6.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1780940113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &151643131 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8817179748382050284, guid: 97653905a8b68b942a2b2a51c4336370, type: 3}
@@ -15950,6 +15985,117 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8624914559476540002, guid: cbed9d33189d7814cb20e2f3cfba91ff, type: 3}
   m_PrefabInstance: {fileID: 275271444}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &438980691
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 438980692}
+  - component: {fileID: 438980695}
+  - component: {fileID: 438980694}
+  - component: {fileID: 438980693}
+  m_Layer: 0
+  m_Name: PortalB_Exit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &438980692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438980691}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -2.9, y: 29.2, z: -0.32581604}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1780940113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &438980693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438980691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f900f912e45dc04cb967cf245078a55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!114 &438980694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438980691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 568a1d5ee86c5d141acf05a4c0c09711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAreaName: SecretAreaB
+  portalName: SecretPortalB
+  requiresBossDefeat: 0
+  directTargetPosition: {fileID: 0}
+  portalGate: {fileID: 1303257278}
+  sceneToLoad: 
+  SceneTransitionName: 
+--- !u!61 &438980695
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438980691}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.0825901, y: 0.04129544}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.1651802, y: 1.6331966}
+  m_EdgeRadius: 0
 --- !u!1001 &447082606
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16006,11 +16152,60 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+--- !u!1 &592008893
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 592008894}
+  - component: {fileID: 592008895}
+  m_Layer: 0
+  m_Name: PortalB_Entrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &592008894
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592008893}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -30.1, y: -15, z: -0.32581604}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1780940113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &592008895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592008893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd1ef75a189875e42b13676385a1812d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transitionName: SecretAreaB
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -20339,6 +20534,10 @@ PrefabInstance:
     - target: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: m_Name
       value: Blue_slime (12)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -50545,11 +50744,11 @@ Transform:
   m_GameObject: {fileID: 1303257278}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 21.661606, y: -16.20356, z: -0.0011677742}
+  m_LocalPosition: {x: 1.9638348, y: 1.3468914, z: -0.32581604}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1740547608}
+  m_Father: {fileID: 1780940113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1303257281
 MonoBehaviour:
@@ -50665,6 +50864,10 @@ PrefabInstance:
     - target: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: m_Name
       value: Blue_slime (10)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -50798,6 +51001,10 @@ PrefabInstance:
     - target: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: m_Name
       value: Blue_slime (16)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -51113,6 +51320,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -51180,40 +51391,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2730600031695642617, guid: 8de7bbbeba242564ca4226703b136aa2, type: 3}
   m_PrefabInstance: {fileID: 1075634635}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1740547607
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1740547608}
-  m_Layer: 0
-  m_Name: Gate
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1740547608
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1740547607}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.2216048, y: 15.193561, z: -0.033159234}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1303257280}
-  - {fileID: 2139919999}
-  - {fileID: 1860396378}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1746337306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51323,6 +51500,46 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
+--- !u!1 &1780940112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1780940113}
+  m_Layer: 0
+  m_Name: Portal
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1780940113
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1780940112}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.476166, y: -2.3568907, z: 0.29148903}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1303257280}
+  - {fileID: 2139919999}
+  - {fileID: 1860396378}
+  - {fileID: 4278854094907444626}
+  - {fileID: 8842702640050405553}
+  - {fileID: 2558409273306031068}
+  - {fileID: 113968292}
+  - {fileID: 438980692}
+  - {fileID: 592008894}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1849622153 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2730600031695642617, guid: 5b35ae152e9cb2549b8967f930ca17bc, type: 3}
@@ -51449,12 +51666,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1860396377}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.8, y: 3.25, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -31.497772, y: 20.800453, z: -0.32464826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1740547608}
+  m_Father: {fileID: 1780940113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1860396379
 MonoBehaviour:
@@ -51632,6 +51849,10 @@ PrefabInstance:
     - target: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: m_Name
       value: Boss_Blue_slime
+      objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5752732880782816917, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: isBoss
@@ -51820,6 +52041,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -51942,6 +52167,10 @@ PrefabInstance:
     - target: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: m_Name
       value: Blue_slime (14)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -52066,6 +52295,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime (19)
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -52103,12 +52336,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2139919998}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.21, y: 3.25, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.487771, y: 20.800453, z: -0.32464826}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1740547608}
+  m_Father: {fileID: 1780940113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2139920000
 MonoBehaviour:
@@ -52275,6 +52508,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime (22)
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -52415,6 +52652,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue_slime
       objectReference: {fileID: 0}
+    - target: {fileID: 4521715131620607560, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+      propertyPath: attackRange
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -52432,9 +52673,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 568a1d5ee86c5d141acf05a4c0c09711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToLoad: Scene2
-  SceneTransitionName: WEntry
+  targetAreaName: SecretAreaA
+  portalName: SecretPortalA
+  requiresBossDefeat: 0
+  directTargetPosition: {fileID: 0}
   portalGate: {fileID: 1303257278}
+  sceneToLoad: 
+  SceneTransitionName: 
 --- !u!1 &1062129398947231377
 GameObject:
   m_ObjectHideFlags: 0
@@ -52448,7 +52693,7 @@ GameObject:
   - component: {fileID: 959607188293217245}
   - component: {fileID: 4873210932580361091}
   m_Layer: 0
-  m_Name: AreaExit
+  m_Name: PortalA_Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52466,7 +52711,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd1ef75a189875e42b13676385a1812d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transitionName: EEntry
+  transitionName: SecretAreaA
 --- !u!1001 &1737632994758027044
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52607,12 +52852,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2839728708584444980}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.98, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -16.836164, y: 23.946892, z: -0.32581604}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4278854094907444626}
+  m_Father: {fileID: 1780940113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2621423110914741834
 PrefabInstance:
@@ -52682,7 +52927,7 @@ GameObject:
   - component: {fileID: 2558409273306031068}
   - component: {fileID: 1575425089320298913}
   m_Layer: 0
-  m_Name: AreaEntrance
+  m_Name: PortalA_Entrance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52696,14 +52941,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1062129398947231377}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.44, y: -1.01, z: -0.034327008}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.9638348, y: 1.3468907, z: -0.32581604}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2558409273306031068}
-  - {fileID: 8842702640050405553}
-  m_Father: {fileID: 0}
+  m_Children: []
+  m_Father: {fileID: 1780940113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &4490269137938567718
 ParticleSystem:
@@ -57617,12 +57860,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1744113750665154685}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.075, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.0388355, y: 1.3468907, z: -0.32581604}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4278854094907444626}
+  m_Father: {fileID: 1780940113}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -57633,10 +57876,9 @@ SceneRoots:
   - {fileID: 1953800541}
   - {fileID: 346649876}
   - {fileID: 988684900}
-  - {fileID: 4278854094907444626}
   - {fileID: 1746337306}
   - {fileID: 812894066}
   - {fileID: 1740776730031907312}
-  - {fileID: 1740547608}
   - {fileID: 1993821318}
   - {fileID: 1305896363}
+  - {fileID: 1780940113}

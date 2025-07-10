@@ -274,6 +274,57 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8817179748382050284, guid: 97653905a8b68b942a2b2a51c4336370, type: 3}
   m_PrefabInstance: {fileID: 302534649}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &165711788
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165711790}
+  - component: {fileID: 165711789}
+  m_Layer: 0
+  m_Name: PlayerSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &165711789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165711788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 289422e6503f31441a0a3a70b057a49d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warriorPrefab: {fileID: 7542120236176968360, guid: d94ca6159cff23349bd27586688d7d67, type: 3}
+  assassinPrefab: {fileID: 7542120236176968360, guid: 120398e7ca312d242813fdcb88cc86b6, type: 3}
+  wizardPrefab: {fileID: 7542120236176968360, guid: 84e73233890426b4880d50f618a47421, type: 3}
+  swordWeaponInfo: {fileID: 11400000, guid: 2640a11ddbbe5c047b06868581cc8070, type: 2}
+  bowWeaponInfo: {fileID: 11400000, guid: 623a0a1784bb1a94bbfde7624c0e127e, type: 2}
+  staffWeaponInfo: {fileID: 11400000, guid: 0535f65c77337cf4cb66260b5726c252, type: 2}
+  spawnPoint: {fileID: 1161511424}
+--- !u!4 &165711790
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165711788}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -2.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &173688104 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2730600031695642617, guid: 8de7bbbeba242564ca4226703b136aa2, type: 3}
@@ -20514,6 +20565,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 28f4793c27a739349b61d368325722d8, type: 3}
+--- !u!1 &1161511423
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1161511424}
+  m_Layer: 0
+  m_Name: 'PlayerSpawnPoint '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1161511424
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161511423}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.89999986, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1173767965
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -48515,7 +48597,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1875716624}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e063e8307f8af75428ff62d927fd58b8, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b740467db5224f4cbfc866af19b5b3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   finalBossAPrefab: {fileID: 3235174918318939483, guid: 1a8a3d179bc29054ca90fe7e600ab92e, type: 3}
@@ -54088,9 +54170,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 568a1d5ee86c5d141acf05a4c0c09711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetAreaName: 
+  portalName: 
+  requiresBossDefeat: 0
+  directTargetPosition: {fileID: 0}
+  portalGate: {fileID: 0}
   sceneToLoad: Scene2
   SceneTransitionName: EEntry
-  portalGate: {fileID: 0}
 --- !u!1 &7402280714321896534
 GameObject:
   m_ObjectHideFlags: 0
@@ -54229,3 +54315,5 @@ SceneRoots:
   - {fileID: 820630333}
   - {fileID: 518079120}
   - {fileID: 1875716626}
+  - {fileID: 165711790}
+  - {fileID: 1161511424}

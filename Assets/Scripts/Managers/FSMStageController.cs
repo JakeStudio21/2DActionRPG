@@ -53,6 +53,9 @@ public class FSMStageController : Singleton<FSMStageController>
     // 내부 상태
     private bool isTransitioning = false;
     private Dictionary<StageState, StageInfo> stageDict = new Dictionary<StageState, StageInfo>();
+    private bool victoryTriggered = false; // ⭐ 추가: Victory 중복 방지
+    private bool defeatTriggered = false;  // ⭐ 추가: Defeat 중복 방지
+    private string lastSceneName = ""; // ⭐ 추가: 씬 변경 감지용
 
     protected override void Awake()
     {
@@ -64,6 +67,206 @@ public class FSMStageController : Singleton<FSMStageController>
     {
         SetupDefaultStages();
         UpdateCurrentStageFromScene();
+    }
+
+    /// <summary>
+    /// ⭐ 수정: 승리 조건 자동 감지 + 씬 변경 감지
+    /// </summary>
+    private void Update()
+    {
+        // ⭐ 추가: 씬 변경 감지 (매우 가벼운 체크)
+        CheckSceneChange();
+        
+        // 게임 플레이 중일 때만 승리 조건 체크
+        if (!victoryTriggered && (currentStage == StageState.Scene1 || currentStage == StageState.Scene2 || currentStage == StageState.Scene3))
+        {
+            CheckVictoryCondition();
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 추가: 씬 변경 감지 및 스테이지 업데이트
+    /// </summary>
+    private void CheckSceneChange()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        
+        // 씬이 변경된 경우에만 실행
+        if (lastSceneName != currentSceneName)
+        {
+            Debug.Log($"[FSMStageController] 씬 변경 감지: {lastSceneName} → {currentSceneName}");
+            lastSceneName = currentSceneName;
+            
+            // Victory/Defeat 플래그 리셋 (새 씬에서 다시 판정 가능)
+            victoryTriggered = false;
+            defeatTriggered = false;
+            
+            // 스테이지 상태 업데이트
+            UpdateCurrentStageFromScene();
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 추가: 승리 조건 확인 및 처리
+    /// </summary>
+    private void CheckVictoryCondition()
+    {
+        var currentStageInfo = GetCurrentStageInfo();
+        if (currentStageInfo != null && currentStageInfo.requiresBossDefeat)
+        {
+            if (IsBossDefeated())
+            {
+                TriggerVictory();
+            }
+        }
+        else
+        {
+            // 보스 격파가 필요없는 스테이지에서도 보스가 있고 죽었다면 승리
+            if (IsBossDefeated() && HasAnyBoss())
+            {
+                TriggerVictory();
+            }
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 추가: 씬에 보스가 있는지 확인
+    /// </summary>
+    private bool HasAnyBoss()
+    {
+        EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy.isBoss)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// ⭐ 추가: Victory 상태 전환 및 팝업 표시
+    /// </summary>
+    public void TriggerVictory()
+    {
+        if (victoryTriggered) return; // 중복 방지
+
+        victoryTriggered = true;
+        currentStage = StageState.Victory;
+        OnStageChanged?.Invoke(currentStage);
+        
+        Debug.Log("[FSMStageController] Victory! 미션 완료");
+        
+        // Victory 팝업 표시
+        StartCoroutine(ShowVictoryPopupRoutine());
+    }
+
+    /// <summary>
+    /// ⭐ 추가: Victory 팝업 표시 코루틴
+    /// </summary>
+    private IEnumerator ShowVictoryPopupRoutine()
+    {
+        yield return new WaitForSeconds(0.5f); // 보스 죽음 연출 대기
+        
+        var resultPopup = FindObjectOfType<ResultPopupController>();
+        if (resultPopup != null)
+        {
+            resultPopup.Show(true); // Victory
+        }
+        else
+        {
+            Debug.LogError("[FSMStageController] ResultPopupController를 찾을 수 없습니다!");
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 추가: Defeat 상태 전환 및 팝업 표시
+    /// </summary>
+    public void TriggerDefeat()
+    {
+        if (defeatTriggered) return; // 중복 방지
+
+        defeatTriggered = true;
+        currentStage = StageState.GameOver;
+        OnStageChanged?.Invoke(currentStage);
+        
+        Debug.Log("[FSMStageController] Defeat! 게임 오버");
+        
+        // Defeat 팝업 표시는 PlayerHealth에서 기존대로 처리
+    }
+
+    /// <summary>
+    /// ⭐ 추가: 씬 내 포털 이동
+    /// </summary>
+    public void TriggerPortalMovement(Vector3 targetPosition, string transitionName = "")
+    {
+        if (isTransitioning) 
+        {
+            Debug.LogWarning("[FSMStageController] 이미 이동 중입니다.");
+            return;
+        }
+
+        StartCoroutine(PortalMovementCoroutine(targetPosition, transitionName));
+    }
+
+    /// <summary>
+    /// ⭐ 추가: 포털 이동 코루틴
+    /// </summary>
+    private IEnumerator PortalMovementCoroutine(Vector3 targetPosition, string transitionName)
+    {
+        isTransitioning = true;
+        
+        // 페이드 효과
+        if (UIFade.Instance != null)
+        {
+            UIFade.Instance.FadeToBlack();
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // 플레이어 이동
+        var player = FindObjectOfType<PlayerController>();
+        if (player != null)
+        {
+            player.transform.position = targetPosition;
+            Debug.Log($"[FSMStageController] 포털 이동: {targetPosition}");
+        }
+
+        // 전환 정보 설정
+        if (!string.IsNullOrEmpty(transitionName))
+        {
+            SetTransitionInfo(transitionName);
+        }
+
+        // 카메라 추적 재설정
+        if (CameraController.Instance != null)
+        {
+            CameraController.Instance.SetPlayerCameraFollow();
+        }
+
+        // 페이드 해제
+        if (UIFade.Instance != null)
+        {
+            yield return new WaitForSeconds(0.2f);
+            UIFade.Instance.FadeToClear();
+        }
+
+        isTransitioning = false;
+    }
+
+    /// <summary>
+    /// ⭐ 수정: 보스 격파 확인 후 포털 이동 가능 여부 체크
+    /// </summary>
+    public bool TryPortalMovementWithBossCheck(Vector3 targetPosition, string transitionName = "", bool requiresBossDefeat = false)
+    {
+        if (requiresBossDefeat && !IsBossDefeated())
+        {
+            Debug.LogWarning("[FSMStageController] 보스를 먼저 처치해야 합니다!");
+            return false;
+        }
+
+        TriggerPortalMovement(targetPosition, transitionName);
+        return true;
     }
 
     /// <summary>
@@ -91,7 +294,7 @@ public class FSMStageController : Singleton<FSMStageController>
         {
             stageInfos.Add(new StageInfo { stage = StageState.Lobby, sceneName = "Lobby", displayName = "로비", requiresBossDefeat = false, nextStage = StageState.Loading });
             stageInfos.Add(new StageInfo { stage = StageState.Loading, sceneName = "Loading", displayName = "로딩", requiresBossDefeat = false, nextStage = StageState.Scene1 });
-            stageInfos.Add(new StageInfo { stage = StageState.Scene1, sceneName = "Scene1", displayName = "1단계", requiresBossDefeat = false, nextStage = StageState.Scene2 });
+            stageInfos.Add(new StageInfo { stage = StageState.Scene1, sceneName = "Scene1", displayName = "1단계", requiresBossDefeat = true, nextStage = StageState.Scene2 });
             stageInfos.Add(new StageInfo { stage = StageState.Scene2, sceneName = "Scene2", displayName = "2단계", requiresBossDefeat = false, nextStage = StageState.Scene3 });
             stageInfos.Add(new StageInfo { stage = StageState.Scene3, sceneName = "Scene3", displayName = "3단계", requiresBossDefeat = true, nextStage = StageState.Victory });
         }
