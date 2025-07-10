@@ -26,6 +26,33 @@ public class PlayerSelectionData
 }
 
 /// <summary>
+/// 스테이지 선택 데이터 구조체
+/// </summary>
+[System.Serializable]
+public class StageSelectionData
+{
+    public int selectedStageNumber = 0; // 0 = 선택안함, 1-3 = 스테이지 번호
+    public string selectedSceneName = "";
+    
+    public StageSelectionData()
+    {
+        selectedStageNumber = 0;
+        selectedSceneName = "";
+    }
+    
+    public StageSelectionData(int stageNumber, string sceneName)
+    {
+        selectedStageNumber = stageNumber;
+        selectedSceneName = sceneName;
+    }
+    
+    public bool IsValid()
+    {
+        return selectedStageNumber > 0 && !string.IsNullOrEmpty(selectedSceneName);
+    }
+}
+
+/// <summary>
 /// 게임 전체 흐름을 관리하는 통합 매니저
 /// 씬 전환, 게임 상태, 정지/재시작 등을 제어
 /// </summary>
@@ -45,6 +72,10 @@ public class GameManager : Singleton<GameManager>
     // 런타임 플레이어 데이터 (DontDestroyOnLoad로 유지됨)
     [System.NonSerialized]
     private PlayerSelectionData runtimePlayerData = new PlayerSelectionData();
+    
+    // 런타임 스테이지 선택 데이터 (DontDestroyOnLoad로 유지됨)
+    [System.NonSerialized]
+    private StageSelectionData runtimeStageData = new StageSelectionData();
     
     // 게임 상태 열거형
     public enum GameState
@@ -88,10 +119,16 @@ public class GameManager : Singleton<GameManager>
     
     private void Start()
     {
-        // 초기 씬에서 자동으로 로비로 이동
+        // ⭐ 수정: 로비에서만 상태를 Lobby로 설정
         if (currentGameState == GameState.None)
         {
-            LoadLobbyScene();
+            // 씬 이름으로 현재 상태 판단
+            string currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName == lobbySceneName)
+            {
+                currentGameState = GameState.Lobby;
+            }
+            // 다른 씬에서는 자동 이동하지 않음
         }
     }
     
@@ -116,6 +153,12 @@ public class GameManager : Singleton<GameManager>
         {
             runtimePlayerData = new PlayerSelectionData();
         }
+        
+        // 런타임 스테이지 데이터 초기화
+        if (runtimeStageData == null)
+        {
+            runtimeStageData = new StageSelectionData();
+        }
     }
     
     /// <summary>
@@ -135,6 +178,34 @@ public class GameManager : Singleton<GameManager>
     public PlayerSelectionData GetRuntimePlayerData()
     {
         return runtimePlayerData;
+    }
+    
+    /// <summary>
+    /// 런타임 스테이지 데이터 설정 (StageSelectUIController에서 호출)
+    /// </summary>
+    public void SetSelectedStage(int stageNumber, string sceneName)
+    {
+        runtimeStageData.selectedStageNumber = stageNumber;
+        runtimeStageData.selectedSceneName = sceneName;
+        
+        Debug.Log($"[GameManager] 선택된 스테이지 설정: Stage {stageNumber} ({sceneName})");
+    }
+
+    /// <summary>
+    /// 런타임 스테이지 데이터 가져오기
+    /// </summary>
+    public StageSelectionData GetSelectedStageData()
+    {
+        return runtimeStageData;
+    }
+
+    /// <summary>
+    /// StageSelect 씬으로 이동
+    /// </summary>
+    public void LoadStageSelectScene()
+    {
+        currentGameState = GameState.Lobby; // StageSelect도 로비 상태로 간주
+        SceneManager.LoadScene("StageSelect");
     }
     
     /// <summary>

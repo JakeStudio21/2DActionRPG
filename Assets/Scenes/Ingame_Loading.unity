@@ -488,11 +488,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 786414069}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27f131d500a2aae42bd09cf6c4a554e9, type: 3}
+  m_Script: {fileID: 11500000, guid: 0086e43198ff4dc4280378d880586691, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   progressBar: {fileID: 2044172776}
-  loadingText: {fileID: 0}
+  loadingText: {fileID: 1561129508}
   tapToStartObj: {fileID: 0}
 --- !u!4 &786414071
 Transform:

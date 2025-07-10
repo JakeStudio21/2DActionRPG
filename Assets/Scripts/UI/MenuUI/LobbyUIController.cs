@@ -10,6 +10,7 @@ public class LobbyUIController : MonoBehaviour
     public Button warriorButton;
     public Button assassinButton;
     public Button playButton; // Play 버튼 연결
+    public Button mapButton; // ⭐ 추가: Map 버튼 연결
     public Image warriorPanelImage;   // Warrior 패널의 배경 Image
     public Image assassinPanelImage;  // Assassin 패널의 배경 Image
 
@@ -41,6 +42,11 @@ public class LobbyUIController : MonoBehaviour
             Debug.LogError("[LobbyUIController] playButton이 연결되지 않았습니다!");
         }
         
+        if (mapButton == null)
+        {
+            Debug.LogError("[LobbyUIController] mapButton이 연결되지 않았습니다!");
+        }
+        
         if (warriorPanelImage == null)
         {
             Debug.LogError("[LobbyUIController] warriorPanelImage가 연결되지 않았습니다!");
@@ -63,6 +69,9 @@ public class LobbyUIController : MonoBehaviour
             
         if (playButton != null)
             playButton.onClick.AddListener(OnClickPlay); // Play 버튼 리스너 연결
+            
+        if (mapButton != null)
+            mapButton.onClick.AddListener(OnMapButtonClicked); // ⭐ 추가: Map 버튼 리스너 연결
             
         Debug.Log("[LobbyUIController] 초기화 완료");
     }
@@ -145,7 +154,45 @@ public class LobbyUIController : MonoBehaviour
 
     public void OnGameMapButton()
     {
-        Debug.Log("게임맵 버튼 클릭!");
+        OnMapButtonClicked(); // 새로운 메서드로 리다이렉트
+    }
+
+    /// <summary>
+    /// ⭐ 추가: Map 버튼 클릭 처리 (StageSelect 씬으로 이동)
+    /// </summary>
+    public void OnMapButtonClicked()
+    {
+        Debug.Log("[LobbyUIController] Map 버튼 클릭! StageSelect 씬으로 이동합니다.");
+        
+        // 캐릭터가 선택되었는지 확인
+        if (LobbyManager.Instance == null)
+        {
+            Debug.LogError("[LobbyUIController] LobbyManager가 없습니다!");
+            return;
+        }
+
+        if (LobbyManager.Instance.playerSelection.selectedType == PlayerType.None)
+        {
+            Debug.LogWarning("[LobbyUIController] 캐릭터를 먼저 선택해주세요!");
+            // UI 피드백 추가 가능 (예: 텍스트 깜빡임, 알림 등)
+            return;
+        }
+
+        // 선택된 캐릭터 정보를 GameManager에 저장
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetRuntimePlayerData(
+                LobbyManager.Instance.playerSelection.selectedType,
+                LobbyManager.Instance.playerSelection.weaponName
+            );
+            
+            // StageSelect 씬으로 이동
+            GameManager.Instance.LoadStageSelectScene();
+        }
+        else
+        {
+            Debug.LogError("[LobbyUIController] GameManager가 없습니다!");
+        }
     }
 
     public void OnEnterBattleButton()

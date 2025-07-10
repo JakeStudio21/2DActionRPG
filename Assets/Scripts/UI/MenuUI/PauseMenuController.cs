@@ -51,8 +51,13 @@ public class PauseMenuController : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null) { Destroy(player); }
 
-        // GameObject managers = GameObject.Find("Managers");
-        // if (managers != null) { Destroy(managers); }
+        // ⭐ 수정: Managers 파괴 코드 활성화하여 중복 방지
+        GameObject managers = GameObject.Find("Managers");
+        if (managers != null) 
+        { 
+            Debug.Log("[PauseMenuController] 기존 Managers를 파괴하여 중복을 방지합니다.");
+            Destroy(managers); 
+        }
         
         if (Stamina.Instance != null) { Destroy(Stamina.Instance.gameObject); }
 
