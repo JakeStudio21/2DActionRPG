@@ -9,8 +9,7 @@ public class LobbyUIController : MonoBehaviour
     public TMP_Text playerNameInfoText;
     public Button warriorButton;
     public Button assassinButton;
-    public Button playButton; // Play 버튼 연결
-    public Button mapButton; // ⭐ 추가: Map 버튼 연결
+    public Button mapButton; // Map 버튼 연결
     public Image warriorPanelImage;   // Warrior 패널의 배경 Image
     public Image assassinPanelImage;  // Assassin 패널의 배경 Image
 
@@ -35,11 +34,6 @@ public class LobbyUIController : MonoBehaviour
         if (assassinButton == null)
         {
             Debug.LogError("[LobbyUIController] assassinButton이 연결되지 않았습니다!");
-        }
-        
-        if (playButton == null)
-        {
-            Debug.LogError("[LobbyUIController] playButton이 연결되지 않았습니다!");
         }
         
         if (mapButton == null)
@@ -67,11 +61,8 @@ public class LobbyUIController : MonoBehaviour
         if (assassinButton != null)
             assassinButton.onClick.AddListener(() => OnClassSelected("Assassin"));
             
-        if (playButton != null)
-            playButton.onClick.AddListener(OnClickPlay); // Play 버튼 리스너 연결
-            
         if (mapButton != null)
-            mapButton.onClick.AddListener(OnMapButtonClicked); // ⭐ 추가: Map 버튼 리스너 연결
+            mapButton.onClick.AddListener(OnMapButtonClicked); // Map 버튼 리스너 연결
             
         Debug.Log("[LobbyUIController] 초기화 완료");
     }
@@ -115,32 +106,6 @@ public class LobbyUIController : MonoBehaviour
             panelImage.color = isActive ? Color.white : new Color(0.5f, 0.5f, 0.5f, 0.5f);
         }
     }
-    
-    public void OnClickPlay()
-    {
-        if (LobbyManager.Instance == null)
-        {
-            Debug.LogError("[LobbyUIController] LobbyManager가 없습니다!");
-            return;
-        }
-
-        if (LobbyManager.Instance.playerSelection.selectedType == PlayerType.None)
-        {
-            Debug.LogWarning("Character Select!!");
-            return;
-        }
-
-        Debug.Log($"[Lobby] 로비를 떠납니다. 선택된 클래스: {LobbyManager.Instance.playerSelection.selectedType}, 무기: {LobbyManager.Instance.playerSelection.weaponName}");
-        
-        // ⭐ 수정: LobbyManager의 StartGame 메서드를 사용하여 데이터를 전달
-        LobbyManager.Instance.StartGame("Scene1");
-    }
-
-    public void OnPlayButton()
-    {
-        Debug.Log("Play 버튼 클릭! Scene1로 이동합니다.");
-        OnClickPlay(); // 동일한 로직 사용
-    }
 
     public void OnLogoutButton()
     {
@@ -158,7 +123,7 @@ public class LobbyUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// ⭐ 추가: Map 버튼 클릭 처리 (StageSelect 씬으로 이동)
+    /// Map 버튼 클릭 처리 (StageSelect 씬으로 이동)
     /// </summary>
     public void OnMapButtonClicked()
     {

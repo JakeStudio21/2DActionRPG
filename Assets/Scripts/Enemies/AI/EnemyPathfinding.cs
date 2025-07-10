@@ -30,7 +30,9 @@ public class EnemyPathfinding : MonoBehaviour
     }
 
     public void MoveTo(Vector2 targetPosition) {
-        moveDir = targetPosition;
+        // 현재 위치에서 목표 위치로의 방향벡터 계산
+        Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
+        moveDir = direction;
     }
 
     public void StopMoving() {
