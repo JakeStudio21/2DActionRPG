@@ -20308,7 +20308,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5752732880782816917, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: bossId
-      value: MiniBossB
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5752732880782816917, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: isBoss
@@ -51409,7 +51409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5752732880782816917, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: bossId
-      value: MiniBossA
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5752732880782816917, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
       propertyPath: isBoss

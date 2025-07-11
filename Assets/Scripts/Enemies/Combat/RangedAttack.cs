@@ -1,40 +1,54 @@
 using System.Collections;
 using UnityEngine;
 
-public class Grape : MonoBehaviour, IEnemy
+/// <summary>
+/// 원거리 공격 구현체 (Grape용)
+/// MonoBehaviour 컴포넌트로 구현하여 Inspector에서 설정 가능
+/// 기존 Grape.cs의 기능을 통합
+/// </summary>
+public class RangedAttack : MonoBehaviour, IAttackBehaviour
 {
-    [Header("Grape Settings")]
-    [SerializeField] private GameObject grapeProjectilePrefab;
+    [Header("Ranged Attack Settings")]
+    [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform projectileSpawnPoint;
+    [SerializeField] private int projectileDamage = 10;
     [SerializeField] private float projectileSpeed = 5f;
+    [SerializeField] private float predictionFactor = 0.5f;
+    [SerializeField] private bool stopMovingWhileAttacking = true;
     [SerializeField] private AudioClip attackSound;
-
-    private Animator myAnimator;
-    private SpriteRenderer spriteRenderer;
+    
+    private EnemyAI cachedEnemyAI;
+    private Animator animator;
     private AudioSource audioSource;
-    private EnemyAI enemyAI;
+    private SpriteRenderer spriteRenderer;
     private PlayerController cachedPlayer;
-
+    private bool canAttack = true;
+    
     readonly int ATTACK_HASH = Animator.StringToHash("Attack");
-
-    private void Awake() 
+    
+    private void Awake()
     {
-        myAnimator = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        audioSource = GetComponent<AudioSource>();
-        
+        // 발사 위치가 설정되지 않았으면 자신의 Transform 사용
         if (projectileSpawnPoint == null)
         {
             projectileSpawnPoint = transform;
         }
     }
-
-    private void Start()
+    
+    public void Initialize(EnemyAI enemyAI)
     {
+        cachedEnemyAI = enemyAI;
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        canAttack = true;
+        
         // 플레이어 참조 캐싱
         StartCoroutine(FindPlayerCoroutine());
+        
+        Debug.Log($"[RangedAttack] {enemyAI.gameObject.name} 원거리 공격 시스템 초기화 완료");
     }
-
+    
     private IEnumerator FindPlayerCoroutine()
     {
         while (cachedPlayer == null)
@@ -45,53 +59,80 @@ public class Grape : MonoBehaviour, IEnemy
                 yield return new WaitForSeconds(0.1f);
             }
         }
-        Debug.Log($"[Grape] {gameObject.name}이 플레이어를 찾았습니다.");
+        Debug.Log($"[RangedAttack] {cachedEnemyAI.gameObject.name}이 플레이어를 찾았습니다.");
     }
-
-    public void Attack(EnemyAI enemyAI) 
+    
+    public void Attack(EnemyAI enemyAI)
     {
-        this.enemyAI = enemyAI;
+        if (!CanAttack()) return;
         
-        if (myAnimator != null)
-        {
-            myAnimator.SetTrigger(ATTACK_HASH);
-        }
-
+        canAttack = false;
+        
         // 플레이어 방향으로 스프라이트 회전
         if (cachedPlayer != null && spriteRenderer != null)
         {
-            if (transform.position.x - cachedPlayer.transform.position.x < 0) 
+            if (transform.position.x - cachedPlayer.transform.position.x < 0)
             {
                 spriteRenderer.flipX = false;
-            } 
-            else 
+            }
+            else
             {
                 spriteRenderer.flipX = true;
             }
         }
-
+        
+        // 애니메이션 트리거
+        if (animator != null)
+        {
+            animator.SetTrigger(ATTACK_HASH);
+        }
+        
         // 공격 사운드 재생
         if (audioSource != null && attackSound != null)
         {
             audioSource.PlayOneShot(attackSound);
         }
+        
+        Debug.Log($"[RangedAttack] {gameObject.name} 원거리 공격 실행!");
+        
+        // 공격 쿨다운 시작
+        StartCoroutine(AttackCooldownRoutine(enemyAI.GetAttackCooldown()));
     }
-
-    // 애니메이션 이벤트에서 호출됨
-    public void SpawnProjectileAnimEvent() 
+    
+    public bool CanAttack()
     {
-        if (grapeProjectilePrefab == null) 
+        return canAttack;
+    }
+    
+    public bool ShouldStopMovingWhileAttacking()
+    {
+        return stopMovingWhileAttacking;
+    }
+    
+    private IEnumerator AttackCooldownRoutine(float cooldown)
+    {
+        yield return new WaitForSeconds(cooldown);
+        canAttack = true;
+    }
+    
+    /// <summary>
+    /// Animation Event에서 호출되는 발사체 생성
+    /// 기존 Grape.SpawnProjectileAnimEvent() 메서드를 대체
+    /// </summary>
+    public void SpawnProjectileAnimEvent()
+    {
+        if (projectilePrefab == null)
         {
-            Debug.LogWarning($"[Grape] {gameObject.name}의 grapeProjectilePrefab이 설정되지 않았습니다.");
+            Debug.LogWarning($"[RangedAttack] {cachedEnemyAI.gameObject.name}의 projectilePrefab이 설정되지 않았습니다.");
             return;
         }
-
+        
         Vector3 spawnPosition = projectileSpawnPoint.position;
         
         // GamePoolManager 사용 시도, 실패하면 Instantiate 사용
         GameObject proj = null;
         
-        try 
+        try
         {
             if (GamePoolManager.Instance != null)
             {
@@ -100,37 +141,30 @@ public class Grape : MonoBehaviour, IEnemy
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[Grape] GamePoolManager 사용 실패: {e.Message}");
+            Debug.LogWarning($"[RangedAttack] GamePoolManager 사용 실패: {e.Message}");
         }
-
+        
         // 풀링 실패 시 직접 생성
         if (proj == null)
         {
-            proj = Instantiate(grapeProjectilePrefab, spawnPosition, Quaternion.identity);
-            Debug.Log("[Grape] 프리팹을 직접 생성했습니다.");
+            proj = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+            Debug.Log("[RangedAttack] 프리팹을 직접 생성했습니다.");
         }
-
+        
         // 발사체 설정 및 예측 조준
         if (proj != null && proj.TryGetComponent(out GrapeProjectile grapeProjectile))
         {
             // 데미지 설정
-            if (enemyAI != null)
-            {
-                grapeProjectile.SetDamage(enemyAI.GetProjectileDamage());
-            }
-            else
-            {
-                grapeProjectile.SetDamage(1); // 기본 데미지
-            }
+            grapeProjectile.SetDamage(projectileDamage);
             
             // ⭐ 개선: 예측 조준으로 정확도 향상
             Vector3 targetPosition = GetPredictedPlayerPosition();
             grapeProjectile.LaunchToTarget(targetPosition);
             
-            Debug.Log($"[Grape] 예측 조준: 목표 위치 {targetPosition}");
+            Debug.Log($"[RangedAttack] 예측 조준: 목표 위치 {targetPosition}");
         }
         
-        Debug.Log($"[Grape] 발사체 생성 완료: {proj?.name}");
+        Debug.Log($"[RangedAttack] 발사체 생성 완료: {proj?.name}");
     }
     
     /// <summary>
@@ -140,7 +174,7 @@ public class Grape : MonoBehaviour, IEnemy
     {
         if (cachedPlayer == null)
         {
-            return transform.position + Vector3.right * 5f; // 기본 방향
+            return cachedEnemyAI.transform.position + Vector3.right * 5f; // 기본 방향
         }
         
         Vector3 currentPlayerPos = cachedPlayer.transform.position;
@@ -152,17 +186,18 @@ public class Grape : MonoBehaviour, IEnemy
             playerVelocity = playerRb.velocity;
         }
         
-        // 발사체 도달 시간 (GrapeProjectile의 duration과 일치)
-        float projectileTravelTime = 2f;
+        // 발사체 도달 시간 계산 (거리/속도)
+        float distance = Vector3.Distance(transform.position, currentPlayerPos);
+        float projectileTravelTime = distance / projectileSpeed;
         
-        // 예측 위치 = 현재 위치 + (속도 * 시간)
-        Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime);
+        // 예측 위치 = 현재 위치 + (속도 * 시간 * 예측 계수)
+        Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);
         
-        Debug.Log($"[Grape] 플레이어 현재위치: {currentPlayerPos}, 속도: {playerVelocity}, 예측위치: {predictedPosition}");
+        Debug.Log($"[RangedAttack] 플레이어 현재위치: {currentPlayerPos}, 속도: {playerVelocity}, 예측위치: {predictedPosition}");
         
         return predictedPosition;
     }
-
+    
     // 디버그용 Gizmo - 항상 표시 (Blue_slime 패턴 적용)
     private void OnDrawGizmos()
     {

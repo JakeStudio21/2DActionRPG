@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 8403660534966338527}
   - component: {fileID: -752092573500323026}
   - component: {fileID: 8998232531007038718}
-  - component: {fileID: 3931216295698002546}
+  - component: {fileID: 6118243705519806385}
   m_Layer: 0
   m_Name: FinalBossA
   m_TagString: Untagged
@@ -169,12 +169,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roamChangeDirFloat: 2
   attackRange: 0
-  enemyType: {fileID: 0}
   attackCooldown: 2
-  projectileDamage: 1
-  stopMovingWhileAttacking: 0
+  detectionRange: 8
+  chaseRange: 12
+  patrolRadius: 5
+  monsterType: 3
 --- !u!114 &5709947880115937855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,9 +269,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goldCoin: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
-  healthGlobe: {fileID: 0}
-  staminaGlobe: {fileID: 0}
+  canDropHealth: 1
+  canDropGold: 1
+  healthDropChance: 50
+  healthDropAmount: 1
+  goldDropChance: 50
+  goldDropMinAmount: 1
+  goldDropMaxAmount: 3
 --- !u!114 &8998232531007038718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,7 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
---- !u!114 &3931216295698002546
+--- !u!114 &6118243705519806385
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -294,16 +298,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
+  m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 0
-  attackDamage: 1
-  attackRange: 1
-  attackCooldown: 1.5
-  playerLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  animator: {fileID: 0}
-  audioSource: {fileID: 0}
+  meleeDamage: 10
+  stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}

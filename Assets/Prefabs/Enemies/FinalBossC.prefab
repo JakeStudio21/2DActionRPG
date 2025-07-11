@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 1737266867653641368}
   - component: {fileID: -7864033259713871080}
   - component: {fileID: 2120048153462600689}
-  - component: {fileID: 8031469924270498991}
+  - component: {fileID: -3944420249353713013}
   m_Layer: 0
   m_Name: FinalBossC
   m_TagString: Untagged
@@ -170,12 +170,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roamChangeDirFloat: 2
   attackRange: 0
-  enemyType: {fileID: 0}
   attackCooldown: 2
-  projectileDamage: 1
-  stopMovingWhileAttacking: 0
+  detectionRange: 8
+  chaseRange: 12
+  patrolRadius: 5
+  monsterType: 1
 --- !u!114 &4806062633314010792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,9 +261,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goldCoin: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
-  healthGlobe: {fileID: 0}
-  staminaGlobe: {fileID: 0}
+  canDropHealth: 1
+  canDropGold: 1
+  healthDropChance: 50
+  healthDropAmount: 1
+  goldDropChance: 50
+  goldDropMinAmount: 1
+  goldDropMaxAmount: 3
 --- !u!114 &2120048153462600689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277,7 +281,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!114 &8031469924270498991
+--- !u!114 &-3944420249353713013
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -286,7 +290,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 237821646944878469}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1735c0492d8c1ba47ac4ab0be9c72b67, type: 3}
+  m_Script: {fileID: 11500000, guid: 2e2aae89a37bd5f4d885bdfcfe1411cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
@@ -299,6 +303,8 @@ MonoBehaviour:
   restTime: 0.1
   stagger: 1
   oscillate: 1
+  attackSound: {fileID: 0}
+  audioSource: {fileID: 0}
 --- !u!1 &6522507364873470527
 GameObject:
   m_ObjectHideFlags: 0

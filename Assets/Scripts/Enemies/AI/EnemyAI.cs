@@ -16,27 +16,19 @@ public enum EnemyType
 public class EnemyAI : MonoBehaviour, IEnemy
 {
     [Header("AI Settings")]
-    [SerializeField] private float attackRange = 2.5f; // 공격 범위 (적절한 크기로 조정)
+    [SerializeField] private float attackRange = 2.5f;
     [SerializeField] private float attackCooldown = 2f;
-    [SerializeField] private bool stopMovingWhileAttacking = false;
     
     [Header("Detection Settings")]
-    [SerializeField] private float detectionRange = 6f; // 플레이어 감지 범위 (조정)
-    [SerializeField] private float chaseRange = 10f; // 추적 유지 범위 (조정)
+    [SerializeField] private float detectionRange = 8f; // 플레이어 감지 범위 (원거리 몬스터용 확대)
+    [SerializeField] private float chaseRange = 12f; // 추적 유지 범위 (원거리 몬스터용 확대)
     [SerializeField] private float patrolRadius = 5f; // 순찰 반경 (조정)
     
     [Header("Monster Type")]
     [SerializeField] private EnemyType monsterType = EnemyType.BlueSlime;
     
-    [Header("Attack Settings")]
-    [SerializeField] private int attackDamage = 1;
-    [SerializeField] private int projectileDamage = 1;
-    [SerializeField] private LayerMask playerLayerMask = 1 << 3; // Player layer
-    
-    [Header("Audio")]
-    [SerializeField] private AudioClip attackSound;
-
     private bool canAttack = true;
+    private IAttackBehaviour attackBehaviour;
 
     private enum State 
     {
@@ -87,6 +79,62 @@ public class EnemyAI : MonoBehaviour, IEnemy
         
         // 초기 상태를 Idle로 설정
         ChangeState(State.Idle);
+        
+        // ⭐ 공격 시스템 초기화
+        InitializeAttackSystem();
+    }
+    
+    /// <summary>
+    /// 공격 시스템 초기화 - 완전 모듈식 시스템
+    /// </summary>
+    private void InitializeAttackSystem()
+    {
+        // 몬스터 타입에 따라 적절한 공격 컴포넌트 찾기
+        switch (monsterType)
+        {
+            case EnemyType.BlueSlime:
+                attackBehaviour = GetComponent<MeleeAttack>();
+                break;
+                
+            case EnemyType.Grape:
+                attackBehaviour = GetComponent<RangedAttack>();
+                break;
+                
+            case EnemyType.Ghost:
+                attackBehaviour = GetComponent<MultiShotRangedAttack>();
+                break;
+                
+            case EnemyType.Boss:
+                // 보스는 현재 Ghost 스크립트를 사용하므로 일시적으로 Ghost 컴포넌트 사용
+                // 나중에 별도 보스 공격 시스템으로 교체 예정
+                var bossGhostComponent = GetComponent<Ghost>();
+                if (bossGhostComponent != null)
+                {
+                    Debug.Log($"[EnemyAI] {gameObject.name} - Boss 타입은 현재 Ghost 컴포넌트를 사용합니다 (Legacy)");
+                    return; // Ghost 컴포넌트가 있으면 그것을 사용
+                }
+                else
+                {
+                    // Ghost 컴포넌트가 없으면 MultiShotRangedAttack 시도
+                    attackBehaviour = GetComponent<MultiShotRangedAttack>();
+                }
+                break;
+                
+            default:
+                Debug.LogWarning($"[EnemyAI] {monsterType} 타입의 공격 컴포넌트를 찾을 수 없습니다.");
+                break;
+        }
+        
+        // 공격 시스템 초기화
+        if (attackBehaviour != null)
+        {
+            attackBehaviour.Initialize(this);
+            Debug.Log($"[EnemyAI] {gameObject.name} 모듈식 공격 시스템 적용: {attackBehaviour.GetType().Name}");
+        }
+        else
+        {
+            Debug.LogError($"[EnemyAI] {gameObject.name} - {monsterType} 타입의 공격 컴포넌트가 없습니다!");
+        }
     }
 
     private IEnumerator FindPlayerCoroutine()
@@ -259,22 +307,20 @@ public class EnemyAI : MonoBehaviour, IEnemy
     }
 
     /// <summary>
-    /// 공격 상태 - 공격 실행
+    /// 공격 상태 - 완전 모듈식 시스템
     /// </summary>
     private void AttackState()
     {
-        // 공격 중에는 이동 정지 (설정에 따라)
-        if (stopMovingWhileAttacking && enemyPathfinding != null)
+        // 공격 중에는 이동 정지
+        if (attackBehaviour != null && attackBehaviour.ShouldStopMovingWhileAttacking() && enemyPathfinding != null)
         {
             enemyPathfinding.StopMoving();
         }
         
         // 공격 실행 (한 번만)
-        if (canAttack)
+        if (attackBehaviour != null && attackBehaviour.CanAttack())
         {
-            canAttack = false;
-            Attack(this);
-            StartCoroutine(AttackCooldownRoutine());
+            attackBehaviour.Attack(this);
         }
         
         // 공격 후 추적으로 복귀 (짧은 딜레이)
@@ -343,123 +389,37 @@ public class EnemyAI : MonoBehaviour, IEnemy
     /// </summary>
     private void UpdateSpriteDirection()
     {
-        // EnemyPathfinding은 자체적으로 스프라이트 방향을 처리하므로
         // 여기서는 별도 처리하지 않음
         // (EnemyPathfinding.cs에서 spriteRenderer.flipX로 방향 조절)
     }
 
+    // ⭐ 모듈식 공격 시스템용 유틸리티 메서드들
+    public PlayerController GetCachedPlayer() => cachedPlayerController;
+    public float GetAttackRange() => attackRange;
+    public float GetAttackCooldown() => attackCooldown;
+    
     /// <summary>
-    /// IEnemy 인터페이스 구현 - 몬스터별 공격 로직
+    /// Legacy 코드 호환성을 위한 GetProjectileDamage() 메서드
+    /// </summary>
+    public int GetProjectileDamage()
+    {
+        // 기본 투사체 데미지 값 반환 (Legacy 호환성)
+        return 2;
+    }
+
+    /// <summary>
+    /// IEnemy 인터페이스 구현 - 완전 모듈식 공격 시스템
     /// </summary>
     public void Attack(EnemyAI enemyAI)
     {
-        StartCoroutine(AttackCoroutine());
-    }
-    
-    /// <summary>
-    /// 몬스터별 공격 실행 코루틴
-    /// </summary>
-    private IEnumerator AttackCoroutine()
-    {
-        switch (monsterType)
+        if (attackBehaviour != null)
         {
-            case EnemyType.BlueSlime:
-                yield return StartCoroutine(BlueSlimeAttack());
-                break;
-                
-            case EnemyType.Ghost:
-                // Ghost 공격 로직은 별도 컴포넌트에서 처리
-                var ghost = GetComponent<Ghost>();
-                if (ghost != null)
-                {
-                    ghost.Attack(this);
-                }
-                break;
-                
-            case EnemyType.Grape:
-                // Grape 공격 로직은 별도 컴포넌트에서 처리
-                var grape = GetComponent<Grape>();
-                if (grape != null)
-                {
-                    grape.Attack(this);
-                }
-                break;
-                
-            default:
-                Debug.LogWarning($"[EnemyAI] {monsterType} 타입의 공격이 구현되지 않았습니다.");
-                break;
+            attackBehaviour.Attack(this);
         }
-    }
-    
-    /// <summary>
-    /// BlueSlime 전용 공격 로직 - Animation Event 방식
-    /// </summary>
-    private IEnumerator BlueSlimeAttack()
-    {
-        Debug.Log($"[EnemyAI] {gameObject.name} - 공격 애니메이션 시작!");
-        
-        // 공격 애니메이션 트리거 (안전 처리)
-        if (animator != null)
+        else
         {
-            // Attack 트리거가 존재하는지 확인 후 실행
-            foreach (var param in animator.parameters)
-            {
-                if (param.name == "Attack" && param.type == AnimatorControllerParameterType.Trigger)
-                {
-                    animator.SetTrigger("Attack");
-                    break;
-                }
-            }
+            Debug.LogError($"[EnemyAI] {gameObject.name} - 공격 컴포넌트가 없습니다!");
         }
-        
-        // 공격 사운드 재생
-        if (audioSource != null && attackSound != null)
-        {
-            audioSource.PlayOneShot(attackSound);
-        }
-        
-        // 애니메이션이 끝날 때까지 대기 (Animation Event에서 데미지 처리)
-        yield return new WaitForSeconds(1f); // 애니메이션 길이에 맞춰 조정
-    }
-    
-    /// <summary>
-    /// Animation Event에서 호출되는 데미지 처리 함수
-    /// </summary>
-    public void OnAttackHit()
-    {
-        Debug.Log($"[EnemyAI] {gameObject.name} - Animation Event 데미지 적용!");
-        
-        // 플레이어에게 데미지 주기 (애니메이션 정확한 타이밍에 실행)
-        if (cachedPlayerController != null)
-        {
-            float distanceToPlayer = Vector2.Distance(transform.position, cachedPlayerController.transform.position);
-            if (distanceToPlayer <= attackRange)
-            {
-                PlayerHealth playerHealth = cachedPlayerController.GetComponent<PlayerHealth>();
-                if (playerHealth != null)
-                {
-                    playerHealth.TakeDamage(attackDamage, transform);
-                    Debug.Log($"[EnemyAI] {gameObject.name}이 플레이어에게 {attackDamage} 데미지를 입혔습니다. (Animation Event)");
-                }
-            }
-            else
-            {
-                Debug.Log($"[EnemyAI] {gameObject.name} - 공격 히트 시점에 플레이어가 범위를 벗어났습니다. (거리: {distanceToPlayer:F2})");
-            }
-        }
-    }
-
-    private IEnumerator AttackCooldownRoutine() 
-    {
-        yield return new WaitForSeconds(attackCooldown);
-        canAttack = true;
-    }
-
-
-
-    public int GetProjectileDamage()
-    {
-        return projectileDamage;
     }
 
     // 외부에서 플레이어 참조를 강제로 새로고침할 수 있는 메서드
@@ -469,21 +429,17 @@ public class EnemyAI : MonoBehaviour, IEnemy
     }
     
     /// <summary>
-    /// 충돌 감지 (접촉 데미지용)
+    /// 충돌 감지 (접촉 데미지용) - 모듈식 시스템에서는 사용하지 않음
     /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (enemyHealth != null && enemyHealth.isDead)
             return;
             
-        if ((playerLayerMask.value & (1 << other.gameObject.layer)) > 0)
+        // 모듈식 공격 시스템에서는 접촉 데미지를 사용하지 않음
+        if (attackBehaviour == null) // 모듈식 공격 시스템이 활성화되지 않았거나 공격 컴포넌트가 없는 경우
         {
-            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-            if (playerHealth != null && canAttack)
-            {
-                playerHealth.TakeDamage(attackDamage, transform);
-                Debug.Log($"[EnemyAI] {gameObject.name}이 접촉으로 플레이어에게 {attackDamage} 데미지를 입혔습니다.");
-            }
+            Debug.LogWarning($"[EnemyAI] {gameObject.name} - 접촉 데미지는 모듈식 공격 시스템에서 지원하지 않습니다.");
         }
     }
     

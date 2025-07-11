@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3129412517662644007}
   - component: {fileID: 4602630472629665941}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Trail Renderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -166,7 +166,7 @@ GameObject:
   - component: {fileID: 6988780603166527602}
   - component: {fileID: 8614579202396699507}
   - component: {fileID: 3358758540558703838}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WeaponCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -272,7 +272,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7264508375256867420}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SlashSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -305,7 +305,7 @@ GameObject:
   - component: {fileID: 3597342599379846293}
   - component: {fileID: 7429681287523315572}
   - component: {fileID: 1058237551594200504}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ActiveWeapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -377,7 +377,7 @@ GameObject:
   - component: {fileID: 4451406008786218953}
   - component: {fileID: 472274624499914740}
   - component: {fileID: 7968133305553475948}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Wizard
   m_TagString: Player
   m_Icon: {fileID: 0}

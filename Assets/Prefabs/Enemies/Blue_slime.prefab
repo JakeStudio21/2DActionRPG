@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 8403660534966338527}
   - component: {fileID: -752092573500323026}
   - component: {fileID: 8998232531007038718}
+  - component: {fileID: -2780638030353885555}
   m_Layer: 0
   m_Name: Blue_slime
   m_TagString: Untagged
@@ -181,6 +182,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   attackSound: {fileID: 0}
+  useModularAttackSystem: 1
 --- !u!114 &5709947880115937855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,3 +297,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
+--- !u!114 &-2780638030353885555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meleeDamage: 1
+  stopMovingWhileAttacking: 1
+  attackSound: {fileID: 0}
