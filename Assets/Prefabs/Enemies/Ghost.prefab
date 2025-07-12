@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 4
+  attackRange: 2
   attackCooldown: 3
   detectionRange: 4.5
   chaseRange: 5
@@ -294,13 +294,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
-  bulletMoveSpeed: 6
-  burstCount: 12
-  projectilesPerBurst: 1
-  angleSpread: 359
+  burstCount: 1
+  projectilesPerBurst: 8
+  angleSpread: 180
   startingDistance: 0.3
   timeBetweenBursts: 1
-  restTime: 0.1
+  restTime: 2
   stagger: 1
   oscillate: 1
   attackSound: {fileID: 0}

@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 5658600786359556931}
   - component: {fileID: 8208454278226545666}
   - component: {fileID: 8490142234187954587}
-  - component: {fileID: 4203261693018156521}
   - component: {fileID: -1754987645752490569}
   - component: {fileID: -3760367778752858608}
+  - component: {fileID: 7016564497356554667}
   m_Layer: 0
   m_Name: Ghost_Bullet
   m_TagString: Untagged
@@ -151,23 +151,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -0.016156733}
   serializedVersion: 2
   m_Radius: 0.25764912
---- !u!114 &4203261693018156521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6830296691463287077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 593d99897da702340afd15fa81edfc3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 22
-  particleOnHitPrefabVFX: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
-  isEnemyProjectile: 0
-  projectileRange: 10
-  arrowEffectPrefabs: []
 --- !u!114 &-1754987645752490569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,3 +179,22 @@ MonoBehaviour:
   fadeTime: 2
   fadeOnStart: 0
   destroyOnComplete: 1
+--- !u!114 &7016564497356554667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6830296691463287077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 035b8293b1f9b9d40afe42f0020b7b75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  projectileRange: 10
+  particleOnHitPrefabVFX: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  damageAmount: 1

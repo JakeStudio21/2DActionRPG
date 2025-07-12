@@ -88,8 +88,8 @@ MonoBehaviour:
     prefab: {fileID: 237821646944878469, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
     size: 20
   - tag: Ghost_Bullet
-    prefab: {fileID: 237821646944878469, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
-    size: 5
+    prefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
+    size: 20
   - tag: FinalBossC
     prefab: {fileID: 237821646944878469, guid: 3ad08b9d866071f479714c8f73f8685f, type: 3}
     size: 1

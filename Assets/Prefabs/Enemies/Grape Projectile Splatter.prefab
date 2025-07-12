@@ -127,4 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a60f5d4826eb3f94096162f6abaa2890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 1
+  autoStartFade: 1
+  splatterSound: {fileID: 0}
+  autoDestroyTime: 3

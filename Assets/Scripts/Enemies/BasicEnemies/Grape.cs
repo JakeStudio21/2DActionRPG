@@ -6,7 +6,6 @@ public class Grape : MonoBehaviour, IEnemy
     [Header("Grape Settings")]
     [SerializeField] private GameObject grapeProjectilePrefab;
     [SerializeField] private Transform projectileSpawnPoint;
-    [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private AudioClip attackSound;
 
     private Animator myAnimator;
@@ -152,7 +151,7 @@ public class Grape : MonoBehaviour, IEnemy
             playerVelocity = playerRb.velocity;
         }
         
-        // 발사체 도달 시간 (GrapeProjectile의 duration과 일치)
+        // 발사체 도달 시간 (GrapeProjectile의 moveSpeed와 일치)
         float projectileTravelTime = 2f;
         
         // 예측 위치 = 현재 위치 + (속도 * 시간)

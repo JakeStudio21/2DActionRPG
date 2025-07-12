@@ -11,8 +11,6 @@ public class RangedAttack : MonoBehaviour, IAttackBehaviour
     [Header("Ranged Attack Settings")]
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform projectileSpawnPoint;
-    [SerializeField] private int projectileDamage = 10;
-    [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float predictionFactor = 0.5f;
     [SerializeField] private bool stopMovingWhileAttacking = true;
     [SerializeField] private AudioClip attackSound;
@@ -154,9 +152,6 @@ public class RangedAttack : MonoBehaviour, IAttackBehaviour
         // 발사체 설정 및 예측 조준
         if (proj != null && proj.TryGetComponent(out GrapeProjectile grapeProjectile))
         {
-            // 데미지 설정
-            grapeProjectile.SetDamage(projectileDamage);
-            
             // ⭐ 개선: 예측 조준으로 정확도 향상
             Vector3 targetPosition = GetPredictedPlayerPosition();
             grapeProjectile.LaunchToTarget(targetPosition);
@@ -186,9 +181,8 @@ public class RangedAttack : MonoBehaviour, IAttackBehaviour
             playerVelocity = playerRb.velocity;
         }
         
-        // 발사체 도달 시간 계산 (거리/속도)
-        float distance = Vector3.Distance(transform.position, currentPlayerPos);
-        float projectileTravelTime = distance / projectileSpeed;
+        // 발사체 도달 시간 (GrapeProjectile의 moveSpeed와 일치)
+        float projectileTravelTime = 2f;
         
         // 예측 위치 = 현재 위치 + (속도 * 시간 * 예측 계수)
         Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);

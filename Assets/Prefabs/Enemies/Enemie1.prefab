@@ -172,18 +172,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackRange: 3
   attackCooldown: 2
-  stopMovingWhileAttacking: 1
   detectionRange: 4
   chaseRange: 6
   patrolRadius: 4.5
   monsterType: 2
-  attackDamage: 5
-  projectileDamage: 10
-  playerLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  attackSound: {fileID: 0}
-  useModularAttackSystem: 1
 --- !u!114 &5184943769860111882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,7 +290,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
-
 --- !u!114 &4458876440312282437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -314,7 +305,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
   projectileSpawnPoint: {fileID: 0}
   projectileDamage: 2
-  projectileSpeed: 8
+  projectileSpeed: 100
   predictionFactor: 0.5
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}

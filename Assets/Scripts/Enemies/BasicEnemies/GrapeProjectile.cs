@@ -4,10 +4,9 @@ using UnityEngine;
 public class GrapeProjectile : MonoBehaviour
 {
     [Header("Projectile Settings")]
-    [SerializeField] private float duration = 2f;
+    [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private AnimationCurve animCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float heightY = 3f;
-    [SerializeField] private float moveSpeed = 5f;
     
     [Header("Effects")]
     [SerializeField] private GameObject shadowPrefab;
@@ -16,8 +15,8 @@ public class GrapeProjectile : MonoBehaviour
     
     [Header("Damage")]
     [SerializeField] private LayerMask playerLayerMask = 1 << 3; // Player layer
+    [SerializeField] private int projectileDamage = 10;
     
-    private int damage = 1;
     private Vector3 targetPosition;
     private Vector3 startPosition;
     private bool isLaunched = false;
@@ -95,7 +94,7 @@ public class GrapeProjectile : MonoBehaviour
     
     public void SetDamage(int newDamage)
     {
-        damage = newDamage;
+        projectileDamage = newDamage;
     }
     
     public void LaunchToTarget(Vector3 target)
@@ -145,12 +144,12 @@ public class GrapeProjectile : MonoBehaviour
     {
         float timePassed = 0f;
         
-        while (timePassed < duration && isLaunched)
+        while (timePassed < moveSpeed && isLaunched)
         {
             if (!gameObject.activeInHierarchy) yield break;
             
             timePassed += Time.deltaTime;
-            float linearT = timePassed / duration;
+            float linearT = timePassed / moveSpeed;
             
             // 높이 계산
             float heightT = animCurve.Evaluate(linearT);
@@ -178,10 +177,10 @@ public class GrapeProjectile : MonoBehaviour
         Vector3 shadowStart = activeShadow.transform.position;
         Vector3 shadowEnd = targetPosition + Vector3.down * 0.3f;
         
-        while (timePassed < duration && activeShadow != null)
+        while (timePassed < moveSpeed && activeShadow != null)
         {
             timePassed += Time.deltaTime;
-            float linearT = timePassed / duration;
+            float linearT = timePassed / moveSpeed;
             
             activeShadow.transform.position = Vector3.Lerp(shadowStart, shadowEnd, linearT);
             
@@ -239,16 +238,16 @@ public class GrapeProjectile : MonoBehaviour
     
     private void DealDamageToPlayer()
     {
-        // 착지 지점 주변의 플레이어 감지
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 1f, playerLayerMask);
+        // 범위 내 플레이어 감지
+        Collider2D[] playersInRange = Physics2D.OverlapCircleAll(transform.position, 1.5f, playerLayerMask);
         
-        foreach (var hitCollider in hitColliders)
+        foreach (Collider2D playerCollider in playersInRange)
         {
-            if (hitCollider.TryGetComponent(out PlayerHealth playerHealth))
+            if (playerCollider.TryGetComponent(out PlayerHealth playerHealth))
             {
-                playerHealth.TakeDamage(damage, transform);
-                Debug.Log($"[GrapeProjectile] 플레이어에게 {damage} 데미지를 입혔습니다.");
-                break;
+                playerHealth.TakeDamage(projectileDamage, transform);
+                Debug.Log($"[GrapeProjectile] 플레이어에게 {projectileDamage} 데미지 적용!");
+                break; // 한 명만 데미지 적용
             }
         }
     }

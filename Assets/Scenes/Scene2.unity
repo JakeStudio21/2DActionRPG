@@ -56389,7 +56389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3556957486775231346, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
       propertyPath: isDead
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3685555561243291731, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
       propertyPath: monsterType

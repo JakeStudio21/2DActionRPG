@@ -5,12 +5,12 @@ using UnityEngine;
 /// <summary>
 /// 복합 원거리 공격 모듈 - 다중 발사체, 버스트 발사, 각도 조절 지원
 /// Ghost 몬스터 등 복잡한 발사 패턴을 가진 적에게 사용
+/// ⭐ 발사체 자체의 속도와 범위 설정을 사용하는 일관성 있는 구조
 /// </summary>
 public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
 {
     [Header("Attack Settings")]
     [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float bulletMoveSpeed = 5f;
     [SerializeField] private int burstCount = 3;
     [SerializeField] private int projectilesPerBurst = 1;
     [SerializeField][Range(0, 359)] private float angleSpread = 0f;
@@ -81,7 +81,6 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
         if (restTime < 0.1f) { restTime = 0.1f; }
         if (startingDistance < 0.1f) { startingDistance = 0.1f; }
         if (angleSpread == 0) { projectilesPerBurst = 1; }
-        if (bulletMoveSpeed <= 0) { bulletMoveSpeed = 0.1f; }
     }
 
     private IEnumerator ShootRoutine() 
@@ -132,29 +131,41 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
 
                 Vector2 pos = FindBulletSpawnPos(currentAngle);
 
-                GameObject newBullet = GamePoolManager.Instance.SpawnFromPool("Bullet", pos, Quaternion.identity);
+                // ⭐ 핵심 수정: bulletPrefab의 이름을 풀 태그로 사용
+                string poolTag = bulletPrefab != null ? bulletPrefab.name : "Bullet";
+                GameObject newBullet = GamePoolManager.Instance.SpawnFromPool(poolTag, pos, Quaternion.identity);
                 
                 if (newBullet == null)
                 {
-                    Debug.LogWarning($"[MultiShotRangedAttack] {gameObject.name}: 총알 생성 실패");
+                    Debug.LogWarning($"[MultiShotRangedAttack] {gameObject.name}: {poolTag} 생성 실패");
                     continue;
                 }
 
                 newBullet.transform.right = newBullet.transform.position - transform.position;
 
-                // EnemyDamage 컴포넌트 설정
-                if (newBullet.TryGetComponent(out EnemyDamage enemyDamage))
+                // ⭐ 발사체 자체의 속도와 범위 사용: UpdateMoveSpeed 호출 제거
+                if (newBullet.TryGetComponent(out GhostProjectile ghostProjectile))
                 {
+                    // 데미지만 설정 (속도는 발사체 자체 moveSpeed 사용)
                     if (enemyAI != null)
                     {
-                        enemyDamage.damageAmount = enemyAI.GetProjectileDamage();
+                        ghostProjectile.SetDamage(enemyAI.GetProjectileDamage());
+                    }
+                    else
+                    {
+                        ghostProjectile.SetDamage(1); // 기본 데미지
                     }
                 }
-
-                // Projectile 컴포넌트 설정
-                if (newBullet.TryGetComponent(out Projectile projectile))
+                else if (newBullet.TryGetComponent(out Projectile projectile))
                 {
-                    projectile.UpdateMoveSpeed(bulletMoveSpeed);
+                    // Legacy 지원: EnemyDamage 컴포넌트 설정
+                    if (newBullet.TryGetComponent(out EnemyDamage enemyDamage))
+                    {
+                        if (enemyAI != null)
+                        {
+                            enemyDamage.damageAmount = enemyAI.GetProjectileDamage();
+                        }
+                    }
                 }
 
                 currentAngle += angleStep;

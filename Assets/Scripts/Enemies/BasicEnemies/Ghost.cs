@@ -112,29 +112,31 @@ public class Ghost : MonoBehaviour, IEnemy
 
                 Vector2 pos = FindBulletSpawnPos(currentAngle);
 
-                GameObject newBullet = GamePoolManager.Instance.SpawnFromPool("Bullet", pos, Quaternion.identity);
+                // ⭐ 핵심 수정: "Bullet" → "Ghost_Bullet"로 변경
+                GameObject newBullet = GamePoolManager.Instance.SpawnFromPool("Ghost_Bullet", pos, Quaternion.identity);
                 
                 if (newBullet == null)
                 {
-                    Debug.LogWarning($"[Ghost] {gameObject.name}: 총알 생성 실패");
+                    Debug.LogWarning($"[Ghost] {gameObject.name}: Ghost_Bullet 생성 실패");
                     continue;
                 }
 
                 newBullet.transform.right = newBullet.transform.position - transform.position;
 
-                // EnemyDamage 컴포넌트 설정
-                if (newBullet.TryGetComponent(out EnemyDamage enemyDamage))
+                // ⭐ 핵심 수정: Projectile → GhostProjectile로 변경
+                if (newBullet.TryGetComponent(out GhostProjectile ghostProjectile))
                 {
+                    ghostProjectile.UpdateMoveSpeed(bulletMoveSpeed);
+                    
+                    // 데미지 설정
                     if (enemyAI != null)
                     {
-                        enemyDamage.damageAmount = enemyAI.GetProjectileDamage();
+                        ghostProjectile.SetDamage(enemyAI.GetProjectileDamage());
                     }
-                }
-
-                // Projectile 컴포넌트 설정
-                if (newBullet.TryGetComponent(out Projectile projectile))
-                {
-                    projectile.UpdateMoveSpeed(bulletMoveSpeed);
+                    else
+                    {
+                        ghostProjectile.SetDamage(1); // 기본 데미지
+                    }
                 }
 
                 currentAngle += angleStep;

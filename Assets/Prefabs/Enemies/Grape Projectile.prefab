@@ -175,36 +175,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c920968af87e254188588ed3153287a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 2
+  moveSpeed: 0.8
   animCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: -0.01234436
-      value: -0.052352905
-      inSlope: 1.7254996
-      outSlope: 1.7254996
+      time: 0.0036107302
+      value: 0.0017943978
+      inSlope: 2.1515605
+      outSlope: 2.1515605
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.045486122
+      outWeight: 0.15128371
     - serializedVersion: 3
-      time: 0.9751533
-      value: -0.050006866
-      inSlope: -2.6552315
-      outSlope: -2.6552315
+      time: 0.9967041
+      value: 0.00090408325
+      inSlope: -2.2102249
+      outSlope: -2.2102249
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.037762996
+      inWeight: 0.082532905
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   heightY: 5.5
-  moveSpeed: 5
   shadowPrefab: {fileID: 4040728627607984930, guid: 214664c51c2bac94f986e6a2cd0a0972, type: 3}
   splatterPrefab: {fileID: 8241566449722613216, guid: 6fc13cc823337b94899a25bb84387e60, type: 3}
   impactSound: {fileID: 0}
   playerLayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 256

@@ -176,7 +176,7 @@ MonoBehaviour:
   detectionRange: 8
   chaseRange: 12
   patrolRadius: 5
-  monsterType: 3
+  monsterType: 2
 --- !u!114 &5184943769860111882
 MonoBehaviour:
   m_ObjectHideFlags: 0
