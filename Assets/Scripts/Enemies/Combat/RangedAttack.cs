@@ -187,7 +187,7 @@ public class RangedAttack : MonoBehaviour, IAttackBehaviour
         // 예측 위치 = 현재 위치 + (속도 * 시간 * 예측 계수)
         Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);
         
-        Debug.Log($"[RangedAttack] 플레이어 현재위치: {currentPlayerPos}, 속도: {playerVelocity}, 예측위치: {predictedPosition}");
+        // Debug.Log($"[RangedAttack] 플레이어 현재위치: {currentPlayerPos}, 속도: {playerVelocity}, 예측위치: {predictedPosition}");
         
         return predictedPosition;
     }

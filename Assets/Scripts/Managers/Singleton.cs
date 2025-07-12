@@ -11,7 +11,7 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T>
     {
         if (instance != null && instance != this) 
         {
-            Debug.LogWarning($"[Singleton] 중복 {typeof(T).Name}가 생성되어 파괴됩니다. (이름: {gameObject.name}, 인스턴스ID: {GetInstanceID()})");
+            // Debug.LogWarning($"[Singleton] 중복 {typeof(T).Name}가 생성되어 파괴됩니다. (이름: {gameObject.name}, 인스턴스ID: {GetInstanceID()})");
             Destroy(gameObject);
             return;
         }
@@ -22,14 +22,14 @@ public class Singleton<T> : MonoBehaviour where T : Singleton<T>
             DontDestroyOnLoad(gameObject);
         }
         
-        Debug.Log($"[Singleton] {typeof(T).Name} 생성됨 (이름: {gameObject.name}, 인스턴스ID: {GetInstanceID()})");
+        // Debug.Log($"[Singleton] {typeof(T).Name} 생성됨 (이름: {gameObject.name}, 인스턴스ID: {GetInstanceID()})");
     }
 
     protected virtual void OnDestroy()
     {
         if (instance == this)
         {
-            Debug.Log($"[Singleton] {typeof(T).Name} 파괴됨 (이름: {gameObject.name}, 인스턴스ID: {GetInstanceID()})");
+            // Debug.Log($"[Singleton] {typeof(T).Name} 파괴됨 (이름: {gameObject.name}, 인스턴스ID: {GetInstanceID()})");
             instance = null;
         }
     }

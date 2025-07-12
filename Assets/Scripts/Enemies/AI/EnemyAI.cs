@@ -216,7 +216,7 @@ public class EnemyAI : MonoBehaviour, IEnemy
         if (cachedPlayerController != null)
         {
             float distanceToPlayer = Vector2.Distance(transform.position, cachedPlayerController.transform.position);
-            Debug.Log($"[EnemyAI] {gameObject.name} - Idle상태: 플레이어 거리 {distanceToPlayer:F2}, 감지범위 {detectionRange}");
+            // Debug.Log($"[EnemyAI] {gameObject.name} - Idle상태: 플레이어 거리 {distanceToPlayer:F2}, 감지범위 {detectionRange}");
             
             if (distanceToPlayer <= detectionRange)
             {
@@ -275,7 +275,7 @@ public class EnemyAI : MonoBehaviour, IEnemy
         }
         
         float distanceToPlayer = Vector2.Distance(transform.position, cachedPlayerController.transform.position);
-        Debug.Log($"[EnemyAI] {gameObject.name} - Chase상태: 플레이어 거리 {distanceToPlayer:F2}, 공격범위 {attackRange}, 추적범위 {chaseRange}");
+        // Debug.Log($"[EnemyAI] {gameObject.name} - Chase상태: 플레이어 거리 {distanceToPlayer:F2}, 공격범위 {attackRange}, 추적범위 {chaseRange}");
         
         // 공격 범위에 들어오면 공격
         if (distanceToPlayer <= attackRange && canAttack)
@@ -297,7 +297,7 @@ public class EnemyAI : MonoBehaviour, IEnemy
         if (enemyPathfinding != null)
         {
             Vector2 playerPos = cachedPlayerController.transform.position;
-            Debug.Log($"[EnemyAI] {gameObject.name} - 플레이어 추적 중: 목표위치 {playerPos}, 현재위치 {transform.position}");
+            // Debug.Log($"[EnemyAI] {gameObject.name} - 플레이어 추적 중: 목표위치 {playerPos}, 현재위치 {transform.position}");
             enemyPathfinding.MoveTo(playerPos);
         }
         else
