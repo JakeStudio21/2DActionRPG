@@ -79,12 +79,13 @@ public class GrapeProjectile : MonoBehaviour
     {
         StopAllCoroutines();
         
-        // 그림자 정리
+        // ⭐ 핵심 수정: 그림자 정리 시 GamePoolManager 사용
         if (activeShadow != null)
         {
             if (Application.isPlaying)
             {
-                Destroy(activeShadow);
+                // Destroy 대신 SetActive(false) 사용
+                activeShadow.SetActive(false);
             }
             activeShadow = null;
         }
@@ -131,11 +132,32 @@ public class GrapeProjectile : MonoBehaviour
         if (shadowPrefab != null)
         {
             Vector3 shadowStartPos = startPosition + Vector3.down * 0.3f;
-            activeShadow = Instantiate(shadowPrefab, shadowStartPos, Quaternion.identity);
             
-            if (activeShadow != null)
+            // ⭐ 핵심 수정: Instantiate 대신 GamePoolManager 사용
+            if (GamePoolManager.Instance != null)
             {
-                StartCoroutine(MoveShadowCoroutine());
+                activeShadow = GamePoolManager.Instance.SpawnFromPool("GrapeShadow", shadowStartPos, Quaternion.identity);
+                
+                if (activeShadow != null)
+                {
+                    StartCoroutine(MoveShadowCoroutine());
+                    Debug.Log("[GrapeProjectile] GamePoolManager에서 GrapeShadow 생성 성공");
+                }
+                else
+                {
+                    Debug.LogError("[GrapeProjectile] GamePoolManager에서 GrapeShadow 생성 실패!");
+                }
+            }
+            else
+            {
+                // 백업: GamePoolManager가 없으면 직접 생성
+                activeShadow = Instantiate(shadowPrefab, shadowStartPos, Quaternion.identity);
+                Debug.LogWarning("[GrapeProjectile] GamePoolManager가 없어서 직접 생성했습니다.");
+                
+                if (activeShadow != null)
+                {
+                    StartCoroutine(MoveShadowCoroutine());
+                }
             }
         }
     }
@@ -187,10 +209,13 @@ public class GrapeProjectile : MonoBehaviour
             yield return null;
         }
         
+        // ⭐ 핵심 수정: 그림자 제거 시 GamePoolManager 사용
         if (activeShadow != null)
         {
-            Destroy(activeShadow);
+            // Destroy 대신 SetActive(false) 사용
+            activeShadow.SetActive(false);
             activeShadow = null;
+            Debug.Log("[GrapeProjectile] GrapeShadow를 GamePoolManager에 반환");
         }
     }
     
@@ -219,19 +244,44 @@ public class GrapeProjectile : MonoBehaviour
     {
         if (splatterPrefab != null)
         {
-            GameObject splatter = Instantiate(splatterPrefab, transform.position, Quaternion.identity);
+            // ⭐ 핵심 수정: Instantiate 대신 GamePoolManager 사용
+            GameObject splatter = null;
             
-            // ⭐ 변경: 스플래터는 순수 VFX만 담당
-            // SpriteFade가 있으면 자동으로 페이드 시작
-            if (splatter.TryGetComponent(out SpriteFade spriteFade))
+            if (GamePoolManager.Instance != null)
             {
-                spriteFade.StartFade();
+                splatter = GamePoolManager.Instance.SpawnFromPool("Grape Projectile Splatter", transform.position, Quaternion.identity);
+                
+                if (splatter != null)
+                {
+                    Debug.Log("[GrapeProjectile] GamePoolManager에서 Grape Projectile Splatter 생성 성공");
+                }
+                else
+                {
+                    Debug.LogError("[GrapeProjectile] GamePoolManager에서 Grape Projectile Splatter 생성 실패!");
+                }
+            }
+            else
+            {
+                // 백업: GamePoolManager가 없으면 직접 생성
+                splatter = Instantiate(splatterPrefab, transform.position, Quaternion.identity);
+                Debug.LogWarning("[GrapeProjectile] GamePoolManager가 없어서 직접 생성했습니다.");
             }
             
-            // GrapeLandSplatter 컴포넌트가 있어도 데미지 설정 안함
-            if (splatter.TryGetComponent(out GrapeLandSplatter splatterComponent))
+            // 스플래터 이펙트 설정 (GamePoolManager 사용 시에도 동일)
+            if (splatter != null)
             {
-                splatterComponent.StartFadeEffect(); // VFX만
+                // ⭐ 변경: 스플래터는 순수 VFX만 담당
+                // SpriteFade가 있으면 자동으로 페이드 시작
+                if (splatter.TryGetComponent(out SpriteFade spriteFade))
+                {
+                    spriteFade.StartFade();
+                }
+                
+                // GrapeLandSplatter 컴포넌트가 있어도 데미지 설정 안함
+                if (splatter.TryGetComponent(out GrapeLandSplatter splatterComponent))
+                {
+                    splatterComponent.StartFadeEffect(); // VFX만
+                }
             }
         }
     }

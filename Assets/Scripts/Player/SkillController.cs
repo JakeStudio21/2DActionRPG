@@ -81,15 +81,50 @@ public class SkillController : MonoBehaviour
     void FireSkill()
     {
         if (bowTransform == null || firePoint == null) return;
+        
+        // ⭐ GamePoolManager null 체크 추가
+        if (GamePoolManager.Instance == null)
+        {
+            Debug.LogError("[SkillController] GamePoolManager.Instance가 null입니다!");
+            return;
+        }
+        
         Vector2 baseDir = bowTransform.right;
         float startAngle = -spreadAngle * (arrowCount - 1) / 2f;
+        
         for (int i = 0; i < arrowCount; i++)
         {
             float angle = startAngle + spreadAngle * i;
             Vector2 dir = Quaternion.Euler(0, 0, angle) * baseDir;
-            GameObject arrow = Instantiate(arrowPrefab, firePoint.position, Quaternion.identity);
-            arrow.GetComponent<Rigidbody2D>().velocity = dir.normalized * arrowSpeed;
-            arrow.transform.right = dir;
+            
+            // ⭐ 핵심 수정: Instantiate 대신 GamePoolManager 사용
+            GameObject arrow = GamePoolManager.Instance.SpawnFromPool("Arrow", firePoint.position, Quaternion.identity);
+            
+            if (arrow != null)
+            {
+                // ⭐ 핵심 수정: Rigidbody2D.velocity 대신 Projectile 컴포넌트 사용
+                arrow.transform.right = dir;
+                
+                // Projectile 컴포넌트가 있으면 속도 설정
+                if (arrow.TryGetComponent(out Projectile projectile))
+                {
+                    projectile.UpdateMoveSpeed(arrowSpeed);
+                }
+                else
+                {
+                    // 백업: Rigidbody2D가 있으면 velocity 설정
+                    if (arrow.TryGetComponent(out Rigidbody2D rb))
+                    {
+                        rb.velocity = dir.normalized * arrowSpeed;
+                    }
+                }
+                
+                Debug.Log($"[SkillController] 스킬 화살 생성: {arrow.name}");
+            }
+            else
+            {
+                Debug.LogError($"[SkillController] GamePoolManager에서 Arrow 생성 실패!");
+            }
         }
     }
 

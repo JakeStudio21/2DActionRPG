@@ -56,7 +56,7 @@ MonoBehaviour:
     size: 1
   - tag: Arrow
     prefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
-    size: 10
+    size: 50
   - tag: Staff
     prefab: {fileID: 6839322275408168106, guid: 183a87f62a2300d41ad28290408fcf33, type: 3}
     size: 1
