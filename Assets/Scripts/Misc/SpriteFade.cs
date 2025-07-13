@@ -50,14 +50,21 @@ public class SpriteFade : MonoBehaviour
         
         if (destroyOnComplete)
         {
-            if (transform.parent != null && transform.parent.name.Contains("Pool"))
+            // 🔑 태그 추정 개선
+            string poolTag = gameObject.name.Replace("(Clone)", "").Trim();
+
+            // 🔑 "_숫자" 패턴 제거 (예: "Grape Projectile Splatter_0" → "Grape Projectile Splatter")
+            int underscoreIndex = poolTag.LastIndexOf('_');
+            if (underscoreIndex > 0)
             {
-                gameObject.SetActive(false);
+                string afterUnderscore = poolTag.Substring(underscoreIndex + 1);
+                if (int.TryParse(afterUnderscore, out _)) // 숫자면 제거
+                {
+                    poolTag = poolTag.Substring(0, underscoreIndex);
+                }
             }
-            else
-            {
-                Destroy(gameObject);
-            }
+
+            GamePoolManager.Instance.ReturnToPool(poolTag, gameObject);
         }
         
         isFading = false;

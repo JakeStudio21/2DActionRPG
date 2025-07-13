@@ -26,6 +26,10 @@ public class GrapeProjectile : MonoBehaviour
     private CircleCollider2D circleCollider;
     private PlayerController cachedPlayer;
     
+    // 🔑 중복 반환 방지 플래그 추가
+    private bool isReturningToPool = false;
+    private bool isShadowReturningToPool = false;
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -66,7 +70,10 @@ public class GrapeProjectile : MonoBehaviour
     
     private void OnEnable()
     {
+        // 🔑 플래그 초기화
         isLaunched = false;
+        isReturningToPool = false;
+        isShadowReturningToPool = false;
         
         // 0.1초 후 발사 시작 (풀링 시스템 호환)
         if (gameObject.activeInHierarchy)
@@ -79,18 +86,12 @@ public class GrapeProjectile : MonoBehaviour
     {
         StopAllCoroutines();
         
-        // ⭐ 핵심 수정: 그림자 정리 시 GamePoolManager 사용
-        if (activeShadow != null)
-        {
-            if (Application.isPlaying)
-            {
-                // Destroy 대신 SetActive(false) 사용
-                activeShadow.SetActive(false);
-            }
-            activeShadow = null;
-        }
+        // 🔑 그림자 반환 - 올바른 풀 반환 사용
+        ReturnShadowToPool();
         
         isLaunched = false;
+        isReturningToPool = false;
+        isShadowReturningToPool = false;
     }
     
     public void SetDamage(int newDamage)
@@ -100,6 +101,8 @@ public class GrapeProjectile : MonoBehaviour
     
     public void LaunchToTarget(Vector3 target)
     {
+        if (isReturningToPool) return; // 🔑 반환 중이면 무시
+        
         targetPosition = target;
         startPosition = transform.position;
         isLaunched = true;
@@ -112,7 +115,7 @@ public class GrapeProjectile : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         
-        if (gameObject.activeInHierarchy && !isLaunched)
+        if (gameObject.activeInHierarchy && !isLaunched && !isReturningToPool)
         {
             // 플레이어 위치를 목표로 설정
             if (cachedPlayer != null)
@@ -136,16 +139,16 @@ public class GrapeProjectile : MonoBehaviour
             // ⭐ 핵심 수정: Instantiate 대신 GamePoolManager 사용
             if (GamePoolManager.Instance != null)
             {
-                activeShadow = GamePoolManager.Instance.SpawnFromPool("GrapeShadow", shadowStartPos, Quaternion.identity);
+                activeShadow = GamePoolManager.Instance.SpawnFromPool("Grape_Shadow", shadowStartPos, Quaternion.identity);
                 
                 if (activeShadow != null)
                 {
                     StartCoroutine(MoveShadowCoroutine());
-                    Debug.Log("[GrapeProjectile] GamePoolManager에서 GrapeShadow 생성 성공");
+                    Debug.Log("[GrapeProjectile] GamePoolManager에서 Grape_Shadow 생성 성공");
                 }
                 else
                 {
-                    Debug.LogError("[GrapeProjectile] GamePoolManager에서 GrapeShadow 생성 실패!");
+                    Debug.LogError("[GrapeProjectile] GamePoolManager에서 Grape_Shadow 생성 실패!");
                 }
             }
             else
@@ -166,7 +169,7 @@ public class GrapeProjectile : MonoBehaviour
     {
         float timePassed = 0f;
         
-        while (timePassed < moveSpeed && isLaunched)
+        while (timePassed < moveSpeed && isLaunched && !isReturningToPool)
         {
             if (!gameObject.activeInHierarchy) yield break;
             
@@ -185,7 +188,7 @@ public class GrapeProjectile : MonoBehaviour
         }
         
         // 착지 처리
-        if (isLaunched && gameObject.activeInHierarchy)
+        if (isLaunched && gameObject.activeInHierarchy && !isReturningToPool)
         {
             OnProjectileLand();
         }
@@ -199,7 +202,7 @@ public class GrapeProjectile : MonoBehaviour
         Vector3 shadowStart = activeShadow.transform.position;
         Vector3 shadowEnd = targetPosition + Vector3.down * 0.3f;
         
-        while (timePassed < moveSpeed && activeShadow != null)
+        while (timePassed < moveSpeed && activeShadow != null && !isShadowReturningToPool)
         {
             timePassed += Time.deltaTime;
             float linearT = timePassed / moveSpeed;
@@ -209,18 +212,35 @@ public class GrapeProjectile : MonoBehaviour
             yield return null;
         }
         
-        // ⭐ 핵심 수정: 그림자 제거 시 GamePoolManager 사용
-        if (activeShadow != null)
+        // 🔑 그림자 제거 - 올바른 풀 반환 사용
+        ReturnShadowToPool();
+    }
+    
+    // 🔑 새로운 통합 그림자 반환 메서드
+    private void ReturnShadowToPool()
+    {
+        if (isShadowReturningToPool || activeShadow == null) return;
+        
+        isShadowReturningToPool = true;
+        
+        if (GamePoolManager.Instance != null)
         {
-            // Destroy 대신 SetActive(false) 사용
-            activeShadow.SetActive(false);
-            activeShadow = null;
-            Debug.Log("[GrapeProjectile] GrapeShadow를 GamePoolManager에 반환");
+            GamePoolManager.Instance.ReturnToPool("Grape_Shadow", activeShadow);
+            Debug.Log("[GrapeProjectile] Grape_Shadow를 GamePoolManager에 정상 반환");
         }
+        else
+        {
+            activeShadow.SetActive(false);
+            Debug.LogWarning("[GrapeProjectile] GamePoolManager가 없어 SetActive(false) 사용");
+        }
+        
+        activeShadow = null;
     }
     
     private void OnProjectileLand()
     {
+        if (isReturningToPool) return; // 🔑 반환 중이면 무시
+        
         // 착지 위치를 정확히 설정
         transform.position = targetPosition;
         
@@ -306,20 +326,43 @@ public class GrapeProjectile : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         
-        // 풀링 시스템이 있으면 비활성화, 없으면 파괴
-        if (transform.parent != null && transform.parent.name.Contains("Pool"))
+        // 🔑 한 번만 반환
+        ReturnProjectileToPool();
+    }
+    
+    // 🔑 새로운 통합 발사체 반환 메서드
+    private void ReturnProjectileToPool()
+    {
+        if (isReturningToPool) return; // 🔑 중복 반환 방지
+        
+        isReturningToPool = true; // 🔑 반환 중 플래그 설정
+        
+        // 그림자도 함께 정리
+        ReturnShadowToPool();
+        
+        if (GamePoolManager.Instance != null)
         {
-            gameObject.SetActive(false);
+            GamePoolManager.Instance.ReturnToPool("Grape Projectile", gameObject);
         }
         else
         {
-            Destroy(gameObject);
+            // 풀링 시스템이 없으면 파괴
+            if (transform.parent != null && transform.parent.name.Contains("Pool"))
+            {
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
     
     // 충돌 감지 (중간에 장애물 등과 충돌 시)
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
+        
         // 플레이어와 중간에 충돌하면 즉시 착지
         if ((playerLayerMask.value & (1 << other.gameObject.layer)) > 0)
         {

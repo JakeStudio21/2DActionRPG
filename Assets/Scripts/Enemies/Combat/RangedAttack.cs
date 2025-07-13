@@ -134,7 +134,7 @@ public class RangedAttack : MonoBehaviour, IAttackBehaviour
         {
             if (GamePoolManager.Instance != null)
             {
-                proj = GamePoolManager.Instance.SpawnFromPool("GrapeProjectile", spawnPosition, Quaternion.identity);
+                proj = GamePoolManager.Instance.SpawnFromPool("Grape Projectile", spawnPosition, Quaternion.identity);
             }
         }
         catch (System.Exception e)

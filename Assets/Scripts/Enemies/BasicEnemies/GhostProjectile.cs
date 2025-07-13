@@ -99,7 +99,15 @@ public class GhostProjectile : MonoBehaviour
     
     private void DestroyProjectile()
     {
-        gameObject.SetActive(false);
+        // ⭐ 핵심 수정: SetActive(false) 대신 ReturnToPool 사용
+        if (GamePoolManager.Instance != null)
+        {
+            GamePoolManager.Instance.ReturnToPool("Ghost Bullet", gameObject);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
     
     private void DetectFireDistance()

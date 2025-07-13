@@ -13,9 +13,12 @@ public class Projectile : MonoBehaviour
     public GameObject[] arrowEffectPrefabs;
 
     private Vector3 startPosition;
+    private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
 
     private void Start() {
         startPosition = transform.position;
+        isReturningToPool = false; // 🔑 초기화
+        
         // 스킬 레벨별 이펙트 적용
         int skillLevel = 0;
         var player = PlayerController.Instance;
@@ -34,6 +37,8 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
+        if (isReturningToPool) return; // 🔑 반환 중이면 업데이트 중단
+        
         MoveProjectile();
         DetectFireDistance();
     }
@@ -48,6 +53,8 @@ public class Projectile : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
+        if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
+        
         EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
         Indestructible indestructible = other.gameObject.GetComponent<Indestructible>();
         PlayerHealth player = other.gameObject.GetComponent<PlayerHealth>();
@@ -69,7 +76,7 @@ public class Projectile : MonoBehaviour
                     enemyHealth.TakeDamage(playerProjectileDamage);
                 }
 
-                // ⭐ 추가: particleOnHitPrefabVFX null 체크
+                // 🔑 VFX 생성
                 if (particleOnHitPrefabVFX != null)
                 {
                     GamePoolManager.Instance.SpawnFromPool(particleOnHitPrefabVFX.name, transform.position, transform.rotation);
@@ -78,11 +85,12 @@ public class Projectile : MonoBehaviour
                 {
                     Debug.LogWarning($"[Projectile] particleOnHitPrefabVFX가 할당되지 않음: {gameObject.name}");
                 }
+
+                // 🔑 한 번만 반환
+                ReturnProjectileToPool();
                 
-                // ⭐ 핵심 수정: Destroy 대신 SetActive(false) 사용
-                gameObject.SetActive(false);
             } else if (!other.isTrigger && indestructible) {
-                // ⭐ 추가: particleOnHitPrefabVFX null 체크
+                // 🔑 VFX 생성
                 if (particleOnHitPrefabVFX != null)
                 {
                     GamePoolManager.Instance.SpawnFromPool(particleOnHitPrefabVFX.name, transform.position, transform.rotation);
@@ -92,18 +100,42 @@ public class Projectile : MonoBehaviour
                     Debug.LogWarning($"[Projectile] particleOnHitPrefabVFX가 할당되지 않음: {gameObject.name}");
                 }
                 
-                // ⭐ 핵심 수정: Destroy 대신 SetActive(false) 사용
-                gameObject.SetActive(false);
+                // 🔑 한 번만 반환
+                ReturnProjectileToPool();
             }
         }
             
     }
 
     private void DetectFireDistance() {
+        if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
+        
         if (Vector3.Distance(transform.position, startPosition) > projectileRange) {
-            // ⭐ 핵심 수정: Destroy 대신 SetActive(false) 사용
+            ReturnProjectileToPool();
+        }
+    }
+
+    // 🔑 새로운 통합 반환 메서드
+    private void ReturnProjectileToPool()
+    {
+        if (isReturningToPool) return; // 🔑 중복 반환 방지
+        
+        isReturningToPool = true; // 🔑 반환 중 플래그 설정
+        
+        if (GamePoolManager.Instance != null)
+        {
+            GamePoolManager.Instance.ReturnToPool("Arrow", gameObject);
+        }
+        else
+        {
             gameObject.SetActive(false);
         }
+    }
+
+    // 🔑 풀에서 다시 사용할 때 초기화
+    private void OnEnable()
+    {
+        isReturningToPool = false;
     }
 
     private void MoveProjectile()

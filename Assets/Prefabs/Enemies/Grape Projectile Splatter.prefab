@@ -129,4 +129,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   autoStartFade: 1
   splatterSound: {fileID: 0}
-  autoDestroyTime: 3
