@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2261159668939287023}
   - component: {fileID: 814740683897390701}
   - component: {fileID: 4806062633314010792}
+  - component: {fileID: 7421774030207711173}
   - component: {fileID: 2672591166014962016}
   - component: {fileID: 4488842488211035026}
   - component: {fileID: 6406295324804413922}
@@ -170,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 2
+  attackRange: 4
   attackCooldown: 3
   detectionRange: 4.5
   chaseRange: 5
@@ -189,6 +190,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+--- !u!95 &7421774030207711173
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5c5e5c84050bffe4aba2342ee33a2168, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &2672591166014962016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,7 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
   burstCount: 1
-  projectilesPerBurst: 8
+  projectilesPerBurst: 12
   angleSpread: 180
   startingDistance: 0.3
   timeBetweenBursts: 1

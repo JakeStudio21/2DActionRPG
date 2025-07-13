@@ -1,198 +1,106 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Ghost 적의 원거리 공격 행동을 담당하는 스크립트
-/// 플레이어를 향해 투사체를 발사하는 기능 제공
+/// Ghost 몬스터 설정 컴포넌트
+/// ⭐ 모듈식 시스템 적용: EnemyAI + MultiShotRangedAttack 조합 사용
+/// 기존 독립적인 공격 시스템을 제거하고 표준 모듈식 아키텍처로 전환
 /// </summary>
-public class Ghost : MonoBehaviour, IEnemy
+public class Ghost : MonoBehaviour
 {
-    [Header("Attack Settings")]
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float bulletMoveSpeed = 5f;
-    [SerializeField] private int burstCount = 3;
-    [SerializeField] private int projectilesPerBurst = 1;
-    [SerializeField][Range(0, 359)] private float angleSpread = 0f;
-    [SerializeField] private float startingDistance = 0.1f;
-    [SerializeField] private float timeBetweenBursts = 0.5f;
-    [SerializeField] private float restTime = 1f;
+    [Header("Ghost Settings")]
+    [Tooltip("Ghost 전용 설정값들 (MultiShotRangedAttack에서 사용)")]
+    [SerializeField] private bool showDebugInfo = true;
     
-    [Header("Advanced Settings")]
-    [SerializeField] private bool stagger = false;
-    [Tooltip("Stagger must be enabled for oscillate to function properly.")]
-    [SerializeField] private bool oscillate = false;
-
-    private bool isShooting = false;
+    [Header("Integration Status")]
+    [SerializeField] private bool isModularSystemActive = false;
+    
     private EnemyAI enemyAI;
-
+    private MultiShotRangedAttack attackModule;
+    
+    private void Awake()
+    {
+        // 컴포넌트 참조 설정
+        enemyAI = GetComponent<EnemyAI>();
+        attackModule = GetComponent<MultiShotRangedAttack>();
+    }
+    
     private void Start()
     {
-        // 컴포넌트 초기화 확인
-        if (enemyAI == null)
-        {
-            enemyAI = GetComponent<EnemyAI>();
-        }
+        // 모듈식 시스템 통합 확인
+        CheckModularSystemIntegration();
         
-        Debug.Log($"[Ghost] {gameObject.name} 초기화 완료");
-    }
-
-    private void OnValidate() 
-    {
-        if (oscillate) { stagger = true; }
-        if (!oscillate) { stagger = false; }
-        if (projectilesPerBurst < 1) { projectilesPerBurst = 1; }
-        if (burstCount < 1) { burstCount = 1; }
-        if (timeBetweenBursts < 0.1f) { timeBetweenBursts = 0.1f; }
-        if (restTime < 0.1f) { restTime = 0.1f; }
-        if (startingDistance < 0.1f) { startingDistance = 0.1f; }
-        if (angleSpread == 0) { projectilesPerBurst = 1; }
-        if (bulletMoveSpeed <= 0) { bulletMoveSpeed = 0.1f; }
-    }
-
-    public void Attack(EnemyAI enemyAI) 
-    {
-        // null 체크 추가
-        if (enemyAI == null)
+        if (showDebugInfo)
         {
-            Debug.LogWarning($"[Ghost] {gameObject.name}: EnemyAI가 null입니다!");
-            return;
+            Debug.Log($"[Ghost] {gameObject.name} - 모듈식 시스템으로 초기화 완료");
+            Debug.Log($"[Ghost] EnemyAI: {(enemyAI != null ? "✓" : "✗")}");
+            Debug.Log($"[Ghost] MultiShotRangedAttack: {(attackModule != null ? "✓" : "✗")}");
         }
+    }
+    
+    /// <summary>
+    /// 모듈식 시스템 통합 상태 확인
+    /// </summary>
+    private void CheckModularSystemIntegration()
+    {
+        bool hasEnemyAI = enemyAI != null;
+        bool hasAttackModule = attackModule != null;
         
-        this.enemyAI = enemyAI;
-        if (!isShooting) 
+        isModularSystemActive = hasEnemyAI && hasAttackModule;
+        
+        if (!isModularSystemActive)
         {
-            StartCoroutine(ShootRoutine());
+            Debug.LogError($"[Ghost] {gameObject.name} - 모듈식 시스템 설정 불완전!");
+            if (!hasEnemyAI) Debug.LogError("- EnemyAI 컴포넌트 누락");
+            if (!hasAttackModule) Debug.LogError("- MultiShotRangedAttack 컴포넌트 누락");
         }
         else
         {
-            Debug.Log($"[Ghost] {gameObject.name}: 이미 공격 중입니다.");
+            Debug.Log($"[Ghost] {gameObject.name} - 모듈식 시스템 완벽 통합 ✓");
         }
     }
-
-    private IEnumerator ShootRoutine() 
+    
+    /// <summary>
+    /// Inspector에서 모듈식 시스템 상태를 시각적으로 확인
+    /// </summary>
+    private void OnValidate()
     {
-        isShooting = true;
-        Debug.Log($"[Ghost] {gameObject.name}: 공격 시작");
-
-        float startAngle, currentAngle, angleStep, endAngle;
-        float timeBetweenProjectiles = 0f;
-
-        TargetConeOfInfluence(out startAngle, out currentAngle, out angleStep, out endAngle);
-
-        if (stagger) { timeBetweenProjectiles = timeBetweenBursts / projectilesPerBurst; }        
-
-        for (int i = 0; i < burstCount; i++)
+        // 런타임이 아닐 때는 컴포넌트 참조만 확인
+        if (!Application.isPlaying)
         {
-            if (!oscillate) 
-            {
-                TargetConeOfInfluence(out startAngle, out currentAngle, out angleStep, out endAngle);
-            } 
-            
-            if (oscillate && i % 2 != 1) 
-            {
-                TargetConeOfInfluence(out startAngle, out currentAngle, out angleStep, out endAngle);
-            } 
-            else if (oscillate) 
-            {
-                currentAngle = endAngle;
-                endAngle = startAngle;
-                startAngle = currentAngle;
-                angleStep *= -1;
-            }
-
-            for (int j = 0; j < projectilesPerBurst; j++)
-            {
-                // GamePoolManager null 체크
-                if (GamePoolManager.Instance == null)
-                {
-                    Debug.LogError($"[Ghost] {gameObject.name}: GamePoolManager가 null입니다!");
-                    yield break;
-                }
-
-                Vector2 pos = FindBulletSpawnPos(currentAngle);
-
-                // ⭐ 핵심 수정: "Bullet" → "Ghost_Bullet"로 변경
-                GameObject newBullet = GamePoolManager.Instance.SpawnFromPool("Ghost_Bullet", pos, Quaternion.identity);
-                
-                if (newBullet == null)
-                {
-                    Debug.LogWarning($"[Ghost] {gameObject.name}: Ghost_Bullet 생성 실패");
-                    continue;
-                }
-
-                newBullet.transform.right = newBullet.transform.position - transform.position;
-
-                // ⭐ 핵심 수정: Projectile → GhostProjectile로 변경
-                if (newBullet.TryGetComponent(out GhostProjectile ghostProjectile))
-                {
-                    ghostProjectile.UpdateMoveSpeed(bulletMoveSpeed);
-                    
-                    // 데미지 설정
-                    if (enemyAI != null)
-                    {
-                        ghostProjectile.SetDamage(enemyAI.GetProjectileDamage());
-                    }
-                    else
-                    {
-                        ghostProjectile.SetDamage(1); // 기본 데미지
-                    }
-                }
-
-                currentAngle += angleStep;
-
-                if (stagger) { yield return new WaitForSeconds(timeBetweenProjectiles); }
-            }
-
-            currentAngle = startAngle;
-
-            if (!stagger) { yield return new WaitForSeconds(timeBetweenBursts); }
+            enemyAI = GetComponent<EnemyAI>();
+            attackModule = GetComponent<MultiShotRangedAttack>();
+            isModularSystemActive = enemyAI != null && attackModule != null;
         }
-
-        yield return new WaitForSeconds(restTime);
-        isShooting = false;
-        Debug.Log($"[Ghost] {gameObject.name}: 공격 완료");
     }
-
-    private void TargetConeOfInfluence(out float startAngle, out float currentAngle, out float angleStep, out float endAngle)
+    
+    /// <summary>
+    /// 디버그용 Gizmo - Ghost 특화 시각화
+    /// </summary>
+    private void OnDrawGizmos()
     {
-        // PlayerController null 체크
-        var playerController = FindObjectOfType<PlayerController>();
-        if (playerController == null)
-        {
-            Debug.LogWarning($"[Ghost] {gameObject.name}: PlayerController를 찾을 수 없습니다!");
-            startAngle = 0f;
-            endAngle = 0f;
-            currentAngle = 0f;
-            angleStep = 0f;
-            return;
-        }
-
-        Vector2 targetDirection = playerController.transform.position - transform.position;
-        float targetAngle = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg;
-        startAngle = targetAngle;
-        endAngle = targetAngle;
-        currentAngle = targetAngle;
-        float halfAngleSpread = 0f;
-        angleStep = 0;
+        // Ghost 타입 표시
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, 0.8f);
         
-        if (angleSpread != 0)
+        // 모듈식 시스템 상태 표시
+        if (isModularSystemActive)
         {
-            angleStep = angleSpread / (projectilesPerBurst - 1);
-            halfAngleSpread = angleSpread / 2f;
-            startAngle = targetAngle - halfAngleSpread;
-            endAngle = targetAngle + halfAngleSpread;
-            currentAngle = startAngle;
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(transform.position + Vector3.up * 1.5f, Vector3.one * 0.3f);
         }
-    }
-
-    private Vector2 FindBulletSpawnPos(float currentAngle) 
-    {
-        float x = transform.position.x + startingDistance * Mathf.Cos(currentAngle * Mathf.Deg2Rad);
-        float y = transform.position.y + startingDistance * Mathf.Sin(currentAngle * Mathf.Deg2Rad);
-
-        Vector2 pos = new Vector2(x, y);
-
-        return pos;
+        else
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(transform.position + Vector3.up * 1.5f, Vector3.one * 0.3f);
+        }
+        
+        #if UNITY_EDITOR
+        // 몬스터 타입 정보 표시
+        if (Application.isPlaying)
+        {
+            string status = isModularSystemActive ? "모듈식 ✓" : "설정 오류 ✗";
+            UnityEditor.Handles.Label(transform.position + Vector3.up * 2, $"Ghost ({status})");
+        }
+        #endif
     }
 } 

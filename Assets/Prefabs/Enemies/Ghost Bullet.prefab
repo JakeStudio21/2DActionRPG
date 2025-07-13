@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -3760367778752858608}
   - component: {fileID: 7016564497356554667}
   m_Layer: 0
-  m_Name: Ghost_Bullet
+  m_Name: Ghost Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 109eb1db7e636fa47949a7ac3cf845fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeTime: 2
+  fadeTime: 1
   fadeOnStart: 0
   destroyOnComplete: 1
 --- !u!114 &7016564497356554667
@@ -197,4 +197,4 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  damageAmount: 1
+  bulletDamage: 1

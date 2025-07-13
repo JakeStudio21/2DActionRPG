@@ -16,9 +16,9 @@ MonoBehaviour:
   requiredPools:
   - tag: Arrow
     prefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
-    size: 15
+    size: 30
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
-    maxInstancesPerFrame: 20
+    maxInstancesPerFrame: 50
   optionalPools: []
   enableDebugLogs: 0
