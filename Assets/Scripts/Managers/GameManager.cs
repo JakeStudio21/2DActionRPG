@@ -64,7 +64,7 @@ public class GameManager : Singleton<GameManager>
     
     [Header("씬 관리")]
     [SerializeField] private string lobbySceneName = "Lobby";
-    [SerializeField] private string loadingSceneName = "Loading";
+    [SerializeField] private string loadingSceneName = "Ingame_Loading";  // "Loading"에서 "Ingame_Loading"으로 변경
     
     [Header("게임 데이터")]
     public SelectedPlayerData selectedPlayerData;

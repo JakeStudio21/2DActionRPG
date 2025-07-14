@@ -279,7 +279,7 @@ MonoBehaviour:
   currentGameState: 0
   isGamePaused: 0
   lobbySceneName: Lobby
-  loadingSceneName: Loading
+  loadingSceneName: Ingame_Loading
   selectedPlayerData: {fileID: 11400000, guid: 17b89b426e9cda44ebe63bcccaa41df1, type: 2}
 --- !u!1 &7290968884572180690
 GameObject:
