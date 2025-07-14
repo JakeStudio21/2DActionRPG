@@ -200,12 +200,14 @@ public class GameManager : Singleton<GameManager>
     }
 
     /// <summary>
-    /// StageSelect 씬으로 이동
+    /// [사용 중단] StageSelect 씬으로 이동 - 이제 Lobby에서 패널 전환으로 처리됨
     /// </summary>
+    [System.Obsolete("StageSelect 씬이 제거되었습니다. Lobby에서 패널 전환으로 처리됩니다.")]
     public void LoadStageSelectScene()
     {
-        currentGameState = GameState.Lobby; // StageSelect도 로비 상태로 간주
-        SceneManager.LoadScene("StageSelect");
+        Debug.LogWarning("[GameManager] LoadStageSelectScene은 더 이상 사용되지 않습니다. Lobby 패널 전환을 사용하세요.");
+        // 호환성을 위해 Lobby로 이동
+        LoadLobbyScene();
     }
     
     /// <summary>
@@ -215,6 +217,36 @@ public class GameManager : Singleton<GameManager>
     {
         currentGameState = GameState.Lobby;
         SceneManager.LoadScene(lobbySceneName);
+    }
+    
+    /// <summary>
+    /// 인게임에서 로비로 돌아가기 (로비 메인 화면으로 설정)
+    /// </summary>
+    public void ReturnToLobby()
+    {
+        currentGameState = GameState.Lobby;
+        
+        // 로비 씬 로드 후 메인 패널 활성화
+        SceneManager.sceneLoaded += OnLobbySceneLoaded;
+        SceneManager.LoadScene(lobbySceneName);
+    }
+    
+    /// <summary>
+    /// 로비 씬 로드 완료 후 메인 패널 활성화
+    /// </summary>
+    private void OnLobbySceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Lobby")
+        {
+            SceneManager.sceneLoaded -= OnLobbySceneLoaded;
+            
+            // LobbyUIController 찾아서 메인 패널 활성화
+            LobbyUIController lobbyUI = FindObjectOfType<LobbyUIController>();
+            if (lobbyUI != null)
+            {
+                lobbyUI.OnBackToLobby();
+            }
+        }
     }
     
     /// <summary>
