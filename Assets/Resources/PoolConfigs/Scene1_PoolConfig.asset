@@ -20,5 +20,53 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 50
+  - tag: Barrel VFX
+    prefab: {fileID: 724470073289127030, guid: 7b418587ca1a19745ba312bce0b1ceb8, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Bush VFX
+    prefab: {fileID: 724470073289127030, guid: be762be0fae4e8b4098aa1bd8fb6bff6, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: crate VFX
+    prefab: {fileID: 724470073289127030, guid: c2237eec9357dc74aa3d045a9db6c914, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Projectile VFX
+    prefab: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Slime Death VFX
+    prefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Health
+    prefab: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Gold Coin
+    prefab: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Death VFX
+    prefab: {fileID: 724470073289127030, guid: 624ea55b45189ef449d76ba59b4a1f6c, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
   optionalPools: []
   enableDebugLogs: 0
