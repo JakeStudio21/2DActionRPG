@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2034658597422569640}
   - component: {fileID: 4837377325666099986}
   - component: {fileID: 3235294824917637868}
-  - component: {fileID: 4127374435415823822}
+  - component: {fileID: 6074420259162371585}
   m_Layer: 0
   m_Name: Slash Prefab
   m_TagString: Untagged
@@ -107,7 +107,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4127374435415823822
+--- !u!114 &6074420259162371585
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

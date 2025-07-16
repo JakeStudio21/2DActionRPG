@@ -6,9 +6,9 @@ public class Pickup : MonoBehaviour
 {
     private enum PickUpType
     {
-        GoldCoin,
-        // StaminaGlobe, // 주석처리
-        HealthGlobe,
+        GoldCoin = 0,
+        StaminaGlobe = 1, // 🔑 호환성 유지를 위해 복원 (사용하지 않아도 enum 슬롯 유지)
+        HealthGlobe = 2,  // 🔑 기존 프리팹 값과 일치
     }
     [SerializeField] private PickUpType pickUpType;
     [SerializeField] private float pickUpDistance = 5f;
@@ -49,7 +49,9 @@ public class Pickup : MonoBehaviour
     private void OnTriggerStay2D(Collider2D other) {
         if (other.gameObject.GetComponent<PlayerController>()) {
             DetectPickupType();
-            gameObject.SetActive(false);
+            
+            // 🔑 핵심 수정: Arrow처럼 GamePoolManager에 정상 반환
+            ReturnToPool();
         }
     }
 
@@ -97,11 +99,53 @@ public class Pickup : MonoBehaviour
                 Debug.Log("HealthGlobe");
                 break;
             
-            // StaminaGlobe 케이스 완전 주석처리
-            // case PickUpType.StaminaGlobe:
-            //     Stamina.Instance.RefreshStamina();
-            //     Debug.Log("StaminaGlobe");
-            //     break;
+            // 🔑 StaminaGlobe 케이스 추가 (사용하지 않지만 enum 호환성 유지)
+            case PickUpType.StaminaGlobe:
+                Debug.LogWarning("[Pickup] StaminaGlobe는 더 이상 사용되지 않습니다.");
+                break;
+            
+            default:
+                Debug.LogError($"[Pickup] 알 수 없는 픽업 타입: {pickUpType} (값: {(int)pickUpType})");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// 🔑 Arrow처럼 GamePoolManager로 정상 반환
+    /// </summary>
+    private void ReturnToPool()
+    {
+        // 픽업 타입에 따른 풀 태그 결정
+        string poolTag = "";
+        switch (pickUpType)
+        {
+            case PickUpType.GoldCoin:
+                poolTag = "Gold Coin";
+                break;
+            case PickUpType.HealthGlobe:
+                poolTag = "Health";
+                break;
+            case PickUpType.StaminaGlobe:
+                Debug.LogWarning("[Pickup] StaminaGlobe는 더 이상 지원되지 않습니다.");
+                gameObject.SetActive(false);
+                return;
+            default:
+                Debug.LogError($"[Pickup] 알 수 없는 픽업 타입으로 반환 시도: {pickUpType}");
+                gameObject.SetActive(false);
+                return;
+        }
+        
+        // GamePoolManager에 정상 반환 (Arrow와 동일한 방식)
+        if (GamePoolManager.Instance != null)
+        {
+            GamePoolManager.Instance.ReturnToPool(poolTag, gameObject);
+            Debug.Log($"[Pickup] {poolTag} 픽업을 풀에 정상 반환");
+        }
+        else
+        {
+            // 백업: GamePoolManager가 없으면 기존 방식
+            Debug.LogWarning("[Pickup] GamePoolManager가 없어 SetActive(false) 사용");
+            gameObject.SetActive(false);
         }
     }
 }

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6995927924816801713}
   - component: {fileID: 8982118865384702938}
   - component: {fileID: 1796857664950845773}
-  - component: {fileID: 5443071517734543902}
+  - component: {fileID: -2103290894038482314}
   m_Layer: 0
   m_Name: Slime Death VFX
   m_TagString: Untagged
@@ -4889,7 +4889,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &5443071517734543902
+--- !u!114 &-2103290894038482314
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4898,6 +4898,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3742472245823238563}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0dbcebcb243612d48a8998e3e392227e, type: 3}
+  m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  poolTag: Slime Death VFX
