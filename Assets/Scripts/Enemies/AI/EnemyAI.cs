@@ -220,7 +220,7 @@ public class EnemyAI : MonoBehaviour, IEnemy
             
             if (distanceToPlayer <= detectionRange)
             {
-                Debug.Log($"[EnemyAI] {gameObject.name} - 플레이어 감지! Chase 상태로 전환");
+                // Debug.Log($"[EnemyAI] {gameObject.name} - 플레이어 감지! Chase 상태로 전환");
                 ChangeState(State.Chase);
             }
         }

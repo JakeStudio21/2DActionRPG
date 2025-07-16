@@ -196,7 +196,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
     #region Pool Operations (핵심 수정된 로직)
     
     /// <summary>
-    /// 풀에서 오브젝트 가져오기 - 올바른 로직
+    /// 풀에서 오브젝트 스폰
     /// </summary>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
@@ -235,6 +235,11 @@ public class GamePoolManager : Singleton<GamePoolManager>
         // null 체크 및 재생성
         if (objectToSpawn == null)
         {
+            if (enableDebugMode)
+            {
+                Debug.LogError($"[GamePoolManager] {tag} Dequeue했는데 null!");
+            }
+            
             if (poolSettings.ContainsKey(tag))
             {
                 objectToSpawn = Instantiate(poolSettings[tag].prefab);
@@ -310,9 +315,9 @@ public class GamePoolManager : Singleton<GamePoolManager>
             Debug.Log($"[GamePoolManager] 오브젝트 반환: {tag} (풀 개수: {poolDictionary[tag].Count})");
         }
         if (enableDebugMode && obj.transform.parent != this.transform)
-{
-        Debug.LogWarning($"[GamePoolManager] 반환된 오브젝트가 잘못된 위치에 있습니다: {obj.name}");
-}
+        {
+            Debug.LogWarning($"[GamePoolManager] 반환된 오브젝트가 잘못된 위치에 있습니다: {obj.name}");
+        }
     }
     
     /// <summary>

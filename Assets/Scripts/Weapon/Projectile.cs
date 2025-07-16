@@ -14,9 +14,9 @@ public class Projectile : MonoBehaviour
 
     private Vector3 startPosition;
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
+    private bool needsStartPositionUpdate = false; // 🔑 startPosition 업데이트 플래그
 
     private void Start() {
-        startPosition = transform.position;
         isReturningToPool = false; // 🔑 초기화
         
         // 스킬 레벨별 이펙트 적용
@@ -32,12 +32,18 @@ public class Projectile : MonoBehaviour
                 GamePoolManager.Instance.SpawnFromPool(arrowEffectPrefabs[idx].name, transform.position, Quaternion.identity).transform.SetParent(transform);
             }
         }
-        // Debug.Log("발사 위치: " + startPosition); // Projectile 생성 위치 디버깅
     }
 
     private void Update()
     {
         if (isReturningToPool) return; // 🔑 반환 중이면 업데이트 중단
+        
+        // ⭐ 핵심 수정: 발사할 때마다 startPosition 업데이트
+        if (needsStartPositionUpdate)
+        {
+            startPosition = transform.position;
+            needsStartPositionUpdate = false;
+        }
         
         MoveProjectile();
         DetectFireDistance();
@@ -110,7 +116,9 @@ public class Projectile : MonoBehaviour
     private void DetectFireDistance() {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
         
-        if (Vector3.Distance(transform.position, startPosition) > projectileRange) {
+        float currentDistance = Vector3.Distance(transform.position, startPosition);
+        
+        if (currentDistance > projectileRange) {
             ReturnProjectileToPool();
         }
     }
@@ -132,10 +140,11 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    // 🔑 풀에서 다시 사용할 때 초기화
+    // 🔑 풀에서 다시 사용할 때 초기화 - startPosition 업데이트 플래그 설정
     private void OnEnable()
     {
         isReturningToPool = false;
+        needsStartPositionUpdate = true; // ⭐ 핵심 수정: 다음 Update에서 startPosition 업데이트하도록 플래그 설정
     }
 
     private void MoveProjectile()
