@@ -90,13 +90,317 @@ public class GamePoolManager : Singleton<GamePoolManager>
             Debug.Log($"[GamePoolManager] 씬 변경 감지: {currentSceneName} → {newSceneName}");
         }
         
+        // ⭐ 핵심 수정: 씬 변경 즉시 모든 활성 오브젝트 강제 정리
+        StartCoroutine(SafeCleanupAllActiveObjects());
+        
         currentSceneName = newSceneName;
         StartCoroutine(LoadScenePoolsCoroutine(newSceneName));
     }
     
     private void OnSceneUnloaded(Scene scene)
     {
+        // ⭐ 씬 언로드 시에도 즉시 정리
+        StartCoroutine(SafeCleanupAllActiveObjects());
         StartCoroutine(UnloadUnusedPools());
+    }
+    
+    /// <summary>
+    /// ⭐ 새로운 메서드: 안전한 모든 활성 오브젝트 정리
+    /// </summary>
+    private IEnumerator SafeCleanupAllActiveObjects()
+    {
+        if (enableDebugMode)
+        {
+            Debug.Log("[GamePoolManager] 안전한 활성 오브젝트 정리 시작...");
+        }
+        
+        // 1. activePools 딕셔너리에서 안전하게 정리
+        List<string> keysToRemove = new List<string>();
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+        
+        foreach (var kvp in activePools.ToList()) // ToList()로 안전한 복사본 생성
+        {
+            try
+            {
+                GameObject obj = kvp.Value;
+                if (obj == null) // 이미 파괴된 오브젝트
+                {
+                    keysToRemove.Add(kvp.Key);
+                    continue;
+                }
+                
+                // 픽업 아이템인지 확인
+                if (IsPickupObject(obj))
+                {
+                    objectsToDestroy.Add(obj);
+                    keysToRemove.Add(kvp.Key);
+                }
+            }
+            catch (MissingReferenceException)
+            {
+                // 이미 파괴된 오브젝트이므로 키만 제거
+                keysToRemove.Add(kvp.Key);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[GamePoolManager] activePools 정리 중 예외: {ex.Message}");
+                keysToRemove.Add(kvp.Key);
+            }
+        }
+        
+        // 2. 씬에서 직접 픽업 오브젝트 찾기 (더 안전한 방법)
+        try
+        {
+            Pickup[] pickups = FindObjectsOfType<Pickup>();
+            foreach (Pickup pickup in pickups)
+            {
+                if (pickup != null && pickup.gameObject != null && !objectsToDestroy.Contains(pickup.gameObject))
+                {
+                    objectsToDestroy.Add(pickup.gameObject);
+                }
+            }
+            
+            if (enableDebugMode)
+            {
+                Debug.Log($"[GamePoolManager] 발견된 Pickup 오브젝트: {pickups.Length}개");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[GamePoolManager] Pickup 오브젝트 찾기 중 예외: {ex.Message}");
+        }
+        
+        // 3. DontDestroyOnLoad에서 픽업 관련 오브젝트 찾기
+        try
+        {
+            GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+            foreach (GameObject obj in allObjects)
+            {
+                if (obj != null && obj.scene.name == "DontDestroyOnLoad" && 
+                    obj != this.gameObject && IsPickupObject(obj) && 
+                    !objectsToDestroy.Contains(obj))
+                {
+                    objectsToDestroy.Add(obj);
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[GamePoolManager] DontDestroyOnLoad 정리 중 예외: {ex.Message}");
+        }
+        
+        // 4. 찾은 오브젝트들 안전하게 정리
+        if (objectsToDestroy.Count > 0)
+        {
+            if (enableDebugMode)
+            {
+                Debug.Log($"[GamePoolManager] {objectsToDestroy.Count}개 오브젝트 정리 중...");
+            }
+            
+            foreach (GameObject obj in objectsToDestroy)
+            {
+                try
+                {
+                    if (obj != null)
+                    {
+                        // 풀로 반환 시도
+                        string poolTag = DeterminePickupPoolTag(obj);
+                        if (!string.IsNullOrEmpty(poolTag) && poolDictionary.ContainsKey(poolTag))
+                        {
+                            obj.SetActive(false);
+                            obj.transform.SetParent(transform);
+                            obj.transform.localPosition = Vector3.zero;
+                            poolDictionary[poolTag].Enqueue(obj);
+                            
+                            if (enableDebugMode)
+                            {
+                                Debug.Log($"[GamePoolManager] '{obj.name}'을 '{poolTag}' 풀로 반환");
+                            }
+                        }
+                        else
+                        {
+                            // 풀이 없으면 파괴
+                            DestroyImmediate(obj);
+                            if (enableDebugMode)
+                            {
+                                Debug.Log($"[GamePoolManager] '{obj.name}' 파괴 (풀 없음)");
+                            }
+                        }
+                    }
+                }
+                catch (MissingReferenceException)
+                {
+                    // 이미 파괴된 오브젝트이므로 무시
+                    if (enableDebugMode)
+                    {
+                        Debug.Log("[GamePoolManager] 이미 파괴된 오브젝트 건너뜀");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[GamePoolManager] 오브젝트 정리 중 예외: {ex.Message}");
+                }
+                
+                yield return null; // 매 오브젝트마다 프레임 대기
+            }
+        }
+        
+        // 5. activePools에서 키 제거
+        foreach (string key in keysToRemove)
+        {
+            activePools.Remove(key);
+        }
+        
+        if (enableDebugMode)
+        {
+            Debug.Log($"[GamePoolManager] 활성 오브젝트 정리 완료 - 정리된 오브젝트: {objectsToDestroy.Count}개, 제거된 키: {keysToRemove.Count}개");
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 헬퍼 메서드: 픽업 오브젝트인지 안전하게 판단
+    /// </summary>
+    private bool IsPickupObject(GameObject obj)
+    {
+        if (obj == null) return false;
+        
+        try
+        {
+            // Pickup 컴포넌트 확인
+            if (obj.GetComponent<Pickup>() != null)
+            {
+                return true;
+            }
+            
+            // 이름으로 확인
+            string name = obj.name.ToLower();
+            if (name.Contains("gold") || name.Contains("coin") || 
+                name.Contains("health") || name.Contains("stamina"))
+            {
+                return true;
+            }
+        }
+        catch (MissingReferenceException)
+        {
+            return false; // 이미 파괴된 오브젝트
+        }
+        catch (System.Exception)
+        {
+            return false; // 기타 예외
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// ⭐ 새로운 메서드: 씬 전환 시 활성화된 픽업 아이템들을 풀로 반환
+    /// </summary>
+    private IEnumerator ReturnActivePickupsToPool()
+    {
+        // 현재 씬에 활성화된 모든 Pickup 오브젝트 찾기
+        Pickup[] activePickups = FindObjectsOfType<Pickup>();
+        
+        if (activePickups.Length > 0)
+        {
+            if (enableDebugMode)
+            {
+                Debug.Log($"[GamePoolManager] 씬 전환 시 활성화된 픽업 아이템 {activePickups.Length}개 발견, 풀로 반환 중...");
+            }
+            
+            foreach (Pickup pickup in activePickups)
+            {
+                if (pickup != null && pickup.gameObject.activeInHierarchy)
+                {
+                    // Pickup 오브젝트를 즉시 비활성화하여 Update() 실행 중지
+                    pickup.gameObject.SetActive(false);
+                    
+                    // 적절한 풀 태그 결정 후 반환
+                    string poolTag = DeterminePickupPoolTag(pickup.gameObject);
+                    if (!string.IsNullOrEmpty(poolTag) && poolDictionary.ContainsKey(poolTag))
+                    {
+                        ReturnToPool(poolTag, pickup.gameObject);
+                    }
+                    else
+                    {
+                        // 풀이 없으면 파괴
+                        DestroyImmediate(pickup.gameObject);
+                        if (enableDebugMode)
+                        {
+                            Debug.LogWarning($"[GamePoolManager] 픽업 아이템 '{pickup.name}'의 풀을 찾을 수 없어 파괴했습니다.");
+                        }
+                    }
+                }
+                
+                yield return null; // 매 아이템마다 프레임 대기
+            }
+            
+            if (enableDebugMode)
+            {
+                Debug.Log("[GamePoolManager] 활성화된 픽업 아이템 정리 완료");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 새로운 메서드: clearOnSceneExit = true인 풀들의 활성 오브젝트 즉시 정리
+    /// </summary>
+    private IEnumerator CleanupClearOnExitPools()
+    {
+        if (poolSettings == null || poolSettings.Count == 0)
+        {
+            yield break;
+        }
+        
+        List<string> tagsToCleanup = new List<string>();
+        
+        // clearOnSceneExit = true인 태그들 찾기
+        foreach (var kvp in poolSettings)
+        {
+            if (kvp.Value.clearOnSceneExit)
+            {
+                tagsToCleanup.Add(kvp.Key);
+            }
+        }
+        
+        if (tagsToCleanup.Count > 0)
+        {
+            if (enableDebugMode)
+            {
+                Debug.Log($"[GamePoolManager] clearOnSceneExit 태그들의 활성 오브젝트 정리: {string.Join(", ", tagsToCleanup)}");
+            }
+            
+            // 각 태그별로 활성 오브젝트 정리
+            foreach (string tag in tagsToCleanup)
+            {
+                yield return StartCoroutine(CleanupActiveObjectsByTag(tag));
+            }
+            
+            if (enableDebugMode)
+            {
+                Debug.Log("[GamePoolManager] clearOnSceneExit 활성 오브젝트 정리 완료");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 헬퍼 메서드: 픽업 오브젝트의 풀 태그 결정
+    /// </summary>
+    private string DeterminePickupPoolTag(GameObject pickupObject)
+    {
+        string objectName = pickupObject.name.Replace("(Clone)", "").Trim();
+        
+        // 일반적인 픽업 아이템 매핑
+        if (objectName.Contains("Gold") || objectName.Contains("Coin"))
+        {
+            return "Gold Coin";
+        }
+        else if (objectName.Contains("Health"))
+        {
+            return "Health";
+        }
+        
+        // 정확한 이름 매핑이 안되면 원본 이름 반환
+        return objectName;
     }
     
     private IEnumerator LoadCurrentScenePools()
@@ -557,7 +861,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
         
         List<string> poolsToRemove = new List<string>();
         
-        foreach (var kvp in poolDictionary)
+        foreach (var kvp in poolDictionary.ToList()) // 안전한 복사본 생성
         {
             string tag = kvp.Key;
             Queue<GameObject> pool = kvp.Value;
@@ -585,13 +889,20 @@ public class GamePoolManager : Singleton<GamePoolManager>
                 
                 if (shouldClear)
                 {
-                    // 풀의 모든 오브젝트 파괴
+                    // 풀의 모든 오브젝트 안전하게 파괴
                     while (pool.Count > 0)
                     {
                         GameObject obj = pool.Dequeue();
                         if (obj != null)
                         {
-                            DestroyImmediate(obj);
+                            try
+                            {
+                                DestroyImmediate(obj);
+                            }
+                            catch (MissingReferenceException)
+                            {
+                                // 이미 파괴된 오브젝트, 무시
+                            }
                         }
                     }
                     
@@ -614,6 +925,113 @@ public class GamePoolManager : Singleton<GamePoolManager>
             poolSettings.Remove(tag);
             loadedPoolTags.Remove(tag);
         }
+    }
+    
+    /// <summary>
+    /// ⭐ 새로운 메서드: 특정 태그의 활성화된 오브젝트들 정리
+    /// </summary>
+    private IEnumerator CleanupActiveObjectsByTag(string tag)
+    {
+        List<string> keysToRemove = new List<string>();
+        List<GameObject> objectsToDestroy = new List<GameObject>();
+        
+        // activePools에서 해당 태그의 오브젝트들 찾기
+        foreach (var kvp in activePools)
+        {
+            GameObject obj = kvp.Value;
+            if (obj != null && ShouldObjectBeCleanedByTag(obj, tag))
+            {
+                keysToRemove.Add(kvp.Key);
+                objectsToDestroy.Add(obj);
+            }
+        }
+        
+        // 추가로 씬에서 직접 찾기 (activePools에 등록되지 않은 것들)
+        GameObject[] allObjects = FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj != null && ShouldObjectBeCleanedByTag(obj, tag) && !objectsToDestroy.Contains(obj))
+            {
+                objectsToDestroy.Add(obj);
+            }
+        }
+        
+        if (objectsToDestroy.Count > 0)
+        {
+            if (enableDebugMode)
+            {
+                Debug.Log($"[GamePoolManager] '{tag}' 태그의 활성 오브젝트 {objectsToDestroy.Count}개 정리 중...");
+            }
+            
+            // 활성 오브젝트들 정리
+            foreach (GameObject obj in objectsToDestroy)
+            {
+                if (obj != null)
+                {
+                    // activePools에서 제거
+                    string instanceId = obj.GetInstanceID().ToString();
+                    if (activePools.ContainsKey(instanceId))
+                    {
+                        activePools.Remove(instanceId);
+                    }
+                    
+                    // 즉시 파괴
+                    DestroyImmediate(obj);
+                    
+                    if (enableDebugMode)
+                    {
+                        Debug.Log($"[GamePoolManager] 활성 오브젝트 정리: {obj.name} (태그: {tag})");
+                    }
+                }
+                
+                yield return null; // 매 오브젝트마다 프레임 대기
+            }
+            
+            if (enableDebugMode)
+            {
+                Debug.Log($"[GamePoolManager] '{tag}' 태그의 활성 오브젝트 정리 완료");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 헬퍼 메서드: 오브젝트가 특정 태그로 정리되어야 하는지 판단
+    /// </summary>
+    private bool ShouldObjectBeCleanedByTag(GameObject obj, string tag)
+    {
+        if (obj == null) return false;
+        
+        // 오브젝트 이름으로 태그 매칭
+        string objectName = obj.name.Replace("(Clone)", "").Trim();
+        
+        // "_숫자" 패턴 제거
+        int underscoreIndex = objectName.LastIndexOf('_');
+        if (underscoreIndex > 0)
+        {
+            string afterUnderscore = objectName.Substring(underscoreIndex + 1);
+            if (int.TryParse(afterUnderscore, out _))
+            {
+                objectName = objectName.Substring(0, underscoreIndex);
+            }
+        }
+        
+        // 태그와 매칭 확인
+        if (objectName.Equals(tag, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+        
+        // 픽업 아이템 특별 처리
+        if (tag == "Health" && (objectName.Contains("Health") || obj.GetComponent<Pickup>() != null))
+        {
+            return true;
+        }
+        if (tag == "Gold Coin" && (objectName.Contains("Gold") || objectName.Contains("Coin") || obj.GetComponent<Pickup>() != null))
+        {
+            return true;
+        }
+        
+        return false;
     }
     
     private void PrintPoolStats()

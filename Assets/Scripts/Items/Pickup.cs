@@ -31,6 +31,16 @@ public class Pickup : MonoBehaviour
 
     private void Update() {
         var playerController = FindObjectOfType<PlayerController>();
+        
+        // ⭐ 핵심 수정: null 체크 추가하여 씬 전환 시 에러 방지
+        if (playerController == null)
+        {
+            // PlayerController가 없으면 움직임 정지
+            moveDir = Vector3.zero;
+            moveSpeed = 0;
+            return;
+        }
+        
         Vector3 playerPos = playerController.transform.position;
 
         if (Vector3.Distance(transform.position, playerPos) < pickUpDistance) {
