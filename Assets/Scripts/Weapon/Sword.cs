@@ -8,7 +8,8 @@ public class Sword : MonoBehaviour, IWeapon
     [SerializeField] private Transform slashSpawnPoint;
     [SerializeField] private WeaponInfo weaponInfo;
 
-    private Animator myAnimator;
+    // ⭐ Animator는 PlayerAnimationController에서 관리하므로 제거
+    // private Animator myAnimator;
     private Transform weaponCollider;
     private ActiveWeapon activeWeapon;
 
@@ -18,7 +19,8 @@ public class Sword : MonoBehaviour, IWeapon
     // private float baseColliderX = 0.2f; // 오른손 기준 위치 [미사용]
 
     private void Awake() {
-        myAnimator = GetComponent<Animator>();
+        // ⭐ Animator 참조 제거 - PlayerAnimationController에서 관리
+        // myAnimator = GetComponent<Animator>();
     }
 
     private void Start() {
@@ -33,11 +35,37 @@ public class Sword : MonoBehaviour, IWeapon
     }
 
     public void Attack() {
+        Debug.Log("🔵 [Sword] Attack() 시작 - 순수 공격 로직");
 
-            myAnimator.SetTrigger("Attack");
+        // ⭐ 애니메이션 트리거 제거 - PlayerAnimationController에서 관리
+        // myAnimator.SetTrigger("Attack");
+        
+        // 순수 공격 로직만 담당
+        PerformSwordAttack();
+    }
+    
+    /// <summary>
+    /// 검 공격 실행 (Animation Event에서도 호출 가능)
+    /// </summary>
+    public void PerformSwordAttack()
+    {
+        // 무기 콜라이더 활성화
+        if (weaponCollider != null)
+        {
             weaponCollider.gameObject.SetActive(true);
+            Debug.Log("🟢 [Sword] 무기 콜라이더 활성화");
+        }
+        
+        // 슬래시 이펙트 생성
+        if (slashSpawnPoint != null)
+        {
             slashAnim = GamePoolManager.Instance.SpawnFromPool("Slash Prefab", slashSpawnPoint.position, Quaternion.identity);
-            slashAnim.transform.parent = this.transform.parent;
+            if (slashAnim != null)
+            {
+                slashAnim.transform.parent = this.transform.parent;
+                Debug.Log("🟢 [Sword] 슬래시 이펙트 생성");
+            }
+        }
     }
 
     public void DoneAttackingAnimEnvet() {

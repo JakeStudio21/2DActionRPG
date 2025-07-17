@@ -88,11 +88,34 @@ public class PlayerAttackInput : MonoBehaviour
     /// </summary>
     private void PerformSkill()
     {
+        Debug.Log("🔵 [PlayerAttackInput] PerformSkill() 시작");
+        
+        // ⭐ PlayerAnimationController 우선 사용
+        var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        if (playerAnimationController != null)
+        {
+            bool success = playerAnimationController.TriggerSkill1();
+            
+            if (success)
+            {
+                Debug.Log("🟢 [PlayerAttackInput] PlayerAnimationController 스킬1 성공!");
+            }
+            else
+            {
+                Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 스킬1 실패!");
+            }
+            
+            return;
+        }
+        
+        // ⭐ 기존 방식 (fallback) - PlayerAnimationController가 없을 때
+        Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 없음 - 기존 방식 사용");
+        
         var skillController = FindObjectOfType<SkillController>();
         if (skillController != null)
         {
             skillController.TriggerSkill();
-            if (showDebugLogs) Debug.Log("[PlayerAttackInput] S키 스킬1 실행");
+            if (showDebugLogs) Debug.Log("[PlayerAttackInput] S키 스킬1 실행 (기존 방식)");
         }
         else
         {

@@ -28682,6 +28682,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1354415509831945136, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1354415509831945136, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1354415509831945136, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1354415509831945136, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1354415509831945136, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -45
+      objectReference: {fileID: 0}
     - target: {fileID: 5229681529323488839, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
       propertyPath: m_ChildCameras.Array.size
       value: 1
@@ -28689,6 +28709,26 @@ PrefabInstance:
     - target: {fileID: 6681595848525757299, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
       propertyPath: m_Name
       value: Camera
+      objectReference: {fileID: 0}
+    - target: {fileID: 8323318156057669706, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8323318156057669706, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8323318156057669706, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8323318156057669706, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8323318156057669706, guid: 9bda97a5754c7d24d983d2210bbe04ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

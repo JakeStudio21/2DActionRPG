@@ -51,9 +51,46 @@ public class PlayerController : Singleton<PlayerController>
 
           // 조이스틱 찾기 코루틴 시작
           StartCoroutine(FindJoystickCoroutine());
+          
+          // ⭐ 안전한 Rigidbody2D 상태 확인
+          StartCoroutine(SafeCheckRigidbodyState());
 
           // 로비에서 선택한 무기를 장착하는 새로운 로직으로 대체하므로 이 줄을 주석 처리합니다.
           // FindObjectOfType<ActiveInventory>().EquipStartingweapon();
+     }
+
+     /// <summary>
+     /// 안전한 Rigidbody2D 상태 확인 (코루틴으로 지연 실행)
+     /// </summary>
+     private IEnumerator SafeCheckRigidbodyState()
+     {
+          yield return new WaitForSeconds(0.1f); // 약간 지연
+          
+          try
+          {
+               if (rb == null)
+               {
+                    Debug.LogError("🔴 [PlayerController] Rigidbody2D가 null입니다!");
+                    yield break;
+               }
+               
+               Debug.Log($"🔍 [PlayerController] Rigidbody2D 상태:");
+               Debug.Log($"   - isKinematic: {rb.isKinematic}");
+               Debug.Log($"   - bodyType: {rb.bodyType}");
+               Debug.Log($"   - position: {rb.position}");
+               
+               // ⭐ 문제 해결: Kinematic이면 Dynamic으로 변경
+               if (rb.isKinematic)
+               {
+                    Debug.LogWarning("🟡 [PlayerController] Rigidbody2D가 Kinematic입니다! Dynamic으로 변경");
+                    rb.isKinematic = false;
+                    rb.bodyType = RigidbodyType2D.Dynamic;
+               }
+          }
+          catch (System.Exception e)
+          {
+               Debug.LogError($"🔴 [PlayerController] Rigidbody2D 상태 확인 에러: {e.Message}");
+          }
      }
 
      /// <summary>
@@ -97,17 +134,26 @@ public class PlayerController : Singleton<PlayerController>
 
      private void Update()
      {
-          // ⭐ 추가: 조이스틱 연결 상태 실시간 체크
-          if ((!joystickFound || fixedJoystick == null) && Time.frameCount % 60 == 0)
+          // ⭐ 조이스틱 연결 상태 실시간 체크 (안전하게)
+          try
           {
-               var joystickInScene = FindObjectOfType<FixedJoystick>();
-               if (joystickInScene != null)
+               if ((!joystickFound || fixedJoystick == null) && Time.frameCount % 60 == 0)
                {
-                    Debug.Log("[PlayerController] Update에서 조이스틱 재연결 시도");
-                    fixedJoystick = joystickInScene;
-                    joystickFound = true;
+                    var joystickInScene = FindObjectOfType<FixedJoystick>();
+                    if (joystickInScene != null)
+                    {
+                         Debug.Log("[PlayerController] Update에서 조이스틱 재연결 시도");
+                         fixedJoystick = joystickInScene;
+                         joystickFound = true;
+                    }
                }
           }
+          catch (System.Exception e)
+          {
+               Debug.LogError($"🔴 [PlayerController] 조이스틱 체크 에러: {e.Message}");
+          }
+          
+          // ⭐ 강제 위치 변경 테스트 제거 (에러 원인 제거)
           
           PlayerInput();
      }
@@ -165,9 +211,64 @@ public class PlayerController : Singleton<PlayerController>
 
      private void Move() 
      {
-          if (knockback.GettingKnockedBack || FindObjectOfType<PlayerHealth>().isDead) { return; }
+          // ⭐ 안전한 디버깅 (try-catch 추가)
+          try
+          {
+              if (Time.frameCount % 60 == 0)
+              {
+                  Debug.Log($"🔍 [PlayerController] Move 체크:");
+                  Debug.Log($"   - movement: {movement}");
+                  Debug.Log($"   - rb가 null인가: {rb == null}");
+                  Debug.Log($"   - knockback가 null인가: {knockback == null}");
+                  
+                  if (knockback != null)
+                      Debug.Log($"   - knockback.GettingKnockedBack: {knockback.GettingKnockedBack}");
+              }
+          }
+          catch (System.Exception e)
+          {
+              Debug.LogError($"🔴 [PlayerController] 디버깅 로그 에러: {e.Message}");
+          }
+          
+          // ⭐ 안전한 조건 확인
+          try
+          {
+              if (knockback != null && knockback.GettingKnockedBack) 
+              { 
+                  return; 
+              }
+              
+              var playerHealth = FindObjectOfType<PlayerHealth>();
+              if (playerHealth != null && playerHealth.isDead) 
+              { 
+                  return; 
+              }
+          }
+          catch (System.Exception e)
+          {
+              Debug.LogError($"🔴 [PlayerController] Move 조건 확인 에러: {e.Message}");
+              return;
+          }
 
-          rb.MovePosition(rb.position + movement * (moveSpeed * Time.fixedDeltaTime));
+          // ⭐ 안전한 이동 실행
+          try
+          {
+              if (rb != null && movement.magnitude > 0.01f)
+              {
+                  Vector2 newPosition = rb.position + movement * (moveSpeed * Time.fixedDeltaTime);
+                  rb.MovePosition(newPosition);
+                  
+                  // ⭐ 간단한 이동 확인 (에러 방지)
+                  if (Time.frameCount % 120 == 0) // 2초마다
+                  {
+                      Debug.Log($"🚀 [PlayerController] 이동 실행: {movement} → {rb.position}");
+                  }
+              }
+          }
+          catch (System.Exception e)
+          {
+              Debug.LogError($"🔴 [PlayerController] rb.MovePosition 에러: {e.Message}");
+          }
      }
 
      private void AdjustPlayerFacingDirection() 
@@ -235,158 +336,4 @@ public class PlayerController : Singleton<PlayerController>
           Debug.Log("[PlayerController] 조이스틱 강제 재연결 시도 - joystickFound를 false로 초기화");
      }
 }
-
-// using System.Collections;
-// using System.Collections.Generic;
-// using UnityEngine;
-
-// public class PlayerController : Singleton<PlayerController>
-// {
-//      public bool FacingLeft { get { return facingLeft; } }
-//      public Vector2 Movement { get { return movement; } }
-
-
-//      [SerializeField] private float moveSpeed = 1f;
-//      [SerializeField] private float dashspeed = 4f;
-//      [SerializeField] private TrailRenderer myTrailRenderer;
-//      [SerializeField] private Transform weaponCollider;
-
-//      private PlayerControls playerControls;
-//      private Vector2 movement;
-//      private Rigidbody2D rb;
-//      private Animator myAnimator;
-//      private SpriteRenderer mySpriteRender;
-//      private Knockback knockback;
-//      private float startingMoveSpeed;
-
-//      private bool facingLeft = false;
-//      private bool isDashing = false;
-
-//      // FixedJoystick 참조 추가
-//      [Header("조이스틱 입력")]
-//      public FixedJoystick fixedJoystick;
-
-//      // 무기/스킬별 레벨 통합 관리
-//      private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
-
-//      protected override void Awake() {
-//           base.Awake();
-//           playerControls = new PlayerControls();
-//           rb = GetComponent<Rigidbody2D>();
-//           myAnimator = GetComponent<Animator>();
-//           mySpriteRender = GetComponent<SpriteRenderer>();
-//           knockback = GetComponent<Knockback>();
-//           if (fixedJoystick == null)
-//           {
-//                fixedJoystick = FindObjectOfType<FixedJoystick>();
-//           }
-//      }
-
-//      private void Start() {
-//           playerControls.Combat.Dash.performed += _ => Dash();
-
-//           startingMoveSpeed = moveSpeed;
-
-//           // 로비에서 선택한 무기를 장착하는 새로운 로직으로 대체하므로 이 줄을 주석 처리합니다.
-//           // FindObjectOfType<ActiveInventory>().EquipStartingweapon();
-//      }
-
-//      private void OnEnable() {
-//           playerControls.Enable();
-//      }
-
-//      private void OnDisable() {
-//      if (playerControls != null)
-//           playerControls.Disable();
-//      }
-
-//      private void Update()
-//      {
-//           // 동적 할당: fixedJoystick이 끊겼을 때 자동 재연결
-//           if (fixedJoystick == null)
-//           {
-//                fixedJoystick = FindObjectOfType<FixedJoystick>();
-//           }
-//           PlayerInput();
-//      }
-
-//      private void FixedUpdate() {
-//           AdjustPlayerFacingDirection();
-//           Move();
-//      }
-
-//      public void ReEnableControls()
-//      {
-//         playerControls.Disable();
-//         playerControls.Enable();
-//      }
-
-//      public Transform GetWeaponCollider() {
-//           return weaponCollider;
-//      }
-
-//      private void PlayerInput() {
-//           // movement = playerControls.Movement.Move.ReadValue<Vector2>(); // 기존 키보드 입력 주석처리
-//           if (fixedJoystick != null)
-//           {
-//                movement = fixedJoystick.Direction;
-//           }
-//           else
-//           {
-//                movement = Vector2.zero;
-//           }
-//           myAnimator.SetFloat("moveX", movement.x);
-//           myAnimator.SetFloat("moveY", movement.y);
-//      } 
-
-//      private void Move() {
-//           if (knockback.GettingKnockedBack || FindObjectOfType<PlayerHealth>().isDead) { return; }
-
-//           rb.MovePosition(rb.position + movement * (moveSpeed * Time.fixedDeltaTime));
-//      }
-
-//      private void AdjustPlayerFacingDirection() {
-//          if (movement.x < 0) {
-//                mySpriteRender.flipX = true;
-//                facingLeft = true;
-//          } else if (movement.x > 0) {
-//                mySpriteRender.flipX = false;
-//                facingLeft = false;
-//          }
-//      }
-
-//      private void Dash() {
-//           if ( !isDashing && Stamina.Instance.CurrentStamina > 0 ) {
-//                Stamina.Instance.UseStamina();              
-//                isDashing = true;
-//                moveSpeed += dashspeed;
-//                myTrailRenderer.emitting = true;
-//                StartCoroutine(EndDashRoutine());
-//           }
-//      }
-
-//      private IEnumerator EndDashRoutine() {
-//           float dashTime = .2f;
-//           float dashCD = .25f;
-//           yield return new WaitForSecondsRealtime(dashTime);
-//           moveSpeed = startingMoveSpeed;
-//           myTrailRenderer.emitting = false;
-//           yield return new WaitForSecondsRealtime(dashCD);
-//           isDashing = false;
-//      }
-
-//      // Bow, Sword 등 스킬/무기 이름으로 레벨 조회
-//      public int GetSkillLevel(string skillName)
-//      {
-//           if (skillLevels.ContainsKey(skillName))
-//                return skillLevels[skillName];
-//           return 0; // 기본값
-//      }
-
-//      // Bow, Sword 등 스킬/무기 이름으로 레벨 설정
-//      public void SetSkillLevel(string skillName, int level)
-//      {
-//           skillLevels[skillName] = level;
-//      }
-// } 
 

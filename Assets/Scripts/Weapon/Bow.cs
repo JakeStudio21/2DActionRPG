@@ -9,22 +9,34 @@ public class Bow : MonoBehaviour, IWeapon
     [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private Transform arrowSpawnPoint;
 
-    readonly int FIRM_HASH = Animator.StringToHash("Fire");
-
-    private Animator myAnimator;
+    // ⭐ 애니메이션 트리거는 PlayerAnimationController에서 관리하므로 제거
+    // readonly int FIRM_HASH = Animator.StringToHash("Fire");
+    // private Animator myAnimator;
 
     private void Awake()
     {
-        myAnimator = GetComponent<Animator>();
+        // ⭐ Animator 참조 제거 - PlayerAnimationController에서 관리
+        // myAnimator = GetComponent<Animator>();
     }
 
     public void Attack()
     {
-        Debug.Log("🔵 [Bow] Attack() 시작");
+        // ⭐ 디버깅 로그 정리
+        Debug.Log("🔵 [Bow] Attack() 실행");
         
-        myAnimator.SetTrigger(FIRM_HASH);
-        Debug.Log("🟢 [Bow] 애니메이션 트리거 실행");
+        // ⭐ 애니메이션 트리거 제거 - PlayerAnimationController에서 관리
+        // myAnimator.SetTrigger(FIRM_HASH);
+        // Debug.Log("🟢 [Bow] 애니메이션 트리거 실행");
 
+        // 순수 발사체 생성 로직만 담당
+        SpawnArrow();
+    }
+    
+    /// <summary>
+    /// 화살 생성 로직 (Animation Event에서도 호출 가능)
+    /// </summary>
+    public void SpawnArrow()
+    {
         GameObject newArrow = GamePoolManager.Instance.SpawnFromPool("Arrow", arrowSpawnPoint.position, arrowSpawnPoint.rotation);
         
         if (newArrow != null)
@@ -54,13 +66,12 @@ public class Bow : MonoBehaviour, IWeapon
 
     public void UpdateDirection(Vector2 direction, bool facingLeft)
     {
-        // 활은 회전(Quaternion)으로 처리
+        // 조이스틱 방향에 따른 무기 회전 (facingLeft 무시)
         if (direction.magnitude > 0.1f)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
         }
-        // flipX는 사용하지 않음
     }
 
 } 

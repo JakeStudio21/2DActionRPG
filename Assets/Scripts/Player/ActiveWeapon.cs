@@ -9,13 +9,38 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     private PlayerControls playerControls;
     private float timeBetweenAttacks;
 
-    private bool isAttacking = false;
+    // ⭐ 기존 isAttacking 제거 - PlayerAnimationController에서 관리
+    // private bool isAttacking = false;
 
     public AttackJoystickInput attackJoystickInput; // 인스펙터에서 할당
+    
+    // ⭐ 새 Animation Controller 참조 추가
+    private PlayerAnimationController playerAnimationController;
 
     protected override void Awake() {
         base.Awake();
         playerControls = new PlayerControls();
+        
+        // ⭐ PlayerAnimationController 참조 가져오기 (더 넓은 범위에서 검색)
+        playerAnimationController = GetComponent<PlayerAnimationController>();
+        if (playerAnimationController == null)
+        {
+            // 같은 GameObject에 없으면 부모/자식에서 찾기
+            playerAnimationController = GetComponentInParent<PlayerAnimationController>();
+            if (playerAnimationController == null)
+            {
+                playerAnimationController = GetComponentInChildren<PlayerAnimationController>();
+            }
+            
+            if (playerAnimationController == null)
+            {
+                Debug.LogWarning("🟡 [ActiveWeapon] PlayerAnimationController가 없습니다. 기존 방식으로 동작합니다.");
+            }
+            else
+            {
+                Debug.Log("🟢 [ActiveWeapon] PlayerAnimationController를 찾았습니다!");
+            }
+        }
     }
 
     private void OnEnable()
@@ -28,7 +53,8 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
         // playerControls.Combat.Attack.started += _ => StartAttacking(); // 키보드/마우스 입력을 비활성화하므로 주석 처리
         // playerControls.Combat.Attack.canceled += _ => StopAttacking(); // 키보드/마우스 입력을 비활성화하므로 주석 처리
 
-        AttackCooldown();
+        // ⭐ 기존 AttackCooldown() 제거 - PlayerAnimationController에서 관리
+        // AttackCooldown();
     }
 
     private void Update() {
@@ -55,8 +81,15 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
 
         CurrentActiveWeapon = newWeapon;
 
-        AttackCooldown();
+        // ⭐ 기존 AttackCooldown() 제거하고 PlayerAnimationController 업데이트
         timeBetweenAttacks = (CurrentActiveWeapon as IWeapon).GetWeaponInfo().weaponCooldown;
+        
+        // PlayerAnimationController에 쿨다운 정보 전달
+        if (playerAnimationController != null)
+        {
+            playerAnimationController.UpdateWeaponCooldown(timeBetweenAttacks);
+        }
+        
         Debug.Log("🟢 [ActiveWeapon] 무기 쿨다운 설정됨: " + timeBetweenAttacks + "초");
     }
 
@@ -87,20 +120,9 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
         NewWeapon(newWeapon.GetComponent<MonoBehaviour>());
     }
 
-    private void AttackCooldown() {
-        isAttacking = true;
-        Debug.Log("🔵 [ActiveWeapon] AttackCooldown 시작 - timeBetweenAttacks: " + timeBetweenAttacks);
-        StopAllCoroutines();
-        StartCoroutine(TimeBetweenAttacksRoutine());
-    }
-
-// Unity에서 공격 쿨타임(재사용 대기시간)을 구현하기 위한 코루틴
-    private IEnumerator TimeBetweenAttacksRoutine() {
-        Debug.Log("🔵 [ActiveWeapon] 쿨다운 코루틴 시작 - 대기시간: " + timeBetweenAttacks + "초");
-        yield return new WaitForSeconds(timeBetweenAttacks);
-        isAttacking = false;
-        Debug.Log("🟢 [ActiveWeapon] 쿨다운 완료! isAttacking = false");
-    }
+    // ⭐ 기존 AttackCooldown() 메서드 제거 - PlayerAnimationController에서 관리
+    // private void AttackCooldown() { ... }
+    // private IEnumerator TimeBetweenAttacksRoutine() { ... }
 
     private void Attack() {
         // ⭐ 추가: 여러 입력 방식으로 기본공격 감지
@@ -137,26 +159,36 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     public void PerformAttack()
     {
         Debug.Log("🔵 [ActiveWeapon] PerformAttack() 시작");
-        Debug.Log("🔵 [ActiveWeapon] isAttacking: " + isAttacking);
-        Debug.Log("🔵 [ActiveWeapon] CurrentActiveWeapon: " + (CurrentActiveWeapon != null ? CurrentActiveWeapon.name : "NULL"));
         
-        if (!isAttacking && CurrentActiveWeapon)
+        // ⭐ PlayerAnimationController 사용 시 (AttackType 제거)
+        if (playerAnimationController != null)
+        {
+            bool success = playerAnimationController.TriggerAttack(); // AttackType 매개변수 제거
+            
+            if (success)
+            {
+                Debug.Log("🟢 [ActiveWeapon] PlayerAnimationController 공격 성공!");
+            }
+            else
+            {
+                Debug.LogWarning("🟡 [ActiveWeapon] PlayerAnimationController 공격 실패!");
+            }
+            
+            return;
+        }
+        
+        // ⭐ 기존 방식 (fallback) - PlayerAnimationController가 없을 때
+        Debug.LogWarning("🟡 [ActiveWeapon] PlayerAnimationController 없음 - 기존 방식 사용");
+        
+        if (CurrentActiveWeapon != null)
         {
             Debug.Log("🟢 [ActiveWeapon] 공격 조건 만족, 공격 실행!");
-            AttackCooldown();
             (CurrentActiveWeapon as IWeapon).Attack();
             Debug.Log("🟢 [ActiveWeapon] IWeapon.Attack() 호출 완료");
         }
         else
         {
-            if (isAttacking)
-            {
-                Debug.LogWarning("🟡 [ActiveWeapon] 이미 공격 중입니다 (쿨다운)");
-            }
-            if (CurrentActiveWeapon == null)
-            {
-                Debug.LogError("🔴 [ActiveWeapon] CurrentActiveWeapon이 null입니다!");
-            }
+            Debug.LogError("🔴 [ActiveWeapon] CurrentActiveWeapon이 null입니다!");
         }
     }
 }

@@ -18,6 +18,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private Knockback knockback;
     private Flash flash;
     private ResultPopupController resultPopup;  // 팝업 컨트롤러 참조
+    private PlayerAnimationController playerAnimationController; // ⭐ 추가된 변수 선언
 
     const string HEALTH_SLIDER_TEXT = "Health Slider";
     const string TOWN_TEXT = "Scene1";
@@ -50,6 +51,11 @@ public class PlayerHealth : Singleton<PlayerHealth>
         currentHealth = maxHealth;
         UpdateHealthSlider();
         resultPopup = FindObjectOfType<ResultPopupController>();
+        
+        // PlayerAnimationController 참조 획득
+        playerAnimationController = GetComponent<PlayerAnimationController>();
+        if (playerAnimationController == null)
+            playerAnimationController = GetComponentInChildren<PlayerAnimationController>();
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -100,6 +106,17 @@ public class PlayerHealth : Singleton<PlayerHealth>
         Debug.Log($"플레이어 피격! 현재 체력: {currentHealth}/{maxHealth}");
 
         CheckIfPlayerDeath();
+        
+        // ⭐ 피격 애니메이션 트리거 다시 활성화 (안전장치 추가)
+        if (playerAnimationController != null)
+        {
+            bool hitResult = playerAnimationController.TriggerHit();
+            Debug.Log($"🔴 [PlayerHealth] 피격 애니메이션 트리거 결과: {hitResult}");
+        }
+        else
+        {
+            Debug.LogWarning("🟡 [PlayerHealth] PlayerAnimationController를 찾을 수 없습니다!");
+        }
     }
 
     private void CheckIfPlayerDeath() {

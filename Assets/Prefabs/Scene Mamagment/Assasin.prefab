@@ -377,6 +377,7 @@ GameObject:
   - component: {fileID: 4451406008786218953}
   - component: {fileID: 472274624499914740}
   - component: {fileID: 3205066752579020479}
+  - component: {fileID: -5040200761801505519}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -577,8 +578,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27cce43ebc04520488124b526d8f98d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  knockBackThrustAmount: 10
+  maxHealth: 50
+  knockBackThrustAmount: 0
   damageRecoveryTime: 1
 --- !u!114 &5734504649737104247
 MonoBehaviour:
@@ -606,7 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0.2
+  knockBackTime: 0
 --- !u!114 &6403347020822746970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -666,3 +667,16 @@ MonoBehaviour:
   arrowSpeed: 10
   arrowCount: 5
   spreadAngle: 15
+--- !u!114 &-5040200761801505519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640d1baa946081e4291e894855f4078d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebugLogs: 1
