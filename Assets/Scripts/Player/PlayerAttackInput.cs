@@ -42,7 +42,7 @@ public class PlayerAttackInput : MonoBehaviour
             PerformSkill();
         }
         
-        // ⭐ D키: 스킬2 (통합 관리) - 새로 추가
+        // ⭐ D키: 스킬2 (통합 관리) - 새로 활성화
         if (Input.GetKeyDown(KeyCode.D))
         {
             Debug.Log("🟢 [PlayerAttackInput] D키 입력 감지됨!");
@@ -124,16 +124,38 @@ public class PlayerAttackInput : MonoBehaviour
     }
 
     /// <summary>
-    /// 스킬2 실행
+    /// 스킬2 실행 - ⭐ 완전 구현
     /// </summary>
     private void PerformSkill2()
     {
+        Debug.Log("🔵 [PlayerAttackInput] PerformSkill2() 시작");
+        
+        // ⭐ PlayerAnimationController 우선 사용 (스킬1과 동일한 패턴)
+        var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        if (playerAnimationController != null)
+        {
+            bool success = playerAnimationController.TriggerSkill2();
+            
+            if (success)
+            {
+                Debug.Log("🟢 [PlayerAttackInput] PlayerAnimationController 스킬2 성공!");
+            }
+            else
+            {
+                Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 스킬2 실패!");
+            }
+            
+            return;
+        }
+        
+        // ⭐ 기존 방식 (fallback) - PlayerAnimationController가 없을 때
+        Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 없음 - 기존 방식 사용");
+        
         var skillController = FindObjectOfType<SkillController>();
         if (skillController != null)
         {
-            // TODO: SkillController에 스킬2 메서드가 있다면 호출
-            // skillController.TriggerSkill2();
-            if (showDebugLogs) Debug.Log("[PlayerAttackInput] D키 스킬2 실행 (TODO: 구현 필요)");
+            skillController.TriggerSkill2(); // ⭐ TODO 제거하고 실제 구현
+            if (showDebugLogs) Debug.Log("[PlayerAttackInput] D키 스킬2 실행 (기존 방식)");
         }
         else
         {

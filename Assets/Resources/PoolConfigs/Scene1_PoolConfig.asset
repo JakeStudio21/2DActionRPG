@@ -20,6 +20,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 50
+  - tag: Arrow_Big
+    prefab: {fileID: 4149642069968341746, guid: afcf4578eaaa23e48b54dbcc836f4560, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   - tag: Barrel VFX
     prefab: {fileID: 724470073289127030, guid: 7b418587ca1a19745ba312bce0b1ceb8, type: 3}
     size: 30
@@ -50,6 +56,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 50
+  - tag: Death VFX
+    prefab: {fileID: 724470073289127030, guid: 624ea55b45189ef449d76ba59b4a1f6c, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
   - tag: Health
     prefab: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
     size: 30
@@ -61,12 +73,6 @@ MonoBehaviour:
     size: 30
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
-    maxInstancesPerFrame: 50
-  - tag: Death VFX
-    prefab: {fileID: 724470073289127030, guid: 624ea55b45189ef449d76ba59b4a1f6c, type: 3}
-    size: 30
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
     maxInstancesPerFrame: 50
   optionalPools: []
   enableDebugLogs: 0

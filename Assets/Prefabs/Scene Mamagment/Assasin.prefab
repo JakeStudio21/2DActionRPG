@@ -667,6 +667,10 @@ MonoBehaviour:
   arrowSpeed: 10
   arrowCount: 5
   spreadAngle: 15
+  powerArrowPrefab: {fileID: 4149642069968341746, guid: afcf4578eaaa23e48b54dbcc836f4560, type: 3}
+  skill2CooldownTime: 3
+  powerArrowSpeed: 10
+  powerArrowScale: 2
 --- !u!114 &-5040200761801505519
 MonoBehaviour:
   m_ObjectHideFlags: 0
