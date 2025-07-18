@@ -83,20 +83,32 @@ public class SkillUIController : MonoBehaviour
     /// <summary>
     /// 스킬 버튼이 클릭되었을 때 호출되는 공용 메서드
     /// Unity Button의 OnClick 이벤트에서 호출됩니다.
+    /// ⭐ 신규: SkillController.SkillSet으로 직접 연결 (PlayerAnimationController 완전 우회)
     /// </summary>
     public void OnSkillButtonPressed()
     {
-        if (skillController == null)
+        Debug.Log("🔥 [SkillUI] 스킬1 버튼 클릭! - SkillSet 직접 실행");
+        
+        // ⭐ SkillController.SkillSet으로 직접 연결
+        var skillController = FindObjectOfType<SkillController>();
+        if (skillController != null)
         {
-            Debug.LogWarning("[SkillUI] 스킬 버튼이 눌렸지만 SkillController를 찾을 수 없습니다!");
-            // SkillController를 다시 찾아보기
-            InitializeSkillController();
-            return;
+            // SkillSet을 통한 직접 실행 (PlayerAnimationController 완전 우회)
+            bool success = skillController.SkillSet.ExecuteSkill(0);
+            
+            if (success)
+            {
+                Debug.Log("�� [SkillUI] SkillSet 직접 실행 성공!");
+            }
+            else
+            {
+                Debug.LogError("🔴 [SkillUI] SkillSet 직접 실행 실패!");
+            }
         }
-
-        // SkillController의 스킬 활성화 메서드 호출 (TriggerSkill 사용)
-        skillController.TriggerSkill();
-        Debug.Log("[SkillUI] 스킬 버튼 클릭 - 스킬 활성화 요청");
+        else
+        {
+            Debug.LogError("🔴 [SkillUI] SkillController를 찾을 수 없습니다!");
+        }
     }
 
     /// <summary>

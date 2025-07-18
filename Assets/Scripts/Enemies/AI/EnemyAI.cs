@@ -66,7 +66,7 @@ public class EnemyAI : MonoBehaviour, IEnemy
         spawnPoint = transform.position;
         
         // 디버그 로그 추가
-        Debug.Log($"[EnemyAI] {gameObject.name} spawnPoint 설정: {spawnPoint}");
+        // Debug.Log($"[EnemyAI] {gameObject.name} spawnPoint 설정: {spawnPoint}");
         
         // 초기 순찰 목표 설정
         patrolTarget = GetRandomPatrolPoint();
@@ -370,7 +370,7 @@ public class EnemyAI : MonoBehaviour, IEnemy
             currentState = newState;
             stateTimer = 0f; // 타이머 리셋
             
-            Debug.Log($"[EnemyAI] {gameObject.name} 상태 변경: {previousState} → {newState}");
+            // Debug.Log($"[EnemyAI] {gameObject.name} 상태 변경: {previousState} → {newState}");
         }
     }
 

@@ -119,7 +119,16 @@ public class PlayerAnimationController : MonoBehaviour
         
         if (skillController == null)
         {
-            Debug.LogWarning("🟡 [PlayerAnimationController] SkillController를 찾을 수 없습니다!");
+            Debug.LogError("🔴 [PlayerAnimationController] SkillController를 찾을 수 없습니다! 동일한 GameObject에 있는지 확인하세요.");
+            
+            // ⭐ 추가 디버깅: 같은 GameObject의 모든 컴포넌트 확인
+            var allComponents = GetComponents<MonoBehaviour>();
+            Debug.Log($"🔍 [PlayerAnimationController] 같은 GameObject의 MonoBehaviour 컴포넌트들:");
+            foreach (var comp in allComponents)
+            {
+                if (comp != null)
+                    Debug.Log($"   - {comp.GetType().Name}: {comp.name}");
+            }
         }
         else
         {
@@ -625,14 +634,26 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (skillController != null)
         {
-            // SkillController의 FireSkill 로직 실행
-            skillController.TriggerSkill();
+            // ⭐ 수정: TriggerSkill() 대신 OnSkill1AnimationEvent() 호출 (무한 루프 방지)
+            skillController.OnSkill1AnimationEvent();
             if (showDebugLogs)
-                Debug.Log("🟢 [PlayerAnimationController] 스킬1 직접 실행 완료");
+                Debug.Log("🟢 [PlayerAnimationController] 스킬1 Animation Event 실행 완료");
         }
         else
         {
-            Debug.LogError("🔴 [PlayerAnimationController] SkillController가 null입니다!");
+            Debug.LogError("🔴 [PlayerAnimationController] ExecuteSkill1: SkillController가 null입니다! 재검색 시도...");
+            
+            // ⭐ 실시간 재검색 시도
+            skillController = FindObjectOfType<SkillController>();
+            if (skillController != null)
+            {
+                Debug.Log("🟢 [PlayerAnimationController] SkillController 재검색 성공! 스킬1 실행");
+                skillController.OnSkill1AnimationEvent();
+            }
+            else
+            {
+                Debug.LogError("🔴 [PlayerAnimationController] SkillController 재검색도 실패!");
+            }
         }
         
         // 간단한 쿨다운 시작
@@ -646,14 +667,26 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (skillController != null)
         {
-            // SkillController의 TriggerSkill2 로직 실행
-            skillController.TriggerSkill2();
+            // ⭐ 수정: TriggerSkill2() 대신 OnSkill2AnimationEvent() 호출 (무한 루프 방지)
+            skillController.OnSkill2AnimationEvent();
             if (showDebugLogs)
-                Debug.Log("🟢 [PlayerAnimationController] 스킬2 직접 실행 완료");
+                Debug.Log("🟢 [PlayerAnimationController] 스킬2 Animation Event 실행 완료");
         }
         else
         {
-            Debug.LogError("🔴 [PlayerAnimationController] SkillController가 null입니다!");
+            Debug.LogError("🔴 [PlayerAnimationController] ExecuteSkill2: SkillController가 null입니다! 재검색 시도...");
+            
+            // ⭐ 실시간 재검색 시도
+            skillController = FindObjectOfType<SkillController>();
+            if (skillController != null)
+            {
+                Debug.Log("🟢 [PlayerAnimationController] SkillController 재검색 성공! 스킬2 실행");
+                skillController.OnSkill2AnimationEvent();
+            }
+            else
+            {
+                Debug.LogError("🔴 [PlayerAnimationController] SkillController 재검색도 실패!");
+            }
         }
         
         // 간단한 쿨다운 시작
@@ -924,7 +957,7 @@ public class PlayerAnimationController : MonoBehaviour
                 Debug.Log($"   - isHit: {animator.GetBool(IS_HIT_HASH)}");
                 
             if (HasParameter(animator, "moveX"))
-                Debug.Log($"   - moveX: {animator.GetFloat("moveX")}");
+                // Debug.Log($"   - moveX: {animator.GetFloat("moveX")}");
                 
             if (HasParameter(animator, "moveY"))
                 Debug.Log($"   - moveY: {animator.GetFloat("moveY")}");

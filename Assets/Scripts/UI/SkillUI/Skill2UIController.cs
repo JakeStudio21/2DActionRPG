@@ -85,21 +85,32 @@ public class Skill2UIController : MonoBehaviour
 
     /// <summary>
     /// 스킬2 버튼이 클릭되었을 때 호출되는 공용 메서드
-    /// Unity Button의 OnClick 이벤트에서 호출됩니다.
+    /// ⭐ 신규: SkillController.SkillSet으로 직접 연결 (PlayerAnimationController 완전 우회)
     /// </summary>
     public void OnSkill2ButtonPressed()
     {
-        if (skillController == null)
+        Debug.Log("🔥 [Skill2UI] 스킬2 버튼 클릭! - SkillSet 직접 실행");
+        
+        // ⭐ SkillController.SkillSet으로 직접 연결
+        var skillController = FindObjectOfType<SkillController>();
+        if (skillController != null)
         {
-            Debug.LogWarning("[Skill2UI] 스킬2 버튼이 눌렸지만 SkillController를 찾을 수 없습니다!");
-            // SkillController를 다시 찾아보기
-            InitializeSkillController();
-            return;
+            // SkillSet을 통한 직접 실행 (PlayerAnimationController 완전 우회)
+            bool success = skillController.SkillSet.ExecuteSkill(1);
+            
+            if (success)
+            {
+                Debug.Log("🟢 [Skill2UI] SkillSet 직접 실행 성공!");
+            }
+            else
+            {
+                Debug.LogError("🔴 [Skill2UI] SkillSet 직접 실행 실패!");
+            }
         }
-
-        // SkillController의 스킬2 활성화 메서드 호출 (TriggerSkill2 사용)
-        skillController.TriggerSkill2();
-        Debug.Log("[Skill2UI] 스킬2 버튼 클릭 - 스킬2 활성화 요청");
+        else
+        {
+            Debug.LogError("🔴 [Skill2UI] SkillController를 찾을 수 없습니다!");
+        }
     }
 
     /// <summary>

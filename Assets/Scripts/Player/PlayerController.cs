@@ -217,7 +217,7 @@ public class PlayerController : Singleton<PlayerController>
               if (Time.frameCount % 60 == 0)
               {
                   Debug.Log($"🔍 [PlayerController] Move 체크:");
-                  Debug.Log($"   - movement: {movement}");
+               //    Debug.Log($"   - movement: {movement}");
                   Debug.Log($"   - rb가 null인가: {rb == null}");
                   Debug.Log($"   - knockback가 null인가: {knockback == null}");
                   
