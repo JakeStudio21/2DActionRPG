@@ -12,15 +12,17 @@ GameObject:
   - component: {fileID: 3756076609133803169}
   - component: {fileID: 5508828587273164219}
   - component: {fileID: 8531858471125227392}
-  - component: {fileID: 3685555561243291731}
   - component: {fileID: 5184943769860111882}
   - component: {fileID: 2311374816801478367}
   - component: {fileID: 3556957486775231346}
+  - component: {fileID: -8747367544597513822}
+  - component: {fileID: -8056838207468641605}
+  - component: {fileID: 4458876440312282437}
+  - component: {fileID: -1970779111418326641}
+  - component: {fileID: 4822367794375699013}
   - component: {fileID: 2733928855307480320}
   - component: {fileID: 4795855821891295909}
-  - component: {fileID: 4822367794375699013}
   - component: {fileID: 9183738283701349947}
-  - component: {fileID: 4458876440312282437}
   m_Layer: 0
   m_Name: Enemie1
   m_TagString: Untagged
@@ -158,24 +160,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &3685555561243291731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackRange: 3
-  attackCooldown: 2
-  detectionRange: 4
-  chaseRange: 6
-  patrolRadius: 4.5
-  monsterType: 2
 --- !u!114 &5184943769860111882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,6 +215,82 @@ MonoBehaviour:
   isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
+--- !u!114 &-8747367544597513822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a85e75df1587944db4927abf753409b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 2311374816801478367}
+--- !u!114 &-8056838207468641605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4458876440312282437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 081d543d4d8d22a42a0b26d1b768ba49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+  projectileSpawnPoint: {fileID: 0}
+  attackCooldown: 2
+  detectionRange: 5.25
+  chaseRange: 8
+  predictionFactor: 0.5
+  stopMovingWhileAttacking: 1
+  attackSound: {fileID: 0}
+--- !u!114 &-1970779111418326641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7ef4357949de3141b3db28bd422464c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4822367794375699013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canDropHealth: 1
+  canDropGold: 1
+  healthDropChance: 50
+  healthDropAmount: 1
+  goldDropChance: 50
+  goldDropMinAmount: 1
+  goldDropMaxAmount: 3
 --- !u!114 &2733928855307480320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,25 +318,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
   restoreDefaultMatTime: 0.2
---- !u!114 &4822367794375699013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 1
-  goldDropMaxAmount: 3
 --- !u!114 &9183738283701349947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,25 +331,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!114 &4458876440312282437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 081d543d4d8d22a42a0b26d1b768ba49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
-  projectileSpawnPoint: {fileID: 0}
-  projectileDamage: 2
-  projectileSpeed: 100
-  predictionFactor: 0.5
-  stopMovingWhileAttacking: 1
-  attackSound: {fileID: 0}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &9119814869723337947
 GameObject:
   m_ObjectHideFlags: 0

@@ -101,6 +101,10 @@ public class PlayerHealth : Singleton<PlayerHealth>
         canTakeDamage = false;
         currentHealth -= damageAmount;
         StartCoroutine(DamageRecoveryRoutine());
+        
+        // ⭐ 새로운 해결책: isHit 플래그 빠른 해제 (근접 전투 최적화)
+        StartCoroutine(QuickHitRecoveryRoutine());
+        
         UpdateHealthSlider();
         
         Debug.Log($"플레이어 피격! 현재 체력: {currentHealth}/{maxHealth}");
@@ -162,6 +166,30 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private IEnumerator DamageRecoveryRoutine() {
         yield return new WaitForSecondsRealtime(damageRecoveryTime);
         canTakeDamage = true;
+        
+        // ⭐ 핵심 해결책: PlayerAnimationController의 isHit 플래그도 함께 해제
+        if (playerAnimationController != null)
+        {
+            // OnHitEnd() 메서드 호출로 isHit 플래그 해제
+            playerAnimationController.OnHitEnd();
+        }
+        else
+        {
+            Debug.LogWarning("🟡 [PlayerHealth] PlayerAnimationController가 null이어서 isHit 플래그 해제 실패!");
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 새로운 해결책: isHit 플래그만 빠르게 해제 (근접 전투 최적화)
+    /// </summary>
+    private IEnumerator QuickHitRecoveryRoutine() {
+        // 0.3초 후 빠르게 isHit 플래그만 해제
+        yield return new WaitForSecondsRealtime(0.3f);
+        
+        if (playerAnimationController != null)
+        {
+            playerAnimationController.OnHitEnd();
+        }
     }
 
     private void UpdateHealthSlider() {

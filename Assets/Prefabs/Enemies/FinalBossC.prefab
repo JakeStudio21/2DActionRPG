@@ -10,17 +10,20 @@ GameObject:
   m_Component:
   - component: {fileID: 9163205061197253037}
   - component: {fileID: 3521131478164337637}
+  - component: {fileID: 1737266867653641368}
   - component: {fileID: 6744486112832775261}
   - component: {fileID: 2261159668939287023}
-  - component: {fileID: 814740683897390701}
   - component: {fileID: 4806062633314010792}
+  - component: {fileID: 7421774030207711173}
   - component: {fileID: 2672591166014962016}
+  - component: {fileID: 7371678229891212631}
+  - component: {fileID: 3858285607564868417}
+  - component: {fileID: -6266606232288718989}
+  - component: {fileID: 5491745061798970782}
+  - component: {fileID: -7864033259713871080}
   - component: {fileID: 4488842488211035026}
   - component: {fileID: 6406295324804413922}
-  - component: {fileID: 1737266867653641368}
-  - component: {fileID: -7864033259713871080}
   - component: {fileID: 2120048153462600689}
-  - component: {fileID: -3944420249353713013}
   m_Layer: 0
   m_Name: FinalBossC
   m_TagString: Untagged
@@ -96,6 +99,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!210 &1737266867653641368
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
 --- !u!70 &6744486112832775261
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -158,24 +173,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &814740683897390701
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackRange: 0
-  attackCooldown: 2
-  detectionRange: 8
-  chaseRange: 12
-  patrolRadius: 5
-  monsterType: 1
 --- !u!114 &4806062633314010792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,6 +186,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
+--- !u!95 &7421774030207711173
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5c5e5c84050bffe4aba2342ee33a2168, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &2672591166014962016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,15 +219,97 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 30
   knockBackThrust: 15
   deathVFXPrefab: {fileID: 3742472245823238563, guid: 47788c52bf7a36447914397de7f72960, type: 3}
-  experienceGiven: 50
-  isBoss: 1
+  experienceGiven: 10
+  isBoss: 0
   bossId: 
   isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
+--- !u!114 &7371678229891212631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2aae89a37bd5f4d885bdfcfe1411cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
+  burstCount: 1
+  projectilesPerBurst: 12
+  angleSpread: 180
+  startingDistance: 0.3
+  timeBetweenBursts: 1
+  restTime: 2
+  attackCooldown: 2
+  detectionRange: 7
+  chaseRange: 10
+  stagger: 1
+  oscillate: 1
+  attackSound: {fileID: 0}
+  audioSource: {fileID: 0}
+--- !u!114 &3858285607564868417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1735c0492d8c1ba47ac4ab0be9c72b67, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-6266606232288718989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a85e75df1587944db4927abf753409b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 7421774030207711173}
+--- !u!114 &5491745061798970782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-7864033259713871080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237821646944878469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canDropHealth: 1
+  canDropGold: 1
+  healthDropChance: 50
+  healthDropAmount: 1
+  goldDropChance: 50
+  goldDropMinAmount: 1
+  goldDropMaxAmount: 3
 --- !u!114 &4488842488211035026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,37 +337,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
   restoreDefaultMatTime: 0.2
---- !u!210 &1737266867653641368
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
---- !u!114 &-7864033259713871080
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 1
-  goldDropMaxAmount: 3
 --- !u!114 &2120048153462600689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,30 +350,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!114 &-3944420249353713013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2aae89a37bd5f4d885bdfcfe1411cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
-  bulletMoveSpeed: 6
-  burstCount: 12
-  projectilesPerBurst: 14
-  angleSpread: 359
-  startingDistance: 0.3
-  timeBetweenBursts: 1
-  restTime: 0.1
-  stagger: 1
-  oscillate: 1
-  attackSound: {fileID: 0}
-  audioSource: {fileID: 0}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &6522507364873470527
 GameObject:
   m_ObjectHideFlags: 0

@@ -48,10 +48,25 @@ public class EnemyHealth : MonoBehaviour
         knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
         StartCoroutine(flash.FlashRoutine());
 
+        // FSM 기반 Hit 상태 전환 (IEnemy 구현 몬스터만)
+        IEnemy enemyFSM = GetComponent<IEnemy>();
+        if (enemyFSM != null && enemyFSM.FSMController != null)
+        {
+            // 현재 상태를 저장하고 Hit 상태로 전환
+            enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
+        }
+
         if (currentHealth <= 0)
         {
             // isDead 플래그를 즉시 설정하여 중복 실행을 막고, 죽음 코루틴을 시작합니다.
             isDead = true;
+            
+            // FSM 기반 Die 상태 전환 (IEnemy 구현 몬스터만)
+            if (enemyFSM != null && enemyFSM.FSMController != null)
+            {
+                enemyFSM.FSMController.ChangeState(new EnemyDieState(enemyFSM));
+            }
+            
             StartCoroutine(DieRoutine());
         }
     }

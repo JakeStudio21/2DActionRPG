@@ -1,201 +1,74 @@
-using System.Collections;
 using UnityEngine;
 
-public class Grape : MonoBehaviour, IEnemy
+/// <summary>
+/// Grape 몬스터 - BaseEnemy 상속으로 중복 코드 제거
+/// </summary>
+public class Grape : BaseEnemy
 {
-    [Header("Grape Settings")]
-    [SerializeField] private GameObject grapeProjectilePrefab;
-    [SerializeField] private Transform projectileSpawnPoint;
-    [SerializeField] private AudioClip attackSound;
-
-    private Animator myAnimator;
-    private SpriteRenderer spriteRenderer;
-    private AudioSource audioSource;
-    private EnemyAI enemyAI;
-    private PlayerController cachedPlayer;
-
-    readonly int ATTACK_HASH = Animator.StringToHash("Attack");
-
-    private void Awake() 
-    {
-        myAnimator = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        audioSource = GetComponent<AudioSource>();
-        
-        if (projectileSpawnPoint == null)
+    // BaseEnemy 추상 속성들 구현
+    public override float PatrolRadius => 4f; // 원거리 몬스터라 조금 더 넓게
+    
+    public override float AttackRange 
+    { 
+        get 
         {
-            projectileSpawnPoint = transform;
+            RangedAttack rangedAttack = GetComponent<RangedAttack>();
+            return rangedAttack != null ? 3.5f : 3.5f; // 원거리 공격 범위
+        } 
+    }
+    
+    public float ChaseRange 
+    { 
+        get 
+        {
+            RangedAttack rangedAttack = GetComponent<RangedAttack>();
+            return rangedAttack != null ? rangedAttack.GetChaseRange() : 8f;
+        } 
+    }
+
+    // BaseEnemy 추상 메서드들 구현
+    protected override void OnAwakeInitialize()
+    {
+        // Grape 전용 Awake 초기화 (현재는 없음)
+    }
+
+    protected override void OnStartInitialize()
+    {
+        // Grape 전용 Start 초기화 (현재는 없음)
+    }
+
+    protected override void InitializeAttackSystem()
+    {
+        RangedAttack rangedAttack = GetComponent<RangedAttack>();
+        if (rangedAttack != null)
+        {
+            rangedAttack.Initialize();
+            Debug.Log($"[Grape] {gameObject.name} 원거리 공격 시스템 초기화 완료");
+        }
+        else
+        {
+            Debug.LogError($"[Grape] {gameObject.name}에 RangedAttack 컴포넌트가 없습니다!");
         }
     }
 
-    private void Start()
+    public override void Attack()
     {
-        // 플레이어 참조 캐싱
-        StartCoroutine(FindPlayerCoroutine());
-    }
-
-    private IEnumerator FindPlayerCoroutine()
-    {
-        while (cachedPlayer == null)
+        RangedAttack rangedAttack = GetComponent<RangedAttack>();
+        if (rangedAttack != null)
         {
-            cachedPlayer = FindObjectOfType<PlayerController>();
-            if (cachedPlayer == null)
+            if (rangedAttack.CanAttack())
             {
-                yield return new WaitForSeconds(0.1f);
-            }
-        }
-        Debug.Log($"[Grape] {gameObject.name}이 플레이어를 찾았습니다.");
-    }
-
-    public void Attack(EnemyAI enemyAI) 
-    {
-        this.enemyAI = enemyAI;
-        
-        if (myAnimator != null)
-        {
-            myAnimator.SetTrigger(ATTACK_HASH);
-        }
-
-        // 플레이어 방향으로 스프라이트 회전
-        if (cachedPlayer != null && spriteRenderer != null)
-        {
-            if (transform.position.x - cachedPlayer.transform.position.x < 0) 
-            {
-                spriteRenderer.flipX = false;
-            } 
-            else 
-            {
-                spriteRenderer.flipX = true;
-            }
-        }
-
-        // 공격 사운드 재생
-        if (audioSource != null && attackSound != null)
-        {
-            audioSource.PlayOneShot(attackSound);
-        }
-    }
-
-    // 애니메이션 이벤트에서 호출됨
-    public void SpawnProjectileAnimEvent() 
-    {
-        if (grapeProjectilePrefab == null) 
-        {
-            Debug.LogWarning($"[Grape] {gameObject.name}의 grapeProjectilePrefab이 설정되지 않았습니다.");
-            return;
-        }
-
-        Vector3 spawnPosition = projectileSpawnPoint.position;
-        
-        // GamePoolManager 사용 시도, 실패하면 Instantiate 사용
-        GameObject proj = null;
-        
-        try 
-        {
-            if (GamePoolManager.Instance != null)
-            {
-                proj = GamePoolManager.Instance.SpawnFromPool("Grape Projectile", spawnPosition, Quaternion.identity);
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning($"[Grape] GamePoolManager 사용 실패: {e.Message}");
-        }
-
-        // 풀링 실패 시 직접 생성
-        if (proj == null)
-        {
-            proj = Instantiate(grapeProjectilePrefab, spawnPosition, Quaternion.identity);
-            Debug.Log("[Grape] 프리팹을 직접 생성했습니다.");
-        }
-
-        // 발사체 설정 및 예측 조준
-        if (proj != null && proj.TryGetComponent(out GrapeProjectile grapeProjectile))
-        {
-            // 데미지 설정
-            if (enemyAI != null)
-            {
-                grapeProjectile.SetDamage(enemyAI.GetProjectileDamage());
+                rangedAttack.Attack();
+                Debug.Log($"[Grape] {gameObject.name} - 원거리 공격 실행!");
             }
             else
             {
-                grapeProjectile.SetDamage(1); // 기본 데미지
+                Debug.Log($"[Grape] {gameObject.name} - 공격 쿨다운 중...");
             }
-            
-            // ⭐ 개선: 예측 조준으로 정확도 향상
-            Vector3 targetPosition = GetPredictedPlayerPosition();
-            grapeProjectile.LaunchToTarget(targetPosition);
-            
-            Debug.Log($"[Grape] 예측 조준: 목표 위치 {targetPosition}");
         }
-        
-        Debug.Log($"[Grape] 발사체 생성 완료: {proj?.name}");
-    }
-    
-    /// <summary>
-    /// 플레이어의 이동을 예측한 목표 위치 계산
-    /// </summary>
-    private Vector3 GetPredictedPlayerPosition()
-    {
-        if (cachedPlayer == null)
+        else
         {
-            return transform.position + Vector3.right * 5f; // 기본 방향
+            Debug.LogWarning($"[Grape] {gameObject.name}에 RangedAttack 컴포넌트가 없습니다.");
         }
-        
-        Vector3 currentPlayerPos = cachedPlayer.transform.position;
-        
-        // 플레이어의 이동 속도 계산 (Rigidbody2D 사용)
-        Vector2 playerVelocity = Vector2.zero;
-        if (cachedPlayer.TryGetComponent(out Rigidbody2D playerRb))
-        {
-            playerVelocity = playerRb.velocity;
-        }
-        
-        // 발사체 도달 시간 (GrapeProjectile의 moveSpeed와 일치)
-        float projectileTravelTime = 2f;
-        
-        // 예측 위치 = 현재 위치 + (속도 * 시간)
-        Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime);
-        
-        Debug.Log($"[Grape] 플레이어 현재위치: {currentPlayerPos}, 속도: {playerVelocity}, 예측위치: {predictedPosition}");
-        
-        return predictedPosition;
-    }
-
-    // 디버그용 Gizmo - 항상 표시 (Blue_slime 패턴 적용)
-    private void OnDrawGizmos()
-    {
-        // 발사 위치 시각화 (빨간색 구체)
-        if (projectileSpawnPoint != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(projectileSpawnPoint.position, 0.3f);
-            
-            // 원거리 공격 범위 시각화 (반투명 빨간색)
-            Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
-            Gizmos.DrawWireSphere(transform.position, 3.5f); // 원거리 공격 범위
-        }
-        
-        // 런타임 중 예측 조준선 표시
-        if (Application.isPlaying && cachedPlayer != null)
-        {
-            Vector3 predictedPos = GetPredictedPlayerPosition();
-            
-            // 조준선 (노란색)
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(projectileSpawnPoint.position, predictedPos);
-            
-            // 예측 위치 (노란색 큐브)
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawCube(predictedPos, Vector3.one * 0.5f);
-        }
-        
-        #if UNITY_EDITOR
-        // 몬스터 타입 정보 표시
-        if (Application.isPlaying)
-        {
-            UnityEditor.Handles.Label(transform.position + Vector3.up * 2, "Grape (원거리)");
-        }
-        #endif
     }
 } 

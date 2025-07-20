@@ -5,6 +5,13 @@ public class ColliderGizmosDrawer : MonoBehaviour
 {
     public Color gizmoColor = Color.green;
     public static bool showGizmos = true;
+    
+    [Header("Monster Range Settings")]
+    public bool showMonsterRanges = true;
+    public Color attackRangeColor = Color.red;
+    public Color roamingRangeColor = Color.magenta;
+    public Color detectionRangeColor = Color.yellow;
+    public Color chaseRangeColor = new Color(1f, 0.5f, 0f, 1f); // 주황색
 
     void Update()
     {
@@ -14,12 +21,31 @@ public class ColliderGizmosDrawer : MonoBehaviour
             showGizmos = !showGizmos;
             Debug.Log("콜라이더 표시: " + (showGizmos ? "ON" : "OFF") + " (Shift+F1로 토글)");
         }
+        
+        // Shift+F2 단축키로 몬스터 범위 토글
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F2))
+        {
+            showMonsterRanges = !showMonsterRanges;
+            Debug.Log("몬스터 범위 표시: " + (showMonsterRanges ? "ON" : "OFF") + " (Shift+F2로 토글)");
+        }
     }
 
     private void OnDrawGizmos()
     {
         if (!showGizmos) return;
 
+        // 기존 콜라이더 표시
+        DrawColliderGizmos();
+        
+        // 몬스터 범위 표시
+        if (showMonsterRanges)
+        {
+            DrawMonsterRanges();
+        }
+    }
+    
+    private void DrawColliderGizmos()
+    {
         Gizmos.color = gizmoColor;
 
         // BoxCollider2D
@@ -44,6 +70,280 @@ public class ColliderGizmosDrawer : MonoBehaviour
         {
             Gizmos.matrix = transform.localToWorldMatrix;
             DrawWireCapsule2D(capsule);
+        }
+    }
+    
+    private void DrawMonsterRanges()
+    {
+        Gizmos.matrix = Matrix4x4.identity; // 월드 좌표계 사용
+        
+        // BlueSlime 범위들
+        var blueSlime = GetComponent<BlueSlime>();
+        if (blueSlime != null)
+        {
+            float attackRange = blueSlime.AttackRange;
+            Vector2 spawnPoint = blueSlime.SpawnPoint;
+            float patrolRadius = blueSlime.PatrolRadius;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 공격 범위 표시 (빨간색)
+            Gizmos.color = attackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브) - 더 크게 표시
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.5f); // 0.3f → 0.5f로 크기 증가
+            
+            // ✅ 스폰 지점 테두리 (검은색)
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+            // ✅ 감지 범위 - MeleeAttack에서 가져오기
+            var meleeAttack = GetComponent<MeleeAttack>();
+            if (meleeAttack != null)
+            {
+                float detectionRange = meleeAttack.GetDetectionRange();
+                float chaseRange = meleeAttack.GetChaseRange();
+                
+                // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+                Gizmos.color = detectionRangeColor;
+                Gizmos.DrawWireSphere(transform.position, detectionRange);
+                
+                // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+                Gizmos.color = chaseRangeColor;
+                Gizmos.DrawWireSphere(transform.position, chaseRange);
+                
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+                    Vector2 currentPos = transform.position;
+                    float distanceFromSpawn = Vector2.Distance(currentPos, spawnPoint);
+                    
+                    UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                        $"BlueSlime\\n로밍: {patrolRadius:F1}f\\n감지: {detectionRange:F1}f\\n추격: {chaseRange:F1}f\\n공격: {attackRange:F1}f\\n스폰거리: {distanceFromSpawn:F1}f\\n스폰지점: ({spawnPoint.x:F1}, {spawnPoint.y:F1})");
+                }
+#endif
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                // 플레이어와의 거리 표시
+                if (blueSlime.TargetPlayer != null)
+                {
+                    float dist = Vector2.Distance(transform.position, blueSlime.TargetPlayer.transform.position);
+                    UnityEditor.Handles.Label(transform.position + Vector3.up * 1.5f, 
+                        $"Distance: {dist:F2}");
+                    
+                    // 플레이어와의 연결선
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawLine(transform.position, blueSlime.TargetPlayer.transform.position);
+                }
+            }
+#endif
+        }
+        
+        // Grape 범위들
+        var grape = GetComponent<Grape>();
+        if (grape != null)
+        {
+            Vector2 spawnPoint = grape.SpawnPoint;
+            float patrolRadius = grape.PatrolRadius;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브) - 더 크게 표시
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 스폰 지점 테두리 (검은색)
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+            // ✅ RangedAttack 범위들
+            var rangedAttack = GetComponent<RangedAttack>();
+            if (rangedAttack != null)
+            {
+                float detectionRange = rangedAttack.GetDetectionRange();
+                float chaseRange = rangedAttack.GetChaseRange();
+                
+                // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+                Gizmos.color = detectionRangeColor;
+                Gizmos.DrawWireSphere(transform.position, detectionRange);
+                
+                // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+                Gizmos.color = chaseRangeColor;
+                Gizmos.DrawWireSphere(transform.position, chaseRange);
+                
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+                    Vector2 currentPos = transform.position;
+                    float distanceFromSpawn = Vector2.Distance(currentPos, spawnPoint);
+                    
+                    UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                        $"Grape\\n로밍: {patrolRadius:F1}f\\n감지: {detectionRange:F1}f\\n추격: {chaseRange:F1}f\\n공격: 3.5f\\n스폰거리: {distanceFromSpawn:F1}f\\n스폰지점: ({spawnPoint.x:F1}, {spawnPoint.y:F1})");
+                }
+#endif
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                // 플레이어와의 거리 표시
+                if (grape.TargetPlayer != null)
+                {
+                    float dist = Vector2.Distance(transform.position, grape.TargetPlayer.transform.position);
+                    UnityEditor.Handles.Label(transform.position + Vector3.up * 1.5f, 
+                        $"Distance: {dist:F2}");
+                    
+                    // 플레이어와의 연결선
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawLine(transform.position, grape.TargetPlayer.transform.position);
+                }
+            }
+#endif
+        }
+        
+        // MeleeAttack 공격 범위
+        var meleeAttackComponent = GetComponent<MeleeAttack>();
+        if (meleeAttackComponent != null && GetComponent<BlueSlime>() == null) // BlueSlime이 아닌 경우만
+        {
+            Gizmos.color = attackRangeColor;
+            float attackRange = meleeAttackComponent.GetAttackRange();
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+#if UNITY_EDITOR
+            UnityEditor.Handles.Label(transform.position + Vector3.up * 1.5f, 
+                $"MeleeAttack\nRange: {attackRange:F1}");
+#endif
+        }
+        
+        // RangedAttack 원거리 공격 범위
+        var grapeRangedAttack = GetComponent<RangedAttack>();
+        if (grapeRangedAttack != null)
+        {
+            // 발사 위치 시각화 (빨간색 구체)
+            var projectileSpawnPoint = grapeRangedAttack.GetProjectileSpawnPoint();
+            if (projectileSpawnPoint != null)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(projectileSpawnPoint.position, 0.3f);
+                
+                // 원거리 공격 범위 시각화 (반투명 빨간색)
+                Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
+                Gizmos.DrawWireSphere(transform.position, 3.5f); // 원거리 공격 범위
+                
+                // ✅ Grape 감지 범위 - RangedAttack에서 가져오기
+                float detectionRange = grapeRangedAttack.GetDetectionRange();
+                Gizmos.color = detectionRangeColor;
+                Gizmos.DrawWireSphere(transform.position, detectionRange);
+            }
+            
+            // 런타임 중 예측 조준선 표시
+            if (Application.isPlaying)
+            {
+                var predictedPos = grapeRangedAttack.GetPredictedPlayerPosition();
+                if (predictedPos != Vector3.zero)
+                {
+                    // 조준선 (노란색)
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawLine(projectileSpawnPoint.position, predictedPos);
+                    
+                    // 예측 위치 (노란색 큐브)
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawCube(predictedPos, Vector3.one * 0.5f);
+                }
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                float detectionRange = grapeRangedAttack.GetDetectionRange();
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 2, $"Grape (원거리)\n감지: {detectionRange:F1}f");
+            }
+#endif
+        }
+        
+        // ✅ Ghost (MultiShotRangedAttack) 전용 시각화
+        var ghost = GetComponent<Ghost>();
+        if (ghost != null)
+        {
+            Vector2 spawnPoint = ghost.SpawnPoint;
+            float patrolRadius = ghost.PatrolRadius;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브) - 더 크게 표시
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 스폰 지점 테두리 (검은색)
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+            // ✅ MultiShotRangedAttack 범위들
+            var multiShotAttack = GetComponent<MultiShotRangedAttack>();
+            if (multiShotAttack != null)
+            {
+                float detectionRange = multiShotAttack.GetDetectionRange();
+                float chaseRange = multiShotAttack.GetChaseRange();
+                float attackRange = ghost.AttackRange;
+                
+                // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+                Gizmos.color = detectionRangeColor;
+                Gizmos.DrawWireSphere(transform.position, detectionRange);
+                
+                // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+                Gizmos.color = chaseRangeColor;
+                Gizmos.DrawWireSphere(transform.position, chaseRange);
+                
+                // 🔴 공격 범위 (빨간색) - 실제 공격하는 범위
+                Gizmos.color = attackRangeColor;
+                Gizmos.DrawWireSphere(transform.position, attackRange);
+                
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+                    Vector2 currentPos = transform.position;
+                    float distToSpawn = Vector2.Distance(currentPos, spawnPoint);
+                    float distToPlayer = ghost.TargetPlayer != null ? Vector2.Distance(currentPos, ghost.TargetPlayer.transform.position) : 0f;
+                    
+                    UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                        $"Ghost (복합 원거리)\n" +
+                        $"감지: {detectionRange:F1}f, 추격: {chaseRange:F1}f, 공격: {attackRange:F1}f\n" +
+                        $"스폰거리: {distToSpawn:F1}f, 플레이어: {distToPlayer:F1}f");
+                }
+#endif
+            }
         }
     }
 

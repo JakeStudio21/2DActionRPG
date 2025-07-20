@@ -12,15 +12,17 @@ GameObject:
   - component: {fileID: 3241228118347545228}
   - component: {fileID: 2593015259640542914}
   - component: {fileID: 2142061137914716384}
-  - component: {fileID: 4521715131620607560}
   - component: {fileID: 5709947880115937855}
   - component: {fileID: 1996716122504307104}
   - component: {fileID: 5752732880782816917}
+  - component: {fileID: 4792411720221729903}
+  - component: {fileID: -8070876538002613510}
+  - component: {fileID: -752092573500323026}
   - component: {fileID: 3746799392073795553}
   - component: {fileID: 8403660534966338527}
-  - component: {fileID: -752092573500323026}
   - component: {fileID: 8998232531007038718}
-  - component: {fileID: -2780638030353885555}
+  - component: {fileID: -3420654551023502779}
+  - component: {fileID: -9110043429021353378}
   m_Layer: 0
   m_Name: Blue_slime
   m_TagString: Untagged
@@ -157,32 +159,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &4521715131620607560
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 116c924a0fb323741baf6a7b0bf8c3c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackRange: 1.5
-  attackCooldown: 1
-  stopMovingWhileAttacking: 1
-  detectionRange: 3
-  chaseRange: 4
-  patrolRadius: 5
-  monsterType: 0
-  attackDamage: 1
-  projectileDamage: 0
-  playerLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  attackSound: {fileID: 0}
-  useModularAttackSystem: 1
 --- !u!114 &5709947880115937855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,6 +214,50 @@ MonoBehaviour:
   isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
+--- !u!114 &4792411720221729903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a85e75df1587944db4927abf753409b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 1996716122504307104}
+--- !u!114 &-8070876538002613510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-752092573500323026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canDropHealth: 1
+  canDropGold: 1
+  healthDropChance: 50
+  healthDropAmount: 1
+  goldDropChance: 50
+  goldDropMinAmount: 1
+  goldDropMaxAmount: 3
 --- !u!114 &3746799392073795553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,25 +285,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
   restoreDefaultMatTime: 0.2
---- !u!114 &-752092573500323026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 1
-  goldDropMaxAmount: 3
 --- !u!114 &8998232531007038718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,7 +298,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
---- !u!114 &-2780638030353885555
+--- !u!114 &-3420654551023502779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -310,5 +311,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meleeDamage: 1
+  attackCooldown: 1.5
+  attackRange: 2
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+--- !u!114 &-9110043429021353378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

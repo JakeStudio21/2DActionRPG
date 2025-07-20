@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 복합 원거리 공격 모듈 - 다중 발사체, 버스트 발사, 각도 조절 지원
-/// Ghost 몬스터 등 복잡한 발사 패턴을 가진 적에게 사용
-/// ⭐ 발사체 자체의 속도와 범위 설정을 사용하는 일관성 있는 구조
+/// 복합 원거리 공격 구현체 - BaseAttackBehaviour 상속으로 중복 코드 제거
 /// </summary>
-public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
+public class MultiShotRangedAttack : BaseAttackBehaviour
 {
-    [Header("Attack Settings")]
+    [Header("MultiShot Specific Settings")]
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private int burstCount = 3;
     [SerializeField] private int projectilesPerBurst = 1;
@@ -22,53 +20,47 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
     [SerializeField] private bool stagger = false;
     [Tooltip("Stagger must be enabled for oscillate to function properly.")]
     [SerializeField] private bool oscillate = false;
-    
-    [Header("Audio")]
-    [SerializeField] private AudioClip attackSound;
-    [SerializeField] private AudioSource audioSource;
 
     private bool isShooting = false;
-    private EnemyAI enemyAI;
 
-    public void Initialize(EnemyAI enemyAI)
+    // BaseAttackBehaviour 추상 메서드 구현
+    protected override void OnInitialize()
     {
-        this.enemyAI = enemyAI;
-        
-        // AudioSource 자동 설정
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
-            
-        Debug.Log($"[MultiShotRangedAttack] {gameObject.name} 초기화 완료");
+        // MultiShotRangedAttack 전용 초기화 (현재는 없음)
     }
 
-    public bool CanAttack()
+    protected override void OnAttack()
     {
-        return !isShooting;
-    }
-
-    public void Attack(EnemyAI enemyAI)
-    {
-        // null 체크 추가
-        if (enemyAI == null)
-        {
-            Debug.LogWarning($"[MultiShotRangedAttack] {gameObject.name}: EnemyAI가 null입니다!");
-            return;
-        }
-        
-        this.enemyAI = enemyAI;
-        if (!isShooting) 
+        // 복합 공격 시작
+        if (!isShooting)
         {
             StartCoroutine(ShootRoutine());
         }
-        else
-        {
-            Debug.Log($"[MultiShotRangedAttack] {gameObject.name}: 이미 공격 중입니다.");
-        }
     }
 
-    public bool ShouldStopMovingWhileAttacking()
+    // 커스텀 CanAttack 오버라이드
+    public override bool CanAttack()
     {
-        return true; // 복잡한 발사 패턴 동안 이동 정지
+        return !isShooting && base.CanAttack();
+    }
+
+    // BaseAttackBehaviour.Attack() 오버라이드
+    public override void Attack()
+    {
+        if (!isShooting) 
+        {
+            Debug.Log($"[MultiShotRangedAttack] {gameObject.name}: Attack() 메서드 호출됨!");
+            
+            // BaseAttackBehaviour의 공통 애니메이션 트리거 사용
+            TriggerAttackAnimation();
+            
+            StartCoroutine(ShootRoutine());
+            Debug.Log($"[MultiShotRangedAttack] {gameObject.name}: 복합 공격 실행!");
+        }
+        else
+        {
+            Debug.Log($"[MultiShotRangedAttack] {gameObject.name}: 이미 공격 중이므로 스킵");
+        }
     }
 
     private void OnValidate() 
@@ -88,11 +80,8 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
         isShooting = true;
         Debug.Log($"[MultiShotRangedAttack] {gameObject.name}: 복합 공격 시작");
 
-        // 공격 사운드 재생
-        if (attackSound != null && audioSource != null)
-        {
-            audioSource.PlayOneShot(attackSound);
-        }
+        // BaseAttackBehaviour의 공통 사운드 재생 사용
+        PlayAttackSound();
 
         float startAngle, currentAngle, angleStep, endAngle;
         float timeBetweenProjectiles = 0f;
@@ -146,25 +135,15 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
                 // ⭐ 발사체 자체의 속도와 범위 사용: UpdateMoveSpeed 호출 제거
                 if (newBullet.TryGetComponent(out GhostProjectile ghostProjectile))
                 {
-                    // 데미지만 설정 (속도는 발사체 자체 moveSpeed 사용)
-                    if (enemyAI != null)
-                    {
-                        ghostProjectile.SetDamage(enemyAI.GetProjectileDamage());
-                    }
-                    else
-                    {
-                        ghostProjectile.SetDamage(1); // 기본 데미지
-                    }
+                    // 기본 데미지 사용 (EnemyAI 의존성 제거)
+                    ghostProjectile.SetDamage(1);
                 }
                 else if (newBullet.TryGetComponent(out Projectile projectile))
                 {
                     // Legacy 지원: EnemyDamage 컴포넌트 설정
                     if (newBullet.TryGetComponent(out EnemyDamage enemyDamage))
                     {
-                        if (enemyAI != null)
-                        {
-                            enemyDamage.damageAmount = enemyAI.GetProjectileDamage();
-                        }
+                        enemyDamage.damageAmount = 1; // 기본 데미지 사용
                     }
                 }
 
@@ -185,9 +164,8 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
 
     private void TargetConeOfInfluence(out float startAngle, out float currentAngle, out float angleStep, out float endAngle)
     {
-        // PlayerController null 체크
-        var playerController = FindObjectOfType<PlayerController>();
-        if (playerController == null)
+        // BaseAttackBehaviour의 cachedPlayer 사용
+        if (cachedPlayer == null)
         {
             Debug.LogWarning($"[MultiShotRangedAttack] {gameObject.name}: PlayerController를 찾을 수 없습니다!");
             startAngle = 0f;
@@ -197,7 +175,7 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
             return;
         }
 
-        Vector2 targetDirection = playerController.transform.position - transform.position;
+        Vector2 targetDirection = cachedPlayer.transform.position - transform.position;
         float targetAngle = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg;
         startAngle = targetAngle;
         endAngle = targetAngle;
@@ -228,13 +206,7 @@ public class MultiShotRangedAttack : MonoBehaviour, IAttackBehaviour
     // Animation Event에서 호출할 수 있는 공개 메서드
     public void SpawnProjectileAnimEvent()
     {
-        if (enemyAI != null)
-        {
-            Attack(enemyAI);
-        }
-        else
-        {
-            Debug.LogWarning($"[MultiShotRangedAttack] {gameObject.name}: SpawnProjectileAnimEvent 호출 시 EnemyAI가 null입니다!");
-        }
+        // EnemyAI 없어도 작동
+        Attack();
     }
 } 

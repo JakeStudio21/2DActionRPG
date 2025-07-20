@@ -1,106 +1,101 @@
 using UnityEngine;
 
 /// <summary>
-/// Ghost 몬스터 설정 컴포넌트
-/// ⭐ 모듈식 시스템 적용: EnemyAI + MultiShotRangedAttack 조합 사용
-/// 기존 독립적인 공격 시스템을 제거하고 표준 모듈식 아키텍처로 전환
+/// Ghost 몬스터 - BaseEnemy 상속으로 중복 코드 제거
 /// </summary>
-public class Ghost : MonoBehaviour
+public class Ghost : BaseEnemy
 {
-    [Header("Ghost Settings")]
-    [Tooltip("Ghost 전용 설정값들 (MultiShotRangedAttack에서 사용)")]
-    [SerializeField] private bool showDebugInfo = true;
+    // BaseEnemy 추상 속성들 구현
+    public override float PatrolRadius => 5f; // 복합 공격 몬스터라 넓게
     
-    [Header("Integration Status")]
-    [SerializeField] private bool isModularSystemActive = false;
-    
-    private EnemyAI enemyAI;
-    private MultiShotRangedAttack attackModule;
-    
-    private void Awake()
-    {
-        // 컴포넌트 참조 설정
-        enemyAI = GetComponent<EnemyAI>();
-        attackModule = GetComponent<MultiShotRangedAttack>();
+    public override float AttackRange 
+    { 
+        get 
+        {
+            MultiShotRangedAttack multiShotAttack = GetComponent<MultiShotRangedAttack>();
+            return multiShotAttack != null ? 4f : 4f; // 복합 공격 범위
+        } 
     }
     
-    private void Start()
+    // 감지 범위는 MultiShotRangedAttack에서 가져오기
+    public float DetectionRange
     {
-        // 모듈식 시스템 통합 확인
-        CheckModularSystemIntegration();
-        
-        if (showDebugInfo)
+        get
         {
-            Debug.Log($"[Ghost] {gameObject.name} - 모듈식 시스템으로 초기화 완료");
-            Debug.Log($"[Ghost] EnemyAI: {(enemyAI != null ? "✓" : "✗")}");
-            Debug.Log($"[Ghost] MultiShotRangedAttack: {(attackModule != null ? "✓" : "✗")}");
+            MultiShotRangedAttack multiShotAttack = GetComponent<MultiShotRangedAttack>();
+            return multiShotAttack != null ? multiShotAttack.GetDetectionRange() : 7f;
         }
     }
     
-    /// <summary>
-    /// 모듈식 시스템 통합 상태 확인
-    /// </summary>
-    private void CheckModularSystemIntegration()
+    // 추격 범위는 MultiShotRangedAttack에서 가져오기
+    public float ChaseRange
     {
-        bool hasEnemyAI = enemyAI != null;
-        bool hasAttackModule = attackModule != null;
-        
-        isModularSystemActive = hasEnemyAI && hasAttackModule;
-        
-        if (!isModularSystemActive)
+        get
         {
-            Debug.LogError($"[Ghost] {gameObject.name} - 모듈식 시스템 설정 불완전!");
-            if (!hasEnemyAI) Debug.LogError("- EnemyAI 컴포넌트 누락");
-            if (!hasAttackModule) Debug.LogError("- MultiShotRangedAttack 컴포넌트 누락");
+            MultiShotRangedAttack multiShotAttack = GetComponent<MultiShotRangedAttack>();
+            return multiShotAttack != null ? multiShotAttack.GetChaseRange() : 10f;
+        }
+    }
+    // BaseEnemy 추상 메서드들 구현
+    protected override void OnAwakeInitialize()
+    {
+        // Ghost 전용 Awake 초기화 (현재는 없음)
+    }
+
+    protected override void OnStartInitialize()
+    {
+        // Ghost 전용 Start 초기화 (현재는 없음)
+    }
+
+    protected override void InitializeAttackSystem()
+    {
+        MultiShotRangedAttack multiShotAttack = GetComponent<MultiShotRangedAttack>();
+        if (multiShotAttack != null)
+        {
+            multiShotAttack.Initialize();
+            Debug.Log($"[Ghost] {gameObject.name} 복합 원거리 공격 시스템 초기화 완료");
         }
         else
         {
-            Debug.Log($"[Ghost] {gameObject.name} - 모듈식 시스템 완벽 통합 ✓");
+            Debug.LogError($"[Ghost] {gameObject.name}에 MultiShotRangedAttack 컴포넌트가 없습니다!");
         }
     }
-    
-    /// <summary>
-    /// Inspector에서 모듈식 시스템 상태를 시각적으로 확인
-    /// </summary>
-    private void OnValidate()
+
+    public override void Attack()
     {
-        // 런타임이 아닐 때는 컴포넌트 참조만 확인
-        if (!Application.isPlaying)
+        MultiShotRangedAttack multiShotAttack = GetComponent<MultiShotRangedAttack>();
+        if (multiShotAttack != null)
         {
-            enemyAI = GetComponent<EnemyAI>();
-            attackModule = GetComponent<MultiShotRangedAttack>();
-            isModularSystemActive = enemyAI != null && attackModule != null;
-        }
-    }
-    
-    /// <summary>
-    /// 디버그용 Gizmo - Ghost 특화 시각화
-    /// </summary>
-    private void OnDrawGizmos()
-    {
-        // Ghost 타입 표시
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, 0.8f);
-        
-        // 모듈식 시스템 상태 표시
-        if (isModularSystemActive)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(transform.position + Vector3.up * 1.5f, Vector3.one * 0.3f);
+            if (multiShotAttack.CanAttack())
+            {
+                multiShotAttack.Attack();
+                Debug.Log($"[Ghost] {gameObject.name} - 복합 원거리 공격 실행!");
+            }
+            else
+            {
+                Debug.Log($"[Ghost] {gameObject.name} - 공격 쿨다운 중...");
+            }
         }
         else
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(transform.position + Vector3.up * 1.5f, Vector3.one * 0.3f);
+            Debug.LogWarning($"[Ghost] {gameObject.name}에 MultiShotRangedAttack 컴포넌트가 없습니다.");
         }
-        
-        #if UNITY_EDITOR
-        // 몬스터 타입 정보 표시
-        if (Application.isPlaying)
+    }
+
+    /// <summary>
+    /// Animation Event에서 호출 - MultiShotRangedAttack에 위임
+    /// </summary>
+    public void SpawnProjectileAnimEvent()
+    {
+        MultiShotRangedAttack multiShotAttack = GetComponent<MultiShotRangedAttack>();
+        if (multiShotAttack != null)
         {
-            string status = isModularSystemActive ? "모듈식 ✓" : "설정 오류 ✗";
-            UnityEditor.Handles.Label(transform.position + Vector3.up * 2, $"Ghost ({status})");
+            multiShotAttack.SpawnProjectileAnimEvent();
+            Debug.Log($"[Ghost] {gameObject.name} - Animation Event 발사체 생성 위임");
         }
-        #endif
+        else
+        {
+            Debug.LogWarning($"[Ghost] {gameObject.name}에 MultiShotRangedAttack 컴포넌트가 없습니다.");
+        }
     }
 } 
