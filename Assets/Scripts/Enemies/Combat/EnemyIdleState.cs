@@ -59,7 +59,7 @@ public class EnemyIdleState : IEnemyState
                 }
             }
             
-            Debug.Log($"[EnemyIdleState] {enemy.transform.name} - 플레이어 거리: {dist:F2}, 최종 감지범위: {detectionRange:F2}");
+            // Debug.Log($"[EnemyIdleState] {enemy.transform.name} - 플레이어 거리: {dist:F2}, 최종 감지범위: {detectionRange:F2}");
             
             if (dist < detectionRange)
             {

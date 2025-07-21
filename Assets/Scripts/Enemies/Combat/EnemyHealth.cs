@@ -74,7 +74,16 @@ public class EnemyHealth : MonoBehaviour
     private IEnumerator DieRoutine()
     {
         // 1. 설정된 경험치 추가 (단 한번만 실행 보장)
-        PlayerLevel.Instance.AddExp(experienceGiven);
+        // ⭐ [Phase 1] PlayerDataManager로 통합하여 경험치 관리
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.AddExp(experienceGiven);
+        }
+        else if (PlayerLevel.Instance != null)
+        {
+            // 백업: 기존 PlayerLevel 사용 (호환성)
+            PlayerLevel.Instance.AddExp(experienceGiven);
+        }
 
         // 2. 모든 콜라이더를 비활성화하여 추가 상호작용을 막습니다.
         foreach (var col in GetComponentsInChildren<Collider2D>())

@@ -95,11 +95,40 @@ public class PlayerHealth : Singleton<PlayerHealth>
     public void TakeDamage(int damageAmount, Transform hitTransform) {
         if (!canTakeDamage) { return; }
 
+        // ⭐ [Phase B] Warrior 패시브 효과 연동
+        bool isBlocked = false;
+        int finalDamage = damageAmount;
+        
+        // Warrior 컴포넌트 확인
+        var warrior = GetComponent<Warrior>();
+        if (warrior != null && warrior.IsActiveClass)  // ⭐ 수정: isActive → IsActiveClass
+        {
+            // 1. 블록 판정 시도
+            if (warrior.TryBlock())
+            {
+                isBlocked = true;
+                // 블록 성공 시 데미지 감소 (기본 50%)
+                finalDamage = Mathf.RoundToInt(damageAmount * 0.5f);
+                Debug.Log($"🛡️ [PlayerHealth] Warrior 블록 성공! 데미지: {damageAmount} → {finalDamage}");
+            }
+        }
+
         ScreenShakeManager.Instance.ShakeScreen();
-        knockback.GetKnockedBack(hitTransform, knockBackThrustAmount);
+        
+        // ⭐ 블록 성공 시 넉백 감소 (Warrior 전용)
+        float knockbackAmount = knockBackThrustAmount;
+        if (warrior != null && isBlocked)
+        {
+            knockbackAmount = warrior.ApplyKnockbackResistance(knockBackThrustAmount);
+            Debug.Log($"🏋️ [PlayerHealth] Warrior 넉백 저항 적용! {knockBackThrustAmount} → {knockbackAmount}");
+        }
+        
+        knockback.GetKnockedBack(hitTransform, knockbackAmount);
         StartCoroutine(flash.FlashRoutine());
         canTakeDamage = false;
-        currentHealth -= damageAmount;
+        
+        // ⭐ 최종 데미지 적용 (블록 효과 반영)
+        currentHealth -= finalDamage;
         StartCoroutine(DamageRecoveryRoutine());
         
         // ⭐ 새로운 해결책: isHit 플래그 빠른 해제 (근접 전투 최적화)
@@ -107,7 +136,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
         
         UpdateHealthSlider();
         
-        Debug.Log($"플레이어 피격! 현재 체력: {currentHealth}/{maxHealth}");
+        Debug.Log($"플레이어 피격! 실제 데미지: {finalDamage}/{damageAmount}, 현재 체력: {currentHealth}/{maxHealth}");
 
         CheckIfPlayerDeath();
         
@@ -194,11 +223,20 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
     private void UpdateHealthSlider() {
         if (healthSlider == null) {
-            healthSlider = GameObject.Find(HEALTH_SLIDER_TEXT).GetComponent<Slider>();
+            GameObject healthSliderObject = GameObject.Find(HEALTH_SLIDER_TEXT);
+            if (healthSliderObject != null) {
+                healthSlider = healthSliderObject.GetComponent<Slider>();
+            }
         }
 
-        healthSlider.maxValue = maxHealth;
-        healthSlider.value = currentHealth;
+        // healthSlider가 여전히 null이면 안전하게 처리
+        if (healthSlider != null) {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = currentHealth;
+        }
+        else {
+            // Debug.LogWarning($"⚠️ [PlayerHealth] Health Slider를 찾을 수 없습니다: {HEALTH_SLIDER_TEXT}");
+        }
     }
 
     private void Update()

@@ -24,9 +24,9 @@ GameObject:
   - component: {fileID: 4488842488211035026}
   - component: {fileID: 6406295324804413922}
   - component: {fileID: 2120048153462600689}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ghost
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -240,6 +240,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e2aae89a37bd5f4d885bdfcfe1411cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackCooldown: 2
+  detectionRange: 7
+  chaseRange: 10
+  stopMovingWhileAttacking: 1
+  attackSound: {fileID: 0}
   bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
   burstCount: 1
   projectilesPerBurst: 12
@@ -247,13 +252,8 @@ MonoBehaviour:
   startingDistance: 0.3
   timeBetweenBursts: 1
   restTime: 2
-  attackCooldown: 2
-  detectionRange: 7
-  chaseRange: 10
   stagger: 1
   oscillate: 1
-  attackSound: {fileID: 0}
-  audioSource: {fileID: 0}
 --- !u!114 &-6266606232288718989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,7 +365,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8030028561525306564}
   - component: {fileID: 8629204370532058522}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shadows_Sheet_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

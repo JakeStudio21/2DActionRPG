@@ -160,7 +160,7 @@ public class PlayerSpawner : MonoBehaviour
         return playerType switch
         {
             PlayerType.Warrior => warriorPrefab,
-            PlayerType.Assassin => assassinPrefab,
+            PlayerType.Assasin => assassinPrefab,
             PlayerType.Wizard => wizardPrefab,
             _ => GetDefaultPrefab()
         };
@@ -430,7 +430,7 @@ public class PlayerSpawner : MonoBehaviour
 //         return playerType switch
 //         {
 //             PlayerType.Warrior => warriorPrefab,
-//             PlayerType.Assassin => assassinPrefab,
+//             PlayerType.Assasin => assassinPrefab,
 //             PlayerType.Wizard => wizardPrefab,
 //             _ => GetDefaultPrefab()
 //         };

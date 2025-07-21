@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2499b06ed5d6f1e4c8cac8b78380d78a, type: 3}
+  m_Name: WarriorSkill1Data
+  m_EditorClassIdentifier: 
+  skillName: Dash Attack
+  icon: {fileID: 0}
+  cooldown: 1
+  damage: 25
+  range: 8
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 3
+  projectileCount: 1
+  spreadAngle: 45
+  projectileScale: {x: 2, y: 2, z: 2}
+  effectPrefab: {fileID: 3545761778305609661, guid: 6c60555a3ba6f744fae88de6b498b262, type: 3}

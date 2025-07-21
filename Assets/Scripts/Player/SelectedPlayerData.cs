@@ -52,7 +52,7 @@ public enum PlayerType
 {
     None = 0,
     Warrior = 1,    // 전사 - 검 사용
-    Assassin = 2,   // 어쌔신 - 활 사용  
+    Assasin = 2,    // 어쌔신 - 활 사용  
     Wizard = 3      // 마법사 - 스태프 사용
 }
 
@@ -69,7 +69,7 @@ public static class PlayerTypeExtensions
         return playerType switch
         {
             PlayerType.Warrior => "Sword",
-            PlayerType.Assassin => "Bow", 
+            PlayerType.Assasin => "Bow", 
             PlayerType.Wizard => "Staff",
             _ => ""
         };
@@ -83,7 +83,7 @@ public static class PlayerTypeExtensions
         return playerType switch
         {
             PlayerType.Warrior => "전사",
-            PlayerType.Assassin => "어쌔신",
+            PlayerType.Assasin => "어쌔신",
             PlayerType.Wizard => "마법사",
             _ => "선택 안함"
         };

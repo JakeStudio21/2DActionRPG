@@ -90,14 +90,19 @@ public class Pickup : MonoBehaviour
         switch (pickUpType)
         {
             case PickUpType.GoldCoin:
-                // ⭐ 수정: PlayerManager로 통합하여 중복 제거
-                if (PlayerManager.Instance != null)
+                // ⭐ [Phase 1] PlayerDataManager로 통합하여 중복 제거
+                if (PlayerDataManager.Instance != null)
                 {
+                    PlayerDataManager.Instance.AddGold(1);
+                }
+                else if (PlayerManager.Instance != null)
+                {
+                    // 백업: 기존 PlayerManager 사용 (호환성)
                     PlayerManager.Instance.AddGold(1);
                 }
                 else
                 {
-                    Debug.LogWarning("[Pickup] PlayerManager를 찾을 수 없습니다!");
+                    Debug.LogWarning("[Pickup] PlayerDataManager를 찾을 수 없습니다!");
                 }
                 
                 Debug.Log("GoldCoin");

@@ -132,7 +132,7 @@ public class LobbyUIController : MonoBehaviour
         if (className == "Warrior")
             LobbyManager.Instance.SelectClass(PlayerType.Warrior, "Sword");
         else if (className == "Assassin")
-            LobbyManager.Instance.SelectClass(PlayerType.Assassin, "Bow");
+                            LobbyManager.Instance.SelectClass(PlayerType.Assasin, "Bow");
         else
             LobbyManager.Instance.SelectClass(PlayerType.None, "");
         

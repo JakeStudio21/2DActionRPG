@@ -263,6 +263,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &5614862686505903872
 GameObject:
   m_ObjectHideFlags: 0
@@ -365,17 +370,19 @@ GameObject:
   m_Component:
   - component: {fileID: 8477380869007209772}
   - component: {fileID: 413062075754086289}
-  - component: {fileID: 3412523220790301595}
-  - component: {fileID: 2625955227663354421}
-  - component: {fileID: 3378627283251995473}
-  - component: {fileID: 2904923420834336424}
   - component: {fileID: 7061653319065569405}
+  - component: {fileID: 2625955227663354421}
+  - component: {fileID: 2904923420834336424}
+  - component: {fileID: -5261787893931839608}
+  - component: {fileID: 3378627283251995473}
+  - component: {fileID: 6037652403689277950}
+  - component: {fileID: 3412523220790301595}
+  - component: {fileID: 472274624499914740}
   - component: {fileID: 2541682511758850633}
+  - component: {fileID: 4451406008786218953}
   - component: {fileID: 5734504649737104247}
   - component: {fileID: 3411945224194783882}
   - component: {fileID: 6403347020822746970}
-  - component: {fileID: 4451406008786218953}
-  - component: {fileID: 472274624499914740}
   - component: {fileID: 7968133305553475948}
   m_Layer: 8
   m_Name: Wizard
@@ -443,7 +450,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -75224854, guid: 478a100d121726e43b8030f7be703933, type: 3}
-  m_Color: {r: 0, g: 0.54191923, b: 1, a: 1}
+  m_Color: {r: 0.10201049, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -453,23 +460,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!114 &3412523220790301595
-MonoBehaviour:
+--- !u!210 &7061653319065569405
+SortingGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7542120236176968360}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972fbe965fb5a8d4abcb27e59371b700, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 4
-  dashspeed: 6
-  myTrailRenderer: {fileID: 4602630472629665941}
-  weaponCollider: {fileID: 5337248612677347209}
-  fixedJoystick: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
 --- !u!50 &2625955227663354421
 Rigidbody2D:
   serializedVersion: 4
@@ -497,27 +499,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!95 &3378627283251995473
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 6608d85551dd3a146b9f96de509b7d47, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!70 &2904923420834336424
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -553,18 +534,83 @@ CapsuleCollider2D:
   m_Offset: {x: -0.044733845, y: -0.13466935}
   m_Size: {x: 0.6237145, y: 0.55638814}
   m_Direction: 1
---- !u!210 &7061653319065569405
-SortingGroup:
+--- !u!114 &-5261787893931839608
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7542120236176968360}
   m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9674be6c8fb44c948862c26d3aa8fa7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!95 &3378627283251995473
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6608d85551dd3a146b9f96de509b7d47, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6037652403689277950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640d1baa946081e4291e894855f4078d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebugLogs: 1
+--- !u!114 &3412523220790301595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972fbe965fb5a8d4abcb27e59371b700, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 4
+  dashspeed: 6
+  myTrailRenderer: {fileID: 4602630472629665941}
+  weaponCollider: {fileID: 5337248612677347209}
+  fixedJoystick: {fileID: 0}
+--- !u!114 &472274624499914740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 804caf4af6575c74d8ba42e228917c1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableKeyboardInput: 1
+  showDebugLogs: 1
 --- !u!114 &2541682511758850633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,6 +626,21 @@ MonoBehaviour:
   maxHealth: 100
   knockBackThrustAmount: 10
   damageRecoveryTime: 1
+--- !u!114 &4451406008786218953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e159c4bb490d33c449f5fe3fba417383, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentLevel: 1
+  _currentExp: 0
+  _expToNextLevel: 100
 --- !u!114 &5734504649737104247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -620,35 +681,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
---- !u!114 &4451406008786218953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e159c4bb490d33c449f5fe3fba417383, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _currentLevel: 1
-  _currentExp: 0
-  _expToNextLevel: 100
---- !u!114 &472274624499914740
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 804caf4af6575c74d8ba42e228917c1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enableKeyboardInput: 1
-  showDebugLogs: 1
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &7968133305553475948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,8 +698,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 643c4513315b0cf44b4a3e529ad2712b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arrowPrefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
+  skillSet:
+    showDebugLogs: 1
+  skill1Component: {fileID: 0}
+  skill2Component: {fileID: 0}
   cooldownTime: 2
-  arrowSpeed: 10
-  arrowCount: 5
-  spreadAngle: 15
+  skill2CooldownTime: 3

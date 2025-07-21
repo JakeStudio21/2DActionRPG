@@ -23,9 +23,9 @@ GameObject:
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -3420654551023502779}
   - component: {fileID: -9110043429021353378}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Blue_slime
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -205,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
+  maxHealth: 5
   knockBackThrust: 5
   deathVFXPrefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
   experienceGiven: 10
@@ -298,6 +298,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &-3420654551023502779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,11 +315,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meleeDamage: 1
   attackCooldown: 1.5
-  attackRange: 2
+  detectionRange: 5
+  chaseRange: 8
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}
+  meleeDamage: 1
+  attackRange: 2
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256

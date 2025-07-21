@@ -23,9 +23,9 @@ GameObject:
   - component: {fileID: 2733928855307480320}
   - component: {fileID: 4795855821891295909}
   - component: {fileID: 9183738283701349947}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Enemie1
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -252,14 +252,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 081d543d4d8d22a42a0b26d1b768ba49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
-  projectileSpawnPoint: {fileID: 0}
   attackCooldown: 2
   detectionRange: 5.25
   chaseRange: 8
-  predictionFactor: 0.5
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}
+  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+  projectileSpawnPoint: {fileID: 0}
+  predictionFactor: 0.5
 --- !u!114 &-1970779111418326641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,7 +346,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7374998914404364985}
   - component: {fileID: 5882539414530225421}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shadows_Sheet_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

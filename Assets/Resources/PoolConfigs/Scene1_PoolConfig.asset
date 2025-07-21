@@ -74,5 +74,23 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 50
+  - tag: Slash Prefab
+    prefab: {fileID: 3545761778305609661, guid: 00b45e0be5d17ac4d889550dc353cdd3, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: WarriorSkill1_Slash
+    prefab: {fileID: 3545761778305609661, guid: 6c60555a3ba6f744fae88de6b498b262, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: WarriorSkill2_Slash
+    prefab: {fileID: 3545761778305609661, guid: dd65a54c66fcfdc4f85560388d3569c1, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

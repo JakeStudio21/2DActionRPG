@@ -40,8 +40,55 @@ public class Sword : MonoBehaviour, IWeapon
         // ⭐ 애니메이션 트리거 제거 - PlayerAnimationController에서 관리
         // myAnimator.SetTrigger("Attack");
         
-        // 순수 공격 로직만 담당
+        // ⭐ [Phase B] Warrior 감지 및 전용 기능 적용
+        var warrior = GetComponentInParent<Warrior>();
+        if (warrior != null && warrior.IsActiveClass)  // ⭐ 수정: isActive → IsActiveClass
+        {
+            Debug.Log("⚔️ [Sword] Warrior 감지! 전용 기능 활성화");
+            PerformWarriorSwordAttack(warrior);
+        }
+        else
+        {
+            // 기본 공격 로직
+            PerformSwordAttack();
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ [Phase B] Warrior 전용 검 공격 (버서커 모드, 반격 등 고려)
+    /// </summary>
+    private void PerformWarriorSwordAttack(Warrior warrior)
+    {
+        Debug.Log("⚔️ [Sword] Warrior 전용 공격 실행!");
+        
+        // 기본 공격 로직 실행
         PerformSwordAttack();
+        
+        // Warrior 전용 추가 효과
+        if (warrior.IsInBerserkerMode())
+        {
+            Debug.Log("🔥 [Sword] 버서커 모드! 추가 공격 효과");
+            
+            // 버서커 모드 시 추가 슬래시 이펙트
+            if (slashSpawnPoint != null)
+            {
+                var berserkerSlash = GamePoolManager.Instance.SpawnFromPool("Slash Prefab", 
+                    slashSpawnPoint.position + Vector3.up * 0.5f, Quaternion.identity);
+                if (berserkerSlash != null)
+                {
+                    berserkerSlash.transform.parent = this.transform.parent;
+                    // 버서커 이펙트는 빨간색으로 변경
+                    var spriteRenderer = berserkerSlash.GetComponent<SpriteRenderer>();
+                    if (spriteRenderer != null)
+                    {
+                        spriteRenderer.color = Color.red;
+                    }
+                }
+            }
+        }
+        
+        // 블록 확률과 반격 확률 정보 출력 (디버깅용)
+        Debug.Log($"🛡️ [Sword] Warrior 상태 - 블록: {warrior.GetBlockChance() * 100:F1}%, 반격: {warrior.GetCounterAttackChance() * 100:F1}%");
     }
     
     /// <summary>
@@ -66,6 +113,10 @@ public class Sword : MonoBehaviour, IWeapon
                 Debug.Log("🟢 [Sword] 슬래시 이펙트 생성");
             }
         }
+        
+        // ⭐ [Phase B] WeaponDamage 참조 제거 (존재하지 않는 클래스)
+        // 데미지는 DamageSource.cs에서 이미 Warrior 배율을 적용하므로 여기서는 필요 없음
+        Debug.Log("🟢 [Sword] 기본 공격 로직 완료");
     }
 
     public void DoneAttackingAnimEnvet() {
