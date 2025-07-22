@@ -39,6 +39,9 @@ public class Assasin : BaseClassBehaviour
     [SerializeField] private float dodgeChance = 0.1f;          // 10% 회피 확률
     [SerializeField] private float backAttackBonus = 1.3f;      // 백어택 보너스 30%
     
+    // 🆕 추가할 필드
+    private bool isStealthActive = false;  // 은신 상태 플래그
+    
     #endregion
     
     #region Unity 생명주기 오버라이드 (디버깅용)
@@ -165,7 +168,7 @@ public class Assasin : BaseClassBehaviour
     }
     
     /// <summary>
-    /// 은신 스킬 (어쌔신 고유)
+    /// 은신 스킬 (어쌔신 고유) - 개선된 버전
     /// </summary>
     public void UseStealth()
     {
@@ -176,20 +179,67 @@ public class Assasin : BaseClassBehaviour
     
     private IEnumerator StealthCoroutine()
     {
+        isStealthActive = true; // 🆕 은신 상태 시작
+        
         if (showDebugLogs)
             Debug.Log($"👻 [Assasin] 은신 발동! 지속시간: {stealthDuration}초");
         
-        // 은신 효과 적용 (투명도, 무적 등)
+        // 🆕 실제 은신 효과 적용
         var spriteRenderer = GetComponent<SpriteRenderer>();
+        var collider = GetComponent<Collider2D>();
+        
+        Color originalColor = Color.white;
+        int originalLayer = gameObject.layer;
+        
         if (spriteRenderer != null)
         {
-            Color originalColor = spriteRenderer.color;
+            originalColor = spriteRenderer.color;
+            // 반투명 효과
             spriteRenderer.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0.3f);
-            
-            yield return new WaitForSeconds(stealthDuration);
-            
+        }
+        
+        // 🆕 적 AI에서 감지되지 않도록 레이어 변경 (옵션)
+        try
+        {
+            int stealthLayer = LayerMask.NameToLayer("StealthPlayer");
+            if (stealthLayer != -1)
+            {
+                gameObject.layer = stealthLayer;
+            }
+            else
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning("🟡 [Assasin] StealthPlayer 레이어가 정의되지 않았습니다.");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"🟡 [Assasin] 레이어 변경 실패: {ex.Message}");
+        }
+        
+        // 🆕 은신 이펙트 생성
+        if (GamePoolManager.Instance != null)
+        {
+            var stealthEffect = GamePoolManager.Instance.SpawnFromPool("Stealth Effect", transform.position, Quaternion.identity);
+            if (stealthEffect != null)
+            {
+                // 은신 이펙트를 플레이어에 부착
+                stealthEffect.transform.SetParent(transform);
+                stealthEffect.transform.localPosition = Vector3.zero;
+            }
+        }
+        
+        yield return new WaitForSeconds(stealthDuration);
+        
+        // 원상복구
+        if (spriteRenderer != null)
+        {
             spriteRenderer.color = originalColor;
         }
+        gameObject.layer = originalLayer;
+        
+        isStealthActive = false; // �� 은신 상태 종료
         
         if (showDebugLogs)
             Debug.Log($"👻 [Assasin] 은신 해제");
@@ -361,4 +411,54 @@ public class Assasin : BaseClassBehaviour
     }
     
     #endregion
+
+    /// <summary>
+    /// 회피 판정 (피격 시 호출) - ⭐ 최우선 추가
+    /// </summary>
+    public bool TryDodge()
+    {
+        if (Random.Range(0f, 1f) < dodgeChance)
+        {
+            if (showDebugLogs)
+                Debug.Log($"💨 [Assasin] 회피 성공! 확률: {dodgeChance * 100:F1}%");
+            
+            // 회피 이펙트 생성 (옵션)
+            if (GamePoolManager.Instance != null)
+            {
+                var dodgeEffect = GamePoolManager.Instance.SpawnFromPool("Dodge Effect", transform.position, Quaternion.identity);
+                if (dodgeEffect != null)
+                {
+                    // 회피 이펙트는 연한 파란색으로 설정
+                    var spriteRenderer = dodgeEffect.GetComponent<SpriteRenderer>();
+                    if (spriteRenderer != null)
+                    {
+                        spriteRenderer.color = Color.cyan;
+                    }
+                }
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+
+    /// <summary>
+    /// 크리티컬 판정 포함 데미지 계산 (BaseClassBehaviour 오버라이드 확장) - ⭐ 최우선 추가
+    /// </summary>
+    public override float GetModifiedDamage(float baseDamage)
+    {
+        float modifiedDamage = base.GetModifiedDamage(baseDamage); // 기본 배율 적용
+        
+        // 추가 크리티컬 로직은 ApplyAdditionalDamageModifiers에서 처리됨
+        return modifiedDamage;
+    }
+
+    /// <summary>
+    /// 현재 은신 상태 확인 - ⭐ 최우선 추가
+    /// </summary>
+    public bool IsInStealth()
+    {
+        return isStealthActive;
+    }
 }

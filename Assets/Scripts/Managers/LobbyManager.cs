@@ -9,7 +9,8 @@ public class LobbyManager : MonoBehaviour
     public static LobbyManager Instance { get; private set; }
     
     [Header("플레이어 선택 데이터")]
-    public PlayerSelectionData playerSelection = new PlayerSelectionData();
+    private PlayerType selectedPlayerType = PlayerType.None;
+    private string selectedWeaponName = "";
     
     private void Awake()
     {
@@ -71,8 +72,32 @@ public class LobbyManager : MonoBehaviour
     /// </summary>
     public void SelectClass(PlayerType type, string weapon)
     {
-        playerSelection.selectedType = type;
-        playerSelection.weaponName = weapon;
+        selectedPlayerType = type;
+        selectedWeaponName = weapon;
+        
+        // ⭐ 기존: GameManager.selectedPlayerData에 설정
+        if (GameManager.Instance != null && GameManager.Instance.selectedPlayerData != null)
+        {
+            GameManager.Instance.selectedPlayerData.selectedPlayerType = type;
+            GameManager.Instance.selectedPlayerData.weaponName = weapon;
+            Debug.Log($"[LobbyManager] GameManager.selectedPlayerData 설정 완료: {type}, 무기: {weapon}");
+        }
+        else
+        {
+            Debug.LogError("[LobbyManager] GameManager 또는 selectedPlayerData가 없습니다!");
+        }
+        
+        // 🆕 핵심 추가: PlayerDataManager에도 즉시 설정
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.SetCurrentPlayerType(type);
+            Debug.Log($"💾 [LobbyManager] PlayerDataManager에 캐릭터 타입 설정: {type}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [LobbyManager] PlayerDataManager가 없어서 설정을 건너뜁니다.");
+        }
+        
         Debug.Log($"[LobbyManager] 클래스 선택: {type}, 무기: {weapon}");
     }
     
@@ -81,7 +106,7 @@ public class LobbyManager : MonoBehaviour
     /// </summary>
     public void StartGame(string sceneName)
     {
-        if (playerSelection.selectedType == PlayerType.None)
+        if (selectedPlayerType == PlayerType.None)
         {
             Debug.LogWarning("[LobbyManager] 플레이어 클래스가 선택되지 않았습니다!");
             return;
@@ -93,10 +118,11 @@ public class LobbyManager : MonoBehaviour
             return;
         }
         
-        // ⭐ 수정: 런타임 데이터로 설정 (ScriptableObject 대신)
-        GameManager.Instance.SetRuntimePlayerData(playerSelection.selectedType, playerSelection.weaponName);
+        // ⭐ 수정: 기존 SelectedPlayerData로 직접 설정 (원래 방식 복구)
+        GameManager.Instance.selectedPlayerData.selectedPlayerType = selectedPlayerType;
+        GameManager.Instance.selectedPlayerData.weaponName = selectedWeaponName;
         
-        Debug.Log($"[LobbyManager] 로비를 떠납니다. 선택된 클래스: {playerSelection.selectedType}, 무기: {playerSelection.weaponName}");
+        Debug.Log($"[LobbyManager] 로비를 떠납니다. 선택된 클래스: {selectedPlayerType}, 무기: {selectedWeaponName}");
         
         // 게임 씬으로 이동
         GameManager.Instance?.LoadGameScene(sceneName);

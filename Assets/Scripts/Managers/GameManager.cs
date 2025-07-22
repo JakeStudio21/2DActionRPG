@@ -2,28 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-/// <summary>
-/// 런타임 플레이어 선택 데이터 (메모리에만 존재)
-/// ScriptableObject 대신 씬 전환 시 DontDestroyOnLoad로 유지됨
-/// </summary>
-[System.Serializable]
-public class PlayerSelectionData
-{
-    public PlayerType selectedType = PlayerType.None;
-    public string weaponName = "";
-    
-    public PlayerSelectionData()
-    {
-        selectedType = PlayerType.None;
-        weaponName = "";
-    }
-    
-    public PlayerSelectionData(PlayerType type, string weapon)
-    {
-        selectedType = type;
-        weaponName = weapon;
-    }
-}
+
 
 /// <summary>
 /// 스테이지 선택 데이터 구조체
@@ -69,10 +48,6 @@ public class GameManager : Singleton<GameManager>
     [Header("게임 데이터")]
     public SelectedPlayerData selectedPlayerData;
     
-    // 런타임 플레이어 데이터 (DontDestroyOnLoad로 유지됨)
-    [System.NonSerialized]
-    private PlayerSelectionData runtimePlayerData = new PlayerSelectionData();
-    
     // 런타임 스테이지 선택 데이터 (DontDestroyOnLoad로 유지됨)
     [System.NonSerialized]
     private StageSelectionData runtimeStageData = new StageSelectionData();
@@ -111,8 +86,6 @@ public class GameManager : Singleton<GameManager>
             Debug.Log($"[GameManager] Awake - selectedPlayerType: {selectedPlayerData.selectedPlayerType}, weaponName: {selectedPlayerData.weaponName}");
             Debug.Log($"[GameManager] Awake - selectedPlayerData instanceID: {selectedPlayerData.GetInstanceID()}");
         }
-        
-        Debug.Log($"[GameManager] 런타임 데이터: {runtimePlayerData.selectedType}, {runtimePlayerData.weaponName}");
 
         InitializeGame();
     }
@@ -148,11 +121,7 @@ public class GameManager : Singleton<GameManager>
             selectedPlayerData.Reset(); // 초기값으로 설정
         }
         
-        // 런타임 데이터 초기화 (새로 생성된 GameManager인 경우)
-        if (runtimePlayerData == null)
-        {
-            runtimePlayerData = new PlayerSelectionData();
-        }
+
         
         // 런타임 스테이지 데이터 초기화
         if (runtimeStageData == null)
@@ -161,24 +130,7 @@ public class GameManager : Singleton<GameManager>
         }
     }
     
-    /// <summary>
-    /// 런타임 플레이어 데이터 설정 (LobbyManager에서 호출)
-    /// </summary>
-    public void SetRuntimePlayerData(PlayerType playerType, string weaponName)
-    {
-        runtimePlayerData.selectedType = playerType;
-        runtimePlayerData.weaponName = weaponName;
-        
-        Debug.Log($"[GameManager] 런타임 데이터 설정 완료: {playerType}, {weaponName}");
-    }
 
-    /// <summary>
-    /// 런타임 플레이어 데이터 가져오기 (PlayerSpawner에서 호출)
-    /// </summary>
-    public PlayerSelectionData GetRuntimePlayerData()
-    {
-        return runtimePlayerData;
-    }
     
     /// <summary>
     /// 런타임 스테이지 데이터 설정 (StageSelectUIController에서 호출)
@@ -259,17 +211,17 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator LoadGameSceneCoroutine(string sceneName)
     {
-        // ⭐ 수정: 런타임 데이터로 유효성 검증
-        if (runtimePlayerData == null || runtimePlayerData.selectedType == PlayerType.None)
+        // ⭐ 수정: 기존 SelectedPlayerData로 유효성 검증
+        if (selectedPlayerData == null || !selectedPlayerData.IsPlayerSelected())
         {
-            Debug.LogError("[GameManager] 런타임 플레이어 데이터가 유효하지 않습니다! 로비로 돌아갑니다.");
-            Debug.LogError($"[GameManager] 현재 런타임 데이터: {runtimePlayerData?.selectedType}, {runtimePlayerData?.weaponName}");
+            Debug.LogError("[GameManager] 플레이어 데이터가 유효하지 않습니다! 로비로 돌아갑니다.");
+            Debug.LogError($"[GameManager] 현재 데이터: {selectedPlayerData}");
             LoadLobbyScene();
             yield break;
         }
 
         Debug.Log($"[GameManager] 씬 전환 시작 - {sceneName}");
-        Debug.Log($"[GameManager] 전달될 런타임 데이터: {runtimePlayerData.selectedType}, {runtimePlayerData.weaponName}");
+        Debug.Log($"[GameManager] 전달될 데이터: {selectedPlayerData}");
 
         // 로딩 씬으로 이동
         currentGameState = GameState.Loading;

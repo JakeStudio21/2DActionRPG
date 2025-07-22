@@ -47,21 +47,124 @@ public class ActiveInventory : MonoBehaviour
         // PlayerDataManager 인벤토리 연동 초기화
         StartCoroutine(InitializeInventoryConnection());
         
-        // 🔑 동적 인벤토리에 아이템이 있으면 시작 무기 장착, 없으면 WeaponNull
         yield return new WaitForSeconds(0.2f); // UI 업데이트 대기
         
-        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.InventoryItems.Count > 0)
+        // ⭐ 수정: 캐릭터 타입 기반 무기 자동 장착
+        EquipWeaponBasedOnCharacterType();
+    }
+
+    /// <summary>
+    /// ⭐ 새로운 메서드: 캐릭터 타입에 맞는 무기 자동 장착
+    /// </summary>
+    private void EquipWeaponBasedOnCharacterType()
+    {
+        // 1. 현재 선택된 캐릭터 타입 확인
+        if (GameManager.Instance?.selectedPlayerData == null)
         {
-            Debug.Log("🚀 [ActiveInventory] 인벤토리에 아이템 있음 - 첫 번째 아이템으로 시작 무기 장착");
-            EquipStartingweapon();
+            Debug.LogWarning("🟡 [ActiveInventory] 캐릭터 선택 데이터 없음 - 기존 방식 유지");
+            return;
+        }
+        
+        PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
+        string expectedWeaponType = GetExpectedWeaponType(selectedType);
+        
+        Debug.Log($"🎯 [ActiveInventory] 캐릭터: {selectedType}, 기대 무기: {expectedWeaponType}");
+        
+        // 2. 인벤토리에서 해당 캐릭터에 맞는 무기 찾기
+        int compatibleSlotIndex = FindCompatibleWeaponSlot(expectedWeaponType);
+        
+        if (compatibleSlotIndex >= 0)
+        {
+            Debug.Log($"✅ [ActiveInventory] {selectedType}에 맞는 {expectedWeaponType} 무기를 슬롯 {compatibleSlotIndex}에서 발견");
+            ToggleActiveHighlight(compatibleSlotIndex);
         }
         else
         {
-            Debug.Log("🚀 [ActiveInventory] 인벤토리가 비어있음 - WeaponNull 설정");
-            var activeWeapon = FindObjectOfType<ActiveWeapon>();
-            if (activeWeapon != null)
+            Debug.Log($"🚀 [ActiveInventory] 인벤토리에 {expectedWeaponType} 무기 없음 - PlayerSpawner 할당 무기 유지");
+            // PlayerSpawner가 이미 올바른 무기를 할당했으므로 그대로 유지
+            HighlightCurrentWeaponSlot();
+        }
+    }
+
+    /// <summary>
+    /// 캐릭터 타입에 따른 기대 무기 타입 반환
+    /// </summary>
+    private string GetExpectedWeaponType(PlayerType playerType)
+    {
+        return playerType switch
+        {
+            PlayerType.Warrior => "Sword",
+            PlayerType.Assasin => "Bow", 
+            PlayerType.Wizard => "Staff",
+            _ => ""
+        };
+    }
+
+    /// <summary>
+    /// 인벤토리에서 호환 가능한 무기 슬롯 찾기
+    /// </summary>
+    private int FindCompatibleWeaponSlot(string weaponType)
+    {
+        if (string.IsNullOrEmpty(weaponType)) return -1;
+        
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform slotTransform = transform.GetChild(i);
+            InventorySlot slot = slotTransform.GetComponent<InventorySlot>();
+            
+            if (slot != null && slot.HasWeapon())
             {
-                activeWeapon.WeaponNull();
+                string weaponName = slot.GetWeaponName();
+                
+                // 무기 이름에 기대하는 무기 타입이 포함되어 있는지 확인
+                if (weaponName.Contains(weaponType))
+                {
+                    Debug.Log($"🔍 [ActiveInventory] 호환 무기 발견: 슬롯 {i} - {weaponName}");
+                    return i;
+                }
+            }
+        }
+        
+        return -1; // 호환 무기 없음
+    }
+
+    /// <summary>
+    /// 현재 ActiveWeapon에 맞는 슬롯 하이라이트 (교체하지 않음)
+    /// </summary>
+    private void HighlightCurrentWeaponSlot()
+    {
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon?.CurrentActiveWeapon == null) return;
+        
+        string currentWeaponName = activeWeapon.CurrentActiveWeapon.name.Replace("(Clone)", "");
+        
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform slotTransform = transform.GetChild(i);
+            InventorySlot slot = slotTransform.GetComponent<InventorySlot>();
+            
+            if (slot != null && slot.GetWeaponName().Contains(currentWeaponName))
+            {
+                // 하이라이트만 설정 (실제 무기 교체는 하지 않음)
+                activeSlotIndexNum = i;
+                UpdateSlotHighlights();
+                Debug.Log($"💡 [ActiveInventory] 현재 무기에 맞는 슬롯 {i} 하이라이트");
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 슬롯 하이라이트만 업데이트 (무기 교체 없음)
+    /// </summary>
+    private void UpdateSlotHighlights()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform inventorySlot = transform.GetChild(i);
+            if (inventorySlot.childCount > 0)
+            {
+                inventorySlot.GetChild(0).gameObject.SetActive(i == activeSlotIndexNum);
             }
         }
     }
@@ -108,11 +211,6 @@ public class ActiveInventory : MonoBehaviour
             return;
         }
 
-        if (activeWeapon.CurrentActiveWeapon != null) {
-            Debug.Log($"🗑️ [ActiveInventory] 기존 무기 제거: {activeWeapon.CurrentActiveWeapon.name}");
-            Destroy(activeWeapon.CurrentActiveWeapon.gameObject);
-        }
-        
         // 🔑 슬롯 범위 체크 추가
         if (activeSlotIndexNum < 0 || activeSlotIndexNum >= transform.childCount) {
             Debug.LogWarning($"⚠️ [ActiveInventory] 잘못된 슬롯 인덱스: {activeSlotIndexNum}");
@@ -131,13 +229,32 @@ public class ActiveInventory : MonoBehaviour
         Debug.Log($"📋 [ActiveInventory] 슬롯 정보 - 무기명: {inventorySlot.GetWeaponName()}, 능력치: {inventorySlot.GetWeaponStats()}");
         
         WeaponInfo weaponInfo = inventorySlot.GetWeaponInfo();
-        EquipmentData equipmentData = inventorySlot.GetEquipmentData(); // 🆕 EquipmentData도 가져오기
+        EquipmentData equipmentData = inventorySlot.GetEquipmentData();
 
         // 🔑 무기 데이터가 없으면 WeaponNull 처리
         if (weaponInfo == null || equipmentData == null) {
             Debug.Log("⚠️ [ActiveInventory] 무기 데이터 없음 - WeaponNull 호출");
             activeWeapon.WeaponNull();
             return;
+        }
+
+        // 🆕 클래스 호환성 검사 (기존 무기 파괴 전에 실행!)
+        PlayerClass currentPlayerClass = GetCurrentPlayerClass();
+        if (!equipmentData.IsCompatibleWith(currentPlayerClass))
+        {
+            Debug.LogWarning($"🚫 [ActiveInventory] 클래스 호환성 오류: {currentPlayerClass}는 {equipmentData.equipmentName} 사용 불가");
+            
+            // 🎨 UI 메시지 표시
+            inventorySlot.ShowIncompatibilityMessage();
+            
+            // 🔑 중요: 기존 무기를 파괴하지 않고 그대로 유지!
+            return;
+        }
+
+        // 🔑 호환성 검사 통과 후에만 기존 무기 제거
+        if (activeWeapon.CurrentActiveWeapon != null) {
+            Debug.Log($"🗑️ [ActiveInventory] 기존 무기 제거: {activeWeapon.CurrentActiveWeapon.name}");
+            Destroy(activeWeapon.CurrentActiveWeapon.gameObject);
         }
 
         Debug.Log($"✅ [ActiveInventory] 무기 발견: {weaponInfo.name} (공격력: {weaponInfo.weaponDamage})");
@@ -191,6 +308,50 @@ public class ActiveInventory : MonoBehaviour
         activeWeapon.NewWeapon(weaponComponent);
 
         Debug.Log($"🎯 [ActiveInventory] 무기 교체 완료! 활성 무기: {newWeapon.name}");
+    }
+
+    /// <summary>
+    /// 🆕 현재 활성화된 플레이어 클래스 확인
+    /// </summary>
+    private PlayerClass GetCurrentPlayerClass()
+    {
+        // 1순위: GameManager의 selectedPlayerData 확인
+        if (GameManager.Instance?.selectedPlayerData != null)
+        {
+            PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
+            return ConvertPlayerTypeToPlayerClass(selectedType);
+        }
+        
+        // 2순위: 활성화된 클래스 컴포넌트 직접 확인
+        var warrior = FindObjectOfType<Warrior>();
+        if (warrior != null && warrior.IsActiveClass)
+        {
+            return PlayerClass.Warrior;
+        }
+        
+        var assasin = FindObjectOfType<Assasin>();
+        if (assasin != null && assasin.IsActiveClass)
+        {
+            return PlayerClass.Assasin;
+        }
+        
+        // 기본값
+        Debug.LogWarning("🟡 [ActiveInventory] 활성 클래스를 찾을 수 없어 Warrior로 가정합니다.");
+        return PlayerClass.Warrior;
+    }
+
+    /// <summary>
+    /// 🆕 PlayerType을 PlayerClass로 변환
+    /// </summary>
+    private PlayerClass ConvertPlayerTypeToPlayerClass(PlayerType playerType)
+    {
+        return playerType switch
+        {
+            PlayerType.Warrior => PlayerClass.Warrior,
+            PlayerType.Assasin => PlayerClass.Assasin,
+            PlayerType.Wizard => PlayerClass.Wizard,
+            _ => PlayerClass.Warrior
+        };
     }
 
     void Update() {

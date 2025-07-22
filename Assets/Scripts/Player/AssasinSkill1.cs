@@ -307,4 +307,82 @@ public class AssasinSkill1 : MonoBehaviour, ISkill
             Debug.Log($"   - SpreadAngle: {skillData.spreadAngle}");
         }
     }
+
+    #region ⭐ 안전한 Enemy 탐지 시스템 (Warrior와 동일)
+
+    /// <summary>
+    /// 안전한 Enemy 탐지 (Warrior 스킬과 동일한 로직)
+    /// </summary>
+    private GameObject[] FindEnemiesSafely()
+    {
+        GameObject[] enemies = null;
+        
+        try
+        {
+            // 1순위: Enemy 태그 사용 시도
+            enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            if (showDebugLogs)
+                Debug.Log($"🎯 [AssasinSkill1] Enemy 태그로 {enemies.Length}명의 적 발견");
+        }
+        catch (UnityException)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [AssasinSkill1] Enemy 태그가 정의되지 않음. 다른 방법 시도...");
+            enemies = null;
+        }
+        
+        // 2순위: Enemy 태그가 없으면 EnemyHealth 컴포넌트로 찾기
+        if (enemies == null || enemies.Length == 0)
+        {
+            EnemyHealth[] enemyHealths = FindObjectsOfType<EnemyHealth>();
+            enemies = new GameObject[enemyHealths.Length];
+            for (int i = 0; i < enemyHealths.Length; i++)
+            {
+                enemies[i] = enemyHealths[i].gameObject;
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"🎯 [AssasinSkill1] EnemyHealth 컴포넌트로 {enemies.Length}명의 적 발견");
+        }
+        
+        return enemies;
+    }
+
+    /// <summary>
+    /// 가장 가까운 적 찾기 (안전한 버전)
+    /// </summary>
+    private Transform FindNearestEnemySafely()
+    {
+        GameObject[] enemies = FindEnemiesSafely();
+        
+        if (enemies == null || enemies.Length == 0)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [AssasinSkill1] 적을 찾을 수 없습니다!");
+            return null;
+        }
+        
+        Transform nearest = null;
+        float minDistance = Mathf.Infinity;
+        float maxRange = 15f; // 최대 탐지 범위
+        
+        foreach (GameObject enemy in enemies)
+        {
+            if (enemy == null) continue; // null 체크 추가
+            
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance < minDistance && distance <= maxRange)
+            {
+                minDistance = distance;
+                nearest = enemy.transform;
+            }
+        }
+        
+        if (nearest != null && showDebugLogs)
+            Debug.Log($"🎯 [AssasinSkill1] 가장 가까운 적: {nearest.name} (거리: {minDistance:F1})");
+        
+        return nearest;
+    }
+
+    #endregion
 }

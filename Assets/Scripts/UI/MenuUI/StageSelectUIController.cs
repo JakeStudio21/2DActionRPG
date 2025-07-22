@@ -93,10 +93,10 @@ public class StageSelectUIController : MonoBehaviour
     {
         if (GameManager.Instance != null)
         {
-            var playerData = GameManager.Instance.GetRuntimePlayerData();
-            if (playerData != null && playerData.selectedType != PlayerType.None)
+            var playerData = GameManager.Instance.selectedPlayerData;
+            if (playerData != null && playerData.selectedPlayerType != PlayerType.None)
             {
-                string characterName = playerData.selectedType.ToString();
+                string characterName = playerData.selectedPlayerType.ToString();
                 Debug.Log($"[StageSelectUIController] 선택된 캐릭터: {characterName}, 무기: {playerData.weaponName}");
             }
             else
@@ -161,10 +161,10 @@ public class StageSelectUIController : MonoBehaviour
     {
         if (GameManager.Instance != null)
         {
-            var playerData = GameManager.Instance.GetRuntimePlayerData();
-            if (playerData != null && playerData.selectedType != PlayerType.None)
+            var playerData = GameManager.Instance.selectedPlayerData;
+            if (playerData != null && playerData.selectedPlayerType != PlayerType.None)
             {
-                return playerData.selectedType.ToString();
+                return playerData.selectedPlayerType.ToString();
             }
         }
         return "No Character";
@@ -197,12 +197,12 @@ public class StageSelectUIController : MonoBehaviour
             return;
         }
         
-        // ⭐ 수정: GameManager의 런타임 플레이어 데이터 확인
-        var playerData = GameManager.Instance.GetRuntimePlayerData();
-        if (playerData == null || playerData.selectedType == PlayerType.None)
+        // ⭐ 수정: GameManager의 SelectedPlayerData 확인 (원래 방식 복구)
+        var playerData = GameManager.Instance.selectedPlayerData;
+        if (playerData == null || playerData.selectedPlayerType == PlayerType.None)
         {
             Debug.LogError("[StageSelectUIController] 플레이어 클래스가 선택되지 않았습니다!");
-            Debug.LogError($"[StageSelectUIController] 현재 플레이어 데이터: {playerData?.selectedType}, {playerData?.weaponName}");
+            Debug.LogError($"[StageSelectUIController] 현재 플레이어 데이터: {playerData}");
             // 로비로 돌아가서 캐릭터 선택하도록 안내
             OnBackToLobbyClicked();
             return;
@@ -213,7 +213,7 @@ public class StageSelectUIController : MonoBehaviour
         GameManager.Instance.SetSelectedStage(selectedStageNumber, selectedSceneName);
         
         Debug.Log($"[StageSelectUIController] 스테이지 {selectedStageNumber} ({selectedSceneName})로 게임 시작");
-        Debug.Log($"[StageSelectUIController] 플레이어 정보: {playerData.selectedType}, {playerData.weaponName}");
+        Debug.Log($"[StageSelectUIController] 플레이어 정보: {playerData.selectedPlayerType}, {playerData.weaponName}");
         
         // ⭐ 수정: GameManager를 통한 씬 전환
         GameManager.Instance.LoadGameScene(selectedSceneName);

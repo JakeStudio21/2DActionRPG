@@ -6,6 +6,7 @@ public class DamageSource : MonoBehaviour
 {
     private int baseDamageAmount;  // ⭐ 기본 데미지 저장용
     private Warrior warrior;       // ⭐ Warrior 컴포넌트 참조
+    private Assasin assasin; // 🆕 Assasin 컴포넌트 참조
 
     private void Start() {
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
@@ -21,6 +22,12 @@ public class DamageSource : MonoBehaviour
         else
         {
             Debug.Log($"🔵 [DamageSource] 일반 무기 데미지: {baseDamageAmount}");
+        }
+
+        // 🆕 Assasin 컴포넌트 찾기
+        assasin = FindObjectOfType<Assasin>();
+        if (assasin != null) {
+            Debug.Log($"🏹 [DamageSource] Assasin 감지! 기본 데미지: {baseDamageAmount}");
         }
     }
 
@@ -48,6 +55,26 @@ public class DamageSource : MonoBehaviour
                 {
                     Debug.LogWarning($"🟡 [DamageSource] Warrior 데미지 계산 실패: {ex.Message}");
                     finalDamage = baseDamageAmount; // 기본값 사용
+                }
+            }
+            
+            // 🆕 Assasin 크리티컬/백어택 적용
+            if (assasin != null && assasin.IsActiveClass) {
+                try {
+                    finalDamage = Mathf.RoundToInt(assasin.GetModifiedDamage(baseDamageAmount));
+                    
+                    // 백어택 보너스 추가 판정
+                    float backAttackMultiplier = assasin.GetBackAttackMultiplier(
+                        transform.position, 
+                        other.transform.position, 
+                        other.transform.right // 적의 방향
+                    );
+                    finalDamage = Mathf.RoundToInt(finalDamage * backAttackMultiplier);
+                    
+                    Debug.Log($"🏹 [DamageSource] Assasin 데미지 적용! {baseDamageAmount} → {finalDamage}");
+                } catch (System.Exception ex) {
+                    Debug.LogWarning($"🟡 [DamageSource] Assasin 데미지 계산 실패: {ex.Message}");
+                    finalDamage = baseDamageAmount;
                 }
             }
             

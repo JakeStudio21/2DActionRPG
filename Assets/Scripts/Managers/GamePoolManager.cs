@@ -42,6 +42,9 @@ public class GamePoolManager : Singleton<GamePoolManager>
     
     private void Start()
     {
+        Debug.Log($"🔍 [GamePoolManager] 현재 씬: {currentSceneName}");
+        Debug.Log($"🔍 [GamePoolManager] currentSceneConfig: {(currentSceneConfig != null ? currentSceneConfig.name : "NULL")}");
+        
         StartCoroutine(LoadCurrentScenePools());
     }
     
@@ -83,15 +86,14 @@ public class GamePoolManager : Singleton<GamePoolManager>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         string newSceneName = scene.name;
-        if (newSceneName == currentSceneName) return;
         
         if (enableDebugMode)
         {
-            Debug.Log($"[GamePoolManager] 씬 변경 감지: {currentSceneName} → {newSceneName}");
+            Debug.Log($"🔄 [GamePoolManager] 씬 전환: → {newSceneName}");
         }
         
-        // ⭐ 핵심 수정: 씬 변경 즉시 모든 활성 오브젝트 강제 정리
-        StartCoroutine(SafeCleanupAllActiveObjects());
+        // 🔥 핵심: 완전한 풀 리셋
+        DestroyAllPools();
         
         currentSceneName = newSceneName;
         StartCoroutine(LoadScenePoolsCoroutine(newSceneName));
@@ -445,6 +447,14 @@ public class GamePoolManager : Singleton<GamePoolManager>
             Debug.Log($"[GamePoolManager] 씬 '{sceneName}' 풀 로딩 완료");
             if (showPoolStats) PrintPoolStats();
         }
+        if (enableDebugMode)
+        {
+            Debug.Log("🔍 [GamePoolManager] 로드된 풀 목록:");
+            foreach(var poolTag in poolDictionary.Keys)
+            {
+                Debug.Log($"  - {poolTag}: {poolDictionary[poolTag].Count}개");
+            }
+        }
     }
     
     /// <summary>
@@ -504,31 +514,29 @@ public class GamePoolManager : Singleton<GamePoolManager>
     /// </summary>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
+        Debug.Log($"🏭 [GamePoolManager] SpawnFromPool 호출: {tag} at {position}");
+        
         // 풀 존재 확인
         if (!poolDictionary.ContainsKey(tag))
         {
-            if (enableDebugMode)
-            {
-                Debug.LogWarning($"[GamePoolManager] 풀에 없는 태그: {tag}");
-            }
+            Debug.LogError($"🏭 [GamePoolManager] 풀에 없는 태그: {tag}");
+            Debug.LogError($"🏭 [GamePoolManager] 현재 사용 가능한 풀들: {string.Join(", ", poolDictionary.Keys)}");
             return null;
         }
         
         Queue<GameObject> pool = poolDictionary[tag];
+        Debug.Log($"🏭 [GamePoolManager] {tag} 풀 크기: {pool.Count}");
         
         // 풀이 비어있으면 확장
         if (pool.Count == 0)
         {
-            if (enableDebugMode)
-            {
-                Debug.LogWarning($"[GamePoolManager] 풀 '{tag}'가 비어있음, 확장 중...");
-            }
+            Debug.LogWarning($"🏭 [GamePoolManager] 풀 '{tag}'가 비어있음, 확장 중...");
             
             ExpandPool(tag, 5); // 긴급 확장
             
             if (pool.Count == 0)
             {
-                Debug.LogError($"[GamePoolManager] 풀 '{tag}' 확장 실패!");
+                Debug.LogError($"🏭 [GamePoolManager] 풀 '{tag}' 확장 실패!");
                 return null;
             }
         }
@@ -539,19 +547,17 @@ public class GamePoolManager : Singleton<GamePoolManager>
         // null 체크 및 재생성
         if (objectToSpawn == null)
         {
-            if (enableDebugMode)
-            {
-                Debug.LogError($"[GamePoolManager] {tag} Dequeue했는데 null!");
-            }
+            Debug.LogError($"🏭 [GamePoolManager] {tag} Dequeue했는데 null!");
             
             if (poolSettings.ContainsKey(tag))
             {
                 objectToSpawn = Instantiate(poolSettings[tag].prefab);
                 objectToSpawn.name = $"{poolSettings[tag].prefab.name}_Emergency";
+                Debug.Log($"🏭 [GamePoolManager] 긴급 생성: {objectToSpawn.name}");
             }
             else
             {
-                Debug.LogError($"[GamePoolManager] 풀 '{tag}'의 설정을 찾을 수 없습니다!");
+                Debug.LogError($"🏭 [GamePoolManager] 풀 '{tag}'의 설정을 찾을 수 없습니다!");
                 return null;
             }
         }
@@ -568,10 +574,8 @@ public class GamePoolManager : Singleton<GamePoolManager>
             activePools[objectToSpawn.GetInstanceID().ToString()] = objectToSpawn;
         }
         
-        if (enableDebugMode)
-        {
-            Debug.Log($"[GamePoolManager] 오브젝트 생성: {tag} (풀 남은 개수: {pool.Count})");
-        }
+        Debug.Log($"🏭 [GamePoolManager] 오브젝트 생성 성공: {tag} (이름: {objectToSpawn.name}, 위치: {objectToSpawn.transform.position}, 활성화: {objectToSpawn.activeInHierarchy})");
+        Debug.Log($"�� [GamePoolManager] 풀 남은 개수: {pool.Count}");
         
         return objectToSpawn;
     }
@@ -705,20 +709,28 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         else if (IsGameplayScene(sceneName))
         {
-            // 게임플레이 씬: 기본 게임플레이 풀들
+            // 🔑 수정: 게임플레이 씬에 필수 픽업 풀들 추가
             defaultConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>
             {
+                // 🆕 필수 픽업 아이템들 추가
+                CreatePoolSetting("Health", "Health", 20),
+                CreatePoolSetting("Gold Coin", "Gold Coin", 30),
+                CreatePoolSetting("Equipment", "Equipment", 15),
+                
+                // 기존 발사체들
                 CreatePoolSetting("Arrow", "Arrow", 15),
                 CreatePoolSetting("Ghost Bullet", "Ghost_Bullet", 20),
                 CreatePoolSetting("Grape Projectile", "Grape Projectile", 10),
                 CreatePoolSetting("Grape Projectile Splatter", "Grape Projectile Splatter", 10),
-                CreatePoolSetting("GrapeShadow", "Grape_Shadow", 10)
+                CreatePoolSetting("GrapeShadow", "Grape_Shadow", 10),
+                
+                // 🆕 VFX 추가
+                CreatePoolSetting("Death VFX", "Death VFX", 10)
             };
-            defaultConfig.optionalPools = new List<ScenePoolConfig.PoolSettings>();
             
             if (enableDebugMode)
             {
-                Debug.Log($"[GamePoolManager] 게임플레이 씬 '{sceneName}' - 기본 게임플레이 풀 설정 사용");
+                Debug.Log($"[GamePoolManager] 게임플레이 씬 '{sceneName}' - 완전한 기본 풀 설정 사용 (픽업 아이템 포함)");
             }
         }
         else
@@ -859,14 +871,31 @@ public class GamePoolManager : Singleton<GamePoolManager>
             yield break;
         }
         
+        // 🆕 영구 보존할 공통 풀들 정의
+        HashSet<string> essentialPools = new HashSet<string>
+        {
+            "Health", "Gold Coin", "Equipment", "Death VFX",
+            "Arrow", "Ghost Bullet", "Grape Projectile", "Grape Projectile Splatter"
+        };
+        
         List<string> poolsToRemove = new List<string>();
         
-        foreach (var kvp in poolDictionary.ToList()) // 안전한 복사본 생성
+        foreach (var kvp in poolDictionary.ToList())
         {
             string tag = kvp.Key;
             Queue<GameObject> pool = kvp.Value;
             
-            // 현재 씬에서 사용하지 않는 풀인지 확인
+            // 🔑 핵심 수정: 필수 풀들은 절대 삭제하지 않음
+            if (essentialPools.Contains(tag))
+            {
+                if (enableDebugMode)
+                {
+                    Debug.Log($"[GamePoolManager] 필수 풀 보존: {tag} ({pool.Count}개)");
+                }
+                continue; // 삭제 대상에서 제외
+            }
+            
+            // 나머지 로직은 동일...
             bool shouldKeep = false;
             
             if (currentSceneConfig != null)
@@ -880,7 +909,6 @@ public class GamePoolManager : Singleton<GamePoolManager>
             
             if (!shouldKeep)
             {
-                // clearOnSceneExit 설정 확인
                 bool shouldClear = true;
                 if (poolSettings.ContainsKey(tag))
                 {
@@ -889,7 +917,6 @@ public class GamePoolManager : Singleton<GamePoolManager>
                 
                 if (shouldClear)
                 {
-                    // 풀의 모든 오브젝트 안전하게 파괴
                     while (pool.Count > 0)
                     {
                         GameObject obj = pool.Dequeue();
@@ -910,12 +937,12 @@ public class GamePoolManager : Singleton<GamePoolManager>
                     
                     if (enableDebugMode)
                     {
-                        Debug.Log($"[GamePoolManager] 풀 언로드: {tag}");
+                        Debug.Log($"[GamePoolManager] 임시 풀 언로드: {tag}");
                     }
                 }
             }
             
-            yield return null; // 매 풀마다 프레임 대기
+            yield return null;
         }
         
         // 제거 대상 풀들 정리
@@ -924,6 +951,11 @@ public class GamePoolManager : Singleton<GamePoolManager>
             poolDictionary.Remove(tag);
             poolSettings.Remove(tag);
             loadedPoolTags.Remove(tag);
+        }
+        
+        if (enableDebugMode)
+        {
+            Debug.Log($"[GamePoolManager] 풀 정리 완료 - 보존: {poolDictionary.Count}개, 제거: {poolsToRemove.Count}개");
         }
     }
     
@@ -1062,6 +1094,42 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         
         Debug.Log("================================");
+    }
+    
+    /// <summary>
+    /// 🆕 모든 풀 완전 파괴
+    /// </summary>
+    private void DestroyAllPools()
+    {
+        if (enableDebugMode)
+            Debug.Log("🧹 [GamePoolManager] 모든 풀 완전 파괴 시작");
+        
+        // 1. 모든 풀 오브젝트 파괴
+        foreach (var pool in poolDictionary.Values)
+        {
+            while (pool.Count > 0)
+            {
+                GameObject obj = pool.Dequeue();
+                if (obj != null)
+                    DestroyImmediate(obj);
+            }
+        }
+        
+        // 2. 활성 오브젝트들도 파괴
+        foreach (var activeObj in activePools.Values)
+        {
+            if (activeObj != null)
+                DestroyImmediate(activeObj);
+        }
+        
+        // 3. 모든 딕셔너리 클리어
+        poolDictionary.Clear();
+        activePools.Clear();
+        poolSettings.Clear();
+        loadedPoolTags.Clear();
+        
+        if (enableDebugMode)
+            Debug.Log("✅ [GamePoolManager] 모든 풀 완전 파괴 완료");
     }
     
 }

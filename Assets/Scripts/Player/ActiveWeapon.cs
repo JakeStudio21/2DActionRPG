@@ -59,21 +59,42 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
 
     private void Update() {
         Attack();
+        
+        // 🛡️ 안전성 검사 강화: CurrentActiveWeapon이 유효한지 확인
+        if (CurrentActiveWeapon == null)
+        {
+            // CurrentActiveWeapon이 null이면 무기 방향 업데이트 건너뜀
+            return;
+        }
+        
+        // 🛡️ 추가 안전성 검사: 게임오브젝트가 파괴되었는지 확인
+        if (CurrentActiveWeapon.gameObject == null)
+        {
+            Debug.LogWarning("🟡 [ActiveWeapon] CurrentActiveWeapon의 GameObject가 파괴되었습니다. 참조 정리 중...");
+            CurrentActiveWeapon = null;
+            return;
+        }
+        
         // [변경] 무기 방향 처리: IWeapon의 UpdateDirection 호출
         // ✅ 조이스틱 방향은 무기 방향 조절용으로 사용 (공격 감지와 분리)
         Vector2 dir = attackJoystickInput != null ? attackJoystickInput.GetAttackDirection() : Vector2.zero;
         var playerController = FindObjectOfType<PlayerController>();
         bool facingLeft = playerController != null && playerController.FacingLeft;
+        
+        // 🛡️ 안전한 IWeapon 캐스팅 및 호출
         if (CurrentActiveWeapon is IWeapon weapon)
         {
-            weapon.UpdateDirection(dir, facingLeft);
+            try
+            {
+                weapon.UpdateDirection(dir, facingLeft);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"🔴 [ActiveWeapon] UpdateDirection 호출 중 에러: {e.Message}");
+                // 에러 발생 시 무기 참조 정리
+                CurrentActiveWeapon = null;
+            }
         }
-        // [백업: 이전 transform.rotation 처리]
-        // if (dir.magnitude > 0.1f)
-        // {
-        //     float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        //     transform.rotation = Quaternion.Euler(0, 0, angle);
-        // }
     }
 
     public void NewWeapon(MonoBehaviour newWeapon) {

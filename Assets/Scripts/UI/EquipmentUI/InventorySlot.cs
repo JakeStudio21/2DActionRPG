@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // 🆕 추가
 
 public class InventorySlot : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class InventorySlot : MonoBehaviour
     [SerializeField] private Image itemIconImage;  // 아이템 아이콘
     [SerializeField] private Button slotButton;    // 클릭 버튼
 
+    [Header("🎨 UI 메시지")]
+    [SerializeField] private GameObject messagePanel; // 메시지 패널 (생성될 예정)
+    [SerializeField] private TextMeshProUGUI messageText; // 메시지 텍스트
+    
     // 슬롯 상태
     public bool isEmpty => equipmentData == null && weaponInfo == null;
     public bool isSelected = false;
@@ -170,6 +175,111 @@ public class InventorySlot : MonoBehaviour
         }
         
         Debug.Log($"🎨 [InventorySlot] 기본 아이콘 설정: {itemIconImage.color}");
+    }
+
+    /// <summary>
+    /// 🆕 클래스 호환성 오류 메시지 표시
+    /// </summary>
+    public void ShowIncompatibilityMessage()
+    {
+        StartCoroutine(ShowMessageCoroutine("클래스가 다름", 2f));
+    }
+    
+    /// <summary>
+    /// 🆕 메시지 표시 코루틴
+    /// </summary>
+    private IEnumerator ShowMessageCoroutine(string message, float duration)
+    {
+        // 메시지 패널이 없으면 동적 생성
+        if (messagePanel == null)
+        {
+            CreateMessagePanel();
+        }
+        
+        if (messagePanel != null && messageText != null)
+        {
+            // 메시지 설정
+            messageText.text = message;
+            messagePanel.SetActive(true);
+            
+            Debug.Log($"🎨 [InventorySlot] 메시지 표시: {message}");
+            
+            // 지정된 시간 대기
+            yield return new WaitForSeconds(duration);
+            
+            // 메시지 숨김
+            messagePanel.SetActive(false);
+            
+            Debug.Log($"🎨 [InventorySlot] 메시지 숨김: {message}");
+        }
+        else
+        {
+            Debug.LogError("🔴 [InventorySlot] 메시지 패널 생성 실패!");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 메시지 패널 동적 생성
+    /// </summary>
+    private void CreateMessagePanel()
+    {
+        // Canvas 찾기
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            canvas = FindObjectOfType<Canvas>();
+        }
+        
+        if (canvas == null)
+        {
+            Debug.LogError("🔴 [InventorySlot] Canvas를 찾을 수 없어 메시지 패널을 생성할 수 없습니다!");
+            return;
+        }
+        
+        // 메시지 패널 생성
+        messagePanel = new GameObject("IncompatibilityMessage");
+        messagePanel.transform.SetParent(canvas.transform, false);
+        
+        // RectTransform 설정
+        RectTransform messageRect = messagePanel.AddComponent<RectTransform>();
+        messageRect.sizeDelta = new Vector2(120, 30);
+        
+        // 슬롯 위쪽에 위치 설정
+        Vector3 worldPos = transform.position;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvas.transform as RectTransform, 
+            screenPos + Vector3.up * 50, // 슬롯 위쪽 50픽셀
+            canvas.worldCamera, 
+            out localPoint);
+        messageRect.localPosition = localPoint;
+        
+        // 배경 이미지 추가
+        Image bgImage = messagePanel.AddComponent<Image>();
+        bgImage.color = new Color(1f, 0.2f, 0.2f, 0.8f); // 반투명 빨간색
+        
+        // 텍스트 생성
+        GameObject textObj = new GameObject("MessageText");
+        textObj.transform.SetParent(messagePanel.transform, false);
+        
+        messageText = textObj.AddComponent<TextMeshProUGUI>();
+        messageText.text = "클래스가 다름";
+        messageText.fontSize = 14;
+        messageText.color = Color.white;
+        messageText.alignment = TextAlignmentOptions.Center;
+        
+        // 텍스트 RectTransform 설정
+        RectTransform textRect = textObj.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+        
+        // 초기에는 비활성화
+        messagePanel.SetActive(false);
+        
+        Debug.Log("🎨 [InventorySlot] 메시지 패널 생성 완료");
     }
 
     // 기존 메서드들 유지

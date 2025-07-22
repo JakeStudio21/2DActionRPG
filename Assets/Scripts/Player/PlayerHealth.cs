@@ -95,15 +95,15 @@ public class PlayerHealth : Singleton<PlayerHealth>
     public void TakeDamage(int damageAmount, Transform hitTransform) {
         if (!canTakeDamage) { return; }
 
-        // ⭐ [Phase B] Warrior 패시브 효과 연동
+        // ⭐ [Phase B] Warrior 패시브 효과 연동 (기존)
         bool isBlocked = false;
+        bool isDodged = false; // 🆕 Assasin 회피용
         int finalDamage = damageAmount;
         
-        // Warrior 컴포넌트 확인
+        // Warrior 컴포넌트 확인 (기존)
         var warrior = GetComponent<Warrior>();
-        if (warrior != null && warrior.IsActiveClass)  // ⭐ 수정: isActive → IsActiveClass
-        {
-            // 1. 블록 판정 시도
+        if (warrior != null && warrior.IsActiveClass) {
+            // 기존 Warrior 블록 로직...
             if (warrior.TryBlock())
             {
                 isBlocked = true;
@@ -113,12 +113,25 @@ public class PlayerHealth : Singleton<PlayerHealth>
             }
         }
 
+        // 🆕 Assasin 컴포넌트 확인
+        var assasin = GetComponent<Assasin>();
+        if (assasin != null && assasin.IsActiveClass) {
+            // 1. 회피 판정 시도
+            if (assasin.TryDodge()) {
+                isDodged = true;
+                finalDamage = 0; // 완전 회피
+                Debug.Log($"💨 [PlayerHealth] Assasin 회피 성공! 데미지 무효화");
+            }
+        }
+
         ScreenShakeManager.Instance.ShakeScreen();
         
-        // ⭐ 블록 성공 시 넉백 감소 (Warrior 전용)
+        // 🆕 회피 성공 시 넉백도 무효화
         float knockbackAmount = knockBackThrustAmount;
-        if (warrior != null && isBlocked)
-        {
+        if (isDodged) {
+            knockbackAmount = 0f; // 회피 시 넉백 없음
+        } else if (warrior != null && isBlocked) {
+            // 기존 Warrior 넉백 저항...
             knockbackAmount = warrior.ApplyKnockbackResistance(knockBackThrustAmount);
             Debug.Log($"🏋️ [PlayerHealth] Warrior 넉백 저항 적용! {knockBackThrustAmount} → {knockbackAmount}");
         }

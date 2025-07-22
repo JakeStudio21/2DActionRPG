@@ -94,12 +94,17 @@ public class Pickup : MonoBehaviour
                 // ⭐ [Phase 1] PlayerDataManager로 통합하여 중복 제거
                 if (PlayerDataManager.Instance != null)
                 {
+                    // 🔍 현재 플레이어 타입 확인 (디버깅용)
+                    PlayerType currentType = PlayerDataManager.Instance.GetCurrentPlayerType();
+                    Debug.Log($"💰 [Pickup] 골드 추가 - 현재 캐릭터: {currentType}");
+                    
                     PlayerDataManager.Instance.AddGold(1);
                 }
                 else if (PlayerManager.Instance != null)
                 {
                     // 백업: 기존 PlayerManager 사용 (호환성)
                     PlayerManager.Instance.AddGold(1);
+                    Debug.Log("💰 [Pickup] PlayerManager를 통한 골드 추가 (백업)");
                 }
                 else
                 {

@@ -54,29 +54,28 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void SpawnSelectedPlayer()
     {
-        // ⭐ 수정: 런타임 데이터 사용
+        // ⭐ 수정: 기존 SelectedPlayerData 사용 (원래 방식 복구)
         if (GameManager.Instance == null)
         {
             Debug.LogError("[PlayerSpawner] GameManager가 없습니다!");
             return;
         }
 
-        var runtimeData = GameManager.Instance.GetRuntimePlayerData();
-        if (runtimeData == null)
+        if (GameManager.Instance.selectedPlayerData == null)
         {
-            Debug.LogError("[PlayerSpawner] 런타임 플레이어 데이터가 없습니다!");
+            Debug.LogError("[PlayerSpawner] SelectedPlayerData가 없습니다!");
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 런타임 데이터 확인: {runtimeData.selectedType}, {runtimeData.weaponName}");
+        Debug.Log($"[PlayerSpawner] 데이터 확인: {GameManager.Instance.selectedPlayerData}");
 
-        if (runtimeData.selectedType == PlayerType.None)
+        if (GameManager.Instance.selectedPlayerData.selectedPlayerType == PlayerType.None)
         {
-            Debug.LogError("[PlayerSpawner] 런타임 데이터에 선택된 플레이어 타입이 없습니다!");
+            Debug.LogError("[PlayerSpawner] 선택된 플레이어 타입이 없습니다!");
             return;
         }
 
-        var selectedType = runtimeData.selectedType;
+        var selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
         Debug.Log($"[PlayerSpawner] 스포너 시작. 선택된 클래스: {selectedType}");
 
         GameObject prefabToSpawn = GetPrefabByType(selectedType);
@@ -103,6 +102,18 @@ public class PlayerSpawner : MonoBehaviour
         yield return null;
         
         Debug.Log("[PlayerSpawner] 플레이어 후처리 시작");
+        
+        // 🆕 핵심 수정: PlayerDataManager에 현재 캐릭터 타입 설정
+        if (PlayerDataManager.Instance != null && GameManager.Instance?.selectedPlayerData != null)
+        {
+            PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
+            PlayerDataManager.Instance.SetCurrentPlayerType(selectedType);
+            Debug.Log($"💾 [PlayerSpawner] PlayerDataManager에 캐릭터 타입 설정: {selectedType}");
+        }
+        else
+        {
+            Debug.LogError("💥 [PlayerSpawner] PlayerDataManager 또는 GameManager 데이터가 없습니다!");
+        }
         
         // ⭐ 추가: PlayerAttackInput 컴포넌트 자동 추가
         AddPlayerAttackInput();
@@ -215,17 +226,16 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        // ⭐ 수정: 런타임 데이터 사용
-        var runtimeData = GameManager.Instance.GetRuntimePlayerData();
-        if (runtimeData == null)
+        // ⭐ 수정: 기존 SelectedPlayerData 사용 (원래 방식 복구)
+        if (GameManager.Instance.selectedPlayerData == null)
         {
-            Debug.LogError("[PlayerSpawner] 런타임 플레이어 데이터를 가져올 수 없습니다.");
+            Debug.LogError("[PlayerSpawner] SelectedPlayerData를 가져올 수 없습니다.");
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 런타임 데이터: selectedType={runtimeData.selectedType}, weaponName={runtimeData.weaponName}");
+        Debug.Log($"[PlayerSpawner] 데이터: {GameManager.Instance.selectedPlayerData}");
 
-        string weaponNameToEquip = runtimeData.weaponName;
+        string weaponNameToEquip = GameManager.Instance.selectedPlayerData.weaponName;
         if (string.IsNullOrEmpty(weaponNameToEquip))
         {
             Debug.LogError("[PlayerSpawner] weaponName이 비어있습니다!");

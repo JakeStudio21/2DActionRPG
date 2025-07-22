@@ -53,7 +53,7 @@ public class EnemyChaseState : IEnemyState
                 // Debug.Log($"[EnemyChaseState] Ghost {enemy.transform.name} - 추격범위 설정: {chaseRange}"); // 필요시 활성화
             }
             
-            Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 플레이어 거리: {dist:F2}, 최종 추격범위: {chaseRange:F2}");
+            // Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 플레이어 거리: {dist:F2}, 최종 추격범위: {chaseRange:F2}");
             
             if (dist > chaseRange)
             {

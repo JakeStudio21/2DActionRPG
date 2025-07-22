@@ -176,19 +176,12 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        if (LobbyManager.Instance.playerSelection.selectedType == PlayerType.None)
+        // ⭐ 수정: GameManager의 selectedPlayerData 직접 확인 (기존 방식)
+        if (GameManager.Instance.selectedPlayerData == null || 
+            GameManager.Instance.selectedPlayerData.selectedPlayerType == PlayerType.None)
         {
             Debug.LogWarning("[LobbyUIController] 캐릭터를 먼저 선택해주세요!");
             return;
-        }
-        
-        // 캐릭터 정보를 GameManager에 저장
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.SetRuntimePlayerData(
-                LobbyManager.Instance.playerSelection.selectedType,
-                LobbyManager.Instance.playerSelection.weaponName
-            );
         }
         
         // 스테이지 선택 패널로 전환
@@ -263,9 +256,9 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        // 플레이어 데이터 확인
-        var playerData = GameManager.Instance.GetRuntimePlayerData();
-        if (playerData == null || playerData.selectedType == PlayerType.None)
+        // 플레이어 데이터 확인 (기존 방식 복구)
+        var playerData = GameManager.Instance.selectedPlayerData;
+        if (playerData == null || playerData.selectedPlayerType == PlayerType.None)
         {
             Debug.LogError("[LobbyUIController] 플레이어 클래스가 선택되지 않았습니다!");
             OnBackToCharacterSelect();
@@ -277,7 +270,7 @@ public class LobbyUIController : MonoBehaviour
         GameManager.Instance.SetSelectedStage(selectedStageNumber, selectedSceneName);
         
         Debug.Log($"[LobbyUIController] 스테이지 {selectedStageNumber} ({selectedSceneName})로 게임 시작");
-        Debug.Log($"[LobbyUIController] 플레이어 정보: {playerData.selectedType}, {playerData.weaponName}");
+        Debug.Log($"[LobbyUIController] 플레이어 정보: {playerData.selectedPlayerType}, {playerData.weaponName}");
         
         // 게임 씬으로 직접 이동
         GameManager.Instance.LoadGameScene(selectedSceneName);

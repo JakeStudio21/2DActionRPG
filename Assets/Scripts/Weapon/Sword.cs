@@ -124,6 +124,13 @@ public class Sword : MonoBehaviour, IWeapon
     }
 
     public void SwingUpFlipAnimEvent() {
+        // 🛡️ null 체크 추가
+        if (slashAnim == null) 
+        {
+            Debug.LogWarning("🟡 [Sword] slashAnim이 null입니다. SwingUpFlipAnimEvent 건너뜀");
+            return;
+        }
+        
         slashAnim.gameObject.transform.rotation = Quaternion.Euler(-180, 0, 0);
 
         if (FindObjectOfType<PlayerController>().FacingLeft) { 
@@ -132,6 +139,13 @@ public class Sword : MonoBehaviour, IWeapon
     }
 
     public void SwingDownFlipAnimEvent() {
+        // 🛡️ null 체크 추가
+        if (slashAnim == null) 
+        {
+            Debug.LogWarning("🟡 [Sword] slashAnim이 null입니다. SwingDownFlipAnimEvent 건너뜀");
+            return;
+        }
+        
         slashAnim.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
 
         if (FindObjectOfType<PlayerController>().FacingLeft)

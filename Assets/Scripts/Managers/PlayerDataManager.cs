@@ -8,14 +8,17 @@ using System.Linq;
 
 /// <summary>
 /// ⭐ [Phase 2] 모든 플레이어 데이터를 통합 관리하는 매니저
-/// 골드, 레벨, 경험치, 인벤토리, 장비 등을 하나의 시스템에서 관리
-/// 기존 PlayerManager + PlayerLevel + 인벤토리 시스템 통합 솔루션
+/// 🆕 캐릭터별 분리 저장 시스템으로 개선
 /// </summary>
 public class PlayerDataManager : Singleton<PlayerDataManager>
 {
     [Header("🎮 플레이어 기본 정보")]
     public int characterIndex = 0; // 현재 선택된 캐릭터 번호
     public string playerName = "Player"; // 플레이어 이름
+    
+    // 🆕 현재 활성 캐릭터 타입 추가
+    [Header("🎯 활성 캐릭터")]
+    [SerializeField] private PlayerType currentPlayerType = PlayerType.None;
     
     [Header("💰 재화 관리")]
     [SerializeField] private int currentGold = 0;
@@ -469,7 +472,64 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     #region 💾 저장/로드 시스템 (확장)
     
     /// <summary>
-    /// 모든 플레이어 데이터 저장 (인벤토리 포함)
+    /// 🆕 현재 플레이어 타입 설정 (캐릭터 변경 시 호출)
+    /// </summary>
+    public void SetCurrentPlayerType(PlayerType playerType)
+    {
+        if (currentPlayerType != playerType)
+        {
+            // 🔑 기존 캐릭터 데이터 저장
+            if (currentPlayerType != PlayerType.None)
+            {
+                SavePlayerData();
+                if (showDebugLogs)
+                    Debug.Log($"💾 [PlayerData] {currentPlayerType} 데이터 저장 완료");
+            }
+            
+            // 🔑 새 캐릭터 타입 설정
+            currentPlayerType = playerType;
+            
+            // 🔑 새 캐릭터 데이터 로드
+            if (currentPlayerType != PlayerType.None)
+            {
+                LoadAllPlayerData();
+                if (showDebugLogs)
+                    Debug.Log($"📁 [PlayerData] {currentPlayerType} 데이터 로드 완료");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 현재 플레이어 타입 가져오기
+    /// </summary>
+    public PlayerType GetCurrentPlayerType()
+    {
+        // 1순위: 설정된 currentPlayerType
+        if (currentPlayerType != PlayerType.None)
+            return currentPlayerType;
+            
+        // 2순위: GameManager에서 가져오기
+        if (GameManager.Instance?.selectedPlayerData != null)
+        {
+            currentPlayerType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
+            return currentPlayerType;
+        }
+        
+        // 3순위: 기본값
+        return PlayerType.Warrior;
+    }
+    
+    /// <summary>
+    /// 🆕 캐릭터별 저장 키 생성
+    /// </summary>
+    private string GetPlayerDataKey()
+    {
+        PlayerType playerType = GetCurrentPlayerType();
+        return $"PlayerData_{playerType}_{characterIndex}";
+    }
+    
+    /// <summary>
+    /// 모든 플레이어 데이터 저장 (캐릭터별 분리)
     /// </summary>
     public void SavePlayerData()
     {
@@ -479,6 +539,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         {
             characterIndex = this.characterIndex,
             playerName = this.playerName,
+            playerType = GetCurrentPlayerType(), // 🆕 플레이어 타입 추가
             lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             
             gold = this.currentGold,
@@ -493,28 +554,31 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         };
         
         string json = saveData.ToJson();
-        string key = $"PlayerData_{characterIndex}";
+        string key = GetPlayerDataKey(); // 🆕 캐릭터별 키 사용
         PlayerPrefs.SetString(key, json);
         PlayerPrefs.Save();
         
         if (showDebugLogs)
-            Debug.Log($"💾 [PlayerData] 데이터 저장 완료: {saveData}");
+            Debug.Log($"💾 [PlayerData] {GetCurrentPlayerType()} 데이터 저장 완료: {saveData}");
     }
     
     /// <summary>
-    /// 모든 플레이어 데이터 로드 (인벤토리 포함)
+    /// 모든 플레이어 데이터 로드 (캐릭터별 분리)
     /// </summary>
     public void LoadAllPlayerData()
     {
         if (SaveManager.Instance == null) return;
         
-        string key = $"PlayerData_{characterIndex}";
+        string key = GetPlayerDataKey(); // 🆕 캐릭터별 키 사용
         string json = PlayerPrefs.GetString(key, "");
         
         if (string.IsNullOrEmpty(json))
         {
+            // 🆕 캐릭터별 기본값 설정
+            InitializeDefaultDataForPlayerType(GetCurrentPlayerType());
+            
             if (showDebugLogs)
-                Debug.Log($"📁 [PlayerData] 저장 데이터 없음. 기본값 사용.");
+                Debug.Log($"📁 [PlayerData] {GetCurrentPlayerType()} 저장 데이터 없음. 기본값 사용.");
             return;
         }
         
@@ -537,7 +601,64 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             OnInventoryChanged?.Invoke();
             
             if (showDebugLogs)
-                Debug.Log($"📁 [PlayerData] 데이터 로드 완료: {saveData}");
+                Debug.Log($"📁 [PlayerData] {GetCurrentPlayerType()} 데이터 로드 완료: {saveData}");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 캐릭터별 기본값 초기화
+    /// </summary>
+    private void InitializeDefaultDataForPlayerType(PlayerType playerType)
+    {
+        // 기본 스탯 초기화
+        currentGold = 0;
+        currentLevel = 1;
+        currentExp = 0;
+        expToNextLevel = 100;
+        
+        // 인벤토리 초기화
+        inventoryItems.Clear();
+        InitializeEquipmentSlots();
+        
+        // 🆕 캐릭터별 시작 아이템 추가
+        switch (playerType)
+        {
+            case PlayerType.Warrior:
+                AddStartingEquipment("Sword_A_Equipment");
+                break;
+            case PlayerType.Assasin:
+                AddStartingEquipment("Bow_A_Equipment");
+                break;
+            case PlayerType.Wizard:
+                AddStartingEquipment("Staff_A_Equipment");
+                break;
+        }
+        
+        // 이벤트 발생
+        OnGoldChanged?.Invoke(currentGold);
+        OnLevelChanged?.Invoke(currentLevel);
+        OnExpChanged?.Invoke(currentExp, expToNextLevel);
+        OnInventoryChanged?.Invoke();
+        
+        if (showDebugLogs)
+            Debug.Log($"🆕 [PlayerData] {playerType} 기본 데이터 초기화 완료");
+    }
+    
+    /// <summary>
+    /// 🆕 시작 장비 추가
+    /// </summary>
+    private void AddStartingEquipment(string equipmentName)
+    {
+        EquipmentData startingEquipment = Resources.Load<EquipmentData>(equipmentName);
+        if (startingEquipment != null)
+        {
+            AddToInventory(startingEquipment);
+            if (showDebugLogs)
+                Debug.Log($"🎒 [PlayerData] 시작 장비 추가: {equipmentName}");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [PlayerData] 시작 장비를 찾을 수 없음: {equipmentName}");
         }
     }
     
@@ -757,7 +878,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 }
 
 /// <summary>
-/// ⭐ [Phase 2] 플레이어 저장 데이터 구조 (인벤토리 포함)
+/// ⭐ [Phase 2] 플레이어 저장 데이터 구조 (캐릭터별 분리)
 /// </summary>
 [System.Serializable]
 public class PlayerSaveData
@@ -765,6 +886,7 @@ public class PlayerSaveData
     [Header("기본 정보")]
     public int characterIndex;
     public string playerName = "Player";
+    public PlayerType playerType = PlayerType.None; // 🆕 플레이어 타입 추가
     public string lastPlayTime; // DateTime을 string으로 저장
     
     [Header("진행 데이터")]
@@ -801,6 +923,6 @@ public class PlayerSaveData
     /// </summary>
     public override string ToString()
     {
-        return $"PlayerData[{playerName}] Lv.{level} Gold:{gold} EXP:{exp}/{expToNextLevel} 인벤토리:{inventoryItemNames?.Count ?? 0}개";
+        return $"PlayerData[{playerType}:{playerName}] Lv.{level} Gold:{gold} EXP:{exp}/{expToNextLevel} 인벤토리:{inventoryItemNames?.Count ?? 0}개";
     }
 } 

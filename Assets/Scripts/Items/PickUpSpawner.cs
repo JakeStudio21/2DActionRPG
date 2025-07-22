@@ -23,25 +23,42 @@ public class PickUpSpawner : MonoBehaviour
     [SerializeField] private EquipmentData[] possibleEquipmentDrops; // 드롭 가능한 장비들
 
     public void DropItems() {
+        Debug.Log($"🎯 [PickUpSpawner] DropItems 호출! 몬스터: {gameObject.name}");
+        Debug.Log($"🎯 [PickUpSpawner] 현재 플레이어 타입: {(PlayerDataManager.Instance != null ? PlayerDataManager.Instance.GetCurrentPlayerType().ToString() : "NULL")}");
+        Debug.Log($"🎯 [PickUpSpawner] GamePoolManager 상태: {(GamePoolManager.Instance != null ? "정상" : "NULL")}");
+        
         // Health 드랍 체크
         if (canDropHealth && Random.Range(0f, 100f) <= healthDropChance) {
+            Debug.Log($"💊 [PickUpSpawner] Health 드랍 성공! 개수: {healthDropAmount}");
             for (int i = 0; i < healthDropAmount; i++) {
-                GamePoolManager.Instance.SpawnFromPool("Health", transform.position, Quaternion.identity);
+                var healthPickup = GamePoolManager.Instance.SpawnFromPool("Health", transform.position, Quaternion.identity);
+                Debug.Log($"💊 [PickUpSpawner] Health 픽업 생성: {(healthPickup != null ? "성공" : "실패")}");
             }
+        } else {
+            Debug.Log($"💊 [PickUpSpawner] Health 드랍 실패 - canDrop: {canDropHealth}, 확률: {healthDropChance}%");
         }
 
         // Gold 드랍 체크  
         if (canDropGold && Random.Range(0f, 100f) <= goldDropChance) {
             int goldAmount = Random.Range(goldDropMinAmount, goldDropMaxAmount + 1);
+            Debug.Log($"💰 [PickUpSpawner] Gold 드랍 성공! 개수: {goldAmount}");
             
             for (int i = 0; i < goldAmount; i++) {
-                GamePoolManager.Instance.SpawnFromPool("Gold Coin", transform.position, Quaternion.identity);
+                var goldPickup = GamePoolManager.Instance.SpawnFromPool("Gold Coin", transform.position, Quaternion.identity);
+                Debug.Log($"💰 [PickUpSpawner] Gold 픽업 생성 #{i}: {(goldPickup != null ? "성공" : "실패")}");
+                if (goldPickup != null) {
+                    Debug.Log($"💰 [PickUpSpawner] Gold 픽업 위치: {goldPickup.transform.position}, 활성화: {goldPickup.activeInHierarchy}");
+                }
             }
+        } else {
+            Debug.Log($"💰 [PickUpSpawner] Gold 드랍 실패 - canDrop: {canDropGold}, 확률: {goldDropChance}%");
         }
         
         // Equipment 드랍 체크 - 🛡️ 안전성 검사 추가
         if (canDropEquipment && possibleEquipmentDrops != null && 
             possibleEquipmentDrops.Length > 0 && Random.Range(0f, 100f) <= equipmentDropChance) {
+            
+            Debug.Log($"🎒 [PickUpSpawner] Equipment 드랍 성공!");
             
             // 🔍 유효한 장비만 필터링
             EquipmentData[] validEquipments = System.Array.FindAll(possibleEquipmentDrops, 
@@ -55,14 +72,22 @@ public class PickUpSpawner : MonoBehaviour
                 GameObject equipmentPickup = CreateEquipmentPickup(randomEquipment);
                 if (equipmentPickup != null)
                 {
-                    Debug.Log($"🎒 [PickUpSpawner] 장비 드롭: {randomEquipment.equipmentName}");
+                    Debug.Log($"🎒 [PickUpSpawner] 장비 드롭 성공: {randomEquipment.equipmentName}");
+                }
+                else
+                {
+                    Debug.LogError($"🎒 [PickUpSpawner] 장비 드롭 실패: {randomEquipment.equipmentName}");
                 }
             }
             else
             {
                 Debug.LogWarning($"⚠️ [PickUpSpawner] {gameObject.name}에 유효한 장비가 설정되지 않았습니다!");
             }
+        } else {
+            Debug.Log($"🎒 [PickUpSpawner] Equipment 드랍 실패 - canDrop: {canDropEquipment}, 확률: {equipmentDropChance}%");
         }
+        
+        Debug.Log($"🎯 [PickUpSpawner] DropItems 완료!");
     }
 
     /// <summary>

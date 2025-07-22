@@ -14203,9 +14203,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ff87212ab29df642a7f9f7a25d1540e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSelection:
-    selectedType: 0
-    weaponName: 
 --- !u!1 &775584682
 GameObject:
   m_ObjectHideFlags: 0
@@ -41745,8 +41742,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1864034614}
-  - {fileID: 71694577}
   - {fileID: 1434822103}
+  - {fileID: 71694577}
   - {fileID: 168317091}
   - {fileID: 1078222919}
   - {fileID: 790889479}
