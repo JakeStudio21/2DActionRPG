@@ -75,8 +75,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 911b643c6eb9b2c45912859861c2d2ae, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 24abfe7d750ee684487111055c5021a3, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -121,4 +121,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slashPrefab: {fileID: 3545761778305609661, guid: 00b45e0be5d17ac4d889550dc353cdd3, type: 3}
   slashSpawnPoint: {fileID: 0}
-  weaponInfo: {fileID: 11400000, guid: e646b5e81340d194598d2bb0f28f0aa6, type: 2}
+  weaponInfo: {fileID: 0}

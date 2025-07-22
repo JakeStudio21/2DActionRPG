@@ -310,6 +310,11 @@ MonoBehaviour:
   goldDropChance: 50
   goldDropMinAmount: 1
   goldDropMaxAmount: 3
+  canDropEquipment: 1
+  equipmentDropChance: 20
+  possibleEquipmentDrops:
+  - {fileID: 11400000, guid: 69b1155ded803644d91e89be0b0a4b5b, type: 2}
+  - {fileID: 11400000, guid: 3582e345cd165c241a0d7f21da7757f5, type: 2}
 --- !u!114 &4488842488211035026
 MonoBehaviour:
   m_ObjectHideFlags: 0

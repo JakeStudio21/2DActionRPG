@@ -195,9 +195,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 707569810263958521}
-  - component: {fileID: 3308584340945169312}
+  - component: {fileID: 3525043522603821414}
   m_Layer: 0
-  m_Name: PlayerManager
+  m_Name: PlayerDataManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -218,7 +218,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7166106308255166314}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3308584340945169312
+--- !u!114 &3525043522603821414
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -227,11 +227,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 4551174199403022705}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e1504eea15f8cb4e860dcc8f5a713f1, type: 3}
+  m_Script: {fileID: 11500000, guid: a5dd347f0845ad94b93c2230b668de30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   characterIndex: 0
+  playerName: Player
   currentGold: 0
+  currentLevel: 1
+  currentExp: 0
+  expToNextLevel: 100
+  inventoryItems: []
+  maxInventorySize: 50
+  showDebugLogs: 1
 --- !u!1 &4785675241861220386
 GameObject:
   m_ObjectHideFlags: 0

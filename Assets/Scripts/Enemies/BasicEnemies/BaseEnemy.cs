@@ -33,7 +33,7 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         
         // 스폰 지점 저장
         SpawnPoint = transform.position;
-        Debug.Log($"[{GetType().Name}] {gameObject.name} 스폰 지점 저장: {SpawnPoint}");
+        // Debug.Log($"[{GetType().Name}] {gameObject.name} 스폰 지점 저장: {SpawnPoint}");
         
         // 추가 초기화 (하위 클래스에서 구현)
         OnAwakeInitialize();

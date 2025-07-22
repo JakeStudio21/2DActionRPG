@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using System.Linq;
 
 /// <summary>
-/// ⭐ [Phase 1] 모든 플레이어 데이터를 통합 관리하는 매니저
+/// ⭐ [Phase 2] 모든 플레이어 데이터를 통합 관리하는 매니저
 /// 골드, 레벨, 경험치, 인벤토리, 장비 등을 하나의 시스템에서 관리
-/// 기존 PlayerManager + PlayerLevel + 미래 확장성을 위한 통합 솔루션
+/// 기존 PlayerManager + PlayerLevel + 인벤토리 시스템 통합 솔루션
 /// </summary>
 public class PlayerDataManager : Singleton<PlayerDataManager>
 {
@@ -24,6 +25,11 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [SerializeField] private int currentExp = 0;
     [SerializeField] private int expToNextLevel = 100;
     
+    [Header("🎒 인벤토리 & 장비 시스템")]
+    [SerializeField] private Dictionary<EquipmentSlot, EquipmentData> equippedItems = new Dictionary<EquipmentSlot, EquipmentData>();
+    [SerializeField] private List<EquipmentData> inventoryItems = new List<EquipmentData>();
+    [SerializeField] private int maxInventorySize = 50; // 최대 인벤토리 크기
+    
     [Header("🔧 UI 관리")]
     private TMP_Text goldText;
     private const string COIN_AMOUNT_TEXT = "Gold Amount Text";
@@ -31,23 +37,49 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
     
-    // 이벤트 시스템
+    // 이벤트 시스템 - 기존
     public event Action<int> OnGoldChanged;
     public event Action<int> OnLevelChanged;
     public event Action<int, int> OnExpChanged; // (currentExp, expToNextLevel)
     
-    // 접근자 프로퍼티
+    // 이벤트 시스템 - 인벤토리 신규
+    public event Action<EquipmentData> OnItemAddedToInventory;
+    public event Action<EquipmentData> OnItemRemovedFromInventory;
+    public event Action<EquipmentSlot, EquipmentData> OnItemEquipped;
+    public event Action<EquipmentSlot, EquipmentData> OnItemUnequipped;
+    public event Action OnInventoryChanged;
+    
+    // 접근자 프로퍼티 - 기존
     public int CurrentGold => currentGold;
     public int CurrentLevel => currentLevel;
     public int CurrentExp => currentExp;
     public int ExpToNextLevel => expToNextLevel;
     
+    // 접근자 프로퍼티 - 인벤토리 신규
+    public List<EquipmentData> InventoryItems => new List<EquipmentData>(inventoryItems);
+    public Dictionary<EquipmentSlot, EquipmentData> EquippedItems => new Dictionary<EquipmentSlot, EquipmentData>(equippedItems);
+    public int CurrentInventorySize => inventoryItems.Count;
+    public int MaxInventorySize => maxInventorySize;
+    public bool IsInventoryFull => CurrentInventorySize >= MaxInventorySize;
+    
     protected override void Awake()
     {
         base.Awake();
         
+        // 딕셔너리 초기화
+        InitializeEquipmentSlots();
+        
         // 씬 로드 이벤트 구독
         SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void InitializeEquipmentSlots()
+    {
+        // 모든 장비 슬롯을 null로 초기화
+        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+        {
+            equippedItems[slot] = null;
+        }
     }
 
     protected override void OnDestroy()
@@ -232,26 +264,233 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     
     #endregion
     
-    #region 💾 저장/로드 시스템
+    #region 🎒 인벤토리 관리 시스템
     
     /// <summary>
-    /// 모든 플레이어 데이터 저장
+    /// 인벤토리에 아이템 추가
+    /// </summary>
+    public bool AddToInventory(EquipmentData item)
+    {
+        if (item == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🎒 [PlayerData] null 아이템을 인벤토리에 추가할 수 없습니다.");
+            return false;
+        }
+        
+        if (IsInventoryFull)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"🎒 [PlayerData] 인벤토리가 가득참! ({CurrentInventorySize}/{MaxInventorySize})");
+            return false;
+        }
+        
+        inventoryItems.Add(item);
+        OnItemAddedToInventory?.Invoke(item);
+        OnInventoryChanged?.Invoke();
+        SavePlayerData();
+        
+        if (showDebugLogs)
+            Debug.Log($"🎒 [PlayerData] 인벤토리에 아이템 추가: {item.equipmentName} ({CurrentInventorySize}/{MaxInventorySize})");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 인벤토리에서 아이템 제거
+    /// </summary>
+    public bool RemoveFromInventory(EquipmentData item)
+    {
+        if (item == null || !inventoryItems.Contains(item))
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"🎒 [PlayerData] 인벤토리에 없는 아이템을 제거하려고 함: {item?.equipmentName}");
+            return false;
+        }
+        
+        inventoryItems.Remove(item);
+        OnItemRemovedFromInventory?.Invoke(item);
+        OnInventoryChanged?.Invoke();
+        SavePlayerData();
+        
+        if (showDebugLogs)
+            Debug.Log($"🎒 [PlayerData] 인벤토리에서 아이템 제거: {item.equipmentName} ({CurrentInventorySize}/{MaxInventorySize})");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 아이템 장착
+    /// </summary>
+    public bool EquipItem(EquipmentData item)
+    {
+        if (item == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🎒 [PlayerData] null 아이템을 장착할 수 없습니다.");
+            return false;
+        }
+        
+        // 장착 슬롯 결정
+        EquipmentSlot targetSlot = GetEquipmentSlot(item);
+        if (targetSlot == EquipmentSlot.MainWeapon) // 기본적으로 무기는 MainWeapon 슬롯
+        {
+            return EquipItemToSlot(item, targetSlot);
+        }
+        
+        if (showDebugLogs)
+            Debug.LogWarning($"🎒 [PlayerData] 아이템 {item.equipmentName}의 장착 슬롯을 결정할 수 없습니다.");
+        return false;
+    }
+    
+    /// <summary>
+    /// 특정 슬롯에 아이템 장착
+    /// </summary>
+    public bool EquipItemToSlot(EquipmentData item, EquipmentSlot slot)
+    {
+        if (item == null)
+            return false;
+            
+        // 이미 장착된 아이템이 있으면 해제
+        if (equippedItems[slot] != null)
+        {
+            UnequipItem(slot);
+        }
+        
+        // 인벤토리에서 제거 (장착하면 인벤토리에서 사라짐)
+        bool removedFromInventory = RemoveFromInventory(item);
+        if (!removedFromInventory && !inventoryItems.Contains(item))
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"🎒 [PlayerData] 인벤토리에 없는 아이템을 장착하려고 함: {item.equipmentName}");
+        }
+        
+        // 장착 실행
+        equippedItems[slot] = item;
+        OnItemEquipped?.Invoke(slot, item);
+        SavePlayerData();
+        
+        if (showDebugLogs)
+            Debug.Log($"⚔️ [PlayerData] 아이템 장착: {item.equipmentName} → {slot}");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 아이템 해제
+    /// </summary>
+    public bool UnequipItem(EquipmentSlot slot)
+    {
+        if (!equippedItems.ContainsKey(slot) || equippedItems[slot] == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"🎒 [PlayerData] 슬롯 {slot}에 장착된 아이템이 없습니다.");
+            return false;
+        }
+        
+        EquipmentData unequippedItem = equippedItems[slot];
+        
+        // 인벤토리로 되돌리기
+        if (!AddToInventory(unequippedItem))
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"🎒 [PlayerData] 인벤토리가 가득차서 {unequippedItem.equipmentName}을 해제할 수 없습니다.");
+            return false;
+        }
+        
+        // 장착 해제
+        equippedItems[slot] = null;
+        OnItemUnequipped?.Invoke(slot, unequippedItem);
+        SavePlayerData();
+        
+        if (showDebugLogs)
+            Debug.Log($"🎒 [PlayerData] 아이템 해제: {unequippedItem.equipmentName} ← {slot}");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 아이템의 적절한 장착 슬롯 결정
+    /// </summary>
+    private EquipmentSlot GetEquipmentSlot(EquipmentData item)
+    {
+        switch (item.equipmentType)
+        {
+            case EquipmentType.Weapon:
+                return EquipmentSlot.MainWeapon;
+            case EquipmentType.Armor:
+                return EquipmentSlot.Armor; // 기본 갑옷 슬롯
+            case EquipmentType.Accessory:
+                return EquipmentSlot.Ring1; // 기본 반지 슬롯
+            default:
+                return EquipmentSlot.MainWeapon; // 기본값
+        }
+    }
+    
+    /// <summary>
+    /// 특정 슬롯에 장착된 아이템 가져오기
+    /// </summary>
+    public EquipmentData GetEquippedItem(EquipmentSlot slot)
+    {
+        return equippedItems.ContainsKey(slot) ? equippedItems[slot] : null;
+    }
+    
+    /// <summary>
+    /// 현재 장착된 무기 가져오기 (호환성 메서드)
+    /// </summary>
+    public EquipmentData GetEquippedWeapon()
+    {
+        return GetEquippedItem(EquipmentSlot.MainWeapon);
+    }
+    
+    /// <summary>
+    /// 인벤토리에서 특정 아이템 검색
+    /// </summary>
+    public EquipmentData FindItemInInventory(string itemName)
+    {
+        return inventoryItems.FirstOrDefault(item => item.equipmentName == itemName);
+    }
+    
+    /// <summary>
+    /// 인벤토리 상태 출력 (디버그용)
+    /// </summary>
+    [ContextMenu("인벤토리 상태 확인")]
+    public void PrintInventoryStatus()
+    {
+        Debug.Log($"🎒 [PlayerData] 인벤토리 상태 ({CurrentInventorySize}/{MaxInventorySize}):");
+        for (int i = 0; i < inventoryItems.Count; i++)
+        {
+            Debug.Log($"   {i+1}. {inventoryItems[i].equipmentName}");
+        }
+    }
+    
+    #endregion
+    
+    #region 💾 저장/로드 시스템 (확장)
+    
+    /// <summary>
+    /// 모든 플레이어 데이터 저장 (인벤토리 포함)
     /// </summary>
     public void SavePlayerData()
     {
         if (SaveManager.Instance == null) return;
         
-                 var saveData = new PlayerSaveData
-         {
-             characterIndex = this.characterIndex,
-             playerName = this.playerName,
-             lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-             
-             gold = this.currentGold,
-             level = this.currentLevel,
-             exp = this.currentExp,
-             expToNextLevel = this.expToNextLevel
-         };
+        var saveData = new PlayerSaveData
+        {
+            characterIndex = this.characterIndex,
+            playerName = this.playerName,
+            lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            
+            gold = this.currentGold,
+            level = this.currentLevel,
+            exp = this.currentExp,
+            expToNextLevel = this.expToNextLevel,
+            
+            // 인벤토리 데이터 저장
+            inventoryItemNames = inventoryItems.Select(item => item.name).ToList(),
+            equippedItemNames = equippedItems.Where(kvp => kvp.Value != null)
+                                           .ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.name)
+        };
         
         string json = saveData.ToJson();
         string key = $"PlayerData_{characterIndex}";
@@ -263,7 +502,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
     
     /// <summary>
-    /// 모든 플레이어 데이터 로드
+    /// 모든 플레이어 데이터 로드 (인벤토리 포함)
     /// </summary>
     public void LoadAllPlayerData()
     {
@@ -288,14 +527,66 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             this.expToNextLevel = saveData.expToNextLevel;
             this.playerName = saveData.playerName;
             
+            // 인벤토리 데이터 로드
+            LoadInventoryFromSaveData(saveData);
+            
             // 이벤트 발생 (UI 업데이트)
             OnGoldChanged?.Invoke(currentGold);
             OnLevelChanged?.Invoke(currentLevel);
             OnExpChanged?.Invoke(currentExp, expToNextLevel);
+            OnInventoryChanged?.Invoke();
             
             if (showDebugLogs)
                 Debug.Log($"📁 [PlayerData] 데이터 로드 완료: {saveData}");
         }
+    }
+    
+    /// <summary>
+    /// 저장 데이터에서 인벤토리 로드
+    /// </summary>
+    private void LoadInventoryFromSaveData(PlayerSaveData saveData)
+    {
+        // 인벤토리 초기화
+        inventoryItems.Clear();
+        InitializeEquipmentSlots();
+        
+        // 인벤토리 아이템 로드 시 경로 수정
+        foreach (string itemName in saveData.inventoryItemNames)
+        {
+            // 🔧 올바른 경로로 수정
+            EquipmentData item = Resources.Load<EquipmentData>(itemName);
+            if (item != null)
+            {
+                inventoryItems.Add(item);
+            }
+            else
+            {
+                Debug.LogWarning($"🎒 [PlayerData] 인벤토리 아이템을 찾을 수 없음: {itemName}");
+            }
+        }
+        
+        // 장착 아이템 로드
+        if (saveData.equippedItemNames != null)
+        {
+            foreach (var kvp in saveData.equippedItemNames)
+            {
+                if (System.Enum.TryParse<EquipmentSlot>(kvp.Key, out EquipmentSlot slot))
+                {
+                    EquipmentData item = Resources.Load<EquipmentData>($"EquipmentData/{kvp.Value}");
+                    if (item != null)
+                    {
+                        equippedItems[slot] = item;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚔️ [PlayerData] 장착 아이템을 찾을 수 없음: {kvp.Value}");
+                    }
+                }
+            }
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🎒 [PlayerData] 인벤토리 로드 완료 - 보관: {inventoryItems.Count}개, 장착: {equippedItems.Count(kvp => kvp.Value != null)}개");
     }
     
     #endregion
@@ -399,12 +690,74 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [ContextMenu("치트: 경험치 +50")]
     public void CheatAddExp() => AddExp(50);
     
+    [ContextMenu("치트: 테스트 아이템 추가")]
+    public void CheatAddTestItem()
+    {
+        // Resources 폴더에서 Sword_A_Equipment 찾아서 추가
+        EquipmentData testItem = Resources.Load<EquipmentData>("Sword_A_Equipment");
+        if (testItem != null)
+        {
+            AddToInventory(testItem);
+            Debug.Log($"🎒 [DEBUG] 테스트 아이템 추가: {testItem.equipmentName}");
+        }
+        else
+        {
+            Debug.LogWarning("🎒 [DEBUG] 테스트 아이템을 찾을 수 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 🗑️ 인벤토리 완전 초기화
+    /// </summary>
+    [ContextMenu("인벤토리 초기화")]
+    public void ClearInventory()
+    {
+        inventoryItems.Clear();
+        OnInventoryChanged?.Invoke();
+        SavePlayerData();
+        
+        if (showDebugLogs)
+            Debug.Log("🗑️ [PlayerData] 인벤토리가 완전히 초기화되었습니다.");
+    }
+
+    /// <summary>
+    /// ⚔️ 장착 아이템 모두 해제
+    /// </summary>
+    [ContextMenu("장착 아이템 모두 해제")]
+    public void UnequipAllItems()
+    {
+        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+        {
+            if (equippedItems[slot] != null)
+            {
+                UnequipItem(slot);
+            }
+        }
+        
+        if (showDebugLogs)
+            Debug.Log("⚔️ [PlayerData] 모든 장착 아이템이 해제되었습니다.");
+    }
+
+    /// <summary>
+    /// 🔄 인벤토리 + 장비 완전 리셋
+    /// </summary>
+    [ContextMenu("인벤토리 & 장비 완전 리셋")]
+    public void ResetAllItemData()
+    {
+        ClearInventory();
+        InitializeEquipmentSlots();
+        OnInventoryChanged?.Invoke();
+        SavePlayerData();
+        
+        if (showDebugLogs)
+            Debug.Log("🔄 [PlayerData] 인벤토리와 장비가 완전히 리셋되었습니다.");
+    }
+    
     #endregion
 }
 
 /// <summary>
-/// ⭐ [Phase 1] 플레이어 저장 데이터 구조
-/// 향후 Phase 2에서 모듈식으로 확장 예정
+/// ⭐ [Phase 2] 플레이어 저장 데이터 구조 (인벤토리 포함)
 /// </summary>
 [System.Serializable]
 public class PlayerSaveData
@@ -420,9 +773,9 @@ public class PlayerSaveData
     public int exp;
     public int expToNextLevel;
     
-    // 향후 확장 예정
-    // public List<ItemSaveData> inventory;
-    // public Dictionary<string, ItemSaveData> equipment;
+    [Header("인벤토리 & 장비")]
+    public List<string> inventoryItemNames = new List<string>(); // 인벤토리 아이템들의 이름
+    public Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 슬롯별 장착 아이템 이름
     
     /// <summary>
     /// JSON 문자열로 변환
@@ -448,6 +801,6 @@ public class PlayerSaveData
     /// </summary>
     public override string ToString()
     {
-        return $"PlayerData[{playerName}] Lv.{level} Gold:{gold} EXP:{exp}/{expToNextLevel}";
+        return $"PlayerData[{playerName}] Lv.{level} Gold:{gold} EXP:{exp}/{expToNextLevel} 인벤토리:{inventoryItemNames?.Count ?? 0}개";
     }
 } 

@@ -183,6 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ec5dea1789eac48b0994ecf1aaefe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pickUpType: 0
   pickUpDistance: 4
   accelartionRate: 0.4
   moveSpeed: 2
@@ -212,3 +213,4 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
+  equipmentData: {fileID: 0}

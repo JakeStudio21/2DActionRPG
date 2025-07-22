@@ -158,6 +158,6 @@ public class EnemyPatrolState : IEnemyState
         float randomDistance = Random.Range(1f, patrolRadius);
         patrolTarget = spawnPoint + (randomDirection * randomDistance);
         
-        Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 새 순찰 목표 생성: {patrolTarget} (스폰지점: {spawnPoint}, 거리: {randomDistance:F2}f, 방향: {randomDirection})");
+        // Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 새 순찰 목표 생성: {patrolTarget} (스폰지점: {spawnPoint}, 거리: {randomDistance:F2}f, 방향: {randomDirection})");
     }
 }

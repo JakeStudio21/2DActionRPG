@@ -9,6 +9,7 @@ public class Pickup : MonoBehaviour
         GoldCoin = 0,
         StaminaGlobe = 1, // 🔑 호환성 유지를 위해 복원 (사용하지 않아도 enum 슬롯 유지)
         HealthGlobe = 2,  // 🔑 기존 프리팹 값과 일치
+        EquipmentItem = 3 // 🆕 장비 아이템 추가
     }
     [SerializeField] private PickUpType pickUpType;
     [SerializeField] private float pickUpDistance = 5f;
@@ -119,6 +120,26 @@ public class Pickup : MonoBehaviour
                 Debug.LogWarning("[Pickup] StaminaGlobe는 더 이상 사용되지 않습니다.");
                 break;
             
+            case PickUpType.EquipmentItem:
+                // PlayerDataManager에 인벤토리 추가
+                if (PlayerDataManager.Instance != null && equipmentData != null)
+                {
+                    bool success = PlayerDataManager.Instance.AddToInventory(equipmentData);
+                    if (success)
+                    {
+                        Debug.Log($"🎒 [Pickup] 장비 획득: {equipmentData.equipmentName}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"🎒 [Pickup] 인벤토리가 가득참! {equipmentData.equipmentName} 획득 실패");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("[Pickup] PlayerDataManager 또는 equipmentData가 없습니다!");
+                }
+                break;
+            
             default:
                 Debug.LogError($"[Pickup] 알 수 없는 픽업 타입: {pickUpType} (값: {(int)pickUpType})");
                 break;
@@ -144,6 +165,9 @@ public class Pickup : MonoBehaviour
                 Debug.LogWarning("[Pickup] StaminaGlobe는 더 이상 지원되지 않습니다.");
                 gameObject.SetActive(false);
                 return;
+            case PickUpType.EquipmentItem:
+                poolTag = "Equipment";
+                break;
             default:
                 Debug.LogError($"[Pickup] 알 수 없는 픽업 타입으로 반환 시도: {pickUpType}");
                 gameObject.SetActive(false);
@@ -163,4 +187,7 @@ public class Pickup : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
+
+    [Header("🎒 장비 아이템 설정")]
+    [SerializeField] private EquipmentData equipmentData; // 픽업할 장비 아이템
 }

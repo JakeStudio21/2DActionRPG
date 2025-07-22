@@ -92,5 +92,35 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
+  - tag: Sword_A
+    prefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_B
+    prefab: {fileID: 4316638647348942652, guid: e07cd3a729c1bc8468b038ab0d53890c, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_C
+    prefab: {fileID: 4316638647348942652, guid: d6276d4601209d64b8a138b81aab459e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_S
+    prefab: {fileID: 4316638647348942652, guid: 29d74b6c195b90644969c3a88f2e2036, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Equipment
+    prefab: {fileID: 6665777931767919178, guid: 1cbd4e362601ccd45b5c957b209c2756, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 30
   optionalPools: []
   enableDebugLogs: 0

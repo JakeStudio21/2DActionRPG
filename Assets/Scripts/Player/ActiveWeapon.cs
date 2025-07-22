@@ -79,10 +79,30 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     public void NewWeapon(MonoBehaviour newWeapon) {
         Debug.Log("🔵 [ActiveWeapon] NewWeapon 호출 - 새 무기: " + (newWeapon != null ? newWeapon.name : "NULL"));
 
+        // 🔑 1단계: newWeapon null 체크
+        if (newWeapon == null) {
+            Debug.LogError("🔴 [ActiveWeapon] newWeapon이 null입니다!");
+            return;
+        }
+
         CurrentActiveWeapon = newWeapon;
 
-        // ⭐ 기존 AttackCooldown() 제거하고 PlayerAnimationController 업데이트
-        timeBetweenAttacks = (CurrentActiveWeapon as IWeapon).GetWeaponInfo().weaponCooldown;
+        // 🔑 2단계: IWeapon 인터페이스 체크
+        IWeapon weaponInterface = CurrentActiveWeapon as IWeapon;
+        if (weaponInterface == null) {
+            Debug.LogError($"🔴 [ActiveWeapon] {newWeapon.name}이 IWeapon을 구현하지 않습니다!");
+            return;
+        }
+
+        // 🔑 3단계: WeaponInfo 안전성 체크
+        WeaponInfo weaponInfo = weaponInterface.GetWeaponInfo();
+        if (weaponInfo == null) {
+            Debug.LogError($"🔴 [ActiveWeapon] {newWeapon.name}의 WeaponInfo가 null입니다!");
+            return;
+        }
+
+        // 🔑 4단계: 쿨다운 안전하게 설정
+        timeBetweenAttacks = weaponInfo.weaponCooldown;
         
         // PlayerAnimationController에 쿨다운 정보 전달
         if (playerAnimationController != null)
@@ -90,7 +110,7 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
             playerAnimationController.UpdateWeaponCooldown(timeBetweenAttacks);
         }
         
-        Debug.Log("🟢 [ActiveWeapon] 무기 쿨다운 설정됨: " + timeBetweenAttacks + "초");
+        Debug.Log("�� [ActiveWeapon] 무기 교체 성공: " + newWeapon.name + " (쿨다운: " + timeBetweenAttacks + "초)");
     }
 
     public void WeaponNull() {

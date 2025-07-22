@@ -152,7 +152,7 @@ public class Sword : MonoBehaviour, IWeapon
             Vector3 scale = transform.parent.localScale;
             scale.x = facingLeft ? -1 : 1;
             transform.parent.localScale = scale;
-            Debug.Log($"[ActiveWeapon] localScale.x: {transform.parent.localScale.x}, facingLeft: {facingLeft}");
+            // Debug.Log($"[ActiveWeapon] localScale.x: {transform.parent.localScale.x}, facingLeft: {facingLeft}");
         }
 
         // [백업: 기존 위치 하드코딩 방식]
