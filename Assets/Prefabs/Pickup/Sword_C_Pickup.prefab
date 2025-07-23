@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1451198759, guid: 34eea503aec7e6e4bab08a91963c1e0e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: abfe5b4a099189346ac13eca639279eb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ec5dea1789eac48b0994ecf1aaefe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickUpType: 0
+  pickUpType: 3
   pickUpDistance: 4
   accelartionRate: 0.4
   moveSpeed: 2
@@ -213,4 +213,4 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
-  equipmentData: {fileID: 0}
+  equipmentData: {fileID: 11400000, guid: d5aa804a670c55741a1e9ea77d80ec66, type: 2}

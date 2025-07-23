@@ -709,13 +709,25 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         else if (IsGameplayScene(sceneName))
         {
-            // 🔑 수정: 게임플레이 씬에 필수 픽업 풀들 추가
+            // 🔑 수정: 게임플레이 씬에 개별 장비 픽업 풀들 추가
             defaultConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>
             {
-                // 🆕 필수 픽업 아이템들 추가
+                // 🆕 필수 픽업 아이템들
                 CreatePoolSetting("Health", "Health", 20),
                 CreatePoolSetting("Gold Coin", "Gold Coin", 30),
-                CreatePoolSetting("Equipment", "Equipment", 15),
+                CreatePoolSetting("Equipment", "Equipment", 15), // 백업용 범용 풀
+                
+                // 🆕 개별 검 장비 풀들
+                CreatePoolSetting("Sword_A_Pickup", "Sword_A_Pickup", 5),
+                CreatePoolSetting("Sword_B_Pickup", "Sword_B_Pickup", 5),
+                CreatePoolSetting("Sword_C_Pickup", "Sword_C_Pickup", 5),
+                CreatePoolSetting("Sword_S_Pickup", "Sword_S_Pickup", 5),
+                
+                // 🆕 개별 활 장비 풀들
+                CreatePoolSetting("Bow_A_Pickup", "Bow_A_Pickup", 5),
+                CreatePoolSetting("Bow_B_Pickup", "Bow_B_Pickup", 5),
+                CreatePoolSetting("Bow_C_Pickup", "Bow_C_Pickup", 5),
+                CreatePoolSetting("Bow_S_Pickup", "Bow_S_Pickup", 5),
                 
                 // 기존 발사체들
                 CreatePoolSetting("Arrow", "Arrow", 15),
@@ -730,7 +742,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
             
             if (enableDebugMode)
             {
-                Debug.Log($"[GamePoolManager] 게임플레이 씬 '{sceneName}' - 완전한 기본 풀 설정 사용 (픽업 아이템 포함)");
+                Debug.Log($"[GamePoolManager] 게임플레이 씬 '{sceneName}' - 개별 장비 풀 포함 완전한 기본 풀 설정 사용");
             }
         }
         else
@@ -805,12 +817,17 @@ public class GamePoolManager : Singleton<GamePoolManager>
         setting.clearOnSceneExit = false;
         setting.maxInstancesPerFrame = 10;
         
-        // Resources나 현재 설정에서 프리팹 찾기 시도
+        // 🔧 수정: 다양한 경로에서 프리팹 찾기 시도
         GameObject prefab = Resources.Load<GameObject>(prefabName);
         if (prefab == null)
         {
             // Prefabs 폴더에서 찾기
             prefab = Resources.Load<GameObject>("Prefabs/" + prefabName);
+        }
+        if (prefab == null)
+        {
+            // 🆕 추가: Pickup 폴더에서 찾기
+            prefab = Resources.Load<GameObject>("Prefabs/Pickup/" + prefabName);
         }
         
         setting.prefab = prefab;
@@ -871,11 +888,14 @@ public class GamePoolManager : Singleton<GamePoolManager>
             yield break;
         }
         
-        // 🆕 영구 보존할 공통 풀들 정의
+        // 🆕 영구 보존할 공통 풀들 정의 (개별 장비 풀 추가)
         HashSet<string> essentialPools = new HashSet<string>
         {
             "Health", "Gold Coin", "Equipment", "Death VFX",
-            "Arrow", "Ghost Bullet", "Grape Projectile", "Grape Projectile Splatter"
+            "Arrow", "Ghost Bullet", "Grape Projectile", "Grape Projectile Splatter",
+            // 🆕 개별 장비 풀들도 보존
+            "Sword_A_Pickup", "Sword_B_Pickup", "Sword_C_Pickup", "Sword_S_Pickup",
+            "Bow_A_Pickup", "Bow_B_Pickup", "Bow_C_Pickup", "Bow_S_Pickup"
         };
         
         List<string> poolsToRemove = new List<string>();

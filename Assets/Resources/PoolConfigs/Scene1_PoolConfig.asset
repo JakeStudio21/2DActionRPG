@@ -218,5 +218,11 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
+  - tag: Dodge Effect
+    prefab: {fileID: 3545761778305609661, guid: b79f22b37cd2ecd4b906fce02937fb36, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0
