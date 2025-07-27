@@ -1,0 +1,197 @@
+{
+    "WeaponBaseTable": [
+        {
+            "ItemID": "",
+            "EquipmentName": "Bow_A",
+            "WeaponType": "Bow",
+            "AttackType": "Ranged",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "A",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Bow_A.prefab",
+            "Icon": "Bow_A_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Bow_B",
+            "WeaponType": "Bow",
+            "AttackType": "Ranged",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "B",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Bow_B.prefab",
+            "Icon": "Bow_B_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Bow_C",
+            "WeaponType": "Bow",
+            "AttackType": "Ranged",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "C",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Bow_C.prefab",
+            "Icon": "Bow_C_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Bow_S",
+            "WeaponType": "Bow",
+            "AttackType": "Ranged",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "S",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Bow_S.prefab",
+            "Icon": "Bow_S_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Sword_A",
+            "WeaponType": "Sword",
+            "AttackType": "Melee",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "A",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Sword_A.prefab",
+            "Icon": "Sword_A_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Sword_Bbbbbbb",
+            "WeaponType": "Sword",
+            "AttackType": "Melee",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "B",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Sword_B.prefab",
+            "Icon": "Sword_B_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Sword_C",
+            "WeaponType": "Sword",
+            "AttackType": "Melee",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "C",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Sword_C.prefab",
+            "Icon": "Sword_C_Pickup.png",
+            "Description": ""
+        },
+        {
+            "ItemID": "",
+            "EquipmentName": "Sword_S",
+            "WeaponType": "Sword",
+            "AttackType": "Melee",
+            "EquipmentType": "Weapon",
+            "UsableClass": "",
+            "isTradable": true,
+            "ItemGrade": "S",
+            "RequiredLevel": 1,
+            "ResourceID": "",
+            "EquipmentPrefab": "Sword_S.prefab",
+            "Icon": "Sword_S_Pickup.png",
+            "Description": ""
+        }
+    ],
+    "MeleeWeaponTable": [
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "AttackDamage": 0.0,
+            "AttackSpeed": 1.0,
+            "Attackrange": 1.0,
+            "AttackShape": 1,
+            "CriticalChance": 0.0,
+            "CriticalDamage": 1.0
+        },
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "AttackDamage": 0.0,
+            "AttackSpeed": 1.0,
+            "Attackrange": 1.0,
+            "AttackShape": 1,
+            "CriticalChance": 0.0,
+            "CriticalDamage": 1.0
+        },
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "AttackDamage": 0.0,
+            "AttackSpeed": 1.0,
+            "Attackrange": 1.0,
+            "AttackShape": 1,
+            "CriticalChance": 0.0,
+            "CriticalDamage": 1.0
+        },
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "AttackDamage": 0.0,
+            "AttackSpeed": 1.0,
+            "Attackrange": 1.0,
+            "AttackShape": 1,
+            "CriticalChance": 0.0,
+            "CriticalDamage": 1.0
+        }
+    ],
+    "ProjectileWeaponTable": [
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "criticalChance": 0.0,
+            "criticalDamage": 1.0,
+            "ProjectileId": ""
+        },
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "criticalChance": 0.0,
+            "criticalDamage": 1.0,
+            "ProjectileId": ""
+        },
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "criticalChance": 0.0,
+            "criticalDamage": 1.0,
+            "ProjectileId": ""
+        },
+        {
+            "ItemID": "",
+            "Cooldown": 1.0,
+            "criticalChance": 0.0,
+            "criticalDamage": 1.0,
+            "ProjectileId": ""
+        }
+    ],
+    "ProjectileDataTable": []
+}

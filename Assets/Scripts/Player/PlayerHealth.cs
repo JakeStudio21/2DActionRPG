@@ -9,7 +9,6 @@ public class PlayerHealth : Singleton<PlayerHealth>
     public bool isDead { get; private set; }
 
     [SerializeField] private int maxHealth = 3;
-    [SerializeField] private float knockBackThrustAmount = 10f;
     [SerializeField] private float damageRecoveryTime = 1f;
 
     private Slider healthSlider;
@@ -47,15 +46,17 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
     private void Start()
     {
+        // ✅ PlayerHealth 기본 초기화 (체력 제외)
         isDead = false;
-        currentHealth = maxHealth;
-        UpdateHealthSlider();
+        // ❌ currentHealth = maxHealth; // 이 부분만 BaseClassBehaviour에서 처리
         resultPopup = FindObjectOfType<ResultPopupController>();
         
         // PlayerAnimationController 참조 획득
         playerAnimationController = GetComponent<PlayerAnimationController>();
         if (playerAnimationController == null)
             playerAnimationController = GetComponentInChildren<PlayerAnimationController>();
+            
+        Debug.Log("🔧 [PlayerHealth] 기본 초기화 완료 (체력은 BaseClassBehaviour에서 설정 예정)");
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -127,13 +128,14 @@ public class PlayerHealth : Singleton<PlayerHealth>
         ScreenShakeManager.Instance.ShakeScreen();
         
         // 🆕 회피 성공 시 넉백도 무효화
-        float knockbackAmount = knockBackThrustAmount;
+        float baseKnockback = knockback.DefaultKnockBackThrust; // 🔧 Knockback에서 기본값 가져오기
+        float knockbackAmount = baseKnockback;
         if (isDodged) {
             knockbackAmount = 0f; // 회피 시 넉백 없음
         } else if (warrior != null && isBlocked) {
             // 기존 Warrior 넉백 저항...
-            knockbackAmount = warrior.ApplyKnockbackResistance(knockBackThrustAmount);
-            Debug.Log($"🏋️ [PlayerHealth] Warrior 넉백 저항 적용! {knockBackThrustAmount} → {knockbackAmount}");
+            knockbackAmount = warrior.ApplyKnockbackResistance(baseKnockback); // 🔧 수정
+            Debug.Log($"🏋️ [PlayerHealth] Warrior 넉백 저항 적용! {baseKnockback} → {knockbackAmount}"); // 🔧 수정
         }
         
         knockback.GetKnockedBack(hitTransform, knockbackAmount);
@@ -255,5 +257,15 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private void Update()
     {
         // 디버그용 SkillUIController 코드가 잘못 들어온 부분이므로 삭제
+    }
+
+    // ✅ 추가: 외부에서 설정 가능한 메서드
+    public void InitializeHealth(int newMaxHealth)
+    {
+        maxHealth = newMaxHealth;
+        currentHealth = maxHealth;
+        UpdateHealthSlider();
+        
+        Debug.Log($"🔧 [PlayerHealth] 체력 초기화 완료: {currentHealth}/{maxHealth}");
     }
 }

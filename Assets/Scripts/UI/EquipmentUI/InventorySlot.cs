@@ -330,7 +330,7 @@ public class InventorySlot : MonoBehaviour
     public string GetWeaponStats() {
         if (equipmentData != null && equipmentData.IsWeapon)
         {
-            return $"공격력:{equipmentData.damageBonus}, 체력:{equipmentData.healthBonus}, 속도:{equipmentData.speedBonus}, 크리티컬:{equipmentData.criticalChance}%";
+            return $"타입:{equipmentData.equipmentType}, 등급:{equipmentData.itemGrade}";
         }
         if (weaponInfo != null)
         {

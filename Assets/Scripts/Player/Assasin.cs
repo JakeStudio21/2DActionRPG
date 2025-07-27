@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection; // 🆕 Reflection 사용을 위해 추가
 
 /// <summary>
 /// 어쌔신 클래스 구현체
@@ -10,48 +11,91 @@ public class Assasin : BaseClassBehaviour
 {
     #region IPlayerClass 기본 정보 (오버라이드)
     
-    public override string ClassName => "어쌔신";
-    public override PlayerType PlayerType => PlayerType.Assasin;
+    public override string ClassName => assasinData?.className ?? "어쌔신";
+    public override PlayerType PlayerType => assasinData?.playerType ?? PlayerType.Assasin;
     
     #endregion
     
-    #region 어쌔신 능력치 배율 (오버라이드)
+    #region 📊 ScriptableObject 데이터 연동
     
-    [Header("🏹 어쌔신 능력치 배율")]
-    [SerializeField] private float attackPowerMultiplier = 1.2f;   // 20% 공격력 증가
-    [SerializeField] private float moveSpeedMultiplier = 1.3f;     // 30% 이동속도 증가  
-    [SerializeField] private float skillCooldownMultiplier = 0.8f; // 20% 쿨다운 감소
-    [SerializeField] private float healthMultiplier = 0.9f;        // 10% 체력 감소 (유리몸)
+    [Header("📊 어쌔신 데이터 연동")]
+    [SerializeField] private AssasinData assasinData; // ScriptableObject 참조
     
-    public override float AttackPowerMultiplier => attackPowerMultiplier;
-    public override float MoveSpeedMultiplier => moveSpeedMultiplier;
-    public override float SkillCooldownMultiplier => skillCooldownMultiplier;
-    public override float HealthMultiplier => healthMultiplier;
+    // ScriptableObject에서 값 가져오기 (null 안전성 포함)
+    public override float AttackPowerMultiplier => assasinData?.AttackPowerMultiplier ?? 1.2f;
+    public override float MoveSpeedMultiplier => assasinData?.MoveSpeedMultiplier ?? 1.3f;
+    public override float SkillCooldownMultiplier => assasinData?.SkillCooldownMultiplier ?? 0.8f;
+    public override float HealthMultiplier => assasinData?.HealthMultiplier ?? 0.9f;
     
     #endregion
     
-    #region 어쌔신 고유 특성
+    #region 🎯 어쌔신 고유 특성 (ScriptableObject 연동)
     
-    [Header("🎯 어쌔신 고유 특성")]
-    [SerializeField] private float criticalChance = 0.15f;      // 15% 크리티컬 확률
-    [SerializeField] private float criticalDamage = 1.5f;       // 크리티컬 데미지 배율
-    [SerializeField] private float stealthDuration = 2f;        // 은신 지속시간
-    [SerializeField] private float dodgeChance = 0.1f;          // 10% 회피 확률
-    [SerializeField] private float backAttackBonus = 1.3f;      // 백어택 보너스 30%
+    // ScriptableObject에서 고유 특성 값들 가져오기 (네이밍 개선)
+    public float StealthDuration => assasinData?.assasinStealthDuration ?? 2f;
+    public float DodgeChance => assasinData?.assasinDodgeChance ?? 0.1f;
+    public float BackAttackBonus => assasinData?.assasinBackAttackBonus ?? 1.3f;
     
-    // 🆕 추가할 필드
+    // 🎮 런타임 상태 변수들 (ScriptableObject와 무관)
     private bool isStealthActive = false;  // 은신 상태 플래그
     
     #endregion
     
+    #region 🆕 BaseClassBehaviour 추상 메서드 구현 (ScriptableObject 기본값)
+    
+    public override float GetBaseMoveSpeed()
+    {
+        return assasinData?.baseMoveSpeed ?? 4f; // AssasinData에서 가져오거나 기본값 4
+    }
+
+    public override float GetBaseMaxHealth()
+    {
+        return assasinData?.baseMaxHealth ?? 100f; // AssasinData에서 가져오거나 기본값 100
+    }
+    
+    #endregion
+
     #region Unity 생명주기 오버라이드 (디버깅용)
     
     protected override void Start()
     {
-        Debug.Log("🏹 [Assasin] Start() 호출됨 - BaseClassBehaviour 상속 확인!");
-        base.Start(); // BaseClassBehaviour.Start() 호출
+        Debug.Log("🔵 [Assasin] Start() 시작");
+        
+        // 🔍 AssasinData 상태 상세 확인
+        if (assasinData != null)
+        {
+            Debug.Log($"✅ [Assasin] AssasinData 연결됨: {assasinData.name}");
+            Debug.Log($"📊 [Assasin] AssasinData 실제 설정값들:");
+            Debug.Log($"   - attackPowerMultiplier: {assasinData.AttackPowerMultiplier}");
+            Debug.Log($"   - moveSpeedMultiplier: {assasinData.MoveSpeedMultiplier}");
+            Debug.Log($"   - skillCooldownMultiplier: {assasinData.SkillCooldownMultiplier}");
+            Debug.Log($"   - healthMultiplier: {assasinData.HealthMultiplier}");
+            Debug.Log($"   - baseMoveSpeed: {assasinData.baseMoveSpeed}");
+            Debug.Log($"   - baseMaxHealth: {assasinData.baseMaxHealth}");
+            Debug.Log($"🔍 [Assasin] GetBaseMoveSpeed() 결과: {GetBaseMoveSpeed()}");
+        }
+        else
+        {
+            Debug.LogError("❌ [Assasin] AssasinData가 null입니다!");
+            Debug.Log($"�� [Assasin] Fallback 값들:");
+            Debug.Log($"   - AttackPowerMultiplier: {AttackPowerMultiplier}");
+            Debug.Log($"   - MoveSpeedMultiplier: {MoveSpeedMultiplier}");
+            Debug.Log($"   - HealthMultiplier: {HealthMultiplier}");
+        }
+        
+        // 🎯 현재 오버라이드 값 확인
+        Debug.Log($"🔧 [Assasin] 현재 배율 값들:");
+        Debug.Log($"   - AttackPowerMultiplier: {AttackPowerMultiplier}");
+        Debug.Log($"   - MoveSpeedMultiplier: {MoveSpeedMultiplier}");
+        Debug.Log($"   - HealthMultiplier: {HealthMultiplier}");
+        
+        base.Start(); // BaseClassBehaviour.Start() 호출 - 자동 적용
+        
+        // 🗑️ ForceApplyAssasinData() 제거됨 - BaseClassBehaviour가 자동 처리
+        
+        Debug.Log("🔵 [Assasin] Start() 완료 - BaseClassBehaviour 자동 적용만 사용");
     }
-    
+
     protected override void Update()
     {
         base.Update(); // BaseClassBehaviour.Update() 호출
@@ -91,34 +135,25 @@ public class Assasin : BaseClassBehaviour
         
         // 레벨업 시 어쌔신 고유 보너스
         // 예: 레벨마다 크리티컬 확률 0.5% 증가
-        criticalChance += 0.005f;
+        // criticalChance += 0.005f; // 이제 ScriptableObject에서 관리
         
         // 5레벨마다 회피 확률 1% 증가
         if (newLevel % 5 == 0)
         {
-            dodgeChance += 0.01f;
-            if (showDebugLogs)
-                Debug.Log($"   - 회피 확률 증가: {dodgeChance * 100:F1}%");
+            // dodgeChance += 0.01f; // 이제 ScriptableObject에서 관리
         }
         
         // 10레벨마다 은신 지속시간 0.2초 증가
         if (newLevel % 10 == 0)
         {
-            stealthDuration += 0.2f;
-            if (showDebugLogs)
-                Debug.Log($"   - 은신 지속시간 증가: {stealthDuration}초");
+            // stealthDuration += 0.2f; // 이제 ScriptableObject에서 관리
         }
     }
     
     protected override float ApplyAdditionalDamageModifiers(float modifiedDamage, float baseDamage)
     {
-        // 크리티컬 판정
-        if (Random.Range(0f, 1f) < criticalChance)
-        {
-            modifiedDamage *= criticalDamage;
-            if (showDebugLogs)
-                Debug.Log($"💥 [Assasin] 크리티컬 히트! 데미지: {baseDamage} → {modifiedDamage}");
-        }
+        // 🗑️ 크리티컬 계산 제거됨: 이제 EquipmentData에서 관리
+        // 향후 장비 시스템과 연동하여 재구현 예정
         
         return modifiedDamage;
     }
@@ -182,7 +217,7 @@ public class Assasin : BaseClassBehaviour
         isStealthActive = true; // 🆕 은신 상태 시작
         
         if (showDebugLogs)
-            Debug.Log($"👻 [Assasin] 은신 발동! 지속시간: {stealthDuration}초");
+            Debug.Log($"👻 [Assasin] 은신 발동! 지속시간: {StealthDuration}초"); // 이제 ScriptableObject에서 관리
         
         // 🆕 실제 은신 효과 적용
         var spriteRenderer = GetComponent<SpriteRenderer>();
@@ -230,7 +265,7 @@ public class Assasin : BaseClassBehaviour
             }
         }
         
-        yield return new WaitForSeconds(stealthDuration);
+        yield return new WaitForSeconds(StealthDuration); // 이제 ScriptableObject에서 관리
         
         // 원상복구
         if (spriteRenderer != null)
@@ -239,7 +274,7 @@ public class Assasin : BaseClassBehaviour
         }
         gameObject.layer = originalLayer;
         
-        isStealthActive = false; // �� 은신 상태 종료
+        isStealthActive = false; // 🆕 은신 상태 종료
         
         if (showDebugLogs)
             Debug.Log($"👻 [Assasin] 은신 해제");
@@ -257,8 +292,8 @@ public class Assasin : BaseClassBehaviour
         if (dot > 0.5f)
         {
             if (showDebugLogs)
-                Debug.Log($"🗡️ [Assasin] 백어택 성공! 보너스: {backAttackBonus}x");
-            return backAttackBonus;
+                Debug.Log($"🗡️ [Assasin] 백어택 성공! 보너스: {BackAttackBonus}x"); // 이제 ScriptableObject에서 관리
+            return BackAttackBonus; // 이제 ScriptableObject에서 관리
         }
         
         return 1f;
@@ -269,14 +304,9 @@ public class Assasin : BaseClassBehaviour
     #region 공개 유틸리티 메서드
     
     /// <summary>
-    /// 외부에서 크리티컬 확률 조회
-    /// </summary>
-    public float GetCriticalChance() => criticalChance;
-    
-    /// <summary>
     /// 외부에서 회피 확률 조회
     /// </summary>
-    public float GetDodgeChance() => dodgeChance;
+    public float GetDodgeChance() => DodgeChance; // 이제 ScriptableObject에서 관리
     
     /// <summary>
     /// 현재 어쌔신 상태 정보 출력 (BaseClass 확장)
@@ -286,11 +316,9 @@ public class Assasin : BaseClassBehaviour
         base.PrintStatus(); // 기본 정보 출력
         
         Debug.Log($"🏹 [Assasin] 고유 특성:");
-        Debug.Log($"   - 크리티컬 확률: {criticalChance * 100:F1}%");
-        Debug.Log($"   - 크리티컬 데미지: {criticalDamage}x");
-        Debug.Log($"   - 회피 확률: {dodgeChance * 100:F1}%");
-        Debug.Log($"   - 은신 지속시간: {stealthDuration}초");
-        Debug.Log($"   - 백어택 보너스: {backAttackBonus}x");
+        Debug.Log($"   - 회피 확률: {DodgeChance * 100:F1}%");
+        Debug.Log($"   - 은신 지속시간: {StealthDuration}초");
+        Debug.Log($"   - 백어택 보너스: {BackAttackBonus}x");
     }
     
     #endregion
@@ -317,11 +345,9 @@ public class Assasin : BaseClassBehaviour
         saveData.wasActiveLastTime = IsActiveClass;
         
         // Assasin 특성 데이터 저장
-        saveData.SetProperty("criticalChance", criticalChance);
-        saveData.SetProperty("criticalDamage", criticalDamage);
-        saveData.SetProperty("dodgeChance", dodgeChance);
-        saveData.SetProperty("stealthDuration", stealthDuration);
-        saveData.SetProperty("backAttackBonus", backAttackBonus);
+        saveData.SetProperty("dodgeChance", DodgeChance);
+        saveData.SetProperty("stealthDuration", StealthDuration);
+        saveData.SetProperty("backAttackBonus", BackAttackBonus);
         
         // 캐릭터 인덱스는 현재 기본값 0 사용 (추후 확장 가능)
         int characterIndex = 0;
@@ -353,11 +379,13 @@ public class Assasin : BaseClassBehaviour
         }
         
         // Assasin 특성 데이터 복원
-        criticalChance = saveData.GetProperty("criticalChance", 0.15f);
-        criticalDamage = saveData.GetProperty("criticalDamage", 2.0f);
-        dodgeChance = saveData.GetProperty("dodgeChance", 0.05f);
-        stealthDuration = saveData.GetProperty("stealthDuration", 2.0f);
-        backAttackBonus = saveData.GetProperty("backAttackBonus", 1.5f);
+        // 🆕 ScriptableObject에서 관리하므로 저장/로드에서 제외
+        // 이제 이 값들은 AssasinData ScriptableObject에서 직접 관리됩니다.
+        // DodgeChance = saveData.GetProperty("dodgeChance", 0.05f); // 제거: ScriptableObject에서 관리
+        // StealthDuration = saveData.GetProperty("stealthDuration", 2.0f); // 제거: ScriptableObject에서 관리
+        // BackAttackBonus = saveData.GetProperty("backAttackBonus", 1.5f); // 제거: ScriptableObject에서 관리
+        
+        Debug.Log("✅ [Assasin] 어쌔신 고유 특성은 이제 AssasinData ScriptableObject에서 관리됩니다.");
         
         // 활성화 상태 복원
         if (saveData.wasActiveLastTime)
@@ -417,10 +445,10 @@ public class Assasin : BaseClassBehaviour
     /// </summary>
     public bool TryDodge()
     {
-        if (Random.Range(0f, 1f) < dodgeChance)
+        if (Random.Range(0f, 1f) < DodgeChance) // 이제 ScriptableObject에서 관리
         {
             if (showDebugLogs)
-                Debug.Log($"💨 [Assasin] 회피 성공! 확률: {dodgeChance * 100:F1}%");
+                Debug.Log($"💨 [Assasin] 회피 성공! 확률: {DodgeChance * 100:F1}%"); // 이제 ScriptableObject에서 관리
             
             // 회피 이펙트 생성 (옵션)
             if (GamePoolManager.Instance != null)
@@ -460,5 +488,29 @@ public class Assasin : BaseClassBehaviour
     public bool IsInStealth()
     {
         return isStealthActive;
+    }
+
+    /// <summary>
+    /// Inspector에서 AssasinData 변경 시 실시간 능력치 재적용 (완전 안전 버전)
+    /// </summary>
+    void OnValidate()
+    {
+        // 🛡️ 모든 안전성 검사
+        if (!Application.isPlaying) return;
+        if (assasinData == null) return;
+        if (!gameObject.activeInHierarchy) return;
+        if (!enabled) return;
+        if (playerController == null) return;
+        
+        try
+        {
+            ApplyClassStats();
+            if (showDebugLogs)
+                Debug.Log("🔄 [Assasin] AssasinData 변경 감지 → 능력치 안전 재적용 완료");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"🟡 [Assasin] 능력치 재적용 중 오류 (무시됨): {e.Message}");
+        }
     }
 }

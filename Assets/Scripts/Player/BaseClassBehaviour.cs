@@ -20,6 +20,10 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     public abstract float SkillCooldownMultiplier { get; }
     public abstract float HealthMultiplier { get; }
     
+    // 🆕 ScriptableObject 기본값 가져오는 추상 메서드 추가
+    public abstract float GetBaseMoveSpeed();
+    public abstract float GetBaseMaxHealth();
+    
     #endregion
     
     #region ⭐ [Phase C] 다중 클래스 관리 설정
@@ -586,35 +590,29 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     {
         if (playerController != null)
         {
-            // Reflection을 사용하여 private 필드에 접근
-            var moveSpeedField = typeof(PlayerController).GetField("moveSpeed", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var startingMoveSpeedField = typeof(PlayerController).GetField("startingMoveSpeed", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            // 🔍 현재 값 확인
+            Debug.Log($"🔍 [디버깅] 변경 전 moveSpeed: {playerController.CurrentMoveSpeed}, dashSpeed: {playerController.CurrentDashSpeed}");
             
-            if (moveSpeedField != null && startingMoveSpeedField != null)
-            {
-                float baseMoveSpeed = (float)moveSpeedField.GetValue(playerController);
-                float baseStartingMoveSpeed = (float)startingMoveSpeedField.GetValue(playerController);
-                
-                // 기본 속도가 아직 설정되지 않았다면 현재 속도를 기본값으로 저장
-                if (baseStartingMoveSpeed == 0f)
-                {
-                    baseStartingMoveSpeed = baseMoveSpeed;
-                    startingMoveSpeedField.SetValue(playerController, baseStartingMoveSpeed);
-                }
-                
-                // 클래스별 배율 적용
-                float newMoveSpeed = baseStartingMoveSpeed * MoveSpeedMultiplier;
-                moveSpeedField.SetValue(playerController, newMoveSpeed);
-                
-                if (showDebugLogs)
-                    Debug.Log($"   - 이동속도 배율: {MoveSpeedMultiplier}x 적용 ({baseStartingMoveSpeed} → {newMoveSpeed})");
-            }
-            else
-            {
-                Debug.LogWarning($"🟡 [BaseClass] {ClassName} moveSpeed 필드에 접근할 수 없습니다.");
-            }
+            // 🆕 ScriptableObject 기본값 사용
+            float baseMoveSpeed = GetBaseMoveSpeed(); // AssasinData.baseMoveSpeed 사용
+            
+            // 클래스별 배율 적용
+            float newMoveSpeed = baseMoveSpeed * MoveSpeedMultiplier;
+            float newDashSpeed = baseMoveSpeed * MoveSpeedMultiplier * 2f; // 대시는 2배
+            
+            // 🔧 직접 메서드 호출 방식 (Reflection 대신)
+            playerController.SetMoveSpeed(newMoveSpeed);
+            playerController.SetDashSpeed(newDashSpeed);
+            
+            // 🔍 설정 후 실제 값 재확인
+            Debug.Log($"🔍 [디버깅] 변경 후 moveSpeed: {playerController.CurrentMoveSpeed}, dashSpeed: {playerController.CurrentDashSpeed}");
+            
+            if (showDebugLogs)
+                Debug.Log($"   - 이동속도 배율: {MoveSpeedMultiplier}x 적용 (기본값 {baseMoveSpeed} → {newMoveSpeed})");
+        }
+        else
+        {
+            Debug.LogError($"🔴 [BaseClass] {ClassName} playerController가 null입니다!");
         }
     }
     
@@ -633,40 +631,13 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             
             if (maxHealthField != null && currentHealthField != null)
             {
-                int baseMaxHealth = (int)maxHealthField.GetValue(playerHealth);
-                int baseCurrentHealth = (int)currentHealthField.GetValue(playerHealth);
+                float baseMaxHealth = GetBaseMaxHealth(); // AssasinData에서
+                int finalMaxHealth = Mathf.RoundToInt(baseMaxHealth * HealthMultiplier);
                 
-                // 클래스별 체력 배율 적용
-                int newMaxHealth = Mathf.RoundToInt(baseMaxHealth * HealthMultiplier);
-                newMaxHealth = Mathf.Max(1, newMaxHealth); // 최소 1 보장
-                
-                // maxHealth 업데이트
-                maxHealthField.SetValue(playerHealth, newMaxHealth);
-                
-                // currentHealth도 비례적으로 조정 (체력이 풀인 상태라면 새로운 최대치로 설정)
-                if (baseCurrentHealth >= baseMaxHealth)
-                {
-                    currentHealthField.SetValue(playerHealth, newMaxHealth);
-                }
-                else
-                {
-                    // 현재 체력 비율 유지
-                    float healthRatio = (float)baseCurrentHealth / baseMaxHealth;
-                    int newCurrentHealth = Mathf.RoundToInt(newMaxHealth * healthRatio);
-                    newCurrentHealth = Mathf.Max(1, newCurrentHealth);
-                    currentHealthField.SetValue(playerHealth, newCurrentHealth);
-                }
-                
-                // UI 업데이트 (PlayerHealth의 UpdateHealthSlider 메서드 호출)
-                var updateMethod = typeof(PlayerHealth).GetMethod("UpdateHealthSlider", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (updateMethod != null)
-                {
-                    updateMethod.Invoke(playerHealth, null);
-                }
+                playerHealth.InitializeHealth(finalMaxHealth); // 체력만 설정
                 
                 if (showDebugLogs)
-                    Debug.Log($"   - 체력 배율: {HealthMultiplier}x 적용 ({baseMaxHealth} → {newMaxHealth})");
+                    Debug.Log($"   - 체력 배율: {HealthMultiplier}x 적용 ({baseMaxHealth} → {finalMaxHealth})");
             }
             else
             {

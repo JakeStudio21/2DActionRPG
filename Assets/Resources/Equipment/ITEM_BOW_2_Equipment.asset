@@ -10,23 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
-  m_Name: Bow_C_Equipment
+  m_Name: ITEM_BOW_2_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Bow_C
+  equipmentName: Bow_B
+  itemID: ITEM_BOW_2
   equipmentType: 0
-  itemGrade: 3
-  description: 
-  icon: {fileID: 21300000, guid: f13798441e2141647b5485d0658c5a3e, type: 3}
-  equipmentPrefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
-  weaponType: 2
+  itemGrade: 2
+  usableClass: 0
+  isTradable: 1
+  requiredLevel: 5
+  resourceID: RES_WEAPON_BOW_2
+  description: "\uC219\uB828\uC790\uC758 \uD65C"
+  icon: {fileID: 0}
+  equipmentPrefab: {fileID: 0}
+  weaponType: 0
   weaponCooldown: 1
   weaponRange: 5
-  damageBonus: 0
-  healthBonus: 0
-  speedBonus: 0
+  attackDamage: 0
+  attackSpeed: 22
+  attackRange: 5
+  attackShape: 1
   criticalChance: 0
-  defenseBonus: 0
-  isStackable: 0
-  maxStackCount: 1
-  sellPrice: 100
-  buyPrice: 200
+  criticalDamage: 4
+  projectileId: PRO_WEAPON_BOW_21

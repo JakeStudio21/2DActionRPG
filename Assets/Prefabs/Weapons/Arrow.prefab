@@ -295,7 +295,8 @@ MonoBehaviour:
   particleOnHitPrefabVFX: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
   isEnemyProjectile: 0
   projectileRange: 10
-  arrowEffectPrefabs: []
+  arrowEffectPrefabs:
+  - {fileID: 0}
 --- !u!114 &8813411787559020723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,6 +322,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &5025094156019291721
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,7 +25,8 @@ public static class EquipmentDataAdapter
         SetPrivateField(equipmentData, "weaponRange", weaponInfo.weaponRange);
         
         // 능력치 설정
-        equipmentData.damageBonus = weaponInfo.weaponDamage;
+        // ❌ 삭제할 줄
+        // equipmentData.damageBonus = weaponInfo.weaponDamage;
         
         // 무기 타입 추론 (이름 기반)
         if (weaponInfo.name.ToLower().Contains("sword"))
@@ -53,9 +54,10 @@ public static class EquipmentDataAdapter
         weaponInfo.weaponPrefab = equipmentData.equipmentPrefab;
         weaponInfo.weaponCooldown = equipmentData.WeaponCooldown;
         weaponInfo.weaponRange = equipmentData.WeaponRange;
-        weaponInfo.weaponDamage = equipmentData.damageBonus;
+        // ✅ 대체 코드 (기본값 사용)
+        weaponInfo.weaponDamage = 0; // 무기 데미지는 별도 시스템에서 관리
         
-        Debug.Log($"🔄 [Adapter] EquipmentData → WeaponInfo 변환: {equipmentData.equipmentName} (공격력: {equipmentData.damageBonus}, 쿨다운: {equipmentData.WeaponCooldown})");
+        Debug.Log($"🔄 [Adapter] EquipmentData → WeaponInfo 변환: {equipmentData.equipmentName} (쿨다운: {equipmentData.WeaponCooldown})");
         
         return weaponInfo;
     }
@@ -67,7 +69,10 @@ public static class EquipmentDataAdapter
     {
         public static GameObject GetWeaponPrefab(EquipmentData equipment) => equipment?.equipmentPrefab;
         public static float GetWeaponCooldown(EquipmentData equipment) => equipment?.WeaponCooldown ?? 1.0f;
-        public static int GetWeaponDamage(EquipmentData equipment) => equipment?.damageBonus ?? 0;
+        // ❌ 삭제할 줄
+        // public static int GetWeaponDamage(EquipmentData equipment) => equipment?.damageBonus ?? 0;
+        // ✅ 대체 코드 (또는 완전 삭제)
+        public static int GetWeaponDamage(EquipmentData equipment) => 0; // 별도 스탯 시스템에서 관리
         public static float GetWeaponRange(EquipmentData equipment) => equipment?.WeaponRange ?? 5.0f;
     }
     

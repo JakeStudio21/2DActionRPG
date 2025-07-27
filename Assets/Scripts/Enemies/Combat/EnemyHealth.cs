@@ -79,10 +79,9 @@ public class EnemyHealth : MonoBehaviour
         {
             PlayerDataManager.Instance.AddExp(experienceGiven);
         }
-        else if (PlayerLevel.Instance != null)
+        else
         {
-            // 백업: 기존 PlayerLevel 사용 (호환성)
-            PlayerLevel.Instance.AddExp(experienceGiven);
+            Debug.LogError("PlayerDataManager가 없습니다!");
         }
 
         // 2. 모든 콜라이더를 비활성화하여 추가 상호작용을 막습니다.

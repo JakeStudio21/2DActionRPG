@@ -1,0 +1,92 @@
+{
+  "ProjectileDataTable": [
+    {
+      "ProjectileId": "ITEM_ARROW_1",
+      "AttackDamage": 18,
+      "AttackSpeed": 1.0,
+      "Attackrange": 4.0,
+      "AttackShape": 2,
+      "ResourceID": "RES_ARROW_1",
+      "Prefab": "Arrow_1.prefab",
+      "Icon": "Icon_Arrow_1.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_ARROW_2",
+      "AttackDamage": 22,
+      "AttackSpeed": 1.1,
+      "Attackrange": 4.2,
+      "AttackShape": 2,
+      "ResourceID": "RES_ARROW_2",
+      "Prefab": "Arrow_2.prefab",
+      "Icon": "Icon_Arrow_2.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_ARROW_3",
+      "AttackDamage": 26,
+      "AttackSpeed": 1.2,
+      "Attackrange": 4.4,
+      "AttackShape": 2,
+      "ResourceID": "RES_ARROW_3",
+      "Prefab": "Arrow_3.prefab",
+      "Icon": "Icon_Arrow_3.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_ARROW_4",
+      "AttackDamage": 30,
+      "AttackSpeed": 1.3,
+      "Attackrange": 4.6,
+      "AttackShape": 2,
+      "ResourceID": "RES_ARROW_4",
+      "Prefab": "Arrow_4.prefab",
+      "Icon": "Icon_Arrow_4.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_MAGICBULLET_1",
+      "AttackDamage": 18,
+      "AttackSpeed": 1.0,
+      "Attackrange": 4.0,
+      "AttackShape": 2,
+      "ResourceID": "RES_MAGICBULLET_1",
+      "Prefab": "MagicBullet_1.prefab",
+      "Icon": "Icon_MagicBullet_1.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_MAGICBULLET_2",
+      "AttackDamage": 22,
+      "AttackSpeed": 1.1,
+      "Attackrange": 4.2,
+      "AttackShape": 2,
+      "ResourceID": "RES_MAGICBULLET_2",
+      "Prefab": "MagicBullet_2.prefab",
+      "Icon": "Icon_MagicBullet_2.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_MAGICBULLET_3",
+      "AttackDamage": 26,
+      "AttackSpeed": 1.2,
+      "Attackrange": 4.4,
+      "AttackShape": 2,
+      "ResourceID": "RES_MAGICBULLET_3",
+      "Prefab": "MagicBullet_3.prefab",
+      "Icon": "Icon_MagicBullet_3.png",
+      "Description": NaN
+    },
+    {
+      "ProjectileId": "ITEM_MAGICBULLET_4",
+      "AttackDamage": 30,
+      "AttackSpeed": 1.3,
+      "Attackrange": 4.6,
+      "AttackShape": 2,
+      "ResourceID": "RES_MAGICBULLET_4",
+      "Prefab": "MagicBullet_4.prefab",
+      "Icon": "Icon_MagicBullet_4.png",
+      "Description": NaN
+    }
+  ]
+}

@@ -551,15 +551,7 @@ MonoBehaviour:
   allowMultipleClasses: 0
   isClassManager: 0
   showDebugLogs: 1
-  attackPowerMultiplier: 1.2
-  moveSpeedMultiplier: 1.3
-  skillCooldownMultiplier: 0.8
-  healthMultiplier: 0.9
-  criticalChance: 0.15
-  criticalDamage: 1.5
-  stealthDuration: 2
-  dodgeChance: 0.1
-  backAttackBonus: 1.3
+  assasinData: {fileID: 11400000, guid: c5490892aa598a546a29a1ee1a706d47, type: 2}
 --- !u!95 &3378627283251995473
 Animator:
   serializedVersion: 5
@@ -606,8 +598,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972fbe965fb5a8d4abcb27e59371b700, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
-  dashspeed: 6
+  moveSpeed: 1
+  dashspeed: 1
   myTrailRenderer: {fileID: 4602630472629665941}
   weaponCollider: {fileID: 5337248612677347209}
   fixedJoystick: {fileID: 0}
@@ -637,8 +629,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27cce43ebc04520488124b526d8f98d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 200
-  knockBackThrustAmount: 0
+  maxHealth: 50
   damageRecoveryTime: 1
 --- !u!114 &4451406008786218953
 MonoBehaviour:
@@ -654,7 +645,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _currentLevel: 1
   _currentExp: 0
-  _expToNextLevel: 20
+  _expToNextLevel: 1
 --- !u!114 &5599835765031428221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -714,7 +705,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
-  restoreDefaultMatTime: 0.2
+  restoreDefaultMatTime: 1
 --- !u!114 &3411945224194783882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -727,7 +718,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0
+  knockBackTime: 1
+  defaultKnockBackThrust: 1
 --- !u!114 &6403347020822746970
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,32 +9,35 @@ public class EquipmentData : ScriptableObject
 {
     [Header("📋 기본 정보")]
     public string equipmentName;
+    public string itemID;               // 🆕 "ITEM_SWORD_1"
     public EquipmentType equipmentType;
     public ItemGrade itemGrade;
+    public PlayerClass usableClass = PlayerClass.None;     // 🔧 string → PlayerClass enum으로 변경
+    public bool isTradable = true;      // 🆕 거래 가능
+    public int requiredLevel = 1;       // 🆕 요구 레벨
+    public string resourceID;           // 🆕 "RES_WEAPON_SWORD_1"
     [TextArea(2, 4)]
     public string description;
     public Sprite icon;
     
     [Header("🎮 게임 오브젝트")]
-    public GameObject equipmentPrefab; // 무기/방어구 프리팹
+    public GameObject equipmentPrefab;
     
     [Header("⚔️ 무기 전용 설정")]
     [SerializeField] private WeaponType weaponType = WeaponType.None;
     [SerializeField] private float weaponCooldown = 1.0f;
     [SerializeField] private float weaponRange = 5.0f;
     
-    [Header("📊 능력치 효과")]
-    public int damageBonus = 0;        // 공격력 증가
-    public int healthBonus = 0;        // 체력 증가
-    public float speedBonus = 0f;      // 이동속도 증가
-    public float criticalChance = 0f;  // 크리티컬 확률 증가
-    public int defenseBonus = 0;       // 방어력 증가
+    [Header("⚔️ 무기 전투 스탯")]
+    public float attackDamage = 0f;     // 공격 데미지
+    public float attackSpeed = 1f;      // 공격 속도  
+    public float attackRange = 1f;      // 공격 사거리
+    public int attackShape = 1;         // 공격 형태 (1=근접, 2=원거리)
+    public float criticalChance = 0f;   // 크리티컬 확률
+    public float criticalDamage = 1f;   // 크리티컬 데미지 배수
     
-    [Header("🔧 고급 설정")]
-    public bool isStackable = false;   // 중복 장착 가능 여부
-    public int maxStackCount = 1;      // 최대 중복 수량
-    public int sellPrice = 100;        // 판매 가격
-    public int buyPrice = 200;         // 구매 가격
+    [Header("🏹 원거리 무기 전용")]
+    public string projectileId;         // "ITEM_ARROW_1" 형태 (활/지팡이용)
     
     // 접근자 프로퍼티
     public WeaponType WeaponType => weaponType;
@@ -58,11 +61,13 @@ public class EquipmentData : ScriptableObject
     {
         var stats = new System.Text.StringBuilder();
         
-        if (damageBonus > 0) stats.AppendLine($"공격력 +{damageBonus}");
-        if (healthBonus > 0) stats.AppendLine($"체력 +{healthBonus}");
-        if (speedBonus > 0) stats.AppendLine($"이동속도 +{speedBonus:F1}");
-        if (criticalChance > 0) stats.AppendLine($"크리티컬 +{criticalChance:F1}%");
-        if (defenseBonus > 0) stats.AppendLine($"방어력 +{defenseBonus}");
+        // 🆕 무기 전용 정보만 표시
+        if (IsWeapon)
+        {
+            stats.AppendLine($"쿨다운: {WeaponCooldown:F1}초");
+            stats.AppendLine($"사거리: {WeaponRange:F1}");
+            stats.AppendLine($"무기 타입: {WeaponType}");
+        }
         
         return stats.ToString().TrimEnd();
     }
@@ -72,7 +77,15 @@ public class EquipmentData : ScriptableObject
     /// </summary>
     public bool IsCompatibleWith(PlayerClass playerClass)
     {
-        // 예: Warrior는 Sword만, Assasin은 Bow만, Wizard는 Magic만
+        // None 또는 Any인 경우 모든 클래스 호환
+        if (usableClass == PlayerClass.None || usableClass == PlayerClass.Any)
+            return true;
+        
+        // 특정 클래스 제한
+        if (usableClass != playerClass)
+            return false;
+        
+        // 무기 타입별 추가 호환성 검사
         if (IsWeapon)
         {
             switch (playerClass)
@@ -84,11 +97,10 @@ public class EquipmentData : ScriptableObject
                 case PlayerClass.Wizard:
                     return weaponType == WeaponType.Magic;
                 default:
-                    return true; // 범용 클래스는 모든 무기 사용 가능
+                    return true;
             }
         }
         
-        // 방어구/악세서리는 모든 클래스 호환
         return true;
     }
 
@@ -97,7 +109,7 @@ public class EquipmentData : ScriptableObject
     /// </summary>
     public WeaponInfo ToWeaponInfo()
     {
-        Debug.Log($"�� [EquipmentData] ToWeaponInfo 시작: {equipmentName}");
+        Debug.Log($" [EquipmentData] ToWeaponInfo 시작: {equipmentName}");
         Debug.Log($"🔄 [EquipmentData] IsWeapon: {IsWeapon}");
         Debug.Log($"🔄 [EquipmentData] equipmentType: {equipmentType}");
         
@@ -121,7 +133,8 @@ public class EquipmentData : ScriptableObject
         weaponInfo.name = equipmentName;
         weaponInfo.weaponPrefab = equipmentPrefab;
         weaponInfo.weaponCooldown = WeaponCooldown;
-        weaponInfo.weaponDamage = damageBonus;
+        // ✅ 대체 코드 (기본값 사용)
+        weaponInfo.weaponDamage = 0; // 무기 자체 데미지는 별도 시스템에서 관리
         weaponInfo.weaponRange = WeaponRange;
         
         Debug.Log($"✅ [EquipmentData] WeaponInfo 변환 완료: {equipmentName}");
@@ -182,7 +195,9 @@ public enum EquipmentSlot
 /// </summary>
 public enum PlayerClass
 {
+    None,      // 제한 없음 (모든 클래스 사용 가능)
     Warrior,
     Assasin, 
-    Wizard
+    Wizard,
+    Any        // 명시적으로 모든 클래스 허용
 } 

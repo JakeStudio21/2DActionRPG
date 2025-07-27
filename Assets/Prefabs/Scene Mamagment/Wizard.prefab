@@ -380,10 +380,10 @@ GameObject:
   - component: {fileID: 472274624499914740}
   - component: {fileID: 2541682511758850633}
   - component: {fileID: 4451406008786218953}
+  - component: {fileID: 7968133305553475948}
   - component: {fileID: 5734504649737104247}
   - component: {fileID: 3411945224194783882}
   - component: {fileID: 6403347020822746970}
-  - component: {fileID: 7968133305553475948}
   m_Layer: 8
   m_Name: Wizard
   m_TagString: Player
@@ -641,6 +641,24 @@ MonoBehaviour:
   _currentLevel: 1
   _currentExp: 0
   _expToNextLevel: 100
+--- !u!114 &7968133305553475948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 643c4513315b0cf44b4a3e529ad2712b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillSet:
+    showDebugLogs: 1
+  skill1Component: {fileID: 0}
+  skill2Component: {fileID: 0}
+  cooldownTime: 2
+  skill2CooldownTime: 3
 --- !u!114 &5734504649737104247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -686,21 +704,3 @@ MonoBehaviour:
   roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
   detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
---- !u!114 &7968133305553475948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 643c4513315b0cf44b4a3e529ad2712b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillSet:
-    showDebugLogs: 1
-  skill1Component: {fileID: 0}
-  skill2Component: {fileID: 0}
-  cooldownTime: 2
-  skill2CooldownTime: 3

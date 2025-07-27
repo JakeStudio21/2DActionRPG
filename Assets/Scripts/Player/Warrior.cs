@@ -31,6 +31,22 @@ public class Warrior : BaseClassBehaviour
     
     #endregion
     
+    #region 🆕 BaseClassBehaviour 추상 메서드 구현 (기본값)
+    
+    public override float GetBaseMoveSpeed()
+    {
+        // Warrior는 아직 ScriptableObject 미사용 - 기본값 리턴
+        return 4f; // PlayerController 기본값
+    }
+
+    public override float GetBaseMaxHealth()
+    {
+        // Warrior는 아직 ScriptableObject 미사용 - 기본값 리턴  
+        return 100f; // 기본 체력값
+    }
+    
+    #endregion
+    
     #region 워리어 고유 특성
     
     [Header("🛡️ 워리어 고유 특성")]

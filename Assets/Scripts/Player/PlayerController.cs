@@ -13,6 +13,10 @@ public class PlayerController : Singleton<PlayerController>
      [SerializeField] private TrailRenderer myTrailRenderer;
      [SerializeField] private Transform weaponCollider;
 
+     // 🔍 디버깅용 공개 프로퍼티
+     public float CurrentMoveSpeed => moveSpeed;
+     public float CurrentDashSpeed => dashspeed;
+
      private PlayerControls playerControls;
      private Vector2 movement;
      private Rigidbody2D rb;
@@ -334,6 +338,20 @@ public class PlayerController : Singleton<PlayerController>
           StartCoroutine(FindJoystickCoroutine());
           
           Debug.Log("[PlayerController] 조이스틱 강제 재연결 시도 - joystickFound를 false로 초기화");
+     }
+
+     // 🔧 클래스별 능력치 적용용 공개 메서드 추가
+     public void SetMoveSpeed(float newMoveSpeed)
+     {
+         moveSpeed = newMoveSpeed;
+         startingMoveSpeed = newMoveSpeed;
+         Debug.Log($"🔧 [PlayerController] moveSpeed 직접 설정: {newMoveSpeed}");
+     }
+
+     public void SetDashSpeed(float newDashSpeed)
+     {
+         dashspeed = newDashSpeed;
+         Debug.Log($"🔧 [PlayerController] dashSpeed 직접 설정: {newDashSpeed}");
      }
 }
 

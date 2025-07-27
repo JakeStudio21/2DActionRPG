@@ -645,11 +645,12 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
     
     /// <summary>
-    /// 🆕 시작 장비 추가
+    /// 🆕 시작 장비 추가 (Generated 경로로 수정)
     /// </summary>
     private void AddStartingEquipment(string equipmentName)
     {
-        EquipmentData startingEquipment = Resources.Load<EquipmentData>(equipmentName);
+        // 🔧 Generated 폴더에서 로드하도록 수정
+        EquipmentData startingEquipment = Resources.Load<EquipmentData>($"Generated/Weapons/{equipmentName}");
         if (startingEquipment != null)
         {
             AddToInventory(startingEquipment);
@@ -658,12 +659,20 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
         else
         {
-            Debug.LogWarning($"⚠️ [PlayerData] 시작 장비를 찾을 수 없음: {equipmentName}");
+            Debug.LogWarning($"⚠️ [PlayerData] Generated 폴더에서 시작 장비를 찾을 수 없음: {equipmentName}");
+            
+            // 🔧 백업: 기존 경로에서 시도 (임시 호환성)
+            startingEquipment = Resources.Load<EquipmentData>(equipmentName);
+            if (startingEquipment != null)
+            {
+                AddToInventory(startingEquipment);
+                Debug.LogWarning($"⚠️ [PlayerData] 기존 경로에서 발견: {equipmentName} (Generated 폴더로 이동 권장)");
+            }
         }
     }
     
     /// <summary>
-    /// 저장 데이터에서 인벤토리 로드
+    /// 저장 데이터에서 인벤토리 로드 (Generated 경로로 수정)
     /// </summary>
     private void LoadInventoryFromSaveData(PlayerSaveData saveData)
     {
@@ -671,11 +680,35 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         inventoryItems.Clear();
         InitializeEquipmentSlots();
         
-        // 인벤토리 아이템 로드 시 경로 수정
+        // 인벤토리 아이템 로드 - Generated 폴더 우선
         foreach (string itemName in saveData.inventoryItemNames)
         {
-            // 🔧 올바른 경로로 수정
-            EquipmentData item = Resources.Load<EquipmentData>(itemName);
+            EquipmentData item = null;
+            
+            // 🔧 1순위: Generated/Weapons 폴더에서 찾기
+            item = Resources.Load<EquipmentData>($"Generated/Weapons/{itemName}");
+            
+            // 🔧 2순위: Generated 전체에서 찾기
+            if (item == null)
+            {
+                string[] generatedPaths = { "Generated/Weapons", "Generated/Projectiles" };
+                foreach (string path in generatedPaths)
+                {
+                    item = Resources.Load<EquipmentData>($"{path}/{itemName}");
+                    if (item != null) break;
+                }
+            }
+            
+            // 🔧 3순위: 기존 경로에서 찾기 (호환성)
+            if (item == null)
+            {
+                item = Resources.Load<EquipmentData>(itemName);
+                if (item != null)
+                {
+                    Debug.LogWarning($"⚠️ [PlayerData] 기존 경로에서 발견: {itemName} (Generated 폴더 이전 권장)");
+                }
+            }
+            
             if (item != null)
             {
                 inventoryItems.Add(item);
@@ -686,14 +719,38 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             }
         }
         
-        // 장착 아이템 로드
+        // 장착 아이템 로드 - Generated 폴더 우선
         if (saveData.equippedItemNames != null)
         {
             foreach (var kvp in saveData.equippedItemNames)
             {
                 if (System.Enum.TryParse<EquipmentSlot>(kvp.Key, out EquipmentSlot slot))
                 {
-                    EquipmentData item = Resources.Load<EquipmentData>($"EquipmentData/{kvp.Value}");
+                    EquipmentData item = null;
+                    
+                    // 🔧 1순위: Generated/Weapons 폴더
+                    item = Resources.Load<EquipmentData>($"Generated/Weapons/{kvp.Value}");
+                    
+                    // 🔧 2순위: 기존 경로들
+                    if (item == null)
+                    {
+                        string[] fallbackPaths = { 
+                            $"EquipmentData/{kvp.Value}", 
+                            kvp.Value,
+                            $"Equipment/{kvp.Value}"
+                        };
+                        
+                        foreach (string path in fallbackPaths)
+                        {
+                            item = Resources.Load<EquipmentData>(path);
+                            if (item != null)
+                            {
+                                Debug.LogWarning($"⚠️ [PlayerData] 기존 경로에서 장착 아이템 발견: {path}");
+                                break;
+                            }
+                        }
+                    }
+                    
                     if (item != null)
                     {
                         equippedItems[slot] = item;
@@ -811,19 +868,32 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [ContextMenu("치트: 경험치 +50")]
     public void CheatAddExp() => AddExp(50);
     
+    /// <summary>
+    /// 치트: 테스트 아이템 추가 (Generated 경로로 수정)
+    /// </summary>
     [ContextMenu("치트: 테스트 아이템 추가")]
     public void CheatAddTestItem()
     {
-        // Resources 폴더에서 Sword_A_Equipment 찾아서 추가
-        EquipmentData testItem = Resources.Load<EquipmentData>("Sword_A_Equipment");
+        // 🔧 Generated 폴더에서 Sword_A_Equipment 찾기
+        EquipmentData testItem = Resources.Load<EquipmentData>("Generated/Weapons/Sword_A_Equipment");
         if (testItem != null)
         {
             AddToInventory(testItem);
-            Debug.Log($"🎒 [DEBUG] 테스트 아이템 추가: {testItem.equipmentName}");
+            Debug.Log($"🎒 [DEBUG] Generated 폴더에서 테스트 아이템 추가: {testItem.equipmentName}");
         }
         else
         {
-            Debug.LogWarning("🎒 [DEBUG] 테스트 아이템을 찾을 수 없습니다!");
+            // 🔧 백업: 기존 경로에서 시도
+            testItem = Resources.Load<EquipmentData>("Sword_A_Equipment");
+            if (testItem != null)
+            {
+                AddToInventory(testItem);
+                Debug.LogWarning($"🎒 [DEBUG] 기존 경로에서 테스트 아이템 추가: {testItem.equipmentName}");
+            }
+            else
+            {
+                Debug.LogWarning("🎒 [DEBUG] 테스트 아이템을 찾을 수 없습니다! Generated 폴더를 확인하세요.");
+            }
         }
     }
     
