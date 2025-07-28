@@ -122,7 +122,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         
         currentGold += amount;
         SavePlayerData();
-        UpdateGoldUI();
         OnGoldChanged?.Invoke(currentGold);
         
         if (showDebugLogs)
@@ -140,7 +139,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         {
             currentGold -= amount;
             SavePlayerData();
-            UpdateGoldUI();
             OnGoldChanged?.Invoke(currentGold);
             
             if (showDebugLogs)
@@ -162,7 +160,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     {
         currentGold = Mathf.Max(0, gold);
         SavePlayerData();
-        UpdateGoldUI();
         OnGoldChanged?.Invoke(currentGold);
         
         if (showDebugLogs)
@@ -533,13 +530,14 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public void SavePlayerData()
     {
-        if (SaveManager.Instance == null) return;
+        // ⭐ SaveManager 체크 제거 (더 이상 필요 없음)
+        // if (SaveManager.Instance == null) return;
         
         var saveData = new PlayerSaveData
         {
             characterIndex = this.characterIndex,
             playerName = this.playerName,
-            playerType = GetCurrentPlayerType(), // 🆕 플레이어 타입 추가
+            playerType = GetCurrentPlayerType(),
             lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             
             gold = this.currentGold,
@@ -554,7 +552,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         };
         
         string json = saveData.ToJson();
-        string key = GetPlayerDataKey(); // 🆕 캐릭터별 키 사용
+        string key = GetPlayerDataKey();
         PlayerPrefs.SetString(key, json);
         PlayerPrefs.Save();
         
@@ -567,9 +565,10 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public void LoadAllPlayerData()
     {
-        if (SaveManager.Instance == null) return;
+        // ⭐ SaveManager 체크 제거 (더 이상 필요 없음)
+        // if (SaveManager.Instance == null) return;
         
-        string key = GetPlayerDataKey(); // 🆕 캐릭터별 키 사용
+        string key = GetPlayerDataKey();
         string json = PlayerPrefs.GetString(key, "");
         
         if (string.IsNullOrEmpty(json))
@@ -765,6 +764,74 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         
         if (showDebugLogs)
             Debug.Log($"🎒 [PlayerData] 인벤토리 로드 완료 - 보관: {inventoryItems.Count}개, 장착: {equippedItems.Count(kvp => kvp.Value != null)}개");
+    }
+    
+    #endregion
+    
+    #region 🎯 클래스별 세부 데이터 관리 (SaveManager 통합)
+    
+    /// <summary>
+    /// 클래스별 세부 데이터 저장 (SaveManager 기능 통합)
+    /// </summary>
+    public void SaveClassData(PlayerType classType, BaseClassSaveData data)
+    {
+        string key = $"ClassData_{classType}_{characterIndex}";
+        string json = data.ToJson();
+        PlayerPrefs.SetString(key, json);
+        PlayerPrefs.Save();
+        
+        if (showDebugLogs)
+            Debug.Log($"💾 [PlayerData] {classType} 클래스 데이터 저장 완료: {data}");
+    }
+    
+    /// <summary>
+    /// 클래스별 세부 데이터 로드 (SaveManager 기능 통합)
+    /// </summary>
+    public BaseClassSaveData LoadClassData(PlayerType classType)
+    {
+        string key = $"ClassData_{classType}_{characterIndex}";
+        string json = PlayerPrefs.GetString(key, "");
+        
+        if (string.IsNullOrEmpty(json))
+        {
+            if (showDebugLogs)
+                Debug.Log($"📁 [PlayerData] {classType} 클래스 데이터 없음, 기본값 생성");
+            
+            var defaultData = new BaseClassSaveData();
+            defaultData.Reset(classType);
+            return defaultData;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📁 [PlayerData] {classType} 클래스 데이터 로드 완료");
+        
+        return BaseClassSaveData.FromJson(json);
+    }
+    
+    /// <summary>
+    /// 현재 활성 클래스 타입 저장 (SaveManager 기능 통합)
+    /// </summary>
+    public void SaveActiveClass(PlayerType activeClassType)
+    {
+        PlayerPrefs.SetInt($"ActiveClass_{characterIndex}", (int)activeClassType);
+        PlayerPrefs.Save();
+        
+        if (showDebugLogs)
+            Debug.Log($"💾 [PlayerData] 활성 클래스 저장: {activeClassType}");
+    }
+    
+    /// <summary>
+    /// 현재 활성 클래스 타입 불러오기 (SaveManager 기능 통합)
+    /// </summary>
+    public PlayerType LoadActiveClass()
+    {
+        int classTypeInt = PlayerPrefs.GetInt($"ActiveClass_{characterIndex}", 0);
+        PlayerType classType = (PlayerType)classTypeInt;
+        
+        if (showDebugLogs)
+            Debug.Log($"📁 [PlayerData] 활성 클래스 로드: {classType}");
+        
+        return classType;
     }
     
     #endregion

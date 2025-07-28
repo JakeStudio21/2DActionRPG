@@ -228,11 +228,11 @@ public class ActiveInventory : MonoBehaviour
         // 🆕 장비 정보 디버그 로그
         Debug.Log($"📋 [ActiveInventory] 슬롯 정보 - 무기명: {inventorySlot.GetWeaponName()}, 능력치: {inventorySlot.GetWeaponStats()}");
         
-        WeaponInfo weaponInfo = inventorySlot.GetWeaponInfo();
+        // WeaponInfo 관련 코드 제거, EquipmentData만 사용
         EquipmentData equipmentData = inventorySlot.GetEquipmentData();
 
         // 🔑 무기 데이터가 없으면 WeaponNull 처리
-        if (weaponInfo == null || equipmentData == null) {
+        if (equipmentData == null) {  // weaponInfo 체크 제거
             Debug.Log("⚠️ [ActiveInventory] 무기 데이터 없음 - WeaponNull 호출");
             activeWeapon.WeaponNull();
             return;
@@ -257,7 +257,7 @@ public class ActiveInventory : MonoBehaviour
             Destroy(activeWeapon.CurrentActiveWeapon.gameObject);
         }
 
-        Debug.Log($"✅ [ActiveInventory] 무기 발견: {weaponInfo.name} (공격력: {weaponInfo.weaponDamage})");
+        Debug.Log($"✅ [ActiveInventory] 무기 발견: {equipmentData.equipmentName} (공격력: {equipmentData.attackDamage})");
         
         // 🔑 EquipmentData.equipmentPrefab 사용 (weaponInfo.weaponPrefab 대신)
         GameObject weaponPrefab = equipmentData.equipmentPrefab;
@@ -289,19 +289,27 @@ public class ActiveInventory : MonoBehaviour
             return;
         }
 
-        // 🔑 생성된 무기에 WeaponInfo 동적 할당 (중요!)
-        var swordComponent = weaponComponent as Sword;
-        if (swordComponent != null) {
-            // 🔑 리플렉션으로 private weaponInfo 필드에 할당
-            var weaponInfoField = typeof(Sword).GetField("weaponInfo", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (weaponInfoField != null) {
-                weaponInfoField.SetValue(swordComponent, weaponInfo); // 🆕 동적 변환된 WeaponInfo 할당
-                Debug.Log($"✅ [ActiveInventory] Sword 컴포넌트에 WeaponInfo 동적 할당: {weaponInfo.name}");
+        // 🔑 생성된 무기에 EquipmentData 동적 할당 (모든 무기 타입 지원)
+        var weaponInterface = weaponComponent as IWeapon;
+        if (weaponInterface != null) {
+            // 🔑 무기 타입별 EquipmentData 할당
+            System.Reflection.FieldInfo equipmentDataField = null;
+            
+            if (weaponComponent is Sword)
+                equipmentDataField = typeof(Sword).GetField("equipmentData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            else if (weaponComponent is Bow)
+                equipmentDataField = typeof(Bow).GetField("equipmentData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            else if (weaponComponent is Staff)
+                equipmentDataField = typeof(Staff).GetField("equipmentData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (equipmentDataField != null) {
+                equipmentDataField.SetValue(weaponComponent, equipmentData);
+                Debug.Log($"✅ [ActiveInventory] {weaponComponent.GetType().Name} 컴포넌트에 EquipmentData 동적 할당: {equipmentData.equipmentName}");
             } else {
-                Debug.LogError("🔴 [ActiveInventory] Sword 클래스에서 weaponInfo 필드를 찾을 수 없습니다!");
+                Debug.LogError($"🔴 [ActiveInventory] {weaponComponent.GetType().Name} 클래스에서 equipmentData 필드를 찾을 수 없습니다!");
             }
         } else {
-            Debug.LogWarning($"⚠️ [ActiveInventory] {newWeapon.name}에 Sword 컴포넌트가 없습니다!");
+            Debug.LogWarning($"⚠️ [ActiveInventory] {newWeapon.name}에 IWeapon 인터페이스가 없습니다!");
         }
 
         // 🔑 ActiveWeapon에 무기 등록

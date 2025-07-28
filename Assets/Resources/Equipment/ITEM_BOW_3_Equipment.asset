@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_BOW_3_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Bow_C
+  equipmentName: Bow_A
   itemID: ITEM_BOW_3
   equipmentType: 0
   itemGrade: 1
@@ -21,12 +21,12 @@ MonoBehaviour:
   requiredLevel: 8
   resourceID: RES_WEAPON_BOW_3
   description: "\uBA85\uAD81\uC758 \uD65C"
-  icon: {fileID: 0}
-  equipmentPrefab: {fileID: 0}
+  icon: {fileID: 21300000, guid: 4a56b9629e9fcce45b101f9e39d750c3, type: 3}
+  equipmentPrefab: {fileID: 4551001115370886643, guid: f02902a9371db2a4caf031af45e012f4, type: 3}
   weaponType: 0
   weaponCooldown: 1
-  weaponRange: 5
-  attackDamage: 0
+  weaponRange: 7
+  attackDamage: 5
   attackSpeed: 1
   attackRange: 1
   attackShape: 1

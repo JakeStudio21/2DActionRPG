@@ -5,7 +5,7 @@ using UnityEngine;
 public class Bow : MonoBehaviour, IWeapon
 {
 
-    [SerializeField] private WeaponInfo weaponInfo;
+    [SerializeField] private EquipmentData equipmentData;  // WeaponInfo → EquipmentData
     [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private Transform arrowSpawnPoint;
 
@@ -45,7 +45,7 @@ public class Bow : MonoBehaviour, IWeapon
             
             if (newArrow.TryGetComponent(out Projectile projectile))
             {
-                projectile.UpdateProjectileRange(weaponInfo.weaponRange);
+                projectile.UpdateProjectileRange(equipmentData.WeaponRange);  // weaponInfo.weaponRange → equipmentData.WeaponRange
                 Debug.Log("🟢 [Bow] 화살 사거리 업데이트 완료");
             }
             else
@@ -59,9 +59,9 @@ public class Bow : MonoBehaviour, IWeapon
         }
     }
 
-    public WeaponInfo GetWeaponInfo() 
+    public EquipmentData GetEquipmentData()  // WeaponInfo → EquipmentData
     {
-        return weaponInfo;
+        return equipmentData;
     }
 
     public void UpdateDirection(Vector2 direction, bool facingLeft)

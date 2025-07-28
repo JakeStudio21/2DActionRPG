@@ -11,61 +11,67 @@ public class PlayerHealth : Singleton<PlayerHealth>
     [SerializeField] private int maxHealth = 3;
     [SerializeField] private float damageRecoveryTime = 1f;
 
-    private Slider healthSlider;
+    // ❌ 제거: private Slider healthSlider;
     private int currentHealth;
     private bool canTakeDamage = true;
     private Knockback knockback;
     private Flash flash;
-    private ResultPopupController resultPopup;  // 팝업 컨트롤러 참조
-    private PlayerAnimationController playerAnimationController; // ⭐ 추가된 변수 선언
+    private ResultPopupController resultPopup;
+    private PlayerAnimationController playerAnimationController;
+    
+    // ✅ PlayerUIController 참조 추가
+    private PlayerUIController playerUIController;
 
-    const string HEALTH_SLIDER_TEXT = "Health Slider";
+    // ❌ 제거: const string HEALTH_SLIDER_TEXT = "Health Slider";
     const string TOWN_TEXT = "Scene1";
     readonly int DEATH_HASH = Animator.StringToHash("Death");
+    
+    // ✅ 외부 접근용 프로퍼티 추가
+    public int CurrentHealth => currentHealth;
+    public int MaxHealth => maxHealth;
 
     protected override void Awake() {
         base.Awake();
         flash = GetComponent<Flash>();
         knockback = GetComponent<Knockback>();
-        // [백업] DontDestroyOnLoad 및 fixedJoystick 관련 코드는 제거
-        // if (fixedJoystick == null)
-        // {
-        //     fixedJoystick = FindObjectOfType<FixedJoystick>();
-        // }
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        
+        // ✅ Knockback 컴포넌트 확인
+        if (knockback == null)
+        {
+            Debug.LogWarning("⚠️ [PlayerHealth] Knockback 컴포넌트를 찾을 수 없습니다. Player GameObject에 Knockback 컴포넌트를 추가해주세요.");
+        }
     }
 
     private void Start()
     {
-        // ✅ PlayerHealth 기본 초기화 (체력 제외)
         isDead = false;
-        // ❌ currentHealth = maxHealth; // 이 부분만 BaseClassBehaviour에서 처리
         resultPopup = FindObjectOfType<ResultPopupController>();
         
-        // PlayerAnimationController 참조 획득
         playerAnimationController = GetComponent<PlayerAnimationController>();
         if (playerAnimationController == null)
             playerAnimationController = GetComponentInChildren<PlayerAnimationController>();
+            
+        // ✅ PlayerUIController 참조 획득
+        playerUIController = FindObjectOfType<PlayerUIController>();
             
         Debug.Log("🔧 [PlayerHealth] 기본 초기화 완료 (체력은 BaseClassBehaviour에서 설정 예정)");
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        healthSlider = null; // 씬이 로드되면 슬라이더 참조를 리셋
-        UpdateHealthSlider();
+        // ❌ 제거: healthSlider = null;
+        // ❌ 제거: UpdateHealthSlider();
         resultPopup = FindObjectOfType<ResultPopupController>();
+        
+        // ✅ PlayerUIController 다시 찾기
+        if (playerUIController == null)
+        {
+            playerUIController = FindObjectOfType<PlayerUIController>();
+        }
+        
+        // ✅ UI 업데이트
+        UpdateUI();
 
-        // 씬이 로드될 때마다 카메라가 플레이어를 따라가도록 설정합니다.
         if (CameraController.Instance != null)
         {
             CameraController.Instance.SetPlayerCameraFollow();
@@ -89,82 +95,41 @@ public class PlayerHealth : Singleton<PlayerHealth>
     public void HealPlayer() {
         if (currentHealth < maxHealth) {
             currentHealth += 1;
-            UpdateHealthSlider();
+            UpdateUI(); // ✅ 변경: UpdateHealthSlider() → UpdateUI()
         }
     }
 
     public void TakeDamage(int damageAmount, Transform hitTransform) {
         if (!canTakeDamage) { return; }
 
-        // ⭐ [Phase B] Warrior 패시브 효과 연동 (기존)
-        bool isBlocked = false;
-        bool isDodged = false; // 🆕 Assasin 회피용
-        int finalDamage = damageAmount;
-        
-        // Warrior 컴포넌트 확인 (기존)
-        var warrior = GetComponent<Warrior>();
-        if (warrior != null && warrior.IsActiveClass) {
-            // 기존 Warrior 블록 로직...
-            if (warrior.TryBlock())
-            {
-                isBlocked = true;
-                // 블록 성공 시 데미지 감소 (기본 50%)
-                finalDamage = Mathf.RoundToInt(damageAmount * 0.5f);
-                Debug.Log($"🛡️ [PlayerHealth] Warrior 블록 성공! 데미지: {damageAmount} → {finalDamage}");
-            }
-        }
-
-        // 🆕 Assasin 컴포넌트 확인
-        var assasin = GetComponent<Assasin>();
-        if (assasin != null && assasin.IsActiveClass) {
-            // 1. 회피 판정 시도
-            if (assasin.TryDodge()) {
-                isDodged = true;
-                finalDamage = 0; // 완전 회피
-                Debug.Log($"💨 [PlayerHealth] Assasin 회피 성공! 데미지 무효화");
-            }
-        }
-
-        ScreenShakeManager.Instance.ShakeScreen();
-        
-        // 🆕 회피 성공 시 넉백도 무효화
-        float baseKnockback = knockback.DefaultKnockBackThrust; // 🔧 Knockback에서 기본값 가져오기
-        float knockbackAmount = baseKnockback;
-        if (isDodged) {
-            knockbackAmount = 0f; // 회피 시 넉백 없음
-        } else if (warrior != null && isBlocked) {
-            // 기존 Warrior 넉백 저항...
-            knockbackAmount = warrior.ApplyKnockbackResistance(baseKnockback); // 🔧 수정
-            Debug.Log($"🏋️ [PlayerHealth] Warrior 넉백 저항 적용! {baseKnockback} → {knockbackAmount}"); // 🔧 수정
-        }
-        
-        knockback.GetKnockedBack(hitTransform, knockbackAmount);
-        StartCoroutine(flash.FlashRoutine());
-        canTakeDamage = false;
-        
-        // ⭐ 최종 데미지 적용 (블록 효과 반영)
-        currentHealth -= finalDamage;
-        StartCoroutine(DamageRecoveryRoutine());
-        
-        // ⭐ 새로운 해결책: isHit 플래그 빠른 해제 (근접 전투 최적화)
-        StartCoroutine(QuickHitRecoveryRoutine());
-        
-        UpdateHealthSlider();
-        
-        Debug.Log($"플레이어 피격! 실제 데미지: {finalDamage}/{damageAmount}, 현재 체력: {currentHealth}/{maxHealth}");
-
-        CheckIfPlayerDeath();
-        
-        // ⭐ 피격 애니메이션 트리거 다시 활성화 (안전장치 추가)
         if (playerAnimationController != null)
         {
-            bool hitResult = playerAnimationController.TriggerHit();
-            Debug.Log($"🔴 [PlayerHealth] 피격 애니메이션 트리거 결과: {hitResult}");
+            playerAnimationController.OnHitStart();
+        }
+
+        // ✅ knockback null 체크 추가
+        if (knockback != null)
+        {
+            knockback.GetKnockedBack(hitTransform, knockback.DefaultKnockBackThrust);
         }
         else
         {
-            Debug.LogWarning("🟡 [PlayerHealth] PlayerAnimationController를 찾을 수 없습니다!");
+            Debug.LogWarning("⚠️ [PlayerHealth] Knockback 컴포넌트가 없어서 넉백을 적용할 수 없습니다.");
         }
+        
+        if (flash != null)
+        {
+            StartCoroutine(flash.FlashRoutine());
+        }
+        
+        canTakeDamage = false;
+        currentHealth -= damageAmount;
+        
+        UpdateUI();
+        
+        StartCoroutine(DamageRecoveryRoutine());
+        StartCoroutine(QuickHitRecoveryRoutine());
+        CheckIfPlayerDeath();
     }
 
     private void CheckIfPlayerDeath() {
@@ -236,21 +201,12 @@ public class PlayerHealth : Singleton<PlayerHealth>
         }
     }
 
-    private void UpdateHealthSlider() {
-        if (healthSlider == null) {
-            GameObject healthSliderObject = GameObject.Find(HEALTH_SLIDER_TEXT);
-            if (healthSliderObject != null) {
-                healthSlider = healthSliderObject.GetComponent<Slider>();
-            }
-        }
-
-        // healthSlider가 여전히 null이면 안전하게 처리
-        if (healthSlider != null) {
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = currentHealth;
-        }
-        else {
-            // Debug.LogWarning($"⚠️ [PlayerHealth] Health Slider를 찾을 수 없습니다: {HEALTH_SLIDER_TEXT}");
+    // ✅ 새로운 UI 업데이트 메서드
+    private void UpdateUI()
+    {
+        if (playerUIController != null)
+        {
+            playerUIController.OnHealthChanged(currentHealth, maxHealth);
         }
     }
 
@@ -264,7 +220,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
     {
         maxHealth = newMaxHealth;
         currentHealth = maxHealth;
-        UpdateHealthSlider();
+        UpdateUI(); // ✅ 변경: UpdateHealthSlider() → UpdateUI()
         
         Debug.Log($"🔧 [PlayerHealth] 체력 초기화 완료: {currentHealth}/{maxHealth}");
     }

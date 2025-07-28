@@ -43,8 +43,7 @@ public class BaseSingleton : Singleton<BaseSingleton>
 
         // 2. 다른 GameObject에서 온 매니저들 체크
         if (IsManagerFromDifferentGameObject<GameManager>() ||
-            IsManagerFromDifferentGameObject<PlayerManager>() ||
-            IsManagerFromDifferentGameObject<SaveManager>())
+            IsManagerFromDifferentGameObject<PlayerManager>())
         {
             return true;
         }

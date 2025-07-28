@@ -121,4 +121,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slashPrefab: {fileID: 3545761778305609661, guid: 00b45e0be5d17ac4d889550dc353cdd3, type: 3}
   slashSpawnPoint: {fileID: 0}
-  weaponInfo: {fileID: 0}
+  equipmentData: {fileID: 11400000, guid: 7f09482c3607fba45835d7f47c72fe86, type: 2}

@@ -326,15 +326,15 @@ public class Assasin : BaseClassBehaviour
     #region ⭐ [Phase C] 저장/로드 시스템
     
     /// <summary>
-    /// 현재 Assasin 데이터를 저장
+    /// 저장할 Assasin 데이터를 BaseClassSaveData로 변환하여 저장
     /// </summary>
     public void SaveAssasinData()
     {
-        // ⭐ 게임 종료 중일 때는 저장하지 않음 (SaveManager가 파괴될 수 있음)
-        if (SaveManager.Instance == null)
+        // ⭐ PlayerDataManager 통합으로 변경
+        if (PlayerDataManager.Instance == null)
         {
             if (showDebugLogs)
-                Debug.Log("ℹ️ [Assasin] SaveManager 없음. 게임 종료 중이므로 저장 생략.");
+                Debug.Log("ℹ️ [Assasin] PlayerDataManager 없음. 게임 종료 중이므로 저장 생략.");
             return;
         }
         
@@ -349,9 +349,8 @@ public class Assasin : BaseClassBehaviour
         saveData.SetProperty("stealthDuration", StealthDuration);
         saveData.SetProperty("backAttackBonus", BackAttackBonus);
         
-        // 캐릭터 인덱스는 현재 기본값 0 사용 (추후 확장 가능)
-        int characterIndex = 0;
-        SaveManager.Instance.SaveClassData(characterIndex, PlayerType.Assasin, saveData);
+        // ⭐ SaveManager 대신 PlayerDataManager 사용
+        PlayerDataManager.Instance.SaveClassData(PlayerType.Assasin, saveData);
         
         if (showDebugLogs)
             Debug.Log($"💾 [Assasin] 데이터 저장 완료: {saveData}");
@@ -362,39 +361,32 @@ public class Assasin : BaseClassBehaviour
     /// </summary>
     public void LoadAssasinData()
     {
-        if (SaveManager.Instance == null)
+        // ⭐ PlayerDataManager 통합으로 변경
+        if (PlayerDataManager.Instance == null)
         {
-            Debug.LogError("💥 [Assasin] SaveManager.Instance가 null입니다!");
+            Debug.LogError("💥 [Assasin] PlayerDataManager.Instance가 null입니다!");
             return;
         }
         
-        // 캐릭터 인덱스는 현재 기본값 0 사용 (추후 확장 가능)
-        int characterIndex = 0;
-        var saveData = SaveManager.Instance.LoadClassData(characterIndex, PlayerType.Assasin);
-        
-        if (saveData == null)
+        try
         {
-            Debug.LogWarning("⚠️ [Assasin] 저장 데이터가 없습니다. 기본값 사용");
-            return;
+            // ⭐ SaveManager 대신 PlayerDataManager 사용
+            var saveData = PlayerDataManager.Instance.LoadClassData(PlayerType.Assasin);
+            
+            if (saveData == null)
+            {
+                Debug.LogWarning("⚠️ [Assasin] 저장 데이터가 없습니다. 기본값 사용");
+                return;
+            }
+            
+            // 성공적으로 로드됨
+            if (showDebugLogs)
+                Debug.Log($"✅ [Assasin] 데이터 로드 성공: {saveData.Properties.Count}개 속성");
         }
-        
-        // Assasin 특성 데이터 복원
-        // 🆕 ScriptableObject에서 관리하므로 저장/로드에서 제외
-        // 이제 이 값들은 AssasinData ScriptableObject에서 직접 관리됩니다.
-        // DodgeChance = saveData.GetProperty("dodgeChance", 0.05f); // 제거: ScriptableObject에서 관리
-        // StealthDuration = saveData.GetProperty("stealthDuration", 2.0f); // 제거: ScriptableObject에서 관리
-        // BackAttackBonus = saveData.GetProperty("backAttackBonus", 1.5f); // 제거: ScriptableObject에서 관리
-        
-        Debug.Log("✅ [Assasin] 어쌔신 고유 특성은 이제 AssasinData ScriptableObject에서 관리됩니다.");
-        
-        // 활성화 상태 복원
-        if (saveData.wasActiveLastTime)
+        catch (System.Exception ex)
         {
-            SetActive(true);
+            Debug.LogError($"💥 [Assasin] 데이터 로드 중 에러: {ex.Message}");
         }
-        
-        if (showDebugLogs)
-            Debug.Log($"📁 [Assasin] 데이터 불러오기 완료: {saveData}");
     }
     
     /// <summary>

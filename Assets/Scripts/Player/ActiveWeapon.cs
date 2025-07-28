@@ -115,15 +115,15 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
             return;
         }
 
-        // 🔑 3단계: WeaponInfo 안전성 체크
-        WeaponInfo weaponInfo = weaponInterface.GetWeaponInfo();
-        if (weaponInfo == null) {
-            Debug.LogError($"🔴 [ActiveWeapon] {newWeapon.name}의 WeaponInfo가 null입니다!");
+        // 🔑 3단계: EquipmentData 안전성 체크 (WeaponInfo → EquipmentData)
+        EquipmentData equipmentData = weaponInterface.GetEquipmentData();
+        if (equipmentData == null) {
+            Debug.LogError($"🔴 [ActiveWeapon] {newWeapon.name}의 EquipmentData가 null입니다!");
             return;
         }
 
         // 🔑 4단계: 쿨다운 안전하게 설정
-        timeBetweenAttacks = weaponInfo.weaponCooldown;
+        timeBetweenAttacks = equipmentData.WeaponCooldown;  // weaponInfo.weaponCooldown → equipmentData.WeaponCooldown
         
         // PlayerAnimationController에 쿨다운 정보 전달
         if (playerAnimationController != null)
@@ -138,26 +138,26 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
         CurrentActiveWeapon = null;
     }
 
-    // WeaponInfo를 받아 해당 무기를 장착하는 새로운 공용 메서드입니다.
-    public void EquipWeapon(WeaponInfo weaponInfo)
+    // EquipmentData를 받아 해당 무기를 장착하는 새로운 공용 메서드
+    public void EquipWeapon(EquipmentData equipmentData)  // WeaponInfo → EquipmentData
     {
-        // 현재 무기가 있다면 파괴합니다.
+        // 현재 무기가 있다면 파괴
         if (CurrentActiveWeapon != null)
         {
             Destroy(CurrentActiveWeapon.gameObject);
         }
 
-        // WeaponInfo나 그 안의 프리팹이 유효한지 확인합니다.
-        if (weaponInfo == null || weaponInfo.weaponPrefab == null)
+        // EquipmentData나 그 안의 프리팹이 유효한지 확인
+        if (equipmentData == null || equipmentData.equipmentPrefab == null)
         {
-            WeaponNull(); // 유효하지 않으면 무기 없는 상태로 설정합니다.
+            WeaponNull();
             return;
         }
 
-        // 새 무기 프리팹을 생성하고, ActiveWeapon의 자식으로 만듭니다.
-        GameObject newWeapon = Instantiate(weaponInfo.weaponPrefab, transform);
+        // 새 무기 프리팹을 생성하고, ActiveWeapon의 자식으로 만듦
+        GameObject newWeapon = Instantiate(equipmentData.equipmentPrefab, transform);
         
-        // 새로 생성된 무기를 현재 활성화된 무기로 설정합니다.
+        // 새로 생성된 무기를 현재 활성화된 무기로 설정
         NewWeapon(newWeapon.GetComponent<MonoBehaviour>());
     }
 

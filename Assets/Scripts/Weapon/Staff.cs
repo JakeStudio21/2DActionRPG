@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Staff : MonoBehaviour, IWeapon
 {
-    [SerializeField] private WeaponInfo weaponInfo;
+    [SerializeField] private EquipmentData equipmentData;  // WeaponInfo → EquipmentData
     [SerializeField] private GameObject MagicLaser;
     [SerializeField] private Transform magicLaserSpawnPoint;
 
@@ -17,18 +17,17 @@ public class Staff : MonoBehaviour, IWeapon
     }
 
     public void Attack()  {
-
         myAnimator.SetTrigger(ATTACK_HASH);
     }
 
     public void SpawnStaffProjectileAnimEvent() {
         GameObject newLaser = Instantiate(MagicLaser, magicLaserSpawnPoint.position, Quaternion.identity);
-        newLaser.GetComponent<MagicLaser>().UpdateLaserRange(weaponInfo.weaponRange);
+        newLaser.GetComponent<MagicLaser>().UpdateLaserRange(equipmentData.WeaponRange);  // weaponInfo.weaponRange → equipmentData.WeaponRange
     }
 
-    public WeaponInfo GetWeaponInfo()
+    public EquipmentData GetEquipmentData()  // WeaponInfo → EquipmentData
     {
-        return weaponInfo;
+        return equipmentData;
     }
 
     public void UpdateDirection(Vector2 direction, bool facingLeft)
@@ -36,6 +35,4 @@ public class Staff : MonoBehaviour, IWeapon
         // 스태프는 방향에 따라 특별한 처리가 없다면 빈 메서드로 둡니다.
         // 필요시 여기에 회전/FlipX 등 추가
     }
-
-    // public void UpdateDirection(Vector2 direction, bool facingLeft) { } // [백업: 기존에는 없었음]
 } 

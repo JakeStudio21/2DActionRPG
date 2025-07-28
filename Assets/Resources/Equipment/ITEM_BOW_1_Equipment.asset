@@ -12,24 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_BOW_1_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Bow_A
+  equipmentName: Bow_C
   itemID: ITEM_BOW_1
   equipmentType: 0
   itemGrade: 3
   usableClass: 2
   isTradable: 1
-  requiredLevel: 2
+  requiredLevel: 1
   resourceID: RES_WEAPON_BOW_1
   description: "\uCD08\uBCF4\uC790\uC6A9 \uD65C"
-  icon: {fileID: 0}
-  equipmentPrefab: {fileID: 0}
-  weaponType: 0
-  weaponCooldown: 5
+  icon: {fileID: 21300000, guid: f13798441e2141647b5485d0658c5a3e, type: 3}
+  equipmentPrefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
+  weaponType: 2
+  weaponCooldown: 1
   weaponRange: 7
-  attackDamage: 0
+  attackDamage: 5
   attackSpeed: 5
   attackRange: 4
   attackShape: 2
   criticalChance: 8
   criticalDamage: 2
-  projectileId: PRO_WEAPON_BOW_1_Test
+  projectileId: PRO_WEAPON_BOW_1

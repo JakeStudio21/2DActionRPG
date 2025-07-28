@@ -183,7 +183,7 @@ public class PlayerAnimationController : MonoBehaviour
                 var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
                 if (weapon != null)
                 {
-                    attackCooldown = weapon.GetWeaponInfo().weaponCooldown;
+                    attackCooldown = weapon.GetEquipmentData().WeaponCooldown;  // GetWeaponInfo() → GetEquipmentData()
                     Debug.Log($"🟢 [PlayerAnimationController] 무기 쿨다운 설정: {attackCooldown}초");
                 }
             }

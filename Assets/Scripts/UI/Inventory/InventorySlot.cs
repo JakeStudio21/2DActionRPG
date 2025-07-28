@@ -6,9 +6,6 @@ using TMPro; // 🆕 추가
 
 public class InventorySlot : MonoBehaviour
 {
-    [Header("🔄 무기 데이터 (기존 시스템)")]
-    [SerializeField] private WeaponInfo weaponInfo;
-    
     [Header("🛡️ 장비 데이터 (신규 시스템)")]
     [SerializeField] private EquipmentData equipmentData;
     
@@ -22,7 +19,7 @@ public class InventorySlot : MonoBehaviour
     [SerializeField] private TextMeshProUGUI messageText; // 메시지 텍스트
     
     // 슬롯 상태
-    public bool isEmpty => equipmentData == null && weaponInfo == null;
+    public bool isEmpty => equipmentData == null;
     public bool isSelected = false;
 
     void Awake()
@@ -128,11 +125,6 @@ public class InventorySlot : MonoBehaviour
                         SetDefaultIcon();
                     }
                 }
-            }
-            else if (weaponInfo != null)
-            {
-                // WeaponInfo는 아이콘이 없으므로 기본 이미지 사용
-                SetDefaultIcon();
             }
         }
         else
@@ -283,47 +275,16 @@ public class InventorySlot : MonoBehaviour
     }
 
     // 기존 메서드들 유지
-    public WeaponInfo GetWeaponInfo() {
-        Debug.Log($"🔍 [InventorySlot] GetWeaponInfo 호출 시작");
-        Debug.Log($"🔍 [InventorySlot] equipmentData: {(equipmentData != null ? equipmentData.name : "NULL")}");
-        Debug.Log($"🔍 [InventorySlot] weaponInfo: {(weaponInfo != null ? weaponInfo.name : "NULL")}");
-        
-        // 🔑 EquipmentData 우선 사용
-        if (equipmentData != null) {
-            Debug.Log($"🛡️ [InventorySlot] EquipmentData 감지: {equipmentData.equipmentName}");
-            Debug.Log($"🛡️ [InventorySlot] equipmentType: {equipmentData.equipmentType}");
-            Debug.Log($"🛡️ [InventorySlot] IsWeapon: {equipmentData.IsWeapon}");
-            
-            if (equipmentData.IsWeapon) {
-                WeaponInfo convertedWeapon = equipmentData.ToWeaponInfo();
-                Debug.Log($"🔄 [InventorySlot] 변환 결과: {(convertedWeapon != null ? convertedWeapon.name : "NULL")}");
-                return convertedWeapon;
-            } else {
-                Debug.LogWarning($"⚠️ [InventorySlot] EquipmentData가 무기가 아닙니다: {equipmentData.equipmentType}");
-            }
-        }
-        
-        // 🔑 기존 WeaponInfo fallback
-        if (weaponInfo != null) {
-            Debug.Log($"⚔️ [InventorySlot] WeaponInfo 사용: {weaponInfo.name}");
-            return weaponInfo;
-        }
-        
-        Debug.LogError("🔴 [InventorySlot] 무기 데이터가 없습니다!");
-        return null;
-    }
-    
     public EquipmentData GetEquipmentData() {
         return equipmentData;
     }
     
     public bool HasWeapon() {
-        return weaponInfo != null || (equipmentData != null && equipmentData.IsWeapon);
+        return equipmentData != null && equipmentData.IsWeapon;
     }
     
     public string GetWeaponName() {
         if (equipmentData != null && equipmentData.IsWeapon) return equipmentData.equipmentName;
-        if (weaponInfo != null) return weaponInfo.name;
         return "Empty";
     }
     
@@ -331,10 +292,6 @@ public class InventorySlot : MonoBehaviour
         if (equipmentData != null && equipmentData.IsWeapon)
         {
             return $"타입:{equipmentData.equipmentType}, 등급:{equipmentData.itemGrade}";
-        }
-        if (weaponInfo != null)
-        {
-            return $"공격력:{weaponInfo.weaponDamage}, 쿨다운:{weaponInfo.weaponCooldown}";
         }
         return "능력치 없음";
     }
@@ -345,19 +302,6 @@ public class InventorySlot : MonoBehaviour
     public void SetEquipmentData(EquipmentData data)
     {
         equipmentData = data;
-        weaponInfo = null; // EquipmentData 우선
         UpdateSlotVisual();
-    }
-
-    /// <summary>
-    /// 무기 정보 설정 (외부에서 호출)
-    /// </summary>
-    public void SetWeaponInfo(WeaponInfo weapon)
-    {
-        weaponInfo = weapon;
-        if (equipmentData == null) // EquipmentData가 없을 때만
-        {
-            UpdateSlotVisual();
-        }
     }
 } 

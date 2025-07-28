@@ -6,7 +6,7 @@ public class Sword : MonoBehaviour, IWeapon
 {
     [SerializeField] private GameObject slashPrefab;
     [SerializeField] private Transform slashSpawnPoint;
-    [SerializeField] private WeaponInfo weaponInfo;
+    [SerializeField] private EquipmentData equipmentData;  // WeaponInfo → EquipmentData
 
     // ⭐ Animator는 PlayerAnimationController에서 관리하므로 제거
     // private Animator myAnimator;
@@ -29,9 +29,9 @@ public class Sword : MonoBehaviour, IWeapon
         activeWeapon = FindObjectOfType<ActiveWeapon>();
     }
 
-    public WeaponInfo GetWeaponInfo() 
+    public EquipmentData GetEquipmentData()  // WeaponInfo → EquipmentData
     {
-        return weaponInfo;
+        return equipmentData;
     }
 
     public void Attack() {
@@ -100,7 +100,7 @@ public class Sword : MonoBehaviour, IWeapon
         if (weaponCollider != null)
         {
             weaponCollider.gameObject.SetActive(true);
-            Debug.Log("🟢 [Sword] 무기 콜라이더 활성화");
+            Debug.Log("�� [Sword] 무기 콜라이더 활성화");
         }
         
         // 슬래시 이펙트 생성

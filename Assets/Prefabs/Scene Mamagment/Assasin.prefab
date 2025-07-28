@@ -373,9 +373,9 @@ GameObject:
   - component: {fileID: 7061653319065569405}
   - component: {fileID: 2625955227663354421}
   - component: {fileID: 2904923420834336424}
+  - component: {fileID: -5040200761801505519}
   - component: {fileID: -4864820137561828870}
   - component: {fileID: 3378627283251995473}
-  - component: {fileID: -5040200761801505519}
   - component: {fileID: 3412523220790301595}
   - component: {fileID: 472274624499914740}
   - component: {fileID: 2541682511758850633}
@@ -536,6 +536,19 @@ CapsuleCollider2D:
   m_Offset: {x: -0.044733845, y: -0.13466935}
   m_Size: {x: 0.6237145, y: 0.55638814}
   m_Direction: 1
+--- !u!114 &-5040200761801505519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640d1baa946081e4291e894855f4078d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebugLogs: 1
 --- !u!114 &-4864820137561828870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -573,19 +586,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &-5040200761801505519
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 640d1baa946081e4291e894855f4078d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  showDebugLogs: 1
 --- !u!114 &3412523220790301595
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -629,7 +629,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27cce43ebc04520488124b526d8f98d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 50
+  maxHealth: 1
   damageRecoveryTime: 1
 --- !u!114 &4451406008786218953
 MonoBehaviour:
@@ -644,7 +644,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _currentLevel: 1
-  _currentExp: 0
+  _currentExp: 1
   _expToNextLevel: 1
 --- !u!114 &5599835765031428221
 MonoBehaviour:

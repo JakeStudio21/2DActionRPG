@@ -11,7 +11,10 @@ public class DamageSource : MonoBehaviour
     private void Start() {
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         MonoBehaviour currentActiveweapon = activeWeapon.CurrentActiveWeapon;
-        baseDamageAmount = (currentActiveweapon as IWeapon).GetWeaponInfo().weaponDamage;
+        
+        // WeaponInfo → EquipmentData 변경
+        EquipmentData equipmentData = (currentActiveweapon as IWeapon).GetEquipmentData();
+        baseDamageAmount = (int)equipmentData.attackDamage;  // float → int 변환 추가
         
         // ⭐ [Phase B] Warrior 컴포넌트 찾기
         warrior = FindObjectOfType<Warrior>();

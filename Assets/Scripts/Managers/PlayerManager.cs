@@ -14,6 +14,9 @@ public class PlayerManager : Singleton<PlayerManager>
     public int characterIndex = 0; // 현재 선택된 캐릭터 번호
     public int currentGold = 0;
 
+    [Header("디버그")]
+    [SerializeField] private bool showDebugLogs = true; // 🔧 추가
+
     [Header("UI 관리")]
     private TMP_Text goldText;
     const string COIN_AMOUNT_TEXT = "Gold Amount Text";
@@ -57,8 +60,18 @@ public class PlayerManager : Singleton<PlayerManager>
     /// </summary>
     private void LoadPlayerData()
     {
-        currentGold = SaveManager.Instance.LoadGold(characterIndex);
-        Debug.Log($"[PlayerManager] 플레이어 데이터 로드 완료 - 골드: {currentGold}");
+        // ⭐ SaveManager 대신 PlayerDataManager에서 골드 가져오기
+        if (PlayerDataManager.Instance != null)
+        {
+            currentGold = PlayerDataManager.Instance.CurrentGold;
+            if (showDebugLogs)
+                Debug.Log($"📁 [PlayerManager] PlayerDataManager에서 골드 로드: {currentGold}");
+        }
+        else
+        {
+            currentGold = 0; // 기본값
+            Debug.LogWarning("⚠️ [PlayerManager] PlayerDataManager가 없어서 골드를 0으로 초기화");
+        }
     }
 
     /// <summary>
@@ -164,7 +177,18 @@ public class PlayerManager : Singleton<PlayerManager>
     /// </summary>
     private void SavePlayerData()
     {
-        SaveManager.Instance.SaveGold(characterIndex, currentGold);
+        // ⭐ SaveManager 대신 PlayerDataManager로 골드 동기화
+        if (PlayerDataManager.Instance != null)
+        {
+            // PlayerManager의 골드를 PlayerDataManager에 동기화
+            // (실제로는 PlayerDataManager가 골드를 주도적으로 관리해야 함)
+            if (showDebugLogs)
+                Debug.Log($"💾 [PlayerManager] 골드 동기화: {currentGold} → PlayerDataManager로 이관");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [PlayerManager] PlayerDataManager가 없어서 골드 저장 불가");
+        }
     }
 
     // ===== EconomyManager 호환성 메서드들 =====

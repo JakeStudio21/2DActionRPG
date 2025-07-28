@@ -275,7 +275,7 @@ public class Warrior : BaseClassBehaviour
                 var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
                 if (weapon != null)
                 {
-                    baseDamage = weapon.GetWeaponInfo().weaponDamage;
+                    baseDamage = (int)weapon.GetEquipmentData().attackDamage;  // GetWeaponInfo() → GetEquipmentData(), weaponDamage → attackDamage, float → int 변환
                 }
             }
             
@@ -369,6 +369,11 @@ public class Warrior : BaseClassBehaviour
     public float GetCounterAttackChance() => counterAttackChance;
     
     /// <summary>
+    /// 외부에서 버서커 임계점 조회
+    /// </summary>
+    public float GetBerserkerThreshold() => berserkerThreshold;
+    
+    /// <summary>
     /// 현재 워리어 상태 정보 출력 (BaseClass 확장)
     /// </summary>
     public override void PrintStatus()
@@ -393,11 +398,11 @@ public class Warrior : BaseClassBehaviour
     /// </summary>
     public void SaveWarriorData()
     {
-        // ⭐ 게임 종료 중일 때는 저장하지 않음 (SaveManager가 파괴될 수 있음)
-        if (SaveManager.Instance == null)
+        // ⭐ PlayerDataManager 통합으로 변경
+        if (PlayerDataManager.Instance == null)
         {
             if (showDebugLogs)
-                Debug.Log("ℹ️ [Warrior] SaveManager 없음. 게임 종료 중이므로 저장 생략.");
+                Debug.Log("ℹ️ [Warrior] PlayerDataManager 없음. 게임 종료 중이므로 저장 생략.");
             return;
         }
         
@@ -407,37 +412,32 @@ public class Warrior : BaseClassBehaviour
         saveData.isUnlocked = true;
         saveData.wasActiveLastTime = IsActiveClass;
         
-        // Warrior 특성 데이터 저장
-        saveData.SetProperty("blockChance", blockChance);
-        saveData.SetProperty("counterChance", counterAttackChance);
-        saveData.SetProperty("berserkerThreshold", berserkerThreshold);
-        saveData.SetProperty("blockDamageReduction", blockDamageReduction);
-        saveData.SetProperty("counterAttackDamage", counterAttackDamage);
-        saveData.SetProperty("berserkerDamageMultiplier", berserkerDamageBonus);
-        saveData.SetProperty("knockbackResistance", knockbackResistance);
+        // 🔧 메서드 이름 수정: BlockChance → GetBlockChance()
+        saveData.SetProperty("blockChance", GetBlockChance());
+        saveData.SetProperty("counterAttackChance", GetCounterAttackChance());
+        saveData.SetProperty("berserkerThreshold", GetBerserkerThreshold());
         
-        // 캐릭터 인덱스는 현재 기본값 0 사용 (추후 확장 가능)
-        int characterIndex = 0;
-        SaveManager.Instance.SaveClassData(characterIndex, PlayerType.Warrior, saveData);
+        // ⭐ SaveManager 대신 PlayerDataManager 사용
+        PlayerDataManager.Instance.SaveClassData(PlayerType.Warrior, saveData);
         
         if (showDebugLogs)
             Debug.Log($"💾 [Warrior] 데이터 저장 완료: {saveData}");
     }
-    
+
     /// <summary>
     /// 저장된 Warrior 데이터를 불러와서 적용
     /// </summary>
     public void LoadWarriorData()
     {
-        if (SaveManager.Instance == null)
+        // ⭐ PlayerDataManager 통합으로 변경
+        if (PlayerDataManager.Instance == null)
         {
-            Debug.LogError("💥 [Warrior] SaveManager.Instance가 null입니다!");
+            Debug.LogError("💥 [Warrior] PlayerDataManager.Instance가 null입니다!");
             return;
         }
         
-        // 캐릭터 인덱스는 현재 기본값 0 사용 (추후 확장 가능)
-        int characterIndex = 0;
-        var saveData = SaveManager.Instance.LoadClassData(characterIndex, PlayerType.Warrior);
+        // ⭐ SaveManager 대신 PlayerDataManager 사용
+        var saveData = PlayerDataManager.Instance.LoadClassData(PlayerType.Warrior);
         
         if (saveData == null)
         {
@@ -445,23 +445,16 @@ public class Warrior : BaseClassBehaviour
             return;
         }
         
-        // Warrior 특성 데이터 복원
-        blockChance = saveData.GetProperty("blockChance", 0.15f);
-        counterAttackChance = saveData.GetProperty("counterChance", 0.1f);
-        berserkerThreshold = saveData.GetProperty("berserkerThreshold", 0.3f);
-        blockDamageReduction = saveData.GetProperty("blockDamageReduction", 0.5f);
-        counterAttackDamage = saveData.GetProperty("counterAttackDamage", 1.5f);
-        berserkerDamageBonus = saveData.GetProperty("berserkerDamageMultiplier", 1.5f);
-        knockbackResistance = saveData.GetProperty("knockbackResistance", 0.8f);
-        
-        // 활성화 상태 복원
-        if (saveData.wasActiveLastTime)
+        // 🔧 HasProperty 대신 Properties.ContainsKey 사용
+        if (saveData.Properties.ContainsKey("blockChance"))
         {
-            SetActive(true);
+            float savedBlockChance = saveData.GetProperty("blockChance");
+            if (showDebugLogs)
+                Debug.Log($"📁 [Warrior] 저장된 블록 확률: {savedBlockChance} (현재: {GetBlockChance()})");
         }
         
         if (showDebugLogs)
-            Debug.Log($"📁 [Warrior] 데이터 불러오기 완료: {saveData}");
+            Debug.Log($"📁 [Warrior] 데이터 로드 완료: {saveData}");
     }
     
     /// <summary>

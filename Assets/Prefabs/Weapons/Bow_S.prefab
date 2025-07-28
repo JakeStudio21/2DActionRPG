@@ -78,7 +78,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c22434ff81736244ba612b93cc0f7a6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponInfo: {fileID: 11400000, guid: 52a74c13181ffba49aa16b107b618925, type: 2}
+  equipmentData: {fileID: 11400000, guid: 41eb25b1ee57e504baa15c869ba123ad, type: 2}
   arrowPrefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
   arrowSpawnPoint: {fileID: 9058863527741275429}
 --- !u!212 &675973176811939425

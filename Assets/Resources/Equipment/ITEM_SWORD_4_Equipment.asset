@@ -16,17 +16,17 @@ MonoBehaviour:
   itemID: ITEM_SWORD_4
   equipmentType: 0
   itemGrade: 0
-  usableClass: Warrior
+  usableClass: 1
   isTradable: 1
   requiredLevel: 12
   resourceID: RES_WEAPON_SWORD_4
   description: "\uC804\uC124\uC758 \uC804\uC7C1\uAC80"
-  icon: {fileID: 0}
-  equipmentPrefab: {fileID: 0}
-  weaponType: 0
+  icon: {fileID: 21300000, guid: 01d3255fd76c27b4bae0cc7412b2bde7, type: 3}
+  equipmentPrefab: {fileID: 4316638647348942652, guid: 29d74b6c195b90644969c3a88f2e2036, type: 3}
+  weaponType: 1
   weaponCooldown: 1
   weaponRange: 5
-  attackDamage: 0
+  attackDamage: 10
   attackSpeed: 1
   attackRange: 1
   attackShape: 1

@@ -12,10 +12,10 @@ public class PlayerSpawner : MonoBehaviour
     public GameObject assassinPrefab;
     public GameObject wizardPrefab; // 마법사 추가
 
-    [Header("Weapon Infos")]
-    public WeaponInfo swordWeaponInfo; // Warrior의 기본 무기 정보
-    public WeaponInfo bowWeaponInfo;   // Assassin의 기본 무기 정보
-    public WeaponInfo staffWeaponInfo; // Wizard의 기본 무기 정보
+    [Header("Equipment Data")]
+    public EquipmentData swordEquipmentData; // Warrior의 기본 무기 정보
+    public EquipmentData bowEquipmentData;   // Assassin의 기본 무기 정보  
+    public EquipmentData staffEquipmentData; // Wizard의 기본 무기 정보
 
     [Header("Spawn")]
     public Transform spawnPoint;
@@ -242,15 +242,15 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        WeaponInfo weaponInfoToEquip = GetWeaponInfoByName(weaponNameToEquip);
+        EquipmentData weaponInfoToEquip = GetEquipmentDataByName(weaponNameToEquip);
 
         if (weaponInfoToEquip == null)
         {
             Debug.LogError($"[PlayerSpawner] '{weaponNameToEquip}'에 해당하는 무기 정보를 찾을 수 없습니다!");
-            Debug.LogError($"[PlayerSpawner] 현재 WeaponInfo 상태:");
-            Debug.LogError($"  - swordWeaponInfo: {(swordWeaponInfo != null ? swordWeaponInfo.name : "NULL")}");
-            Debug.LogError($"  - bowWeaponInfo: {(bowWeaponInfo != null ? bowWeaponInfo.name : "NULL")}");
-            Debug.LogError($"  - staffWeaponInfo: {(staffWeaponInfo != null ? staffWeaponInfo.name : "NULL")}");
+            Debug.LogError($"[PlayerSpawner] 현재 EquipmentData 상태:");
+            Debug.LogError($"  - swordEquipmentData: {(swordEquipmentData != null ? swordEquipmentData.name : "NULL")}");
+            Debug.LogError($"  - bowEquipmentData: {(bowEquipmentData != null ? bowEquipmentData.name : "NULL")}");
+            Debug.LogError($"  - staffEquipmentData: {(staffEquipmentData != null ? staffEquipmentData.name : "NULL")}");
             return;
         }
 
@@ -269,17 +269,17 @@ public class PlayerSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// 무기 이름에 따른 WeaponInfo 반환
+    /// 무기 이름에 따른 EquipmentData 반환
     /// </summary>
-    private WeaponInfo GetWeaponInfoByName(string weaponName)
+    private EquipmentData GetEquipmentDataByName(string weaponName)
     {
         Debug.Log($"[PlayerSpawner] 무기 검색: {weaponName}");
         
-        WeaponInfo result = weaponName switch
+        EquipmentData result = weaponName switch
         {
-            "Sword" => swordWeaponInfo,
-            "Bow" => bowWeaponInfo,
-            "Staff" => staffWeaponInfo,
+            "Sword" => swordEquipmentData,
+            "Bow" => bowEquipmentData,
+            "Staff" => staffEquipmentData,
             _ => null
         };
         
@@ -290,17 +290,17 @@ public class PlayerSpawner : MonoBehaviour
     /// <summary>
     /// 플레이어에게 무기 장착
     /// </summary>
-    private void EquipWeaponToPlayer(WeaponInfo weaponInfo)
+    private void EquipWeaponToPlayer(EquipmentData equipmentData)  // 매개변수명 변경
     {
-        Debug.Log($"[PlayerSpawner] 무기 장착 시도: {weaponInfo.name}");
+        Debug.Log($"[PlayerSpawner] 무기 장착 시도: {equipmentData.name}");
         
-        if (weaponInfo.weaponPrefab == null)
+        if (equipmentData.equipmentPrefab == null)  // weaponPrefab → equipmentPrefab
         {
-            Debug.LogError($"[PlayerSpawner] WeaponInfo '{weaponInfo.name}'의 weaponPrefab이 null입니다!");
+            Debug.LogError($"[PlayerSpawner] EquipmentData '{equipmentData.name}'의 equipmentPrefab이 null입니다!");
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 무기 프리팹 확인됨: {weaponInfo.weaponPrefab.name}");
+        Debug.Log($"[PlayerSpawner] 무기 프리팹 확인됨: {equipmentData.equipmentPrefab.name}");  // weaponPrefab → equipmentPrefab
 
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon == null)
@@ -316,8 +316,8 @@ public class PlayerSpawner : MonoBehaviour
 
         Debug.Log($"[PlayerSpawner] ActiveWeapon 찾음: {activeWeapon.name}");
 
-        activeWeapon.EquipWeapon(weaponInfo);
-        Debug.Log($"[PlayerSpawner] 자동 장착 완료: {weaponInfo.name}");
+        activeWeapon.EquipWeapon(equipmentData);
+        Debug.Log($"[PlayerSpawner] 자동 장착 완료: {equipmentData.name}");
     }
 
     /// <summary>
@@ -367,185 +367,3 @@ public class PlayerSpawner : MonoBehaviour
         }
     }
 }
-
-
-// using UnityEngine;
-
-// /// <summary>
-// /// 플레이어 캐릭터를 스폰하는 스포너
-// /// 선택된 캐릭터 타입에 따라 적절한 프리팹을 생성
-// /// </summary>
-// public class PlayerSpawner : MonoBehaviour
-// {
-//     [Header("Prefabs")]
-//     public GameObject warriorPrefab;
-//     public GameObject assassinPrefab;
-//     public GameObject wizardPrefab; // 마법사 추가
-
-//     [Header("Weapon Infos")]
-//     public WeaponInfo swordWeaponInfo; // Warrior의 기본 무기 정보
-//     public WeaponInfo bowWeaponInfo;   // Assassin의 기본 무기 정보
-//     public WeaponInfo staffWeaponInfo; // Wizard의 기본 무기 정보
-
-//     [Header("Spawn")]
-//     public Transform spawnPoint;
-
-//     private void Start()
-//     {
-//         SpawnSelectedPlayer();
-//     }
-
-//     /// <summary>
-//     /// 선택된 플레이어 캐릭터 스폰
-//     /// </summary>
-//     private void SpawnSelectedPlayer()
-//     {
-//         // 디버그: selectedPlayerData 상태 출력
-//         if (GameManager.Instance != null)
-//         {
-//             Debug.Log($"[PlayerSpawner] selectedPlayerData 인스턴스: {GameManager.Instance.selectedPlayerData}");
-//             if (GameManager.Instance.selectedPlayerData != null)
-//             {
-//                 Debug.Log($"[PlayerSpawner] selectedPlayerType: {GameManager.Instance.selectedPlayerData.selectedPlayerType}, weaponName: {GameManager.Instance.selectedPlayerData.weaponName}");
-//             }
-//         }
-//         if (GameManager.Instance == null || GameManager.Instance.selectedPlayerData == null)
-//         {
-//             Debug.LogError("[PlayerSpawner] GameManager 또는 selectedPlayerData가 없습니다!");
-//             return;
-//         }
-
-//         var selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
-//         Debug.Log($"[PlayerSpawner] 스포너 시작. 선택된 클래스: {selectedType}");
-
-//         GameObject prefabToSpawn = GetPrefabByType(selectedType);
-
-//         if (prefabToSpawn != null)
-//         {
-//             SpawnPlayer(prefabToSpawn);
-//             SetupPlayerCamera();
-//             EquipStartingWeapon();
-//         }
-//         else
-//         {
-//             Debug.LogError("[PlayerSpawner] 스폰할 플레이어 프리팹이 없습니다!");
-//         }
-//     }
-
-//     /// <summary>
-//     /// 플레이어 타입에 따른 프리팹 반환
-//     /// </summary>
-//     private GameObject GetPrefabByType(PlayerType playerType)
-//     {
-//         return playerType switch
-//         {
-//             PlayerType.Warrior => warriorPrefab,
-//             PlayerType.Assasin => assassinPrefab,
-//             PlayerType.Wizard => wizardPrefab,
-//             _ => GetDefaultPrefab()
-//         };
-//     }
-
-//     /// <summary>
-//     /// 기본 프리팹 반환 (선택되지 않았을 때)
-//     /// </summary>
-//     private GameObject GetDefaultPrefab()
-//     {
-//         Debug.LogWarning("[PlayerSpawner] 선택된 클래스가 없습니다. 기본값(Warrior)으로 스폰합니다.");
-//         return warriorPrefab;
-//     }
-
-//     /// <summary>
-//     /// 플레이어 실제 스폰
-//     /// </summary>
-//     private void SpawnPlayer(GameObject prefab)
-//     {
-//         if (GamePoolManager.Instance != null)
-//         {
-//             // 풀에서 가져오기
-//             GameObject player = GamePoolManager.Instance.SpawnFromPool(
-//                 prefab.name, 
-//                 spawnPoint.position, 
-//                 Quaternion.identity
-//             );
-//             Debug.Log($"[PlayerSpawner] {prefab.name} 스폰 완료 (풀링)");
-//         }
-//         else
-//         {
-//             // 직접 생성
-//             GameObject player = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
-//             Debug.Log($"[PlayerSpawner] {prefab.name} 스폰 완료 (인스턴시에이트)");
-//         }
-//     }
-
-//     /// <summary>
-//     /// 카메라가 플레이어를 따라가도록 설정
-//     /// </summary>
-//     private void SetupPlayerCamera()
-//     {
-//         if (CameraController.Instance != null)
-//         {
-//             CameraController.Instance.SetPlayerCameraFollow();
-//         }
-//         else
-//         {
-//             Debug.LogWarning("[PlayerSpawner] CameraController를 찾을 수 없습니다.");
-//         }
-//     }
-
-//     /// <summary>
-//     /// 시작 무기 자동 장착
-//     /// </summary>
-//     private void EquipStartingWeapon()
-//     {
-//         if (GameManager.Instance?.selectedPlayerData == null)
-//         {
-//             Debug.LogError("[PlayerSpawner] GameManager 또는 selectedPlayerData가 할당되지 않았습니다.");
-//             return;
-//         }
-
-//         string weaponNameToEquip = GameManager.Instance.selectedPlayerData.weaponName;
-//         WeaponInfo weaponInfoToEquip = GetWeaponInfoByName(weaponNameToEquip);
-
-//         if (weaponInfoToEquip == null)
-//         {
-//             Debug.LogWarning($"[PlayerSpawner] '{weaponNameToEquip}'에 해당하는 무기 정보를 찾을 수 없습니다.");
-//             return;
-//         }
-
-//         EquipWeaponToPlayer(weaponInfoToEquip);
-//     }
-
-//     /// <summary>
-//     /// 무기 이름에 따른 WeaponInfo 반환
-//     /// </summary>
-//     private WeaponInfo GetWeaponInfoByName(string weaponName)
-//     {
-//         return weaponName switch
-//         {
-//             "Sword" => swordWeaponInfo,
-//             "Bow" => bowWeaponInfo,
-//             "Staff" => staffWeaponInfo,
-//             _ => null
-//         };
-//     }
-
-//     /// <summary>
-//     /// 플레이어에게 무기 장착
-//     /// </summary>
-//     private void EquipWeaponToPlayer(WeaponInfo weaponInfo)
-//     {
-//         var activeWeapon = FindObjectOfType<ActiveWeapon>();
-//         if (activeWeapon == null)
-//         {
-//             Debug.LogError("[PlayerSpawner] ActiveWeapon 오브젝트를 찾을 수 없습니다.");
-//             return;
-//         }
-
-//         activeWeapon.EquipWeapon(weaponInfo);
-//         Debug.Log($"[PlayerSpawner] 자동 장착 완료: {weaponInfo.name}");
-//     }
-
-//     // ⭐ 수정: Update에서 지속적인 로그 제거 (성능 최적화)
-//     // Update는 매 프레임마다 실행되므로 디버그 로그로 인한 성능 저하 방지
-// }

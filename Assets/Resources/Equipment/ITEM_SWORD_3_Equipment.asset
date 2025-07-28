@@ -12,21 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_SWORD_3_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Sword_C
+  equipmentName: Sword_A
   itemID: ITEM_SWORD_3
   equipmentType: 0
   itemGrade: 1
-  usableClass: Warrior
+  usableClass: 1
   isTradable: 1
   requiredLevel: 8
   resourceID: RES_WEAPON_SWORD_3
   description: "\uBC31\uC740 \uC7A5\uAC80"
-  icon: {fileID: 0}
-  equipmentPrefab: {fileID: 0}
-  weaponType: 0
+  icon: {fileID: 21300000, guid: 9681fc92a762a4c4d8f0a187b2184e64, type: 3}
+  equipmentPrefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
+  weaponType: 1
   weaponCooldown: 1
   weaponRange: 5
-  attackDamage: 0
+  attackDamage: 10
   attackSpeed: 1
   attackRange: 1
   attackShape: 1

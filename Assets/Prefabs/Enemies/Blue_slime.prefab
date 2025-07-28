@@ -262,6 +262,9 @@ MonoBehaviour:
   equipmentDropChance: 50
   possibleEquipmentDrops:
   - {fileID: 11400000, guid: 69b1155ded803644d91e89be0b0a4b5b, type: 2}
+  - {fileID: 11400000, guid: 40419e16765d63542a1a9d8fd82f4083, type: 2}
+  - {fileID: 11400000, guid: bba3ce5b12a97b648a3d29673d8523fc, type: 2}
+  - {fileID: 11400000, guid: 10ed3fee6e00705479057a6432f4cada, type: 2}
 --- !u!114 &3746799392073795553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,6 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   knockBackTime: 0.1
+  defaultKnockBackThrust: 10
 --- !u!114 &8403660534966338527
 MonoBehaviour:
   m_ObjectHideFlags: 0

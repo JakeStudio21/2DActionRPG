@@ -218,9 +218,9 @@ public class FSMStageController : Singleton<FSMStageController>
         isTransitioning = true;
         
         // 페이드 효과
-        if (UIFade.Instance != null)
+        if (UIFadeManager.Instance != null)
         {
-            UIFade.Instance.FadeToBlack();
+            UIFadeManager.Instance.FadeToBlack();
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -245,10 +245,10 @@ public class FSMStageController : Singleton<FSMStageController>
         }
 
         // 페이드 해제
-        if (UIFade.Instance != null)
+        if (UIFadeManager.Instance != null)
         {
             yield return new WaitForSeconds(0.2f);
-            UIFade.Instance.FadeToClear();
+            UIFadeManager.Instance.FadeToClear();
         }
 
         isTransitioning = false;
