@@ -553,17 +553,7 @@ MonoBehaviour:
   allowMultipleClasses: 0
   isClassManager: 0
   showDebugLogs: 1
-  attackPowerMultiplier: 1.1
-  moveSpeedMultiplier: 0.8
-  skillCooldownMultiplier: 1
-  healthMultiplier: 1.5
-  blockChance: 0.2
-  blockDamageReduction: 0.5
-  counterAttackChance: 0.15
-  counterAttackDamage: 1.3
-  berserkerThreshold: 0.3
-  berserkerDamageBonus: 1.5
-  knockbackResistance: 0.5
+  warriorData: {fileID: 11400000, guid: 69afab46d9a1d1b45961cf896f0077ef, type: 2}
 --- !u!95 &3378627283251995473
 Animator:
   serializedVersion: 5
@@ -610,8 +600,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972fbe965fb5a8d4abcb27e59371b700, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 4
-  dashspeed: 6
+  moveSpeed: 1
+  dashspeed: 1
   myTrailRenderer: {fileID: 4602630472629665941}
   weaponCollider: {fileID: 5337248612677347209}
   fixedJoystick: {fileID: 0}
@@ -641,7 +631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27cce43ebc04520488124b526d8f98d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
+  maxHealth: 1
   damageRecoveryTime: 1
 --- !u!114 &-3303457956160068881
 MonoBehaviour:
@@ -657,7 +647,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _currentLevel: 1
   _currentExp: 0
-  _expToNextLevel: 20
+  _expToNextLevel: 1
 --- !u!114 &5390018231456893104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -689,7 +679,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillData: {fileID: 11400000, guid: 23fb67f5e954bac429fd95d8c8354bef, type: 2}
-  dashSpeed: 20
+  dashSpeed: 5
   dashRange: 8
   attackDelay: 0.3
   attackCount: 3

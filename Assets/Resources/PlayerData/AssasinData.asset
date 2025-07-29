@@ -16,9 +16,9 @@ MonoBehaviour:
   baseMoveSpeed: 4
   baseDashSpeed: 6
   baseDamageRecoveryTime: 5
-  flashDuration: 5
-  knockbackTime: 5
-  baseKnockbackThrust: 20
+  flashDuration: 0.5
+  knockbackTime: 0.2
+  baseKnockbackThrust: 10
   baseExpToNextLevel: 5
   expIncreasePerLevel: 5
   className: 

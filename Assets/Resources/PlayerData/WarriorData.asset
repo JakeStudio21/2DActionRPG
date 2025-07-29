@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abcc7e73e1f1ee749a86881dd42c6c4d, type: 3}
+  m_Name: WarriorData
+  m_EditorClassIdentifier: 
+  baseMaxHealth: 100
+  baseMoveSpeed: 4
+  baseDashSpeed: 6
+  baseDamageRecoveryTime: 1
+  flashDuration: 0.1
+  knockbackTime: 0.2
+  baseKnockbackThrust: 10
+  baseExpToNextLevel: 20
+  expIncreasePerLevel: 5
+  className: 
+  playerType: 1
+  classIcon: {fileID: 0}
+  description: 
+  attackPowerMultiplier: 1.1
+  moveSpeedMultiplier: 0.8
+  skillCooldownMultiplier: 1
+  healthMultiplier: 1.5
+  warriorBlockChance: 0.2
+  warriorBlockDamageReduction: 0.5
+  warriorCounterAttackChance: 0.15
+  warriorCounterAttackDamage: 1.3
+  warriorBerserkerThreshold: 0.3
+  warriorBerserkerDamageBonus: 1.5
+  warriorKnockbackResistance: 0.5
