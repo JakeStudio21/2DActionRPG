@@ -294,10 +294,10 @@ MonoBehaviour:
   canDropEquipment: 1
   equipmentDropChance: 20
   possibleEquipmentDrops:
-  - {fileID: 11400000, guid: 69b1155ded803644d91e89be0b0a4b5b, type: 2}
-  - {fileID: 11400000, guid: 40419e16765d63542a1a9d8fd82f4083, type: 2}
-  - {fileID: 11400000, guid: bba3ce5b12a97b648a3d29673d8523fc, type: 2}
-  - {fileID: 11400000, guid: 10ed3fee6e00705479057a6432f4cada, type: 2}
+  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
+  - {fileID: 11400000, guid: aa47e37a4b3d4c741aa0706a695d2453, type: 2}
+  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
+  - {fileID: 11400000, guid: 1690877de893efb4282bde258a234785, type: 2}
 --- !u!114 &2733928855307480320
 MonoBehaviour:
   m_ObjectHideFlags: 0

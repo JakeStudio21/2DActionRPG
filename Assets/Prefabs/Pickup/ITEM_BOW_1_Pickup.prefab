@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1490817048940269389}
   - component: {fileID: 3262065929500323297}
   m_Layer: 0
-  m_Name: Bow_C_Pickup
+  m_Name: ITEM_BOW_1_Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -213,4 +213,4 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
-  equipmentData: {fileID: 11400000, guid: 10ed3fee6e00705479057a6432f4cada, type: 2}
+  equipmentData: {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}

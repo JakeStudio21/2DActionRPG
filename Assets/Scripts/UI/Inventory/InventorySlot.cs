@@ -275,7 +275,18 @@ public class InventorySlot : MonoBehaviour
     }
 
     // 기존 메서드들 유지
-    public EquipmentData GetEquipmentData() {
+    public EquipmentData GetEquipmentData() 
+    {
+        Debug.Log($"🔍 [InventorySlot] GetEquipmentData() 호출됨");
+        Debug.Log($"🔍 [InventorySlot] equipmentData: {(equipmentData != null ? equipmentData.name : "NULL")}");
+        
+        if (equipmentData != null)
+        {
+            Debug.Log($"🔍 [InventorySlot] equipmentData.equipmentName: {equipmentData.equipmentName}");
+            Debug.Log($"🔍 [InventorySlot] equipmentData.usableClass: {equipmentData.usableClass}");
+            Debug.Log($"🔍 [InventorySlot] equipmentData.WeaponType: {equipmentData.WeaponType}");
+        }
+        
         return equipmentData;
     }
     

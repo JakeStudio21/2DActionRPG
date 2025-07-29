@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1490817048940269389}
   - component: {fileID: 3262065929500323297}
   m_Layer: 0
-  m_Name: Sword_B_Pickup
+  m_Name: ITEM_SWORD_3_Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d1f9fb25342cb53429ab1fd20bbe9ef2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9681fc92a762a4c4d8f0a187b2184e64, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -98,7 +98,7 @@ Animator:
   m_GameObject: {fileID: 6665777931767919178}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 666d95a261d34bf499b04dce6ee1ce32, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2a16fccc98977ec4585c81ac688f6125, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -213,4 +213,4 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
-  equipmentData: {fileID: 11400000, guid: 3582e345cd165c241a0d7f21da7757f5, type: 2}
+  equipmentData: {fileID: 11400000, guid: 082050bfc11ff5d4699d187355824c59, type: 2}

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1490817048940269389}
   - component: {fileID: 3262065929500323297}
   m_Layer: 0
-  m_Name: Bow_A_Pickup
+  m_Name: ITEM_SWORD_4_Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4a56b9629e9fcce45b101f9e39d750c3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 01d3255fd76c27b4bae0cc7412b2bde7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -98,7 +98,7 @@ Animator:
   m_GameObject: {fileID: 6665777931767919178}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3a983a00be7b5cb4788ee4b77074eae0, type: 2}
+  m_Controller: {fileID: 9100000, guid: db03133a8a73fe543b03c92aeb22bec4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -213,4 +213,4 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
-  equipmentData: {fileID: 11400000, guid: 40419e16765d63542a1a9d8fd82f4083, type: 2}
+  equipmentData: {fileID: 11400000, guid: 7f09482c3607fba45835d7f47c72fe86, type: 2}

@@ -2,235 +2,279 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ⚔️ 현재 장착된 무기의 런타임 상태 및 공격 실행 관리
+/// SRP: 활성 무기의 런타임 데이터와 실행 로직만 담당
+/// </summary>
 public class ActiveWeapon : Singleton<ActiveWeapon>
 {
-    public MonoBehaviour CurrentActiveWeapon {get; private set; }
-
-    private PlayerControls playerControls;
-    private float timeBetweenAttacks;
-
-    // ⭐ 기존 isAttacking 제거 - PlayerAnimationController에서 관리
-    // private bool isAttacking = false;
-
+    [Header("🔗 시스템 연동")]
+    private PlayerEquipment playerEquipment;
+    private PlayerAnimationController playerAnimationController;
+    
+    // ❌ 프로퍼티에는 [Header] 사용 불가
+    // [Header("⚔️ 현재 활성 무기 런타임 상태")]
+    // public MonoBehaviour CurrentActiveWeapon { get; private set; }
+    // public EquipmentData CurrentWeaponData { get; private set; }
+    
+    // ✅ 올바른 방법 - [Header] 제거
+    public MonoBehaviour CurrentActiveWeapon { get; private set; }
+    public EquipmentData CurrentWeaponData { get; private set; } // 🆕 현재 무기 데이터 보관
+    
+    [Header("🎮 무기 방향 제어")]
     public AttackJoystickInput attackJoystickInput; // 인스펙터에서 할당
     
-    // ⭐ 새 Animation Controller 참조 추가
-    private PlayerAnimationController playerAnimationController;
+    [Header("📊 디버그")]
+    [SerializeField] private bool showDebugLogs = true;
 
-    protected override void Awake() {
+    protected override void Awake() 
+    {
         base.Awake();
-        playerControls = new PlayerControls();
         
-        // ⭐ PlayerAnimationController 참조 가져오기 (더 넓은 범위에서 검색)
+        // PlayerEquipment 참조 가져오기 (부모에서 찾기)
+        playerEquipment = GetComponent<PlayerEquipment>();
+        if (playerEquipment == null)
+        {
+            playerEquipment = GetComponentInParent<PlayerEquipment>();
+            
+            if (playerEquipment == null)
+            {
+                Debug.LogError("🔴 [ActiveWeapon] PlayerEquipment 컴포넌트를 찾을 수 없습니다!");
+                return;
+            }
+        }
+        
+        // PlayerAnimationController 참조 가져오기
         playerAnimationController = GetComponent<PlayerAnimationController>();
         if (playerAnimationController == null)
         {
-            // 같은 GameObject에 없으면 부모/자식에서 찾기
             playerAnimationController = GetComponentInParent<PlayerAnimationController>();
             if (playerAnimationController == null)
             {
                 playerAnimationController = GetComponentInChildren<PlayerAnimationController>();
             }
-            
-            if (playerAnimationController == null)
-            {
-                Debug.LogWarning("🟡 [ActiveWeapon] PlayerAnimationController가 없습니다. 기존 방식으로 동작합니다.");
-            }
-            else
-            {
-                Debug.Log("🟢 [ActiveWeapon] PlayerAnimationController를 찾았습니다!");
-            }
+        }
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"🔗 [ActiveWeapon] 시스템 연동 상태:");
+            Debug.Log($"   - PlayerEquipment: {(playerEquipment != null ? "연결됨" : "없음")}");
+            Debug.Log($"   - PlayerAnimationController: {(playerAnimationController != null ? "연결됨" : "없음")}");
         }
     }
 
-    private void OnEnable()
+    private void Update() 
     {
-        // playerControls.Enable(); // 키보드/마우스 입력을 비활성화하므로 주석 처리
+        // 🎮 무기 방향 업데이트만 담당 (런타임 제어)
+        UpdateWeaponDirection();
     }
 
-    private void Start()
+    #region 무기 교체 및 런타임 상태 관리
+    
+    /// <summary>
+    /// 🔧 무기 교체 요청 (PlayerEquipment 위임 + 런타임 상태 관리)
+    /// </summary>
+    public void EquipWeapon(EquipmentData weaponData)
     {
-        // playerControls.Combat.Attack.started += _ => StartAttacking(); // 키보드/마우스 입력을 비활성화하므로 주석 처리
-        // playerControls.Combat.Attack.canceled += _ => StopAttacking(); // 키보드/마우스 입력을 비활성화하므로 주석 처리
-
-        // ⭐ 기존 AttackCooldown() 제거 - PlayerAnimationController에서 관리
-        // AttackCooldown();
+        if (weaponData == null)
+        {
+            Debug.LogError("🔴 [ActiveWeapon] weaponData가 null입니다!");
+            return;
+        }
+        
+        if (playerEquipment == null)
+        {
+            Debug.LogError("🔴 [ActiveWeapon] PlayerEquipment가 없습니다!");
+            return;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🔧 [ActiveWeapon] 무기 교체 요청: {weaponData.equipmentName}");
+        
+        // 1. PlayerEquipment에게 물리적 장착 요청 (책임 위임)
+        GameObject weaponPrefab = playerEquipment.EquipWeaponPrefab(weaponData);
+        
+        if (weaponPrefab == null)
+        {
+            Debug.LogError("🔴 [ActiveWeapon] 무기 프리팹 생성 실패! (호환성 또는 생성 문제)");
+            return;
+        }
+        
+        // 2. 런타임 상태 관리 (ActiveWeapon의 핵심 책임)
+        MonoBehaviour weaponComponent = weaponPrefab.GetComponent<MonoBehaviour>();
+        SetCurrentWeapon(weaponComponent, weaponData);
     }
-
-    private void Update() {
-        Attack();
-        
-        // 🛡️ 안전성 검사 강화: CurrentActiveWeapon이 유효한지 확인
-        if (CurrentActiveWeapon == null)
+    
+    /// <summary>
+    /// ⚔️ 현재 활성 무기 설정 (런타임 상태 관리)
+    /// </summary>
+    public void SetCurrentWeapon(MonoBehaviour weaponComponent, EquipmentData weaponData)
+    {
+        if (weaponComponent == null)
         {
-            // CurrentActiveWeapon이 null이면 무기 방향 업데이트 건너뜀
+            Debug.LogError("🔴 [ActiveWeapon] weaponComponent가 null입니다!");
             return;
         }
         
-        // 🛡️ 추가 안전성 검사: 게임오브젝트가 파괴되었는지 확인
-        if (CurrentActiveWeapon.gameObject == null)
+        // IWeapon 인터페이스 체크
+        if (!(weaponComponent is IWeapon))
         {
-            Debug.LogWarning("🟡 [ActiveWeapon] CurrentActiveWeapon의 GameObject가 파괴되었습니다. 참조 정리 중...");
-            CurrentActiveWeapon = null;
+            Debug.LogError($"🔴 [ActiveWeapon] {weaponComponent.name}이 IWeapon을 구현하지 않습니다!");
             return;
         }
         
-        // [변경] 무기 방향 처리: IWeapon의 UpdateDirection 호출
-        // ✅ 조이스틱 방향은 무기 방향 조절용으로 사용 (공격 감지와 분리)
-        Vector2 dir = attackJoystickInput != null ? attackJoystickInput.GetAttackDirection() : Vector2.zero;
-        var playerController = FindObjectOfType<PlayerController>();
-        bool facingLeft = playerController != null && playerController.FacingLeft;
+        // 런타임 상태 업데이트
+        CurrentActiveWeapon = weaponComponent;
+        CurrentWeaponData = weaponData;
         
-        // 🛡️ 안전한 IWeapon 캐스팅 및 호출
-        if (CurrentActiveWeapon is IWeapon weapon)
-        {
-            try
-            {
-                weapon.UpdateDirection(dir, facingLeft);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"🔴 [ActiveWeapon] UpdateDirection 호출 중 에러: {e.Message}");
-                // 에러 발생 시 무기 참조 정리
-                CurrentActiveWeapon = null;
-            }
-        }
+        // 다른 시스템에 무기 변경 알림
+        NotifyWeaponChanged(weaponData);
+        
+        if (showDebugLogs)
+            Debug.Log($"⚔️ [ActiveWeapon] 활성 무기 상태 업데이트: {weaponData.equipmentName}");
     }
-
-    public void NewWeapon(MonoBehaviour newWeapon) {
-        Debug.Log("🔵 [ActiveWeapon] NewWeapon 호출 - 새 무기: " + (newWeapon != null ? newWeapon.name : "NULL"));
-
-        // 🔑 1단계: newWeapon null 체크
-        if (newWeapon == null) {
-            Debug.LogError("🔴 [ActiveWeapon] newWeapon이 null입니다!");
-            return;
-        }
-
-        CurrentActiveWeapon = newWeapon;
-
-        // 🔑 2단계: IWeapon 인터페이스 체크
-        IWeapon weaponInterface = CurrentActiveWeapon as IWeapon;
-        if (weaponInterface == null) {
-            Debug.LogError($"🔴 [ActiveWeapon] {newWeapon.name}이 IWeapon을 구현하지 않습니다!");
-            return;
-        }
-
-        // 🔑 3단계: EquipmentData 안전성 체크 (WeaponInfo → EquipmentData)
-        EquipmentData equipmentData = weaponInterface.GetEquipmentData();
-        if (equipmentData == null) {
-            Debug.LogError($"🔴 [ActiveWeapon] {newWeapon.name}의 EquipmentData가 null입니다!");
-            return;
-        }
-
-        // 🔑 4단계: 쿨다운 안전하게 설정
-        timeBetweenAttacks = equipmentData.WeaponCooldown;  // weaponInfo.weaponCooldown → equipmentData.WeaponCooldown
-        
+    
+    /// <summary>
+    /// 📢 무기 변경 알림 (런타임 연동)
+    /// </summary>
+    private void NotifyWeaponChanged(EquipmentData weaponData)
+    {
         // PlayerAnimationController에 쿨다운 정보 전달
         if (playerAnimationController != null)
         {
-            playerAnimationController.UpdateWeaponCooldown(timeBetweenAttacks);
+            playerAnimationController.UpdateWeaponCooldown(weaponData.WeaponCooldown);
+            if (showDebugLogs)
+                Debug.Log($"📢 [ActiveWeapon] PlayerAnimationController에 쿨다운 전달: {weaponData.WeaponCooldown}초");
+        }
+    }
+    
+    /// <summary>
+    /// 🗑️ 무기 제거 (런타임 상태 초기화)
+    /// </summary>
+    public void WeaponNull() 
+    {
+        CurrentActiveWeapon = null;
+        CurrentWeaponData = null;
+        
+        if (playerEquipment != null)
+        {
+            playerEquipment.UnequipWeapon();
         }
         
-        Debug.Log("�� [ActiveWeapon] 무기 교체 성공: " + newWeapon.name + " (쿨다운: " + timeBetweenAttacks + "초)");
+        if (showDebugLogs)
+            Debug.Log("🗑️ [ActiveWeapon] 무기 제거 및 런타임 상태 초기화 완료");
     }
-
-    public void WeaponNull() {
-        CurrentActiveWeapon = null;
-    }
-
-    // EquipmentData를 받아 해당 무기를 장착하는 새로운 공용 메서드
-    public void EquipWeapon(EquipmentData equipmentData)  // WeaponInfo → EquipmentData
+    
+    #endregion
+    
+    #region 런타임 무기 실행 및 제어
+    
+    /// <summary>
+    /// ⚔️ 무기 공격 실행 (런타임 제어)
+    /// </summary>
+    public void ExecuteWeaponAttack()
     {
-        // 현재 무기가 있다면 파괴
-        if (CurrentActiveWeapon != null)
+        if (CurrentActiveWeapon == null)
         {
-            Destroy(CurrentActiveWeapon.gameObject);
-        }
-
-        // EquipmentData나 그 안의 프리팹이 유효한지 확인
-        if (equipmentData == null || equipmentData.equipmentPrefab == null)
-        {
-            WeaponNull();
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [ActiveWeapon] 활성 무기가 없습니다!");
             return;
         }
-
-        // 새 무기 프리팹을 생성하고, ActiveWeapon의 자식으로 만듦
-        GameObject newWeapon = Instantiate(equipmentData.equipmentPrefab, transform);
         
-        // 새로 생성된 무기를 현재 활성화된 무기로 설정
-        NewWeapon(newWeapon.GetComponent<MonoBehaviour>());
-    }
-
-    // ⭐ 기존 AttackCooldown() 메서드 제거 - PlayerAnimationController에서 관리
-    // private void AttackCooldown() { ... }
-    // private IEnumerator TimeBetweenAttacksRoutine() { ... }
-
-    private void Attack() {
-        // ⭐ 추가: 여러 입력 방식으로 기본공격 감지
-        bool shouldAttack = false;
-        
-        // 🔴 1. AttackJoystickInput을 통한 조이스틱 공격 - 완전 비활성화
-        // if (attackJoystickInput != null)
-        // {
-        //     Vector2 attackDirection = attackJoystickInput.GetAttackDirection();
-        //     if (attackDirection.magnitude > 0.1f)
-        //     {
-        //         shouldAttack = true;
-        //     }
-        // }
-        
-        // 2. GameControl을 통한 통합 입력 (키보드/마우스 포함) - 이것도 비활성화됨
-        var gameControl = GameControl.Instance;
-        if (gameControl != null && gameControl.AttackPressed)
+        var weaponInterface = CurrentActiveWeapon as IWeapon;
+        if (weaponInterface == null)
         {
-            shouldAttack = true;
+            Debug.LogError("🔴 [ActiveWeapon] 현재 무기가 IWeapon을 구현하지 않습니다!");
+            return;
         }
         
-        // 🔴 3. 백업 입력은 GameControl.cs에서 처리 (중복 방지) - 모두 비활성화됨
-        // 이제 오직 PlayerAttackInput.cs의 A키만 PerformAttack()을 직접 호출
+        weaponInterface.Attack();
         
-        // ⭐ 공격 실행 - shouldAttack는 항상 false가 되어 실행되지 않음
-        if (shouldAttack)
+        if (showDebugLogs)
+            Debug.Log("⚔️ [ActiveWeapon] 무기 공격 실행 완료");
+    }
+    
+    /// <summary>
+    /// 🎮 무기 방향 업데이트 (런타임 제어)
+    /// </summary>
+    private void UpdateWeaponDirection()
+    {
+        if (CurrentActiveWeapon == null) return;
+        
+        // 조이스틱 방향 가져오기
+        Vector2 dir = attackJoystickInput != null ? attackJoystickInput.GetAttackDirection() : Vector2.zero;
+        
+        // 플레이어 방향 가져오기
+        var playerController = FindObjectOfType<PlayerController>();
+        bool facingLeft = playerController != null && playerController.FacingLeft;
+        
+        // 무기에 방향 전달
+        var weaponInterface = CurrentActiveWeapon as IWeapon;
+        if (weaponInterface != null)
         {
-            PerformAttack();
+            try
+            {
+                weaponInterface.UpdateDirection(dir, facingLeft);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"🔴 [ActiveWeapon] UpdateDirection 에러: {e.Message}");
+            }
         }
     }
-
-    // 이 함수는 UI 버튼에서 직접 호출할 수 있도록 public으로 만듭니다.
+    
+    #endregion
+    
+    #region 런타임 무기 정보 제공
+    
+    /// <summary>
+    /// 📊 현재 무기 쿨다운 반환 (런타임 상태 조회)
+    /// </summary>
+    public float GetCurrentWeaponCooldown() => CurrentWeaponData?.WeaponCooldown ?? 0f;
+    
+    /// <summary>
+    /// 📊 현재 무기 데미지 반환 (런타임 상태 조회)
+    /// </summary>
+    public float GetCurrentWeaponDamage() => CurrentWeaponData?.attackDamage ?? 0f;
+    
+    /// <summary>
+    /// 📊 현재 무기 타입 반환 (런타임 상태 조회)
+    /// </summary>
+    public WeaponType GetCurrentWeaponType() => CurrentWeaponData?.WeaponType ?? WeaponType.None;
+    
+    /// <summary>
+    /// 📊 현재 무기 데이터 반환 (런타임 상태 조회)
+    /// </summary>
+    public EquipmentData GetCurrentWeaponData() => CurrentWeaponData;
+    
+    /// <summary>
+    /// ✅ 활성 무기 보유 여부 (런타임 상태 조회)
+    /// </summary>
+    public bool HasActiveWeapon() => CurrentActiveWeapon != null && CurrentWeaponData != null;
+    
+    #endregion
+    
+    #region 레거시 호환성 (임시)
+    
+    /// <summary>
+    /// 🔄 기존 시스템 호환용 (제거 예정)
+    /// </summary>
+    public void NewWeapon(MonoBehaviour newWeapon) 
+    {
+        Debug.LogWarning("⚠️ [ActiveWeapon] NewWeapon()은 레거시 메서드입니다. SetCurrentWeapon() 사용을 권장합니다.");
+        CurrentActiveWeapon = newWeapon;
+        CurrentWeaponData = null; // 데이터 없이 설정됨
+    }
+    
+    /// <summary>
+    /// 🔄 기존 시스템 호환용 (제거 예정)
+    /// </summary>
     public void PerformAttack()
     {
-        Debug.Log("🔵 [ActiveWeapon] PerformAttack() 시작");
-        
-        // ⭐ PlayerAnimationController 사용 시 (AttackType 제거)
-        if (playerAnimationController != null)
-        {
-            bool success = playerAnimationController.TriggerAttack(); // AttackType 매개변수 제거
-            
-            if (success)
-            {
-                Debug.Log("🟢 [ActiveWeapon] PlayerAnimationController 공격 성공!");
-            }
-            else
-            {
-                Debug.LogWarning("🟡 [ActiveWeapon] PlayerAnimationController 공격 실패!");
-            }
-            
-            return;
-        }
-        
-        // ⭐ 기존 방식 (fallback) - PlayerAnimationController가 없을 때
-        Debug.LogWarning("🟡 [ActiveWeapon] PlayerAnimationController 없음 - 기존 방식 사용");
-        
-        if (CurrentActiveWeapon != null)
-        {
-            Debug.Log("🟢 [ActiveWeapon] 공격 조건 만족, 공격 실행!");
-            (CurrentActiveWeapon as IWeapon).Attack();
-            Debug.Log("🟢 [ActiveWeapon] IWeapon.Attack() 호출 완료");
-        }
-        else
-        {
-            Debug.LogError("🔴 [ActiveWeapon] CurrentActiveWeapon이 null입니다!");
-        }
+        Debug.LogWarning("⚠️ [ActiveWeapon] PerformAttack()은 레거시 메서드입니다. ExecuteWeaponAttack() 사용을 권장합니다.");
+        ExecuteWeaponAttack();
     }
+    
+    #endregion
 }
 

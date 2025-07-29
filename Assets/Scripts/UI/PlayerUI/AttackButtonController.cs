@@ -6,7 +6,7 @@ public class AttackButtonController : MonoBehaviour
     // 버튼이 클릭되었을 때 호출될 공용 메서드입니다.
     public void OnAttackButtonPressed()
     {
-        // ActiveWeapon의 싱글톤 인스턴스가 존재하는지 확인합니다.
+        // 현재 활성화된 ActiveWeapon 인스턴스를 찾습니다.
         // (플레이어가 스폰되면 인스턴스가 설정됩니다)
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null)
@@ -14,7 +14,7 @@ public class AttackButtonController : MonoBehaviour
             // 존재한다면, 그 인스턴스의 공격 메서드를 호출합니다.
             // 이렇게 하면 어떤 캐릭터(Warrior, Assassin)가 스폰되든 상관없이
             // 현재 활성화된 무기로 공격할 수 있습니다.
-            activeWeapon.PerformAttack();
+            activeWeapon.ExecuteWeaponAttack();  // ✅ PerformAttack() → ExecuteWeaponAttack()
         }
         else
         {

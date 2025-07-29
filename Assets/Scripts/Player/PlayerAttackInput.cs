@@ -57,30 +57,41 @@ public class PlayerAttackInput : MonoBehaviour
     {
         Debug.Log("🔵 [PlayerAttackInput] PerformAttack() 시작");
         
-        var activeWeapon = ActiveWeapon.Instance;
-        if (activeWeapon == null)
+        // PlayerAnimationController 우선 사용
+        var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        if (playerAnimationController != null)
         {
-            Debug.LogError("🔴 [PlayerAttackInput] ActiveWeapon.Instance가 null입니다!");
+            bool success = playerAnimationController.TriggerAttack();
             
-            // 대안: FindObjectOfType으로 찾아보기
-            var foundActiveWeapon = FindObjectOfType<ActiveWeapon>();
-            if (foundActiveWeapon == null)
+            if (success)
             {
-                Debug.LogError("🔴 [PlayerAttackInput] FindObjectOfType<ActiveWeapon>()도 null입니다!");
+                Debug.Log("🟢 [PlayerAttackInput] PlayerAnimationController 공격 성공!");
+                return;
             }
             else
             {
-                Debug.Log("🟡 [PlayerAttackInput] FindObjectOfType으로 ActiveWeapon 찾음: " + foundActiveWeapon.name);
-                foundActiveWeapon.PerformAttack();
+                Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 공격 실패!");
             }
+        }
+        
+        // 백업: ActiveWeapon 직접 호출
+        var foundActiveWeapon = FindObjectOfType<ActiveWeapon>();
+        if (foundActiveWeapon != null)
+        {
+            foundActiveWeapon.ExecuteWeaponAttack();  // ✅ PerformAttack() → ExecuteWeaponAttack()
             return;
         }
         
-        Debug.Log("🟢 [PlayerAttackInput] ActiveWeapon 찾음: " + activeWeapon.name);
-        Debug.Log("🟢 [PlayerAttackInput] CurrentActiveWeapon: " + (activeWeapon.CurrentActiveWeapon != null ? activeWeapon.CurrentActiveWeapon.name : "NULL"));
-        
-        activeWeapon.PerformAttack();
-        Debug.Log("🟢 [PlayerAttackInput] PerformAttack() 호출 완료");
+        var activeWeapon = ActiveWeapon.Instance;
+        if (activeWeapon != null)
+        {
+            activeWeapon.ExecuteWeaponAttack();  // ✅ PerformAttack() → ExecuteWeaponAttack()
+            Debug.Log("🟢 [PlayerAttackInput] ExecuteWeaponAttack() 호출 완료");
+        }
+        else
+        {
+            Debug.LogError("🔴 [PlayerAttackInput] ActiveWeapon을 찾을 수 없습니다!");
+        }
     }
 
     /// <summary>
