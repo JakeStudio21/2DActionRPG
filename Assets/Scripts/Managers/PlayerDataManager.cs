@@ -333,14 +333,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         
         // 장착 슬롯 결정
         EquipmentSlot targetSlot = GetEquipmentSlot(item);
-        if (targetSlot == EquipmentSlot.MainWeapon) // 기본적으로 무기는 MainWeapon 슬롯
-        {
-            return EquipItemToSlot(item, targetSlot);
-        }
         
-        if (showDebugLogs)
-            Debug.LogWarning($"🎒 [PlayerData] 아이템 {item.equipmentName}의 장착 슬롯을 결정할 수 없습니다.");
-        return false;
+        // 🔧 수정: 모든 장비 타입에 대해 장착 시도
+        return EquipItemToSlot(item, targetSlot);
     }
     
     /// <summary>
@@ -368,6 +363,8 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         // 장착 실행
         equippedItems[slot] = item;
         OnItemEquipped?.Invoke(slot, item);
+        OnEquipmentChanged(); // 🆕 능력치 재계산
+        ApplyPhysicalEquipment(slot, item); // 🆕 물리적 장비 적용
         SavePlayerData();
         
         if (showDebugLogs)
@@ -401,6 +398,8 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         // 장착 해제
         equippedItems[slot] = null;
         OnItemUnequipped?.Invoke(slot, unequippedItem);
+        OnEquipmentChanged(); // 🆕 능력치 재계산
+        RemovePhysicalEquipment(slot, unequippedItem); // 🆕 물리적 장비 해제
         SavePlayerData();
         
         if (showDebugLogs)
@@ -419,7 +418,20 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             case EquipmentType.Weapon:
                 return EquipmentSlot.MainWeapon;
             case EquipmentType.Armor:
-                return EquipmentSlot.Armor; // 기본 갑옷 슬롯
+                // 🆕 방어구 타입별 세분화
+                switch (item.ArmorType)
+                {
+                    case ArmorType.Helmet:
+                        return EquipmentSlot.Helmet;
+                    case ArmorType.Armor:
+                        return EquipmentSlot.Armor;
+                    case ArmorType.Boots:
+                        return EquipmentSlot.Boots;
+                    case ArmorType.Shield:
+                        return EquipmentSlot.Shield;
+                    default:
+                        return EquipmentSlot.Armor; // 기본 갑옷 슬롯
+                }
             case EquipmentType.Accessory:
                 return EquipmentSlot.Ring1; // 기본 반지 슬롯
             default:
@@ -461,6 +473,144 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         for (int i = 0; i < inventoryItems.Count; i++)
         {
             Debug.Log($"   {i+1}. {inventoryItems[i].equipmentName}");
+        }
+    }
+    
+    #endregion
+    
+    #region 📊 장비 능력치 적용 시스템
+    
+    /// <summary>
+    /// 모든 장착된 장비의 능력치를 플레이어에게 적용
+    /// </summary>
+    public void ApplyAllEquipmentStats()
+    {
+        // PlayerController와 PlayerHealth 컴포넌트 찾기
+        var playerController = FindObjectOfType<PlayerController>();
+        var playerHealth = FindObjectOfType<PlayerHealth>();
+        
+        if (playerController == null || playerHealth == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("📊 [PlayerData] PlayerController 또는 PlayerHealth를 찾을 수 없어 능력치 적용을 건너뜁니다.");
+            return;
+        }
+        
+        // 기본 능력치 값들 (리셋용)
+        float baseSpeed = 4f;  // 기본 이동속도
+        float baseHealth = 200f; // 기본 체력
+        
+        // 장비 보너스 계산
+        float totalSpeedBonus = 0f;
+        float totalHealthBonus = 0f;
+        float totalDefenseBonus = 0f;
+        
+        foreach (var kvp in equippedItems)
+        {
+            if (kvp.Value != null)
+            {
+                totalSpeedBonus += kvp.Value.speedBonus;
+                totalHealthBonus += kvp.Value.healthBonus;
+                totalDefenseBonus += kvp.Value.defenseBonus;
+                
+                if (showDebugLogs)
+                    Debug.Log($"📊 [PlayerData] {kvp.Key}: 속도+{kvp.Value.speedBonus}, 체력+{kvp.Value.healthBonus}, 방어+{kvp.Value.defenseBonus}");
+            }
+        }
+        
+        // 능력치 적용
+        playerController.SetMoveSpeed(baseSpeed + totalSpeedBonus);
+        playerHealth.SetMaxHealth(Mathf.RoundToInt(baseHealth + totalHealthBonus));
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"📊 [PlayerData] 장비 능력치 적용 완료!");
+            Debug.Log($"   - 이동속도: {baseSpeed} + {totalSpeedBonus} = {baseSpeed + totalSpeedBonus}");
+            Debug.Log($"   - 체력: {baseHealth} + {totalHealthBonus} = {baseHealth + totalHealthBonus}");
+            Debug.Log($"   - 방어력: +{totalDefenseBonus} (향후 구현)");
+        }
+    }
+    
+    /// <summary>
+    /// 장비 변경 시 능력치 재계산
+    /// </summary>
+    private void OnEquipmentChanged()
+    {
+        // 0.1초 후 능력치 적용 (컴포넌트 초기화 대기)
+        StartCoroutine(ApplyStatsWithDelay());
+    }
+    
+    private System.Collections.IEnumerator ApplyStatsWithDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
+        ApplyAllEquipmentStats();
+    }
+    
+    #endregion
+    
+    #region 🎮 물리적 장비 처리 시스템
+    
+    /// <summary>
+    /// 장비 착용 시 물리적 표현 적용
+    /// </summary>
+    private void ApplyPhysicalEquipment(EquipmentSlot slot, EquipmentData item)
+    {
+        var playerEquipment = FindObjectOfType<PlayerEquipment>();
+        if (playerEquipment == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🎮 [PlayerData] PlayerEquipment 컴포넌트를 찾을 수 없습니다.");
+            return;
+        }
+        
+        switch (item.equipmentType)
+        {
+            case EquipmentType.Weapon:
+                // 🔧 수정: ActiveWeapon 시스템 연동 (기존 2줄 → 신규 12줄)
+                var activeWeapon = FindObjectOfType<ActiveWeapon>();
+                if (activeWeapon != null)
+                {
+                    activeWeapon.EquipWeapon(item);
+                    if (showDebugLogs)
+                        Debug.Log($"⚔️ [PlayerData] 무기 물리적 장착 성공: {item.equipmentName}");
+                }
+                else
+                {
+                    if (showDebugLogs)
+                        Debug.LogWarning($"⚠️ [PlayerData] ActiveWeapon을 찾을 수 없습니다: {item.equipmentName}");
+                }
+                break;
+                
+            case EquipmentType.Armor:
+                // 갑옷/신발은 PlayerEquipment에서 처리
+                bool success = playerEquipment.EquipArmorPrefab(item);
+                if (showDebugLogs)
+                    Debug.Log($"🛡️ [PlayerData] 방어구 물리적 장착 {(success ? "성공" : "실패")}: {item.equipmentName}");
+                break;
+                
+            case EquipmentType.Accessory:
+                // 악세서리는 향후 구현
+                if (showDebugLogs)
+                    Debug.Log($"💍 [PlayerData] 악세서리 물리적 장착 (향후 구현): {item.equipmentName}");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// 장비 해제 시 물리적 표현 제거
+    /// </summary>
+    private void RemovePhysicalEquipment(EquipmentSlot slot, EquipmentData item)
+    {
+        var playerEquipment = FindObjectOfType<PlayerEquipment>();
+        if (playerEquipment == null) return;
+        
+        switch (item.equipmentType)
+        {
+            case EquipmentType.Armor:
+                bool success = playerEquipment.UnequipArmorPrefab(slot);
+                if (showDebugLogs)
+                    Debug.Log($"🛡️ [PlayerData] 방어구 물리적 해제 {(success ? "성공" : "실패")}: {item.equipmentName}");
+                break;
         }
     }
     

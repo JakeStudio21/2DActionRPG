@@ -10,6 +10,9 @@ public class ActiveInventory : MonoBehaviour
     [SerializeField] private bool useDynamicInventory = true; // 동적 인벤토리 사용 여부
     [SerializeField] private int maxDisplaySlots = 6; // 표시할 최대 슬롯 수
 
+    [Header("📊 디버그")]
+    [SerializeField] private bool showDebugLogs = true; // 🆕 디버그 로그 표시 여부
+
     private PlayerControls playerControls;
 
     private void Awake() {
@@ -201,68 +204,145 @@ public class ActiveInventory : MonoBehaviour
     }
 
     private void ChangeActiveWeapon() {
-        Debug.Log("⚔️ [ActiveInventory] 무기 교체 시작...");
+        Debug.Log("⚔️ [ActiveInventory] 장비 교체 시작...");
 
-        var activeWeapon = FindObjectOfType<ActiveWeapon>();
-        
-        // 🔑 ActiveWeapon null 체크 추가
-        if (activeWeapon == null) {
-            Debug.LogWarning("⚠️ [ActiveInventory] ActiveWeapon을 찾을 수 없습니다! 무기 교체 건너뜀");
-            return;
-        }
-
-        // 🔑 슬롯 범위 체크 추가
-        if (activeSlotIndexNum < 0 || activeSlotIndexNum >= transform.childCount) {
-            Debug.LogWarning($"⚠️ [ActiveInventory] 잘못된 슬롯 인덱스: {activeSlotIndexNum}");
-            return;
-        }
-        
-        Transform childTransform = transform.GetChild(activeSlotIndexNum);
-        InventorySlot inventorySlot = childTransform.GetComponentInChildren<InventorySlot>();
-        
-        if (inventorySlot == null) {
-            Debug.LogError("❌ [ActiveInventory] InventorySlot 컴포넌트를 찾을 수 없습니다!");
-            return;
-        }
-        
-        // 🆕 장비 정보 디버그 로그
-        Debug.Log($"📋 [ActiveInventory] 슬롯 정보 - 무기명: {inventorySlot.GetWeaponName()}, 능력치: {inventorySlot.GetWeaponStats()}");
-        
-        // WeaponInfo 관련 코드 제거, EquipmentData만 사용
-        EquipmentData equipmentData = inventorySlot.GetEquipmentData();
-
-        // 🔑 무기 데이터가 없으면 WeaponNull 처리
-        if (equipmentData == null) {  // weaponInfo 체크 제거
-            Debug.Log("⚠️ [ActiveInventory] 무기 데이터 없음 - WeaponNull 호출");
-            activeWeapon.WeaponNull();
-            return;
-        }
-
-        // 🆕 클래스 호환성 검사 (기존 무기 파괴 전에 실행!)
-        PlayerClass currentPlayerClass = GetCurrentPlayerClass();
-        if (!equipmentData.IsCompatibleWith(currentPlayerClass))
+        // 현재 선택된 슬롯의 EquipmentData 가져오기
+        InventorySlot selectedSlot = this.transform.GetChild(activeSlotIndexNum).GetComponent<InventorySlot>();
+        if (selectedSlot == null || selectedSlot.GetEquipmentData() == null)
         {
-            Debug.LogWarning($"🚫 [ActiveInventory] 클래스 호환성 오류: {currentPlayerClass}는 {equipmentData.equipmentName} 사용 불가");
-            
-            // 🎨 UI 메시지 표시
-            inventorySlot.ShowIncompatibilityMessage();
-            
-            // 🔑 중요: 기존 무기를 파괴하지 않고 그대로 유지!
+            Debug.LogWarning("⚠️ [ActiveInventory] 선택된 슬롯에 유효한 장비가 없습니다");
             return;
         }
 
-        // 🔑 호환성 검사 통과 후에만 기존 무기 제거
-        if (activeWeapon.CurrentActiveWeapon != null) {
-            Debug.Log($"🗑️ [ActiveInventory] 기존 무기 제거: {activeWeapon.CurrentActiveWeapon.name}");
-            Destroy(activeWeapon.CurrentActiveWeapon.gameObject);
+        EquipmentData equipmentData = selectedSlot.GetEquipmentData();
+        
+        // 🆕 장비 타입별 분기 처리
+        switch (equipmentData.equipmentType)
+        {
+            case EquipmentType.Weapon:
+                HandleWeaponEquip(equipmentData);
+                break;
+                
+            case EquipmentType.Armor:
+                HandleArmorEquip(equipmentData);
+                break;
+                
+            case EquipmentType.Accessory:
+                HandleAccessoryEquip(equipmentData);
+                break;
+                
+            default:
+                Debug.LogWarning($"⚠️ [ActiveInventory] 지원하지 않는 장비 타입: {equipmentData.equipmentType}");
+                break;
         }
+    }
 
-        Debug.Log($"✅ [ActiveInventory] 무기 발견: {equipmentData.equipmentName} (공격력: {equipmentData.attackDamage})");
+    /// <summary>
+    /// 무기 장착 처리 (기존 로직)
+    /// </summary>
+    private void HandleWeaponEquip(EquipmentData weaponData)
+    {
+        Debug.Log($"⚔️ [ActiveInventory] 무기 장착: {weaponData.equipmentName}");
         
-        // ✅ 새로운 방식: ActiveWeapon.EquipWeapon() 한 번 호출로 모든 것 해결
-        activeWeapon.EquipWeapon(equipmentData);
+        // 🆕 호환성 검증 추가
+        if (!IsCompatibleWithCurrentPlayer(weaponData))
+        {
+            Debug.LogWarning($"⚠️ [ActiveInventory] {weaponData.equipmentName}은(는) 현재 클래스와 호환되지 않습니다!");
+            return;
+        }
         
-        Debug.Log($"🎯 [ActiveInventory] 무기 교체 완료! 활성 무기: {equipmentData.equipmentName}");
+        // 🔧 수정: PlayerDataManager 시스템으로 통합 (기존 2줄 → 신규 8줄)
+        if (PlayerDataManager.Instance != null)
+        {
+            bool success = PlayerDataManager.Instance.EquipItem(weaponData);
+            if (success)
+            {
+                Debug.Log($"✅ [ActiveInventory] 무기 장착 성공: {weaponData.equipmentName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [ActiveInventory] 무기 장착 실패: {weaponData.equipmentName}");
+            }
+        }
+        else
+        {
+            Debug.LogError("🔴 [ActiveInventory] PlayerDataManager를 찾을 수 없습니다!");
+        }
+        
+        // 🗑️ 기존 코드 제거:
+        // var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        // if (activeWeapon == null) {
+        //     Debug.LogWarning("⚠️ [ActiveInventory] ActiveWeapon을 찾을 수 없습니다!");
+        //     return;
+        // }
+        // activeWeapon.EquipWeapon(weaponData);
+        // Debug.Log($"🎯 [ActiveInventory] 무기 교체 완료: {weaponData.equipmentName}");
+    }
+
+    /// <summary>
+    /// 갑옷/신발 장착 처리 (신규)
+    /// </summary>
+    private void HandleArmorEquip(EquipmentData armorData)
+    {
+        Debug.Log($"🛡️ [ActiveInventory] 방어구 장착: {armorData.equipmentName}");
+        
+        // 🆕 호환성 검증 추가
+        if (!IsCompatibleWithCurrentPlayer(armorData))
+        {
+            Debug.LogWarning($"⚠️ [ActiveInventory] {armorData.equipmentName}은(는) 현재 클래스와 호환되지 않습니다!");
+            return;
+        }
+        
+        // PlayerDataManager를 통한 장비 시스템 사용
+        if (PlayerDataManager.Instance != null)
+        {
+            bool success = PlayerDataManager.Instance.EquipItem(armorData);
+            if (success)
+            {
+                Debug.Log($"✅ [ActiveInventory] 방어구 장착 성공: {armorData.equipmentName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [ActiveInventory] 방어구 장착 실패: {armorData.equipmentName}");
+            }
+        }
+        else
+        {
+            Debug.LogError("🔴 [ActiveInventory] PlayerDataManager를 찾을 수 없습니다!");
+        }
+    }
+
+    /// <summary>
+    /// 악세서리 장착 처리 (향후 확장용)
+    /// </summary>
+    private void HandleAccessoryEquip(EquipmentData accessoryData)
+    {
+        Debug.Log($"💍 [ActiveInventory] 악세서리 장착: {accessoryData.equipmentName}");
+        
+        // 🆕 호환성 검증 추가
+        if (!IsCompatibleWithCurrentPlayer(accessoryData))
+        {
+            Debug.LogWarning($"⚠️ [ActiveInventory] {accessoryData.equipmentName}은(는) 현재 클래스와 호환되지 않습니다!");
+            return;
+        }
+        
+        // PlayerDataManager를 통한 장비 시스템 사용
+        if (PlayerDataManager.Instance != null)
+        {
+            bool success = PlayerDataManager.Instance.EquipItem(accessoryData);
+            if (success)
+            {
+                Debug.Log($"✅ [ActiveInventory] 악세서리 장착 성공: {accessoryData.equipmentName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [ActiveInventory] 악세서리 장착 실패: {accessoryData.equipmentName}");
+            }
+        }
+        else
+        {
+            Debug.LogError("🔴 [ActiveInventory] PlayerDataManager를 찾을 수 없습니다!");
+        }
     }
 
     /// <summary>
@@ -421,6 +501,84 @@ public class ActiveInventory : MonoBehaviour
         }
         
         Debug.Log($"✅ [ActiveInventory] UI 새로고침 완료 - 총 {inventoryItems.Count}개 아이템 표시");
+    }
+    
+    /// <summary>
+    /// 🔍 장비와 현재 플레이어 클래스 호환성 검사
+    /// </summary>
+    private bool IsCompatibleWithCurrentPlayer(EquipmentData equipment)
+    {
+        if (equipment == null)
+        {
+            Debug.LogWarning("🔍 [ActiveInventory] 장비 데이터가 null입니다.");
+            return false;
+        }
+        
+        // 현재 플레이어 클래스 확인
+        PlayerType currentPlayerType = GetCurrentPlayerType();
+        
+        // 장비 호환성 검사
+        bool isCompatible = IsEquipmentCompatible(equipment, currentPlayerType);
+        
+        // 🔧 showDebugLogs 조건 제거하고 항상 로그 출력
+        Debug.Log($"🔍 [ActiveInventory] 호환성 검사:");
+        Debug.Log($"   - 장비: {equipment.equipmentName} (클래스 제한: {equipment.usableClass})");
+        Debug.Log($"   - 현재 플레이어: {currentPlayerType}");
+        Debug.Log($"   - 호환 여부: {(isCompatible ? "✅ 호환" : "❌ 비호환")}");
+        
+        return isCompatible;
+    }
+    
+    /// <summary>
+    /// 🎯 현재 플레이어 타입 가져오기
+    /// </summary>
+    private PlayerType GetCurrentPlayerType()
+    {
+        // 방법 1: PlayerDataManager에서 가져오기
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerType playerType = PlayerDataManager.Instance.GetCurrentPlayerType();
+            if (playerType != PlayerType.None)
+                return playerType;
+        }
+        
+        // 방법 2: GameManager에서 가져오기 (백업)
+        if (GameManager.Instance?.selectedPlayerData != null)
+        {
+            return GameManager.Instance.selectedPlayerData.selectedPlayerType;
+        }
+        
+        // 방법 3: 활성 클래스 컴포넌트에서 감지 (최후 수단)
+        var activeClasses = FindObjectsOfType<BaseClassBehaviour>();
+        foreach (var classComp in activeClasses)
+        {
+            if (classComp.IsActive())
+            {
+                return classComp.PlayerType;
+            }
+        }
+        
+        Debug.LogWarning("⚠️ [ActiveInventory] 현재 플레이어 타입을 확인할 수 없습니다!");
+        return PlayerType.None;
+    }
+    
+    /// <summary>
+    /// 🔧 장비 호환성 검사 로직
+    /// </summary>
+    private bool IsEquipmentCompatible(EquipmentData equipment, PlayerType playerType)
+    {
+        // None이나 Any는 모든 클래스가 사용 가능
+        if (equipment.usableClass == PlayerClass.None || equipment.usableClass == PlayerClass.Any)
+            return true;
+        
+        // 플레이어 타입과 장비 제한 클래스 매칭
+        return equipment.usableClass switch
+        {
+            PlayerClass.Warrior => playerType == PlayerType.Warrior,
+            PlayerClass.Assasin => playerType == PlayerType.Assasin,
+            PlayerClass.Wizard => playerType == PlayerType.Wizard,
+            _ => false
+        };
     }
     
     private void OnDestroy()

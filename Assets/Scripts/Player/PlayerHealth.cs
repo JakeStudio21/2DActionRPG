@@ -224,4 +224,22 @@ public class PlayerHealth : Singleton<PlayerHealth>
         
         Debug.Log($"🔧 [PlayerHealth] 체력 초기화 완료: {currentHealth}/{maxHealth}");
     }
+    
+    // 🔧 장비 시스템용 체력 설정 메서드 추가
+    public void SetMaxHealth(int newMaxHealth)
+    {
+        // 현재 체력 비율 계산
+        float healthRatio = (float)currentHealth / maxHealth;
+        
+        // 새로운 최대 체력 설정
+        maxHealth = newMaxHealth;
+        
+        // 체력 비율 유지하여 현재 체력 조정
+        currentHealth = Mathf.RoundToInt(maxHealth * healthRatio);
+        currentHealth = Mathf.Clamp(currentHealth, 1, maxHealth); // 최소 1 보장
+        
+        UpdateUI();
+        
+        Debug.Log($"🔧 [PlayerHealth] 최대 체력 설정: {currentHealth}/{maxHealth} (비율 {healthRatio:P0} 유지)");
+    }
 }

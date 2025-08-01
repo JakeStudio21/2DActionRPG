@@ -131,10 +131,45 @@ public class PlayerEquipment : MonoBehaviour
         return null;
     }
     
-    public GameObject EquipArmorPrefab(EquipmentData armorData)
+    #endregion
+    
+    #region 방어구 관리
+    
+    /// <summary>
+    /// 🛡️ 방어구 프리팹 물리적 장착 (시각적 표현 없음, 데이터만 관리)
+    /// </summary>
+    public bool EquipArmorPrefab(EquipmentData armorData)
     {
-        // 향후 구현  
-        return null;
+        if (armorData == null)
+        {
+            Debug.LogError("🔴 [PlayerEquipment] armorData가 null입니다!");
+            return false;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🛡️ [PlayerEquipment] 방어구 장착: {armorData.equipmentName} (타입: {armorData.ArmorType})");
+        
+        // 갑옷/신발은 현재 시각적 표현 없음 (조건 5)
+        // 향후 외형 변경 기능 추가 시 여기서 처리
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [PlayerEquipment] 방어구 장착 완료: {armorData.equipmentName}");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 🛡️ 방어구 해제
+    /// </summary>
+    public bool UnequipArmorPrefab(EquipmentSlot slot)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🛡️ [PlayerEquipment] 방어구 해제: {slot}");
+        
+        // 갑옷/신발은 현재 시각적 표현 없음
+        // 향후 외형 변경 기능 추가 시 여기서 해제 처리
+        
+        return true;
     }
     
     #endregion

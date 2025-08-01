@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
+  m_Name: ITEM_BOOTS_ASSASIN_B_Equipment
+  m_EditorClassIdentifier: 
+  equipmentName: Assasin_Boots_B
+  itemID: ITEM_BOOTS_ASSASIN_B
+  equipmentType: 1
+  itemGrade: 2
+  usableClass: 2
+  isTradable: 1
+  requiredLevel: 1
+  resourceID: RES_BOOTS_ASSASIN_B
+  description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
+  icon: {fileID: 21300000, guid: 1bc98bcbe33fffe44b1a24a5b2d59974, type: 3}
+  equipmentPrefab: {fileID: 3046353505542979003, guid: ecd7db53dd4ec2e43b55991d1236ab26, type: 3}
+  weaponType: 0
+  weaponCooldown: 0
+  weaponRange: 0
+  armorType: 3
+  attackDamage: 0
+  attackSpeed: 0
+  attackRange: 0
+  attackShape: 0
+  criticalChance: 0
+  criticalDamage: 0
+  projectileId: 
+  defenseBonus: 0
+  speedBonus: 0.5
+  healthBonus: 15

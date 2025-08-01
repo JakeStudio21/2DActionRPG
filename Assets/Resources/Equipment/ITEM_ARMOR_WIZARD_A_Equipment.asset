@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
+  m_Name: ITEM_ARMOR_WIZARD_A_Equipment
+  m_EditorClassIdentifier: 
+  equipmentName: Wizard_Armor_A
+  itemID: ITEM_ARMOR_WIZARD_A
+  equipmentType: 1
+  itemGrade: 1
+  usableClass: 3
+  isTradable: 1
+  requiredLevel: 1
+  resourceID: RES_ARMOR_WIZARD_A
+  description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
+  icon: {fileID: -1333045551, guid: c324178344f10a5478dfa3a4f237e670, type: 3}
+  equipmentPrefab: {fileID: 3046353505542979003, guid: e790362b8a6eac745b1c1ed64477711a, type: 3}
+  weaponType: 0
+  weaponCooldown: 0
+  weaponRange: 0
+  armorType: 2
+  attackDamage: 0
+  attackSpeed: 0
+  attackRange: 0
+  attackShape: 0
+  criticalChance: 0
+  criticalDamage: 0
+  projectileId: 
+  defenseBonus: 20
+  speedBonus: 0
+  healthBonus: 30

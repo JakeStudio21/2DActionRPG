@@ -224,5 +224,149 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_A_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 9da8dd8d96b24d54589a60b0cf327145, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_B_Pickup
+    prefab: {fileID: 6665777931767919178, guid: a36a35e36de7916418aad41f5e27a89c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_C_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 9eb193f96cb831243aa261049082fd70, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_S_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 540828fde063bb3428ce378189bc3381, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_A_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 335a7751374060b42806629aacee13d1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_B_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 9931166d155d2bd43898966b6b6dff6b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_C_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 7146e191d8d41ee478668c47cd07d0fc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_S_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 556a7a2a6828cf748952429a46937f8f, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_A_Pickup
+    prefab: {fileID: 6665777931767919178, guid: b6a8ac855297f1341a761231ce28f6ff, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_B_Pickup
+    prefab: {fileID: 6665777931767919178, guid: b5b2159d8f3b6974882fb52733f0662a, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_C_Pickup
+    prefab: {fileID: 6665777931767919178, guid: e90830465f8a1744f9ffaf0bae5ae438, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_S_Pickup
+    prefab: {fileID: 6665777931767919178, guid: b0183e2dd067813468f112a126ad3dcb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_A_Pickup
+    prefab: {fileID: 6665777931767919178, guid: d0843fd1132da67418897d75c3cd7701, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_B_Pickup
+    prefab: {fileID: 6665777931767919178, guid: d5cbfc12477bacc4f9a4d0b2d4a32365, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_C_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 811adbdb76c3b0240a38c062dc061746, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_S_Pickup
+    prefab: {fileID: 6665777931767919178, guid: e57a5240f84ae664b9ff772c89acbca9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_A_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 431434ec2b6ae67448e4f0c19c9ec436, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_B_Pickup
+    prefab: {fileID: 6665777931767919178, guid: a820700f0941abd44ab88726301eae52, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_C_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 197f2effa614f1940a22f0561b5db6b1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_S_Pickup
+    prefab: {fileID: 6665777931767919178, guid: e4499d252cd6d594784ad5fbf6fc6959, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_A_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 2977f812dc7bcc14bb6b1c8afd7f64af, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_B_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 6afb5b0e63e33ab4ea32e267ca974a66, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_C_Pickup
+    prefab: {fileID: 6665777931767919178, guid: b7b367d06c9895243a62908a276e39fb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_S_Pickup
+    prefab: {fileID: 6665777931767919178, guid: 706e95184f2098e4586c4f2e691f562e, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

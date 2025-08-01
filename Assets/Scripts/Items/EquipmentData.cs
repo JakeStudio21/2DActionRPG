@@ -28,6 +28,9 @@ public class EquipmentData : ScriptableObject
     [SerializeField] private float weaponCooldown = 1.0f;
     [SerializeField] private float weaponRange = 5.0f;
     
+    [Header("🛡️ 방어구 전용 설정")]
+    [SerializeField] private ArmorType armorType = ArmorType.None;
+    
     [Header("⚔️ 무기 전투 스탯")]
     public float attackDamage = 0f;     // 공격 데미지
     public float attackSpeed = 1f;      // 공격 속도  
@@ -39,10 +42,16 @@ public class EquipmentData : ScriptableObject
     [Header("🏹 원거리 무기 전용")]
     public string projectileId;         // "ITEM_ARROW_1" 형태 (활/지팡이용)
     
+    [Header("🛡️ 방어구 전용 스탯")]
+    public float defenseBonus = 0f;     // 방어력 (갑옷)
+    public float speedBonus = 0f;       // 이동속도 (신발)
+    public float healthBonus = 0f;      // 체력 (방어구 공통)
+    
     // 접근자 프로퍼티
     public WeaponType WeaponType => weaponType;
     public float WeaponCooldown => weaponCooldown;
     public float WeaponRange => weaponRange;
+    public ArmorType ArmorType => armorType; // 🆕 방어구 타입 프로퍼티
     
     // 무기 타입 확인
     public bool IsWeapon => equipmentType == EquipmentType.Weapon;
@@ -166,6 +175,18 @@ public enum WeaponType
     Sword,  // 검 (Warrior 전용)
     Bow,    // 활 (Assasin 전용)  
     Magic   // 마법 스태프 (Wizard 전용)
+}
+
+/// <summary>
+/// 방어구 타입 분류
+/// </summary>
+public enum ArmorType
+{
+    None,    // 방어구가 아닌 경우
+    Helmet,  // 헬멧
+    Armor,   // 갑옷
+    Boots,   // 신발
+    Shield   // 방패
 }
 
 /// <summary>
