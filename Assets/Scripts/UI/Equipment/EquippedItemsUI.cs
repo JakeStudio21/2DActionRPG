@@ -31,6 +31,9 @@ public class EquippedItemsUI : MonoBehaviour
             PlayerDataManager.Instance.OnItemUnequipped += OnItemUnequipped;
         }
         
+        // 🆕 각 슬롯의 클릭 이벤트 구독
+        SetupSlotClickEvents();
+        
         // 초기 장비 상태 표시
         RefreshAllEquippedItems();
     }
@@ -56,6 +59,89 @@ public class EquippedItemsUI : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log("🎮 [EquippedItemsUI] 모든 착용 장비 슬롯 새로고침 완료");
+    }
+    
+    /// <summary>
+    /// 🖱️ 각 슬롯의 클릭 이벤트 설정
+    /// </summary>
+    private void SetupSlotClickEvents()
+    {
+        // 각 슬롯에 클릭 이벤트 연결
+        SetupSlotClickEvent(weaponSlot, EquipmentSlot.MainWeapon);
+        SetupSlotClickEvent(armorSlot, EquipmentSlot.Armor);
+        SetupSlotClickEvent(bootsSlot, EquipmentSlot.Boots);
+        SetupSlotClickEvent(helmetSlot, EquipmentSlot.Helmet);
+        SetupSlotClickEvent(shieldSlot, EquipmentSlot.Shield);
+        SetupSlotClickEvent(ring1Slot, EquipmentSlot.Ring1);
+        SetupSlotClickEvent(ring2Slot, EquipmentSlot.Ring2);
+        SetupSlotClickEvent(necklaceSlot, EquipmentSlot.Necklace);
+        
+        if (showDebugLogs)
+            Debug.Log("🖱️ [EquippedItemsUI] 모든 슬롯 클릭 이벤트 설정 완료");
+    }
+    
+    /// <summary>
+    /// 🖱️ 개별 슬롯 클릭 이벤트 설정
+    /// </summary>
+    private void SetupSlotClickEvent(InventorySlot slot, EquipmentSlot equipmentSlot)
+    {
+        if (slot == null) return;
+        
+        // InventorySlot의 Button 컴포넌트 가져오기
+        var button = slot.GetComponent<UnityEngine.UI.Button>();
+        if (button != null)
+        {
+            // 기존 클릭 이벤트 제거 후 새로 추가
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => OnEquippedSlotClicked(equipmentSlot));
+            
+            if (showDebugLogs)
+                Debug.Log($"🖱️ [EquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [EquippedItemsUI] {equipmentSlot} 슬롯에 Button 컴포넌트가 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 🖱️ 착용 장비 슬롯 클릭 시 처리
+    /// </summary>
+    private void OnEquippedSlotClicked(EquipmentSlot slot)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🖱️ [EquippedItemsUI] {slot} 슬롯 클릭됨");
+        
+        // PlayerDataManager에서 해당 슬롯의 장비 확인
+        if (PlayerDataManager.Instance == null) return;
+        
+        var equippedItems = PlayerDataManager.Instance.EquippedItems;
+        if (equippedItems.ContainsKey(slot) && equippedItems[slot] != null)
+        {
+            var equippedItem = equippedItems[slot];
+            
+            if (showDebugLogs)
+                Debug.Log($"🖱️ [EquippedItemsUI] {slot}에서 {equippedItem.equipmentName} 해제 시도");
+            
+            // 장비 해제 실행
+            bool success = PlayerDataManager.Instance.UnequipItem(slot);
+            
+            if (success)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"✅ [EquippedItemsUI] {equippedItem.equipmentName} 해제 성공");
+            }
+            else
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning($"⚠️ [EquippedItemsUI] {equippedItem.equipmentName} 해제 실패 (인벤토리가 가득참?)");
+            }
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.Log($"🖱️ [EquippedItemsUI] {slot} 슬롯이 비어있습니다");
+        }
     }
     
     /// <summary>
@@ -168,6 +254,38 @@ public class EquippedItemsUI : MonoBehaviour
         {
             PlayerDataManager.Instance.OnItemEquipped -= OnItemEquipped;
             PlayerDataManager.Instance.OnItemUnequipped -= OnItemUnequipped;
+        }
+        
+        // 🆕 클릭 이벤트 해제
+        RemoveSlotClickEvents();
+    }
+    
+    /// <summary>
+    /// 🗑️ 모든 슬롯 클릭 이벤트 해제
+    /// </summary>
+    private void RemoveSlotClickEvents()
+    {
+        RemoveSlotClickEvent(weaponSlot);
+        RemoveSlotClickEvent(armorSlot);
+        RemoveSlotClickEvent(bootsSlot);
+        RemoveSlotClickEvent(helmetSlot);
+        RemoveSlotClickEvent(shieldSlot);
+        RemoveSlotClickEvent(ring1Slot);
+        RemoveSlotClickEvent(ring2Slot);
+        RemoveSlotClickEvent(necklaceSlot);
+    }
+    
+    /// <summary>
+    /// 🗑️ 개별 슬롯 클릭 이벤트 해제
+    /// </summary>
+    private void RemoveSlotClickEvent(InventorySlot slot)
+    {
+        if (slot == null) return;
+        
+        var button = slot.GetComponent<UnityEngine.UI.Button>();
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
         }
     }
 }
