@@ -374,16 +374,16 @@ GameObject:
   - component: {fileID: 7061653319065569405}
   - component: {fileID: 2625955227663354421}
   - component: {fileID: 2904923420834336424}
-  - component: {fileID: -5040200761801505519}
   - component: {fileID: -4864820137561828870}
   - component: {fileID: 3378627283251995473}
+  - component: {fileID: -5040200761801505519}
   - component: {fileID: 3412523220790301595}
   - component: {fileID: 472274624499914740}
   - component: {fileID: 2541682511758850633}
   - component: {fileID: 4451406008786218953}
   - component: {fileID: 5599835765031428221}
-  - component: {fileID: 6871897149403198252}
-  - component: {fileID: -7096231677147158169}
+  - component: {fileID: -2556596448130641449}
+  - component: {fileID: 1342558069000973292}
   - component: {fileID: 5734504649737104247}
   - component: {fileID: 3411945224194783882}
   - component: {fileID: 6403347020822746970}
@@ -538,19 +538,6 @@ CapsuleCollider2D:
   m_Offset: {x: -0.044733845, y: -0.13466935}
   m_Size: {x: 0.6237145, y: 0.55638814}
   m_Direction: 1
---- !u!114 &-5040200761801505519
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 640d1baa946081e4291e894855f4078d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  showDebugLogs: 1
 --- !u!114 &-4864820137561828870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -588,6 +575,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-5040200761801505519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 640d1baa946081e4291e894855f4078d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebugLogs: 1
 --- !u!114 &3412523220790301595
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -662,25 +662,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillSet:
     showDebugLogs: 1
-  skill1Component: {fileID: 6871897149403198252}
-  skill2Component: {fileID: -7096231677147158169}
-  cooldownTime: 2
-  skill2CooldownTime: 3
---- !u!114 &6871897149403198252
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04054edff9628be468575ce4ec1dcd1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: bc18b498993dfa7499da7851f4e9a1a6, type: 2}
   showDebugLogs: 1
---- !u!114 &-7096231677147158169
+--- !u!114 &-2556596448130641449
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -689,10 +672,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 7542120236176968360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6997b9befe65a364da648f59635c2aa3, type: 3}
+  m_Script: {fileID: 11500000, guid: c1e8c8d3c616aac4c93c553c8b4330d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 49243cf017dacd94e85341aa416e4a56, type: 2}
+  skillData: {fileID: 11400000, guid: 4d7d4e47b3235f14d9f5e17466ebf79f, type: 2}
+  showDebugLogs: 1
+--- !u!114 &1342558069000973292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23a5371c80c519a419a71ffb1fdf1803, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillData: {fileID: 11400000, guid: 9ea2cbcb25f6dbe47acafcf02ca6559a, type: 2}
   showDebugLogs: 1
 --- !u!114 &5734504649737104247
 MonoBehaviour:
@@ -707,7 +704,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
-  restoreDefaultMatTime: 1
 --- !u!114 &3411945224194783882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -720,8 +716,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 1
-  defaultKnockBackThrust: 1
 --- !u!114 &6403347020822746970
 MonoBehaviour:
   m_ObjectHideFlags: 0

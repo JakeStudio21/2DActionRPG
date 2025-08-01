@@ -53,7 +53,7 @@ public class PlayerAnimationController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         
-        // ⭐ 현재 사용 중인 Animation Controller 로그 출력
+        // ✅ 유지: 현재 사용 중인 Animation Controller 로그 출력
         if (animator != null && animator.runtimeAnimatorController != null)
         {
             Debug.Log($"🔍 [PlayerAnimationController] 사용 중인 Controller: {animator.runtimeAnimatorController.name}");
@@ -135,8 +135,17 @@ public class PlayerAnimationController : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"🟢 [PlayerAnimationController] SkillController 찾음: {skillController.name}");
             
-            // SkillController에서 쿨다운 시간 가져오기
-            skill1Cooldown = skillController.CooldownTime;
+            // ⭐ 제거: SkillController에서 쿨다운 시간 가져오기
+            // skill1Cooldown = skillController.CooldownTime;
+            
+            // ⭐ 새로운 방식: 기본값 사용 또는 SkillSet에서 조회
+            var skill1 = skillController.SkillSet?.GetSkill(0);
+            if (skill1 != null)
+            {
+                skill1Cooldown = skill1.Cooldown;
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [PlayerAnimationController] 스킬1 쿨다운: {skill1Cooldown}초");
+            }
         }
         
         // 초기 Animation Parameters 설정
@@ -267,15 +276,19 @@ public class PlayerAnimationController : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"🔵 [PlayerAnimationController] TriggerSkill1 요청");
         
-        // 스킬1 가능 여부 확인
-        if (!CanPerformSkill1())
+        // 스킬1 가능 여부 확인 (BaseSkill의 CanUse로 대체)
+        if (skillController != null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 불가능 상태입니다!");
-            return false;
+            var skill1 = skillController.SkillSet?.GetSkill(0);
+            if (skill1 != null && !skill1.CanUse())
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 쿨다운 중입니다!");
+                return false;
+            }
         }
         
-        // Animation Parameters 안전하게 설정
+        // Animation Parameters 설정
         try
         {
             if (HasParameter(animator, "isSkill1"))
@@ -285,7 +298,6 @@ public class PlayerAnimationController : MonoBehaviour
                 animator.SetTrigger(SKILL1_TRIGGER_HASH);
             else
             {
-                Debug.LogWarning("[PlayerAnimationController] 'Skill1' Trigger Parameter가 없어서 스킬을 직접 실행합니다.");
                 ExecuteSkill1();
             }
         }
@@ -295,9 +307,8 @@ public class PlayerAnimationController : MonoBehaviour
             return false;
         }
         
-        // 내부 상태 업데이트
-        isSkill1 = true;
-        canSkill1 = false;
+        // ❌ 제거: 중복 쿨다운 시작
+        // StartCoroutine(Skill1CooldownRoutine());
         
         if (showDebugLogs)
             Debug.Log($"🟢 [PlayerAnimationController] 스킬1 트리거 실행!");
@@ -313,15 +324,19 @@ public class PlayerAnimationController : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"🔵 [PlayerAnimationController] TriggerSkill2 요청");
         
-        // 스킬2 가능 여부 확인
-        if (!CanPerformSkill2())
+        // 스킬2 가능 여부 확인 (BaseSkill의 CanUse로 대체)
+        if (skillController != null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 불가능 상태입니다!");
-            return false;
+            var skill2 = skillController.SkillSet?.GetSkill(1);
+            if (skill2 != null && !skill2.CanUse())
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 쿨다운 중입니다!");
+                return false;
+            }
         }
         
-        // Animation Parameters 안전하게 설정
+        // Animation Parameters 설정
         try
         {
             if (HasParameter(animator, "isSkill2"))
@@ -331,7 +346,6 @@ public class PlayerAnimationController : MonoBehaviour
                 animator.SetTrigger(SKILL2_TRIGGER_HASH);
             else
             {
-                Debug.LogWarning("[PlayerAnimationController] 'Skill2' Trigger Parameter가 없어서 스킬2를 직접 실행합니다.");
                 ExecuteSkill2();
             }
         }
@@ -341,9 +355,8 @@ public class PlayerAnimationController : MonoBehaviour
             return false;
         }
         
-        // 내부 상태 업데이트
-        isSkill2 = true;
-        canSkill2 = false;
+        // ❌ 제거: 중복 쿨다운 시작
+        // StartCoroutine(Skill2CooldownRoutine());
         
         if (showDebugLogs)
             Debug.Log($"🟢 [PlayerAnimationController] 스킬2 트리거 실행!");
@@ -503,35 +516,33 @@ public class PlayerAnimationController : MonoBehaviour
         if (showDebugLogs)
             Debug.Log("🟢 [PlayerAnimationController] OnAttackStart - Animation Event");
         
-        // 무기의 애니메이션 트리거 (무기별 애니메이션 실행)
+        // 무기의 순수 공격 로직만 실행
         if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
         {
+            // ⭐ 무기별 애니메이션 트리거 추가 (복원)
             var weaponAnimator = activeWeapon.CurrentActiveWeapon.GetComponent<Animator>();
             if (weaponAnimator != null)
             {
-                // 무기별 애니메이션 트리거 (Bow: "Fire", Sword: "Attack" 등)
-                if (activeWeapon.CurrentActiveWeapon.name.Contains("Bow"))
+                if (activeWeapon.CurrentActiveWeapon.name.Contains("Sword"))
+                {
+                    weaponAnimator.SetTrigger("Attack");
+                    Debug.Log("🎬 [PlayerAnimationController] Sword 애니메이션 트리거 실행");
+                }
+                else if (activeWeapon.CurrentActiveWeapon.name.Contains("Bow"))
                 {
                     weaponAnimator.SetTrigger("Fire");
+                    Debug.Log("🎬 [PlayerAnimationController] Bow 애니메이션 트리거 실행");
                 }
-                else if (activeWeapon.CurrentActiveWeapon.name.Contains("Sword"))
-                {
-                    weaponAnimator.SetTrigger("Attack");
-                }
-                else if (activeWeapon.CurrentActiveWeapon.name.Contains("Staff"))
-                {
-                    weaponAnimator.SetTrigger("Attack");
-                }
-                
-                if (showDebugLogs)
-                    Debug.Log($"🟢 [PlayerAnimationController] 무기 애니메이션 트리거: {activeWeapon.CurrentActiveWeapon.name}");
             }
             
-            // 무기의 순수 공격 로직도 실행
+            // 무기의 순수 공격 로직
             var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
             if (weapon != null)
             {
                 weapon.Attack();
+                
+                if (showDebugLogs)
+                    Debug.Log($"🟢 [PlayerAnimationController] 무기 공격 실행: {activeWeapon.CurrentActiveWeapon.name}");
             }
         }
     }
@@ -634,30 +645,13 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (skillController != null)
         {
-            // ⭐ 수정: TriggerSkill() 대신 OnSkill1AnimationEvent() 호출 (무한 루프 방지)
             skillController.OnSkill1AnimationEvent();
             if (showDebugLogs)
                 Debug.Log("🟢 [PlayerAnimationController] 스킬1 Animation Event 실행 완료");
         }
-        else
-        {
-            Debug.LogError("🔴 [PlayerAnimationController] ExecuteSkill1: SkillController가 null입니다! 재검색 시도...");
-            
-            // ⭐ 실시간 재검색 시도
-            skillController = FindObjectOfType<SkillController>();
-            if (skillController != null)
-            {
-                Debug.Log("🟢 [PlayerAnimationController] SkillController 재검색 성공! 스킬1 실행");
-                skillController.OnSkill1AnimationEvent();
-            }
-            else
-            {
-                Debug.LogError("🔴 [PlayerAnimationController] SkillController 재검색도 실패!");
-            }
-        }
         
-        // 간단한 쿨다운 시작
-        StartCoroutine(Skill1CooldownRoutine());
+        // ❌ 제거: 중복 쿨다운
+        // StartCoroutine(Skill1CooldownRoutine());
     }
     
     /// <summary>
@@ -667,30 +661,13 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (skillController != null)
         {
-            // ⭐ 수정: TriggerSkill2() 대신 OnSkill2AnimationEvent() 호출 (무한 루프 방지)
             skillController.OnSkill2AnimationEvent();
             if (showDebugLogs)
                 Debug.Log("🟢 [PlayerAnimationController] 스킬2 Animation Event 실행 완료");
         }
-        else
-        {
-            Debug.LogError("🔴 [PlayerAnimationController] ExecuteSkill2: SkillController가 null입니다! 재검색 시도...");
-            
-            // ⭐ 실시간 재검색 시도
-            skillController = FindObjectOfType<SkillController>();
-            if (skillController != null)
-            {
-                Debug.Log("🟢 [PlayerAnimationController] SkillController 재검색 성공! 스킬2 실행");
-                skillController.OnSkill2AnimationEvent();
-            }
-            else
-            {
-                Debug.LogError("🔴 [PlayerAnimationController] SkillController 재검색도 실패!");
-            }
-        }
         
-        // 간단한 쿨다운 시작
-        StartCoroutine(Skill2CooldownRoutine());
+        // ❌ 제거: 중복 쿨다운
+        // StartCoroutine(Skill2CooldownRoutine());
     }
     
     /// <summary>

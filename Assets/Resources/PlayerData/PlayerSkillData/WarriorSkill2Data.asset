@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b206be4e23dfcf24bbed743eb3e2738c, type: 3}
+  m_Name: WarriorSkill2Data
+  m_EditorClassIdentifier: 
+  skillName: Ground Slam
+  icon: {fileID: 0}
+  cooldown: 2
+  damage: 20
+  range: 5
+  effectPrefab: {fileID: 0}
+  dashSpeed: 20
+  dashRange: 8
+  attackCount: 3
+  attackDelay: 0.3
+  attackRadius: 2
+  blockChanceBonus: 0.1
+  counterAttackMultiplier: 1.5
+  stunDuration: 3
+  dashEffectPrefab: {fileID: 0}
+  slashEffectPrefab: {fileID: 0}
+  dashEffectPoolName: DashEffect
+  slashEffectPoolName: SlashEffect

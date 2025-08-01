@@ -119,11 +119,25 @@ public class SkillSet
         {
             if (showDebugLogs)
                 Debug.LogWarning($"🟡 [SkillSet] 슬롯 {slot}에 스킬이 없어 Animation Event 무시됨");
+            // ⭐ 추가: 현재 스킬 상태 로그
+            Debug.LogWarning($"🔍 [SkillSet] 현재 스킬 개수: {SkillCount}");
+            for (int i = 0; i < SkillCount; i++)
+            {
+                var checkSkill = GetSkill(i);
+                Debug.LogWarning($"   - 슬롯 {i}: {(checkSkill != null ? checkSkill.SkillName : "null")}");
+            }
             return;
         }
         
         if (showDebugLogs)
             Debug.Log($"🔵 [SkillSet] 슬롯 {slot} 스킬 '{skill.SkillName}' Animation Event 호출");
+            
+        // ⭐ 추가: 스킬 실행 가능 여부 체크
+        if (!skill.CanUse())
+        {
+            Debug.LogWarning($"🟡 [SkillSet] 스킬 '{skill.SkillName}' 사용 불가능 (쿨다운: {skill.GetCooldownRemaining():F1}초)");
+            return;
+        }
             
         skill.OnAnimationEvent();
     }

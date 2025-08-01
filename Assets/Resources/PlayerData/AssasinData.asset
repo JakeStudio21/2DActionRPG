@@ -15,10 +15,10 @@ MonoBehaviour:
   baseMaxHealth: 50
   baseMoveSpeed: 4
   baseDashSpeed: 6
-  baseDamageRecoveryTime: 5
+  baseDamageRecoveryTime: 1
   flashDuration: 0.5
   knockbackTime: 0.2
-  baseKnockbackThrust: 10
+  baseKnockbackThrust: 5
   baseExpToNextLevel: 5
   expIncreasePerLevel: 5
   className: 

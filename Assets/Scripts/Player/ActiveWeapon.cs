@@ -143,6 +143,7 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
         if (playerAnimationController != null)
         {
             playerAnimationController.UpdateWeaponCooldown(weaponData.WeaponCooldown);
+            
             if (showDebugLogs)
                 Debug.Log($"📢 [ActiveWeapon] PlayerAnimationController에 쿨다운 전달: {weaponData.WeaponCooldown}초");
         }

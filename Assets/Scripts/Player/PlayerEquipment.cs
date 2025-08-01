@@ -55,6 +55,14 @@ public class PlayerEquipment : MonoBehaviour
         // 1단계: 장착 가능성 검사 (PlayerEquipment의 핵심 책임)
         if (!CanEquipWeapon(weaponData))
         {
+            // ⭐ 추가: 클래스 None인 경우 대기 상태로 설정
+            if (GetPlayerClass() == PlayerClass.None)
+            {
+                Debug.Log($"🕐 [PlayerEquipment] 클래스 초기화 대기 중 - 무기 장착 보류: {weaponData.equipmentName}");
+                pendingWeaponEquip = weaponData;
+                return null; // 현재는 실패하지만 나중에 재시도됨
+            }
+            
             if (showDebugLogs)
                 Debug.LogWarning($"🚫 [PlayerEquipment] {weaponData.equipmentName} 장착 불가!");
             return null;
@@ -175,27 +183,32 @@ public class PlayerEquipment : MonoBehaviour
         // 현재 플레이어 클래스 확인
         PlayerClass currentClass = GetPlayerClass();
         
-        // ❌ 디버그 로그 제거
-        // Debug.Log($"🎯 [PlayerEquipment] 현재 클래스: {currentClass}");
-        // Debug.Log($"🛡️ [PlayerEquipment] 무기 요구 클래스: {weaponData.usableClass}");
-        // Debug.Log($"⚔️ [PlayerEquipment] 무기 타입: {weaponData.WeaponType}");
-        
-        if (currentClass == PlayerClass.None)
+        if (showDebugLogs)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerEquipment] 플레이어 클래스를 확인할 수 없습니다.");
-            return false;
+            Debug.Log($"🔍 [PlayerEquipment] 호환성 검사:");
+            Debug.Log($"   - 현재 클래스: {currentClass}");
+            Debug.Log($"   - 무기 요구 클래스: {weaponData.usableClass}");
+            Debug.Log($"   - 무기 타입: {weaponData.WeaponType}");
         }
         
-        // 호환성 검사 (EquipmentData의 책임 활용)
+        // ⭐ 간단한 해결: 클래스가 None인 경우 임시 허용
+        if (currentClass == PlayerClass.None)
+        {
+            Debug.LogWarning("🟡 [PlayerEquipment] 활성 클래스를 찾을 수 없지만 임시 허용합니다.");
+            return true; // 일단 허용하고 나중에 처리
+        }
+        
+        // 호환성 검사
         bool isCompatible = weaponData.IsCompatibleWith(currentClass);
         
-        // ❌ 디버그 로그 제거
-        // Debug.Log($"🔍 [PlayerEquipment] IsCompatibleWith() 결과: {isCompatible}");
+        if (showDebugLogs)
+        {
+            Debug.Log($"🔍 [PlayerEquipment] IsCompatibleWith() 결과: {isCompatible}");
+        }
         
         if (!isCompatible && showDebugLogs)
         {
-            Debug.LogWarning($"�� [PlayerEquipment] 클래스 호환성 실패: {currentClass}는 {weaponData.usableClass} 전용 {weaponData.WeaponType} 사용 불가");
+            Debug.LogWarning($"🚫 [PlayerEquipment] 클래스 호환성 실패: {currentClass}는 {weaponData.usableClass} 전용 {weaponData.WeaponType} 사용 불가");
         }
         
         return isCompatible;
@@ -206,44 +219,108 @@ public class PlayerEquipment : MonoBehaviour
     /// </summary>
     private PlayerClass GetPlayerClass()
     {
-        // ❌ 디버그 로그 제거
-        // Debug.Log("🎯 [PlayerEquipment] GetPlayerClass() 호출됨");
+        if (showDebugLogs)
+            Debug.Log("🎯 [PlayerEquipment] GetPlayerClass() 호출됨");
         
         // 같은 GameObject에서 클래스 컴포넌트 찾기
         var assasin = GetComponent<Assasin>();
-        // Debug.Log($"🎯 [PlayerEquipment] Assasin 컴포넌트: {(assasin != null ? "발견됨" : "없음")}");
-        
-        if (assasin != null)
-        {
-            // Debug.Log($"🎯 [PlayerEquipment] Assasin.IsActiveClass: {assasin.IsActiveClass}");
-            if (assasin.IsActiveClass)
-            {
-                // Debug.Log($"�� [PlayerEquipment] 현재 클래스: Assasin");
-                return PlayerClass.Assasin;
-            }
-        }
-            
         var warrior = GetComponent<Warrior>();
-        // Debug.Log($"🎯 [PlayerEquipment] Warrior 컴포넌트: {(warrior != null ? "발견됨" : "없음")}");
         
-        if (warrior != null)
+        if (showDebugLogs)
         {
-            // Debug.Log($"🎯 [PlayerEquipment] Warrior.IsActiveClass: {warrior.IsActiveClass}");
-            if (warrior.IsActiveClass)
+            Debug.Log($"🔍 [PlayerEquipment] 컴포넌트 검색 결과:");
+            Debug.Log($"   - Assasin 컴포넌트: {(assasin != null ? "발견됨" : "없음")}");
+            Debug.Log($"   - Warrior 컴포넌트: {(warrior != null ? "발견됨" : "없음")}");
+            
+            if (assasin != null)
+                Debug.Log($"   - Assasin.IsActiveClass: {assasin.IsActiveClass}");
+            if (warrior != null)
+                Debug.Log($"   - Warrior.IsActiveClass: {warrior.IsActiveClass}");
+        }
+        
+        // Assasin 확인
+        if (assasin != null && assasin.IsActiveClass)
+        {
+            if (showDebugLogs)
+                Debug.Log("✅ [PlayerEquipment] 현재 클래스: Assasin");
+            return PlayerClass.Assasin;
+        }
+        
+        // Warrior 확인
+        if (warrior != null && warrior.IsActiveClass)
+        {
+            if (showDebugLogs)
+                Debug.Log("✅ [PlayerEquipment] 현재 클래스: Warrior");
+            return PlayerClass.Warrior;
+        }
+        
+        // ⭐ 추가: 게임 매니저에서 선택된 클래스 확인 (폴백)
+        if (GameManager.Instance?.selectedPlayerData != null)
+        {
+            var selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
+            PlayerClass fallbackClass = selectedType switch
             {
-                // Debug.Log("✅ [PlayerEquipment] 현재 클래스: Warrior");
-                return PlayerClass.Warrior;
+                PlayerType.Warrior => PlayerClass.Warrior,
+                PlayerType.Assasin => PlayerClass.Assasin,
+                PlayerType.Wizard => PlayerClass.Wizard,
+                _ => PlayerClass.None
+            };
+            
+            if (fallbackClass != PlayerClass.None)
+            {
+                Debug.LogWarning($"🟡 [PlayerEquipment] 활성 클래스를 찾을 수 없어 GameManager 데이터 사용: {fallbackClass}");
+                return fallbackClass;
             }
         }
         
-        // Wizard 추가 시
-        // var wizard = GetComponent<Wizard>();
-        // if (wizard != null && wizard.IsActiveClass)
-        //     return PlayerClass.Wizard;
-        
-        // Debug.LogWarning("🟡 [PlayerEquipment] 활성 클래스를 찾을 수 없습니다.");
+        Debug.LogWarning("🟡 [PlayerEquipment] 활성 클래스를 찾을 수 없습니다.");
         return PlayerClass.None;
     }
     
     #endregion
+
+    /// <summary>
+    /// 클래스 초기화 완료 알림 받기
+    /// </summary>
+    public void OnClassInitializationComplete(BaseClassBehaviour classComponent)
+    {
+        if (showDebugLogs)
+            Debug.Log($"📨 [PlayerEquipment] 클래스 초기화 완료 알림 수신: {classComponent.ClassName}");
+        
+        // 대기 중인 무기 장착이 있다면 재시도
+        if (pendingWeaponEquip != null)
+        {
+            Debug.Log("🔄 [PlayerEquipment] 대기 중인 무기 장착 재시도");
+            StartCoroutine(RetryPendingWeaponEquip());
+        }
+    }
+
+    private EquipmentData pendingWeaponEquip = null;
+
+    /// <summary>
+    /// 대기 중인 무기 장착 재시도
+    /// </summary>
+    private IEnumerator RetryPendingWeaponEquip()
+    {
+        yield return new WaitForSeconds(0.1f); // 안전 대기
+        
+        if (pendingWeaponEquip != null)
+        {
+            var weaponData = pendingWeaponEquip;
+            pendingWeaponEquip = null; // 중복 실행 방지
+            
+            Debug.Log($"🔄 [PlayerEquipment] 대기 무기 재장착 시도: {weaponData.equipmentName}");
+            
+            // 재시도
+            var result = EquipWeaponPrefab(weaponData);
+            if (result != null)
+            {
+                Debug.Log("✅ [PlayerEquipment] 대기 무기 재장착 성공!");
+            }
+            else
+            {
+                Debug.LogWarning("🟡 [PlayerEquipment] 대기 무기 재장착도 실패");
+            }
+        }
+    }
 }

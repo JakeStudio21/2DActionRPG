@@ -22,19 +22,16 @@ public class EnemyPatrolState : IEnemyState
         {
             spawnPoint = blueSlime.SpawnPoint; // 실제 스폰 지점 사용
             patrolRadius = blueSlime.PatrolRadius;
-            Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - BlueSlime 실제 스폰 지점 사용: {spawnPoint}, 순찰반지름: {patrolRadius}");
         }
         else if (enemy is Grape grape) // 🔑 Grape 추가
         {
             spawnPoint = grape.SpawnPoint; // 실제 스폰 지점 사용
             patrolRadius = grape.PatrolRadius;
-            Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - Grape 실제 스폰 지점 사용: {spawnPoint}, 순찰반지름: {patrolRadius}");
         }
         else if (enemy is Ghost ghost) // 🔑 Ghost 추가
         {
             spawnPoint = ghost.SpawnPoint; // 실제 스폰 지점 사용
             patrolRadius = ghost.PatrolRadius;
-            Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - Ghost 실제 스폰 지점 사용: {spawnPoint}, 순찰반지름: {patrolRadius}");
         }
         else
         {
@@ -44,24 +41,19 @@ public class EnemyPatrolState : IEnemyState
 
     public void Enter()
     {
-        Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 순찰 상태 진입");
-        Debug.Log($"  현재 위치: {enemy.transform.position}, 스폰 지점: {spawnPoint}");
         
         // 🔑 스폰 지점에서 멀리 떨어져 있으면 먼저 스폰 지점으로 돌아가기
         float distToSpawn = Vector2.Distance(enemy.transform.position, spawnPoint);
-        Debug.Log($"  스폰 지점까지 거리: {distToSpawn:F2}f, 순찰 반지름: {patrolRadius:F2}f");
         
         if (distToSpawn > patrolRadius)
         {
             returningToSpawn = true;
             patrolTarget = spawnPoint;
-            Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 스폰 지점으로 직접 복귀 중 (거리: {distToSpawn:F2})");
         }
         else
         {
             returningToSpawn = false;
             GenerateNewPatrolTarget();
-            Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 스폰 지점 근처에서 순찰 시작");
         }
         patrolTimer = 0f;
     }
@@ -104,7 +96,6 @@ public class EnemyPatrolState : IEnemyState
             
             if (distToPlayer < patrolDetectionRange)
             {
-                Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 순찰 중 플레이어 재감지! Chase 상태로 전환 (거리: {distToPlayer:F2}, 감지: {patrolDetectionRange:F2})");
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
             }
@@ -122,7 +113,6 @@ public class EnemyPatrolState : IEnemyState
                 returningToSpawn = false;
                 GenerateNewPatrolTarget();
                 patrolTimer = 0f;
-                Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 스폰 지점 도착! 정상 순찰 시작");
             }
         }
         // 🔑 정상 순찰 중
@@ -145,7 +135,6 @@ public class EnemyPatrolState : IEnemyState
             {
                 returningToSpawn = true;
                 patrolTarget = spawnPoint;
-                Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 순찰 범위 이탈, 스폰 지점으로 복귀");
             }
         }
     }
@@ -157,7 +146,5 @@ public class EnemyPatrolState : IEnemyState
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
         float randomDistance = Random.Range(1f, patrolRadius);
         patrolTarget = spawnPoint + (randomDirection * randomDistance);
-        
-        // Debug.Log($"[EnemyPatrolState] {enemy.transform.name} - 새 순찰 목표 생성: {patrolTarget} (스폰지점: {spawnPoint}, 거리: {randomDistance:F2}f, 방향: {randomDirection})");
     }
 }

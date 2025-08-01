@@ -51,7 +51,6 @@ public class EnemyIdleState : IEnemyState
                 if (multiShotAttack != null)
                 {
                     detectionRange = multiShotAttack.GetDetectionRange();
-                    // Debug.Log($"[EnemyIdleState] Ghost {enemy.transform.name} - MultiShotAttack 감지범위: {detectionRange}"); // 필요시 활성화
                 }
                 else
                 {
@@ -59,11 +58,8 @@ public class EnemyIdleState : IEnemyState
                 }
             }
             
-            // Debug.Log($"[EnemyIdleState] {enemy.transform.name} - 플레이어 거리: {dist:F2}, 최종 감지범위: {detectionRange:F2}");
-            
             if (dist < detectionRange)
             {
-                Debug.Log($"[EnemyIdleState] {enemy.transform.name} - 플레이어 감지! Chase 상태로 전환");
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
             }
@@ -72,7 +68,6 @@ public class EnemyIdleState : IEnemyState
         // 일정 시간 후 순찰 시작
         if (idleTimer >= maxIdleTime)
         {
-            Debug.Log($"[EnemyIdleState] {enemy.transform.name} - Idle 시간 초과, Patrol 상태로 전환");
             enemy.FSMController.ChangeState(new EnemyPatrolState(enemy));
         }
     }

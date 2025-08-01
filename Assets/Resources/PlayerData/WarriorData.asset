@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abcc7e73e1f1ee749a86881dd42c6c4d, type: 3}
   m_Name: WarriorData
   m_EditorClassIdentifier: 
-  baseMaxHealth: 100
+  baseMaxHealth: 50
   baseMoveSpeed: 4
   baseDashSpeed: 6
   baseDamageRecoveryTime: 1
-  flashDuration: 0.1
+  flashDuration: 0.5
   knockbackTime: 0.2
-  baseKnockbackThrust: 10
+  baseKnockbackThrust: 5
   baseExpToNextLevel: 20
   expIncreasePerLevel: 5
   className: 

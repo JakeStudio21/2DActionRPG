@@ -403,30 +403,33 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     
     public virtual void InitializeClass()
     {
-        if (showDebugLogs)
-            Debug.Log($"🎯 [BaseClass] {ClassName} 클래스 초기화 시작");
-        
-        // 컴포넌트 참조 확인
-        if (!ValidateComponents())
+        if (isInitialized)
         {
-            Debug.LogError($"🔴 [BaseClass] {ClassName} 필수 컴포넌트가 누락되어 초기화를 중단합니다.");
+            if (showDebugLogs)
+                Debug.Log($"⏭️ [BaseClassBehaviour] {ClassName} 이미 초기화됨 - 건너뜀");
             return;
         }
         
-        // 클래스별 능력치 적용
-        ApplyClassStats();
+        if (showDebugLogs)
+            Debug.Log($"🚀 [BaseClassBehaviour] {ClassName} 초기화 시작");
+        
+        // 컴포넌트 참조 재확인
+        GetComponentReferences();
         
         // 클래스별 스킬 설정
         SetupClassSkills();
         
-        // 패시브 효과 초기 적용
-        ApplyPassiveEffects();
+        // 능력치 적용
+        ApplyClassStats();
         
         isInitialized = true;
-        SetActive(true);
+        isActive = true;
+        
+        // ⭐ 추가: 초기화 완료 알림
+        NotifyClassInitializationComplete();
         
         if (showDebugLogs)
-            Debug.Log($"🟢 [BaseClass] {ClassName} 클래스 초기화 완료!");
+            Debug.Log($"✅ [BaseClassBehaviour] {ClassName} 초기화 완료");
     }
     
     public virtual void ApplyClassStats()
@@ -456,6 +459,12 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         
         // SkillController에 쿨다운 배율 적용
         ApplySkillCooldownMultiplier();
+        
+        // ⭐ Knockback 설정 적용 (일관된 패턴)
+        ApplyKnockbackSettings();
+        
+        // ⭐ Flash 설정 적용 (신규 추가)
+        ApplyFlashSettings();
         
         // 자식 클래스별 추가 능력치 적용
         ApplyAdditionalStats();
@@ -647,63 +656,71 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     }
     
     /// <summary>
-    /// SkillController에 쿨다운 배율 적용
+    /// SkillController에 쿨다운 배율 적용 (새로운 구조)
     /// </summary>
     protected virtual void ApplySkillCooldownMultiplier()
     {
-        if (skillController != null)
-        {
-            // SkillController의 기본 쿨다운 필드들에 배율 적용
-            var cooldownTimeField = typeof(SkillController).GetField("cooldownTime", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var skill2CooldownTimeField = typeof(SkillController).GetField("skill2CooldownTime", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
-            if (cooldownTimeField != null)
-            {
-                float baseCooldownTime = (float)cooldownTimeField.GetValue(skillController);
-                float newCooldownTime = baseCooldownTime * SkillCooldownMultiplier;
-                cooldownTimeField.SetValue(skillController, newCooldownTime);
-                
-                if (showDebugLogs)
-                    Debug.Log($"   - 스킬1 쿨다운: {baseCooldownTime}초 → {newCooldownTime}초");
-            }
-            
-            if (skill2CooldownTimeField != null)
-            {
-                float baseSkill2CooldownTime = (float)skill2CooldownTimeField.GetValue(skillController);
-                float newSkill2CooldownTime = baseSkill2CooldownTime * SkillCooldownMultiplier;
-                skill2CooldownTimeField.SetValue(skillController, newSkill2CooldownTime);
-                
-                if (showDebugLogs)
-                    Debug.Log($"   - 스킬2 쿨다운: {baseSkill2CooldownTime}초 → {newSkill2CooldownTime}초");
-            }
-            
-            // 추가: SkillSet의 개별 스킬들에도 배율 적용
-            ApplySkillSetCooldownMultiplier();
-            
-            if (showDebugLogs)
-                Debug.Log($"   - 스킬 쿨다운 배율: {SkillCooldownMultiplier}x 적용 완료");
-        }
-    }
-    
-    /// <summary>
-    /// SkillSet의 개별 스킬들에 쿨다운 배율 적용
-    /// </summary>
-    private void ApplySkillSetCooldownMultiplier()
-    {
         if (skillController?.SkillSet == null) return;
         
+        // ⭐ 새로운 방식: SkillSet의 개별 스킬들에 직접 배율 적용
         for (int i = 0; i < skillController.SkillSet.SkillCount; i++)
         {
             var skill = skillController.SkillSet.GetSkill(i);
             if (skill != null)
             {
-                // ISkill의 Cooldown은 readonly property이므로 직접 수정 불가
-                // 대신 GetModifiedCooldown 메서드를 통해 런타임에 배율 적용
+                // BaseSkill<T>의 GetModifiedCooldown 메서드를 통해 배율 적용
+                // 각 스킬이 자체 SkillData에서 쿨다운을 관리하므로 직접 수정하지 않음
                 if (showDebugLogs)
-                    Debug.Log($"   - {skill.SkillName}: 런타임 쿨다운 배율 적용 준비");
+                    Debug.Log($"   - {skill.SkillName}: 쿨다운 배율 {SkillCooldownMultiplier}x 준비 완료");
             }
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"   - 스킬 쿨다운 배율: {SkillCooldownMultiplier}x 적용 완료");
+    }
+    
+    /// <summary>
+    /// Knockback 컴포넌트에 클래스별 설정 적용
+    /// </summary>
+    protected virtual void ApplyKnockbackSettings()
+    {
+        var knockback = GetComponent<Knockback>();
+        if (knockback != null)
+        {
+            // ScriptableObject에서 값 가져와서 주입
+            float baseThrust = GetBaseKnockbackThrust();
+            float baseTime = GetBaseKnockbackTime();
+            
+            knockback.SetKnockbackSettings(baseThrust, baseTime);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔧 [BaseClass] {ClassName} Knockback 설정 적용: {baseThrust} thrust, {baseTime}초");
+        }
+        else
+        {
+            Debug.LogWarning($"🟡 [BaseClass] {ClassName} Knockback 컴포넌트를 찾을 수 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// Flash 컴포넌트에 클래스별 설정 적용
+    /// </summary>
+    protected virtual void ApplyFlashSettings()
+    {
+        var flash = GetComponent<Flash>();
+        if (flash != null)
+        {
+            // ScriptableObject에서 값 가져와서 주입
+            float flashDuration = GetBaseFlashDuration();
+            
+            flash.SetFlashSettings(flashDuration);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔧 [BaseClass] {ClassName} Flash 설정 적용: {flashDuration}초");
+        }
+        else
+        {
+            Debug.LogWarning($"🟡 [BaseClass] {ClassName} Flash 컴포넌트를 찾을 수 없습니다!");
         }
     }
     
@@ -734,5 +751,27 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         return modifiedDamage;
     }
     
+    // 자식 클래스에서 구현
+    public abstract float GetBaseKnockbackThrust();
+    public abstract float GetBaseKnockbackTime();
+    public abstract float GetBaseFlashDuration(); // ⭐ 신규 추가
+    
     #endregion
+
+    /// <summary>
+    /// 클래스 초기화 완료 알림
+    /// </summary>
+    private void NotifyClassInitializationComplete()
+    {
+        // PlayerEquipment에 알림
+        var playerEquipment = GetComponent<PlayerEquipment>();
+        if (playerEquipment != null)
+        {
+            // PlayerEquipment에 클래스 초기화 완료 알림
+            playerEquipment.OnClassInitializationComplete(this);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📢 [BaseClassBehaviour] {ClassName} 초기화 완료 알림 전송");
+    }
 } 

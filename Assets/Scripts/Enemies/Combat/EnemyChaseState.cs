@@ -50,29 +50,28 @@ public class EnemyChaseState : IEnemyState
             else if (enemy is Ghost ghost) // 🔑 Ghost 추가
             {
                 chaseRange = ghost.ChaseRange;
-                // Debug.Log($"[EnemyChaseState] Ghost {enemy.transform.name} - 추격범위 설정: {chaseRange}"); // 필요시 활성화
             }
             
             // Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 플레이어 거리: {dist:F2}, 최종 추격범위: {chaseRange:F2}");
             
             if (dist > chaseRange)
             {
-                Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 추격 범위 초과, 스폰 지점으로 복귀");
-                Debug.Log($"  현재 위치: {enemy.transform.position}, 플레이어 거리: {dist:F2}f, 추격범위: {chaseRange:F2}f");
+                // Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 추격 범위 초과, 스폰 지점으로 복귀");
+                // Debug.Log($"  현재 위치: {enemy.transform.position}, 플레이어 거리: {dist:F2}f, 추격범위: {chaseRange:F2}f");
                 
-                // BlueSlime과 Grape의 경우 실제 스폰 지점 정보도 표시
-                if (enemy is BlueSlime blueSlimeInfo)
-                {
-                    Debug.Log($"  실제 스폰 지점: {blueSlimeInfo.SpawnPoint}, 스폰 거리: {Vector2.Distance(enemy.transform.position, blueSlimeInfo.SpawnPoint):F2}f");
-                }
-                else if (enemy is Grape grapeInfo) // 🔑 Grape 추가
-                {
-                    Debug.Log($"  실제 스폰 지점: {grapeInfo.SpawnPoint}, 스폰 거리: {Vector2.Distance(enemy.transform.position, grapeInfo.SpawnPoint):F2}f");
-                }
-                else if (enemy is Ghost ghostInfo) // 🔑 Ghost 추가
-                {
-                    Debug.Log($"  실제 스폰 지점: {ghostInfo.SpawnPoint}, 스폰 거리: {Vector2.Distance(enemy.transform.position, ghostInfo.SpawnPoint):F2}f");
-                }
+                // // BlueSlime과 Grape의 경우 실제 스폰 지점 정보도 표시
+                // if (enemy is BlueSlime blueSlimeInfo)
+                // {
+                //     Debug.Log($"  실제 스폰 지점: {blueSlimeInfo.SpawnPoint}, 스폰 거리: {Vector2.Distance(enemy.transform.position, blueSlimeInfo.SpawnPoint):F2}f");
+                // }
+                // else if (enemy is Grape grapeInfo) // 🔑 Grape 추가
+                // {
+                //     Debug.Log($"  실제 스폰 지점: {grapeInfo.SpawnPoint}, 스폰 거리: {Vector2.Distance(enemy.transform.position, grapeInfo.SpawnPoint):F2}f");
+                // }
+                // else if (enemy is Ghost ghostInfo) // 🔑 Ghost 추가
+                // {
+                //     Debug.Log($"  실제 스폰 지점: {ghostInfo.SpawnPoint}, 스폰 거리: {Vector2.Distance(enemy.transform.position, ghostInfo.SpawnPoint):F2}f");
+                // }
                 
                 // ✅ 수정: Idle 대신 Patrol로 전환하여 스폰 지점으로 돌아감
                 enemy.FSMController.ChangeState(new EnemyPatrolState(enemy));

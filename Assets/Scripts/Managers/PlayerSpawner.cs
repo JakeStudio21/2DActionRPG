@@ -84,7 +84,7 @@ public class PlayerSpawner : MonoBehaviour
         {
             SpawnPlayer(prefabToSpawn);
             
-            // 스폰 후 처리를 코루틴으로 실행
+            // ⭐ 수정: DelayedWeaponEquipCoroutine() → SetupPlayerPostSpawn() 호출
             StartCoroutine(SetupPlayerPostSpawn());
         }
         else
@@ -118,13 +118,86 @@ public class PlayerSpawner : MonoBehaviour
         // ⭐ 추가: PlayerAttackInput 컴포넌트 자동 추가
         AddPlayerAttackInput();
         
-        // 카메라 설정 (더 안전한 방식)
+        // 카메라 설정 (더 안전한 방식) - 즉시 실행
         yield return StartCoroutine(SetupPlayerCameraCoroutine());
         
-        // 무기 장착
-        EquipStartingWeapon();
+        // ⭐ 수정: 무기 장착을 지연 실행으로 변경
+        yield return StartCoroutine(DelayedWeaponEquipment());
         
         Debug.Log("[PlayerSpawner] 플레이어 후처리 완료");
+    }
+
+    /// <summary>
+    /// 클래스 초기화를 기다린 후 무기 장착
+    /// </summary>
+    private IEnumerator DelayedWeaponEquipment()
+    {
+        Debug.Log("[PlayerSpawner] 지연된 무기 장착 시작 - 클래스 초기화 대기");
+        
+        // 클래스 시스템 초기화 대기
+        int maxAttempts = 20; // 최대 2초 대기
+        int attempts = 0;
+        bool classSystemReady = false;
+        
+        while (attempts < maxAttempts && !classSystemReady)
+        {
+            classSystemReady = CheckClassSystemReady();
+            
+            if (!classSystemReady)
+            {
+                Debug.Log($"[PlayerSpawner] 클래스 초기화 대기 중... {attempts + 1}/{maxAttempts}");
+                yield return new WaitForSeconds(0.1f);
+                attempts++;
+            }
+        }
+        
+        // 무기 장착 시도
+        if (classSystemReady)
+        {
+            Debug.Log("[PlayerSpawner] ✅ 클래스 시스템 초기화 완료! 무기 장착 진행");
+            EquipStartingWeapon();
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerSpawner] ⚠️ 클래스 시스템 초기화 시간 초과! 강제 무기 장착 시도");
+            
+            // 강제 무기 장착 시도
+            try
+            {
+                EquipStartingWeapon();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[PlayerSpawner] 강제 무기 장착 실패: {e.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 클래스 시스템 준비 상태 확인
+    /// </summary>
+    private bool CheckClassSystemReady()
+    {
+        if (spawnedPlayer == null) return false;
+        
+        // BaseClassBehaviour 컴포넌트들 확인
+        var allClasses = spawnedPlayer.GetComponents<BaseClassBehaviour>();
+        if (allClasses.Length == 0)
+        {
+            return false;
+        }
+        
+        // 활성화된 클래스가 하나라도 있는지 확인
+        foreach (var classComp in allClasses)
+        {
+            if (classComp.IsActiveClass)
+            {
+                Debug.Log($"[PlayerSpawner] 활성 클래스 발견: {classComp.ClassName}");
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /// <summary>

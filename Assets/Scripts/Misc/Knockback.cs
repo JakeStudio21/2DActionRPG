@@ -6,16 +6,32 @@ public class Knockback : MonoBehaviour
 {
     public bool GettingKnockedBack { get; private set; }
 
-    [SerializeField] private float knockBackTime = .2f;
-    [SerializeField] private float defaultKnockBackThrust = 10f; // 🆕 기본 넉백 강도 추가
+    // ❌ 제거: 설정값 필드들
+    // [SerializeField] private float knockBackTime = .2f;
+    // [SerializeField] private float defaultKnockBackThrust = 10f;
+    
+    // ✅ 런타임 설정값 (주입받음)
+    private float knockBackTime = 0.2f;
+    private float defaultKnockBackThrust = 10f;
 
     private Rigidbody2D rb;
 
-    // 🆕 기본 넉백 강도 접근자 프로퍼티 추가
+    // ✅ 외부 접근용 프로퍼티 유지
     public float DefaultKnockBackThrust => defaultKnockBackThrust;
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    /// <summary>
+    /// ⭐ SRP: 넉백 설정값 주입 (BaseClassBehaviour에서 호출)
+    /// </summary>
+    public void SetKnockbackSettings(float thrust, float time)
+    {
+        defaultKnockBackThrust = thrust;
+        knockBackTime = time;
+        
+        Debug.Log($"🔧 [Knockback] 설정 적용: Thrust={thrust}, Time={time}초");
     }
 
     public void GetKnockedBack(Transform damageSource, float knockBackThrust) {

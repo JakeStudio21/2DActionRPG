@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipmentName: Bow_C
   itemID: ITEM_BOW_1
-  equipmentType: 0
+  equipmentType: 1
   itemGrade: 3
   usableClass: 2
   isTradable: 1

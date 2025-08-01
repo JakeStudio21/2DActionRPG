@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections; // ⭐ 이 줄 추가
 
 /// <summary>
 /// 플레이어 관련 모든 UI를 통합 관리하는 컨트롤러 
@@ -13,8 +14,8 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private Button attackButton;
     [SerializeField] private Button skill1Button;
     [SerializeField] private Button skill2Button;
-    [SerializeField] private Image skill1CooldownImage;
-    [SerializeField] private Image skill2CooldownImage;
+    [SerializeField] private Image skill1Button_Radial;  // skill1CooldownImage → 변경
+    [SerializeField] private Image skill2Button_Radial;  // skill2CooldownImage → 변경
     // ✅ Health UI, Gold UI 추가
     [SerializeField] private HealthUI healthUI;
     [SerializeField] private GoldUI goldUI;
@@ -28,8 +29,6 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private GameObject goldPanel;
     
     [Header("스킬 설정")]
-    [SerializeField] private float skill1CooldownTime = 2f;
-    [SerializeField] private float skill2CooldownTime = 3f;
     
     [Header("디버그")]
     [SerializeField] private bool showDebugLogs = true;
@@ -70,7 +69,8 @@ public class PlayerUIController : MonoBehaviour
             Debug.Log("[PlayerUIController] 플레이어 UI 초기화 시작");
         
         // UI 요소 자동 탐색 (Inspector에서 할당되지 않은 경우)
-        if (levelText == null || attackButton == null || skill1Button == null || skill2Button == null || healthUI == null || goldUI == null)
+        if (levelText == null || attackButton == null || skill1Button == null || skill2Button == null || 
+            skill1Button_Radial == null || skill2Button_Radial == null || healthUI == null || goldUI == null)
         {
             AutoFindUIElements();
         }
@@ -171,68 +171,54 @@ public class PlayerUIController : MonoBehaviour
             }
         }
         
-        // SkillButton 찾기
+        // Skill1Button 찾기  // SkillButton → 변경
         if (skill1Button == null)
         {
-            GameObject skillButtonObj = GameObject.Find("SkillButton");
+            GameObject skillButtonObj = GameObject.Find("Skill1Button");  // "SkillButton" → 변경
             if (skillButtonObj != null)
             {
                 skill1Button = skillButtonObj.GetComponent<Button>();
                 if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] SkillButton 자동 탐색 완료");
+                    Debug.Log("[PlayerUIController] Skill1Button 자동 탐색 완료");  // 로그 메시지 변경
             }
             else
             {
-                Debug.LogWarning("[PlayerUIController] SkillButton GameObject를 찾을 수 없습니다.");
+                Debug.LogWarning("[PlayerUIController] Skill1Button GameObject를 찾을 수 없습니다.");  // 로그 메시지 변경
             }
         }
         
-        // SkillButton2 찾기
+        // Skill2Button 찾기  // SkillButton2 → 변경
         if (skill2Button == null)
         {
-            GameObject skill2ButtonObj = GameObject.Find("SkillButton2");
+            GameObject skill2ButtonObj = GameObject.Find("Skill2Button");  // "SkillButton2" → 변경
             if (skill2ButtonObj != null)
             {
                 skill2Button = skill2ButtonObj.GetComponent<Button>();
                 if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] SkillButton2 자동 탐색 완료");
+                    Debug.Log("[PlayerUIController] Skill2Button 자동 탐색 완료");  // 로그 메시지 변경
             }
             else
             {
-                Debug.LogWarning("[PlayerUIController] SkillButton2 GameObject를 찾을 수 없습니다.");
+                Debug.LogWarning("[PlayerUIController] Skill2Button GameObject를 찾을 수 없습니다.");  // 로그 메시지 변경
             }
         }
         
-        // 쿨다운 이미지들 찾기
-        if (skill1CooldownImage == null && skill1Button != null)
+        // 쿨다운 이미지들 찾기 - 심플하게 변경
+        if (skill1Button_Radial == null && skill1Button != null)
         {
-            // SkillButton의 하위에서 쿨다운 이미지 찾기
-            skill1CooldownImage = skill1Button.transform.Find("CooldownImage")?.GetComponent<Image>();
-            if (skill1CooldownImage == null)
-            {
-                // 비활성화된 SkillUIController에서 참조 가져오기
-                var skillUIComp = skill1Button.GetComponent<SkillUIController>();
-                if (skillUIComp != null)
-                {
-                    skill1CooldownImage = skillUIComp.cooldownImage;
-                }
-            }
+            skill1Button_Radial = skill1Button.transform.Find("Skill1Button_Radial")?.GetComponent<Image>();
+            if (showDebugLogs)
+                Debug.Log($"[PlayerUIController] Skill1Button_Radial 탐색: {(skill1Button_Radial != null ? "성공" : "실패")}");
         }
         
-        if (skill2CooldownImage == null && skill2Button != null)
+        if (skill2Button_Radial == null && skill2Button != null)
         {
-            // SkillButton2의 하위에서 쿨다운 이미지 찾기
-            skill2CooldownImage = skill2Button.transform.Find("CooldownImage")?.GetComponent<Image>();
-            if (skill2CooldownImage == null)
-            {
-                // 비활성화된 Skill2UIController에서 참조 가져오기
-                var skill2UIComp = skill2Button.GetComponent<Skill2UIController>();
-                if (skill2UIComp != null)
-                {
-                    skill2CooldownImage = skill2UIComp.cooldownImage;
-                }
-            }
+            skill2Button_Radial = skill2Button.transform.Find("Skill2Button_Radial")?.GetComponent<Image>();
+            if (showDebugLogs)
+                Debug.Log($"[PlayerUIController] Skill2Button_Radial 탐색: {(skill2Button_Radial != null ? "성공" : "실패")}");
         }
+        //  skill1Button이 없으면 실행할 필요 없음
+
     }
 
     /// <summary>
@@ -289,21 +275,46 @@ public class PlayerUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// SkillController 초기화
+    /// SkillController 초기화 (Coroutine 기반 재시도)
     /// </summary>
     private void InitializeSkillController()
     {
-        skillController = FindObjectOfType<SkillController>();
+        StartCoroutine(InitializeSkillControllerCoroutine());
+    }
+    
+    /// <summary>
+    /// SkillController 초기화 Coroutine (재시도 로직)
+    /// </summary>
+    private IEnumerator InitializeSkillControllerCoroutine()
+    {
+        int maxRetries = 10; // 최대 10회 시도
+        float retryInterval = 0.1f; // 0.1초마다 재시도
+        
+        for (int i = 0; i < maxRetries; i++)
+        {
+            skillController = FindObjectOfType<SkillController>();
+            
+            if (skillController != null)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"[PlayerUIController] SkillController 찾음! (시도 {i + 1}회)");
+                break;
+            }
+            
+            if (showDebugLogs && i < 3) // 처음 3회만 로그 출력
+                Debug.Log($"[PlayerUIController] SkillController 검색 중... (시도 {i + 1}/{maxRetries})");
+            
+            yield return new WaitForSeconds(retryInterval);
+        }
+        
         if (skillController != null)
         {
-            skillController.cooldownTime = skill1CooldownTime;
-            skillController.skill2CooldownTime = skill2CooldownTime;
             if (showDebugLogs)
-                Debug.Log("[PlayerUIController] SkillController 초기화 완료");
+                Debug.Log("[PlayerUIController] SkillController 초기화 완료 - ScriptableObject 기반 쿨다운 사용");
         }
         else
         {
-            Debug.LogWarning("[PlayerUIController] SkillController를 찾을 수 없습니다.");
+            Debug.LogError("[PlayerUIController] SkillController를 찾을 수 없습니다! 모든 재시도 실패");
         }
     }
 
@@ -327,27 +338,84 @@ public class PlayerUIController : MonoBehaviour
     /// </summary>
     private void UpdateSkillCooldownUI()
     {
-        if (skillController == null) return;
-        
-        // 스킬1 쿨다운
-        if (skill1CooldownImage != null)
+        // 🔍 null 체크 디버그 추가
+        if (showDebugLogs && Time.frameCount % 120 == 0) // 2초마다 한 번씩 출력
         {
-            float remain = skillController.GetCooldownRemaining();
-            float newFillAmount = remain / skillController.CooldownTime;
-            if (Mathf.Abs(skill1CooldownImage.fillAmount - newFillAmount) > 0.01f)
+            Debug.Log($"🔍 [UpdateSkillCooldownUI] 상태 체크:" +
+                     $"\n - skillController: {(skillController != null ? "OK" : "NULL")}" +
+                     $"\n - skill1Button_Radial: {(skill1Button_Radial != null ? "OK" : "NULL")}" +
+                     $"\n - skill2Button_Radial: {(skill2Button_Radial != null ? "OK" : "NULL")}" +
+                     $"\n - 프레임: {Time.frameCount}", this);
+                     
+            if (skillController != null && skillController.SkillSet != null)
             {
-                skill1CooldownImage.fillAmount = newFillAmount;
+                var skill1 = skillController.SkillSet.GetSkill(0);
+                var skill2 = skillController.SkillSet.GetSkill(1);
+                Debug.Log($"🔍 [SkillSet] 상태 체크:" +
+                         $"\n - Skill1: {(skill1 != null ? skill1.GetType().Name : "NULL")}" +
+                         $"\n - Skill2: {(skill2 != null ? skill2.GetType().Name : "NULL")}", this);
             }
         }
         
-        // 스킬2 쿨다운
-        if (skill2CooldownImage != null)
+        if (skillController == null) return;
+        
+        // 스킬1 쿨다운 UI
+        if (skill1Button_Radial != null)  // skill1CooldownImage → 변경
         {
-            float remain = skillController.GetSkill2CooldownRemaining();
-            float newFillAmount = remain / skillController.Skill2CooldownTime;
-            if (Mathf.Abs(skill2CooldownImage.fillAmount - newFillAmount) > 0.01f)
+            var skill1 = skillController.SkillSet?.GetSkill(0);
+            if (skill1 != null)
             {
-                skill2CooldownImage.fillAmount = newFillAmount;
+                float remainingTime = skill1.GetCooldownRemaining();
+                float totalTime = skill1.Cooldown;
+                
+                // fillAmount = remainingTime / totalTime
+                skill1Button_Radial.fillAmount = remainingTime / totalTime;  // skill1CooldownImage → 변경
+            }
+        }
+        
+        // 스킬2 쿨다운 UI  
+        if (skill2Button_Radial != null)  // skill2CooldownImage → 변경
+        {
+            var skill2 = skillController.SkillSet?.GetSkill(1);
+            if (skill2 != null)
+            {
+                float remainingTime = skill2.GetCooldownRemaining();
+                float totalTime = skill2.Cooldown;
+                
+                // fillAmount = remainingTime / totalTime
+                skill2Button_Radial.fillAmount = remainingTime / totalTime;  // skill2CooldownImage → 변경
+            }
+        }
+        
+        // 🔍 fillAmount 디버그 로그 추가
+        if (showDebugLogs && Time.frameCount % 60 == 0) // 1초마다 한 번씩만 출력 (60fps 기준)
+        {
+            if (skill1Button_Radial != null)
+            {
+                var skill1 = skillController?.SkillSet?.GetSkill(0);
+                float remainingTime = skill1?.GetCooldownRemaining() ?? 0f;
+                float totalTime = skill1?.Cooldown ?? 1f;
+                float calculatedFillAmount = remainingTime / totalTime;
+                
+                Debug.Log($"🔍 [Skill1 fillAmount] " +
+                         $"실제값: {skill1Button_Radial.fillAmount:F3} | " +
+                         $"계산값: {calculatedFillAmount:F3} | " +
+                         $"쿨다운: {remainingTime:F1}/{totalTime:F1} | " +
+                         $"프레임: {Time.frameCount}", this);
+            }
+            
+            if (skill2Button_Radial != null)
+            {
+                var skill2 = skillController?.SkillSet?.GetSkill(1);
+                float remainingTime = skill2?.GetCooldownRemaining() ?? 0f;
+                float totalTime = skill2?.Cooldown ?? 1f;
+                float calculatedFillAmount = remainingTime / totalTime;
+                
+                Debug.Log($"🔍 [Skill2 fillAmount] " +
+                         $"실제값: {skill2Button_Radial.fillAmount:F3} | " +
+                         $"계산값: {calculatedFillAmount:F3} | " +
+                         $"쿨다운: {remainingTime:F1}/{totalTime:F1} | " +
+                         $"프레임: {Time.frameCount}", this);
             }
         }
     }
@@ -429,59 +497,48 @@ public class PlayerUIController : MonoBehaviour
 
     private void OnSkill1ButtonPressed()
     {
-        if (skillController != null)
+        if (showDebugLogs)
+            Debug.Log("🔥 [PlayerUIController] 스킬1 버튼 클릭!");
+        
+        // ⭐ 키보드 S키와 동일한 경로 사용
+        var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        if (playerAnimationController != null)
         {
-            bool success = skillController.SkillSet.ExecuteSkill(0);
+            bool success = playerAnimationController.TriggerSkill1();
             if (showDebugLogs)
                 Debug.Log($"[PlayerUIController] 스킬1 버튼 실행: {success}");
         }
         else
         {
-            Debug.LogWarning("[PlayerUIController] SkillController가 없어서 스킬1 실행 불가");
+            Debug.LogWarning("[PlayerUIController] PlayerAnimationController를 찾을 수 없어서 스킬1 실행 불가");
         }
     }
 
     private void OnSkill2ButtonPressed()
     {
-        if (skillController != null)
+        if (showDebugLogs)
+            Debug.Log("🔥 [PlayerUIController] 스킬2 버튼 클릭!");
+        
+        // ⭐ 키보드 D키와 동일한 경로 사용
+        var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        if (playerAnimationController != null)
         {
-            bool success = skillController.SkillSet.ExecuteSkill(1);
+            bool success = playerAnimationController.TriggerSkill2();
             if (showDebugLogs)
                 Debug.Log($"[PlayerUIController] 스킬2 버튼 실행: {success}");
         }
         else
         {
-            Debug.LogWarning("[PlayerUIController] SkillController가 없어서 스킬2 실행 불가");
+            Debug.LogWarning("[PlayerUIController] PlayerAnimationController를 찾을 수 없어서 스킬2 실행 불가");
         }
     }
 
     #endregion
 
-    #region 공용 메서드들
+    #region 공용 메서드들 (기존 호환성 메서드들 제거)
 
-    /// <summary>
-    /// 스킬1 쿨다운 시간 설정
-    /// </summary>
-    public void SetSkill1CooldownTime(float cooldownTime)
-    {
-        skill1CooldownTime = cooldownTime;
-        if (skillController != null)
-        {
-            skillController.cooldownTime = cooldownTime;
-        }
-    }
-
-    /// <summary>
-    /// 스킬2 쿨다운 시간 설정
-    /// </summary>
-    public void SetSkill2CooldownTime(float cooldownTime)
-    {
-        skill2CooldownTime = cooldownTime;
-        if (skillController != null)
-        {
-            skillController.skill2CooldownTime = cooldownTime;
-        }
-    }
+    // ⭐ 제거: SetSkill1CooldownTime, SetSkill2CooldownTime 메서드들
+    // 새로운 구조에서는 각 스킬이 자체 SkillData에서 쿨다운 관리
 
     #endregion
 

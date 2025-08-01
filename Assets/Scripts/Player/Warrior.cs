@@ -42,6 +42,23 @@ public class Warrior : BaseClassBehaviour
         return warriorData?.baseMaxHealth ?? 100f; // WarriorData에서 가져오거나 기본값 100
     }
     
+    // ⭐ 신규 추가: Knockback 관련 메서드들
+    public override float GetBaseKnockbackThrust()
+    {
+        return warriorData?.baseKnockbackThrust ?? 10f; // WarriorData에서 가져오거나 기본값 10
+    }
+    
+    public override float GetBaseKnockbackTime()
+    {
+        return warriorData?.knockbackTime ?? 0.2f; // WarriorData에서 가져오거나 기본값 0.2초
+    }
+    
+    // ⭐ 신규 추가: Flash 관련 메서드
+    public override float GetBaseFlashDuration()
+    {
+        return warriorData?.flashDuration ?? 0.1f; // WarriorData에서 가져오거나 기본값 0.1초
+    }
+    
     #endregion
     
     #region 🛡️ 워리어 고유 특성 (ScriptableObject 연동)
@@ -116,25 +133,45 @@ public class Warrior : BaseClassBehaviour
     
     protected override void SetupClassSkills()
     {
-        if (skillController == null) return;
+        Debug.Log("🔧 [Warrior] SetupClassSkills 시작");
+        
+        if (skillController == null)
+        {
+            Debug.LogError("❌ [Warrior] skillController가 null입니다!");
+            return;
+        }
         
         // 워리어 전용 스킬들을 자동으로 SkillController에 할당
         var warriorSkill1 = GetComponent<WarriorSkill1>();
         var warriorSkill2 = GetComponent<WarriorSkill2>();
         
+        Debug.Log($"🔍 [Warrior] 스킬 컴포넌트 확인:");
+        Debug.Log($"   - WarriorSkill1: {(warriorSkill1 != null ? "✅ 존재" : "❌ 없음")}");
+        Debug.Log($"   - WarriorSkill2: {(warriorSkill2 != null ? "✅ 존재" : "❌ 없음")}");
+        
         if (warriorSkill1 != null)
         {
             skillController.SkillSet.SetSkill(0, warriorSkill1);
             if (showDebugLogs)
-                Debug.Log($"🎯 [Warrior] WarriorSkill1 자동 할당 완료");
+                Debug.Log($"🎯 [Warrior] WarriorSkill1 자동 할당 완료 → 슬롯 0");
+        }
+        else
+        {
+            Debug.LogError("❌ [Warrior] WarriorSkill1 컴포넌트를 찾을 수 없습니다!");
         }
         
         if (warriorSkill2 != null)
         {
             skillController.SkillSet.SetSkill(1, warriorSkill2);
             if (showDebugLogs)
-                Debug.Log($"🎯 [Warrior] WarriorSkill2 자동 할당 완료");
+                Debug.Log($"🎯 [Warrior] WarriorSkill2 자동 할당 완료 → 슬롯 1");
         }
+        else
+        {
+            Debug.LogError("❌ [Warrior] WarriorSkill2 컴포넌트를 찾을 수 없습니다!");
+        }
+        
+        Debug.Log("🔧 [Warrior] SetupClassSkills 완료");
     }
     
     protected override void ApplyLevelUpBonus(int newLevel)

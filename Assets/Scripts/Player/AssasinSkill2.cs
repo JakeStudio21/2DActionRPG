@@ -1,373 +1,235 @@
 using UnityEngine;
-using System.Collections;
 
 /// <summary>
-/// Assasin 스킬2: Power Arrow (1개 강력한 화살 발사)
-/// ISkill 인터페이스를 구현하여 모듈식 스킬 시스템에 통합
-/// ScriptableObject 기반 데이터 분리 적용
+/// 어쌔신 스킬2: Power Arrow (강력한 단일 화살)
+/// AssasinSkillData 타입만 허용하는 타입 안전 스킬
+/// BaseSkill<T> 상속으로 공통 로직 재사용
 /// </summary>
-public class AssasinSkill2 : MonoBehaviour, ISkill
+public class AssasinSkill2 : BaseSkill<AssasinSkillData>
 {
-    [Header("스킬 데이터 (ScriptableObject)")]
-    public SkillData skillData; // Inspector에서 할당
-    
-    [Header("디버그")]
-    public bool showDebugLogs = true;
-    
-    // ISkill 인터페이스 구현
-    public string SkillName => skillData != null ? skillData.skillName : "Power Arrow";
-    public float Cooldown => skillData != null ? skillData.cooldown : 3f;
-    
-    // 내부 상태
-    private float lastSkillTime = -Mathf.Infinity;
-    private Transform bowTransform;
-    private Transform firePoint;
-    private PlayerAnimationController animationController;
-    
-    // 이벤트
-    public System.Action<float> OnSkillCooldownChanged;
-    
-    void Awake()
-    {
-        if (showDebugLogs)
-            Debug.Log("🟢 [AssasinSkill2] Awake() 시작");
-            
-        // 컴포넌트 참조 초기화
-        animationController = GetComponent<PlayerAnimationController>();
-        if (animationController == null)
-            animationController = GetComponentInParent<PlayerAnimationController>();
-            
-        if (animationController == null)
-        {
-            Debug.LogWarning("🟡 [AssasinSkill2] PlayerAnimationController를 찾을 수 없습니다!");
-        }
-        else if (showDebugLogs)
-        {
-            Debug.Log("🟢 [AssasinSkill2] PlayerAnimationController 찾음");
-        }
-    }
-    
-    void Start()
-    {
-        // ⭐ SkillData 유효성 검사 강화
-        if (skillData == null)
-        {
-            Debug.LogError("🔴 [AssasinSkill2] SkillData가 할당되지 않았습니다! Inspector에서 AssasinSkill2Data를 할당하세요!");
-            return;
-        }
-        
-        Debug.Log($"🟢 [AssasinSkill2] SkillData 로드 성공:");
-        Debug.Log($"   - 스킬명: {skillData.skillName}");
-        Debug.Log($"   - 쿨다운: {skillData.cooldown}초");
-        Debug.Log($"   - 프리팹: {skillData.projectilePrefab?.name ?? "None"}");
-        Debug.Log($"   - 속도: {skillData.projectileSpeed}");
-        Debug.Log($"   - 크기: {skillData.projectileScale}");
-        
-        if (showDebugLogs)
-            Debug.Log("🟢 [AssasinSkill2] 초기화 완료!");
-    }
-    
-    void Update()
-    {
-        // Bow가 동적으로 바뀔 수 있으므로 주기적으로 체크
-        if (bowTransform == null || firePoint == null)
-        {
-            UpdateBowReference();
-        }
-    }
+    #region BaseSkill<T> 구현
     
     /// <summary>
-    /// ⭐ 범용 무기 참조 업데이트 (SkillController와 일관성 유지)
+    /// 스킬 실행 시 호출 (애니메이션 트리거)
     /// </summary>
-    private void UpdateBowReference()
-    {
-        var activeWeapon = FindObjectOfType<ActiveWeapon>();
-        if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
-        {
-            bowTransform = activeWeapon.CurrentActiveWeapon.transform;
-            firePoint = FindGenericFirePoint(bowTransform);
-            
-            if (showDebugLogs && firePoint != null)
-                Debug.Log($"🟢 [AssasinSkill2] 무기 '{bowTransform.name}'의 발사 지점 '{firePoint.name}' 찾음");
-        }
-    }
-
-    /// <summary>
-    /// ⭐ 범용 발사 지점 찾기 (SkillController와 동일한 로직)
-    /// </summary>
-    private Transform FindGenericFirePoint(Transform weaponTransform)
-    {
-        if (weaponTransform == null) return null;
-        
-        // 우선순위 순으로 발사 지점 찾기
-        string[] firePointNames = { 
-            "Arrow Spawn Point", "Fire Point", "FirePoint", "Spawn Point", "SpawnPoint",
-            "Projectile Spawn", "Attack Point", "AttackPoint", "Muzzle", "Tip", "End Point"
-        };
-        
-        foreach (string firePointName in firePointNames)
-        {
-            Transform firePoint = weaponTransform.Find(firePointName);
-            if (firePoint != null)
-                return firePoint;
-        }
-        
-        // 자식 Transform 중에서 키워드 포함된 것 찾기
-        for (int i = 0; i < weaponTransform.childCount; i++)
-        {
-            Transform child = weaponTransform.GetChild(i);
-            string childName = child.name.ToLower();
-            if (childName.Contains("point") || childName.Contains("spawn") || childName.Contains("fire") ||
-                childName.Contains("tip") || childName.Contains("muzzle") || childName.Contains("end"))
-                return child;
-        }
-        
-        // 못 찾으면 무기 Transform 자체 사용
-        return weaponTransform;
-    }
-    
-    #region ISkill 인터페이스 구현
-    
-    public bool CanUse()
-    {
-        float cooldown = skillData != null ? skillData.cooldown : 3f;
-        bool canUse = Time.time >= lastSkillTime + cooldown;
-        
-        if (showDebugLogs && !canUse)
-        {
-            Debug.Log($"🟡 [AssasinSkill2] CanUse = false, 남은 쿨다운: {GetCooldownRemaining():F1}초");
-        }
-        
-        return canUse;
-    }
-    
-    public void Execute()
+    protected override void OnExecuteSkill()
     {
         if (showDebugLogs)
-            Debug.Log("🔵 [AssasinSkill2] Execute() 호출됨");
+            Debug.Log($"💥 [AssasinSkill2] {SkillName} 실행 시작");
             
-        if (!CanUse())
-        {
-            Debug.LogWarning($"🟡 [AssasinSkill2] 스킬2 쿨다운 중! 남은 시간: {GetCooldownRemaining():F1}초");
-            return;
-        }
-        
-        // 쿨다운 시작
-        lastSkillTime = Time.time;
-        
-        // 애니메이션 트리거 (PlayerAnimationController를 통해)
+        // 애니메이션 트리거
         if (animationController != null)
         {
-            bool success = animationController.TriggerSkill2();
-            if (success)
-            {
-                if (OnSkillCooldownChanged != null)
-                    OnSkillCooldownChanged(Cooldown);
-                    
-                Debug.Log($"🟢 [AssasinSkill2] 스킬2(Power Arrow) 애니메이션 트리거 성공!");
-            }
-            else
-            {
-                Debug.LogWarning("🟡 [AssasinSkill2] 애니메이션 트리거 실패 - 직접 실행");
-                OnAnimationEvent();
-            }
+            animationController.TriggerSkill2();
         }
         else
         {
-            // PlayerAnimationController가 없으면 직접 실행
-            Debug.LogWarning("🟡 [AssasinSkill2] PlayerAnimationController가 없음 - 직접 실행");
+            Debug.LogWarning("🟡 [AssasinSkill2] PlayerAnimationController가 없습니다!");
+            // 애니메이션 없이 직접 실행
             OnAnimationEvent();
         }
     }
     
-    public void OnAnimationEvent()
+    /// <summary>
+    /// Animation Event에서 호출되는 실제 Power Arrow 발사
+    /// </summary>
+    public override void OnAnimationEvent()
     {
-        if (showDebugLogs)
-            Debug.Log("🔵 [AssasinSkill2] OnAnimationEvent() 호출됨 - 실제 Power Arrow 발사");
-            
-        if (bowTransform == null || firePoint == null)
+        if (!IsSkillDataValid)
         {
-            Debug.LogWarning("[AssasinSkill2] Bow 또는 FirePoint가 없습니다!");
-            UpdateBowReference(); // 다시 한 번 시도
-            if (bowTransform == null || firePoint == null)
-                return;
-        }
-        
-        if (GamePoolManager.Instance == null)
-        {
-            Debug.LogError("[AssasinSkill2] GamePoolManager.Instance가 null입니다!");
+            Debug.LogError("❌ [AssasinSkill2] SkillData가 유효하지 않습니다!");
             return;
         }
         
-        // SkillData에서 값 읽어오기 (fallback 포함)
-        GameObject prefab = skillData?.projectilePrefab;
-        float speed = skillData?.projectileSpeed ?? 15f;
-        Vector3 scale = skillData?.projectileScale ?? Vector3.one * 1.5f;
-        
-        // ⭐ 중요: SkillData의 프리팹이 없으면 기본값 사용
-        string poolTag = "Arrow"; // 기본값
-        if (prefab != null)
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] Power Arrow 발사 시작");
+            
+        FirePowerArrow();
+    }
+    
+    /// <summary>
+    /// 스킬 애니메이션 트리거 (BaseSkill<T>에서 호출)
+    /// </summary>
+    protected override void TriggerSkillAnimation()
+    {
+        if (animationController != null)
         {
-            poolTag = prefab.name; // SkillData의 프리팹 이름 사용
+            animationController.TriggerSkill2();
+        }
+    }
+    
+    /// <summary>
+    /// 추가 사용 조건 검사 (Power Arrow 전용)
+    /// </summary>
+    protected override bool CheckAdditionalConditions()
+    {
+        // 무기 및 발사 지점 확인
+        UpdateFirePoint();
+        
+        if (firePoint == null)
+        {
             if (showDebugLogs)
-                Debug.Log($"🔵 [AssasinSkill2] SkillData 프리팹 사용: {poolTag}");
+                Debug.LogWarning("🟡 [AssasinSkill2] 발사 지점을 찾을 수 없습니다!");
+            return false;
         }
-        else
+        
+        // GamePoolManager 확인
+        if (GamePoolManager.Instance == null)
         {
-            Debug.LogWarning("🟡 [AssasinSkill2] SkillData에 프리팹이 없어서 기본 'Arrow' 사용");
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [AssasinSkill2] GamePoolManager가 없습니다!");
+            return false;
         }
         
-        Vector2 dir = bowTransform.right;
+        return true;
+    }
+    
+    #endregion
+    
+    #region 어쌔신 Power Arrow 전용 로직
+    
+    /// <summary>
+    /// 강력한 단일 화살 발사 메인 로직
+    /// </summary>
+    private void FirePowerArrow()
+    {
+        if (!IsSkillDataValid || firePoint == null) return;
         
-        // SkillData 기반 프리팹 사용
-        GameObject powerArrow = GamePoolManager.Instance.SpawnFromPool(poolTag, firePoint.position, Quaternion.identity);
+        // SkillData에서 설정값 가져오기
+        float arrowSpeed = SkillData.projectileSpeed; // 빠른 속도
+        Vector3 arrowScale = SkillData.projectileScale; // 큰 크기
+        string poolName = !string.IsNullOrEmpty(SkillData.projectilePoolName) 
+            ? SkillData.projectilePoolName 
+            : "PowerArrow"; // Power Arrow 전용 풀 사용
+        
+        // ⭐ 수정: 조이스틱 방향 사용 (기본공격과 동일한 방식)
+        Vector2 shootDirection = GetCurrentAttackDirection();
+        
+        // 방향을 각도로 변환
+        float shootAngle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
+        
+        // ⭐ 핵심 수정: 기본공격과 동일한 회전 방식
+        Quaternion arrowRotation = Quaternion.AngleAxis(shootAngle, Vector3.forward);
+        
+        // 강력한 화살 발사
+        var powerArrow = GamePoolManager.Instance.SpawnFromPool(
+            poolName, 
+            firePoint.position, 
+            arrowRotation  // ← 올바른 회전값 사용
+        );
         
         if (powerArrow != null)
         {
-            // 방향 설정
-            powerArrow.transform.right = dir;
+            // Power Arrow 설정
+            SetupPowerArrow(powerArrow, arrowSpeed, arrowScale);
             
-            // SkillData 기반 크기 설정
-            powerArrow.transform.localScale = scale;
-            
-            // Projectile 컴포넌트로 강화된 속도 설정
-            if (powerArrow.TryGetComponent(out Projectile projectile))
-            {
-                projectile.UpdateMoveSpeed(speed);
-            }
-            else if (powerArrow.TryGetComponent(out Rigidbody2D rb))
-            {
-                rb.velocity = dir.normalized * speed;
-            }
-            
-            Debug.Log($"🟢 [AssasinSkill2] Power Arrow 발사 완료: {powerArrow.name} (속도: {speed}, 크기: {scale})");
+            if (showDebugLogs)
+                Debug.Log($"💥 [AssasinSkill2] Power Arrow 발사 성공 - 각도: {shootAngle:F1}°, 속도: {arrowSpeed}, 크기: {arrowScale}");
         }
         else
         {
-            Debug.LogError($"[AssasinSkill2] GamePoolManager에서 PowerArrow 생성 실패!");
+            Debug.LogError($"❌ [AssasinSkill2] Power Arrow 생성 실패! 풀: {poolName}");
         }
+        
+        // 강력한 발사 이펙트 생성
+        if (SkillData.effectPrefab != null)
+        {
+            SpawnEffect(SkillData.effectPrefab, firePoint.position, firePoint.rotation);
+        }
+        
+        // 추가 파워 이펙트 (muzzle flash 등)
+        CreatePowerEffects();
     }
     
-    public float GetCooldownRemaining()
+    /// <summary>
+    /// Power Arrow 오브젝트 설정 (Transform 기반 이동만 사용)
+    /// </summary>
+    private void SetupPowerArrow(GameObject arrow, float speed, Vector3 scale)
     {
-        float cooldown = skillData != null ? skillData.cooldown : 3f;
-        float elapsed = Time.time - lastSkillTime;
-        return Mathf.Clamp(cooldown - elapsed, 0, cooldown);
+        // 큰 크기 설정
+        arrow.transform.localScale = scale;
+
+        // ⭐ 핵심 수정: Rigidbody2D.velocity 설정 제거!
+        // Projectile.cs의 transform.Translate가 알아서 처리하도록 함
+        
+        // 높은 속도 설정 (Projectile 컴포넌트에 직접 전달)
+        var projectile = arrow.GetComponent<Projectile>();
+        if (projectile != null)
+        {
+            projectile.UpdateMoveSpeed(speed);
+            
+            if (showDebugLogs)
+                Debug.Log($"💥 [AssasinSkill2] Power Arrow 속도 설정: {speed}");
+        }
+        
+        // 강화된 데미지 설정
+        var damageSource = arrow.GetComponent<DamageSource>();
+        if (damageSource != null && showDebugLogs)
+        {
+            Debug.Log($"💥 [AssasinSkill2] Power Arrow 데미지 소스 감지됨");
+        }
+        
+        // Power Arrow 특수 효과 (관통, 폭발 등)
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] Power Arrow '{arrow.name}' 특수 효과 적용 준비");
+    }
+    
+    /// <summary>
+    /// Power Arrow 전용 추가 이펙트
+    /// </summary>
+    private void CreatePowerEffects()
+    {
+        // 발사 순간 강력한 이펙트
+        if (firePoint != null)
+        {
+            // 추가 이펙트는 나중에 VFX 시스템과 연동
+            if (showDebugLogs)
+                Debug.Log($"✨ [AssasinSkill2] Power Arrow 추가 이펙트 생성");
+        }
     }
     
     #endregion
     
-    /// <summary>
-    /// 외부에서 쿨다운 시간 업데이트 (SkillController 등에서 호출)
-    /// </summary>
-    public void UpdateCooldown(float newCooldown)
+    #region Unity 라이프사이클 확장
+    
+    protected override void Start()
     {
-        if (skillData != null)
+        base.Start(); // BaseSkill<T>의 초기화 실행
+        
+        // Power Arrow 스킬 전용 초기화
+        if (IsSkillDataValid && showDebugLogs)
         {
-            skillData.cooldown = newCooldown;
-            if (showDebugLogs)
-                Debug.Log($"🔵 [AssasinSkill2] SkillData 쿨다운 업데이트: {skillData.cooldown}초");
+            Debug.Log($"💥 [AssasinSkill2] 초기화 완료 - " +
+                     $"Power Arrow 속도: {SkillData.projectileSpeed * 1.5f}, " +
+                     $"크기: {SkillData.projectileScale}, " +
+                     $"쿨다운: {Cooldown}초");
         }
     }
     
-    /// <summary>
-    /// 현재 스킬 상태 로깅 (디버깅용)
-    /// </summary>
-    public void LogCurrentState()
-    {
-        Debug.Log($"🔍 [AssasinSkill2] 현재 상태:");
-        Debug.Log($"   - SkillName: {SkillName}");
-        Debug.Log($"   - Cooldown: {Cooldown}초");
-        Debug.Log($"   - CanUse: {CanUse()}");
-        Debug.Log($"   - CooldownRemaining: {GetCooldownRemaining():F1}초");
-        Debug.Log($"   - BowTransform: {(bowTransform != null ? "있음" : "없음")}");
-        Debug.Log($"   - FirePoint: {(firePoint != null ? "있음" : "없음")}");
-        Debug.Log($"   - AnimationController: {(animationController != null ? "있음" : "없음")}");
-        Debug.Log($"   - SkillData: {(skillData != null ? skillData.name : "없음")}");
-        
-        if (skillData != null)
-        {
-            Debug.Log($"   - ProjectileSpeed: {skillData.projectileSpeed}");
-            Debug.Log($"   - ProjectileScale: {skillData.projectileScale}");
-            Debug.Log($"   - ProjectilePrefab: {(skillData.projectilePrefab != null ? skillData.projectilePrefab.name : "없음")}");
-        }
-    }
-
-    #region ⭐ 안전한 Enemy 탐지 시스템 (Warrior와 동일)
-
-    /// <summary>
-    /// 안전한 Enemy 탐지 (Warrior 스킬과 동일한 로직)
-    /// </summary>
-    private GameObject[] FindEnemiesSafely()
-    {
-        GameObject[] enemies = null;
-        
-        try
-        {
-            // 1순위: Enemy 태그 사용 시도
-            enemies = GameObject.FindGameObjectsWithTag("Enemy");
-            if (showDebugLogs)
-                Debug.Log($"🎯 [AssasinSkill2] Enemy 태그로 {enemies.Length}명의 적 발견");
-        }
-        catch (UnityException)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [AssasinSkill2] Enemy 태그가 정의되지 않음. 다른 방법 시도...");
-            enemies = null;
-        }
-        
-        // 2순위: Enemy 태그가 없으면 EnemyHealth 컴포넌트로 찾기
-        if (enemies == null || enemies.Length == 0)
-        {
-            EnemyHealth[] enemyHealths = FindObjectsOfType<EnemyHealth>();
-            enemies = new GameObject[enemyHealths.Length];
-            for (int i = 0; i < enemyHealths.Length; i++)
-            {
-                enemies[i] = enemyHealths[i].gameObject;
-            }
-            
-            if (showDebugLogs)
-                Debug.Log($"🎯 [AssasinSkill2] EnemyHealth 컴포넌트로 {enemies.Length}명의 적 발견");
-        }
-        
-        return enemies;
-    }
-
-    /// <summary>
-    /// 가장 가까운 적 찾기 (안전한 버전)
-    /// </summary>
-    private Transform FindNearestEnemySafely()
-    {
-        GameObject[] enemies = FindEnemiesSafely();
-        
-        if (enemies == null || enemies.Length == 0)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [AssasinSkill2] 적을 찾을 수 없습니다!");
-            return null;
-        }
-        
-        Transform nearest = null;
-        float minDistance = Mathf.Infinity;
-        float maxRange = 15f; // 최대 탐지 범위
-        
-        foreach (GameObject enemy in enemies)
-        {
-            if (enemy == null) continue; // null 체크 추가
-            
-            float distance = Vector3.Distance(transform.position, enemy.transform.position);
-            if (distance < minDistance && distance <= maxRange)
-            {
-                minDistance = distance;
-                nearest = enemy.transform;
-            }
-        }
-        
-        if (nearest != null && showDebugLogs)
-            Debug.Log($"🎯 [AssasinSkill2] 가장 가까운 적: {nearest.name} (거리: {minDistance:F1})");
-        
-        return nearest;
-    }
-
     #endregion
+
+    /// <summary>
+    /// 현재 조이스틱 공격 방향 가져오기 (기본공격과 동일한 로직)
+    /// </summary>
+    private Vector2 GetCurrentAttackDirection()
+    {
+        // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
+        var activeWeapon = ActiveWeapon.Instance;
+        if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
+        {
+            Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();
+            
+            if (joystickDir.magnitude > 0.1f)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"🎮 [AssasinSkill2] 조이스틱 방향 사용: {joystickDir}");
+                return joystickDir.normalized;
+            }
+        }
+        
+        // 백업: firePoint.right 사용 (조이스틱 입력이 없을 때)
+        if (showDebugLogs)
+            Debug.Log($"🎮 [AssasinSkill2] 백업 방향 사용: firePoint.right");
+        return firePoint.right;
+    }
 }

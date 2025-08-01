@@ -53,6 +53,23 @@ public class Assasin : BaseClassBehaviour
         return assasinData?.baseMaxHealth ?? 100f; // AssasinData에서 가져오거나 기본값 100
     }
     
+    // ⭐ 신규 추가: Knockback 관련 메서드들
+    public override float GetBaseKnockbackThrust()
+    {
+        return assasinData?.baseKnockbackThrust ?? 10f; // AssasinData에서 가져오거나 기본값 10
+    }
+    
+    public override float GetBaseKnockbackTime()
+    {
+        return assasinData?.knockbackTime ?? 0.2f; // AssasinData에서 가져오거나 기본값 0.2초
+    }
+    
+    // ⭐ 신규 추가: Flash 관련 메서드
+    public override float GetBaseFlashDuration()
+    {
+        return assasinData?.flashDuration ?? 0.1f; // AssasinData에서 가져오거나 기본값 0.1초
+    }
+    
     #endregion
 
     #region Unity 생명주기 오버라이드 (디버깅용)
@@ -120,7 +137,7 @@ public class Assasin : BaseClassBehaviour
                 Debug.Log($"🎯 [Assasin] AssasinSkill1 자동 할당 완료");
         }
         
-        if (assasinSkill2 != null)
+        if (assasinSkill2 != null)  // ← 주석 해제
         {
             skillController.SkillSet.SetSkill(1, assasinSkill2);
             if (showDebugLogs)
@@ -192,7 +209,7 @@ public class Assasin : BaseClassBehaviour
                 skill.Execute();
                 
                 if (showDebugLogs)
-                    Debug.Log($"🏹 [Assasin] 스킬 사용: {skill.SkillName}");
+                    Debug.Log($"�� [Assasin] 스킬 사용: {skill.SkillName}");
             }
         }
         else

@@ -8,8 +8,8 @@ public class Sword : MonoBehaviour, IWeapon
     [SerializeField] private Transform slashSpawnPoint;
     [SerializeField] private EquipmentData equipmentData;  // WeaponInfo → EquipmentData
 
-    // ⭐ Animator는 PlayerAnimationController에서 관리하므로 제거
-    // private Animator myAnimator;
+    // ⭐ Sword 자체 Animator 참조 복원
+    private Animator myAnimator;
     private Transform weaponCollider;
     private ActiveWeapon activeWeapon;
 
@@ -18,9 +18,20 @@ public class Sword : MonoBehaviour, IWeapon
     // private float baseSwordX = 0.2f; // 오른손 기준 위치 [미사용]
     // private float baseColliderX = 0.2f; // 오른손 기준 위치 [미사용]
 
+    [Header("디버그")]
+    [SerializeField] private bool showDebugLogs = false; // Inspector에서 조절 가능
+
     private void Awake() {
-        // ⭐ Animator 참조 제거 - PlayerAnimationController에서 관리
-        // myAnimator = GetComponent<Animator>();
+        // ⭐ Sword 자체 Animator 참조 복원
+        myAnimator = GetComponent<Animator>();
+        if (myAnimator == null)
+        {
+            Debug.LogWarning("🟡 [Sword] Animator 컴포넌트를 찾을 수 없습니다!");
+        }
+        else
+        {
+            Debug.Log("✅ [Sword] Animator 컴포넌트 연결됨");
+        }
     }
 
     private void Start() {
@@ -37,12 +48,20 @@ public class Sword : MonoBehaviour, IWeapon
     public void Attack() {
         Debug.Log("🔵 [Sword] Attack() 시작 - 순수 공격 로직");
 
-        // ⭐ 애니메이션 트리거 제거 - PlayerAnimationController에서 관리
-        // myAnimator.SetTrigger("Attack");
+        // ⭐ Sword 애니메이션 트리거 복원
+        if (myAnimator != null)
+        {
+            myAnimator.SetTrigger("Attack");
+            Debug.Log("🎬 [Sword] SwingDown 애니메이션 트리거 실행");
+        }
+        else
+        {
+            Debug.LogWarning("🟡 [Sword] myAnimator가 null입니다!");
+        }
         
         // ⭐ [Phase B] Warrior 감지 및 전용 기능 적용
         var warrior = GetComponentInParent<Warrior>();
-        if (warrior != null && warrior.IsActiveClass)  // ⭐ 수정: isActive → IsActiveClass
+        if (warrior != null && warrior.IsActiveClass)
         {
             Debug.Log("⚔️ [Sword] Warrior 감지! 전용 기능 활성화");
             PerformWarriorSwordAttack(warrior);
@@ -156,34 +175,28 @@ public class Sword : MonoBehaviour, IWeapon
 
     public void UpdateDirection(Vector2 direction, bool facingLeft)
     {
-        // 검 SpriteRenderer flipX (이중 반전 방지 위해 주석처리)
-        // var sr = GetComponent<SpriteRenderer>();
-        // if (sr != null) sr.flipX = facingLeft;
-
-        // [신규] ActiveWeapon의 localScale.x를 ±1로 반전
-        if (transform.parent != null)
+        // ⚔️ 캐릭터와 정확히 동일한 방식 (PlayerController.AdjustPlayerFacingDirection()와 동일)
+        var spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
         {
-            Vector3 scale = transform.parent.localScale;
-            scale.x = facingLeft ? -1 : 1;
-            transform.parent.localScale = scale;
-            // Debug.Log($"[ActiveWeapon] localScale.x: {transform.parent.localScale.x}, facingLeft: {facingLeft}");
+            // PlayerController와 정확히 동일한 로직:
+            // mySpriteRender.flipX = facingLeft;
+            spriteRenderer.flipX = facingLeft;
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"⚔️ [Sword] 캐릭터와 동일한 방향 전환:");
+                Debug.Log($"   - facingLeft: {facingLeft}");
+                Debug.Log($"   - spriteRenderer.flipX: {facingLeft}");
+            }
         }
-
-        // [백업: 기존 위치 하드코딩 방식]
-        // transform.localPosition = new Vector3(facingLeft ? -baseSwordX : baseSwordX, transform.localPosition.y, transform.localPosition.z);
-        // Debug.Log($"[Sword] {gameObject.name} localPosition.x: {transform.localPosition.x}, facingLeft: {facingLeft}");
-        // if (transform.parent != null)
-        // {
-        //     var weaponCollider = transform.parent.Find("WeaponCollider");
-        //     if (weaponCollider != null)
-        //     {
-        //         weaponCollider.localPosition = new Vector3(facingLeft ? -baseColliderX : baseColliderX, weaponCollider.localPosition.y, weaponCollider.localPosition.z);
-        //         Debug.Log($"[WeaponCollider] {weaponCollider.name} localPosition.x: {weaponCollider.localPosition.x}, facingLeft: {facingLeft}");
-        //     }
-        //     else
-        //     {
-        //         Debug.LogWarning("[WeaponCollider] WeaponCollider 오브젝트를 찾지 못했습니다.");
-        //     }
-        // }
+        else if (showDebugLogs)
+        {
+            Debug.LogWarning("🟡 [Sword] SpriteRenderer를 찾을 수 없습니다!");
+        }
+        
+        // 중요: localScale 건드리지 않음 (위아래 전환 방지)
+        // 중요: rotation 건드리지 않음 (Bow와의 차이점)
+        // 오직 flipX만 사용 (캐릭터와 100% 동일)
     }
 } 

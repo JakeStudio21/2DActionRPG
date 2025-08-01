@@ -382,8 +382,8 @@ GameObject:
   - component: {fileID: 2541682511758850633}
   - component: {fileID: -3303457956160068881}
   - component: {fileID: 5390018231456893104}
-  - component: {fileID: 5627733375470729473}
-  - component: {fileID: 9016464437278510949}
+  - component: {fileID: -6776582839001040579}
+  - component: {fileID: 1982907686625609305}
   - component: {fileID: 5734504649737104247}
   - component: {fileID: 3411945224194783882}
   - component: {fileID: 6403347020822746970}
@@ -662,34 +662,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillSet:
     showDebugLogs: 1
-  skill1Component: {fileID: 5627733375470729473}
-  skill2Component: {fileID: 9016464437278510949}
   cooldownTime: 2
   skill2CooldownTime: 3
---- !u!114 &5627733375470729473
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7542120236176968360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1428cd7dac26e3c4f874bc7f706412da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 23fb67f5e954bac429fd95d8c8354bef, type: 2}
-  dashSpeed: 5
-  dashRange: 8
-  attackDelay: 0.3
-  attackCount: 3
-  attackRange: 2
-  dashEffectPrefab: {fileID: 3545761778305609661, guid: 00b45e0be5d17ac4d889550dc353cdd3, type: 3}
-  slashEffectPrefab: {fileID: 3545761778305609661, guid: 6c60555a3ba6f744fae88de6b498b262, type: 3}
-  dashEffectPoolName: DashEffect
-  slashEffectPoolName: SlashEffect
   showDebugLogs: 1
---- !u!114 &9016464437278510949
+--- !u!114 &-6776582839001040579
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -698,29 +674,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 7542120236176968360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e626fe0e1ab68ab4980e8d13bac0f27b, type: 3}
+  m_Script: {fileID: 11500000, guid: f9e9beff503d5c54989739ff9e0d0261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 22c347fcce01e8d42a7e9c977e773ccf, type: 2}
-  shockwaveRadius: 5
-  chargeTime: 0.8
-  knockbackForce: 15
-  shockwaveExpandTime: 0.3
-  damageFalloff:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  chargeEffectPrefab: {fileID: 3545761778305609661, guid: dd65a54c66fcfdc4f85560388d3569c1, type: 3}
-  shockwaveEffectPrefab: {fileID: 0}
-  groundCrackEffectPrefab: {fileID: 3545761778305609661, guid: dd65a54c66fcfdc4f85560388d3569c1, type: 3}
-  chargeEffectPoolName: ChargeEffect
-  shockwaveEffectPoolName: ShockwaveEffect
-  groundCrackEffectPoolName: GroundCrackEffect
-  chargeSound: {fileID: 0}
-  slamSound: {fileID: 0}
-  shockwaveSound: {fileID: 0}
+  skillData: {fileID: 11400000, guid: 6fa81891ff0a62f4fa2cf8a41db0be88, type: 2}
+  showDebugLogs: 1
+  lastAttackDirection: {x: 1, y: 0}
+  showDirectionDebug: 0
+--- !u!114 &1982907686625609305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b30c6ed03ae4d2a4ea01c72c86991a86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillData: {fileID: 11400000, guid: 2c9714c9a13122a4caf8ebae5a3f65d4, type: 2}
   showDebugLogs: 1
 --- !u!114 &5734504649737104247
 MonoBehaviour:
@@ -735,7 +708,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
-  restoreDefaultMatTime: 0.2
+  restoreDefaultMatTime: 0
 --- !u!114 &3411945224194783882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,8 +721,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0.2
-  defaultKnockBackThrust: 10
 --- !u!114 &6403347020822746970
 MonoBehaviour:
   m_ObjectHideFlags: 0
