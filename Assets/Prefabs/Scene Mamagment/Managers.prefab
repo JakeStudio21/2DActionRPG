@@ -186,15 +186,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5dd347f0845ad94b93c2230b668de30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterIndex: 0
-  playerName: Player
-  currentPlayerType: 0
-  currentGold: 0
-  currentLevel: 1
-  currentExp: 0
-  expToNextLevel: 100
-  inventoryItems: []
-  maxInventorySize: 50
+  maxSlots: 3
+  saveDirectory: PlayerSlots
+  selectedPlayerData: {fileID: 11400000, guid: 17b89b426e9cda44ebe63bcccaa41df1, type: 2}
+  playerSlots: []
+  currentSlotIndex: -1
   showDebugLogs: 1
 --- !u!1 &4785675241861220386
 GameObject:

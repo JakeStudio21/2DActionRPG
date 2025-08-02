@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipmentName: Bow_C
   itemID: ITEM_BOW_1
-  equipmentType: 1
+  equipmentType: 0
   itemGrade: 3
   usableClass: 2
   isTradable: 1
@@ -26,6 +26,7 @@ MonoBehaviour:
   weaponType: 2
   weaponCooldown: 1
   weaponRange: 7
+  armorType: 0
   attackDamage: 5
   attackSpeed: 5
   attackRange: 4
@@ -33,3 +34,6 @@ MonoBehaviour:
   criticalChance: 8
   criticalDamage: 2
   projectileId: PRO_WEAPON_BOW_1
+  defenseBonus: 0
+  speedBonus: 0
+  healthBonus: 0

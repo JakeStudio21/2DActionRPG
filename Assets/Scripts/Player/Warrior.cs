@@ -464,34 +464,32 @@ public class Warrior : BaseClassBehaviour
     #region ⭐ [Phase C] 저장/로드 시스템
     
     /// <summary>
-    /// 현재 Warrior 데이터를 저장
+    /// 저장할 Warrior 데이터를 SelectedPlayerData에 저장
     /// </summary>
     public void SaveWarriorData()
     {
-        // ⭐ PlayerDataManager 통합으로 변경
-        if (PlayerDataManager.Instance == null)
+        // ⭐ 새로운 구조: SelectedPlayerData 사용
+        if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
         {
             if (showDebugLogs)
-                Debug.Log("ℹ️ [Warrior] PlayerDataManager 없음. 게임 종료 중이므로 저장 생략.");
+                Debug.Log("ℹ️ [Warrior] PlayerDataManager 없음 또는 슬롯 미선택. 저장 생략.");
             return;
         }
         
-        var saveData = new BaseClassSaveData();
-        saveData.classType = PlayerType.Warrior;
-        saveData.classLevel = playerLevel?.CurrentLevel ?? 1;
-        saveData.isUnlocked = true;
-        saveData.wasActiveLastTime = IsActiveClass;
+        var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+        if (selectedData == null) return;
         
-        // 🔧 메서드 이름 수정: BlockChance → GetBlockChance()
-        saveData.SetProperty("blockChance", GetBlockChance());
-        saveData.SetProperty("counterAttackChance", GetCounterAttackChance());
-        saveData.SetProperty("berserkerThreshold", GetBerserkerThreshold());
+        // Warrior 특성 데이터 저장
+        selectedData.SetRuntimeStat("blockChance", GetBlockChance());
+        selectedData.SetRuntimeStat("counterAttackChance", GetCounterAttackChance());
+        selectedData.SetRuntimeStat("berserkerThreshold", GetBerserkerThreshold());
+        selectedData.classLevel = playerLevel?.CurrentLevel ?? 1;
         
-        // ⭐ SaveManager 대신 PlayerDataManager 사용
-        PlayerDataManager.Instance.SaveClassData(PlayerType.Warrior, saveData);
+        // 슬롯에 저장
+        PlayerDataManager.Instance.SaveCurrentSlot();
         
         if (showDebugLogs)
-            Debug.Log($"💾 [Warrior] 데이터 저장 완료: {saveData}");
+            Debug.Log($"💾 [Warrior] 데이터 저장 완료: Lv.{selectedData.classLevel}, 블록확률:{GetBlockChance()}");
     }
 
     /// <summary>
@@ -499,32 +497,33 @@ public class Warrior : BaseClassBehaviour
     /// </summary>
     public void LoadWarriorData()
     {
-        // ⭐ PlayerDataManager 통합으로 변경
-        if (PlayerDataManager.Instance == null)
+        // ⭐ 새로운 구조: SelectedPlayerData 사용
+        if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
         {
-            Debug.LogError("💥 [Warrior] PlayerDataManager.Instance가 null입니다!");
+            Debug.LogWarning("⚠️ [Warrior] PlayerDataManager 없음 또는 슬롯 미선택!");
             return;
         }
         
-        // ⭐ SaveManager 대신 PlayerDataManager 사용
-        var saveData = PlayerDataManager.Instance.LoadClassData(PlayerType.Warrior);
+        var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+        if (selectedData == null) return;
         
-        if (saveData == null)
+        try
         {
-            Debug.LogWarning("⚠️ [Warrior] 저장 데이터가 없습니다. 기본값 사용");
-            return;
-        }
-        
-        // 🔧 HasProperty 대신 Properties.ContainsKey 사용
-        if (saveData.Properties.ContainsKey("blockChance"))
-        {
-            float savedBlockChance = saveData.GetProperty("blockChance");
+            // Warrior 특성 로드
+            if (selectedData.RuntimeExtraStats.ContainsKey("blockChance"))
+            {
+                float savedBlockChance = selectedData.GetRuntimeStat("blockChance");
+                if (showDebugLogs)
+                    Debug.Log($"📁 [Warrior] 저장된 블록 확률: {savedBlockChance} (현재: {GetBlockChance()})");
+            }
+            
             if (showDebugLogs)
-                Debug.Log($"📁 [Warrior] 저장된 블록 확률: {savedBlockChance} (현재: {GetBlockChance()})");
+                Debug.Log($"📁 [Warrior] 데이터 로드 완료: {selectedData.RuntimeExtraStats.Count}개 속성");
         }
-        
-        if (showDebugLogs)
-            Debug.Log($"📁 [Warrior] 데이터 로드 완료: {saveData}");
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [Warrior] 데이터 로드 중 에러: {ex.Message}");
+        }
     }
     
     /// <summary>

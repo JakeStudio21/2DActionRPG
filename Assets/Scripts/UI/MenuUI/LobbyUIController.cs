@@ -433,7 +433,10 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnWarriorButtonClick()
     {
-        OnClassSelected("Warrior");
+        Debug.Log("[LobbyUIController] 전사 버튼 클릭");
+        
+        // 🆕 슬롯 0번을 직접 선택 (왼쪽 첫 번째)
+        SelectSlotAndClass(0, "Warrior");
     }
     
     /// <summary>
@@ -441,7 +444,50 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnAssassinButtonClick()
     {
-        OnClassSelected("Assassin");
+        Debug.Log("[LobbyUIController] 어쌔신 버튼 클릭");
+        
+        // 🆕 슬롯 1번을 직접 선택 (가운데)
+        SelectSlotAndClass(1, "Assassin");
+    }
+    
+    /// <summary>
+    /// Wizard 버튼 클릭 (Unity Editor OnClick 연결용)
+    /// </summary>
+    public void OnWizardButtonClick()
+    {
+        Debug.Log("[LobbyUIController] 마법사 버튼 클릭");
+        
+        // 🆕 슬롯 2번을 직접 선택 (오른쪽)
+        SelectSlotAndClass(2, "Wizard");
+    }
+
+    /// <summary>
+    /// 🔄 슬롯 인덱스와 클래스를 직접 연결 (완전 데이터 교체 방식)
+    /// </summary>
+    private void SelectSlotAndClass(int slotIndex, string className)
+    {
+        if (PlayerDataManager.Instance != null)
+        {
+            var slotData = PlayerDataManager.Instance.GetSlotData(slotIndex);
+            if (slotData != null && slotData.isSlotUsed)
+            {
+                // 🔧 SelectSlot 방식: 완전한 데이터 교체
+                bool success = PlayerDataManager.Instance.SelectSlot(slotIndex);
+                if (success)
+                {
+                    Debug.Log($"🔄 [LobbyUIController] 슬롯 완전 전환 완료: {className} → 슬롯 {slotIndex}");
+                    OnClassSelected(className);
+                }
+                else
+                {
+                    Debug.LogError($"💥 [LobbyUIController] 슬롯 {slotIndex} 전환 실패");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [LobbyUIController] 슬롯 {slotIndex}가 비어있습니다.");
+            }
+        }
     }
     
     /// <summary>

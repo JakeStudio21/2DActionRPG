@@ -16,7 +16,7 @@ MonoBehaviour:
   itemID: ITEM_BOW_3
   equipmentType: 0
   itemGrade: 1
-  usableClass: 0
+  usableClass: 2
   isTradable: 1
   requiredLevel: 8
   resourceID: RES_WEAPON_BOW_3
@@ -26,6 +26,7 @@ MonoBehaviour:
   weaponType: 0
   weaponCooldown: 1
   weaponRange: 7
+  armorType: 0
   attackDamage: 5
   attackSpeed: 1
   attackRange: 1
@@ -33,3 +34,6 @@ MonoBehaviour:
   criticalChance: 0
   criticalDamage: 1
   projectileId: 
+  defenseBonus: 0
+  speedBonus: 0
+  healthBonus: 0

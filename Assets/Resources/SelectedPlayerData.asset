@@ -12,8 +12,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513eac7d499f5b34fac3ea7eefef983f, type: 3}
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
-  selectedPlayerType: 0
-  weaponName: 
-  currentLevel: 1
-  currentGold: 0
-  currentExp: 0
+  selectedSlotIndex: 1
+  playerName: "\uC5B4\uC314\uC2E0\uD14C\uC2A4\uD2B8"
+  selectedPlayerType: 2
+  weaponName: Bow
+  currentLevel: 10
+  currentExp: 20
+  expToNextLevel: 550
+  currentGold: 241
+  runtimeInventoryItems:
+  - {fileID: 11400000, guid: 8811861985bcee04ea999287ef3087ea, type: 2}
+  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
+  - {fileID: 11400000, guid: 4ec60553ef04d3442878aba493cda7ce, type: 2}
+  - {fileID: 11400000, guid: 8811861985bcee04ea999287ef3087ea, type: 2}
+  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
+  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
+  - {fileID: 11400000, guid: 6511896ef9048244f810db57eaebb15f, type: 2}
+  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
+  equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
+  equippedSlotValues:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  maxInventorySize: 16
+  classLevel: 1
+  runtimeStatKeys:
+  - criticalChance
+  - dodgeChance
+  - stealthDuration
+  - backAttackBonus
+  runtimeStatValues:
+  - 0.15
+  - 0.1
+  - 2
+  - 1.3

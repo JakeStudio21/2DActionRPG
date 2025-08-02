@@ -95,8 +95,10 @@ public class Pickup : MonoBehaviour
                 if (PlayerDataManager.Instance != null)
                 {
                     // 🔍 현재 플레이어 타입 확인 (디버깅용)
-                    PlayerType currentType = PlayerDataManager.Instance.GetCurrentPlayerType();
-                    Debug.Log($"💰 [Pickup] 골드 추가 - 현재 캐릭터: {currentType}");
+                    PlayerType currentType = PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected 
+                        ? PlayerDataManager.Instance.CurrentPlayerType 
+                        : PlayerType.Warrior; // 기본값
+                    Debug.Log($"�� [Pickup] 골드 추가 - 현재 캐릭터: {currentType}");
                     
                     PlayerDataManager.Instance.AddGold(1);
                 }
@@ -130,13 +132,18 @@ public class Pickup : MonoBehaviour
                 if (PlayerDataManager.Instance != null && equipmentData != null)
                 {
                     bool success = PlayerDataManager.Instance.AddToInventory(equipmentData);
-                    if (success)
+                    if (!success)
                     {
-                        Debug.Log($"🎒 [Pickup] 장비 획득: {equipmentData.equipmentName}");
+                        // 인벤토리가 가득참 알림
+                        Debug.LogWarning($"💼 [Pickup] 인벤토리가 가득 참! {equipmentData.name} 획득 실패");
+                        
+                        // UI 메시지 표시 (옵션)
+                        // TODO: 나중에 UI 알림 시스템 추가 시 사용
+                        // UIManager.Instance?.ShowMessage("인벤토리가 가득 찼습니다!");
                     }
                     else
                     {
-                        Debug.LogWarning($"🎒 [Pickup] 인벤토리가 가득참! {equipmentData.equipmentName} 획득 실패");
+                        Debug.Log($"🎒 [Pickup] 장비 획득: {equipmentData.equipmentName}");
                     }
                 }
                 else

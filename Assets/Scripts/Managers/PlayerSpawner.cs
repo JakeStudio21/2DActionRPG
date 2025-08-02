@@ -286,7 +286,7 @@ public class PlayerSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// 시작 무기 자동 장착
+    /// 플레이어에게 시작 무기 장착
     /// </summary>
     private void EquipStartingWeapon()
     {
@@ -308,37 +308,42 @@ public class PlayerSpawner : MonoBehaviour
 
         Debug.Log($"[PlayerSpawner] 데이터: {GameManager.Instance.selectedPlayerData}");
 
-        string weaponNameToEquip = GameManager.Instance.selectedPlayerData.weaponName;
-        if (string.IsNullOrEmpty(weaponNameToEquip))
+        // 🆕 수정: PlayerDataManager에서 장착된 무기 우선 확인
+        EquipmentData equippedWeapon = null;
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
         {
-            Debug.LogError("[PlayerSpawner] weaponName이 비어있습니다!");
+            var equippedItems = PlayerDataManager.Instance.selectedPlayerData.RuntimeEquippedItems;
+            if (equippedItems.ContainsKey(EquipmentSlot.MainWeapon) && equippedItems[EquipmentSlot.MainWeapon] != null)
+            {
+                equippedWeapon = equippedItems[EquipmentSlot.MainWeapon];
+                Debug.Log($"[PlayerSpawner] 저장된 장착 무기 발견: {equippedWeapon.name}");
+            }
+        }
+        
+        // 저장된 장착 무기가 없으면 기본 무기 사용
+        if (equippedWeapon == null)
+        {
+            string weaponNameToEquip = GameManager.Instance.selectedPlayerData.weaponName;
+            if (string.IsNullOrEmpty(weaponNameToEquip))
+            {
+                Debug.LogError("[PlayerSpawner] weaponName이 비어있습니다!");
+                return;
+            }
+            
+            equippedWeapon = GetEquipmentDataByName(weaponNameToEquip);
+            Debug.Log($"[PlayerSpawner] 기본 무기 사용: {weaponNameToEquip}");
+        }
+
+        if (equippedWeapon == null)
+        {
+            Debug.LogError("[PlayerSpawner] 무기 정보를 찾을 수 없습니다!");
             return;
         }
 
-        EquipmentData weaponInfoToEquip = GetEquipmentDataByName(weaponNameToEquip);
+        Debug.Log($"[PlayerSpawner] 무기 정보 찾음: {equippedWeapon.name}");
 
-        if (weaponInfoToEquip == null)
-        {
-            Debug.LogError($"[PlayerSpawner] '{weaponNameToEquip}'에 해당하는 무기 정보를 찾을 수 없습니다!");
-            Debug.LogError($"[PlayerSpawner] 현재 EquipmentData 상태:");
-            Debug.LogError($"  - swordEquipmentData: {(swordEquipmentData != null ? swordEquipmentData.name : "NULL")}");
-            Debug.LogError($"  - bowEquipmentData: {(bowEquipmentData != null ? bowEquipmentData.name : "NULL")}");
-            Debug.LogError($"  - staffEquipmentData: {(staffEquipmentData != null ? staffEquipmentData.name : "NULL")}");
-            return;
-        }
-
-        Debug.Log($"[PlayerSpawner] 무기 정보 찾음: {weaponInfoToEquip.name}");
-
-        // 무기 장착 시도 (실패해도 치명적이지 않음)
-        try
-        {
-            EquipWeaponToPlayer(weaponInfoToEquip);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[PlayerSpawner] 무기 장착 중 오류 발생: {e.Message}");
-            Debug.LogError($"[PlayerSpawner] 스택 트레이스: {e.StackTrace}");
-        }
+        // 무기 장착
+        EquipWeaponToPlayer(equippedWeapon);
     }
 
     /// <summary>

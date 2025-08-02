@@ -70,35 +70,23 @@ public class LobbyManager : MonoBehaviour
     /// <summary>
     /// 플레이어 클래스 선택
     /// </summary>
-    public void SelectClass(PlayerType type, string weapon)
+    public void SelectClass(PlayerType type, string weaponName)
     {
-        selectedPlayerType = type;
-        selectedWeaponName = weapon;
-        
-        // ⭐ 기존: GameManager.selectedPlayerData에 설정
         if (GameManager.Instance != null && GameManager.Instance.selectedPlayerData != null)
         {
             GameManager.Instance.selectedPlayerData.selectedPlayerType = type;
-            GameManager.Instance.selectedPlayerData.weaponName = weapon;
-            Debug.Log($"[LobbyManager] GameManager.selectedPlayerData 설정 완료: {type}, 무기: {weapon}");
+            GameManager.Instance.selectedPlayerData.weaponName = weaponName;
+            Debug.Log($"[LobbyManager] GameManager.selectedPlayerData 설정 완료: {type}, 무기: {weaponName}");
         }
         else
         {
             Debug.LogError("[LobbyManager] GameManager 또는 selectedPlayerData가 없습니다!");
         }
         
-        // 🆕 핵심 추가: PlayerDataManager에도 즉시 설정
-        if (PlayerDataManager.Instance != null)
-        {
-            PlayerDataManager.Instance.SetCurrentPlayerType(type);
-            Debug.Log($"💾 [LobbyManager] PlayerDataManager에 캐릭터 타입 설정: {type}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ [LobbyManager] PlayerDataManager가 없어서 설정을 건너뜁니다.");
-        }
+        // 🆕 더 이상 PlayerDataManager 슬롯 선택을 여기서 하지 않음
+        // LobbyUIController에서 이미 처리됨
         
-        Debug.Log($"[LobbyManager] 클래스 선택: {type}, 무기: {weapon}");
+        Debug.Log($"[LobbyManager] 클래스 선택: {type}, 무기: {weaponName}");
     }
     
     /// <summary>

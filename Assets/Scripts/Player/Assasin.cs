@@ -343,34 +343,32 @@ public class Assasin : BaseClassBehaviour
     #region ⭐ [Phase C] 저장/로드 시스템
     
     /// <summary>
-    /// 저장할 Assasin 데이터를 BaseClassSaveData로 변환하여 저장
+    /// 저장할 Assasin 데이터를 SelectedPlayerData에 저장
     /// </summary>
     public void SaveAssasinData()
     {
-        // ⭐ PlayerDataManager 통합으로 변경
-        if (PlayerDataManager.Instance == null)
+        // ⭐ 새로운 구조: SelectedPlayerData 사용
+        if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
         {
             if (showDebugLogs)
-                Debug.Log("ℹ️ [Assasin] PlayerDataManager 없음. 게임 종료 중이므로 저장 생략.");
+                Debug.Log("ℹ️ [Assasin] PlayerDataManager 없음 또는 슬롯 미선택. 저장 생략.");
             return;
         }
         
-        var saveData = new BaseClassSaveData();
-        saveData.classType = PlayerType.Assasin;
-        saveData.classLevel = playerLevel?.CurrentLevel ?? 1;
-        saveData.isUnlocked = true;
-        saveData.wasActiveLastTime = IsActiveClass;
+        var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+        if (selectedData == null) return;
         
         // Assasin 특성 데이터 저장
-        saveData.SetProperty("dodgeChance", DodgeChance);
-        saveData.SetProperty("stealthDuration", StealthDuration);
-        saveData.SetProperty("backAttackBonus", BackAttackBonus);
+        selectedData.SetRuntimeStat("dodgeChance", DodgeChance);
+        selectedData.SetRuntimeStat("stealthDuration", StealthDuration);
+        selectedData.SetRuntimeStat("backAttackBonus", BackAttackBonus);
+        selectedData.classLevel = playerLevel?.CurrentLevel ?? 1;
         
-        // ⭐ SaveManager 대신 PlayerDataManager 사용
-        PlayerDataManager.Instance.SaveClassData(PlayerType.Assasin, saveData);
+        // 슬롯에 저장
+        PlayerDataManager.Instance.SaveCurrentSlot();
         
         if (showDebugLogs)
-            Debug.Log($"💾 [Assasin] 데이터 저장 완료: {saveData}");
+            Debug.Log($"�� [Assasin] 데이터 저장 완료: Lv.{selectedData.classLevel}, 회피확률:{DodgeChance}");
     }
     
     /// <summary>
@@ -378,27 +376,28 @@ public class Assasin : BaseClassBehaviour
     /// </summary>
     public void LoadAssasinData()
     {
-        // ⭐ PlayerDataManager 통합으로 변경
-        if (PlayerDataManager.Instance == null)
+        // ⭐ 새로운 구조: SelectedPlayerData 사용
+        if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
         {
-            Debug.LogError("💥 [Assasin] PlayerDataManager.Instance가 null입니다!");
+            Debug.LogWarning("⚠️ [Assasin] PlayerDataManager 없음 또는 슬롯 미선택!");
             return;
         }
         
+        var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+        if (selectedData == null) return;
+        
         try
         {
-            // ⭐ SaveManager 대신 PlayerDataManager 사용
-            var saveData = PlayerDataManager.Instance.LoadClassData(PlayerType.Assasin);
-            
-            if (saveData == null)
+            // Assasin 특성 로드
+            if (selectedData.RuntimeExtraStats.ContainsKey("dodgeChance"))
             {
-                Debug.LogWarning("⚠️ [Assasin] 저장 데이터가 없습니다. 기본값 사용");
-                return;
+                float savedDodgeChance = selectedData.GetRuntimeStat("dodgeChance");
+                if (showDebugLogs)
+                    Debug.Log($"📁 [Assasin] 저장된 회피 확률: {savedDodgeChance} (현재: {DodgeChance})");
             }
             
-            // 성공적으로 로드됨
             if (showDebugLogs)
-                Debug.Log($"✅ [Assasin] 데이터 로드 성공: {saveData.Properties.Count}개 속성");
+                Debug.Log($"✅ [Assasin] 데이터 로드 성공: {selectedData.RuntimeExtraStats.Count}개 속성");
         }
         catch (System.Exception ex)
         {

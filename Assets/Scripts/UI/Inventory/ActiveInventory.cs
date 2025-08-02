@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class ActiveInventory : MonoBehaviour
 {
@@ -8,10 +9,13 @@ public class ActiveInventory : MonoBehaviour
 
     [Header("🎒 인벤토리 연동")]
     [SerializeField] private bool useDynamicInventory = true; // 동적 인벤토리 사용 여부
-    [SerializeField] private int maxDisplaySlots = 6; // 표시할 최대 슬롯 수
+    [SerializeField] private int maxDisplaySlots = 16; // 표시할 최대 슬롯 수
 
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true; // 🆕 디버그 로그 표시 여부
+    [SerializeField] 
+    #pragma warning disable 0414
+    private bool showDebugLogs = true; // 사용하도록 수정
+    #pragma warning restore 0414
 
     private PlayerControls playerControls;
 
@@ -31,6 +35,9 @@ public class ActiveInventory : MonoBehaviour
 
     void Start()
     {
+        if (showDebugLogs)
+            Debug.Log("🎒 [ActiveInventory] 디버그 모드 활성화");
+        
         // 🔑 안전한 초기화를 위해 코루틴으로 실행
         StartCoroutine(SafeInitialization());
     }
@@ -254,7 +261,7 @@ public class ActiveInventory : MonoBehaviour
         // 🔧 수정: PlayerDataManager 시스템으로 통합 (기존 2줄 → 신규 8줄)
         if (PlayerDataManager.Instance != null)
         {
-            bool success = PlayerDataManager.Instance.EquipItem(weaponData);
+            bool success = PlayerDataManager.Instance.EquipItem(weaponData, EquipmentSlot.MainWeapon);
             if (success)
             {
                 Debug.Log($"✅ [ActiveInventory] 무기 장착 성공: {weaponData.equipmentName}");
@@ -280,7 +287,7 @@ public class ActiveInventory : MonoBehaviour
     }
 
     /// <summary>
-    /// 갑옷/신발 장착 처리 (신규)
+    /// 갑옷/신발 장착 처리 (수정)
     /// </summary>
     private void HandleArmorEquip(EquipmentData armorData)
     {
@@ -293,10 +300,11 @@ public class ActiveInventory : MonoBehaviour
             return;
         }
         
-        // PlayerDataManager를 통한 장비 시스템 사용
+        // 🔧 수정: PlayerDataManager가 자동으로 적절한 슬롯 결정하도록 변경
         if (PlayerDataManager.Instance != null)
         {
-            bool success = PlayerDataManager.Instance.EquipItem(armorData);
+            // EquipItem(item) 오버로드 사용 → DetermineEquipmentSlot 자동 호출
+            bool success = PlayerDataManager.Instance.EquipItem(armorData); // 슬롯 제거!
             if (success)
             {
                 Debug.Log($"✅ [ActiveInventory] 방어구 장착 성공: {armorData.equipmentName}");
@@ -329,7 +337,7 @@ public class ActiveInventory : MonoBehaviour
         // PlayerDataManager를 통한 장비 시스템 사용
         if (PlayerDataManager.Instance != null)
         {
-            bool success = PlayerDataManager.Instance.EquipItem(accessoryData);
+            bool success = PlayerDataManager.Instance.EquipItem(accessoryData, EquipmentSlot.Ring1); // 또는 적절한 슬롯
             if (success)
             {
                 Debug.Log($"✅ [ActiveInventory] 악세서리 장착 성공: {accessoryData.equipmentName}");
@@ -351,28 +359,14 @@ public class ActiveInventory : MonoBehaviour
     private PlayerClass GetCurrentPlayerClass()
     {
         // 1순위: GameManager의 selectedPlayerData 확인
-        if (GameManager.Instance?.selectedPlayerData != null)
+        if (GameManager.Instance?.selectedPlayerData == null)
         {
-            PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
-            return ConvertPlayerTypeToPlayerClass(selectedType);
+            Debug.LogWarning("🟡 [ActiveInventory] 캐릭터 선택 데이터 없음 - 기존 방식 유지");
+            return PlayerClass.Warrior; // 기본값
         }
         
-        // 2순위: 활성화된 클래스 컴포넌트 직접 확인
-        var warrior = FindObjectOfType<Warrior>();
-        if (warrior != null && warrior.IsActiveClass)
-        {
-            return PlayerClass.Warrior;
-        }
-        
-        var assasin = FindObjectOfType<Assasin>();
-        if (assasin != null && assasin.IsActiveClass)
-        {
-            return PlayerClass.Assasin;
-        }
-        
-        // 기본값
-        Debug.LogWarning("🟡 [ActiveInventory] 활성 클래스를 찾을 수 없어 Warrior로 가정합니다.");
-        return PlayerClass.Warrior;
+        PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
+        return ConvertPlayerTypeToPlayerClass(selectedType);
     }
 
     /// <summary>
@@ -534,32 +528,19 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private PlayerType GetCurrentPlayerType()
     {
-        // 방법 1: PlayerDataManager에서 가져오기
-        if (PlayerDataManager.Instance != null)
+        // ⭐ 새로운 구조: SelectedPlayerData에서 가져오기
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
         {
-            PlayerType playerType = PlayerDataManager.Instance.GetCurrentPlayerType();
-            if (playerType != PlayerType.None)
-                return playerType;
+            return PlayerDataManager.Instance.CurrentPlayerType;
         }
         
-        // 방법 2: GameManager에서 가져오기 (백업)
+        // Fallback: GameManager에서 가져오기
         if (GameManager.Instance?.selectedPlayerData != null)
         {
             return GameManager.Instance.selectedPlayerData.selectedPlayerType;
         }
         
-        // 방법 3: 활성 클래스 컴포넌트에서 감지 (최후 수단)
-        var activeClasses = FindObjectsOfType<BaseClassBehaviour>();
-        foreach (var classComp in activeClasses)
-        {
-            if (classComp.IsActive())
-            {
-                return classComp.PlayerType;
-            }
-        }
-        
-        Debug.LogWarning("⚠️ [ActiveInventory] 현재 플레이어 타입을 확인할 수 없습니다!");
-        return PlayerType.None;
+        return PlayerType.Warrior; // 기본값
     }
     
     /// <summary>

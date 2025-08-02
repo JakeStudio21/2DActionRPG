@@ -25,7 +25,7 @@ public class ShopManager : Singleton<ShopManager>
                 if (inventory != null)
                 {
                     inventory.AddItem(item);
-                    Debug.Log($"[ShopManager] {item.itemName} 구매 성공! 남은 골드: {PlayerDataManager.Instance.GetCurrentGold()}");
+                    Debug.Log($"[ShopManager] {item.itemName} 구매 성공! 남은 골드: {PlayerDataManager.Instance.CurrentGold}");
                     return true;
                 }
                 else
@@ -38,7 +38,7 @@ public class ShopManager : Singleton<ShopManager>
             }
             else
             {
-                Debug.Log($"[ShopManager] {item.itemName} 구매 실패! 골드 부족 (필요: {price}, 보유: {PlayerDataManager.Instance.GetCurrentGold()})");
+                Debug.Log($"[ShopManager] {item.itemName} 구매 실패! 골드 부족 (필요: {price}, 보유: {PlayerDataManager.Instance.CurrentGold})");
                 return false;
             }
         }
@@ -87,7 +87,7 @@ public class ShopManager : Singleton<ShopManager>
         // ⭐ [Phase 1] PlayerDataManager 우선, PlayerManager 백업 사용
         if (PlayerDataManager.Instance != null)
         {
-            return PlayerDataManager.Instance.GetCurrentGold();
+            return PlayerDataManager.Instance.CurrentGold;
         }
         else if (PlayerManager.Instance != null)
         {

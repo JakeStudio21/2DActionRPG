@@ -16,7 +16,7 @@ MonoBehaviour:
   itemID: ITEM_STAFF_1
   equipmentType: 0
   itemGrade: 3
-  usableClass: Wizard
+  usableClass: 3
   isTradable: 1
   requiredLevel: 2
   resourceID: RES_WEAPON_STAFF_1
@@ -26,6 +26,7 @@ MonoBehaviour:
   weaponType: 0
   weaponCooldown: 1
   weaponRange: 5
+  armorType: 0
   attackDamage: 0
   attackSpeed: 1
   attackRange: 1
@@ -33,3 +34,6 @@ MonoBehaviour:
   criticalChance: 0
   criticalDamage: 1
   projectileId: 
+  defenseBonus: 0
+  speedBonus: 0
+  healthBonus: 0

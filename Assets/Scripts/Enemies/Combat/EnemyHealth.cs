@@ -78,10 +78,11 @@ public class EnemyHealth : MonoBehaviour
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.AddExp(experienceGiven);
+            Debug.Log($"✨ [EnemyHealth] 경험치 지급: +{experienceGiven}");
         }
         else
         {
-            Debug.LogError("PlayerDataManager가 없습니다!");
+            Debug.LogWarning("⚠️ [EnemyHealth] PlayerDataManager가 없어서 경험치 지급 불가");
         }
 
         // 2. 모든 콜라이더를 비활성화하여 추가 상호작용을 막습니다.

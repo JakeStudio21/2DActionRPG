@@ -24,7 +24,7 @@ public class PickUpSpawner : MonoBehaviour
 
     public void DropItems() {
         Debug.Log($"🎯 [PickUpSpawner] DropItems 호출! 몬스터: {gameObject.name}");
-        Debug.Log($"🎯 [PickUpSpawner] 현재 플레이어 타입: {(PlayerDataManager.Instance != null ? PlayerDataManager.Instance.GetCurrentPlayerType().ToString() : "NULL")}");
+        Debug.Log($"🎯 [PickUpSpawner] 현재 플레이어 타입: {(PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected ? PlayerDataManager.Instance.CurrentPlayerType.ToString() : "NULL")}");
         Debug.Log($"🎯 [PickUpSpawner] GamePoolManager 상태: {(GamePoolManager.Instance != null ? "정상" : "NULL")}");
         
         // Health 드랍 체크

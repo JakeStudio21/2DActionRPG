@@ -1,23 +1,281 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq; // 추가
 
 /// <summary>
-/// 플레이어 선택 데이터를 저장하는 ScriptableObject
-/// 선택된 캐릭터 타입, 무기 등의 정보 포함
+/// ⭐ [Phase 3] 인게임 런타임 전용 플레이어 데이터 (ScriptableObject 캐시)
+/// 씬 전환 간 데이터 유지 + 임시 변경사항 관리
 /// </summary>
-[CreateAssetMenu(fileName = "SelectedPlayerData", menuName = "Game/SelectedPlayerData")]
+[CreateAssetMenu(fileName = "SelectedPlayerData", menuName = "Game/Selected Player Data")]
 public class SelectedPlayerData : ScriptableObject
 {
-    [Header("플레이어 기본 정보")]
+    [Header("🎮 현재 선택된 플레이어")]
+    public int selectedSlotIndex = 0;
+    public string playerName = "Player";
     public PlayerType selectedPlayerType = PlayerType.None;
-    public string weaponName = "";
+    public string weaponName = ""; // 기존 호환성 유지
     
-    [Header("게임 진행 데이터")]
+    [Header("📈 런타임 진행 상황")]
     public int currentLevel = 1;
-    public int currentGold = 0;
     public int currentExp = 0;
+    public int expToNextLevel = 100;
+    public int currentGold = 0;
+    
+    [Header("🎒 런타임 인벤토리 & 장비")]
+    public List<EquipmentData> runtimeInventoryItems = new List<EquipmentData>();
+    [SerializeField] private List<EquipmentSlot> equippedSlotKeys = new List<EquipmentSlot>();
+    [SerializeField] private List<EquipmentData> equippedSlotValues = new List<EquipmentData>();
+    
+    public int maxInventorySize = 16; // 50 → 16으로 변경
+    
+    [Header("🎯 런타임 클래스 특성")]
+    public int classLevel = 1;
+    [SerializeField] private List<string> runtimeStatKeys = new List<string>();
+    [SerializeField] private List<float> runtimeStatValues = new List<float>();
+    
+    // Dictionary로 변환하여 사용
+    private Dictionary<EquipmentSlot, EquipmentData> _runtimeEquippedItems = null;
+    public Dictionary<EquipmentSlot, EquipmentData> RuntimeEquippedItems
+    {
+        get
+        {
+            if (_runtimeEquippedItems == null)
+            {
+                _runtimeEquippedItems = new Dictionary<EquipmentSlot, EquipmentData>();
+                
+                // 모든 슬롯을 null로 초기화
+                foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+                {
+                    _runtimeEquippedItems[slot] = null;
+                }
+                
+                // 저장된 데이터 복원
+                for (int i = 0; i < Mathf.Min(equippedSlotKeys.Count, equippedSlotValues.Count); i++)
+                {
+                    _runtimeEquippedItems[equippedSlotKeys[i]] = equippedSlotValues[i];
+                }
+            }
+            return _runtimeEquippedItems;
+        }
+    }
+    
+    private Dictionary<string, float> _runtimeExtraStats = null;
+    public Dictionary<string, float> RuntimeExtraStats
+    {
+        get
+        {
+            if (_runtimeExtraStats == null)
+            {
+                _runtimeExtraStats = new Dictionary<string, float>();
+                for (int i = 0; i < Mathf.Min(runtimeStatKeys.Count, runtimeStatValues.Count); i++)
+                {
+                    _runtimeExtraStats[runtimeStatKeys[i]] = runtimeStatValues[i];
+                }
+            }
+            return _runtimeExtraStats;
+        }
+    }
     
     /// <summary>
-    /// 데이터 초기화
+    /// PlayerSlotData에서 런타임 데이터로 복사
+    /// </summary>
+    public void LoadFromSlotData(PlayerSlotData slotData)
+    {
+        if (slotData == null) return;
+        
+        selectedSlotIndex = slotData.slotIndex;
+        playerName = slotData.playerName;
+        selectedPlayerType = slotData.playerType;
+        weaponName = selectedPlayerType.GetDefaultWeapon(); // 기존 호환성
+        
+        currentLevel = slotData.level;
+        currentExp = slotData.exp;
+        expToNextLevel = slotData.expToNextLevel;
+        currentGold = slotData.gold;
+        
+        classLevel = slotData.classLevel;
+        maxInventorySize = slotData.maxInventorySize;
+        
+        // 인벤토리 복사 (Resources에서 로드)
+        runtimeInventoryItems.Clear();
+        foreach (string itemName in slotData.inventoryItemNames)
+        {
+            var item = Resources.Load<EquipmentData>($"Equipment/{itemName}");
+            if (item != null) 
+            {
+                runtimeInventoryItems.Add(item);
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [SelectedPlayerData] 인벤토리 아이템을 찾을 수 없음: {itemName}");
+            }
+        }
+        
+        // 🆕 장비 로드 디버깅
+        Debug.Log($"🔍 [LoadFromSlotData] 로드할 장비 개수: {slotData.equippedItemNames?.Count ?? 0}");
+        if (slotData.equippedItemNames != null)
+        {
+            foreach (var kvp in slotData.equippedItemNames)
+            {
+                Debug.Log($"🔍 [LoadFromSlotData] 파일에서 읽은 장비: {kvp.Key} = {kvp.Value}");
+            }
+        }
+        
+        // 장비 복사
+        RuntimeEquippedItems.Clear();
+        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+        {
+            RuntimeEquippedItems[slot] = null;
+        }
+        
+        if (slotData.equippedItemNames != null)
+        {
+            foreach (var kvp in slotData.equippedItemNames)
+            {
+                if (System.Enum.TryParse<EquipmentSlot>(kvp.Key, out EquipmentSlot slot))
+                {
+                    var item = Resources.Load<EquipmentData>($"Equipment/{kvp.Value}");
+                    if (item != null) 
+                    {
+                        RuntimeEquippedItems[slot] = item;
+                        Debug.Log($"📥 [LoadFromSlotData] 장비 로드 성공: {slot} = {item.name}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚠️ [SelectedPlayerData] 장비 아이템을 찾을 수 없음: {kvp.Value}");
+                    }
+                }
+            }
+        }
+        
+        Debug.Log($"🔍 [LoadFromSlotData] 로드된 장비 개수: {RuntimeEquippedItems.Values.Count(x => x != null)}");
+        
+        // 특성 복사
+        RuntimeExtraStats.Clear();
+        foreach (var kvp in slotData.ExtraStats)
+        {
+            RuntimeExtraStats[kvp.Key] = kvp.Value;
+        }
+        
+        SyncDictionaries();
+        
+        Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 로드 완료: {slotData}");
+    }
+    
+    /// <summary>
+    /// 런타임 데이터를 PlayerSlotData로 저장
+    /// </summary>
+    public PlayerSlotData SaveToSlotData()
+    {
+        var slotData = new PlayerSlotData
+        {
+            slotIndex = selectedSlotIndex,
+            playerName = playerName,
+            playerType = selectedPlayerType,
+            lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            isSlotUsed = true,
+            
+            level = currentLevel,
+            exp = currentExp,
+            expToNextLevel = expToNextLevel,
+            gold = currentGold,
+            
+            classLevel = classLevel,
+            isClassUnlocked = true,
+            maxInventorySize = maxInventorySize
+        };
+        
+        // 인벤토리 저장
+        slotData.inventoryItemNames.Clear();
+        foreach (var item in runtimeInventoryItems)
+        {
+            if (item != null) slotData.inventoryItemNames.Add(item.name);
+        }
+        
+        // 🆕 장비 저장 디버깅
+        Debug.Log($"🔍 [SaveToSlotData] 저장 전 RuntimeEquippedItems 개수: {RuntimeEquippedItems.Count}");
+        foreach (var kvp in RuntimeEquippedItems)
+        {
+            Debug.Log($"🔍 [SaveToSlotData] 장비: {kvp.Key} = {(kvp.Value != null ? kvp.Value.name : "null")}");
+        }
+        
+        // 장비 저장
+        slotData.equippedItemNames.Clear();
+        foreach (var kvp in RuntimeEquippedItems)
+        {
+            if (kvp.Value != null)
+            {
+                slotData.SetEquippedItem(kvp.Key.ToString(), kvp.Value.name);
+                Debug.Log($"💾 [SaveToSlotData] 장비 저장: {kvp.Key} = {kvp.Value.name}");
+            }
+        }
+        
+        Debug.Log($"🔍 [SaveToSlotData] 저장된 장비 개수: {slotData.equippedItemNames.Count}");
+        
+        // 특성 저장
+        foreach (var kvp in RuntimeExtraStats)
+        {
+            slotData.SetExtraStat(kvp.Key, kvp.Value);
+        }
+        
+        Debug.Log($"📤 [SelectedPlayerData] 슬롯 {selectedSlotIndex} 데이터 저장 준비 완료: {slotData}");
+        return slotData;
+    }
+    
+    /// <summary>
+    /// Dictionary를 SerializeField로 동기화
+    /// </summary>
+    public void SyncDictionaries()
+    {
+        // 장비 동기화
+        equippedSlotKeys.Clear();
+        equippedSlotValues.Clear();
+        foreach (var kvp in RuntimeEquippedItems)
+        {
+            equippedSlotKeys.Add(kvp.Key);
+            equippedSlotValues.Add(kvp.Value);
+        }
+        
+        // 특성 동기화
+        runtimeStatKeys.Clear();
+        runtimeStatValues.Clear();
+        foreach (var kvp in RuntimeExtraStats)
+        {
+            runtimeStatKeys.Add(kvp.Key);
+            runtimeStatValues.Add(kvp.Value);
+        }
+    }
+    
+    /// <summary>
+    /// 런타임 특성 값 설정
+    /// </summary>
+    public void SetRuntimeStat(string key, float value)
+    {
+        RuntimeExtraStats[key] = value;
+        SyncDictionaries();
+    }
+    
+    /// <summary>
+    /// 런타임 특성 값 가져오기
+    /// </summary>
+    public float GetRuntimeStat(string key, float defaultValue = 0f)
+    {
+        return RuntimeExtraStats.ContainsKey(key) ? RuntimeExtraStats[key] : defaultValue;
+    }
+    
+    // 기존 PlayerDataManager 인터페이스 호환성을 위한 프로퍼티들
+    public int CurrentGold => currentGold;
+    public int CurrentLevel => currentLevel;
+    public int CurrentExp => currentExp;
+    public int ExpToNextLevel => expToNextLevel;
+    public List<EquipmentData> InventoryItems => new List<EquipmentData>(runtimeInventoryItems);
+    public Dictionary<EquipmentSlot, EquipmentData> EquippedItems => new Dictionary<EquipmentSlot, EquipmentData>(RuntimeEquippedItems);
+    public int CurrentInventorySize => runtimeInventoryItems.Count;
+    public int MaxInventorySize => maxInventorySize;
+    public bool IsInventoryFull => CurrentInventorySize >= MaxInventorySize;
+    
+    /// <summary>
+    /// 🔄 기존 호환성: 데이터 초기화
     /// </summary>
     public void Reset()
     {
@@ -26,14 +284,20 @@ public class SelectedPlayerData : ScriptableObject
         currentLevel = 1;
         currentGold = 0;
         currentExp = 0;
+        expToNextLevel = 100;
+        
+        runtimeInventoryItems.Clear();
+        RuntimeEquippedItems.Clear();
+        RuntimeExtraStats.Clear();
+        SyncDictionaries();
     }
     
     /// <summary>
-    /// 플레이어가 선택되었는지 확인
+    /// 🔄 기존 호환성: 플레이어가 선택되었는지 확인
     /// </summary>
     public bool IsPlayerSelected()
     {
-        return selectedPlayerType != PlayerType.None && !string.IsNullOrEmpty(weaponName);
+        return selectedPlayerType != PlayerType.None && selectedSlotIndex >= 0;
     }
     
     /// <summary>
@@ -41,7 +305,7 @@ public class SelectedPlayerData : ScriptableObject
     /// </summary>
     public override string ToString()
     {
-        return $"Player: {selectedPlayerType}, Weapon: {weaponName}, Level: {currentLevel}";
+        return $"Slot[{selectedSlotIndex}] {playerName}({selectedPlayerType}) Lv.{currentLevel} Gold:{currentGold} Inv:{CurrentInventorySize}/{MaxInventorySize}";
     }
 }
 

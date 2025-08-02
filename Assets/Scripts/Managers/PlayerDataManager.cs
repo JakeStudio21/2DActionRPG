@@ -5,33 +5,26 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System;
 using System.Linq;
+using System.IO;
 
 /// <summary>
-/// ⭐ [Phase 2] 모든 플레이어 데이터를 통합 관리하는 매니저
-/// 🆕 캐릭터별 분리 저장 시스템으로 개선
+/// ⭐ [Phase 3] 슬롯 기반 플레이어 데이터 관리자 (완전 새 구조)
+/// - PlayerSlotData: JSON 파일 기반 저장/로드
+/// - SelectedPlayerData: 런타임 캐시 관리
+/// - 단일 책임: 슬롯 관리 + 파일 저장/로드만 담당
 /// </summary>
 public class PlayerDataManager : Singleton<PlayerDataManager>
 {
-    [Header("🎮 플레이어 기본 정보")]
-    public int characterIndex = 0; // 현재 선택된 캐릭터 번호
-    public string playerName = "Player"; // 플레이어 이름
+    [Header("🎮 슬롯 관리 설정")]
+    [SerializeField] private int maxSlots = 3; // 최대 캐릭터 슬롯 수
+    [SerializeField] private string saveDirectory = "PlayerSlots"; // 저장 폴더명
     
-    // 🆕 현재 활성 캐릭터 타입 추가
-    [Header("🎯 활성 캐릭터")]
-    [SerializeField] private PlayerType currentPlayerType = PlayerType.None;
+    [Header("🎯 런타임 데이터 캐시")]
+    public SelectedPlayerData selectedPlayerData; // ScriptableObject 참조 (public으로 변경)
     
-    [Header("💰 재화 관리")]
-    [SerializeField] private int currentGold = 0;
-    
-    [Header("📈 레벨 & 경험치")]
-    [SerializeField] private int currentLevel = 1;
-    [SerializeField] private int currentExp = 0;
-    [SerializeField] private int expToNextLevel = 100;
-    
-    [Header("🎒 인벤토리 & 장비 시스템")]
-    [SerializeField] private Dictionary<EquipmentSlot, EquipmentData> equippedItems = new Dictionary<EquipmentSlot, EquipmentData>();
-    [SerializeField] private List<EquipmentData> inventoryItems = new List<EquipmentData>();
-    [SerializeField] private int maxInventorySize = 50; // 최대 인벤토리 크기
+    [Header("📊 슬롯 상태")]
+    [SerializeField] private List<PlayerSlotData> playerSlots = new List<PlayerSlotData>(); // 현재 로드된 슬롯들
+    [SerializeField] private int currentSlotIndex = -1; // 현재 활성 슬롯 (-1: 미선택)
     
     [Header("🔧 UI 관리")]
     private TMP_Text goldText;
@@ -40,68 +33,80 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
     
-    // 이벤트 시스템 - 기존
+    // 이벤트 시스템 (기존 호환성 유지)
     public event Action<int> OnGoldChanged;
     public event Action<int> OnLevelChanged;
     public event Action<int, int> OnExpChanged; // (currentExp, expToNextLevel)
-    
-    // 이벤트 시스템 - 인벤토리 신규
     public event Action<EquipmentData> OnItemAddedToInventory;
     public event Action<EquipmentData> OnItemRemovedFromInventory;
     public event Action<EquipmentSlot, EquipmentData> OnItemEquipped;
     public event Action<EquipmentSlot, EquipmentData> OnItemUnequipped;
     public event Action OnInventoryChanged;
     
-    // 접근자 프로퍼티 - 기존
-    public int CurrentGold => currentGold;
-    public int CurrentLevel => currentLevel;
-    public int CurrentExp => currentExp;
-    public int ExpToNextLevel => expToNextLevel;
+    // 슬롯 관리 이벤트
+    public event Action<int> OnSlotSelected; // 슬롯 선택 시
+    public event Action<PlayerSlotData> OnSlotDataChanged; // 슬롯 데이터 변경 시
     
-    // 접근자 프로퍼티 - 인벤토리 신규
-    public List<EquipmentData> InventoryItems => new List<EquipmentData>(inventoryItems);
-    public Dictionary<EquipmentSlot, EquipmentData> EquippedItems => new Dictionary<EquipmentSlot, EquipmentData>(equippedItems);
-    public int CurrentInventorySize => inventoryItems.Count;
-    public int MaxInventorySize => maxInventorySize;
-    public bool IsInventoryFull => CurrentInventorySize >= MaxInventorySize;
+    // 접근자 프로퍼티 (SelectedPlayerData 위임)
+    public int CurrentGold => selectedPlayerData != null ? selectedPlayerData.CurrentGold : 0;
+    public int CurrentLevel => selectedPlayerData != null ? selectedPlayerData.CurrentLevel : 1;
+    public int CurrentExp => selectedPlayerData != null ? selectedPlayerData.CurrentExp : 0;
+    public int ExpToNextLevel => selectedPlayerData != null ? selectedPlayerData.ExpToNextLevel : 100;
+    public List<EquipmentData> InventoryItems => selectedPlayerData != null ? selectedPlayerData.InventoryItems : new List<EquipmentData>();
+    public Dictionary<EquipmentSlot, EquipmentData> EquippedItems => selectedPlayerData != null ? selectedPlayerData.EquippedItems : new Dictionary<EquipmentSlot, EquipmentData>();
+    public int CurrentInventorySize => selectedPlayerData != null ? selectedPlayerData.CurrentInventorySize : 0;
+    public int MaxInventorySize => selectedPlayerData != null ? selectedPlayerData.MaxInventorySize : 16;
+    public bool IsInventoryFull => selectedPlayerData != null ? selectedPlayerData.IsInventoryFull : false;
+    
+    // 슬롯 관리 프로퍼티
+    public int MaxSlots => maxSlots;
+    public int CurrentSlotIndex => currentSlotIndex;
+    public bool IsSlotSelected => currentSlotIndex >= 0 && selectedPlayerData != null;
+    public PlayerType CurrentPlayerType => selectedPlayerData != null ? selectedPlayerData.selectedPlayerType : PlayerType.None;
+    public string SaveDirectoryPath => Path.Combine(Application.persistentDataPath, saveDirectory);
     
     protected override void Awake()
     {
         base.Awake();
         
-        // 딕셔너리 초기화
-        InitializeEquipmentSlots();
+        // 저장 폴더 생성
+        CreateSaveDirectory();
         
         // 씬 로드 이벤트 구독
         SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // SelectedPlayerData ScriptableObject 찾기 또는 생성
+        InitializeSelectedPlayerData();
     }
-
-    private void InitializeEquipmentSlots()
-    {
-        // 모든 장비 슬롯을 null로 초기화
-        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
-        {
-            equippedItems[slot] = null;
-        }
-    }
-
+    
     protected override void OnDestroy()
     {
+        // 현재 데이터 저장
+        if (IsSlotSelected)
+            SaveCurrentSlot();
+        
         // 이벤트 구독 해제
         SceneManager.sceneLoaded -= OnSceneLoaded;
         
         base.OnDestroy();
     }
-
+    
     private void Start()
     {
-        // 게임 시작 시 저장된 데이터 불러오기
-        LoadAllPlayerData();
+        // 모든 슬롯 로드
+        LoadAllSlots();
+        
+        // 🆕 SelectedPlayerData maxInventorySize 강제 동기화
+        if (selectedPlayerData != null)
+        {
+            selectedPlayerData.maxInventorySize = 16; // 강제로 16으로 설정
+            Debug.Log($"🔧 [PlayerDataManager] maxInventorySize 강제 동기화: {selectedPlayerData.maxInventorySize}");
+        }
         
         // UI 초기화
         StartCoroutine(InitializeUI());
     }
-
+    
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         // 새 씬 로드시 UI 참조 초기화
@@ -110,22 +115,267 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         // UI 초기화 (다음 프레임에 실행)
         StartCoroutine(InitializeUI());
     }
+    
+    #region 🗂️ 슬롯 관리 시스템
+    
+    /// <summary>
+    /// 모든 슬롯 데이터 로드
+    /// </summary>
+    public void LoadAllSlots()
+    {
+        playerSlots.Clear();
+        
+        for (int i = 0; i < maxSlots; i++)
+        {
+            var slotData = LoadSlotData(i);
+            if (slotData == null)
+            {
+                // 빈 슬롯 생성
+                slotData = new PlayerSlotData
+                {
+                    slotIndex = i,
+                    isSlotUsed = false
+                };
+            }
+            playerSlots.Add(slotData);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📁 [PlayerDataManager] {maxSlots}개 슬롯 로드 완료. 사용중: {GetUsedSlotCount()}개");
+    }
+    
+    /// <summary>
+    /// 특정 슬롯 데이터 로드
+    /// </summary>
+    public PlayerSlotData LoadSlotData(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots) return null;
+        
+        string filePath = GetSlotFilePath(slotIndex);
+        
+        if (!File.Exists(filePath))
+        {
+            if (showDebugLogs)
+                Debug.Log($"📁 [PlayerDataManager] 슬롯 {slotIndex} 파일 없음: {filePath}");
+            return null;
+        }
+        
+        try
+        {
+            string json = File.ReadAllText(filePath);
+            var slotData = PlayerSlotData.FromJson(json);
+            
+            if (slotData != null)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"📁 [PlayerDataManager] 슬롯 {slotIndex} 로드 성공: {slotData}");
+                return slotData;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [PlayerDataManager] 슬롯 {slotIndex} 로드 실패: {ex.Message}");
+        }
+        
+        return null;
+    }
+    
+    /// <summary>
+    /// 특정 슬롯 데이터 저장
+    /// </summary>
+    public bool SaveSlotData(PlayerSlotData slotData)
+    {
+        if (slotData == null || slotData.slotIndex < 0 || slotData.slotIndex >= maxSlots) 
+            return false;
+        
+        try
+        {
+            string filePath = GetSlotFilePath(slotData.slotIndex);
+            string json = slotData.ToJson();
+            
+            File.WriteAllText(filePath, json);
+            
+            // 메모리 내 슬롯 데이터도 업데이트
+            if (slotData.slotIndex < playerSlots.Count)
+                playerSlots[slotData.slotIndex] = slotData;
+            
+            OnSlotDataChanged?.Invoke(slotData);
+            
+            if (showDebugLogs)
+                Debug.Log($"💾 [PlayerDataManager] 슬롯 {slotData.slotIndex} 저장 완료: {slotData}");
+                
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [PlayerDataManager] 슬롯 {slotData.slotIndex} 저장 실패: {ex.Message}");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// 새 캐릭터 슬롯 생성
+    /// </summary>
+    public bool CreateNewSlot(int slotIndex, PlayerType playerType, string playerName = null)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots) return false;
+        
+        var existingSlot = GetSlotData(slotIndex);
+        if (existingSlot != null && existingSlot.isSlotUsed)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 슬롯 {slotIndex}는 이미 사용중");
+            return false;
+        }
+        
+        // 새 슬롯 데이터 생성
+        var newSlot = PlayerSlotData.CreateDefaultSlot(slotIndex, playerType);
+        if (!string.IsNullOrEmpty(playerName))
+            newSlot.playerName = playerName;
+        
+        // 저장
+        if (SaveSlotData(newSlot))
+        {
+            if (showDebugLogs)
+                Debug.Log($"✨ [PlayerDataManager] 새 슬롯 {slotIndex} 생성 완료: {newSlot}");
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// 슬롯 삭제
+    /// </summary>
+    public bool DeleteSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots) return false;
+        
+        // 현재 선택된 슬롯이라면 선택 해제
+        if (currentSlotIndex == slotIndex)
+        {
+            currentSlotIndex = -1;
+            selectedPlayerData.Reset();
+        }
+        
+        try
+        {
+            string filePath = GetSlotFilePath(slotIndex);
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+            
+            // 메모리 내 슬롯도 초기화
+            if (slotIndex < playerSlots.Count)
+            {
+                playerSlots[slotIndex] = new PlayerSlotData
+                {
+                    slotIndex = slotIndex,
+                    isSlotUsed = false
+                };
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"🗑️ [PlayerDataManager] 슬롯 {slotIndex} 삭제 완료");
+                
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [PlayerDataManager] 슬롯 {slotIndex} 삭제 실패: {ex.Message}");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// 현재 선택된 슬롯 저장
+    /// </summary>
+    public bool SaveCurrentSlot()
+    {
+        if (!IsSlotSelected) return false;
+        
+        var slotData = selectedPlayerData.SaveToSlotData();
+        return SaveSlotData(slotData);
+    }
+    
+    /// <summary>
+    /// 특정 슬롯 데이터 가져오기
+    /// </summary>
+    public PlayerSlotData GetSlotData(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= playerSlots.Count) return null;
+        return playerSlots[slotIndex];
+    }
+    
+    /// <summary>
+    /// 사용중인 슬롯 개수
+    /// </summary>
+    public int GetUsedSlotCount()
+    {
+        return playerSlots.Count(slot => slot.isSlotUsed);
+    }
+    
+    /// <summary>
+    /// 빈 슬롯 인덱스 찾기
+    /// </summary>
+    public int GetEmptySlotIndex()
+    {
+        for (int i = 0; i < playerSlots.Count; i++)
+        {
+            if (!playerSlots[i].isSlotUsed)
+                return i;
+        }
+        return -1; // 빈 슬롯 없음
+    }
+    
+    /// <summary>
+    /// 🔄 슬롯 전환 (완전한 데이터 교체 모드)
+    /// SelectedPlayerData를 선택된 슬롯 데이터로 완전히 갱신
+    /// </summary>
+    public bool SelectSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots) return false;
+        
+        var slotData = GetSlotData(slotIndex);
+        if (slotData == null || !slotData.isSlotUsed)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 슬롯 {slotIndex}는 사용되지 않음");
+            return false;
+        }
+        
+        // 🎯 핵심: 기존의 완벽한 LoadFromSlotData 활용
+        currentSlotIndex = slotIndex;
+        
+        if (selectedPlayerData != null)
+        {
+            selectedPlayerData.LoadFromSlotData(slotData);
+            Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 완전 전환: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
+        }
+        
+        // 이벤트 발생
+        OnSlotSelected?.Invoke(slotIndex);
+        TriggerAllUIEvents();
+        
+        return true;
+    }
 
-    #region 💰 골드 관리 시스템
+    #endregion
+    
+    #region 💰 기존 호환성 메서드들 (SelectedPlayerData 위임)
     
     /// <summary>
     /// 골드 추가
     /// </summary>
     public void AddGold(int amount)
     {
-        if (amount <= 0) return;
+        if (!IsSlotSelected || amount <= 0) return;
         
-        currentGold += amount;
-        SavePlayerData();
-        OnGoldChanged?.Invoke(currentGold);
+        selectedPlayerData.currentGold += amount;
+        SaveCurrentSlot();
+        OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
         
         if (showDebugLogs)
-            Debug.Log($"💰 [PlayerData] 골드 추가: +{amount}, 현재: {currentGold}");
+            Debug.Log($"💰 [PlayerDataManager] 골드 추가: +{amount}, 현재: {selectedPlayerData.currentGold}");
     }
     
     /// <summary>
@@ -133,166 +383,88 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public bool SpendGold(int amount)
     {
-        if (amount <= 0) return false;
+        if (!IsSlotSelected || amount <= 0) return false;
         
-        if (currentGold >= amount)
+        if (selectedPlayerData.currentGold >= amount)
         {
-            currentGold -= amount;
-            SavePlayerData();
-            OnGoldChanged?.Invoke(currentGold);
+            selectedPlayerData.currentGold -= amount;
+            SaveCurrentSlot();
+            OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
             
             if (showDebugLogs)
-                Debug.Log($"💰 [PlayerData] 골드 소모: -{amount}, 현재: {currentGold}");
+                Debug.Log($"💰 [PlayerDataManager] 골드 소모: -{amount}, 현재: {selectedPlayerData.currentGold}");
             return true;
         }
         else
         {
             if (showDebugLogs)
-                Debug.LogWarning($"💰 [PlayerData] 골드 부족! 필요: {amount}, 보유: {currentGold}");
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 골드 부족: 필요 {amount}, 보유 {selectedPlayerData.currentGold}");
             return false;
         }
     }
     
     /// <summary>
-    /// 골드 직접 설정 (호환성 유지)
+    /// 경험치 추가
     /// </summary>
-    public void SetGold(int gold)
+    public void AddExp(int amount)
     {
-        currentGold = Mathf.Max(0, gold);
-        SavePlayerData();
-        OnGoldChanged?.Invoke(currentGold);
-        
-        if (showDebugLogs)
-            Debug.Log($"💰 [PlayerData] 골드 설정: {currentGold}");
-    }
-    
-    #endregion
-    
-    #region 📈 레벨 & 경험치 관리 시스템
-    
-    /// <summary>
-    /// 경험치 추가 및 레벨업 체크
-    /// </summary>
-    public void AddExp(int expAmount)
-    {
-        if (expAmount <= 0) return;
-        
-        currentExp += expAmount;
-        OnExpChanged?.Invoke(currentExp, expToNextLevel);
-        
-        if (showDebugLogs)
-            Debug.Log($"📈 [PlayerData] 경험치 {expAmount} 획득! 현재: {currentExp}/{expToNextLevel}");
-
-        // 레벨업 체크 (여러 레벨업 가능)
-        while (currentExp >= expToNextLevel)
+        if (!IsSlotSelected)
         {
-            LevelUp();
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [PlayerDataManager] 슬롯이 선택되지 않아 경험치 추가 불가");
+            return;
         }
         
-        SavePlayerData();
-    }
-    
-    /// <summary>
-    /// 레벨업 처리
-    /// </summary>
-    private void LevelUp()
-    {
-        currentExp -= expToNextLevel;
-        currentLevel++;
+        if (amount <= 0) return;
         
-        // 다음 레벨 필요 경험치 계산 (1.2배씩 증가)
-        expToNextLevel = Mathf.RoundToInt(expToNextLevel * 1.2f);
+        int oldExp = selectedPlayerData.currentExp;
+        int oldLevel = selectedPlayerData.currentLevel;
         
-        // 이벤트 발생
-        OnLevelChanged?.Invoke(currentLevel);
-        OnExpChanged?.Invoke(currentExp, expToNextLevel);
+        selectedPlayerData.currentExp += amount;
+        
+        // 레벨업 체크
+        while (selectedPlayerData.currentExp >= selectedPlayerData.expToNextLevel)
+        {
+            selectedPlayerData.currentExp -= selectedPlayerData.expToNextLevel;
+            selectedPlayerData.currentLevel++;
+            selectedPlayerData.expToNextLevel = CalculateExpToNextLevel(selectedPlayerData.currentLevel);
+            OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
+            
+            if (showDebugLogs)
+                Debug.Log($"🆙 [PlayerDataManager] 레벨업! 새 레벨: {selectedPlayerData.currentLevel}");
+        }
+        
+        SaveCurrentSlot();
+        OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
         
         if (showDebugLogs)
-            Debug.Log($"🆙 [PlayerData] 레벨 업! Lv.{currentLevel} (다음 레벨까지: {expToNextLevel - currentExp})");
-        
-        // 클래스별 레벨업 보너스 적용
-        ApplyLevelUpBonus();
+            Debug.Log($"✨ [PlayerDataManager] 경험치 추가: +{amount} ({oldExp}→{selectedPlayerData.currentExp}) 레벨: {oldLevel}→{selectedPlayerData.currentLevel}");
     }
-    
-    /// <summary>
-    /// 레벨 직접 설정 (치트/테스트용)
-    /// </summary>
-    public void SetLevel(int level, int exp = 0)
-    {
-        currentLevel = Mathf.Max(1, level);
-        currentExp = Mathf.Max(0, exp);
-        
-        // 레벨에 맞는 필요 경험치 계산
-        expToNextLevel = CalculateExpForLevel(currentLevel + 1);
-        
-        OnLevelChanged?.Invoke(currentLevel);
-        OnExpChanged?.Invoke(currentExp, expToNextLevel);
-        SavePlayerData();
-        
-        if (showDebugLogs)
-            Debug.Log($"📈 [PlayerData] 레벨 설정: Lv.{currentLevel}, EXP: {currentExp}/{expToNextLevel}");
-    }
-    
-    /// <summary>
-    /// 특정 레벨에 필요한 총 경험치 계산
-    /// </summary>
-    private int CalculateExpForLevel(int targetLevel)
-    {
-        int baseExp = 100;
-        for (int i = 2; i <= targetLevel; i++)
-        {
-            baseExp = Mathf.RoundToInt(baseExp * 1.2f);
-        }
-        return baseExp;
-    }
-    
-    /// <summary>
-    /// 레벨업 시 클래스별 보너스 적용
-    /// </summary>
-    private void ApplyLevelUpBonus()
-    {
-        // 활성 클래스들에게 레벨업 알림
-        var activeClasses = FindObjectsOfType<BaseClassBehaviour>();
-        foreach (var classComp in activeClasses)
-        {
-            if (classComp.IsActiveClass)
-            {
-                classComp.OnLevelUp(currentLevel);
-            }
-        }
-    }
-    
-    #endregion
-    
-    #region 🎒 인벤토리 관리 시스템
     
     /// <summary>
     /// 인벤토리에 아이템 추가
     /// </summary>
     public bool AddToInventory(EquipmentData item)
     {
-        if (item == null)
+        if (!IsSlotSelected || item == null) return false;
+        
+        // 🆕 인벤토리 상태 디버그
+        Debug.Log($"📊 [PlayerDataManager] 인벤토리 상태: {selectedPlayerData.CurrentInventorySize}/{selectedPlayerData.MaxInventorySize}");
+        
+        if (selectedPlayerData.IsInventoryFull)
         {
             if (showDebugLogs)
-                Debug.LogWarning("🎒 [PlayerData] null 아이템을 인벤토리에 추가할 수 없습니다.");
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 인벤토리가 가득 참! 최대 {selectedPlayerData.MaxInventorySize}개까지만 보관 가능합니다.");
             return false;
         }
         
-        if (IsInventoryFull)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"🎒 [PlayerData] 인벤토리가 가득참! ({CurrentInventorySize}/{MaxInventorySize})");
-            return false;
-        }
-        
-        inventoryItems.Add(item);
+        selectedPlayerData.runtimeInventoryItems.Add(item);
+        SaveCurrentSlot();
         OnItemAddedToInventory?.Invoke(item);
         OnInventoryChanged?.Invoke();
-        SavePlayerData();
         
         if (showDebugLogs)
-            Debug.Log($"🎒 [PlayerData] 인벤토리에 아이템 추가: {item.equipmentName} ({CurrentInventorySize}/{MaxInventorySize})");
-        
+            Debug.Log($"📦 [PlayerDataManager] 인벤토리 추가: {item.name} ({selectedPlayerData.CurrentInventorySize}/{selectedPlayerData.MaxInventorySize})");
         return true;
     }
     
@@ -301,75 +473,47 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public bool RemoveFromInventory(EquipmentData item)
     {
-        if (item == null || !inventoryItems.Contains(item))
+        if (!IsSlotSelected || item == null) return false;
+        
+        if (selectedPlayerData.runtimeInventoryItems.Remove(item))
         {
+            SaveCurrentSlot();
+            OnItemRemovedFromInventory?.Invoke(item);
+            OnInventoryChanged?.Invoke();
+            
             if (showDebugLogs)
-                Debug.LogWarning($"🎒 [PlayerData] 인벤토리에 없는 아이템을 제거하려고 함: {item?.equipmentName}");
-            return false;
+                Debug.Log($"📦 [PlayerDataManager] 인벤토리 제거: {item.name}");
+            return true;
         }
         
-        inventoryItems.Remove(item);
-        OnItemRemovedFromInventory?.Invoke(item);
-        OnInventoryChanged?.Invoke();
-        SavePlayerData();
-        
-        if (showDebugLogs)
-            Debug.Log($"🎒 [PlayerData] 인벤토리에서 아이템 제거: {item.equipmentName} ({CurrentInventorySize}/{MaxInventorySize})");
-        
-        return true;
+        return false;
     }
     
     /// <summary>
     /// 아이템 장착
     /// </summary>
-    public bool EquipItem(EquipmentData item)
+    public bool EquipItem(EquipmentData item, EquipmentSlot targetSlot)
     {
-        if (item == null)
+        if (!IsSlotSelected || item == null) return false;
+        
+        // 기존 장착 아이템이 있다면 인벤토리로
+        var currentItem = selectedPlayerData.RuntimeEquippedItems[targetSlot];
+        if (currentItem != null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🎒 [PlayerData] null 아이템을 장착할 수 없습니다.");
-            return false;
+            if (!AddToInventory(currentItem)) return false;
         }
         
-        // 장착 슬롯 결정
-        EquipmentSlot targetSlot = GetEquipmentSlot(item);
+        // 새 아이템 장착
+        selectedPlayerData.RuntimeEquippedItems[targetSlot] = item;
+        RemoveFromInventory(item);
+        selectedPlayerData.SyncDictionaries();
         
-        // 🔧 수정: 모든 장비 타입에 대해 장착 시도
-        return EquipItemToSlot(item, targetSlot);
-    }
-    
-    /// <summary>
-    /// 특정 슬롯에 아이템 장착
-    /// </summary>
-    public bool EquipItemToSlot(EquipmentData item, EquipmentSlot slot)
-    {
-        if (item == null)
-            return false;
-            
-        // 이미 장착된 아이템이 있으면 해제
-        if (equippedItems[slot] != null)
-        {
-            UnequipItem(slot);
-        }
-        
-        // 인벤토리에서 제거 (장착하면 인벤토리에서 사라짐)
-        bool removedFromInventory = RemoveFromInventory(item);
-        if (!removedFromInventory && !inventoryItems.Contains(item))
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"🎒 [PlayerData] 인벤토리에 없는 아이템을 장착하려고 함: {item.equipmentName}");
-        }
-        
-        // 장착 실행
-        equippedItems[slot] = item;
-        OnItemEquipped?.Invoke(slot, item);
-        OnEquipmentChanged(); // 🆕 능력치 재계산
-        ApplyPhysicalEquipment(slot, item); // 🆕 물리적 장비 적용
-        SavePlayerData();
+        SaveCurrentSlot();
+        OnItemEquipped?.Invoke(targetSlot, item);
+        OnInventoryChanged?.Invoke();
         
         if (showDebugLogs)
-            Debug.Log($"⚔️ [PlayerData] 아이템 장착: {item.equipmentName} → {slot}");
-        
+            Debug.Log($"⚔️ [PlayerDataManager] 장비 착용: {item.name} → {targetSlot}");
         return true;
     }
     
@@ -378,838 +522,353 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public bool UnequipItem(EquipmentSlot slot)
     {
-        if (!equippedItems.ContainsKey(slot) || equippedItems[slot] == null)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"🎒 [PlayerData] 슬롯 {slot}에 장착된 아이템이 없습니다.");
-            return false;
-        }
+        if (!IsSlotSelected) return false;
         
-        EquipmentData unequippedItem = equippedItems[slot];
+        var item = selectedPlayerData.RuntimeEquippedItems[slot];
+        if (item == null) return false;
         
-        // 인벤토리로 되돌리기
-        if (!AddToInventory(unequippedItem))
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"🎒 [PlayerData] 인벤토리가 가득차서 {unequippedItem.equipmentName}을 해제할 수 없습니다.");
-            return false;
-        }
+        selectedPlayerData.RuntimeEquippedItems[slot] = null;
+        if (!AddToInventory(item)) return false;
         
-        // 장착 해제
-        equippedItems[slot] = null;
-        OnItemUnequipped?.Invoke(slot, unequippedItem);
-        OnEquipmentChanged(); // 🆕 능력치 재계산
-        RemovePhysicalEquipment(slot, unequippedItem); // 🆕 물리적 장비 해제
-        SavePlayerData();
+        selectedPlayerData.SyncDictionaries();
+        SaveCurrentSlot();
+        OnItemUnequipped?.Invoke(slot, item);
+        OnInventoryChanged?.Invoke();
         
         if (showDebugLogs)
-            Debug.Log($"🎒 [PlayerData] 아이템 해제: {unequippedItem.equipmentName} ← {slot}");
-        
+            Debug.Log($"⚔️ [PlayerDataManager] 장비 해제: {item.name} ← {slot}");
         return true;
     }
     
+    #endregion
+    
+    #region 🔧 유틸리티 메서드
+    
     /// <summary>
-    /// 아이템의 적절한 장착 슬롯 결정
+    /// 저장 폴더 생성
     /// </summary>
-    private EquipmentSlot GetEquipmentSlot(EquipmentData item)
+    private void CreateSaveDirectory()
+    {
+        try
+        {
+            if (!Directory.Exists(SaveDirectoryPath))
+            {
+                Directory.CreateDirectory(SaveDirectoryPath);
+                if (showDebugLogs)
+                    Debug.Log($"📁 [PlayerDataManager] 저장 폴더 생성: {SaveDirectoryPath}");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [PlayerDataManager] 저장 폴더 생성 실패: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 슬롯 파일 경로 생성
+    /// </summary>
+    private string GetSlotFilePath(int slotIndex)
+    {
+        return Path.Combine(SaveDirectoryPath, $"slot_{slotIndex}.json");
+    }
+    
+    /// <summary>
+    /// 다음 레벨까지 필요한 경험치 계산
+    /// </summary>
+    private int CalculateExpToNextLevel(int level)
+    {
+        return 100 + (level - 1) * 50; // 기본 100 + 레벨당 50씩 증가
+    }
+    
+    /// <summary>
+    /// SelectedPlayerData ScriptableObject 초기화
+    /// </summary>
+    private void InitializeSelectedPlayerData()
+    {
+        if (selectedPlayerData == null)
+        {
+            // Resources에서 찾기 시도
+            selectedPlayerData = Resources.Load<SelectedPlayerData>("SelectedPlayerData");
+            
+            if (selectedPlayerData == null)
+            {
+                Debug.LogWarning("⚠️ [PlayerDataManager] SelectedPlayerData ScriptableObject를 찾을 수 없습니다. Resources 폴더에 생성해주세요.");
+                // 런타임에 생성 (에디터에서만 가능)
+                #if UNITY_EDITOR
+                selectedPlayerData = ScriptableObject.CreateInstance<SelectedPlayerData>();
+                #endif
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 모든 UI 이벤트 트리거
+    /// </summary>
+    private void TriggerAllUIEvents()
+    {
+        if (!IsSlotSelected) return;
+        
+        OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
+        OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
+        OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
+        OnInventoryChanged?.Invoke();
+    }
+    
+    /// <summary>
+    /// UI 초기화 코루틴
+    /// </summary>
+    private IEnumerator InitializeUI()
+    {
+        yield return new WaitForEndOfFrame();
+        
+        // 골드 텍스트 찾기
+        if (goldText == null)
+        {
+            var goldObject = GameObject.Find(COIN_AMOUNT_TEXT);
+            if (goldObject != null)
+                goldText = goldObject.GetComponent<TMP_Text>();
+        }
+        
+        // UI 업데이트
+        if (goldText != null && IsSlotSelected)
+            goldText.text = selectedPlayerData.currentGold.ToString();
+    }
+    
+    #endregion
+    
+    #region 🧹 정리 및 호환성 메서드
+    
+    /// <summary>
+    /// 기존 PlayerPrefs 데이터 마이그레이션 (한 번만 실행)
+    /// </summary>
+    [ContextMenu("기존 PlayerPrefs 데이터 마이그레이션")]
+    public void MigrateFromPlayerPrefs()
+    {
+        // 기존 PlayerPrefs에서 새 슬롯 시스템으로 마이그레이션하는 로직
+        // 필요시 구현
+        if (showDebugLogs)
+            Debug.Log("🔄 [PlayerDataManager] PlayerPrefs 마이그레이션은 필요시 구현 예정");
+    }
+    
+    /// <summary>
+    /// 모든 슬롯 데이터 완전 삭제 (디버그용)
+    /// </summary>
+    [ContextMenu("모든 슬롯 데이터 삭제")]
+    public void DeleteAllSlots()
+    {
+        try
+        {
+            if (Directory.Exists(SaveDirectoryPath))
+            {
+                Directory.Delete(SaveDirectoryPath, true);
+                CreateSaveDirectory();
+            }
+            
+            currentSlotIndex = -1;
+            selectedPlayerData.Reset();
+            LoadAllSlots();
+            
+            if (showDebugLogs)
+                Debug.Log("🗑️ [PlayerDataManager] 모든 슬롯 데이터 삭제 완료");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [PlayerDataManager] 데이터 삭제 실패: {ex.Message}");
+        }
+    }
+    
+    #endregion
+
+    #region 🔧 기존 호환성 메서드들 (SelectedPlayerData 위임) 에 추가
+
+    /// <summary>
+    /// 🔄 기존 호환성: 현재 플레이어 타입 설정
+    /// </summary>
+    public void SetCurrentPlayerType(PlayerType playerType)
+    {
+        if (!IsSlotSelected) 
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 슬롯이 선택되지 않아 플레이어 타입 설정 불가: {playerType}");
+            return;
+        }
+        
+        selectedPlayerData.selectedPlayerType = playerType;
+        selectedPlayerData.weaponName = playerType.GetDefaultWeapon(); // 기존 호환성
+        SaveCurrentSlot();
+        
+        if (showDebugLogs)
+            Debug.Log($"🎯 [PlayerDataManager] 플레이어 타입 설정: {playerType}");
+    }
+
+    /// <summary>
+    /// 🔄 기존 호환성: 현재 플레이어 타입 가져오기
+    /// </summary>
+    public PlayerType GetCurrentPlayerType()
+    {
+        if (IsSlotSelected)
+            return selectedPlayerData.selectedPlayerType;
+            
+        // Fallback: GameManager에서 가져오기
+        if (GameManager.Instance?.selectedPlayerData != null)
+            return GameManager.Instance.selectedPlayerData.selectedPlayerType;
+            
+        return PlayerType.Warrior; // 기본값
+    }
+
+    /// <summary>
+    /// 🔄 기존 호환성: 현재 골드 가져오기
+    /// </summary>
+    public int GetCurrentGold()
+    {
+        return CurrentGold;
+    }
+
+    /// <summary>
+    /// 🔄 기존 호환성: 장비 타입에 따른 자동 슬롯 결정 장착
+    /// </summary>
+    public bool EquipItem(EquipmentData item)
+    {
+        if (!IsSlotSelected || item == null) return false;
+        
+        // 장비 타입에 따라 적절한 슬롯 결정
+        EquipmentSlot targetSlot = DetermineEquipmentSlot(item);
+        
+        return EquipItem(item, targetSlot);
+    }
+
+    /// <summary>
+    /// 장비 데이터로부터 적절한 장비 슬롯 결정
+    /// </summary>
+    private EquipmentSlot DetermineEquipmentSlot(EquipmentData item)
     {
         switch (item.equipmentType)
         {
             case EquipmentType.Weapon:
                 return EquipmentSlot.MainWeapon;
+            
             case EquipmentType.Armor:
-                // 🆕 방어구 타입별 세분화
-                switch (item.ArmorType)
-                {
-                    case ArmorType.Helmet:
-                        return EquipmentSlot.Helmet;
-                    case ArmorType.Armor:
-                        return EquipmentSlot.Armor;
-                    case ArmorType.Boots:
-                        return EquipmentSlot.Boots;
-                    case ArmorType.Shield:
-                        return EquipmentSlot.Shield;
-                    default:
-                        return EquipmentSlot.Armor; // 기본 갑옷 슬롯
-                }
+                // 방어구의 경우 아이템 이름이나 다른 조건으로 세부 슬롯 결정
+                string itemName = item.equipmentName.ToLower();
+                if (itemName.Contains("helmet") || itemName.Contains("헬멧"))
+                    return EquipmentSlot.Helmet;
+                else if (itemName.Contains("boots") || itemName.Contains("신발") || itemName.Contains("부츠"))
+                    return EquipmentSlot.Boots;
+                else if (itemName.Contains("shield") || itemName.Contains("방패"))
+                    return EquipmentSlot.Shield;
+                else
+                    return EquipmentSlot.Armor; // 기본값: 갑옷
+                
             case EquipmentType.Accessory:
-                return EquipmentSlot.Ring1; // 기본 반지 슬롯
+                // Ring1이 비어있으면 Ring1, 아니면 Ring2, 둘 다 차있으면 Necklace
+                if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring1] == null)
+                    return EquipmentSlot.Ring1;
+                else if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring2] == null)
+                    return EquipmentSlot.Ring2;
+                else
+                    return EquipmentSlot.Necklace;
+                
             default:
                 return EquipmentSlot.MainWeapon; // 기본값
         }
     }
-    
+
     /// <summary>
-    /// 특정 슬롯에 장착된 아이템 가져오기
+    /// 🔄 기존 호환성: 클래스별 세부 데이터 저장 (더 이상 사용되지 않음)
     /// </summary>
-    public EquipmentData GetEquippedItem(EquipmentSlot slot)
+    [System.Obsolete("SaveClassData는 더 이상 사용되지 않습니다. SelectedPlayerData를 직접 사용하세요.", false)]
+    public void SaveClassData(PlayerType classType, object data)
     {
-        return equippedItems.ContainsKey(slot) ? equippedItems[slot] : null;
+        if (showDebugLogs)
+            Debug.LogWarning($"⚠️ [PlayerDataManager] SaveClassData는 deprecated입니다. {classType} 데이터는 SelectedPlayerData로 관리됩니다.");
+        
+        // 현재 슬롯 저장
+        SaveCurrentSlot();
     }
-    
+
     /// <summary>
-    /// 현재 장착된 무기 가져오기 (호환성 메서드)
+    /// 🔄 기존 호환성: 클래스별 세부 데이터 로드 (더 이상 사용되지 않음)
     /// </summary>
-    public EquipmentData GetEquippedWeapon()
+    [System.Obsolete("LoadClassData는 더 이상 사용되지 않습니다. SelectedPlayerData를 직접 사용하세요.", false)]
+    public object LoadClassData(PlayerType classType)
     {
-        return GetEquippedItem(EquipmentSlot.MainWeapon);
+        if (showDebugLogs)
+            Debug.LogWarning($"⚠️ [PlayerDataManager] LoadClassData는 deprecated입니다. {classType} 데이터는 SelectedPlayerData에서 확인하세요.");
+        
+        return null; // 더 이상 사용되지 않음
     }
-    
-    /// <summary>
-    /// 인벤토리에서 특정 아이템 검색
-    /// </summary>
-    public EquipmentData FindItemInInventory(string itemName)
-    {
-        return inventoryItems.FirstOrDefault(item => item.equipmentName == itemName);
-    }
-    
-    /// <summary>
-    /// 인벤토리 상태 출력 (디버그용)
-    /// </summary>
-    [ContextMenu("인벤토리 상태 확인")]
-    public void PrintInventoryStatus()
-    {
-        Debug.Log($"🎒 [PlayerData] 인벤토리 상태 ({CurrentInventorySize}/{MaxInventorySize}):");
-        for (int i = 0; i < inventoryItems.Count; i++)
-        {
-            Debug.Log($"   {i+1}. {inventoryItems[i].equipmentName}");
-        }
-    }
-    
+
     #endregion
-    
-    #region 📊 장비 능력치 적용 시스템
-    
+
+    #region 🧪 테스트 및 디버그 메서드
+
     /// <summary>
-    /// 모든 장착된 장비의 능력치를 플레이어에게 적용
+    /// 테스트용 기본 슬롯 생성
     /// </summary>
-    public void ApplyAllEquipmentStats()
+    [ContextMenu("테스트 슬롯 생성")]
+    public void CreateTestSlots()
     {
-        // PlayerController와 PlayerHealth 컴포넌트 찾기
-        var playerController = FindObjectOfType<PlayerController>();
-        var playerHealth = FindObjectOfType<PlayerHealth>();
+        // 슬롯 0: Warrior
+        CreateNewSlot(0, PlayerType.Warrior, "전사테스트");
         
-        if (playerController == null || playerHealth == null)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning("📊 [PlayerData] PlayerController 또는 PlayerHealth를 찾을 수 없어 능력치 적용을 건너뜁니다.");
-            return;
-        }
+        // 슬롯 1: Assasin  
+        CreateNewSlot(1, PlayerType.Assasin, "어쌔신테스트");
         
-        // 기본 능력치 값들 (리셋용)
-        float baseSpeed = 4f;  // 기본 이동속도
-        float baseHealth = 200f; // 기본 체력
+        // 슬롯 2: Wizard
+        CreateNewSlot(2, PlayerType.Wizard, "마법사테스트");
         
-        // 장비 보너스 계산
-        float totalSpeedBonus = 0f;
-        float totalHealthBonus = 0f;
-        float totalDefenseBonus = 0f;
-        
-        foreach (var kvp in equippedItems)
-        {
-            if (kvp.Value != null)
-            {
-                totalSpeedBonus += kvp.Value.speedBonus;
-                totalHealthBonus += kvp.Value.healthBonus;
-                totalDefenseBonus += kvp.Value.defenseBonus;
-                
-                if (showDebugLogs)
-                    Debug.Log($"📊 [PlayerData] {kvp.Key}: 속도+{kvp.Value.speedBonus}, 체력+{kvp.Value.healthBonus}, 방어+{kvp.Value.defenseBonus}");
-            }
-        }
-        
-        // 능력치 적용
-        playerController.SetMoveSpeed(baseSpeed + totalSpeedBonus);
-        playerHealth.SetMaxHealth(Mathf.RoundToInt(baseHealth + totalHealthBonus));
+        // 첫 번째 슬롯 선택
+        SelectSlot(0);
         
         if (showDebugLogs)
-        {
-            Debug.Log($"📊 [PlayerData] 장비 능력치 적용 완료!");
-            Debug.Log($"   - 이동속도: {baseSpeed} + {totalSpeedBonus} = {baseSpeed + totalSpeedBonus}");
-            Debug.Log($"   - 체력: {baseHealth} + {totalHealthBonus} = {baseHealth + totalHealthBonus}");
-            Debug.Log($"   - 방어력: +{totalDefenseBonus} (향후 구현)");
-        }
+            Debug.Log("🧪 [PlayerDataManager] 테스트 슬롯 3개 생성 완료!");
     }
-    
+
     /// <summary>
-    /// 장비 변경 시 능력치 재계산
+    /// 현재 슬롯 상태 출력
     /// </summary>
-    private void OnEquipmentChanged()
+    [ContextMenu("슬롯 상태 확인")]
+    public void PrintSlotStatus()
     {
-        // 0.1초 후 능력치 적용 (컴포넌트 초기화 대기)
-        StartCoroutine(ApplyStatsWithDelay());
-    }
-    
-    private System.Collections.IEnumerator ApplyStatsWithDelay()
-    {
-        yield return new WaitForSeconds(0.1f);
-        ApplyAllEquipmentStats();
-    }
-    
-    #endregion
-    
-    #region 🎮 물리적 장비 처리 시스템
-    
-    /// <summary>
-    /// 장비 착용 시 물리적 표현 적용
-    /// </summary>
-    private void ApplyPhysicalEquipment(EquipmentSlot slot, EquipmentData item)
-    {
-        var playerEquipment = FindObjectOfType<PlayerEquipment>();
-        if (playerEquipment == null)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning("🎮 [PlayerData] PlayerEquipment 컴포넌트를 찾을 수 없습니다.");
-            return;
-        }
+        Debug.Log($"📊 [PlayerDataManager] === 슬롯 상태 ===");
+        Debug.Log($"최대 슬롯: {maxSlots}, 사용중: {GetUsedSlotCount()}개, 현재 선택: {currentSlotIndex}");
         
-        switch (item.equipmentType)
+        for (int i = 0; i < playerSlots.Count; i++)
         {
-            case EquipmentType.Weapon:
-                // 🔧 수정: ActiveWeapon 시스템 연동 (기존 2줄 → 신규 12줄)
-                var activeWeapon = FindObjectOfType<ActiveWeapon>();
-                if (activeWeapon != null)
-                {
-                    activeWeapon.EquipWeapon(item);
-                    if (showDebugLogs)
-                        Debug.Log($"⚔️ [PlayerData] 무기 물리적 장착 성공: {item.equipmentName}");
-                }
-                else
-                {
-                    if (showDebugLogs)
-                        Debug.LogWarning($"⚠️ [PlayerData] ActiveWeapon을 찾을 수 없습니다: {item.equipmentName}");
-                }
-                break;
-                
-            case EquipmentType.Armor:
-                // 갑옷/신발은 PlayerEquipment에서 처리
-                bool success = playerEquipment.EquipArmorPrefab(item);
-                if (showDebugLogs)
-                    Debug.Log($"🛡️ [PlayerData] 방어구 물리적 장착 {(success ? "성공" : "실패")}: {item.equipmentName}");
-                break;
-                
-            case EquipmentType.Accessory:
-                // 악세서리는 향후 구현
-                if (showDebugLogs)
-                    Debug.Log($"💍 [PlayerData] 악세서리 물리적 장착 (향후 구현): {item.equipmentName}");
-                break;
-        }
-    }
-    
-    /// <summary>
-    /// 장비 해제 시 물리적 표현 제거
-    /// </summary>
-    private void RemovePhysicalEquipment(EquipmentSlot slot, EquipmentData item)
-    {
-        var playerEquipment = FindObjectOfType<PlayerEquipment>();
-        if (playerEquipment == null) return;
-        
-        switch (item.equipmentType)
-        {
-            case EquipmentType.Armor:
-                bool success = playerEquipment.UnequipArmorPrefab(slot);
-                if (showDebugLogs)
-                    Debug.Log($"🛡️ [PlayerData] 방어구 물리적 해제 {(success ? "성공" : "실패")}: {item.equipmentName}");
-                break;
-        }
-    }
-    
-    #endregion
-    
-    #region 💾 저장/로드 시스템 (확장)
-    
-    /// <summary>
-    /// 🆕 현재 플레이어 타입 설정 (캐릭터 변경 시 호출)
-    /// </summary>
-    public void SetCurrentPlayerType(PlayerType playerType)
-    {
-        if (currentPlayerType != playerType)
-        {
-            // 🔑 기존 캐릭터 데이터 저장
-            if (currentPlayerType != PlayerType.None)
+            var slot = playerSlots[i];
+            if (slot.isSlotUsed)
             {
-                SavePlayerData();
-                if (showDebugLogs)
-                    Debug.Log($"💾 [PlayerData] {currentPlayerType} 데이터 저장 완료");
-            }
-            
-            // 🔑 새 캐릭터 타입 설정
-            currentPlayerType = playerType;
-            
-            // 🔑 새 캐릭터 데이터 로드
-            if (currentPlayerType != PlayerType.None)
-            {
-                LoadAllPlayerData();
-                if (showDebugLogs)
-                    Debug.Log($"📁 [PlayerData] {currentPlayerType} 데이터 로드 완료");
-            }
-        }
-    }
-    
-    /// <summary>
-    /// 🆕 현재 플레이어 타입 가져오기
-    /// </summary>
-    public PlayerType GetCurrentPlayerType()
-    {
-        // 1순위: 설정된 currentPlayerType
-        if (currentPlayerType != PlayerType.None)
-            return currentPlayerType;
-            
-        // 2순위: GameManager에서 가져오기
-        if (GameManager.Instance?.selectedPlayerData != null)
-        {
-            currentPlayerType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
-            return currentPlayerType;
-        }
-        
-        // 3순위: 기본값
-        return PlayerType.Warrior;
-    }
-    
-    /// <summary>
-    /// 🆕 캐릭터별 저장 키 생성
-    /// </summary>
-    private string GetPlayerDataKey()
-    {
-        PlayerType playerType = GetCurrentPlayerType();
-        return $"PlayerData_{playerType}_{characterIndex}";
-    }
-    
-    /// <summary>
-    /// 모든 플레이어 데이터 저장 (캐릭터별 분리)
-    /// </summary>
-    public void SavePlayerData()
-    {
-        // ⭐ SaveManager 체크 제거 (더 이상 필요 없음)
-        // if (SaveManager.Instance == null) return;
-        
-        var saveData = new PlayerSaveData
-        {
-            characterIndex = this.characterIndex,
-            playerName = this.playerName,
-            playerType = GetCurrentPlayerType(),
-            lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            
-            gold = this.currentGold,
-            level = this.currentLevel,
-            exp = this.currentExp,
-            expToNextLevel = this.expToNextLevel,
-            
-            // 인벤토리 데이터 저장
-            inventoryItemNames = inventoryItems.Select(item => item.name).ToList(),
-            equippedItemNames = equippedItems.Where(kvp => kvp.Value != null)
-                                           .ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value.name)
-        };
-        
-        string json = saveData.ToJson();
-        string key = GetPlayerDataKey();
-        PlayerPrefs.SetString(key, json);
-        PlayerPrefs.Save();
-        
-        if (showDebugLogs)
-            Debug.Log($"💾 [PlayerData] {GetCurrentPlayerType()} 데이터 저장 완료: {saveData}");
-    }
-    
-    /// <summary>
-    /// 모든 플레이어 데이터 로드 (캐릭터별 분리)
-    /// </summary>
-    public void LoadAllPlayerData()
-    {
-        // ⭐ SaveManager 체크 제거 (더 이상 필요 없음)
-        // if (SaveManager.Instance == null) return;
-        
-        string key = GetPlayerDataKey();
-        string json = PlayerPrefs.GetString(key, "");
-        
-        if (string.IsNullOrEmpty(json))
-        {
-            // 🆕 캐릭터별 기본값 설정
-            InitializeDefaultDataForPlayerType(GetCurrentPlayerType());
-            
-            if (showDebugLogs)
-                Debug.Log($"📁 [PlayerData] {GetCurrentPlayerType()} 저장 데이터 없음. 기본값 사용.");
-            return;
-        }
-        
-        var saveData = PlayerSaveData.FromJson(json);
-        if (saveData != null)
-        {
-            this.currentGold = saveData.gold;
-            this.currentLevel = saveData.level;
-            this.currentExp = saveData.exp;
-            this.expToNextLevel = saveData.expToNextLevel;
-            this.playerName = saveData.playerName;
-            
-            // 인벤토리 데이터 로드
-            LoadInventoryFromSaveData(saveData);
-            
-            // 이벤트 발생 (UI 업데이트)
-            OnGoldChanged?.Invoke(currentGold);
-            OnLevelChanged?.Invoke(currentLevel);
-            OnExpChanged?.Invoke(currentExp, expToNextLevel);
-            OnInventoryChanged?.Invoke();
-            
-            if (showDebugLogs)
-                Debug.Log($"📁 [PlayerData] {GetCurrentPlayerType()} 데이터 로드 완료: {saveData}");
-        }
-    }
-    
-    /// <summary>
-    /// 🆕 캐릭터별 기본값 초기화
-    /// </summary>
-    private void InitializeDefaultDataForPlayerType(PlayerType playerType)
-    {
-        // 기본 스탯 초기화
-        currentGold = 0;
-        currentLevel = 1;
-        currentExp = 0;
-        expToNextLevel = 100;
-        
-        // 인벤토리 초기화
-        inventoryItems.Clear();
-        InitializeEquipmentSlots();
-        
-        // 🆕 캐릭터별 시작 아이템 추가
-        switch (playerType)
-        {
-            case PlayerType.Warrior:
-                AddStartingEquipment("Sword_A_Equipment");
-                break;
-            case PlayerType.Assasin:
-                AddStartingEquipment("Bow_A_Equipment");
-                break;
-            case PlayerType.Wizard:
-                AddStartingEquipment("Staff_A_Equipment");
-                break;
-        }
-        
-        // 이벤트 발생
-        OnGoldChanged?.Invoke(currentGold);
-        OnLevelChanged?.Invoke(currentLevel);
-        OnExpChanged?.Invoke(currentExp, expToNextLevel);
-        OnInventoryChanged?.Invoke();
-        
-        if (showDebugLogs)
-            Debug.Log($"🆕 [PlayerData] {playerType} 기본 데이터 초기화 완료");
-    }
-    
-    /// <summary>
-    /// 🆕 시작 장비 추가 (Generated 경로로 수정)
-    /// </summary>
-    private void AddStartingEquipment(string equipmentName)
-    {
-        // 🔧 Generated 폴더에서 로드하도록 수정
-        EquipmentData startingEquipment = Resources.Load<EquipmentData>($"Generated/Weapons/{equipmentName}");
-        if (startingEquipment != null)
-        {
-            AddToInventory(startingEquipment);
-            if (showDebugLogs)
-                Debug.Log($"🎒 [PlayerData] 시작 장비 추가: {equipmentName}");
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ [PlayerData] Generated 폴더에서 시작 장비를 찾을 수 없음: {equipmentName}");
-            
-            // 🔧 백업: 기존 경로에서 시도 (임시 호환성)
-            startingEquipment = Resources.Load<EquipmentData>(equipmentName);
-            if (startingEquipment != null)
-            {
-                AddToInventory(startingEquipment);
-                Debug.LogWarning($"⚠️ [PlayerData] 기존 경로에서 발견: {equipmentName} (Generated 폴더로 이동 권장)");
-            }
-        }
-    }
-    
-    /// <summary>
-    /// 저장 데이터에서 인벤토리 로드 (Generated 경로로 수정)
-    /// </summary>
-    private void LoadInventoryFromSaveData(PlayerSaveData saveData)
-    {
-        // 인벤토리 초기화
-        inventoryItems.Clear();
-        InitializeEquipmentSlots();
-        
-        // 인벤토리 아이템 로드 - Generated 폴더 우선
-        foreach (string itemName in saveData.inventoryItemNames)
-        {
-            EquipmentData item = null;
-            
-            // 🔧 1순위: Generated/Weapons 폴더에서 찾기
-            item = Resources.Load<EquipmentData>($"Generated/Weapons/{itemName}");
-            
-            // 🔧 2순위: Generated 전체에서 찾기
-            if (item == null)
-            {
-                string[] generatedPaths = { "Generated/Weapons", "Generated/Projectiles" };
-                foreach (string path in generatedPaths)
-                {
-                    item = Resources.Load<EquipmentData>($"{path}/{itemName}");
-                    if (item != null) break;
-                }
-            }
-            
-            // 🔧 3순위: 기존 경로에서 찾기 (호환성)
-            if (item == null)
-            {
-                item = Resources.Load<EquipmentData>(itemName);
-                if (item != null)
-                {
-                    Debug.LogWarning($"⚠️ [PlayerData] 기존 경로에서 발견: {itemName} (Generated 폴더 이전 권장)");
-                }
-            }
-            
-            if (item != null)
-            {
-                inventoryItems.Add(item);
+                Debug.Log($"슬롯 {i}: {slot}");
             }
             else
             {
-                Debug.LogWarning($"🎒 [PlayerData] 인벤토리 아이템을 찾을 수 없음: {itemName}");
+                Debug.Log($"슬롯 {i}: 비어있음");
             }
         }
         
-        // 장착 아이템 로드 - Generated 폴더 우선
-        if (saveData.equippedItemNames != null)
+        if (IsSlotSelected)
         {
-            foreach (var kvp in saveData.equippedItemNames)
-            {
-                if (System.Enum.TryParse<EquipmentSlot>(kvp.Key, out EquipmentSlot slot))
-                {
-                    EquipmentData item = null;
-                    
-                    // 🔧 1순위: Generated/Weapons 폴더
-                    item = Resources.Load<EquipmentData>($"Generated/Weapons/{kvp.Value}");
-                    
-                    // 🔧 2순위: 기존 경로들
-                    if (item == null)
-                    {
-                        string[] fallbackPaths = { 
-                            $"EquipmentData/{kvp.Value}", 
-                            kvp.Value,
-                            $"Equipment/{kvp.Value}"
-                        };
-                        
-                        foreach (string path in fallbackPaths)
-                        {
-                            item = Resources.Load<EquipmentData>(path);
-                            if (item != null)
-                            {
-                                Debug.LogWarning($"⚠️ [PlayerData] 기존 경로에서 장착 아이템 발견: {path}");
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (item != null)
-                    {
-                        equippedItems[slot] = item;
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"⚔️ [PlayerData] 장착 아이템을 찾을 수 없음: {kvp.Value}");
-                    }
-                }
-            }
-        }
-        
-        if (showDebugLogs)
-            Debug.Log($"🎒 [PlayerData] 인벤토리 로드 완료 - 보관: {inventoryItems.Count}개, 장착: {equippedItems.Count(kvp => kvp.Value != null)}개");
-    }
-    
-    #endregion
-    
-    #region 🎯 클래스별 세부 데이터 관리 (SaveManager 통합)
-    
-    /// <summary>
-    /// 클래스별 세부 데이터 저장 (SaveManager 기능 통합)
-    /// </summary>
-    public void SaveClassData(PlayerType classType, BaseClassSaveData data)
-    {
-        string key = $"ClassData_{classType}_{characterIndex}";
-        string json = data.ToJson();
-        PlayerPrefs.SetString(key, json);
-        PlayerPrefs.Save();
-        
-        if (showDebugLogs)
-            Debug.Log($"💾 [PlayerData] {classType} 클래스 데이터 저장 완료: {data}");
-    }
-    
-    /// <summary>
-    /// 클래스별 세부 데이터 로드 (SaveManager 기능 통합)
-    /// </summary>
-    public BaseClassSaveData LoadClassData(PlayerType classType)
-    {
-        string key = $"ClassData_{classType}_{characterIndex}";
-        string json = PlayerPrefs.GetString(key, "");
-        
-        if (string.IsNullOrEmpty(json))
-        {
-            if (showDebugLogs)
-                Debug.Log($"📁 [PlayerData] {classType} 클래스 데이터 없음, 기본값 생성");
-            
-            var defaultData = new BaseClassSaveData();
-            defaultData.Reset(classType);
-            return defaultData;
-        }
-        
-        if (showDebugLogs)
-            Debug.Log($"📁 [PlayerData] {classType} 클래스 데이터 로드 완료");
-        
-        return BaseClassSaveData.FromJson(json);
-    }
-    
-    /// <summary>
-    /// 현재 활성 클래스 타입 저장 (SaveManager 기능 통합)
-    /// </summary>
-    public void SaveActiveClass(PlayerType activeClassType)
-    {
-        PlayerPrefs.SetInt($"ActiveClass_{characterIndex}", (int)activeClassType);
-        PlayerPrefs.Save();
-        
-        if (showDebugLogs)
-            Debug.Log($"💾 [PlayerData] 활성 클래스 저장: {activeClassType}");
-    }
-    
-    /// <summary>
-    /// 현재 활성 클래스 타입 불러오기 (SaveManager 기능 통합)
-    /// </summary>
-    public PlayerType LoadActiveClass()
-    {
-        int classTypeInt = PlayerPrefs.GetInt($"ActiveClass_{characterIndex}", 0);
-        PlayerType classType = (PlayerType)classTypeInt;
-        
-        if (showDebugLogs)
-            Debug.Log($"📁 [PlayerData] 활성 클래스 로드: {classType}");
-        
-        return classType;
-    }
-    
-    #endregion
-    
-    #region 🎨 UI 관리 시스템
-    
-    /// <summary>
-    /// UI 초기화
-    /// </summary>
-    private IEnumerator InitializeUI()
-    {
-        // UI가 완전히 로드될 때까지 대기
-        yield return new WaitForEndOfFrame();
-        
-        // UI 찾기 및 업데이트
-        FindUIElements();
-        UpdateAllUI();
-    }
-    
-    /// <summary>
-    /// UI 요소 찾기
-    /// </summary>
-    private void FindUIElements()
-    {
-        // 골드 텍스트 찾기
-        if (goldText == null)
-        {
-            var goldTextObject = GameObject.Find(COIN_AMOUNT_TEXT);
-            if (goldTextObject != null)
-            {
-                goldText = goldTextObject.GetComponent<TMP_Text>();
-            }
-        }
-        
-        // 레벨 텍스트는 LevelUI에서 자동 관리되므로 여기서는 찾지 않음
-    }
-    
-    /// <summary>
-    /// 골드 UI 업데이트
-    /// </summary>
-    private void UpdateGoldUI()
-    {
-        FindUIElements();
-        
-        if (goldText != null)
-        {
-            goldText.text = currentGold.ToString("D3");
+            Debug.Log($"🎯 현재 활성 데이터: {selectedPlayerData}");
         }
     }
-    
+
     /// <summary>
-    /// 모든 UI 업데이트
+    /// 저장 폴더 경로 확인
     /// </summary>
-    private void UpdateAllUI()
+    [ContextMenu("저장 폴더 열기")]
+    public void OpenSaveDirectory()
     {
-        UpdateGoldUI();
-        // 레벨 UI는 이벤트로 자동 업데이트됨
-    }
-    
-    #endregion
-    
-    #region 🔧 호환성 메서드 (기존 시스템 연동)
-    
-    /// <summary>
-    /// EconomyManager.UpdateCurrentGold() 호환성 메서드
-    /// </summary>
-    public void UpdateCurrentGold()
-    {
-        AddGold(1);
-    }
-    
-    /// <summary>
-    /// PlayerManager.GetCurrentGold() 호환성 메서드
-    /// </summary>
-    public int GetCurrentGold()
-    {
-        return currentGold;
-    }
-    
-    #endregion
-    
-    #region 📊 디버그 메서드
-    
-    /// <summary>
-    /// 현재 플레이어 상태 출력
-    /// </summary>
-    public void PrintPlayerStatus()
-    {
-        Debug.Log($"🎮 [PlayerData] 플레이어 상태:");
-        Debug.Log($"   - 캐릭터: {playerName} (#{characterIndex})");
-        Debug.Log($"   - 레벨: {currentLevel} ({currentExp}/{expToNextLevel})");
-        Debug.Log($"   - 골드: {currentGold}");
-    }
-    
-    /// <summary>
-    /// 치트: 골드/경험치 추가 (테스트용)
-    /// </summary>
-    [ContextMenu("치트: 골드 +100")]
-    public void CheatAddGold() => AddGold(100);
-    
-    [ContextMenu("치트: 경험치 +50")]
-    public void CheatAddExp() => AddExp(50);
-    
-    /// <summary>
-    /// 치트: 테스트 아이템 추가 (Generated 경로로 수정)
-    /// </summary>
-    [ContextMenu("치트: 테스트 아이템 추가")]
-    public void CheatAddTestItem()
-    {
-        // 🔧 Generated 폴더에서 Sword_A_Equipment 찾기
-        EquipmentData testItem = Resources.Load<EquipmentData>("Generated/Weapons/Sword_A_Equipment");
-        if (testItem != null)
+        Debug.Log($"📁 [PlayerDataManager] 저장 폴더: {SaveDirectoryPath}");
+        
+        if (Application.platform == RuntimePlatform.WindowsEditor)
         {
-            AddToInventory(testItem);
-            Debug.Log($"🎒 [DEBUG] Generated 폴더에서 테스트 아이템 추가: {testItem.equipmentName}");
+            System.Diagnostics.Process.Start("explorer.exe", SaveDirectoryPath.Replace('/', '\\'));
         }
         else
         {
-            // 🔧 백업: 기존 경로에서 시도
-            testItem = Resources.Load<EquipmentData>("Sword_A_Equipment");
-            if (testItem != null)
-            {
-                AddToInventory(testItem);
-                Debug.LogWarning($"🎒 [DEBUG] 기존 경로에서 테스트 아이템 추가: {testItem.equipmentName}");
-            }
-            else
-            {
-                Debug.LogWarning("🎒 [DEBUG] 테스트 아이템을 찾을 수 없습니다! Generated 폴더를 확인하세요.");
-            }
+            System.Diagnostics.Process.Start("open", SaveDirectoryPath);
         }
     }
-    
-    /// <summary>
-    /// 🗑️ 인벤토리 완전 초기화
-    /// </summary>
-    [ContextMenu("인벤토리 초기화")]
-    public void ClearInventory()
-    {
-        inventoryItems.Clear();
-        OnInventoryChanged?.Invoke();
-        SavePlayerData();
-        
-        if (showDebugLogs)
-            Debug.Log("🗑️ [PlayerData] 인벤토리가 완전히 초기화되었습니다.");
-    }
 
-    /// <summary>
-    /// ⚔️ 장착 아이템 모두 해제
-    /// </summary>
-    [ContextMenu("장착 아이템 모두 해제")]
-    public void UnequipAllItems()
-    {
-        foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
-        {
-            if (equippedItems[slot] != null)
-            {
-                UnequipItem(slot);
-            }
-        }
-        
-        if (showDebugLogs)
-            Debug.Log("⚔️ [PlayerData] 모든 장착 아이템이 해제되었습니다.");
-    }
-
-    /// <summary>
-    /// 🔄 인벤토리 + 장비 완전 리셋
-    /// </summary>
-    [ContextMenu("인벤토리 & 장비 완전 리셋")]
-    public void ResetAllItemData()
-    {
-        ClearInventory();
-        InitializeEquipmentSlots();
-        OnInventoryChanged?.Invoke();
-        SavePlayerData();
-        
-        if (showDebugLogs)
-            Debug.Log("🔄 [PlayerData] 인벤토리와 장비가 완전히 리셋되었습니다.");
-    }
-    
     #endregion
-}
-
-/// <summary>
-/// ⭐ [Phase 2] 플레이어 저장 데이터 구조 (캐릭터별 분리)
-/// </summary>
-[System.Serializable]
-public class PlayerSaveData
-{
-    [Header("기본 정보")]
-    public int characterIndex;
-    public string playerName = "Player";
-    public PlayerType playerType = PlayerType.None; // 🆕 플레이어 타입 추가
-    public string lastPlayTime; // DateTime을 string으로 저장
-    
-    [Header("진행 데이터")]
-    public int gold;
-    public int level;
-    public int exp;
-    public int expToNextLevel;
-    
-    [Header("인벤토리 & 장비")]
-    public List<string> inventoryItemNames = new List<string>(); // 인벤토리 아이템들의 이름
-    public Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 슬롯별 장착 아이템 이름
-    
-    /// <summary>
-    /// JSON 문자열로 변환
-    /// </summary>
-    public string ToJson()
-    {
-        return JsonUtility.ToJson(this, true);
-    }
-    
-    /// <summary>
-    /// JSON 문자열에서 복원
-    /// </summary>
-    public static PlayerSaveData FromJson(string json)
-    {
-        if (string.IsNullOrEmpty(json))
-            return null;
-            
-        return JsonUtility.FromJson<PlayerSaveData>(json);
-    }
-    
-    /// <summary>
-    /// 디버깅용 문자열 표현
-    /// </summary>
-    public override string ToString()
-    {
-        return $"PlayerData[{playerType}:{playerName}] Lv.{level} Gold:{gold} EXP:{exp}/{expToNextLevel} 인벤토리:{inventoryItemNames?.Count ?? 0}개";
-    }
 } 
