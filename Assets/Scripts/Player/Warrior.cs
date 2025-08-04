@@ -59,6 +59,17 @@ public class Warrior : BaseClassBehaviour
         return warriorData?.flashDuration ?? 0.1f; // WarriorData에서 가져오거나 기본값 0.1초
     }
     
+    // 🆕 기본 전투 스탯 메서드 추가
+    public override float GetBaseAttackDamage()
+    {
+        return warriorData?.baseAttackDamage ?? 10f; // WarriorData에서 가져오거나 기본값 10
+    }
+    
+    public override float GetBaseDefense()
+    {
+        return warriorData?.baseDefense ?? 0f; // WarriorData에서 가져오거나 기본값 0
+    }
+    
     #endregion
     
     #region 🛡️ 워리어 고유 특성 (ScriptableObject 연동)

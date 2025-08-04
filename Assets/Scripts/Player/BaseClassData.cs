@@ -17,6 +17,13 @@ public abstract class BaseClassData : ScriptableObject
     [Tooltip("모든 클래스의 기본 대시 속도")]
     public float baseDashSpeed = 6f;
     
+    // 🆕 기본 전투 스탯 추가
+    [Tooltip("모든 클래스의 기본 공격력")]
+    public float baseAttackDamage = 10f;
+    
+    [Tooltip("모든 클래스의 기본 방어력")]
+    public float baseDefense = 0f;
+    
     [Tooltip("모든 클래스의 기본 피해 회복 시간")]
     public float baseDamageRecoveryTime = 1f;
 
@@ -75,6 +82,10 @@ public abstract class BaseClassData : ScriptableObject
     public float GetFinalMoveSpeed() => baseMoveSpeed * MoveSpeedMultiplier;
     public float GetFinalDashSpeed() => baseDashSpeed * MoveSpeedMultiplier; // 대시도 이동속도 배율 적용
     public float GetFinalDamageRecoveryTime() => baseDamageRecoveryTime; // 회복시간은 배율 미적용
+    
+    // 🆕 전투 스탯 계산 메서드 추가
+    public float GetFinalAttackDamage() => baseAttackDamage * AttackPowerMultiplier;
+    public float GetFinalDefense() => baseDefense; // 방어력은 현재 배율 미적용 (필요시 추가 가능)
     
     /// <summary>
     /// 특정 레벨에 필요한 총 경험치 계산

@@ -10,6 +10,10 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
     [SerializeField] private int maxHealth = 3;
     [SerializeField] private float damageRecoveryTime = 1f;
+    
+    // 🆕 디버그 로그 제어 변수 추가
+    [Header("🔧 디버그")]
+    [SerializeField] private bool showDebugLogs = true;
 
     // ❌ 제거: private Slider healthSlider;
     private int currentHealth;
@@ -244,7 +248,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
     }
     
     /// <summary>
-    /// 🎯 PlayerRuntimeStats에서 체력 동기화
+    /// 🎯 PlayerRuntimeStats와 동기화
     /// </summary>
     public void SyncWithRuntimeStats()
     {
@@ -252,13 +256,24 @@ public class PlayerHealth : Singleton<PlayerHealth>
         if (playerRuntimeStats != null)
         {
             int newMaxHealth = Mathf.RoundToInt(playerRuntimeStats.FinalMaxHealth);
-            SetMaxHealth(newMaxHealth);
             
-            Debug.Log($"🎯 [PlayerHealth] PlayerRuntimeStats와 동기화: 최대체력 {newMaxHealth}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ [PlayerHealth] PlayerRuntimeStats를 찾을 수 없어 동기화 실패");
+            // 🆕 현재 체력이 1 이하면 (게임 시작/사망 후 부활) 체력을 가득 채움
+            if (currentHealth <= 1)
+            {
+                maxHealth = newMaxHealth;
+                currentHealth = maxHealth;
+                if (showDebugLogs)
+                    Debug.Log($"🆕 [PlayerHealth] 체력 가득 채움: {currentHealth}/{maxHealth}");
+            }
+            else
+            {
+                // 런타임 중: 기존 비율 유지
+                SetMaxHealth(newMaxHealth);
+            }
+            
+            UpdateUI();
+            if (showDebugLogs)
+                Debug.Log($"🎯 [PlayerHealth] PlayerRuntimeStats와 동기화: 최대체력 {maxHealth}");
         }
     }
 }

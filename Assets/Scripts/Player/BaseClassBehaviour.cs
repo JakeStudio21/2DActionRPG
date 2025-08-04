@@ -24,6 +24,10 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     public abstract float GetBaseMoveSpeed();
     public abstract float GetBaseMaxHealth();
     
+    // 🆕 기본 전투 스탯 메서드 추가
+    public abstract float GetBaseAttackDamage();
+    public abstract float GetBaseDefense();
+    
     #endregion
     
     #region ⭐ [Phase C] 다중 클래스 관리 설정

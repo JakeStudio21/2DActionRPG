@@ -70,6 +70,17 @@ public class Assasin : BaseClassBehaviour
         return assasinData?.flashDuration ?? 0.1f; // AssasinData에서 가져오거나 기본값 0.1초
     }
     
+    // 🆕 기본 전투 스탯 메서드 추가
+    public override float GetBaseAttackDamage()
+    {
+        return assasinData?.baseAttackDamage ?? 10f; // AssasinData에서 가져오거나 기본값 10
+    }
+    
+    public override float GetBaseDefense()
+    {
+        return assasinData?.baseDefense ?? 0f; // AssasinData에서 가져오거나 기본값 0
+    }
+    
     #endregion
 
     #region Unity 생명주기 오버라이드 (디버깅용)

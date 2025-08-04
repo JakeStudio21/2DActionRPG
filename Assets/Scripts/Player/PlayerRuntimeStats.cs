@@ -255,17 +255,23 @@ public class PlayerRuntimeStats : MonoBehaviour
     {
         int currentLevel = playerData.currentLevel;
         
-        // 기본 공식 (레벨당 증가)
-        finalAttackDamage = 10f + (currentLevel - 1) * 2f;        // 레벨당 +2 공격력
-        finalMoveSpeed = 4f;                                       // 기본 이동속도 (클래스에서 조정)
-        finalMaxHealth = 200f + (currentLevel - 1) * 20f;         // 레벨당 +20 체력
-        finalAttackSpeed = 1f;                                     // 기본 공격속도
-        finalCriticalChance = 0f;                                  // 기본 크리티컬 확률
-        finalCriticalDamage = 1.5f;                                // 기본 크리티컬 데미지
-        finalDefense = 0f + (currentLevel - 1) * 1f;              // 레벨당 +1 방어력
+        // 🆕 ScriptableObject에서 기본값 가져오기
+        float baseAttack = GetBaseAttackDamageFromClass();
+        float baseDefense = GetBaseDefenseFromClass();
+        float baseHealth = GetBaseMaxHealthFromClass();
+        float baseMoveSpeed = GetBaseMoveSpeedFromClass();
+        
+        // 기본 공식 (ScriptableObject 기본값 + 레벨당 증가)
+        finalAttackDamage = baseAttack + (currentLevel - 1) * 2f;        // 클래스 기본값 + 레벨당 +2 공격력
+        finalMoveSpeed = baseMoveSpeed;                                   // 클래스 기본값 (클래스에서 조정)
+        finalMaxHealth = baseHealth + (currentLevel - 1) * 20f;          // 클래스 기본값 + 레벨당 +20 체력
+        finalAttackSpeed = 1f;                                           // 기본 공격속도
+        finalCriticalChance = 0f;                                        // 기본 크리티컬 확률
+        finalCriticalDamage = 1.5f;                                      // 기본 크리티컬 데미지
+        finalDefense = baseDefense + (currentLevel - 1) * 1f;            // 클래스 기본값 + 레벨당 +1 방어력
         
         if (showDebugLogs)
-            Debug.Log($"📊 [PlayerRuntimeStats] 기본 스탯 (Lv.{currentLevel}) - 공격력: {finalAttackDamage}, 체력: {finalMaxHealth}");
+            Debug.Log($"📊 [PlayerRuntimeStats] 기본 스탯 (Lv.{currentLevel}) - 공격력: {finalAttackDamage}, 체력: {finalMaxHealth}, 방어력: {finalDefense}");
     }
     
     /// <summary>
@@ -683,4 +689,47 @@ public class PlayerRuntimeStats : MonoBehaviour
     }
     
     #endregion
+
+    /// <summary>
+    /// 🔗 클래스별 기본값 가져오기 헬퍼 메서드들
+    /// </summary>
+    private float GetBaseAttackDamageFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            return baseClass.GetBaseAttackDamage();
+        }
+        return 10f; // 기본값
+    }
+    
+    private float GetBaseDefenseFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            return baseClass.GetBaseDefense();
+        }
+        return 0f; // 기본값
+    }
+    
+    private float GetBaseMaxHealthFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            return baseClass.GetBaseMaxHealth();
+        }
+        return 200f; // 기본값
+    }
+    
+    private float GetBaseMoveSpeedFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            return baseClass.GetBaseMoveSpeed();
+        }
+        return 4f; // 기본값
+    }
 }
