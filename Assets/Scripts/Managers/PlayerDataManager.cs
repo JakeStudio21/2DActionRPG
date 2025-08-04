@@ -508,6 +508,22 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         RemoveFromInventory(item);
         selectedPlayerData.SyncDictionaries();
         
+        // 🆕 무기 장착 시 ActiveWeapon에도 실제 적용
+        if (targetSlot == EquipmentSlot.MainWeapon && item.equipmentType == EquipmentType.Weapon)
+        {
+            var activeWeapon = FindObjectOfType<ActiveWeapon>();
+            if (activeWeapon != null)
+            {
+                activeWeapon.EquipWeapon(item);
+                if (showDebugLogs)
+                    Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {item.equipmentName}");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [PlayerDataManager] ActiveWeapon을 찾을 수 없어 물리적 무기 교체 실패!");
+            }
+        }
+        
         SaveCurrentSlot();
         OnItemEquipped?.Invoke(targetSlot, item);
         OnInventoryChanged?.Invoke();
