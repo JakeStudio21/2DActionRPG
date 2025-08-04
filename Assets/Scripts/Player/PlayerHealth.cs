@@ -242,4 +242,23 @@ public class PlayerHealth : Singleton<PlayerHealth>
         
         Debug.Log($"🔧 [PlayerHealth] 최대 체력 설정: {currentHealth}/{maxHealth} (비율 {healthRatio:P0} 유지)");
     }
+    
+    /// <summary>
+    /// 🎯 PlayerRuntimeStats에서 체력 동기화
+    /// </summary>
+    public void SyncWithRuntimeStats()
+    {
+        var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        if (playerRuntimeStats != null)
+        {
+            int newMaxHealth = Mathf.RoundToInt(playerRuntimeStats.FinalMaxHealth);
+            SetMaxHealth(newMaxHealth);
+            
+            Debug.Log($"🎯 [PlayerHealth] PlayerRuntimeStats와 동기화: 최대체력 {newMaxHealth}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [PlayerHealth] PlayerRuntimeStats를 찾을 수 없어 동기화 실패");
+        }
+    }
 }

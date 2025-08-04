@@ -26,10 +26,14 @@ MonoBehaviour:
   weaponType: 2
   weaponCooldown: 1
   weaponRange: 7
-  attackDamage: 5
+  armorType: 0
+  attackDamage: 50
   attackSpeed: 10
   attackRange: 5
   attackShape: 1
   criticalChance: 0
   criticalDamage: 4
   projectileId: PRO_WEAPON_BOW_21
+  defenseBonus: 0
+  speedBonus: 0
+  healthBonus: 0

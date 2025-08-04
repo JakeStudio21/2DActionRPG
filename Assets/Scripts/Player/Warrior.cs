@@ -337,15 +337,24 @@ public class Warrior : BaseClassBehaviour
         // 반격 데미지 적용
         if (nearbyEnemies != null && nearbyEnemies.Length > 0)
         {
-            // 기본 무기 데미지 가져오기
+            // 🆕 PlayerRuntimeStats에서 기본 무기 데미지 가져오기
             float baseDamage = 10f; // 기본값
-            var activeWeapon = FindObjectOfType<ActiveWeapon>();
-            if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
+            var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+            if (playerRuntimeStats != null)
             {
-                var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
-                if (weapon != null)
+                baseDamage = playerRuntimeStats.FinalAttackDamage;
+            }
+            else
+            {
+                // Fallback: 기존 방식
+                var activeWeapon = FindObjectOfType<ActiveWeapon>();
+                if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
                 {
-                    baseDamage = (int)weapon.GetEquipmentData().attackDamage;  // GetWeaponInfo() → GetEquipmentData(), weaponDamage → attackDamage, float → int 변환
+                    var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
+                    if (weapon != null)
+                    {
+                        baseDamage = weapon.GetEquipmentData().attackDamage;
+                    }
                 }
             }
             

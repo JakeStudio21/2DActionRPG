@@ -468,6 +468,24 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         
         // 자식 클래스별 추가 능력치 적용
         ApplyAdditionalStats();
+        
+        // 🆕 클래스 능력치 적용 후 PlayerRuntimeStats 스탯 재계산
+        var playerRuntimeStats = GetComponent<PlayerRuntimeStats>();
+        if (playerRuntimeStats == null)
+        {
+            playerRuntimeStats = GetComponentInParent<PlayerRuntimeStats>();
+        }
+        
+        if (playerRuntimeStats != null)
+        {
+            playerRuntimeStats.RecalculateAllStats();
+            if (showDebugLogs)
+                Debug.Log($"🎯 [BaseClass] PlayerRuntimeStats 스탯 재계산 완료: {ClassName}");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [BaseClass] PlayerRuntimeStats를 찾을 수 없어 스탯 재계산 실패: {ClassName}");
+        }
     }
     
     public virtual void OnLevelUp(int newLevel)
@@ -599,25 +617,11 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     {
         if (playerController != null)
         {
-            // 🔍 현재 값 확인
-            Debug.Log($"🔍 [디버깅] 변경 전 moveSpeed: {playerController.CurrentMoveSpeed}, dashSpeed: {playerController.CurrentDashSpeed}");
-            
-            // 🆕 ScriptableObject 기본값 사용
-            float baseMoveSpeed = GetBaseMoveSpeed(); // AssasinData.baseMoveSpeed 사용
-            
-            // 클래스별 배율 적용
-            float newMoveSpeed = baseMoveSpeed * MoveSpeedMultiplier;
-            float newDashSpeed = baseMoveSpeed * MoveSpeedMultiplier * 2f; // 대시는 2배
-            
-            // 🔧 직접 메서드 호출 방식 (Reflection 대신)
-            playerController.SetMoveSpeed(newMoveSpeed);
-            playerController.SetDashSpeed(newDashSpeed);
-            
-            // 🔍 설정 후 실제 값 재확인
-            Debug.Log($"🔍 [디버깅] 변경 후 moveSpeed: {playerController.CurrentMoveSpeed}, dashSpeed: {playerController.CurrentDashSpeed}");
+            // 🔧 기존 개별 계산 대신 PlayerRuntimeStats 동기화로 변경
+            playerController.SyncWithRuntimeStats();
             
             if (showDebugLogs)
-                Debug.Log($"   - 이동속도 배율: {MoveSpeedMultiplier}x 적용 (기본값 {baseMoveSpeed} → {newMoveSpeed})");
+                Debug.Log($"🎯 [BaseClass] {ClassName} PlayerController가 PlayerRuntimeStats와 동기화됨");
         }
         else
         {
@@ -632,26 +636,15 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     {
         if (playerHealth != null)
         {
-            // Reflection을 사용하여 private 필드에 접근
-            var maxHealthField = typeof(PlayerHealth).GetField("maxHealth", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var currentHealthField = typeof(PlayerHealth).GetField("currentHealth", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            // 🔧 기존 Reflection 기반 개별 계산 대신 PlayerRuntimeStats 동기화로 변경
+            playerHealth.SyncWithRuntimeStats();
             
-            if (maxHealthField != null && currentHealthField != null)
-            {
-                float baseMaxHealth = GetBaseMaxHealth(); // AssasinData에서
-                int finalMaxHealth = Mathf.RoundToInt(baseMaxHealth * HealthMultiplier);
-                
-                playerHealth.InitializeHealth(finalMaxHealth); // 체력만 설정
-                
-                if (showDebugLogs)
-                    Debug.Log($"   - 체력 배율: {HealthMultiplier}x 적용 ({baseMaxHealth} → {finalMaxHealth})");
-            }
-            else
-            {
-                Debug.LogWarning($"🟡 [BaseClass] {ClassName} maxHealth 필드에 접근할 수 없습니다.");
-            }
+            if (showDebugLogs)
+                Debug.Log($"🎯 [BaseClass] {ClassName} PlayerHealth가 PlayerRuntimeStats와 동기화됨");
+        }
+        else
+        {
+            Debug.LogError($"🔴 [BaseClass] {ClassName} playerHealth가 null입니다!");
         }
     }
     

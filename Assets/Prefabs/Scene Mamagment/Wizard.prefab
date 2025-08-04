@@ -386,6 +386,7 @@ GameObject:
   - component: {fileID: 3411945224194783882}
   - component: {fileID: 6403347020822746970}
   - component: {fileID: 4766515920216163414}
+  - component: {fileID: -2370943404683525293}
   m_Layer: 8
   m_Name: Wizard
   m_TagString: Player
@@ -656,10 +657,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillSet:
     showDebugLogs: 1
-  skill1Component: {fileID: 0}
-  skill2Component: {fileID: 0}
-  cooldownTime: 2
-  skill2CooldownTime: 3
+  showDebugLogs: 1
 --- !u!114 &5734504649737104247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,7 +671,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
-  restoreDefaultMatTime: 0.2
 --- !u!114 &3411945224194783882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -686,8 +683,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0.2
-  defaultKnockBackThrust: 10
 --- !u!114 &6403347020822746970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -724,4 +719,24 @@ MonoBehaviour:
   currentWeaponPrefab: {fileID: 0}
   currentHelmetPrefab: {fileID: 0}
   currentArmorPrefab: {fileID: 0}
+  showDebugLogs: 1
+--- !u!114 &-2370943404683525293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fdec0663035e8142918ffde5eea5f62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  finalAttackDamage: 10
+  finalMoveSpeed: 4
+  finalMaxHealth: 200
+  finalAttackSpeed: 1
+  finalCriticalChance: 0
+  finalCriticalDamage: 1.5
+  finalDefense: 0
   showDebugLogs: 1

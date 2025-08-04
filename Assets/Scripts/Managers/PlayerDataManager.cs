@@ -524,6 +524,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             }
         }
         
+        // 🆕 장비 변경 시 PlayerRuntimeStats 스탯 재계산
+        var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        if (playerRuntimeStats != null)
+        {
+            playerRuntimeStats.RecalculateAllStats();
+            if (showDebugLogs)
+                Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [PlayerDataManager] PlayerRuntimeStats를 찾을 수 없어 스탯 재계산 실패!");
+        }
+        
         SaveCurrentSlot();
         OnItemEquipped?.Invoke(targetSlot, item);
         OnInventoryChanged?.Invoke();

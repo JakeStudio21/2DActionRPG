@@ -388,6 +388,7 @@ GameObject:
   - component: {fileID: 3411945224194783882}
   - component: {fileID: 6403347020822746970}
   - component: {fileID: 4632578269491200419}
+  - component: {fileID: -2718816271147156856}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -752,4 +753,24 @@ MonoBehaviour:
   currentWeaponPrefab: {fileID: 0}
   currentHelmetPrefab: {fileID: 0}
   currentArmorPrefab: {fileID: 0}
+  showDebugLogs: 1
+--- !u!114 &-2718816271147156856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fdec0663035e8142918ffde5eea5f62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  finalAttackDamage: 10
+  finalMoveSpeed: 4
+  finalMaxHealth: 200
+  finalAttackSpeed: 1
+  finalCriticalChance: 0
+  finalCriticalDamage: 1.5
+  finalDefense: 0
   showDebugLogs: 1

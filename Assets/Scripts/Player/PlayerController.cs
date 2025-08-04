@@ -353,5 +353,27 @@ public class PlayerController : Singleton<PlayerController>
          dashspeed = newDashSpeed;
          Debug.Log($"🔧 [PlayerController] dashSpeed 직접 설정: {newDashSpeed}");
      }
+    
+    /// <summary>
+    /// 🎯 PlayerRuntimeStats에서 이동속도 동기화
+    /// </summary>
+    public void SyncWithRuntimeStats()
+    {
+        var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        if (playerRuntimeStats != null)
+        {
+            float newMoveSpeed = playerRuntimeStats.FinalMoveSpeed;
+            float newDashSpeed = playerRuntimeStats.FinalMoveSpeed * 2f; // 대시는 2배
+            
+            SetMoveSpeed(newMoveSpeed);
+            SetDashSpeed(newDashSpeed);
+            
+            Debug.Log($"🎯 [PlayerController] PlayerRuntimeStats와 동기화: 이동속도 {newMoveSpeed:F1}, 대시속도 {newDashSpeed:F1}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [PlayerController] PlayerRuntimeStats를 찾을 수 없어 동기화 실패");
+        }
+    }
 }
 
