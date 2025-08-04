@@ -15,6 +15,8 @@ MonoBehaviour:
   baseMaxHealth: 50
   baseMoveSpeed: 4
   baseDashSpeed: 6
+  baseAttackDamage: 12
+  baseDefense: 5
   baseDamageRecoveryTime: 1
   flashDuration: 0.5
   knockbackTime: 0.2
@@ -25,8 +27,8 @@ MonoBehaviour:
   playerType: 2
   classIcon: {fileID: 0}
   description: 
-  attackPowerMultiplier: 1
-  moveSpeedMultiplier: 1
+  attackPowerMultiplier: 1.1
+  moveSpeedMultiplier: 1.1
   skillCooldownMultiplier: 1
   healthMultiplier: 1
   assasinStealthDuration: 2
