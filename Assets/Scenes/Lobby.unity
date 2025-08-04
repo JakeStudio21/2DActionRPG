@@ -12059,9 +12059,9 @@ MonoBehaviour:
   slot2CharacterClass: {fileID: 977866604}
   slot2DeleteButton: {fileID: 2008860796}
   slot2EmptyPanel: {fileID: 1626443464}
-  warriorIcon: {fileID: 21300000, guid: 846b7dd80ec62a048bd236fcb1947737, type: 3}
-  assassinIcon: {fileID: 21300000, guid: 340016e2c5077774a97b458c25e56695, type: 3}
-  wizardIcon: {fileID: 21300000, guid: 2219639ccb889cd49b528a0a526f5935, type: 3}
+  warriorIcon: {fileID: 21300000, guid: 14fa50cc12ccfce48bb6f0bb18096f9c, type: 3}
+  assassinIcon: {fileID: 21300000, guid: 1a2d3b1616e8b674381781ce91eece75, type: 3}
+  wizardIcon: {fileID: 21300000, guid: 0b7472dd74bbb914d9fd1a06ad2ac128, type: 3}
   emptySlotIcon: {fileID: 21300000, guid: 94a1c98cabfc87b4cb874ef2a15ea233, type: 3}
   selectedPlayerNameText: {fileID: 1463015411}
   startGameButton: {fileID: 1215966967}
