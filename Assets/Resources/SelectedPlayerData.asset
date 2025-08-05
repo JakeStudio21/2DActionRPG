@@ -13,34 +13,22 @@ MonoBehaviour:
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
   selectedSlotIndex: 1
-  playerName: As
+  playerName: asdw
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 5
-  currentExp: 100
-  expToNextLevel: 300
-  currentGold: 101
+  currentLevel: 1
+  currentExp: 70
+  expToNextLevel: 100
+  currentGold: 2
   runtimeInventoryItems:
-  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
-  - {fileID: 11400000, guid: 1690877de893efb4282bde258a234785, type: 2}
-  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
   - {fileID: 11400000, guid: 6511896ef9048244f810db57eaebb15f, type: 2}
-  - {fileID: 11400000, guid: 4ec60553ef04d3442878aba493cda7ce, type: 2}
-  - {fileID: 11400000, guid: 4ec60553ef04d3442878aba493cda7ce, type: 2}
-  - {fileID: 11400000, guid: 345e49f53daab344da7a9e5256a00e77, type: 2}
-  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
-  - {fileID: 11400000, guid: 756bec7225236f74ea50af48da929165, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: aa47e37a4b3d4c741aa0706a695d2453, type: 2}
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
   - {fileID: 0}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 756bec7225236f74ea50af48da929165, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

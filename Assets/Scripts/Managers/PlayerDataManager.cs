@@ -236,6 +236,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         // 저장
         if (SaveSlotData(newSlot))
         {
+            // 🆕 추가: 새 슬롯 생성 후 메모리에서도 갱신
+            LoadAllSlots();
+            
             if (showDebugLogs)
                 Debug.Log($"✨ [PlayerDataManager] 새 슬롯 {slotIndex} 생성 완료: {newSlot}");
             return true;
@@ -251,11 +254,34 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     {
         if (slotIndex < 0 || slotIndex >= maxSlots) return false;
         
+        // 🆕 추가: 삭제할 슬롯이 현재 선택된 슬롯인지 확인
+        bool isDeletingCurrentSlot = (currentSlotIndex == slotIndex);
+        
         // 현재 선택된 슬롯이라면 선택 해제
         if (currentSlotIndex == slotIndex)
         {
             currentSlotIndex = -1;
             selectedPlayerData.Reset();
+            
+            // 🆕 추가: SelectedPlayerData ScriptableObject 완전 초기화
+            if (selectedPlayerData != null)
+            {
+                selectedPlayerData.selectedSlotIndex = -1;
+                selectedPlayerData.playerName = "Player";
+                selectedPlayerData.selectedPlayerType = PlayerType.None;
+                selectedPlayerData.weaponName = "";
+                selectedPlayerData.currentLevel = 1;
+                selectedPlayerData.currentGold = 0;
+                selectedPlayerData.currentExp = 0;
+                selectedPlayerData.expToNextLevel = 100;
+                selectedPlayerData.classLevel = 1;
+                selectedPlayerData.maxInventorySize = 16;
+                
+                // 🆕 추가: Unity 에디터에서 ScriptableObject 상태 강제 갱신
+                #if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(selectedPlayerData);
+                #endif
+            }
         }
         
         try
@@ -274,8 +300,15 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
                 };
             }
             
+            // 🆕 추가: 삭제 완료 로그 개선
             if (showDebugLogs)
+            {
                 Debug.Log($"🗑️ [PlayerDataManager] 슬롯 {slotIndex} 삭제 완료");
+                if (isDeletingCurrentSlot)
+                {
+                    Debug.Log($"🔄 [PlayerDataManager] 현재 선택 슬롯 삭제됨 - SelectedPlayerData 완전 초기화");
+                }
+            }
                 
             return true;
         }
@@ -900,4 +933,36 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
 
     #endregion
+
+    /// <summary>
+    /// 🆕 추가: 게임 시작 전 SelectedPlayerData 유효성 검증
+    /// </summary>
+    public bool ValidateSelectedPlayerData()
+    {
+        if (selectedPlayerData == null) return false;
+        
+        // 현재 선택된 슬롯이 실제로 존재하는지 확인
+        if (currentSlotIndex >= 0)
+        {
+            var slotData = GetSlotData(currentSlotIndex);
+            if (slotData == null || !slotData.isSlotUsed)
+            {
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 선택된 슬롯 {currentSlotIndex}이 유효하지 않음 - 데이터 초기화");
+                currentSlotIndex = -1;
+                selectedPlayerData.Reset();
+                return false;
+            }
+        }
+        
+        // SelectedPlayerData가 유효한 캐릭터 정보를 가지고 있는지 확인
+        if (selectedPlayerData.selectedPlayerType == PlayerType.None || 
+            selectedPlayerData.selectedSlotIndex < 0)
+        {
+            Debug.LogWarning($"⚠️ [PlayerDataManager] SelectedPlayerData가 유효하지 않음 - 초기화 필요");
+            selectedPlayerData.Reset();
+            return false;
+        }
+        
+        return true;
+    }
 } 

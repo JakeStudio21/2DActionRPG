@@ -8,6 +8,9 @@ using System.Collections.Generic;
 /// </summary>
 public class PlayerRuntimeStats : MonoBehaviour
 {
+    // 🆕 정적 이벤트: PlayerRuntimeStats 초기화 완료 알림
+    public static event System.Action<PlayerRuntimeStats> OnPlayerRuntimeStatsReady;
+    
     [Header("📊 최종 계산된 스탯 (읽기 전용)")]
     [SerializeField] private float finalAttackDamage = 10f;
     [SerializeField] private float finalMoveSpeed = 4f;
@@ -69,8 +72,11 @@ public class PlayerRuntimeStats : MonoBehaviour
             dataManager.OnLevelChanged += OnLevelChanged;
         }
         
+        // 🆕 초기화 완료 이벤트 발생
+        OnPlayerRuntimeStatsReady?.Invoke(this);
+        
         if (showDebugLogs)
-            Debug.Log($"🎯 [PlayerRuntimeStats] 초기화 완료 - 공격력: {finalAttackDamage}, 이동속도: {finalMoveSpeed}");
+            Debug.Log($"🎯 [PlayerRuntimeStats] 초기화 완료 - 공격력: {finalAttackDamage}, 이동속도: {finalMoveSpeed}, 이벤트 발생됨");
     }
     
     private void OnDestroy()
@@ -82,6 +88,9 @@ public class PlayerRuntimeStats : MonoBehaviour
             dataManager.OnItemUnequipped -= OnItemUnequipped;
             dataManager.OnLevelChanged -= OnLevelChanged;
         }
+        
+        // 🗑️ 제거: 존재하지 않는 이벤트 참조 삭제
+        // playerData.OnRuntimeEquippedItemsChanged -= OnEquipmentChanged;
     }
     
     /// <summary>
@@ -124,6 +133,8 @@ public class PlayerRuntimeStats : MonoBehaviour
         if (dataManager != null)
         {
             playerData = dataManager.selectedPlayerData;
+            // 🗑️ 제거: 존재하지 않는 이벤트 참조 삭제  
+            // playerData.OnRuntimeEquippedItemsChanged += OnEquipmentChanged;
         }
         
         // 현재 활성 클래스 찾기
@@ -136,9 +147,10 @@ public class PlayerRuntimeStats : MonoBehaviour
         
         if (showDebugLogs)
         {
-            Debug.Log($"🔗 [PlayerRuntimeStats] 참조 초기화:");
-            Debug.Log($"   - PlayerData: {(playerData != null ? "연결됨" : "없음")}");
-            Debug.Log($"   - CurrentClass: {(currentClass != null ? currentClass.ClassName : "없음")}");
+            Debug.Log($"🔗 [PlayerRuntimeStats] 참조 초기화 완료");
+            Debug.Log($"   - DataManager: {(dataManager != null ? "✅" : "❌")}");
+            Debug.Log($"   - PlayerData: {(playerData != null ? "✅" : "❌")}");
+            Debug.Log($"   - CurrentClass: {(currentClass != null ? currentClass.GetType().Name : "❌")}");
         }
     }
     
@@ -300,13 +312,17 @@ public class PlayerRuntimeStats : MonoBehaviour
                     Debug.Log($"⚔️ [PlayerRuntimeStats] 무기 적용: {equipment.equipmentName} (+{equipment.attackDamage} 공격력)");
             }
             
-            // 방어구 스탯 적용
+            // 방어구 스탯 적용  
             if (equipment.equipmentType == EquipmentType.Armor)
             {
                 finalDefense += equipment.defenseBonus;
                 
+                // 🆕 추가: speedBonus와 healthBonus 처리
+                finalMoveSpeed += equipment.speedBonus;
+                finalMaxHealth += equipment.healthBonus;
+                
                 if (showDebugLogs)
-                    Debug.Log($"🛡️ [PlayerRuntimeStats] 방어구 적용: {equipment.equipmentName} (+{equipment.defenseBonus} 방어력)");
+                    Debug.Log($"🛡️ [PlayerRuntimeStats] 방어구 적용: {equipment.equipmentName} (+{equipment.defenseBonus} 방어력, +{equipment.speedBonus} 이속, +{equipment.healthBonus} 체력)");
             }
         }
     }

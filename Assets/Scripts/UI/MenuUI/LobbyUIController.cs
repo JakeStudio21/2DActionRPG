@@ -849,13 +849,39 @@ public class LobbyUIController : MonoBehaviour
     {
         if (selectedSlotIndex == -1)
         {
-            Debug.LogWarning("[LobbyUIController] 캐릭터가 선택되지 않았습니다!");
+            Debug.LogWarning("[LobbyUIController] 슬롯이 선택되지 않음");
             return;
         }
         
-        Debug.Log($"[LobbyUIController] 게임 시작! 선택된 슬롯: {selectedSlotIndex}");
+        // 🆕 추가: 게임 시작 전 데이터 유효성 검증
+        if (PlayerDataManager.Instance != null && !PlayerDataManager.Instance.ValidateSelectedPlayerData())
+        {
+            Debug.LogError("[LobbyUIController] SelectedPlayerData가 유효하지 않음 - 게임 시작 취소");
+            
+            // UI에서도 선택 해제
+            selectedSlotIndex = -1;
+            RefreshAllSlots(); // 🔧 슬롯 새로고침 추가
+            return;
+        }
         
-        // 스테이지 선택 패널로 이동
+        var slotData = PlayerDataManager.Instance.GetSlotData(selectedSlotIndex);
+        if (slotData == null || !slotData.isSlotUsed)
+        {
+            Debug.LogWarning("[LobbyUIController] 유효하지 않은 슬롯");
+            return;
+        }
+        
+        // 선택된 슬롯으로 PlayerDataManager 설정
+        bool success = PlayerDataManager.Instance.SelectSlot(selectedSlotIndex);
+        if (!success)
+        {
+            Debug.LogError("[LobbyUIController] 슬롯 선택 실패");
+            return;
+        }
+        
+        Debug.Log($"[LobbyUIController] 게임 시작: {slotData.playerName}({slotData.playerType})");
+        
+        // 스테이지 선택 UI 활성화
         ShowStageSelectPanel();
     }
 } 

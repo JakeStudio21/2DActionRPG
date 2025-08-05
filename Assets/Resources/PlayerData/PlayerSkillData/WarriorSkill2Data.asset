@@ -15,7 +15,7 @@ MonoBehaviour:
   skillName: Ground Slam
   icon: {fileID: 0}
   cooldown: 2
-  damage: 20
+  damage: 30
   range: 5
   effectPrefab: {fileID: 0}
   dashSpeed: 20

@@ -26,10 +26,14 @@ MonoBehaviour:
   weaponType: 1
   weaponCooldown: 1
   weaponRange: 2
-  attackDamage: 5
+  armorType: 0
+  attackDamage: 15
   attackSpeed: 5
   attackRange: 2
   attackShape: 3
   criticalChance: 0
   criticalDamage: 3
   projectileId: 
+  defenseBonus: 0
+  speedBonus: 0
+  healthBonus: 0
