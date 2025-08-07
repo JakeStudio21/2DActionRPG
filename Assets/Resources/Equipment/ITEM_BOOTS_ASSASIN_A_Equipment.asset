@@ -34,6 +34,6 @@ MonoBehaviour:
   criticalChance: 0
   criticalDamage: 0
   projectileId: 
-  defenseBonus: 0
+  defenseBonus: 100
   speedBonus: 5
   healthBonus: 20

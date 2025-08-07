@@ -56,21 +56,38 @@ public class InventorySlot : MonoBehaviour
     }
     
     /// <summary>
-    /// 슬롯 클릭 이벤트
+    /// 슬롯 클릭 처리
     /// </summary>
     public void OnSlotClicked()
     {
-        Debug.Log($"🖱️ [InventorySlot] 슬롯 클릭: {GetWeaponName()}");
+        Debug.Log($"🖱️ [InventorySlot] OnSlotClicked 호출: {gameObject.name}");
         
-        // ActiveInventory에 클릭 알림
-        var activeInventory = GetComponentInParent<ActiveInventory>();
-        if (activeInventory != null)
+        // 🆕 빈 슬롯 클릭 방지
+        if (equipmentData == null)
         {
-            int slotIndex = transform.GetSiblingIndex();
-            activeInventory.OnSlotClicked(slotIndex);
+            Debug.LogWarning($"⚠️ [InventorySlot] 빈 슬롯 클릭 - 이벤트 무시: {gameObject.name}");
+            return;
+        }
+        
+        // 🔧 수정: GetSiblingIndex 대신 정확한 인덱스 계산
+        int slotIndex = GetActualSlotIndex();
+        Debug.Log($"🖱️ [InventorySlot] 계산된 슬롯 인덱스: {slotIndex}");
+        Debug.Log($"🖱️ [InventorySlot] GetSiblingIndex(): {transform.GetSiblingIndex()}");
+        Debug.Log($"🖱️ [InventorySlot] equipmentData: {equipmentData.equipmentName}");
+        
+        // 🎯 단일 진입점: 오직 이벤트 시스템만 사용
+        if (PlayerDataManager.Instance != null)
+        {
+            Debug.Log($"🔗 [InventorySlot] PlayerDataManager.TriggerSlotClicked 호출");
+            PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex);
+            Debug.Log($"✅ [InventorySlot] 단일 이벤트 시스템으로 처리 완료");
+        }
+        else
+        {
+            Debug.LogError($"🔴 [InventorySlot] PlayerDataManager를 찾을 수 없습니다!");
         }
     }
-
+    
     /// <summary>
     /// 슬롯 선택 상태 설정
     /// </summary>
@@ -314,5 +331,34 @@ public class InventorySlot : MonoBehaviour
     {
         equipmentData = data;
         UpdateSlotVisual();
+    }
+
+    /// <summary>
+    /// 🆕 정확한 슬롯 인덱스 계산
+    /// </summary>
+    private int GetActualSlotIndex()
+    {
+        // ActiveInventory의 자식들 중에서 현재 슬롯의 인덱스 찾기
+        var activeInventory = GetComponentInParent<ActiveInventory>();
+        if (activeInventory == null) 
+        {
+            Debug.LogWarning($"⚠️ [InventorySlot] ActiveInventory를 찾을 수 없음 - GetSiblingIndex() 사용");
+            return transform.GetSiblingIndex();
+        }
+        
+        Transform activeInventoryTransform = activeInventory.transform;
+        
+        // ActiveInventory의 직접 자식들만 확인
+        for (int i = 0; i < activeInventoryTransform.childCount; i++)
+        {
+            if (activeInventoryTransform.GetChild(i) == transform)
+            {
+                Debug.Log($"🔍 [InventorySlot] 정확한 인덱스 찾음: {i} (GetSiblingIndex: {transform.GetSiblingIndex()})");
+                return i;
+            }
+        }
+        
+        Debug.LogWarning($"⚠️ [InventorySlot] 정확한 인덱스를 찾을 수 없음 - GetSiblingIndex() 사용");
+        return transform.GetSiblingIndex();
     }
 } 

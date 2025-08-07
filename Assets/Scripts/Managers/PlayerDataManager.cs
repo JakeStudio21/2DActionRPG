@@ -47,6 +47,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public event Action<int> OnSlotSelected; // 슬롯 선택 시
     public event Action<PlayerSlotData> OnSlotDataChanged; // 슬롯 데이터 변경 시
     
+    // 🆕 로비-인게임 공용 이벤트 시스템
+    /// <summary>
+    /// 모든 슬롯 클릭 시 발생 (인게임/로비 공통)
+    /// 기본적인 슬롯 클릭 이벤트로, 장착/해제 등 기본 기능에 사용
+    /// </summary>
+    public event Action<EquipmentData, int> OnSlotClicked; // (장비데이터, 슬롯인덱스)
+    
+    /// <summary>
+    /// 로비에서만 상세 정보가 필요할 때 발생
+    /// 장비의 상세 스탯 정보를 표시하는 패널 요청에 사용
+    /// </summary>
+    public event Action<EquipmentData> OnItemDetailRequested; // (장비데이터)
+    
     // 접근자 프로퍼티 (SelectedPlayerData 위임)
     public int CurrentGold => selectedPlayerData != null ? selectedPlayerData.CurrentGold : 0;
     public int CurrentLevel => selectedPlayerData != null ? selectedPlayerData.CurrentLevel : 1;
@@ -529,54 +542,110 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     {
         if (!IsSlotSelected || item == null) return false;
         
-        // 기존 장착 아이템이 있다면 인벤토리로
-        var currentItem = selectedPlayerData.RuntimeEquippedItems[targetSlot];
-        if (currentItem != null)
+        // 🆕 디버그: 장착 시작 전 상태 기록
+        Debug.Log($"⚔️ [PlayerDataManager] EquipItem 시작:");
+        Debug.Log($"   - 장착할 아이템: {item.equipmentName}");
+        Debug.Log($"   - 대상 슬롯: {targetSlot}");
+        Debug.Log($"   - 인벤토리 현재 상태 (장착 전):");
+        
+        for (int i = 0; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
         {
-            if (!AddToInventory(currentItem)) return false;
+            var invItem = selectedPlayerData.runtimeInventoryItems[i];
+            Debug.Log($"     📦 inventory[{i}]: {invItem?.equipmentName ?? "null"}");
         }
         
-        // 새 아이템 장착
-        selectedPlayerData.RuntimeEquippedItems[targetSlot] = item;
-        RemoveFromInventory(item);
-        selectedPlayerData.SyncDictionaries();
+        // 기존 장착 아이템 확인
+        EquipmentData currentItem = selectedPlayerData.RuntimeEquippedItems[targetSlot];
+        Debug.Log($"   - 현재 장착된 아이템: {currentItem?.equipmentName ?? "없음"}");
         
-        // 🆕 무기 장착 시 ActiveWeapon에도 실제 적용
-        if (targetSlot == EquipmentSlot.MainWeapon && item.equipmentType == EquipmentType.Weapon)
+        // 🆕 디버그: 인벤토리에서 아이템 위치 찾기
+        int itemIndexInInventory = selectedPlayerData.runtimeInventoryItems.IndexOf(item);
+        Debug.Log($"   - 장착할 아이템의 인벤토리 인덱스: {itemIndexInInventory}");
+        
+        try
         {
-            var activeWeapon = FindObjectOfType<ActiveWeapon>();
-            if (activeWeapon != null)
+            // 새 아이템 장착
+            selectedPlayerData.RuntimeEquippedItems[targetSlot] = item;
+            Debug.Log($"✅ [PlayerDataManager] 새 아이템 장착 완료: {item.equipmentName} → {targetSlot}");
+            
+            // 기존 아이템이 있었다면 인벤토리에 추가
+            if (currentItem != null)
             {
-                activeWeapon.EquipWeapon(item);
+                Debug.Log($"🔄 [PlayerDataManager] 기존 아이템 인벤토리 추가: {currentItem.equipmentName}");
+                selectedPlayerData.runtimeInventoryItems.Add(currentItem);
+                
+                // 🆕 디버그: 추가 후 인벤토리 상태
+                Debug.Log($"   - AddToInventory 후 인벤토리 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
+                Debug.Log($"   - 추가된 위치: 인덱스 {selectedPlayerData.runtimeInventoryItems.Count - 1}");
+            }
+            
+            // 새 아이템을 인벤토리에서 제거
+            if (itemIndexInInventory >= 0)
+            {
+                Debug.Log($"🗑️ [PlayerDataManager] 새 아이템 인벤토리에서 제거: 인덱스 {itemIndexInInventory}");
+                selectedPlayerData.runtimeInventoryItems.RemoveAt(itemIndexInInventory);
+                
+                // 🆕 디버그: 제거 후 인벤토리 상태
+                Debug.Log($"   - RemoveAt({itemIndexInInventory}) 후 인벤토리 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
+                Debug.Log($"   - 제거로 인한 인덱스 시프트:");
+                
+                for (int i = itemIndexInInventory; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
+                {
+                    var shiftedItem = selectedPlayerData.runtimeInventoryItems[i];
+                    Debug.Log($"     🔄 인덱스 {i+1} → {i}: {shiftedItem?.equipmentName ?? "null"}");
+                }
+            }
+            
+            // 🆕 디버그: 최종 인벤토리 상태
+            Debug.Log($"📊 [PlayerDataManager] 장착 완료 후 최종 인벤토리 상태:");
+            for (int i = 0; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
+            {
+                var finalItem = selectedPlayerData.runtimeInventoryItems[i];
+                Debug.Log($"     📦 inventory[{i}]: {finalItem?.equipmentName ?? "null"}");
+            }
+            
+            // 무기인 경우 ActiveWeapon 업데이트
+            if (targetSlot == EquipmentSlot.MainWeapon)
+            {
+                var activeWeapon = FindObjectOfType<ActiveWeapon>();
+                if (activeWeapon != null)
+                {
+                    activeWeapon.EquipWeapon(item);
+                    if (showDebugLogs)
+                        Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {item.equipmentName}");
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ [PlayerDataManager] ActiveWeapon을 찾을 수 없어 물리적 무기 교체 실패!");
+                }
+            }
+            
+            // 🆕 장비 변경 시 PlayerRuntimeStats 스탯 재계산
+            var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+            if (playerRuntimeStats != null)
+            {
+                playerRuntimeStats.RecalculateAllStats();
                 if (showDebugLogs)
-                    Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {item.equipmentName}");
+                    Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
             }
             else
             {
-                Debug.LogWarning("⚠️ [PlayerDataManager] ActiveWeapon을 찾을 수 없어 물리적 무기 교체 실패!");
+                Debug.LogWarning("⚠️ [PlayerDataManager] PlayerRuntimeStats를 찾을 수 없어 스탯 재계산 실패!");
             }
-        }
-        
-        // 🆕 장비 변경 시 PlayerRuntimeStats 스탯 재계산
-        var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
-        if (playerRuntimeStats != null)
-        {
-            playerRuntimeStats.RecalculateAllStats();
+            
+            SaveCurrentSlot();
+            OnItemEquipped?.Invoke(targetSlot, item);
+            OnInventoryChanged?.Invoke();
+            
             if (showDebugLogs)
-                Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
+                Debug.Log($"⚔️ [PlayerDataManager] 장비 착용: {item.name} → {targetSlot}");
+            return true;
         }
-        else
+        catch (System.Exception ex)
         {
-            Debug.LogWarning("⚠️ [PlayerDataManager] PlayerRuntimeStats를 찾을 수 없어 스탯 재계산 실패!");
+            Debug.LogError($"🔴 [PlayerDataManager] EquipItem 실패: {ex.Message}");
+            return false;
         }
-        
-        SaveCurrentSlot();
-        OnItemEquipped?.Invoke(targetSlot, item);
-        OnInventoryChanged?.Invoke();
-        
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [PlayerDataManager] 장비 착용: {item.name} → {targetSlot}");
-        return true;
     }
     
     /// <summary>
@@ -584,13 +653,49 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public bool UnequipItem(EquipmentSlot slot)
     {
-        if (!IsSlotSelected) return false;
+        Debug.Log($"🔄 [PlayerDataManager] ============= UnequipItem 시작 =============");
+        Debug.Log($"   - 해제할 슬롯: {slot}");
+        Debug.Log($"   - IsSlotSelected: {IsSlotSelected}");
+        
+        if (!IsSlotSelected) 
+        {
+            Debug.LogError($"🔴 [PlayerDataManager] 슬롯이 선택되지 않음");
+            return false;
+        }
         
         var item = selectedPlayerData.RuntimeEquippedItems[slot];
-        if (item == null) return false;
+        Debug.Log($"   - 해제할 아이템: {item?.equipmentName ?? "null"}");
         
+        if (item == null) 
+        {
+            Debug.LogWarning($"⚠️ [PlayerDataManager] {slot} 슬롯이 이미 비어있음");
+            return false;
+        }
+        
+        // 🆕 해제 전 인벤토리 상태 확인
+        Debug.Log($"📊 [PlayerDataManager] 해제 전 인벤토리 상태:");
+        Debug.Log($"   - 현재 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
+        Debug.Log($"   - 최대 크기: {selectedPlayerData.MaxInventorySize}");
+        Debug.Log($"   - 가득찬 상태: {selectedPlayerData.IsInventoryFull}");
+        
+        // 장착 해제
         selectedPlayerData.RuntimeEquippedItems[slot] = null;
-        if (!AddToInventory(item)) return false;
+        Debug.Log($"✅ [PlayerDataManager] {slot} 슬롯 해제 완료");
+        
+        // 인벤토리에 추가
+        Debug.Log($"📦 [PlayerDataManager] 인벤토리 추가 시도: {item.equipmentName}");
+        if (!AddToInventory(item)) 
+        {
+            Debug.LogError($"🔴 [PlayerDataManager] 인벤토리 추가 실패! 장착 상태 복원");
+            // 실패 시 다시 장착
+            selectedPlayerData.RuntimeEquippedItems[slot] = item;
+            return false;
+        }
+        
+        // 🆕 해제 후 인벤토리 상태 확인
+        Debug.Log($"📊 [PlayerDataManager] 해제 후 인벤토리 상태:");
+        Debug.Log($"   - 현재 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
+        Debug.Log($"   - 마지막 아이템: {selectedPlayerData.runtimeInventoryItems[selectedPlayerData.runtimeInventoryItems.Count - 1]?.equipmentName ?? "null"}");
         
         selectedPlayerData.SyncDictionaries();
         SaveCurrentSlot();
@@ -598,7 +703,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         OnInventoryChanged?.Invoke();
         
         if (showDebugLogs)
-            Debug.Log($"⚔️ [PlayerDataManager] 장비 해제: {item.name} ← {slot}");
+            Debug.Log($"⚔️ [PlayerDataManager] 장비 해제: {item.equipmentName} ← {slot}");
+        
+        Debug.Log($"🔄 [PlayerDataManager] ============= UnequipItem 완료 =============");
         return true;
     }
     
@@ -964,5 +1071,161 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
         
         return true;
+    }
+    
+    // 🆕 공용 이벤트 발생 메서드들
+    /// <summary>
+    /// 슬롯 클릭 이벤트 발생 (인게임/로비 공통)
+    /// </summary>
+    public void TriggerSlotClicked(EquipmentData equipmentData, int slotIndex)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🖱️ [PlayerDataManager] 슬롯 클릭 이벤트 발생: {(equipmentData?.equipmentName ?? "빈 슬롯")} (인덱스: {slotIndex})");
+        
+        OnSlotClicked?.Invoke(equipmentData, slotIndex);
+    }
+    
+    /// <summary>
+    /// 아이템 상세 정보 요청 이벤트 발생 (로비 전용)
+    /// </summary>
+    public void TriggerItemDetailRequested(EquipmentData equipmentData)
+    {
+        if (equipmentData == null) return;
+        
+        if (showDebugLogs)
+            Debug.Log($"📋 [PlayerDataManager] 아이템 상세 정보 요청: {equipmentData.equipmentName}");
+        
+        OnItemDetailRequested?.Invoke(equipmentData);
+    }
+
+    /// <summary>
+    /// 인벤토리 변경 이벤트 발생 (외부 호출용)
+    /// </summary>
+    public void TriggerInventoryChanged()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔄 [PlayerDataManager] 인벤토리 변경 이벤트 발생 (외부 트리거)");
+        
+        OnInventoryChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 🆕 특정 슬롯 인덱스에서 아이템 장착 (정확한 인덱스 사용)
+    /// </summary>
+    public bool EquipItemFromSlot(EquipmentData item, int slotIndex)
+    {
+        Debug.Log($"⚔️ [PlayerDataManager] ============= EquipItemFromSlot 시작 =============");
+        Debug.Log($"   - 요청 아이템: {item?.equipmentName ?? "null"}");
+        Debug.Log($"   - 요청 슬롯 인덱스: {slotIndex}");
+        Debug.Log($"   - 인벤토리 크기: {selectedPlayerData?.runtimeInventoryItems?.Count ?? 0}");
+        Debug.Log($"   - IsSlotSelected: {IsSlotSelected}");
+        
+        if (item == null || !IsSlotSelected) 
+        {
+            Debug.LogError($"🔴 [PlayerDataManager] 기본 검증 실패");
+            return false;
+        }
+        
+        // 🆕 추가: 인벤토리 전체 상태 출력 (처음 5개만)
+        Debug.Log($"📊 [PlayerDataManager] 현재 인벤토리 상태:");
+        for (int i = 0; i < Math.Min(selectedPlayerData.runtimeInventoryItems.Count, 5); i++)
+        {
+            var invItem = selectedPlayerData.runtimeInventoryItems[i];
+            string marker = (i == slotIndex) ? " ← 요청된 인덱스" : "";
+            Debug.Log($"   [{i}]: {invItem?.equipmentName ?? "null"}{marker}");
+        }
+        
+        // 슬롯 인덱스 유효성 검사
+        if (slotIndex < 0 || slotIndex >= selectedPlayerData.runtimeInventoryItems.Count)
+        {
+            Debug.LogError($"🔴 [PlayerDataManager] 잘못된 슬롯 인덱스: {slotIndex}");
+            Debug.LogError($"   유효 범위: 0 ~ {selectedPlayerData.runtimeInventoryItems.Count - 1}");
+            return false;
+        }
+        
+        // 해당 슬롯의 아이템이 요청한 아이템과 일치하는지 확인
+        var actualItem = selectedPlayerData.runtimeInventoryItems[slotIndex];
+        Debug.Log($"🔍 [PlayerDataManager] 아이템 일치 검사:");
+        Debug.Log($"   요청 아이템: {item.equipmentName}");
+        Debug.Log($"   실제 슬롯[{slotIndex}]: {actualItem?.equipmentName ?? "null"}");
+        Debug.Log($"   참조 동일성: {actualItem == item}");
+        
+        if (actualItem != item)
+        {
+            Debug.LogError($"🔴 [PlayerDataManager] 슬롯 {slotIndex}의 아이템이 일치하지 않습니다!");
+            return false;
+        }
+        
+        // 나머지 코드는 동일...
+        
+        // 적절한 장비 슬롯 결정
+        EquipmentSlot targetSlot = DetermineEquipmentSlot(item);
+        
+        // 기존 장착 아이템 확인
+        EquipmentData currentItem = selectedPlayerData.RuntimeEquippedItems[targetSlot];
+        Debug.Log($"   - 현재 장착된 아이템: {currentItem?.equipmentName ?? "없음"}");
+        
+        try
+        {
+            // 새 아이템 장착
+            selectedPlayerData.RuntimeEquippedItems[targetSlot] = item;
+            Debug.Log($"✅ [PlayerDataManager] 새 아이템 장착 완료: {item.equipmentName} → {targetSlot}");
+            
+            // 🔧 핵심 수정: 정확한 슬롯 인덱스에서 제거
+            selectedPlayerData.runtimeInventoryItems.RemoveAt(slotIndex);
+            Debug.Log($"🗑️ [PlayerDataManager] 슬롯 {slotIndex}에서 아이템 제거: {item.equipmentName}");
+            
+            // 기존 아이템이 있었다면 제거된 위치에 삽입
+            if (currentItem != null)
+            {
+                selectedPlayerData.runtimeInventoryItems.Insert(slotIndex, currentItem);
+                Debug.Log($"🔄 [PlayerDataManager] 기존 아이템을 슬롯 {slotIndex}에 삽입: {currentItem.equipmentName}");
+            }
+            
+            // 🆕 디버그: 최종 상태 확인
+            Debug.Log($"📊 [PlayerDataManager] 1:1 교체 완료 후 상태:");
+            Debug.Log($"   - 인벤토리 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
+            Debug.Log($"   - 장착됨: {item.equipmentName} → {targetSlot}");
+            
+            // 무기인 경우 ActiveWeapon 업데이트
+            if (targetSlot == EquipmentSlot.MainWeapon)
+            {
+                var activeWeapon = FindObjectOfType<ActiveWeapon>();
+                if (activeWeapon != null)
+                {
+                    activeWeapon.EquipWeapon(item);
+                    if (showDebugLogs)
+                        Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {item.equipmentName}");
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ [PlayerDataManager] ActiveWeapon을 찾을 수 없어 물리적 무기 교체 실패!");
+                }
+            }
+            
+            // 🆕 장비 변경 시 PlayerRuntimeStats 스탯 재계산
+            var playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+            if (playerRuntimeStats != null)
+            {
+                playerRuntimeStats.RecalculateAllStats();
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [PlayerDataManager] PlayerRuntimeStats를 찾을 수 없어 스탯 재계산 실패!");
+            }
+            
+            SaveCurrentSlot();
+            OnItemEquipped?.Invoke(targetSlot, item); // targetSlot이 첫 번째
+            OnInventoryChanged?.Invoke();
+            
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [PlayerDataManager] EquipItemFromSlot 실패: {ex.Message}");
+            return false;
+        }
     }
 } 
