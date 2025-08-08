@@ -47,6 +47,7 @@ public class EquippedItemsUI : MonoBehaviour
             PlayerDataManager.Instance.OnItemEquipped += OnItemEquipped;
             PlayerDataManager.Instance.OnItemUnequipped += OnItemUnequipped;
             PlayerDataManager.Instance.OnLevelChanged += OnPlayerLevelChanged;
+            PlayerDataManager.Instance.OnSlotSelected += OnPlayerSlotChanged; // 🔧 수정
         }
         
         // 🆕 PlayerRuntimeStats 준비 이벤트 구독
@@ -127,7 +128,7 @@ public class EquippedItemsUI : MonoBehaviour
         {
             playerNameText.text = playerData.playerName;
             if (showDebugLogs)
-                Debug.Log($"🎮 [EquippedItemsUI] 플레이어명 업데이트: {playerData.playerName}");
+                Debug.Log($"�� [EquippedItemsUI] 플레이어명 업데이트: {playerData.playerName}");
         }
         
         // 2. 클래스 이미지 표시
@@ -252,6 +253,23 @@ public class EquippedItemsUI : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"🆙 [EquippedItemsUI] 플레이어 레벨 변경: {newLevel}");
+    }
+    
+    /// <summary>
+    /// 🆕 플레이어 슬롯 전환 이벤트 처리
+    /// </summary>
+    private void OnPlayerSlotChanged(int newSlotIndex)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [EquippedItemsUI] 플레이어 슬롯 전환됨: {newSlotIndex}");
+        
+        // 플레이어 정보 및 장비 정보 전체 갱신
+        UpdatePlayerInfo();
+        RefreshAllEquippedItems();
+        UpdatePlayerStats();
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [EquippedItemsUI] 플레이어 전환 갱신 완료");
     }
     
     /// <summary>
@@ -538,6 +556,7 @@ public class EquippedItemsUI : MonoBehaviour
             PlayerDataManager.Instance.OnItemEquipped -= OnItemEquipped;
             PlayerDataManager.Instance.OnItemUnequipped -= OnItemUnequipped;
             PlayerDataManager.Instance.OnLevelChanged -= OnPlayerLevelChanged;
+            PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged; // 🔧 수정
         }
         
         // 🆕 정적 이벤트 구독 해제

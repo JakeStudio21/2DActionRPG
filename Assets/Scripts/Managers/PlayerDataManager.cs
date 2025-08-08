@@ -682,9 +682,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         selectedPlayerData.RuntimeEquippedItems[slot] = null;
         Debug.Log($"✅ [PlayerDataManager] {slot} 슬롯 해제 완료");
         
-        // 인벤토리에 추가
+        // 인벤토리에 추가 (🔧 스마트 추가 방식 사용)
         Debug.Log($"📦 [PlayerDataManager] 인벤토리 추가 시도: {item.equipmentName}");
-        if (!AddToInventory(item)) 
+        if (!AddToInventorySmartly(item)) 
         {
             Debug.LogError($"🔴 [PlayerDataManager] 인벤토리 추가 실패! 장착 상태 복원");
             // 실패 시 다시 장착
@@ -1175,11 +1175,17 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             selectedPlayerData.runtimeInventoryItems.RemoveAt(slotIndex);
             Debug.Log($"🗑️ [PlayerDataManager] 슬롯 {slotIndex}에서 아이템 제거: {item.equipmentName}");
             
-            // 기존 아이템이 있었다면 제거된 위치에 삽입
+            // 🔧 수정: 기존 아이템이 있든 없든 항상 같은 위치에 삽입하여 슬롯 유지
             if (currentItem != null)
             {
                 selectedPlayerData.runtimeInventoryItems.Insert(slotIndex, currentItem);
                 Debug.Log($"🔄 [PlayerDataManager] 기존 아이템을 슬롯 {slotIndex}에 삽입: {currentItem.equipmentName}");
+            }
+            else
+            {
+                // 🆕 기존 아이템이 없어도 null을 삽입하여 슬롯 위치 유지
+                selectedPlayerData.runtimeInventoryItems.Insert(slotIndex, null);
+                Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex}에 빈 슬롯(null) 삽입하여 위치 유지");
             }
             
             // 🆕 디버그: 최종 상태 확인
@@ -1227,5 +1233,46 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             Debug.LogError($"🔴 [PlayerDataManager] EquipItemFromSlot 실패: {ex.Message}");
             return false;
         }
+    }
+
+    /// <summary>
+    /// 🆕 빈 슬롯 우선 인벤토리 추가 (null 슬롯을 먼저 활용)
+    /// </summary>
+    public bool AddToInventorySmartly(EquipmentData item)
+    {
+        if (!IsSlotSelected || item == null) return false;
+        
+        Debug.Log($"🧠 [PlayerDataManager] 스마트 인벤토리 추가: {item.equipmentName}");
+        
+        // 1. 먼저 빈 슬롯(null) 찾기
+        for (int i = 0; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
+        {
+            if (selectedPlayerData.runtimeInventoryItems[i] == null)
+            {
+                selectedPlayerData.runtimeInventoryItems[i] = item;
+                Debug.Log($"✅ [PlayerDataManager] 빈 슬롯[{i}]에 배치: {item.equipmentName}");
+                
+                SaveCurrentSlot();
+                OnItemAddedToInventory?.Invoke(item);
+                OnInventoryChanged?.Invoke();
+                return true;
+            }
+        }
+        
+        // 2. 빈 슬롯이 없으면 기존 방식(맨 뒤에 추가)
+        if (selectedPlayerData.CurrentInventorySize < selectedPlayerData.MaxInventorySize)
+        {
+            selectedPlayerData.runtimeInventoryItems.Add(item);
+            Debug.Log($"✅ [PlayerDataManager] 새 슬롯[{selectedPlayerData.runtimeInventoryItems.Count - 1}]에 추가: {item.equipmentName}");
+            
+            SaveCurrentSlot();
+            OnItemAddedToInventory?.Invoke(item);
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+        
+        // 3. 진짜 가득 참
+        Debug.LogWarning($"⚠️ [PlayerDataManager] 인벤토리가 가득 참! 추가 불가: {item.equipmentName}");
+        return false;
     }
 } 

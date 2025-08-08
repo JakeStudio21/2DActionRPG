@@ -1,10 +1,10 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement; // 🆕 추가: SceneManager 사용을 위해 필요
 
 /// <summary>
-/// 🎮 인게임 통합 인벤토리 컨트롤러 (참조 방식)
-/// ActiveInventory와 EquippedItemsUI를 참조로만 관리
+/// 🎮 인게임 인벤토리 UI (View Only)
 /// </summary>
 public class IntegratedInventoryController : MonoBehaviour
 {
@@ -25,7 +25,17 @@ public class IntegratedInventoryController : MonoBehaviour
     
     void Start()
     {
-        InitializeIntegratedInventory();
+        // 🔧 수정: IntegratedInventoryController는 인게임에서만 활성화
+        if (SceneManager.GetActiveScene().name == "Lobby" || 
+            SceneManager.GetActiveScene().name.Contains("Lobby"))
+        {
+            this.enabled = false;
+            Debug.Log("🔒 [IntegratedInventoryController] 로비에서 비활성화됨");
+            return;
+        }
+        
+        SetupControllerEvents();
+        // 🗑️ 제거: 독립적인 이벤트 연결 삭제
     }
     
     void Update()
@@ -200,5 +210,38 @@ public class IntegratedInventoryController : MonoBehaviour
     public bool IsInventoryOpen
     {
         get { return isInventoryOpen; }
+    }
+
+    private void SetupControllerEvents()
+    {
+        // 🔧 Controller 이벤트 구독
+        if (InventoryController.Instance != null)
+        {
+            InventoryController.Instance.OnInventoryStateChanged += OnInventoryStateChanged;
+        }
+        
+        // 🔧 버튼 이벤트를 Controller로 연결
+        if (bagButton != null)
+        {
+            bagButton.onClick.AddListener(() => {
+                InventoryController.Instance?.OpenInventory();
+            });
+        }
+    }
+    
+    private void OnInventoryStateChanged(bool isOpen)
+    {
+        // 인게임 UI 업데이트 로직
+        if (activeInventoryPanel != null)
+        {
+            activeInventoryPanel.SetActive(isOpen);
+        }
+        
+        if (equippedItemsPanel != null)
+        {
+            equippedItemsPanel.SetActive(isOpen);
+        }
+        
+        isInventoryOpen = isOpen;
     }
 }

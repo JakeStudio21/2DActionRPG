@@ -1,0 +1,112 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// 🎮 통합 인벤토리 컨트롤러 (로비/인게임 공통 로직)
+/// UI 레이어와 분리된 순수 비즈니스 로직
+/// </summary>
+public class InventoryController : MonoBehaviour
+{
+    public static InventoryController Instance { get; private set; }
+    
+    [Header("📊 디버그")]
+    [SerializeField] private bool showDebugLogs = true;
+    
+    // 이벤트 시스템
+    public event System.Action<bool> OnInventoryStateChanged;
+    
+    // 내부 상태
+    private bool isInventoryOpen = false;
+    
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    
+    void Start()
+    {
+        // 🆕 LobbyUIController와 연결
+        var lobbyUIController = FindObjectOfType<LobbyUIController>();
+        if (lobbyUIController != null)
+        {
+            OnInventoryStateChanged += (isOpen) => {
+                if (isOpen)
+                {
+                    lobbyUIController.ShowInventoryPanel();
+                }
+            };
+            Debug.Log("✅ [InventoryController] LobbyUIController 연결 완료");
+        }
+    }
+    
+    /// <summary>
+    /// 인벤토리 열기 (토글 기능 제거)
+    /// </summary>
+    public void OpenInventory()
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔥 [InventoryController] OpenInventory 호출됨! 현재 상태: {isInventoryOpen}");
+        
+        // 이미 열려있으면 아무것도 하지 않음
+        if (isInventoryOpen)
+        {
+            Debug.Log($"⚠️ [InventoryController] 이미 열려있음 - 아무것도 하지 않음");
+            return;
+        }
+        
+        isInventoryOpen = true;
+        
+        Debug.Log($"📢 [InventoryController] OnInventoryStateChanged 이벤트 발송 시작");
+        
+        // 구독자 확인
+        if (OnInventoryStateChanged != null)
+        {
+            var subscriberCount = OnInventoryStateChanged.GetInvocationList().Length;
+            Debug.Log($"👥 [InventoryController] 구독자 수: {subscriberCount}명");
+            OnInventoryStateChanged.Invoke(isInventoryOpen);
+        }
+        else
+        {
+            Debug.LogError($"🔴 [InventoryController] 구독자가 없습니다!");
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [InventoryController] 인벤토리 열림");
+    }
+    
+    /// <summary>
+    /// 인벤토리 닫기 (나중에 닫기 버튼용)
+    /// </summary>
+    public void CloseInventory()
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔥 [InventoryController] CloseInventory 호출됨! 현재 상태: {isInventoryOpen}");
+        
+        if (!isInventoryOpen)
+        {
+            Debug.Log($"⚠️ [InventoryController] 이미 닫혀있음 - 아무것도 하지 않음");
+            return;
+        }
+        
+        isInventoryOpen = false;
+        
+        if (OnInventoryStateChanged != null)
+        {
+            OnInventoryStateChanged.Invoke(isInventoryOpen);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [InventoryController] 인벤토리 닫힘");
+    }
+    
+    public bool IsInventoryOpen => isInventoryOpen;
+}

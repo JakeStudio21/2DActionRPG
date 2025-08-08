@@ -57,11 +57,11 @@ public class LobbyUIController : MonoBehaviour
     public Button startGameButton; // 🆕 게임 시작 버튼
     
     [Header("=== UI 패널 관리 ===")]
-    public GameObject lobbyPanel;          // 로비 메인 패널
-    public GameObject characterSelectPanel; // 캐릭터 선택 패널
-    public GameObject stageSelectPanel;     // 스테이지 선택 패널
-    public GameObject inventoryPanel;       // 인벤토리 패널
-    public GameObject shopPanel;           // 상점 패널
+    public GameObject lobbyPanel;          
+    public GameObject characterSelectPanel; 
+    public GameObject stageSelectPanel;     
+    public GameObject inventoryPanel;       // 🔧 수정: LobbyInventorySystem으로 연결
+    public GameObject shopPanel;           
     
     [Header("=== 스테이지 선택 UI ===")]
     public TMP_Text stageSelectTitleText;
@@ -370,9 +370,9 @@ public class LobbyUIController : MonoBehaviour
     private void ShowLobbyPanel()
     {
         SetPanelVisibility(lobbyPanel, true);
-        SetPanelVisibility(characterSelectPanel, false); // 🗑️ 추후 완전 제거 예정
+        SetPanelVisibility(characterSelectPanel, false);
         SetPanelVisibility(stageSelectPanel, false);
-        SetPanelVisibility(inventoryPanel, false);
+        SetPanelVisibility(inventoryPanel, false);  // 🔧 LobbyInventorySystem 비활성화
         SetPanelVisibility(shopPanel, false);
         
         Debug.Log("[LobbyUIController] 로비 메인 패널 활성화");
@@ -430,6 +430,8 @@ public class LobbyUIController : MonoBehaviour
     {
         if (panel != null)
         {
+            // �� 디버그: 어떤 패널이 언제 변경되는지 확인
+            Debug.Log($"🎯 [LobbyUIController] SetPanelVisibility: {panel.name} → {isVisible}");
             panel.SetActive(isVisible);
         }
     }
@@ -490,11 +492,11 @@ public class LobbyUIController : MonoBehaviour
     /// <summary>
     /// Bag 버튼 클릭 (Unity Editor OnClick 연결용)
     /// </summary>
-    public void OnBagButton()
-    {
-        Debug.Log("[LobbyUIController] Bag 버튼 클릭!");
-        ShowInventoryPanel();
-    }
+    // public void OnBagButton()
+    // {
+    //     Debug.Log("[LobbyUIController] Bag 버튼 클릭!");
+    //     ShowInventoryPanel();
+    // }
     
     /// <summary>
     /// Shop 버튼 클릭 (Unity Editor OnClick 연결용)

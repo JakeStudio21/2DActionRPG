@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // Added for SceneManager
 
 /// <summary>
 /// 🏠 로비 전용 인벤토리 컨트롤러
@@ -19,6 +20,15 @@ public class LobbyInventoryController : MonoBehaviour
 
     void Start()
     {
+        // 🔧 수정: LobbyInventoryController는 로비에서만 활성화
+        if (SceneManager.GetActiveScene().name != "Lobby" && 
+            !SceneManager.GetActiveScene().name.Contains("Lobby"))
+        {
+            this.enabled = false;
+            Debug.Log("🔒 [LobbyInventoryController] 인게임에서 비활성화됨");
+            return;
+        }
+        
         InitializeIntegratedInventory();
     }
 
@@ -63,9 +73,11 @@ public class LobbyInventoryController : MonoBehaviour
     /// </summary>
     public void ToggleInventory()
     {
-        if (lobbyInventoryUI != null)
+        Debug.Log($"🔗 [LobbyInventoryController] ToggleInventory 호출됨 (열기 전용)");
+        
+        if (InventoryController.Instance != null)
         {
-            lobbyInventoryUI.ToggleInventoryPanel();
+            InventoryController.Instance.OpenInventory(); // 🔧 수정: 열기만
         }
     }
 
@@ -74,9 +86,10 @@ public class LobbyInventoryController : MonoBehaviour
     /// </summary>
     public void OpenInventory()
     {
-        if (lobbyInventoryUI != null)
+        // 🔧 수정: OpenInventory로 변경
+        if (InventoryController.Instance != null)
         {
-            lobbyInventoryUI.ToggleInventoryPanel();
+            InventoryController.Instance.OpenInventory();
         }
     }
 

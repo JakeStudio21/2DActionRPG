@@ -22,20 +22,21 @@ MonoBehaviour:
   currentGold: 45
   runtimeInventoryItems:
   - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
-  - {fileID: 11400000, guid: 334c3ae56d37e4c439c1c4f945337093, type: 2}
   - {fileID: 11400000, guid: 1690877de893efb4282bde258a234785, type: 2}
   - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
   - {fileID: 11400000, guid: 1690877de893efb4282bde258a234785, type: 2}
-  - {fileID: 11400000, guid: 4ec60553ef04d3442878aba493cda7ce, type: 2}
-  - {fileID: 11400000, guid: 6511896ef9048244f810db57eaebb15f, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
   - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
   - {fileID: 11400000, guid: 8811861985bcee04ea999287ef3087ea, type: 2}
+  - {fileID: 11400000, guid: 6511896ef9048244f810db57eaebb15f, type: 2}
+  - {fileID: 11400000, guid: 4ec60553ef04d3442878aba493cda7ce, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 334c3ae56d37e4c439c1c4f945337093, type: 2}
+  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
