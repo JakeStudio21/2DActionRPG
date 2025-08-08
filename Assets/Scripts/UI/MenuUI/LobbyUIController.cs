@@ -58,10 +58,10 @@ public class LobbyUIController : MonoBehaviour
     
     [Header("=== UI 패널 관리 ===")]
     public GameObject lobbyPanel;          
-    public GameObject characterSelectPanel; 
     public GameObject stageSelectPanel;     
     public GameObject inventoryPanel;       // 🔧 수정: LobbyInventorySystem으로 연결
-    public GameObject shopPanel;           
+    public GameObject shopPanel;
+    public GameObject characterInfoPanel;   // 🆕 캐릭터 정보창 패널 추가
     
     [Header("=== 스테이지 선택 UI ===")]
     public TMP_Text stageSelectTitleText;
@@ -140,7 +140,7 @@ public class LobbyUIController : MonoBehaviour
         
         // 패널 검증
         if (lobbyPanel == null) Debug.LogError("[LobbyUIController] lobbyPanel 누락!");
-        if (characterSelectPanel == null) Debug.LogError("[LobbyUIController] characterSelectPanel 누락!");
+        // if (characterSelectPanel == null) Debug.LogError("[LobbyUIController] characterSelectPanel 누락!");  // 🗑️ 삭제
         
         // 스테이지 선택 UI 검증
         if (stageSelectTitleText == null) Debug.LogError("[LobbyUIController] stageSelectTitleText 누락!");
@@ -370,10 +370,10 @@ public class LobbyUIController : MonoBehaviour
     private void ShowLobbyPanel()
     {
         SetPanelVisibility(lobbyPanel, true);
-        SetPanelVisibility(characterSelectPanel, false);
         SetPanelVisibility(stageSelectPanel, false);
         SetPanelVisibility(inventoryPanel, false);  // 🔧 LobbyInventorySystem 비활성화
         SetPanelVisibility(shopPanel, false);
+        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
         
         Debug.Log("[LobbyUIController] 로비 메인 패널 활성화");
     }
@@ -386,10 +386,10 @@ public class LobbyUIController : MonoBehaviour
     private void ShowStageSelectPanel()
     {
         SetPanelVisibility(lobbyPanel, false);
-        SetPanelVisibility(characterSelectPanel, false); // 🗑️ 추후 완전 제거 예정
         SetPanelVisibility(stageSelectPanel, true);
         SetPanelVisibility(inventoryPanel, false);
         SetPanelVisibility(shopPanel, false);
+        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
         
         // 스테이지 선택 UI 초기화
         selectedStageNumber = 0;
@@ -404,10 +404,10 @@ public class LobbyUIController : MonoBehaviour
     public void ShowInventoryPanel()
     {
         SetPanelVisibility(lobbyPanel, false);
-        SetPanelVisibility(characterSelectPanel, false); // 🗑️ 추후 완전 제거 예정
         SetPanelVisibility(stageSelectPanel, false);
         SetPanelVisibility(inventoryPanel, true);
         SetPanelVisibility(shopPanel, false);
+        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
         
         Debug.Log("[LobbyUIController] 인벤토리 패널 활성화");
     }
@@ -418,19 +418,33 @@ public class LobbyUIController : MonoBehaviour
     public void ShowShopPanel()
     {
         SetPanelVisibility(lobbyPanel, false);
-        SetPanelVisibility(characterSelectPanel, false); // 🗑️ 추후 완전 제거 예정
         SetPanelVisibility(stageSelectPanel, false);
         SetPanelVisibility(inventoryPanel, false);
         SetPanelVisibility(shopPanel, true);
+        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
         
         Debug.Log("[LobbyUIController] 상점 패널 활성화");
+    }
+
+    /// <summary>
+    /// 캐릭터 정보창 패널 표시
+    /// </summary>
+    public void ShowCharacterInfoPanel()
+    {
+        SetPanelVisibility(lobbyPanel, false);
+        SetPanelVisibility(stageSelectPanel, false);
+        SetPanelVisibility(inventoryPanel, false);
+        SetPanelVisibility(shopPanel, false);
+        SetPanelVisibility(characterInfoPanel, true);   // 🆕 캐릭터 정보창 활성화
+        
+        Debug.Log("[LobbyUIController] 캐릭터 정보창 패널 활성화");
     }
     
     private void SetPanelVisibility(GameObject panel, bool isVisible)
     {
         if (panel != null)
         {
-            // �� 디버그: 어떤 패널이 언제 변경되는지 확인
+            //  디버그: 어떤 패널이 언제 변경되는지 확인
             Debug.Log($"🎯 [LobbyUIController] SetPanelVisibility: {panel.name} → {isVisible}");
             panel.SetActive(isVisible);
         }
@@ -505,6 +519,15 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log("[LobbyUIController] Shop 버튼 클릭!");
         ShowShopPanel();
+    }
+
+    /// <summary>
+    /// Hero 버튼 클릭 (Unity Editor OnClick 연결용)
+    /// </summary>
+    public void OnHeroButton()
+    {
+        Debug.Log("[LobbyUIController] Hero 버튼 클릭!");
+        ShowCharacterInfoPanel();
     }
     
     #endregion
