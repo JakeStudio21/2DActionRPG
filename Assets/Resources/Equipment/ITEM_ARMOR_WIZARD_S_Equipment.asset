@@ -37,3 +37,7 @@ MonoBehaviour:
   defenseBonus: 20
   speedBonus: 0
   healthBonus: 30
+  buyPrice: 300
+  sellPrice: 150
+  isLimited: 0
+  quantityLimit: 0

@@ -1145,6 +1145,12 @@ public class EquipmentDataManager : EditorWindow
         equipment.requiredLevel = weaponBase.RequiredLevel;
         equipment.resourceID = weaponBase.ResourceID ?? "";
         
+        // 🆕 상점 시스템 필드 매핑 추가
+        equipment.buyPrice = weaponBase.buyPrice;
+        equipment.sellPrice = weaponBase.sellPrice;
+        equipment.isLimited = weaponBase.isLimited;
+        equipment.quantityLimit = weaponBase.quantityLimit;
+        
         if (!string.IsNullOrEmpty(weaponBase.ItemGrade) && 
             System.Enum.TryParse<ItemGrade>(weaponBase.ItemGrade, out ItemGrade grade))
         {
@@ -1514,7 +1520,11 @@ public class EquipmentDataManager : EditorWindow
             ResourceID = equipment.resourceID ?? "",
             EquipmentPrefab = equipmentPrefabName,
             Icon = iconName,
-            Description = equipment.description ?? ""
+            Description = equipment.description ?? "",
+            buyPrice = equipment.buyPrice,
+            sellPrice = equipment.sellPrice,
+            isLimited = equipment.isLimited,
+            quantityLimit = equipment.quantityLimit
         };
     }
 
@@ -1532,6 +1542,10 @@ public class EquipmentDataManager : EditorWindow
         target.RequiredLevel = source.requiredLevel;
         target.ResourceID = source.resourceID ?? "";
         target.Description = source.description ?? "";
+        target.buyPrice = source.buyPrice;
+        target.sellPrice = source.sellPrice;
+        target.isLimited = source.isLimited;
+        target.quantityLimit = source.quantityLimit;
         
         // 안전한 프리팹 이름 처리
         if (source.equipmentPrefab != null)

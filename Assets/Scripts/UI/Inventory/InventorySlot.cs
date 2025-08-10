@@ -2,10 +2,54 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems; // 🆕 추가: IPointerClickHandler 사용을 위해 필요
 using TMPro; // 🆕 추가
 
-public class InventorySlot : MonoBehaviour
+
+/// 🏠 LobbyInventoryUI - 로비 전용 인벤토리 UI
+/// 책임:
+/// - 인벤토리 아이템 표시
+/// - 아이템 상세 정보 표시 (DetailPanel)
+/// - 아이템 착용/해제 기능
+/// - 로비 전용 UI 상호작용
+/// 
+/// 의존성:
+/// - PlayerDataManager (데이터 소스)
+/// - LobbyInventoryController (제어)
+/// </summary>
+
+/// <summary>
+/// 🏪 ShopInventoryUI - 상점 전용 인벤토리 UI  
+/// 책임:
+/// - 판매용 아이템 선택 표시
+/// - 상점 거래를 위한 아이템 클릭 처리
+/// 
+/// 제외 기능:
+/// - 아이템 착용 (로비 전용)
+/// - 상세 정보 표시 (상점은 DetailPanel 별도)
+/// 
+/// 의존성:
+/// - PlayerDataManager (데이터 소스)
+/// - ShopUIController (거래 제어)
+/// </summary>
+
+/// <summary>
+/// 🎮 IntegratedInventoryController - 인게임 전용 컨트롤러
+/// 책임:
+/// - 인게임 인벤토리 토글 (I키, 가방 버튼)
+/// - 무기 교체 중심 상호작용
+/// - ActiveInventory와 연동
+/// 
+/// 의존성:
+/// - PlayerDataManager (데이터 소스)
+/// - ActiveInventory (인게임 UI)
+/// - ActiveWeapon (무기 교체)
+
+public class InventorySlot : MonoBehaviour // 🔧 수정: IPointerClickHandler 제거
 {
+    [Header("📊 디버그")]
+    [SerializeField] private bool showDebugLogs = false; // 🆕 추가: 디버그 로그 제어
+    
     [Header("🛡️ 장비 데이터 (신규 시스템)")]
     [SerializeField] private EquipmentData equipmentData;
     
@@ -56,35 +100,42 @@ public class InventorySlot : MonoBehaviour
     }
     
     /// <summary>
-    /// 슬롯 클릭 처리
+    /// 🖱️ IPointerClickHandler 구현 - Unity 이벤트 시스템 연동
+    /// </summary>
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        OnSlotClicked(); // 기존 로직 재사용
+    }
+    
+    /// <summary>
+    /// 🖱️ 정리된 슬롯 클릭 이벤트 처리
     /// </summary>
     public void OnSlotClicked()
     {
-        Debug.Log($"🖱️ [InventorySlot] OnSlotClicked 호출: {gameObject.name}");
-        
-        // 🆕 빈 슬롯 클릭 방지
+        // 빈 슬롯 클릭 방지
         if (equipmentData == null)
         {
-            Debug.LogWarning($"⚠️ [InventorySlot] 빈 슬롯 클릭 - 이벤트 무시: {gameObject.name}");
             return;
         }
         
-        // 🔧 수정: GetSiblingIndex 대신 정확한 인덱스 계산
+        // 환경별 슬롯 인덱스 계산
         int slotIndex = GetActualSlotIndex();
-        Debug.Log($"🖱️ [InventorySlot] 계산된 슬롯 인덱스: {slotIndex}");
-        Debug.Log($"🖱️ [InventorySlot] GetSiblingIndex(): {transform.GetSiblingIndex()}");
-        Debug.Log($"🖱️ [InventorySlot] equipmentData: {equipmentData.equipmentName}");
         
-        // 🎯 단일 진입점: 오직 이벤트 시스템만 사용
+        // 필수 로그만 유지
+        if (showDebugLogs)
+        {
+            string environment = DetectEnvironment();
+            Debug.Log($"🖱️ [InventorySlot] {environment} 슬롯 클릭: {equipmentData.equipmentName} (인덱스: {slotIndex})");
+        }
+        
+        // PlayerDataManager 이벤트 발생
         if (PlayerDataManager.Instance != null)
         {
-            Debug.Log($"🔗 [InventorySlot] PlayerDataManager.TriggerSlotClicked 호출");
             PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex);
-            Debug.Log($"✅ [InventorySlot] 단일 이벤트 시스템으로 처리 완료");
         }
         else
         {
-            Debug.LogError($"🔴 [InventorySlot] PlayerDataManager를 찾을 수 없습니다!");
+            Debug.LogError($"❌ [InventorySlot] PlayerDataManager.Instance가 null입니다!");
         }
     }
     
@@ -334,31 +385,87 @@ public class InventorySlot : MonoBehaviour
     }
 
     /// <summary>
-    /// 🆕 정확한 슬롯 인덱스 계산
+    /// 🔧 수정: 표준화된 슬롯 인덱스 계산 (환경 자동 감지)
     /// </summary>
     private int GetActualSlotIndex()
     {
-        // ActiveInventory의 자식들 중에서 현재 슬롯의 인덱스 찾기
+        // 🆕 1순위: ActiveInventory 환경 (인게임)
         var activeInventory = GetComponentInParent<ActiveInventory>();
-        if (activeInventory == null) 
+        if (activeInventory != null) 
         {
-            Debug.LogWarning($"⚠️ [InventorySlot] ActiveInventory를 찾을 수 없음 - GetSiblingIndex() 사용");
-            return transform.GetSiblingIndex();
-        }
-        
-        Transform activeInventoryTransform = activeInventory.transform;
-        
-        // ActiveInventory의 직접 자식들만 확인
-        for (int i = 0; i < activeInventoryTransform.childCount; i++)
-        {
-            if (activeInventoryTransform.GetChild(i) == transform)
+            Transform activeInventoryTransform = activeInventory.transform;
+            for (int i = 0; i < activeInventoryTransform.childCount; i++)
             {
-                Debug.Log($"🔍 [InventorySlot] 정확한 인덱스 찾음: {i} (GetSiblingIndex: {transform.GetSiblingIndex()})");
-                return i;
+                if (activeInventoryTransform.GetChild(i) == transform)
+                {
+                    if (showDebugLogs)
+                        Debug.Log($"🎮 [InventorySlot] ActiveInventory 환경 - 인덱스: {i}");
+                    return i;
+                }
             }
         }
         
-        Debug.LogWarning($"⚠️ [InventorySlot] 정확한 인덱스를 찾을 수 없음 - GetSiblingIndex() 사용");
-        return transform.GetSiblingIndex();
+        // 🆕 2순위: LobbyInventoryUI 환경 (로비)
+        var lobbyInventoryUI = GetComponentInParent<LobbyInventoryUI>();
+        if (lobbyInventoryUI != null)
+        {
+            // 로비에서는 부모 Container의 자식 순서 사용
+            Transform containerTransform = transform.parent;
+            if (containerTransform != null)
+            {
+                for (int i = 0; i < containerTransform.childCount; i++)
+                {
+                    if (containerTransform.GetChild(i) == transform)
+                    {
+                        if (showDebugLogs)
+                            Debug.Log($"🏠 [InventorySlot] 로비 환경 - 인덱스: {i}");
+                        return i;
+                    }
+                }
+            }
+        }
+        
+        // 🆕 3순위: ShopInventoryUI 환경 (상점)
+        var shopInventoryUI = GetComponentInParent<ShopInventoryUI>();
+        if (shopInventoryUI != null)
+        {
+            // 상점에서는 부모 Container의 자식 순서 사용
+            Transform containerTransform = transform.parent;
+            if (containerTransform != null)
+            {
+                for (int i = 0; i < containerTransform.childCount; i++)
+                {
+                    if (containerTransform.GetChild(i) == transform)
+                    {
+                        if (showDebugLogs)
+                            Debug.Log($"🏪 [InventorySlot] 상점 환경 - 인덱스: {i}");
+                        return i;
+                    }
+                }
+            }
+        }
+        
+        // 🔧 4순위: 기본값 (환경을 감지하지 못한 경우)
+        int siblingIndex = transform.GetSiblingIndex();
+        if (showDebugLogs)
+            Debug.Log($"❓ [InventorySlot] 알 수 없는 환경 - Sibling 인덱스 사용: {siblingIndex}");
+        return siblingIndex;
+    }
+
+    /// <summary>
+    /// 🆕 환경 감지 헬퍼 메서드
+    /// </summary>
+    private string DetectEnvironment()
+    {
+        if (GetComponentInParent<ActiveInventory>() != null)
+            return "인게임";
+        
+        if (GetComponentInParent<LobbyInventoryUI>() != null)
+            return "로비";
+            
+        if (GetComponentInParent<ShopInventoryUI>() != null)
+            return "상점";
+            
+        return "알 수 없음";
     }
 } 

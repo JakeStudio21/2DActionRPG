@@ -59,9 +59,14 @@ public class LobbyUIController : MonoBehaviour
     [Header("=== UI 패널 관리 ===")]
     public GameObject lobbyPanel;          
     public GameObject stageSelectPanel;     
-    public GameObject inventoryPanel;       // 🔧 수정: LobbyInventorySystem으로 연결
+    public GameObject inventoryPanel;       
     public GameObject shopPanel;
-    public GameObject characterInfoPanel;   // 🆕 캐릭터 정보창 패널 추가
+    public GameObject characterInfoPanel;   
+    
+    [Header("🏪 로비 상점 버튼")]  // 🆕 추가
+    public Button shopButton;               // 🆕 상점 버튼 참조
+    public Button inventoryButton;          // 🆕 기존 가방 버튼 참조 (일관성)
+    public Button characterInfoButton;      //  기존 영웅 버튼 참조 (일관성)
     
     [Header("=== 스테이지 선택 UI ===")]
     public TMP_Text stageSelectTitleText;
@@ -88,7 +93,7 @@ public class LobbyUIController : MonoBehaviour
     void Start()
     {
         InitializeUI();
-        InitializeSlotSystem(); // 🔧 슬롯 시스템 초기화 추가
+        InitializeSlotSystem(); // 🔧 슬롯 시스템 초기화
     }
     
     private void InitializeUI()
@@ -191,7 +196,32 @@ public class LobbyUIController : MonoBehaviour
             startGameButton.onClick.AddListener(OnStartGameButtonClicked);
         }
         
-        // 기존 스테이지 버튼들은 Unity Editor에서 직접 연결
+        // 🆕 로비 주요 버튼들 연결
+        if (inventoryButton != null)
+        {
+            inventoryButton.onClick.AddListener(ShowInventoryPanel);
+            Debug.Log("✅ [LobbyUIController] 인벤토리 버튼 이벤트 연결");
+        }
+        
+        if (characterInfoButton != null)
+        {
+            characterInfoButton.onClick.AddListener(ShowCharacterInfoPanel);
+            Debug.Log("✅ [LobbyUIController] 캐릭터 정보 버튼 이벤트 연결");
+        }
+        
+        if (shopButton != null)  // 🆕 상점 버튼 연결
+        {
+            shopButton.onClick.AddListener(ShowShopPanel);
+            Debug.Log("✅ [LobbyUIController] 상점 버튼 이벤트 연결");
+        }
+        // 🔧 수정: 워닝을 정보 로그로 변경 (상점 버튼이 아직 연결 안됨)
+        // else
+        // {
+        //     if (showDebugLogs)
+        //         Debug.Log("ℹ️ [LobbyUIController] 상점 버튼이 아직 할당되지 않음 (나중에 연결 예정)");
+        // }
+        
+        // 기존 슬롯, 스테이지 관련 버튼들...
     }
     
     private void SetInitialState()
@@ -367,7 +397,7 @@ public class LobbyUIController : MonoBehaviour
     /// <summary>
     /// 로비 메인 패널 표시 (기본 화면)
     /// </summary>
-    private void ShowLobbyPanel()
+    public void ShowLobbyPanel()
     {
         SetPanelVisibility(lobbyPanel, true);
         SetPanelVisibility(stageSelectPanel, false);
@@ -417,13 +447,27 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void ShowShopPanel()
     {
+        Debug.Log("🏪 [LobbyUIController] ShowShopPanel 호출됨");
+        
         SetPanelVisibility(lobbyPanel, false);
         SetPanelVisibility(stageSelectPanel, false);
         SetPanelVisibility(inventoryPanel, false);
         SetPanelVisibility(shopPanel, true);
-        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
+        SetPanelVisibility(characterInfoPanel, false);
         
-        Debug.Log("[LobbyUIController] 상점 패널 활성화");
+        Debug.Log("[LobbyUIController] 상점 패널 활성화 완료");
+        
+        // 🆕 ShopUIController 수동 호출 (안전장치)
+        var shopUIController = FindObjectOfType<ShopUIController>();
+        if (shopUIController != null)
+        {
+            Debug.Log("🔧 ShopUIController 수동 OnShopOpened 호출");
+            shopUIController.OnShopOpened();
+        }
+        else
+        {
+            Debug.LogError("❌ ShopUIController를 찾을 수 없습니다!");
+        }
     }
 
     /// <summary>

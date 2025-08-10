@@ -4,7 +4,44 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement; // 🆕 추가: SceneManager 사용을 위해 필요
 
 /// <summary>
-/// 🎮 인게임 인벤토리 UI (View Only)
+/// 🏠 LobbyInventoryUI - 로비 전용 인벤토리 UI
+/// 책임:
+/// - 인벤토리 아이템 표시
+/// - 아이템 상세 정보 표시 (DetailPanel)
+/// - 아이템 착용/해제 기능
+/// - 로비 전용 UI 상호작용
+/// 
+/// 의존성:
+/// - PlayerDataManager (데이터 소스)
+/// - LobbyInventoryController (제어)
+/// </summary>
+
+/// <summary>
+/// 🏪 ShopInventoryUI - 상점 전용 인벤토리 UI  
+/// 책임:
+/// - 판매용 아이템 선택 표시
+/// - 상점 거래를 위한 아이템 클릭 처리
+/// 
+/// 제외 기능:
+/// - 아이템 착용 (로비 전용)
+/// - 상세 정보 표시 (상점은 DetailPanel 별도)
+/// 
+/// 의존성:
+/// - PlayerDataManager (데이터 소스)
+/// - ShopUIController (거래 제어)
+/// </summary>
+
+/// <summary>
+/// 🎮 IntegratedInventoryController - 인게임 전용 컨트롤러
+/// 책임:
+/// - 인게임 인벤토리 토글 (I키, 가방 버튼)
+/// - 무기 교체 중심 상호작용
+/// - ActiveInventory와 연동
+/// 
+/// 의존성:
+/// - PlayerDataManager (데이터 소스)
+/// - ActiveInventory (인게임 UI)
+/// - ActiveWeapon (무기 교체)
 /// </summary>
 public class IntegratedInventoryController : MonoBehaviour
 {
@@ -212,36 +249,81 @@ public class IntegratedInventoryController : MonoBehaviour
         get { return isInventoryOpen; }
     }
 
+    /// <summary>
+    /// 🔧 수정: 컨트롤러 이벤트 설정 (통합)
+    /// </summary>
     private void SetupControllerEvents()
     {
-        // 🔧 Controller 이벤트 구독
-        if (InventoryController.Instance != null)
-        {
-            InventoryController.Instance.OnInventoryStateChanged += OnInventoryStateChanged;
-        }
-        
-        // 🔧 버튼 이벤트를 Controller로 연결
+        // 가방 버튼 이벤트 연결
         if (bagButton != null)
         {
             bagButton.onClick.AddListener(() => {
-                InventoryController.Instance?.OpenInventory();
+                ToggleInventoryPanel(); // 🔧 수정: 통일된 메서드 사용
             });
+            
+            if (showDebugLogs)
+                Debug.Log("✅ [IntegratedInventoryController] 가방 버튼 이벤트 연결");
         }
+        
+        // 🆕 PlayerDataManager 이벤트 구독
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
+            PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
+            
+            if (showDebugLogs)
+                Debug.Log("✅ [IntegratedInventoryController] PlayerDataManager 이벤트 구독 완료");
+        }
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [IntegratedInventoryController] 독립적인 이벤트 시스템 구축 완료");
     }
     
-    private void OnInventoryStateChanged(bool isOpen)
+    /// <summary>
+    /// 🆕 인게임 인벤토리 UI 새로고침
+    /// </summary>
+    private void RefreshInventoryUI()
     {
-        // 인게임 UI 업데이트 로직
-        if (activeInventoryPanel != null)
+        // 🔧 수정: ActiveInventory는 자체적으로 PlayerDataManager 이벤트를 구독하므로
+        // 추가 새로고침 호출이 불필요함
+        
+        if (showDebugLogs)
+            Debug.Log("🎮 [IntegratedInventoryController] 인벤토리 변경 감지됨");
+        
+        // 필요시 인게임 전용 UI 업데이트 로직 추가
+        // (예: 인벤토리 개수 표시, 가방 버튼 상태 등)
+    }
+    
+    /// <summary>
+    /// 🆕 인게임 슬롯 클릭 처리 (무기 교체 중심)
+    /// </summary>
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex)
+    {
+        if (equipmentData == null) return;
+        
+        // 🔧 수정: 인게임에서는 주로 무기 교체
+        if (equipmentData.equipmentType == EquipmentType.Weapon)
         {
-            activeInventoryPanel.SetActive(isOpen);
+            // 무기 교체 로직 (ActiveWeapon과 연동)
+            var activeWeapon = FindObjectOfType<ActiveWeapon>();
+            if (activeWeapon != null)
+            {
+                // 무기 교체 처리
+                // activeWeapon.ChangeWeapon(equipmentData);
+            }
         }
         
-        if (equippedItemsPanel != null)
+        if (showDebugLogs)
+            Debug.Log($"🎮 [IntegratedInventoryController] 인게임 슬롯 클릭: {equipmentData.equipmentName}");
+    }
+    
+    void OnDestroy()
+    {
+        // 🆕 이벤트 구독 해제
+        if (PlayerDataManager.Instance != null)
         {
-            equippedItemsPanel.SetActive(isOpen);
+            PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
+            PlayerDataManager.Instance.OnSlotClicked -= HandleSlotClicked;
         }
-        
-        isInventoryOpen = isOpen;
     }
 }

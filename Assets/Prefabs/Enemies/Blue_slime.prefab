@@ -256,8 +256,8 @@ MonoBehaviour:
   healthDropChance: 50
   healthDropAmount: 1
   goldDropChance: 50
-  goldDropMinAmount: 1
-  goldDropMaxAmount: 3
+  goldDropMinAmount: 30
+  goldDropMaxAmount: 50
   canDropEquipment: 1
   equipmentDropChance: 50
   possibleEquipmentDrops:

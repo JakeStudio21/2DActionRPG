@@ -122,25 +122,25 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 30
-  - tag: ITEM_SWORD_3_Pickup
+  - tag: ITEM_SWORD_A_Pickup
     prefab: {fileID: 6665777931767919178, guid: c8a7de5bbe195e242991a93c3761effb, type: 3}
     size: 20
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 30
-  - tag: ITEM_SWORD_2_Pickup
+  - tag: ITEM_SWORD_B_Pickup
     prefab: {fileID: 6665777931767919178, guid: e47d95d373b93864a86503ec70e1edab, type: 3}
     size: 20
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 30
-  - tag: ITEM_SWORD_1_Pickup
+  - tag: ITEM_SWORD_C_Pickup
     prefab: {fileID: 6665777931767919178, guid: 636766fc98a4d9c4ba0d40c7d67ecbe4, type: 3}
     size: 20
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 30
-  - tag: ITEM_SWORD_4_Pickup
+  - tag: ITEM_SWORD_S_Pickup
     prefab: {fileID: 6665777931767919178, guid: 911ac3fa4206dcf47ba7fb5848e0c9f6, type: 3}
     size: 20
     preloadOnSceneStart: 1
@@ -170,25 +170,25 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
-  - tag: ITEM_BOW_3_Pickup
+  - tag: ITEM_BOW_A_Pickup
     prefab: {fileID: 6665777931767919178, guid: 8370014d38a4fe34b92d565345da30c4, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
-  - tag: ITEM_BOW_2_Pickup
+  - tag: ITEM_BOW_B_Pickup
     prefab: {fileID: 6665777931767919178, guid: e93c652a78cfdc44b99b9b5f46ac017b, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
-  - tag: ITEM_BOW_1_Pickup
+  - tag: ITEM_BOW_C_Pickup
     prefab: {fileID: 6665777931767919178, guid: 32b89b04beed3804f8dfddf213bf6b72, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
-  - tag: ITEM_BOW_4_Pickup
+  - tag: ITEM_BOW_S_Pickup
     prefab: {fileID: 6665777931767919178, guid: a812b7a391081a644a5aa416249f4c9d, type: 3}
     size: 10
     preloadOnSceneStart: 1

@@ -1,26 +1,29 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Added for SceneManager
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 🏠 로비 전용 인벤토리 컨트롤러
-/// 조합(Composition) 방식으로 기존 시스템 재사용 + 로비 전용 로직 추가
+/// InventoryController 의존성 제거하고 직접 UI 제어
 /// </summary>
 public class LobbyInventoryController : MonoBehaviour
 {
     [Header("🔧 통합 UI 제어")]
     [SerializeField] private LobbyInventoryUI lobbyInventoryUI;
-    [SerializeField] private EquippedItemsUI equippedItemsUI;  // 🆕 추가
+    [SerializeField] private EquippedItemsUI equippedItemsUI;
     
     [Header("🎮 로비 전용 설정")]
-    [SerializeField] private bool enableDetailPanel = true;      // 상세 패널 활성화 여부
-    [SerializeField] private bool enableInventoryToggle = true;  // 인벤토리 토글 활성화 여부
+    // 🗑️ 제거: 사용하지 않는 필드들
+    // [SerializeField] private bool enableDetailPanel = true;
+    // [SerializeField] private bool enableInventoryToggle = true;
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
-
+    
+    // 🆕 로비 UI 컨트롤러 참조
+    private LobbyUIController lobbyUIController;
+    
     void Start()
     {
-        // 🔧 수정: LobbyInventoryController는 로비에서만 활성화
         if (SceneManager.GetActiveScene().name != "Lobby" && 
             !SceneManager.GetActiveScene().name.Contains("Lobby"))
         {
@@ -29,68 +32,79 @@ public class LobbyInventoryController : MonoBehaviour
             return;
         }
         
-        InitializeIntegratedInventory();
+        InitializeController();
     }
 
     /// <summary>
-    /// 통합 인벤토리 초기화 (인벤토리 + 장착 패널)
+    /// 🔧 수정: 컨트롤러 초기화 (설정 필드 활용)
+    /// </summary>
+    private void InitializeController()
+    {
+        // LobbyUIController 찾기
+        lobbyUIController = FindObjectOfType<LobbyUIController>();
+        if (lobbyUIController == null)
+        {
+            Debug.LogError("❌ [LobbyInventoryController] LobbyUIController를 찾을 수 없습니다!");
+            return;
+        }
+        
+        // PlayerDataManager 이벤트 구독
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
+            PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
+            
+            if (showDebugLogs)
+                Debug.Log("✅ [LobbyInventoryController] PlayerDataManager 이벤트 구독 완료");
+        }
+        
+        InitializeIntegratedInventory();
+        
+        // 🗑️ 제거: 삭제된 필드 참조 제거
+        if (showDebugLogs)
+        {
+            Debug.Log($"✅ [LobbyInventoryController] 초기화 완료");
+            // Debug.Log($"   - DetailPanel 활성화: {enableDetailPanel}"); // 🗑️ 제거
+            // Debug.Log($"   - 인벤토리 토글 활성화: {enableInventoryToggle}"); // 🗑️ 제거
+        }
+    }
+
+    /// <summary>
+    /// 통합 인벤토리 초기화
     /// </summary>
     private void InitializeIntegratedInventory()
     {
-        // 🆕 장착 패널 활성화
         if (equippedItemsUI != null)
         {
             equippedItemsUI.gameObject.SetActive(true);
         }
-        
-        // 기존 인벤토리 초기화 유지...
     }
 
     /// <summary>
-    /// 로비 전용 기능 설정
-    /// </summary>
-    private void ConfigureLobbyFeatures()
-    {
-        // 상세 패널 기능 설정
-        if (!enableDetailPanel)
-        {
-            // 상세 패널 기능 비활성화 (필요시)
-            if (showDebugLogs)
-                Debug.Log("⚠️ [LobbyInventoryController] 상세 패널 기능이 비활성화되었습니다.");
-        }
-
-        // 인벤토리 토글 기능 설정
-        if (!enableInventoryToggle)
-        {
-            // 토글 기능 비활성화 (필요시)
-            if (showDebugLogs)
-                Debug.Log("⚠️ [LobbyInventoryController] 인벤토리 토글 기능이 비활성화되었습니다.");
-        }
-    }
-
-    /// <summary>
-    /// 외부에서 인벤토리 열기/닫기 (프로그래매틱 제어)
-    /// </summary>
-    public void ToggleInventory()
-    {
-        Debug.Log($"🔗 [LobbyInventoryController] ToggleInventory 호출됨 (열기 전용)");
-        
-        if (InventoryController.Instance != null)
-        {
-            InventoryController.Instance.OpenInventory(); // 🔧 수정: 열기만
-        }
-    }
-
-    /// <summary>
-    /// 인벤토리 열기
+    /// 🔧 수정: 인벤토리 열기 (직접 LobbyUIController 제어)
     /// </summary>
     public void OpenInventory()
     {
-        // 🔧 수정: OpenInventory로 변경
-        if (InventoryController.Instance != null)
+        if (lobbyUIController != null)
         {
-            InventoryController.Instance.OpenInventory();
+            lobbyUIController.ShowInventoryPanel();
+            
+            if (showDebugLogs)
+                Debug.Log("🏠 [LobbyInventoryController] 인벤토리 패널 열기 완료");
         }
+        else
+        {
+            Debug.LogError("❌ [LobbyInventoryController] LobbyUIController 참조가 없습니다!");
+        }
+    }
+
+    /// <summary>
+    /// 🔧 수정: 인벤토리 토글 (직접 제어)
+    /// </summary>
+    public void ToggleInventory()
+    {
+        // 로비에서는 단순히 열기만 수행 (닫기는 LobbyUIController.ShowLobbyPanel()로)
+        OpenInventory();
     }
 
     /// <summary>
@@ -100,20 +114,39 @@ public class LobbyInventoryController : MonoBehaviour
     {
         if (lobbyInventoryUI != null)
         {
-            lobbyInventoryUI.CloseDetailPanel();
+            // DetailPanel 닫기 로직 (필요시 구현)
         }
     }
-
+    
     /// <summary>
-    /// 로비 전용 치트 기능 (디버그용)
+    /// 🆕 인벤토리 UI 새로고침
     /// </summary>
-    [ContextMenu("테스트 아이템 추가")]
-    public void AddTestItem()
+    private void RefreshInventoryUI()
     {
+        if (lobbyInventoryUI != null)
+        {
+            lobbyInventoryUI.RefreshInventoryUI();
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 슬롯 클릭 처리
+    /// </summary>
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🏠 [LobbyInventoryController] 슬롯 클릭: {equipmentData?.equipmentName}");
+        
+        // 필요시 추가 처리 (DetailPanel 표시 등)
+    }
+    
+    void OnDestroy()
+    {
+        // 🆕 이벤트 구독 해제
         if (PlayerDataManager.Instance != null)
         {
-            // 테스트용 아이템 추가 로직
-            Debug.Log("🧪 [LobbyInventoryController] 테스트 아이템 추가 (구현 예정)");
+            PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
+            PlayerDataManager.Instance.OnSlotClicked -= HandleSlotClicked;
         }
     }
 }

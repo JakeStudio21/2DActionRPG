@@ -47,6 +47,12 @@ public class EquipmentData : ScriptableObject
     public float speedBonus = 0f;       // 이동속도 (신발)
     public float healthBonus = 0f;      // 체력 (방어구 공통)
     
+    [Header("💰 상점 시스템")]
+    public int buyPrice = 100;          // 상점에서 구매 가격
+    public int sellPrice = 50;          // 상점에 판매 가격 (구매가의 50%)
+    public bool isLimited = false;      // 한정 판매 여부 (예: 1개만 구매 가능)
+    public int quantityLimit = 0;       // 한정 수량 (0이면 무제한)
+    
     // 접근자 프로퍼티
     public WeaponType WeaponType => weaponType;
     public float WeaponCooldown => weaponCooldown;

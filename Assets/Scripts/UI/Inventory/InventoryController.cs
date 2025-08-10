@@ -24,7 +24,16 @@ public class InventoryController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // 🔧 수정: 루트 GameObject일 때만 DontDestroyOnLoad 적용
+            if (transform.parent == null)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                // 자식 오브젝트인 경우 루트를 찾아서 적용
+                DontDestroyOnLoad(transform.root.gameObject);
+            }
         }
         else
         {

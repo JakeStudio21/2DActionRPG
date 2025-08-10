@@ -30,6 +30,12 @@ public class WeaponBaseData
     public string EquipmentPrefab;  // "Equipment Prefab" 매핑
     public string Icon;
     public string Description;
+    
+    // 🆕 상점 시스템 필드 추가
+    public int buyPrice = 100;      // 구매 가격
+    public int sellPrice = 50;      // 판매 가격
+    public bool isLimited = false;  // 한정 판매 여부
+    public int quantityLimit = 0;   // 한정 수량 (0=무제한)
 }
 
 [Serializable]
