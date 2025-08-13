@@ -17,12 +17,12 @@ GameObject:
   - component: {fileID: 3556957486775231346}
   - component: {fileID: -8747367544597513822}
   - component: {fileID: -8056838207468641605}
-  - component: {fileID: 4458876440312282437}
   - component: {fileID: -1970779111418326641}
   - component: {fileID: 4822367794375699013}
   - component: {fileID: 2733928855307480320}
   - component: {fileID: 4795855821891295909}
   - component: {fileID: 9183738283701349947}
+  - component: {fileID: 3262521904585385439}
   m_Layer: 6
   m_Name: Enemie1
   m_TagString: Enemy
@@ -240,26 +240,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4458876440312282437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 081d543d4d8d22a42a0b26d1b768ba49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackCooldown: 2
-  detectionRange: 5.25
-  chaseRange: 8
-  stopMovingWhileAttacking: 1
-  attackSound: {fileID: 0}
-  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
-  projectileSpawnPoint: {fileID: 0}
-  predictionFactor: 0.5
 --- !u!114 &-1970779111418326641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,6 +252,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7ef4357949de3141b3db28bd422464c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyData: {fileID: 11400000, guid: b8dd16f1b3b30b74cbf430af2409fc02, type: 2}
+  growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
+  currentLevel: 1
 --- !u!114 &4822367794375699013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,6 +337,33 @@ MonoBehaviour:
   roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
   detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
+--- !u!114 &3262521904585385439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 081d543d4d8d22a42a0b26d1b768ba49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackData: {fileID: 11400000, guid: 4fbeb65c4abe42c4d8f20af27c4a4781, type: 2}
+  attackCooldown: 2
+  detectionRange: 5.25
+  chaseRange: 8
+  stopMovingWhileAttacking: 1
+  attackSound: {fileID: 0}
+  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+  projectileSpawnPoint: {fileID: 0}
+  predictionFactor: 0.5
+  projectileLifetime: 5
+  projectileSpeed: 10
+  aimAccuracy: 0.8
+  useRecoilEffect: 1
+  muzzleFlashEffect: {fileID: 0}
+  showRangedGizmos: 1
 --- !u!1 &9119814869723337947
 GameObject:
   m_ObjectHideFlags: 0

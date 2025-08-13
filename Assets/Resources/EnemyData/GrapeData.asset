@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: GrapeData
+  m_EditorClassIdentifier: 
+  enemyId: MON_GRAPE_001
+  enemyName: Grape
+  enemyType: 0
+  description: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC\uCCB4 \uACF5\uACA9 \uBAAC\uC2A4\uD130\n"
+  baseHealth: 40
+  baseDefense: 0
+  baseMoveSpeed: 1.8
+  detectionRange: 6
+  chaseRange: 8
+  patrolRadius: 4
+  knockBackThrust: 15
+  deathVFXPrefabPath: 
+  primaryAttackType: 1
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 10
+  baseExpReward: 25
+  dropGroupId: DROP_GRAPE_001
+  dropRolls: 1

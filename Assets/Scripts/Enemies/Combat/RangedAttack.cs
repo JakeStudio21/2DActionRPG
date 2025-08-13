@@ -1,10 +1,14 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 원거리 공격 구현체 - BaseAttackBehaviour 상속으로 중복 코드 제거
+/// ⭐ [Phase 2] AttackData 기반 확장 지원 (원거리 공격 + 발사체 특화)
 /// </summary>
 public class RangedAttack : BaseAttackBehaviour
 {
+    #region 기존 시스템 (100% 유지)
+    
     [Header("Ranged Specific Settings")]
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform projectileSpawnPoint;
@@ -13,7 +17,37 @@ public class RangedAttack : BaseAttackBehaviour
     // 추가 컴포넌트
     private SpriteRenderer spriteRenderer;
     
-    // BaseAttackBehaviour 추상 메서드 구현
+    #endregion
+
+    #region ⭐ 새 시스템: 원거리 공격 전용 설정
+    
+    [Header("⭐ 원거리 공격 고급 설정")]
+    [Tooltip("발사체 수명 (초) - AttackData 우선")]
+    [SerializeField] private float projectileLifetime = 5f;
+    
+    [Tooltip("발사체 속도 - AttackData 우선")]
+    [SerializeField] private float projectileSpeed = 10f;
+    
+    [Tooltip("조준 정확도 (0=완전 부정확, 1=완전 정확)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float aimAccuracy = 0.8f;
+    
+    [Tooltip("발사 시 반동 효과")]
+    [SerializeField] private bool useRecoilEffect = true;
+    
+    [Tooltip("발사 시 머즐 플래시 이펙트")]
+    [SerializeField] private GameObject muzzleFlashEffect;
+    
+    [Tooltip("원거리 공격 디버그 표시")]
+    [SerializeField] private bool showRangedGizmos = true;
+    
+    // 발사체 추적용
+    private List<GameObject> activProjectiles = new List<GameObject>();
+    
+    #endregion
+
+    #region BaseAttackBehaviour 추상 메서드 구현 (기존 + 확장)
+
     protected override void OnInitialize()
     {
         // RangedAttack 전용 초기화
@@ -24,6 +58,9 @@ public class RangedAttack : BaseAttackBehaviour
         {
             projectileSpawnPoint = transform;
         }
+        
+        // ⭐ 새 시스템: 원거리 공격 데이터 검증
+        ValidateRangedSettings();
     }
 
     protected override void OnAttack()
@@ -33,20 +70,101 @@ public class RangedAttack : BaseAttackBehaviour
         {
             spriteRenderer.flipX = (transform.position.x - cachedPlayer.transform.position.x >= 0);
         }
+        
+        // ⭐ 새 시스템: 반동 효과
+        if (useRecoilEffect)
+        {
+            ApplyRecoilEffect();
+        }
     }
     
     /// <summary>
-    /// Animation Event에서 호출되는 발사체 생성
+    /// ⭐ 새 시스템: 공격 타입 검증 (BaseAttackBehaviour에서 요구)
+    /// </summary>
+    protected override void ValidateAttackType()
+    {
+        if (AttackData != null && AttackData.AttackType != AttackType.Ranged)
+        {
+            Debug.LogWarning($"[RangedAttack] {gameObject.name} - AttackData의 공격 타입이 Ranged가 아닙니다: {AttackData.AttackType}");
+        }
+    }
+    
+    #endregion
+
+    #region ⭐ 새 시스템: Fallback 메서드들 구현
+    
+    /// <summary>
+    /// AttackData가 없을 때 사용할 기본 데미지 (발사체에서 처리)
+    /// </summary>
+    protected override int GetFallbackDamage() => 1; // 발사체 자체 데미지 사용
+    
+    /// <summary>
+    /// AttackData가 없을 때 사용할 기본 공격 범위
+    /// </summary>
+    protected override float GetFallbackRange() => 5f; // 원거리는 넓은 범위
+    
+    #endregion
+
+    #region ⭐ 새 시스템: 개선된 Animation Event 처리
+    
+    /// <summary>
+    /// Animation Event에서 호출되는 발사체 생성 (완전 새로 구현)
     /// </summary>
     public void SpawnProjectileAnimEvent()
     {
-        if (projectilePrefab == null)
+        Debug.Log($"[RangedAttack] {gameObject.name} - Animation Event 발사체 생성!");
+        
+        // ⭐ 새 시스템: 데이터 기반 발사체 정보 가져오기
+        GameObject currentProjectilePrefab = GetCurrentProjectilePrefab();
+        if (currentProjectilePrefab == null)
         {
-            Debug.LogWarning($"[RangedAttack] {gameObject.name}의 projectilePrefab이 설정되지 않았습니다.");
+            Debug.LogWarning($"[RangedAttack] {gameObject.name}의 발사체 프리팹이 설정되지 않았습니다.");
             return;
         }
         
+        // ⭐ 새 시스템: 머즐 플래시 이펙트
+        PlayMuzzleFlashEffect();
+        
+        // 발사체 생성
         Vector3 spawnPosition = projectileSpawnPoint.position;
+        GameObject proj = CreateProjectile(currentProjectilePrefab, spawnPosition);
+        
+        if (proj != null)
+        {
+            // ⭐ 새 시스템: 데이터 기반 발사체 설정
+            ConfigureProjectile(proj);
+            
+            // 활성 발사체 목록에 추가 (추적용)
+            activProjectiles.Add(proj);
+            
+            Debug.Log($"[RangedAttack] 발사체 생성 완료: {proj.name} (데미지: {GetScaledDamage()})");
+        }
+    }
+    
+    #endregion
+
+    #region ⭐ 새 시스템: 발사체 관리 로직
+    
+    /// <summary>
+    /// 현재 사용할 발사체 프리팹 반환 (데이터 우선순위)
+    /// </summary>
+    private GameObject GetCurrentProjectilePrefab()
+    {
+        // 1순위: AttackData
+        if (AttackData != null && AttackData.ProjectilePrefab != null)
+        {
+            return AttackData.ProjectilePrefab;
+        }
+        
+        // 2순위: Inspector 설정 (기존 방식)
+        return projectilePrefab;
+    }
+    
+    /// <summary>
+    /// 발사체 생성 (풀링 시스템 고려)
+    /// </summary>
+    private GameObject CreateProjectile(GameObject prefab, Vector3 spawnPosition)
+    {
         GameObject proj = null;
         
         // GamePoolManager 사용 시도
@@ -54,7 +172,9 @@ public class RangedAttack : BaseAttackBehaviour
         {
             if (GamePoolManager.Instance != null)
             {
-                proj = GamePoolManager.Instance.SpawnFromPool("Grape Projectile", spawnPosition, Quaternion.identity);
+                // ⭐ 개선: 프리팹 이름 기반 풀링
+                string poolTag = GetPoolTagFromPrefab(prefab);
+                proj = GamePoolManager.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
             }
         }
         catch (System.Exception e)
@@ -65,23 +185,141 @@ public class RangedAttack : BaseAttackBehaviour
         // 풀링 실패 시 직접 생성
         if (proj == null)
         {
-            proj = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
-            Debug.Log("[RangedAttack] 프리팹을 직접 생성했습니다.");
+            proj = Instantiate(prefab, spawnPosition, Quaternion.identity);
+            Debug.Log($"[RangedAttack] 프리팹을 직접 생성했습니다: {prefab.name}");
         }
         
-        // 발사체 설정 및 예측 조준
-        if (proj != null && proj.TryGetComponent(out GrapeProjectile grapeProjectile))
-        {
-            Vector3 targetPosition = GetPredictedPlayerPosition();
-            grapeProjectile.LaunchToTarget(targetPosition);
-            Debug.Log($"[RangedAttack] 예측 조준: 목표 위치 {targetPosition}");
-        }
-        
-        Debug.Log($"[RangedAttack] 발사체 생성 완료: {proj?.name}");
+        return proj;
     }
     
     /// <summary>
-    /// 플레이어의 이동을 예측한 목표 위치 계산
+    /// 프리팹에서 풀 태그 추출
+    /// </summary>
+    private string GetPoolTagFromPrefab(GameObject prefab)
+    {
+        // 기본적으로 프리팹 이름 사용, 필요시 매핑 테이블 확장 가능
+        return prefab.name switch
+        {
+            var name when name.Contains("Grape") => "Grape Projectile",
+            var name when name.Contains("Arrow") => "Arrow",
+            var name when name.Contains("Bullet") => "Bullet",
+            _ => prefab.name
+        };
+    }
+    
+    /// <summary>
+    /// 발사체 설정 (데이터 기반)
+    /// </summary>
+    private void ConfigureProjectile(GameObject projectile)
+    {
+        // ⭐ 새 시스템: 다양한 발사체 타입 지원
+        if (projectile.TryGetComponent(out GrapeProjectile grapeProjectile))
+        {
+            ConfigureGrapeProjectile(grapeProjectile);
+        }
+        else
+        {
+            // 범용 발사체 설정
+            ConfigureGenericProjectile(projectile);
+        }
+    }
+    
+    /// <summary>
+    /// Grape 전용 발사체 설정
+    /// </summary>
+    private void ConfigureGrapeProjectile(GrapeProjectile grapeProjectile)
+    {
+        // 예측 조준
+        Vector3 targetPosition = GetPredictedPlayerPosition();
+        grapeProjectile.LaunchToTarget(targetPosition);
+        
+        // ⭐ 새 시스템: 데이터 기반 데미지 및 속도 설정
+        ConfigureProjectileStats(grapeProjectile.gameObject);
+        
+        Debug.Log($"[RangedAttack] Grape 발사체 설정 완료 - 목표: {targetPosition}");
+    }
+    
+    /// <summary>
+    /// 범용 발사체 설정
+    /// </summary>
+    private void ConfigureGenericProjectile(GameObject projectile)
+    {
+        // 기본 방향 설정 (플레이어 방향)
+        if (cachedPlayer != null)
+        {
+            Vector3 direction = GetAdjustedAimDirection();
+            projectile.transform.right = direction;
+            
+            // Rigidbody2D가 있으면 속도 설정
+            if (projectile.TryGetComponent(out Rigidbody2D rb))
+            {
+                float speed = GetCurrentProjectileSpeed();
+                rb.velocity = direction * speed;
+            }
+        }
+        
+        // ⭐ 새 시스템: 데이터 기반 스탯 설정
+        ConfigureProjectileStats(projectile);
+        
+        Debug.Log($"[RangedAttack] 범용 발사체 설정 완료");
+    }
+    
+    /// <summary>
+    /// 발사체 스탯 설정 (데미지, 속도 등)
+    /// </summary>
+    private void ConfigureProjectileStats(GameObject projectile)
+    {
+        int currentDamage = GetScaledDamage();
+        float currentSpeed = GetCurrentProjectileSpeed();
+        float currentLifetime = GetCurrentProjectileLifetime();
+        
+        // 발사체에 데미지 설정 시도 (다양한 컴포넌트 지원)
+        if (projectile.TryGetComponent(out IProjectileDamage damageComponent))
+        {
+            damageComponent.SetDamage(currentDamage);
+        }
+        
+        // 발사체에 속도 설정 시도
+        if (projectile.TryGetComponent(out IProjectileMovement movementComponent))
+        {
+            movementComponent.SetSpeed(currentSpeed);
+        }
+        
+        // 수명 설정 (자동 파괴)
+        if (currentLifetime > 0)
+        {
+            Destroy(projectile, currentLifetime);
+        }
+        
+        Debug.Log($"[RangedAttack] 발사체 스탯 설정: 데미지={currentDamage}, 속도={currentSpeed:F1}, 수명={currentLifetime:F1}");
+    }
+    
+    #endregion
+
+    #region ⭐ 새 시스템: 조준 및 예측 시스템
+    
+    /// <summary>
+    /// 조준 정확도를 고려한 방향 계산
+    /// </summary>
+    private Vector3 GetAdjustedAimDirection()
+    {
+        if (cachedPlayer == null) return transform.right;
+        
+        Vector3 perfectDirection = (cachedPlayer.transform.position - transform.position).normalized;
+        
+        // 조준 정확도가 100%가 아니면 오차 추가
+        if (aimAccuracy < 1f)
+        {
+            float maxError = (1f - aimAccuracy) * 45f; // 최대 45도 오차
+            float randomError = Random.Range(-maxError, maxError);
+            perfectDirection = Quaternion.Euler(0, 0, randomError) * perfectDirection;
+        }
+        
+        return perfectDirection;
+    }
+    
+    /// <summary>
+    /// 플레이어의 이동을 예측한 목표 위치 계산 (개선됨)
     /// </summary>
     public Vector3 GetPredictedPlayerPosition()
     {
@@ -99,8 +337,10 @@ public class RangedAttack : BaseAttackBehaviour
             playerVelocity = playerRb.velocity;
         }
         
-        // 발사체 도달 시간
-        float projectileTravelTime = 2f;
+        // ⭐ 개선: 발사체 속도 기반 도달 시간 계산
+        float currentSpeed = GetCurrentProjectileSpeed();
+        float distance = Vector3.Distance(transform.position, currentPlayerPos);
+        float projectileTravelTime = currentSpeed > 0 ? distance / currentSpeed : 2f;
         
         // 예측 위치 계산
         Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);
@@ -108,11 +348,254 @@ public class RangedAttack : BaseAttackBehaviour
         return predictedPosition;
     }
     
+    #endregion
+
+    #region ⭐ 새 시스템: 데이터 기반 속성 계산
+    
     /// <summary>
-    /// 발사체 스폰 포인트 반환
+    /// 현재 발사체 속도 반환 (데이터 우선순위)
+    /// </summary>
+    private float GetCurrentProjectileSpeed()
+    {
+        // 1순위: AttackData
+        if (AttackData != null)
+        {
+            return AttackData.ProjectileSpeed;
+        }
+        
+        // 2순위: Inspector 설정
+        return projectileSpeed;
+    }
+    
+    /// <summary>
+    /// 현재 발사체 수명 반환 (데이터 우선순위)
+    /// </summary>
+    private float GetCurrentProjectileLifetime()
+    {
+        // 1순위: AttackData
+        if (AttackData != null)
+        {
+            return AttackData.ProjectileLifetime;
+        }
+        
+        // 2순위: Inspector 설정
+        return projectileLifetime;
+    }
+    
+    #endregion
+
+    #region ⭐ 새 시스템: 이펙트 및 사운드
+    
+    /// <summary>
+    /// 머즐 플래시 이펙트 재생
+    /// </summary>
+    private void PlayMuzzleFlashEffect()
+    {
+        GameObject effectToPlay = null;
+        
+        // 1순위: AttackData
+        if (AttackData != null && AttackData.AttackStartEffect != null)
+        {
+            effectToPlay = AttackData.AttackStartEffect;
+        }
+        // 2순위: Inspector 설정
+        else if (muzzleFlashEffect != null)
+        {
+            effectToPlay = muzzleFlashEffect;
+        }
+        
+        if (effectToPlay != null)
+        {
+            GameObject effect = Instantiate(effectToPlay, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            Debug.Log($"[RangedAttack] 머즐 플래시 이펙트 재생: {effectToPlay.name}");
+        }
+    }
+    
+    /// <summary>
+    /// 반동 효과 적용
+    /// </summary>
+    private void ApplyRecoilEffect()
+    {
+        if (spriteRenderer != null)
+        {
+            // 간단한 반동 애니메이션 (스케일 조정)
+            StartCoroutine(RecoilAnimation());
+        }
+    }
+    
+    /// <summary>
+    /// 반동 애니메이션 코루틴
+    /// </summary>
+    private System.Collections.IEnumerator RecoilAnimation()
+    {
+        Vector3 originalScale = transform.localScale;
+        Vector3 recoilScale = originalScale * 0.9f; // 10% 축소
+        
+        // 축소
+        transform.localScale = recoilScale;
+        yield return new WaitForSeconds(0.1f);
+        
+        // 복원
+        transform.localScale = originalScale;
+    }
+    
+    #endregion
+
+    #region ⭐ 새 시스템: 원거리 공격 검증 및 설정
+    
+    /// <summary>
+    /// 원거리 공격 설정 검증
+    /// </summary>
+    private void ValidateRangedSettings()
+    {
+        if (AttackData != null)
+        {
+            Debug.Log($"[RangedAttack] AttackData 기반 원거리 공격 설정:");
+            Debug.Log($"  - 공격명: {AttackData.AttackName}");
+            Debug.Log($"  - 기본 데미지: {AttackData.BaseDamage} → 스케일된 데미지: {GetScaledDamage()}");
+            Debug.Log($"  - 발사체 속도: {AttackData.ProjectileSpeed}");
+            Debug.Log($"  - 발사체 수명: {AttackData.ProjectileLifetime}초");
+            Debug.Log($"  - 상태이상 개수: {AttackData.OnHitEffects.Count}개");
+            
+            // 원거리 공격 검증
+            if (AttackData.ProjectilePrefab == null && projectilePrefab == null)
+            {
+                Debug.LogError($"[RangedAttack] 발사체 프리팹이 설정되지 않았습니다!");
+            }
+            
+            if (AttackData.ProjectileSpeed <= 0)
+            {
+                Debug.LogWarning($"[RangedAttack] 발사체 속도가 0 이하입니다: {AttackData.ProjectileSpeed}");
+            }
+        }
+        else
+        {
+            Debug.Log($"[RangedAttack] 기존 방식 사용:");
+            Debug.Log($"  - 발사체: {(projectilePrefab != null ? projectilePrefab.name : "없음")}");
+            Debug.Log($"  - 속도: {projectileSpeed}");
+            Debug.Log($"  - 예측 계수: {predictionFactor}");
+        }
+    }
+    
+    #endregion
+
+    #region 기존 시스템 호환성 유지
+    
+    /// <summary>
+    /// 발사체 스폰 포인트 반환 (기존 호환성 유지)
     /// </summary>
     public Transform GetProjectileSpawnPoint()
     {
         return projectileSpawnPoint;
     }
+    
+    #endregion
+
+    #region ⭐ 디버그 및 시각화
+    
+    /// <summary>
+    /// 원거리 공격 범위 시각화 (에디터에서만)
+    /// </summary>
+    private void OnDrawGizmosSelected()
+    {
+        if (!showRangedGizmos) return;
+        
+        // 공격 범위 표시
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, GetScaledRange());
+        
+        // 발사 지점 표시
+        if (projectileSpawnPoint != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(projectileSpawnPoint.position, 0.2f);
+            
+            // 발사 방향 표시
+            if (cachedPlayer != null)
+            {
+                Vector3 direction = GetAdjustedAimDirection();
+                Gizmos.color = Color.green;
+                Gizmos.DrawRay(projectileSpawnPoint.position, direction * GetScaledRange());
+                
+                // 예측 위치 표시
+                Vector3 predictedPos = GetPredictedPlayerPosition();
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireSphere(predictedPos, 0.3f);
+                Gizmos.DrawLine(projectileSpawnPoint.position, predictedPos);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 원거리 공격 전용 디버그 정보
+    /// </summary>
+    [ContextMenu("Debug Ranged Attack Info")]
+    public void DebugRangedAttackInfo()
+    {
+        string info = $"=== RangedAttack {gameObject.name} ===\n";
+        info += $"Current Damage: {GetScaledDamage()}\n";
+        info += $"Current Range: {GetScaledRange():F1}\n";
+        info += $"Current Cooldown: {GetScaledCooldown():F1}s\n";
+        info += $"Projectile Speed: {GetCurrentProjectileSpeed():F1}\n";
+        info += $"Projectile Lifetime: {GetCurrentProjectileLifetime():F1}s\n";
+        info += $"Aim Accuracy: {aimAccuracy * 100:F0}%\n";
+        info += $"Prediction Factor: {predictionFactor:F1}\n";
+        info += $"Active Projectiles: {activProjectiles.Count}개\n";
+        
+        if (AttackData != null)
+        {
+            info += "\n=== AttackData 정보 ===\n";
+            info += AttackData.GetDebugInfo(BaseEnemy?.CurrentLevel ?? 1);
+        }
+        else
+        {
+            info += "\n=== Fallback 정보 ===\n";
+            info += $"Projectile Prefab: {(projectilePrefab != null ? projectilePrefab.name : "없음")}\n";
+            info += $"Speed: {projectileSpeed}\n";
+            info += $"Lifetime: {projectileLifetime}";
+        }
+        
+        Debug.Log(info);
+    }
+    
+    /// <summary>
+    /// 예측 조준 테스트 (개발용)
+    /// </summary>
+    [ContextMenu("Test Prediction")]
+    public void TestPrediction()
+    {
+        if (cachedPlayer == null)
+        {
+            Debug.LogWarning("[RangedAttack] 플레이어를 찾을 수 없습니다.");
+            return;
+        }
+        
+        Vector3 currentPos = cachedPlayer.transform.position;
+        Vector3 predictedPos = GetPredictedPlayerPosition();
+        float distance = Vector3.Distance(currentPos, predictedPos);
+        
+        Debug.Log($"[RangedAttack] 예측 조준 테스트:");
+        Debug.Log($"  - 현재 플레이어 위치: {currentPos}");
+        Debug.Log($"  - 예측 위치: {predictedPos}");
+        Debug.Log($"  - 예측 거리: {distance:F1}");
+        Debug.Log($"  - 예측 계수: {predictionFactor}");
+    }
+    
+    #endregion
+}
+
+/// <summary>
+/// 발사체 데미지 인터페이스 (확장 가능)
+/// </summary>
+public interface IProjectileDamage
+{
+    void SetDamage(int damage);
+}
+
+/// <summary>
+/// 발사체 움직임 인터페이스 (확장 가능)
+/// </summary>
+public interface IProjectileMovement
+{
+    void SetSpeed(float speed);
 } 

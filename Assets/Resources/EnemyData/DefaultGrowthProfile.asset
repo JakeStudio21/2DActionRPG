@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bba35875f0684c4f8eee39af96c53e9, type: 3}
+  m_Name: DefaultGrowthProfile
+  m_EditorClassIdentifier: 
+  hpGrowthRate: 0.15
+  atkGrowthRate: 0.12
+  defGrowthRate: 0.08
+  speedGrowthRate: 0.05
+  growthCurve: 1.1
+  eliteMultiplier: 1.5
+  bossMultiplier: 3
+  rewardMultiplier: 1.1

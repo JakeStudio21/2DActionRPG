@@ -74,7 +74,7 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 50
-  - tag: Ghost Bullet
+  - tag: Ghost_Bullet
     prefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
     size: 80
     preloadOnSceneStart: 1

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64c07a372114658468c055ebdb17ab75, type: 3}
+  m_Name: GrapeRangedAttack
+  m_EditorClassIdentifier: 
+  attackName: "\uD3EC\uB3C4 \uB3C5\uD654\uC0B4"
+  attackType: 1
+  description: "\uB3C5\uC744 \uBC14\uB978 \uC6D0\uAC70\uB9AC \uBC1C\uC0AC\uCCB4\"\n"
+  baseDamage: 6
+  criticalChance: 0.05
+  criticalMultiplier: 1.8
+  attackCooldown: 2.5
+  animationDuration: 1.2
+  animationTrigger: Fire
+  attackRange: 4
+  attackAngle: 90
+  stopMovingWhileAttacking: 1
+  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+  projectileSpeed: 12
+  projectileLifetime: 4
+  projectileCount: 5
+  multiShotAngle: 5
+  onHitEffects:
+  - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
+  effectChances:
+  - 1
+  attackStartEffect: {fileID: 0}
+  hitEffect: {fileID: 0}
+  attackSound: {fileID: 0}
+  hitSound: {fileID: 0}

@@ -132,7 +132,7 @@ public class AreaExit : MonoBehaviour
     {
         if (portalGate == null) return;
 
-        bool shouldGateBeOpen = !requiresBossDefeat || IsBossDefeated();
+        bool shouldGateBeOpen = !requiresBossDefeat || AreAllBossesDefeated();
         
         // 게이트가 닫혀있어야 할 때는 활성화, 열려있어야 할 때는 비활성화
         if (portalGate.activeSelf == shouldGateBeOpen)
@@ -151,15 +151,15 @@ public class AreaExit : MonoBehaviour
     }
 
     /// <summary>
-    /// 보스 격파 여부 확인
+    /// 모든 보스가 처치되었는지 확인
     /// </summary>
-    private bool IsBossDefeated()
+    private bool AreAllBossesDefeated()
     {
+        // 씬에 있는 모든 EnemyHealth 중 isBoss == true인 적 찾기
         EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
-        
         foreach (var enemy in allEnemies)
         {
-            if (enemy.isBoss && !enemy.isDead)
+            if (enemy.IsBoss() && !enemy.isDead) // ⭐ 수정: enemy.isBoss → enemy.IsBoss()
             {
                 return false; // 살아있는 보스가 있음
             }

@@ -114,7 +114,7 @@ public class FSMStageController : Singleton<FSMStageController>
         var currentStageInfo = GetCurrentStageInfo();
         if (currentStageInfo != null && currentStageInfo.requiresBossDefeat)
         {
-            if (IsBossDefeated())
+            if (AreAllBossesDefeated())
             {
                 TriggerVictory();
             }
@@ -122,7 +122,7 @@ public class FSMStageController : Singleton<FSMStageController>
         else
         {
             // 보스 격파가 필요없는 스테이지에서도 보스가 있고 죽었다면 승리
-            if (IsBossDefeated() && HasAnyBoss())
+            if (AreAllBossesDefeated() && HasAnyBoss())
             {
                 TriggerVictory();
             }
@@ -130,19 +130,19 @@ public class FSMStageController : Singleton<FSMStageController>
     }
 
     /// <summary>
-    /// ⭐ 추가: 씬에 보스가 있는지 확인
+    /// ⭐ 단순화: StageProgressManager 사용
+    /// </summary>
+    private bool AreAllBossesDefeated()
+    {
+        return StageProgressManager.Instance.AreAllStageeBossesDefeated();
+    }
+
+    /// <summary>
+    /// ⭐ 단순화: StageProgressManager 사용  
     /// </summary>
     private bool HasAnyBoss()
     {
-        EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
-        foreach (var enemy in allEnemies)
-        {
-            if (enemy.isBoss)
-            {
-                return true;
-            }
-        }
-        return false;
+        return !StageProgressManager.Instance.AreAllStageeBossesDefeated();
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ public class FSMStageController : Singleton<FSMStageController>
     /// </summary>
     public bool TryPortalMovementWithBossCheck(Vector3 targetPosition, string transitionName = "", bool requiresBossDefeat = false)
     {
-        if (requiresBossDefeat && !IsBossDefeated())
+        if (requiresBossDefeat && !AreAllBossesDefeated())
         {
             Debug.LogWarning("[FSMStageController] 보스를 먼저 처치해야 합니다!");
             return false;
@@ -335,7 +335,7 @@ public class FSMStageController : Singleton<FSMStageController>
             var currentStageInfo = stageDict[currentStage];
             
             // 보스 격파 조건 확인
-            if (currentStageInfo.requiresBossDefeat && !IsBossDefeated())
+            if (currentStageInfo.requiresBossDefeat && !AreAllBossesDefeated())
             {
                 Debug.LogWarning("[FSMStageController] 보스를 먼저 처치해야 합니다!");
                 return;
@@ -470,7 +470,7 @@ public class FSMStageController : Singleton<FSMStageController>
         EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
         foreach (var enemy in allEnemies)
         {
-            if (enemy.isBoss && !enemy.isDead)
+            if (enemy.IsBoss() && !enemy.isDead)
             {
                 return false; // 살아있는 보스가 있음
             }
@@ -560,7 +560,7 @@ public class FSMStageController : Singleton<FSMStageController>
         var currentStageInfo = GetCurrentStageInfo();
         if (currentStageInfo != null && currentStageInfo.requiresBossDefeat)
         {
-            if (!IsBossDefeated())
+            if (!AreAllBossesDefeated())
             {
                 Debug.LogWarning("[FSMStageController] 보스를 먼저 처치해야 합니다!");
                 return false;

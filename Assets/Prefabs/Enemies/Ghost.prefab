@@ -240,20 +240,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e2aae89a37bd5f4d885bdfcfe1411cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackData: {fileID: 11400000, guid: 9261f8b8f25a0b44aa48eb6f1292ab57, type: 2}
   attackCooldown: 2
   detectionRange: 7
   chaseRange: 10
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}
   bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
-  burstCount: 1
+  burstCount: 3
   projectilesPerBurst: 12
   angleSpread: 180
   startingDistance: 0.3
-  timeBetweenBursts: 1
+  timeBetweenBursts: 5
   restTime: 2
+  projectileDamage: 1
+  projectileSpeed: 15
+  projectileLifetime: 5
   stagger: 1
   oscillate: 1
+  shotPattern: 0
+  useProjectileArc: 0
+  useScreenShake: 0
+  showMultiShotGizmos: 1
 --- !u!114 &-6266606232288718989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,6 +299,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1735c0492d8c1ba47ac4ab0be9c72b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyData: {fileID: 11400000, guid: ebbe2c7b15aeb1d47abd66ae24bd7409, type: 2}
+  growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
+  currentLevel: 1
 --- !u!114 &-7864033259713871080
 MonoBehaviour:
   m_ObjectHideFlags: 0

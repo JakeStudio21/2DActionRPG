@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe34b0cf919df1941b8cd9d3d2a6652d, type: 3}
+  m_Name: BurnEffect
+  m_EditorClassIdentifier: 
+  effectName: "\uD654\uC0C1"
+  effectType: 3
+  description: "\uD654\uC5FC\uC73C\uB85C \uC9C0\uC18D \uB370\uBBF8\uC9C0\uB97C \uC785\uD799\uB2C8\uB2E4\n"
+  duration: 4
+  tickInterval: 0.55
+  effectValue: 3
+  degradeOverTime: 1
+  degradeRate: 0.2
+  stackable: 0
+  maxStacks: 3
+  removalCondition: 0
+  applyEffect: {fileID: 0}
+  persistentEffect: {fileID: 0}
+  removeEffect: {fileID: 0}
+  applySound: {fileID: 0}
