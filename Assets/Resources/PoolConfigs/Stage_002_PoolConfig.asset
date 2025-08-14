@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d5c2c97dcdef204bb74147c1a125ee8, type: 3}
-  m_Name: Scene3_PoolConfig
+  m_Name: Stage_002_PoolConfig
   m_EditorClassIdentifier: 
-  sceneName: Scene3
+  sceneName: Stage_002
   requiredPools:
   - tag: Arrow
     prefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}

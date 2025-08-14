@@ -294,9 +294,9 @@ public class FSMStageController : Singleton<FSMStageController>
         {
             stageInfos.Add(new StageInfo { stage = StageState.Lobby, sceneName = "Lobby", displayName = "로비", requiresBossDefeat = false, nextStage = StageState.Loading });
             stageInfos.Add(new StageInfo { stage = StageState.Loading, sceneName = "Loading", displayName = "로딩", requiresBossDefeat = false, nextStage = StageState.Scene1 });
-            stageInfos.Add(new StageInfo { stage = StageState.Scene1, sceneName = "Scene1", displayName = "1단계", requiresBossDefeat = true, nextStage = StageState.Scene2 });
-            stageInfos.Add(new StageInfo { stage = StageState.Scene2, sceneName = "Scene2", displayName = "2단계", requiresBossDefeat = false, nextStage = StageState.Scene3 });
-            stageInfos.Add(new StageInfo { stage = StageState.Scene3, sceneName = "Scene3", displayName = "3단계", requiresBossDefeat = true, nextStage = StageState.Victory });
+            stageInfos.Add(new StageInfo { stage = StageState.Scene1, sceneName = "Stage_001", displayName = "1단계", requiresBossDefeat = true, nextStage = StageState.Scene2 });
+            stageInfos.Add(new StageInfo { stage = StageState.Scene2, sceneName = "Stage_002", displayName = "2단계", requiresBossDefeat = false, nextStage = StageState.Scene3 });
+            stageInfos.Add(new StageInfo { stage = StageState.Scene3, sceneName = "Stage_003", displayName = "3단계", requiresBossDefeat = true, nextStage = StageState.Victory });
         }
         InitializeStageSystem();
     }

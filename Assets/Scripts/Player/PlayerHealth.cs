@@ -27,7 +27,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
     private PlayerUIController playerUIController;
 
     // ❌ 제거: const string HEALTH_SLIDER_TEXT = "Health Slider";
-    const string TOWN_TEXT = "Scene1";
+    const string TOWN_TEXT = "Stage_001";
     readonly int DEATH_HASH = Animator.StringToHash("Death");
     
     // ✅ 외부 접근용 프로퍼티 추가

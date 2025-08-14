@@ -364,10 +364,10 @@ public class LobbyUIController : MonoBehaviour
     {
         switch (stageNumber)
         {
-            case 1: return "Scene1";
-            case 2: return "Scene2";
-            case 3: return "Scene3";
-            default: return "Scene1";
+            case 1: return "Stage_001";
+            case 2: return "Stage_002";
+            case 3: return "Stage_003";
+            default: return "Stage_001";
         }
     }
     

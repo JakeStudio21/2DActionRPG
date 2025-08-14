@@ -20,19 +20,17 @@ MonoBehaviour:
   - itemId: ITEM_ARMOR_ASSASIN_A_Pickup
     rarity: 0
     weight: 1
-    chance: 0.25
+    chance: 0.2
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
-    conditions:
-    - 
-    - 
+    conditions: []
   - itemId: ITEM_ARMOR_ASSASIN_B_Pickup
     rarity: 0
     weight: 1
-    chance: 0.25
+    chance: 0.2
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
@@ -42,7 +40,7 @@ MonoBehaviour:
   - itemId: ITEM_ARMOR_WARRIOR_A_Pickup
     rarity: 0
     weight: 1
-    chance: 0.25
+    chance: 0.2
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
@@ -52,7 +50,7 @@ MonoBehaviour:
   - itemId: ITEM_ARMOR_WARRIOR_B_Pickup
     rarity: 0
     weight: 1
-    chance: 0.25
+    chance: 0.2
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
@@ -73,11 +71,11 @@ MonoBehaviour:
     rarity: 0
     weight: 10
     chance: 1
-    minQuantity: 2
-    maxQuantity: 2
+    minQuantity: 1
+    maxQuantity: 1
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
   totalWeight: 24
-  totalChance: 3
+  totalChance: 2.8
