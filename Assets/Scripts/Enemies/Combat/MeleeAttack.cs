@@ -165,8 +165,11 @@ public class MeleeAttack : BaseAttackBehaviour
     /// </summary>
     private bool IsWithinAttackAngle(Vector2 attackOrigin, Vector2 targetPosition)
     {
+        // ⭐ AttackData에서 각도 가져오기 (우선순위 적용)
+        float currentAngle = GetEffectiveAttackAngle();
+        
         // 360도면 각도 제한 없음
-        if (Mathf.Approximately(attackAngle, 360f))
+        if (Mathf.Approximately(currentAngle, 360f))
         {
             return true;
         }
@@ -180,7 +183,22 @@ public class MeleeAttack : BaseAttackBehaviour
         // 각도 계산
         float angle = Vector2.Angle(forward, toTarget);
         
-        return angle <= attackAngle * 0.5f; // 양쪽으로 절반씩
+        return angle <= currentAngle * 0.5f; // 양쪽으로 절반씩
+    }
+    
+    /// <summary>
+    /// 실제 사용할 공격 각도 가져오기 (우선순위: AttackData → Inspector 설정값)
+    /// </summary>
+    private float GetEffectiveAttackAngle()
+    {
+        // 1순위: AttackData
+        if (AttackData != null)
+        {
+            return AttackData.AttackAngle;
+        }
+        
+        // 2순위: Inspector 하드코딩 값 (fallback)
+        return attackAngle;
     }
     
     /// <summary>
@@ -278,7 +296,7 @@ public class MeleeAttack : BaseAttackBehaviour
     #region ⭐ 디버그 및 시각화
     
     /// <summary>
-    /// 공격 범위 시각화 (에디터에서만)
+    /// 기즈모 표시 (선택 시)
     /// </summary>
     private void OnDrawGizmosSelected()
     {
@@ -286,6 +304,7 @@ public class MeleeAttack : BaseAttackBehaviour
         
         Vector2 attackOrigin = GetAttackOrigin();
         float currentRange = GetScaledRange();
+        float currentAngle = GetEffectiveAttackAngle(); // ⭐ AttackData 값 사용
         
         // 공격 범위 표시
         Gizmos.color = Color.red;
@@ -296,12 +315,12 @@ public class MeleeAttack : BaseAttackBehaviour
         Gizmos.DrawWireSphere(attackOrigin, 0.1f);
         
         // 공격 각도 표시 (360도가 아닌 경우)
-        if (!Mathf.Approximately(attackAngle, 360f))
+        if (!Mathf.Approximately(currentAngle, 360f)) // ⭐ currentAngle 사용
         {
             Gizmos.color = Color.blue;
             Vector3 forward = transform.right;
-            Vector3 leftBound = Quaternion.Euler(0, 0, attackAngle * 0.5f) * forward;
-            Vector3 rightBound = Quaternion.Euler(0, 0, -attackAngle * 0.5f) * forward;
+            Vector3 leftBound = Quaternion.Euler(0, 0, currentAngle * 0.5f) * forward; // ⭐ currentAngle 사용
+            Vector3 rightBound = Quaternion.Euler(0, 0, -currentAngle * 0.5f) * forward; // ⭐ currentAngle 사용
             
             Gizmos.DrawRay(attackOrigin, leftBound * currentRange);
             Gizmos.DrawRay(attackOrigin, rightBound * currentRange);
@@ -325,7 +344,7 @@ public class MeleeAttack : BaseAttackBehaviour
         info += $"Current Damage: {GetScaledDamage()}\n";
         info += $"Current Range: {GetScaledRange():F1}\n";
         info += $"Current Cooldown: {GetScaledCooldown():F1}s\n";
-        info += $"Attack Angle: {attackAngle}도\n";
+        info += $"Attack Angle: {GetEffectiveAttackAngle()}도 (AttackData: {(AttackData?.AttackAngle ?? 0)}도, Fallback: {attackAngle}도)\n"; // ⭐ 상세 정보 표시
         info += $"Attack Origin: {GetAttackOrigin()}\n";
         
         if (AttackData != null)

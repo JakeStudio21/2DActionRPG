@@ -15,12 +15,16 @@ public class Ghost : BaseEnemy
     { 
         get 
         {
-            if (EnemyData != null)
-                return EnemyData.PatrolRadius;
+            // 스폰 시 설정된 값 우선 사용
+            if (patrolRadius > 0) 
+                return patrolRadius;
             
-            Debug.LogError($"[Ghost] {gameObject.name}: EnemyData가 없어서 PatrolRadius 확인 불가!");
-            return 5f; // 최소 안전값
-        }
+            // 데이터 기반 fallback
+            if (enemyData != null)
+                return enemyData.PatrolRadius;
+            
+            return 3f; // 기본값
+        } 
     }
     
     public override float AttackRange 
@@ -36,7 +40,7 @@ public class Ghost : BaseEnemy
         } 
     }
     
-    public float DetectionRange
+    public override float DetectionRange
     {
         get
         {

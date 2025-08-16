@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using StageSystem;  // 🆕 추가 - WaveController 네임스페이스
 
 /// <summary>
 /// 몬스터 체력 관리 클래스
@@ -11,6 +12,9 @@ public class EnemyHealth : MonoBehaviour
     [Header("❌ Fallback 제거됨 - 데이터 필수!")]
     [Tooltip("EnemyData + MonsterGrowthProfile 필수 할당!")]
     
+    // ⭐ 이벤트 시스템 (WaveController 연동용)
+    public System.Action OnEnemyDeath;
+
     // ❌ 삭제: fallback 필드들 제거
     // [SerializeField] private int fallbackMaxHealth = 100;
     // [SerializeField] private float fallbackKnockBackThrust = 15f;
@@ -243,7 +247,6 @@ public class EnemyHealth : MonoBehaviour
         {
             // 사망 애니메이션 트리거
             animator.SetTrigger("Die");
-            animator.SetBool("isDead", true);
             
             Debug.Log($"[EnemyHealth] {gameObject.name} 사망 애니메이션 시작");
         }
@@ -264,9 +267,13 @@ public class EnemyHealth : MonoBehaviour
         PlayerDataManager.Instance.AddGold(goldReward);
         PlayerDataManager.Instance.AddExp(experience);
 
-        // ⭐ Animation Event를 기다림 (최대 3초 타임아웃)
-        float timeout = 3f;
+        // ⭐ Animation Event를 기다림 (동적 타임아웃)
+        // ⭐ BlueSlime처럼 빠른 처리 (0.1초 타임아웃)
+        // 원래 설정으로 완전 복원
+        float timeout = 3f; // 1초 → 3초 (원래 설정)
         float elapsedTime = 0f;
+
+        Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event 대기 시작 (빠른 타임아웃: {timeout}초)");
         
         while (!deathEventTriggered && elapsedTime < timeout)
         {
@@ -291,16 +298,20 @@ public class EnemyHealth : MonoBehaviour
         deathEventTriggered = true;
         Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event: 사망 처리 완료!");
 
-        // ⭐ 보스 처치 시 StageProgressManager에 등록
+        // 🆕 WaveController에 적 사망 알림
+        var waveController = FindObjectOfType<WaveController>();
+        if (waveController != null)
+        {
+            waveController.OnEnemyDeath?.Invoke(gameObject);
+        }
+
+        // 보스 처치 시 스테이지 완료 체크 (FSMStageController에서 처리)
         if (IsBoss())
         {
             string bossId = GetBossId();
             Debug.Log($"[EnemyHealth] 보스 처치: {bossId}");
             
-            if (StageProgressManager.Instance != null)
-            {
-                StageProgressManager.Instance.RegisterBossDefeat(bossId);
-            }
+            // FSMStageController가 자동으로 승리 조건 체크함
         }
 
         // 사망 이펙트 생성
@@ -552,4 +563,20 @@ public class EnemyHealth : MonoBehaviour
             _ => 1
         };
     }
+    
+    // ⭐ UI 시스템용 공개 프로퍼티 추가
+    /// <summary>
+    /// 최대 체력 (UI 표시용)
+    /// </summary>
+    public int MaxHealth => CalculateMaxHealth();
+    
+    /// <summary>
+    /// 현재 체력 (UI 표시용)
+    /// </summary>
+    public int CurrentHealth => currentHealth;
+    
+    /// <summary>
+    /// 체력 비율 (UI 표시용)
+    /// </summary>
+    public float HealthRatio => MaxHealth > 0 ? (float)currentHealth / MaxHealth : 0f;
 } 

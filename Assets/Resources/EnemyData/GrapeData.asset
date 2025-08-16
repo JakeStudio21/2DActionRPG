@@ -17,8 +17,8 @@ MonoBehaviour:
   enemyType: 0
   description: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC\uCCB4 \uACF5\uACA9 \uBAAC\uC2A4\uD130\n"
   baseHealth: 40
-  baseDefense: 0
-  baseMoveSpeed: 1.8
+  baseDefense: 10
+  baseMoveSpeed: 2
   detectionRange: 6
   chaseRange: 8
   patrolRadius: 4
@@ -35,3 +35,4 @@ MonoBehaviour:
   baseExpReward: 25
   dropGroupId: DROP_GRAPE_001
   dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 7da57bcd8def5894dad682c4104f0f16, type: 2}

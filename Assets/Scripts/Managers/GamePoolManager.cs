@@ -668,18 +668,35 @@ public class GamePoolManager : Singleton<GamePoolManager>
             return currentSceneConfig;
         }
         
-        // 2. Resources 폴더에서 씬별 설정 파일 찾기
+        // 2. 🆕 신규 경로 우선 시도 (Stages/ScenePools)
+        string newConfigPath = $"Stages/ScenePools/{sceneName}_PoolConfig";
+        ScenePoolConfig newConfig = Resources.Load<ScenePoolConfig>(newConfigPath);
+        
+        if (newConfig != null)
+        {
+            if (enableDebugMode)
+            {
+                Debug.Log($"🎯 [GamePoolManager] 신규 경로에서 풀 설정 로드: {sceneName}");
+            }
+            return newConfig;
+        }
+        
+        // 3. 🔄 기존 경로 fallback (PoolConfigs)
         ScenePoolConfig[] configs = Resources.LoadAll<ScenePoolConfig>("PoolConfigs");
         
         foreach (var config in configs)
         {
             if (config.sceneName == sceneName)
             {
+                if (enableDebugMode)
+                {
+                    Debug.Log($"⚠️ [GamePoolManager] 기존 경로에서 풀 설정 로드: {sceneName} (신규 경로로 이전 권장)");
+                }
                 return config;
             }
         }
         
-        // 3. 설정 파일이 없으면 기본 설정 사용 (임시)
+        // 4. 설정 파일이 없으면 기본 설정 사용 (임시)
         if (enableDebugMode)
         {
             Debug.LogWarning($"[GamePoolManager] 씬 '{sceneName}'의 전용 설정을 찾을 수 없어 기본 설정을 사용합니다.");
@@ -1151,5 +1168,166 @@ public class GamePoolManager : Singleton<GamePoolManager>
         if (enableDebugMode)
             Debug.Log("✅ [GamePoolManager] 모든 풀 완전 파괴 완료");
     }
+    
+    #region 🎯 스테이지 풀링 시스템
+    
+    /// <summary>
+    /// 스테이지별 풀 설정 로드
+    /// </summary>
+    public bool LoadStagePoolConfig(string stageId)
+    {
+        string configPath = $"Stages/ScenePools/{stageId}_PoolConfig";
+        ScenePoolConfig stagePoolConfig = Resources.Load<ScenePoolConfig>(configPath);
+        
+        if (stagePoolConfig != null)
+        {
+            Debug.Log($"🎯 [GamePoolManager] 스테이지 풀 설정 로드됨: {stageId}");
+            
+            // 기존 currentSceneConfig와 병합
+            MergeWithCurrentConfig(stagePoolConfig);
+            
+            // 스테이지 전용 풀들 사전 로드
+            StartCoroutine(WarmupStageRequiredPools(stagePoolConfig));
+            
+            return true;
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [GamePoolManager] 스테이지 풀 설정을 찾을 수 없음: {stageId}. 기본 설정 사용.");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// 스테이지 풀 설정과 현재 설정 병합
+    /// </summary>
+    private void MergeWithCurrentConfig(ScenePoolConfig stagePoolConfig)
+    {
+        if (currentSceneConfig == null)
+        {
+            currentSceneConfig = stagePoolConfig;
+            return;
+        }
+        
+        // 스테이지 전용 풀들을 현재 설정에 추가
+        foreach (var stagePool in stagePoolConfig.requiredPools)
+        {
+            // 중복 체크
+            bool exists = currentSceneConfig.requiredPools.Exists(p => p.tag == stagePool.tag);
+            if (!exists)
+            {
+                currentSceneConfig.requiredPools.Add(stagePool);
+                Debug.Log($"[GamePoolManager] 스테이지 풀 추가: {stagePool.tag} (사이즈: {stagePool.size})");
+            }
+            else
+            {
+                // 기존 풀 사이즈 업데이트
+                var existingPool = currentSceneConfig.requiredPools.Find(p => p.tag == stagePool.tag);
+                if (existingPool != null && stagePool.size > existingPool.size)
+                {
+                    existingPool.size = stagePool.size;
+                    Debug.Log($"[GamePoolManager] 풀 사이즈 업데이트: {stagePool.tag} → {stagePool.size}");
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 스테이지 필요 풀들 사전 로드
+    /// </summary>
+    private IEnumerator WarmupStageRequiredPools(ScenePoolConfig stagePoolConfig)
+    {
+        Debug.Log($"🔥 [GamePoolManager] 스테이지 풀 Warmup 시작: {stagePoolConfig.requiredPools.Count}개 풀");
+        
+        int loadedCount = 0;
+        int totalCount = stagePoolConfig.requiredPools.Count;
+        
+        foreach (var poolSetting in stagePoolConfig.requiredPools)
+        {
+            if (!poolDictionary.ContainsKey(poolSetting.tag))
+            {
+                yield return StartCoroutine(CreatePoolAsync(poolSetting));
+                loadedCount++;
+                
+                if (enableDebugMode)
+                {
+                    Debug.Log($"[GamePoolManager] 스테이지 풀 로드 진행: {loadedCount}/{totalCount}");
+                }
+                
+                // 프레임 분산 로딩
+                if (loadedCount % maxPoolsLoadPerFrame == 0)
+                {
+                    yield return null;
+                }
+            }
+        }
+        
+        Debug.Log($"✅ [GamePoolManager] 스테이지 풀 Warmup 완료: {loadedCount}개 풀 로드됨");
+    }
+    
+    /// <summary>
+    /// 비동기 풀 생성
+    /// </summary>
+    private IEnumerator CreatePoolAsync(ScenePoolConfig.PoolSettings poolSetting)
+    {
+        if (poolSetting.prefab == null)
+        {
+            Debug.LogWarning($"[GamePoolManager] 프리팹이 null입니다: {poolSetting.tag}");
+            yield break;
+        }
+        
+        Queue<GameObject> pool = new Queue<GameObject>();
+        
+        for (int i = 0; i < poolSetting.size; i++)
+        {
+            GameObject obj = Instantiate(poolSetting.prefab);
+            obj.SetActive(false);
+            obj.transform.SetParent(transform);
+            pool.Enqueue(obj);
+            
+            // 프레임당 생성 수 제한
+            if (i % poolSetting.maxInstancesPerFrame == 0)
+            {
+                yield return null;
+            }
+        }
+        
+        poolDictionary[poolSetting.tag] = pool;
+        poolSettings[poolSetting.tag] = poolSetting;
+        loadedPoolTags.Add(poolSetting.tag);
+        
+        if (enableDebugMode)
+        {
+            Debug.Log($"[GamePoolManager] 비동기 풀 생성 완료: {poolSetting.tag} ({poolSetting.size}개)");
+        }
+    }
+    
+    /// <summary>
+    /// 스테이지 종료 시 풀 정리 (선택적)
+    /// </summary>
+    public void CleanupStageSpecificPools()
+    {
+        // 스테이지 전용 풀들만 정리 (기본 풀들은 유지)
+        var stageSpecificTags = new List<string> { "Blue_slime", "Enemie1", "Ghost", "FinalBossA", "FinalBossB", "FinalBossC" };
+        
+        foreach (string tag in stageSpecificTags)
+        {
+            if (poolDictionary.ContainsKey(tag))
+            {
+                // 활성 오브젝트들 비활성화
+                foreach (var obj in activePools.Values)
+                {
+                    if (obj != null && obj.CompareTag(tag))
+                    {
+                        obj.SetActive(false);
+                    }
+                }
+                
+                Debug.Log($"[GamePoolManager] 스테이지 풀 정리: {tag}");
+            }
+        }
+    }
+    
+    #endregion
     
 }

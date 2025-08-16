@@ -60,6 +60,36 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public event Action<EquipmentData> OnItemDetailRequested; // (장비데이터)
     
+    // 🆕 스테이지 진행도 이벤트
+    public event Action<string> OnStageUnlocked;
+    public event Action<string, bool> OnStageCompleted; // stageId, isFirstClear
+    public event Action<string> OnFirstClearRewardClaimed;
+    
+    // 🆕 이벤트 발생 메서드들 (외부에서 호출 가능)
+    /// <summary>
+    /// 스테이지 해금 이벤트 발생
+    /// </summary>
+    public void TriggerStageUnlocked(string stageId)
+    {
+        OnStageUnlocked?.Invoke(stageId);
+    }
+    
+    /// <summary>
+    /// 스테이지 완료 이벤트 발생
+    /// </summary>
+    public void TriggerStageCompleted(string stageId, bool isFirstClear)
+    {
+        OnStageCompleted?.Invoke(stageId, isFirstClear);
+    }
+    
+    /// <summary>
+    /// 첫 클리어 보상 수령 이벤트 발생
+    /// </summary>
+    public void TriggerFirstClearRewardClaimed(string stageId)
+    {
+        OnFirstClearRewardClaimed?.Invoke(stageId);
+    }
+    
     // 접근자 프로퍼티 (SelectedPlayerData 위임)
     public int CurrentGold => selectedPlayerData != null ? selectedPlayerData.CurrentGold : 0;
     public int CurrentLevel => selectedPlayerData != null ? selectedPlayerData.CurrentLevel : 1;
@@ -1275,4 +1305,73 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         Debug.LogWarning($"⚠️ [PlayerDataManager] 인벤토리가 가득 참! 추가 불가: {item.equipmentName}");
         return false;
     }
+
+    #region 🎯 스테이지 진행도 관리
+    
+    /// <summary>
+    /// 현재 슬롯의 스테이지 진행도 목록 가져오기
+    /// </summary>
+    public List<StageSystem.StageProgress> GetStageProgresses()
+    {
+        if (!IsSlotSelected) return new List<StageSystem.StageProgress>();
+        
+        var currentSlot = GetSlotData(currentSlotIndex);
+        if (currentSlot == null) return new List<StageSystem.StageProgress>();
+        
+        return currentSlot.stageProgresses ?? new List<StageSystem.StageProgress>();
+    }
+    
+    /// <summary>
+    /// 스테이지 진행도 업데이트
+    /// </summary>
+    public void UpdateStageProgresses(List<StageSystem.StageProgress> progresses)
+    {
+        if (!IsSlotSelected) return;
+        
+        var currentSlot = GetSlotData(currentSlotIndex);
+        if (currentSlot == null) return;
+        
+        currentSlot.stageProgresses = progresses;
+        
+        // SelectedPlayerData에도 반영 (캐시 동기화)
+        if (selectedPlayerData != null)
+        {
+            // 필요시 SelectedPlayerData에도 스테이지 진행도 추가 가능
+        }
+        
+        // 자동 저장
+        SaveCurrentSlot();
+        
+        if (showDebugLogs)
+            Debug.Log($"💾 [PlayerDataManager] 스테이지 진행도 업데이트: {progresses.Count}개");
+    }
+    
+    /// <summary>
+    /// 특정 스테이지 진행도 가져오기
+    /// </summary>
+    public StageSystem.StageProgress GetStageProgress(string stageId)
+    {
+        var progresses = GetStageProgresses();
+        return progresses.Find(p => p.stageId == stageId);
+    }
+    
+    /// <summary>
+    /// 스테이지 해금 상태 확인
+    /// </summary>
+    public bool IsStageUnlocked(string stageId)
+    {
+        var progress = GetStageProgress(stageId);
+        return progress != null && progress.isUnlocked;
+    }
+    
+    /// <summary>
+    /// 스테이지 완료 상태 확인
+    /// </summary>
+    public bool IsStageCompleted(string stageId)
+    {
+        var progress = GetStageProgress(stageId);
+        return progress != null && progress.isCompleted;
+    }
+    
+    #endregion
 } 

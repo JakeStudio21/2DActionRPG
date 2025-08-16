@@ -4,7 +4,8 @@ public class EnemyIdleState : IEnemyState
 {
     private readonly IEnemy enemy;
     private float idleTimer = 0f;
-    private float maxIdleTime = 3f; // 3초 후 순찰 시작
+    // 📍 7번 라인 - 사용하지 않는 필드 제거 또는 주석처리
+    // private float maxIdleTime = 3f; // 사용하지 않으므로 주석처리
 
     public EnemyIdleState(IEnemy enemy)
     {
@@ -20,55 +21,25 @@ public class EnemyIdleState : IEnemyState
 
     public void Execute()
     {
-        idleTimer += Time.deltaTime;
-
-        // 플레이어 감지 (우선순위)
-        if (enemy.TargetPlayer != null)
+        // 플레이어 감지
+        if (enemy.IsPlayerInRange(enemy.DetectionRange))
         {
-            float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
-            
-            // 🔑 BlueSlime과 Grape의 경우 각각의 detectionRange 사용, 다른 몬스터는 기본값 사용
-            float detectionRange = 5f; // 기본값
-            if (enemy is BlueSlime blueSlime)
-            {
-                var meleeAttack = blueSlime.GetComponent<MeleeAttack>();
-                if (meleeAttack != null)
-                {
-                    detectionRange = meleeAttack.GetDetectionRange();
-                }
-            }
-            else if (enemy is Grape grape) // 🔑 Grape 추가
-            {
-                var rangedAttack = grape.GetComponent<RangedAttack>();
-                if (rangedAttack != null)
-                {
-                    detectionRange = rangedAttack.GetDetectionRange();
-                }
-            }
-            else if (enemy is Ghost ghost) // 🔑 Ghost 추가
-            {
-                var multiShotAttack = ghost.GetComponent<MultiShotRangedAttack>();
-                if (multiShotAttack != null)
-                {
-                    detectionRange = multiShotAttack.GetDetectionRange();
-                }
-                else
-                {
-                    Debug.LogError($"[EnemyIdleState] Ghost {enemy.transform.name} - MultiShotRangedAttack 컴포넌트가 없습니다!");
-                }
-            }
-            
-            if (dist < detectionRange)
-            {
-                enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
-                return;
-            }
+            enemy.ChangeState(new EnemyChaseState(enemy));
+            return;
         }
-
-        // 일정 시간 후 순찰 시작
-        if (idleTimer >= maxIdleTime)
+        
+        // 홈 위치에서 너무 멀어졌으면 돌아가기
+        if (!enemy.IsWithinPatrolRange())
         {
-            enemy.FSMController.ChangeState(new EnemyPatrolState(enemy));
+            enemy.ChangeState(new EnemyReturnToHomeState(enemy));
+            return;
+        }
+        
+        // 랜덤하게 순찰 시작
+        idleTimer += Time.deltaTime;
+        if (idleTimer >= Random.Range(2f, 5f))
+        {
+            enemy.ChangeState(new EnemyPatrolState(enemy));
         }
     }
 

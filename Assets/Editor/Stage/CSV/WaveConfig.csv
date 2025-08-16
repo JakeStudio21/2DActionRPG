@@ -1,0 +1,11 @@
+﻿WaveID,StageID,WaveIndex,WaveDelaySec,StartCondition,triggerId
+string,string,int,int,enum,enum
+STAGE_001_WAVE_01,STAGE_001,1,2,AutoAfterDelay,
+STAGE_001_WAVE_02,STAGE_001,2,3,OnClearPrev,
+STAGE_001_WAVE_03,STAGE_001,3,0,OnTrigger,BossGateOpened
+STAGE_002_WAVE_01,STAGE_002,1,2,AutoAfterDelay,
+STAGE_002_WAVE_02,STAGE_002,2,3,OnClearPrev,
+STAGE_002_WAVE_03,STAGE_002,3,0,OnTrigger,BossGateOpened
+STAGE_003_WAVE_01,STAGE_003,1,2,AutoAfterDelay,
+STAGE_003_WAVE_02,STAGE_003,2,3,OnClearPrev,
+STAGE_003_WAVE_03,STAGE_003,3,0,OnTrigger,BossGateOpened

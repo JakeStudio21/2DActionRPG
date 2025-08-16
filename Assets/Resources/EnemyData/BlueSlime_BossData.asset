@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
   m_Name: BlueSlime_BossData
   m_EditorClassIdentifier: 
-  enemyId: MON_BLUESLIME_001
-  enemyName: Blue Slime
-  enemyType: 0
-  description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2AC\uB77C\uC784\n"
+  enemyId: MON_BLUESLIME_001_BOSS
+  enemyName: Blue Slime Boss
+  enemyType: 2
+  description: "\uC2AC\uB77C\uC784 \uBCF4\uC2A4"
   baseHealth: 50
   baseDefense: 0
   baseMoveSpeed: 2
@@ -25,13 +25,14 @@ MonoBehaviour:
   knockBackThrust: 5
   deathVFXPrefabPath: 
   primaryAttackType: 0
-  hasSkills: 0
+  hasSkills: 1
   skillIds: []
   immuneEffects: 
   isBoss: 1
   isMiniBoss: 0
-  bossId: 
+  bossId: MON_BLUESLIME_001_BOSS
   baseGoldReward: 12
   baseExpReward: 30
   dropGroupId: DROP_BLUESLIME_001
   dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

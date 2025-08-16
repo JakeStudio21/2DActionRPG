@@ -23,6 +23,9 @@ public class PlayerSlotData
     public int expToNextLevel = 100;
     public int gold = 0;
     
+    [Header("🎯 스테이지 진행도")]
+    public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
+    
     [Header("🎒 인벤토리 & 장비")]
     public List<string> inventoryItemNames = new List<string>();
     // Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 기존 삭제

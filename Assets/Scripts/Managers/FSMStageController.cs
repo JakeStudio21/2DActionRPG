@@ -134,7 +134,37 @@ public class FSMStageController : Singleton<FSMStageController>
     /// </summary>
     private bool AreAllBossesDefeated()
     {
-        return StageProgressManager.Instance.AreAllStageeBossesDefeated();
+        // 런타임에서 실제 보스 오브젝트들 확인
+        EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
+        
+        int totalBossCount = 0;
+        int deadBossCount = 0;
+        
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy.IsBoss())
+            {
+                totalBossCount++;
+                
+                if (enemy.isDead)
+                {
+                    deadBossCount++;
+                    Debug.Log($"[FSMStageController] 처치된 보스: {enemy.gameObject.name}");
+                }
+            }
+        }
+        
+        // 보스가 없는 스테이지 처리
+        if (totalBossCount == 0)
+        {
+            Debug.Log("[FSMStageController] 이 스테이지에는 보스가 없습니다.");
+            return false;
+        }
+        
+        bool allDefeated = (deadBossCount == totalBossCount);
+        Debug.Log($"[FSMStageController] 보스 처치 현황: {deadBossCount}/{totalBossCount}");
+        
+        return allDefeated;
     }
 
     /// <summary>
@@ -142,7 +172,17 @@ public class FSMStageController : Singleton<FSMStageController>
     /// </summary>
     private bool HasAnyBoss()
     {
-        return !StageProgressManager.Instance.AreAllStageeBossesDefeated();
+        EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
+        
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy.IsBoss())
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /// <summary>

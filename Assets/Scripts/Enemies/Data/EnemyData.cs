@@ -71,6 +71,10 @@ public class EnemyData : ScriptableObject
     [Range(1, 5)]
     [SerializeField] private int dropRolls = 1;
 
+    [Header("=== 패트롤 행동 튜닝 ===")]
+    [Tooltip("패트롤 움직임 튜닝 데이터 - 선택적 할당")]
+    [SerializeField] private PatrolTuning patrolTuning;
+
     // Public Properties (Read-Only) - 새 필드들 추가
     public string EnemyId => enemyId;
     public string EnemyName => enemyName;
@@ -105,6 +109,8 @@ public class EnemyData : ScriptableObject
     // ⭐ 새 드롭 시스템 Properties
     public string DropGroupId => dropGroupId;
     public int DropRolls => dropRolls;
+
+    public PatrolTuning PatrolTuning => patrolTuning;
 
     /// <summary>
     /// 레벨과 성장 프로필을 적용한 실제 체력 계산
@@ -189,6 +195,12 @@ public class EnemyData : ScriptableObject
         }
         
         dropRolls = Mathf.Clamp(dropRolls, 1, 5);
+
+        // PatrolTuning 검증
+        if (patrolTuning == null)
+        {
+            Debug.LogWarning($"[EnemyData] {enemyName}: PatrolTuning이 할당되지 않았습니다!");
+        }
 
         // Boss 타입이 아니면 스킬 설정 비활성화
         if (enemyType != EnemyType.Boss)

@@ -21,14 +21,21 @@ MonoBehaviour:
   attackCooldown: 2
   animationDuration: 1
   animationTrigger: Attack
-  attackRange: 1.2
-  attackAngle: 120
+  attackRange: 1.5
+  attackAngle: 350
   stopMovingWhileAttacking: 1
   projectilePrefab: {fileID: 0}
   projectileSpeed: 10
   projectileLifetime: 5
   projectileCount: 1
   multiShotAngle: 15
+  shotPattern: 0
+  useProjectileArc: 0
+  useScreenShake: 0
+  showDebugGizmos: 1
+  timeBetweenBursts: 0.2
+  restTime: 1
+  useStaggeredFiring: 0
   onHitEffects:
   - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
   effectChances:

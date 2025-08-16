@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 153144396f289ac4eb89594c7dbaef9e, type: 3}
+  m_Name: STAGE_003_Config
+  m_EditorClassIdentifier: 
+  StageID: STAGE_003
+  StageName: STAGE_FIELD_003
+  SceneName: "\uACE0\uC694\uD55C \uC232\uC18D \uAE38"
+  BackgroundType: 0
+  IsDungeon: 0
+  RequiredLevel: 5
+  UnlockCondition: Clear:STAGE_002
+  unlockData:
+    IsAlwaysUnlocked: 0
+    RequiredStageId: STAGE_002
+  WaveCount: 3
+  TimeLimitSec: 300
+  Victory: 0
+  FirstClearDropGroupId: DROP_STG003_CLEAR_FIRST
+  RepeatClearDropGroupId: DROP_STG003_CLEAR_REPEAT
+  BGMPath: Prefab/BGM/SCENE_FIELD_003
+  Description: "\"\uC5B4\uB450\uC6B4 \uC232\uAE38"
+  WaveConfigs: []
+  FirstClearDropTable: {fileID: 0}
+  RepeatClearDropTable: {fileID: 0}

@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30c3e5d0fbeabad45aa2b505216c1434, type: 3}
+  m_Name: PatrolTuning_Grape_Default
+  m_EditorClassIdentifier: 
+  acceleration:
+    accelerationRate: 3
+    decelerationRate: 3
+    maxSpeedMultiplier: 1.5
+    minSpeedMultiplier: 0.3
+    speedTransitionSmoothing: 1
+  pause:
+    pauseDistanceMin: 2
+    pauseDistanceMax: 4
+    pauseDurationMin: 1
+    pauseDurationMax: 3
+    waypointPauseMin: 1
+    waypointPauseMax: 2
+    movementPauseChance: 0.2
+  directionNoise:
+    noiseStrength: 0.5
+    noiseFrequency: 1.5
+    directionSmoothTime: 0.2
+    maxDeviationAngle: 20
+    noiseUpdateInterval: 0.2
+  environmentResponse:
+    separationDistance: 2
+    separationStrength: 1
+    obstacleAvoidDistance: 1.5
+    obstacleAvoidStrength: 2
+    turnSlowdownAngle: 60
+    turnSlowdownRate: 0.6
+  personalityWeights:
+    movementWeight: 1
+    pauseWeight: 1
+    noiseWeight: 1
+    alertnessWeight: 1
+    socialWeight: 1

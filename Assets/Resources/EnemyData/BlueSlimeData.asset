@@ -17,8 +17,8 @@ MonoBehaviour:
   enemyType: 0
   description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2AC\uB77C\uC784\n"
   baseHealth: 50
-  baseDefense: 0
-  baseMoveSpeed: 2
+  baseDefense: 50
+  baseMoveSpeed: 1.5
   detectionRange: 5
   chaseRange: 8
   patrolRadius: 3
@@ -35,3 +35,4 @@ MonoBehaviour:
   baseExpReward: 30
   dropGroupId: DROP_BLUESLIME_001
   dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

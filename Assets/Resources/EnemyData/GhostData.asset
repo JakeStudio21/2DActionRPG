@@ -17,7 +17,7 @@ MonoBehaviour:
   enemyType: 0
   description: "\uBCF5\uD569 \uC6D0\uAC70\uB9AC \uACF5\uACA9 \uC720\uB839\n"
   baseHealth: 60
-  baseDefense: 2
+  baseDefense: 10
   baseMoveSpeed: 2.2
   detectionRange: 7
   chaseRange: 10
@@ -35,3 +35,4 @@ MonoBehaviour:
   baseExpReward: 35
   dropGroupId: DROP_GHOST_001
   dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 50bd7d860ca6bb54786ba64f84a098b4, type: 2}

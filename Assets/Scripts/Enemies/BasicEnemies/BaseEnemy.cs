@@ -38,7 +38,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     
     // 공통 속성들
     public Vector2 SpawnPoint { get; private set; }
-    public abstract float PatrolRadius { get; } 
     public abstract float AttackRange { get; }
 
     // 공통 컴포넌트들
@@ -158,6 +157,18 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         
         // 추가 시작 로직 (하위 클래스에서 구현)
         OnStartInitialize();
+
+        // 임시 테스트 코드 (BaseEnemy의 Start()에 추가)
+        if (HasPatrolTuning)
+        {
+            Debug.Log($"[{gameObject.name}] PatrolTuning 로드 성공!");
+            Debug.Log($"  가속율: {PatrolTuning.Acceleration.accelerationRate}");
+            Debug.Log($"  패트롤 속도: {GetPatrolMoveSpeed():F1}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] PatrolTuning 없음!");
+        }
     }
     
     /// <summary>
@@ -213,7 +224,7 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     }
 
     /// <summary>
-    /// 현재 상태 디버그 출력
+    /// 현재 상태 디버그 출력 (PatrolTuning 정보 포함)
     /// </summary>
     [ContextMenu("Debug Monster Info")]
     public virtual void DebugMonsterInfo()
@@ -221,7 +232,9 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         string info = $"=== {GetType().Name} {gameObject.name} ===\n";
         info += $"Current Level: {currentLevel}\n";
         info += $"Patrol Radius: {PatrolRadius}\n";
-        info += $"Attack Range: {AttackRange}\n\n";
+        info += $"Attack Range: {AttackRange}\n";
+        info += $"Base Move Speed: {GetScaledMoveSpeed():F1}\n";
+        info += $"Patrol Move Speed: {GetPatrolMoveSpeed():F1}\n\n";
         
         if (enemyData != null)
         {
@@ -231,6 +244,25 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         else
         {
             info += "❌ EnemyData가 할당되지 않았습니다!\n";
+        }
+        
+        // PatrolTuning 전용 디버그 정보
+        if (HasPatrolTuning)
+        {
+            var tuning = PatrolTuning;
+            info += "\n=== 패트롤 튜닝 상세 ===\n";
+            info += $"가속율: {tuning.Acceleration.accelerationRate:F1}\n";
+            info += $"감속율: {tuning.Acceleration.decelerationRate:F1}\n";
+            info += $"최대속도 배율: {tuning.Acceleration.maxSpeedMultiplier:F1}\n";
+            info += $"최소속도 배율: {tuning.Acceleration.minSpeedMultiplier:F1}\n";
+            info += $"대기 확률: {tuning.Pause.movementPauseChance:F1}\n";
+            info += $"노이즈 강도: {tuning.DirectionNoise.noiseStrength:F1}\n";
+            info += $"간격 유지 거리: {tuning.EnvironmentResponse.separationDistance:F1}\n";
+            info += $"이동 가중치: {tuning.PersonalityWeights.movementWeight:F1}\n";
+        }
+        else
+        {
+            info += "\n❌ PatrolTuning이 할당되지 않았습니다!\n";
         }
         
         Debug.Log(info);
@@ -243,4 +275,176 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     protected abstract void OnStartInitialize();
     protected abstract void InitializeAttackSystem();
     public abstract void Attack(); // IEnemy 인터페이스 구현
+
+    // BaseEnemy 클래스에 추가할 필드들
+    [Header("위치 정보")]
+    [SerializeField] protected Vector3 homePosition; // 집 위치
+    [SerializeField] protected float patrolRadius = 3f; // 순찰 반경
+    [SerializeField] protected Vector3 spawnPosition; // 스폰된 위치
+
+    // 프로퍼티 추가
+    public Vector3 HomePosition => homePosition;
+    public virtual float PatrolRadius 
+    { 
+        get 
+        {
+            // 🔑 스폰 시 설정된 값 우선 (SpawnPoint에서 설정)
+            if (patrolRadius > 0) 
+                return patrolRadius;
+            
+            // 🔑 데이터 기반 기본값 사용
+            if (enemyData != null)
+            {
+                // EnemyData에 PatrolRadius 프로퍼티가 있다면 사용
+                return 3f; // 임시 기본값
+            }
+                
+            return 3f; // 최후 기본값
+        } 
+    }
+    public Vector3 SpawnPosition => spawnPosition;
+
+    /// <summary>
+    /// 홈 위치와 순찰 반경 설정
+    /// </summary>
+    public virtual void SetHomePosition(Vector3 position, float radius)
+    {
+        homePosition = position;
+        spawnPosition = position;
+        patrolRadius = radius;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[{gameObject.name}] Home 설정: {homePosition}, Patrol: {patrolRadius}");
+        }
+    }
+
+    /// <summary>
+    /// 홈 위치로부터의 거리 계산
+    /// </summary>
+    public float GetDistanceFromHome()
+    {
+        return Vector3.Distance(transform.position, homePosition);
+    }
+
+    /// <summary>
+    /// 순찰 범위 내에 있는지 확인
+    /// </summary>
+    public bool IsWithinPatrolRange()
+    {
+        return GetDistanceFromHome() <= patrolRadius;
+    }
+
+    /// <summary>
+    /// 순찰 범위 내 랜덤 위치 반환
+    /// </summary>
+    public Vector3 GetRandomPatrolPosition()
+    {
+        Vector2 randomOffset = Random.insideUnitCircle * patrolRadius;
+        return homePosition + new Vector3(randomOffset.x, randomOffset.y, 0);
+    }
+
+    // DetectionRange 프로퍼티 추가 (데이터 기반)
+    public virtual float DetectionRange 
+    { 
+        get 
+        {
+            // 데이터 기반 값이 있으면 사용 (접근 가능한 프로퍼티 사용)
+            if (enemyData != null)
+            {
+                // DetectionRange 프로퍼티가 있는지 확인하고 사용
+                // detectionRange 필드가 private이므로 기본값 반환
+                return 5f; // 기본 감지 범위
+            }
+                
+            // 기본값 반환
+            return 5f;
+        } 
+    }
+
+    // MoveSpeed 프로퍼티 추가 (데이터 기반)
+    public virtual float MoveSpeed 
+    { 
+        get 
+        {
+            // 데이터 기반 이동속도 사용
+            return GetScaledMoveSpeed();
+        } 
+    }
+
+    // ChangeState 메서드 추가
+    public void ChangeState(IEnemyState newState)
+    {
+        FSMController?.ChangeState(newState);
+    }
+
+    // BaseEnemy 클래스에 추가할 필드들
+    [Header("디버그")]
+    [SerializeField] protected bool enableDebugLogs = true; // 누락된 필드 추가
+
+    // EnableDebugLogs 프로퍼티 추가 (IEnemy 인터페이스용)
+    public bool EnableDebugLogs => enableDebugLogs;
+
+    /// <summary>
+    /// 패트롤 튜닝 데이터 접근
+    /// </summary>
+    public PatrolTuning PatrolTuning 
+    { 
+        get 
+        {
+            if (enemyData != null && enemyData.PatrolTuning != null)
+            {
+                return enemyData.PatrolTuning;
+            }
+            
+            // 기본 PatrolTuning이 없으면 경고 (개발 중에만)
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"[{gameObject.name}] PatrolTuning이 할당되지 않았습니다. 기본값 사용.");
+            }
+            
+            return null;
+        } 
+    }
+
+    /// <summary>
+    /// PatrolTuning이 있는지 확인
+    /// </summary>
+    public bool HasPatrolTuning => PatrolTuning != null;
+
+    /// <summary>
+    /// 가중치가 적용된 실제 이동속도 계산
+    /// </summary>
+    public virtual float GetPatrolMoveSpeed()
+    {
+        float baseSpeed = GetScaledMoveSpeed();
+        
+        if (HasPatrolTuning)
+        {
+            float movementWeight = PatrolTuning.PersonalityWeights.movementWeight;
+            return baseSpeed * movementWeight;
+        }
+        
+        return baseSpeed;
+    }
+
+    /// <summary>
+    /// 런타임에서 EnemyData 동적 변경 (보스 변환용)
+    /// </summary>
+    public void SetEnemyData(EnemyData newEnemyData)
+    {
+        if (newEnemyData == null)
+        {
+            Debug.LogWarning($"[BaseEnemy] {gameObject.name}: null EnemyData를 설정하려고 시도!");
+            return;
+        }
+        
+        enemyData = newEnemyData;
+        
+        // 스탯 재계산
+        CalculateRuntimeStats();
+        
+        Debug.Log($"🐲 [BaseEnemy] {gameObject.name}: EnemyData 동적 변경 완료 → {newEnemyData.name}");
+        Debug.Log($"🐲 [BaseEnemy] IsBoss: {enemyData.IsBoss}, EnemyType: {enemyData.EnemyType}");
+    }
 } 
