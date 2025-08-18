@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StageID: STAGE_003
   StageName: STAGE_FIELD_003
-  SceneName: "\uACE0\uC694\uD55C \uC232\uC18D \uAE38"
+  SceneName: Stage_003
   BackgroundType: 0
   IsDungeon: 0
   RequiredLevel: 5
@@ -24,11 +24,12 @@ MonoBehaviour:
     RequiredStageId: STAGE_002
   WaveCount: 3
   TimeLimitSec: 300
-  Victory: 0
+  Victory: 2
   FirstClearDropGroupId: DROP_STG003_CLEAR_FIRST
   RepeatClearDropGroupId: DROP_STG003_CLEAR_REPEAT
   BGMPath: Prefab/BGM/SCENE_FIELD_003
-  Description: "\"\uC5B4\uB450\uC6B4 \uC232\uAE38"
+  Description: "\uACE0\uC694\uD55C \uC232\uC18D \uAE38_\uC5B4\uB450\uC6B4 \uC232\uAE38_\uCD18\uCD18\uD55C
+    \uB098\uBB34"
   WaveConfigs: []
   FirstClearDropTable: {fileID: 0}
   RepeatClearDropTable: {fileID: 0}

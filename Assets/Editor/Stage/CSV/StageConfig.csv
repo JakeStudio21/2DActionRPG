@@ -1,5 +1,5 @@
 ﻿StageID,StageName,SceneName,BackgroundType,IsDungeon,RequiredLevel,WaveCount,TimeLimitSec,UnlockCondition,Victory,FirstClearDropGroupId,RepeatClearDropGroupId,BGM Path,Description
 string,string,string,enum,Bool,int,int,int,string,enum,string,string,string,string
-STAGE_001,STAGE_FIELD_001,몽환의 초원,FIELD,False,1,3,300,AlwaysUnlocked,Boss Clear,DROP_STG001_CLEAR_FIRST,DROP_STG001_CLEAR_REPEAT,Prefab/BGM/SCENE_FIELD_001,"맑음, 낮, 따뜻한 햇살"
-STAGE_002,STAGE_FIELD_002,이슬 들판,FIELD,False,3,3,300,Clear:STAGE_001,Boss Clear,DROP_STG002_CLEAR_FIRST,DROP_STG002_CLEAR_REPEAT,Prefab/BGM/SCENE_FIELD_002,"안개 낀 평야, 이른 아침"
-STAGE_003,STAGE_FIELD_003,고요한 숲속 길,FIELD,False,5,3,300,Clear:STAGE_002,Boss Clear,DROP_STG003_CLEAR_FIRST,DROP_STG003_CLEAR_REPEAT,Prefab/BGM/SCENE_FIELD_003,"어두운 숲길, 촘촘한 나무"
+STAGE_001,STAGE_FIELD_001,Stage_001,FIELD,FALSE,1,3,60,AlwaysUnlocked,BossKill,DROP_STG001_CLEAR_FIRST,DROP_STG001_CLEAR_REPEAT,Prefab/BGM/SCENE_FIELD_001,몽환의 초원_맑음
+STAGE_002,STAGE_FIELD_002,Stage_002,FIELD,FALSE,3,3,300,Clear:STAGE_001,Kill All,DROP_STG002_CLEAR_FIRST,DROP_STG002_CLEAR_REPEAT,Prefab/BGM/SCENE_FIELD_002,이슬 들판_안개 낀 평야_이른아침
+STAGE_003,STAGE_FIELD_003,Stage_003,FIELD,FALSE,5,3,300,Clear:STAGE_002,Survival,DROP_STG003_CLEAR_FIRST,DROP_STG003_CLEAR_REPEAT,Prefab/BGM/SCENE_FIELD_003,고요한 숲속 길_어두운 숲길_촘촘한 나무

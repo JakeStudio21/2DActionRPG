@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5c2c97dcdef204bb74147c1a125ee8, type: 3}
   m_Name: STAGE_003_PoolConfig
   m_EditorClassIdentifier: 
-  sceneName: Stage_STAGE_003
+  sceneName: Stage_003
   requiredPools:
   - tag: Enemie1
     prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}

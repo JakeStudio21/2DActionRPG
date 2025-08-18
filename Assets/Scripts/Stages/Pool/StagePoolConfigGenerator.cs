@@ -101,7 +101,8 @@ namespace StageSystem
                                                             List<StagePoolCalculator.StagePoolRequirement> requirements)
         {
             var poolConfig = ScriptableObject.CreateInstance<ScenePoolConfig>();
-            poolConfig.sceneName = $"Stage_{stageId}";
+            // poolConfig.sceneName = $"Stage_{stageId}";
+            poolConfig.sceneName = stageId.Replace("STAGE_", "Stage_");
             poolConfig.enableDebugLogs = false;
             poolConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>();
             

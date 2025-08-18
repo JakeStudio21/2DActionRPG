@@ -25,6 +25,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [Header("📊 슬롯 상태")]
     [SerializeField] private List<PlayerSlotData> playerSlots = new List<PlayerSlotData>(); // 현재 로드된 슬롯들
     [SerializeField] private int currentSlotIndex = -1; // 현재 활성 슬롯 (-1: 미선택)
+    [SerializeField] private int lastSelectedSlotIndex = 0; // 🆕 마지막 선택된 슬롯 (자동 선택용)
     
     [Header("🔧 UI 관리")]
     private TMP_Text goldText;
@@ -46,6 +47,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     // 슬롯 관리 이벤트
     public event Action<int> OnSlotSelected; // 슬롯 선택 시
     public event Action<PlayerSlotData> OnSlotDataChanged; // 슬롯 데이터 변경 시
+    public event Action<int> OnCharacterCreated; // 🆕 캐릭터 생성 완료 시
     
     // 🆕 로비-인게임 공용 이벤트 시스템
     /// <summary>
@@ -132,6 +134,37 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         SceneManager.sceneLoaded -= OnSceneLoaded;
         
         base.OnDestroy();
+    }
+    
+    // 🆕 앱 생명주기 이벤트 처리 (게임 종료 시 저장)
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus && IsSlotSelected)
+        {
+            SaveCurrentSlot();
+            if (showDebugLogs)
+                Debug.Log("[PlayerDataManager] 앱 일시정지 시 데이터 저장");
+        }
+    }
+    
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus && IsSlotSelected)
+        {
+            SaveCurrentSlot();
+            if (showDebugLogs)
+                Debug.Log("[PlayerDataManager] 앱 포커스 해제 시 데이터 저장");
+        }
+    }
+    
+    private void OnApplicationQuit()
+    {
+        if (IsSlotSelected)
+        {
+            SaveCurrentSlot();
+            if (showDebugLogs)
+                Debug.Log("[PlayerDataManager] 앱 종료 시 데이터 저장");
+        }
     }
     
     private void Start()
@@ -282,6 +315,23 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             // 🆕 추가: 새 슬롯 생성 후 메모리에서도 갱신
             LoadAllSlots();
             
+            // 🆕 신규 캐릭터 생성 후 즉시 선택 (핵심 수정)
+            bool selectSuccess = SelectSlot(slotIndex);
+            if (selectSuccess)
+            {
+                Debug.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} 자동 선택 완료");
+                
+                // StageProgressManager는 SelectSlot에서 자동으로 초기화됨
+                if (StageSystem.StageProgressManager.Instance != null)
+                {
+                    StageSystem.StageProgressManager.Instance.InitializeFor(slotIndex);
+                    Debug.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} StageProgressManager 초기화 완료");
+                }
+            }
+            
+            // 🆕 캐릭터 생성 완료 이벤트 발생
+            OnCharacterCreated?.Invoke(slotIndex);
+            
             if (showDebugLogs)
                 Debug.Log($"✨ [PlayerDataManager] 새 슬롯 {slotIndex} 생성 완료: {newSlot}");
             return true;
@@ -421,6 +471,10 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         
         // 🎯 핵심: 기존의 완벽한 LoadFromSlotData 활용
         currentSlotIndex = slotIndex;
+        
+        // 🆕 마지막 선택 슬롯 저장
+        lastSelectedSlotIndex = slotIndex;
+        SaveLastSelectedSlotIndex();
         
         if (selectedPlayerData != null)
         {
@@ -835,7 +889,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     
     #endregion
     
-    #region 🧹 정리 및 호환성 메서드
+    #region 🧹 정리 및 호환성 메서드들
     
     /// <summary>
     /// 기존 PlayerPrefs 데이터 마이그레이션 (한 번만 실행)
@@ -1374,4 +1428,100 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
     
     #endregion
+
+    /// <summary>
+    /// 🆕 현재 선택된 슬롯 인덱스 반환
+    /// </summary>
+    public int GetCurrentSlotIndex()
+    {
+        return currentSlotIndex;
+    }
+    
+    #region 🎯 로비 자동 선택 지원 메서드들
+    
+    /// <summary>
+    /// 유효한 캐릭터가 1명 이상 존재하는지 확인
+    /// </summary>
+    public bool HasAnyCharacter()
+    {
+        for (int i = 0; i < maxSlots; i++)
+        {
+            if (IsSlotValid(i)) return true;
+        }
+        return false;
+    }
+    
+    /// <summary>
+    /// 마지막 선택된 슬롯 인덱스 반환
+    /// </summary>
+    public int GetLastSelectedSlotIndex()
+    {
+        LoadLastSelectedSlotIndex();
+        return lastSelectedSlotIndex;
+    }
+    
+    /// <summary>
+    /// 슬롯에 유효한 캐릭터가 존재하는지 확인
+    /// </summary>
+    public bool IsSlotValid(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots) return false;
+        
+        var slotData = GetSlotData(slotIndex);
+        return slotData != null && slotData.isSlotUsed;
+    }
+    
+    /// <summary>
+    /// 마지막 선택 슬롯 저장
+    /// </summary>
+    private void SaveLastSelectedSlotIndex()
+    {
+        string filePath = Path.Combine(SaveDirectoryPath, "LastSelectedSlot.json");
+        try
+        {
+            var data = new LastSelectedSlotData { lastSelectedSlotIndex = this.lastSelectedSlotIndex };
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(filePath, json);
+            
+            // 🔧 로그 단순화: 디버그 모드에서만 표시
+            if (showDebugLogs)
+                Debug.Log($"[PlayerDataManager] Last slot saved: {lastSelectedSlotIndex}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[PlayerDataManager] 마지막 선택 슬롯 저장 실패: {e.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 마지막 선택 슬롯 로드
+    /// </summary>
+    private void LoadLastSelectedSlotIndex()
+    {
+        string filePath = Path.Combine(SaveDirectoryPath, "LastSelectedSlot.json");
+        if (!File.Exists(filePath)) return;
+        
+        try
+        {
+            string json = File.ReadAllText(filePath);
+            var data = JsonUtility.FromJson<LastSelectedSlotData>(json);
+            lastSelectedSlotIndex = data.lastSelectedSlotIndex;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[PlayerDataManager] 마지막 선택 슬롯 로드 실패: {e.Message}");
+            lastSelectedSlotIndex = 0; // 기본값
+        }
+    }
+    
+    #endregion
+}
+
+/// <summary>
+/// 마지막 선택 슬롯 데이터 (JSON 직렬화용)
+/// </summary>
+[System.Serializable]
+public class LastSelectedSlotData
+{
+    public int lastSelectedSlotIndex;
 } 

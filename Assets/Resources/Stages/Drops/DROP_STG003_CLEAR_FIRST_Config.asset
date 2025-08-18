@@ -18,15 +18,15 @@ MonoBehaviour:
   Gold: 350
   Exp: 200
   Items:
-  - ItemID: ITEM_ARMOR_WARRIOR_S_Equipment
+  - ItemID: ITEM_ARMOR_WARRIOR_S
     Amount: 1
     DropRate: 0.3
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_ASSASIN_S_Equipment
+  - ItemID: ITEM_ARMOR_ASSASIN_S
     Amount: 1
     DropRate: 0.3
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_S_Equipment
+  - ItemID: ITEM_ARMOR_WIZARD_S
     Amount: 1
     DropRate: 0.3
     ItemPrefab: {fileID: 0}
