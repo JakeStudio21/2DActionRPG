@@ -21,7 +21,7 @@ MonoBehaviour:
   - MonsterID: MON_BLUESLIME_001
     Count: 1
     SpawnCount: 0
-    IsBoss: 0
+    IsBoss: 1
     MonsterPrefab: {fileID: 0}
   - MonsterID: MON_GRAPE_001
     Count: 2

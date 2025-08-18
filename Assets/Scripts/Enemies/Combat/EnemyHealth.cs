@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using StageSystem;  // 🆕 추가 - WaveController 네임스페이스
+using ItemSystem; // PickupDataCache, BaseItemData 사용을 위해
 
 /// <summary>
 /// 몬스터 체력 관리 클래스
@@ -460,11 +461,66 @@ public class EnemyHealth : MonoBehaviour
     }
 
     /// <summary>
-    /// 개별 아이템 스폰
+    /// 개별 아이템 스폰 (아이템 타입별 캐시 분기)
     /// </summary>
     private void SpawnSingleItem(string itemId, ItemRarity rarity)
     {
-        // GamePoolManager를 통한 스폰 시도
+        GameObject prefabToSpawn = null;
+        string itemName = "";
+        
+        // 1단계: 아이템 타입별로 적절한 캐시에서 조회
+        if (itemId.StartsWith("ITEM_GOLD") || itemId.StartsWith("ITEM_HEALTH"))
+        {
+            // Gold, Health 아이템: PickupDataCache 사용
+            if (PickupDataCache.Instance == null)
+            {
+                Debug.LogError("[EnemyHealth] PickupDataCache.Instance가 null입니다!");
+                return;
+            }
+            
+            BaseItemData pickupData = PickupDataCache.Instance.GetPickupItemData(itemId);
+            if (pickupData == null)
+            {
+                Debug.LogError($"[EnemyHealth] PickupItemData를 찾을 수 없습니다: {itemId}");
+                return;
+            }
+            
+            if (pickupData.pickupPrefab == null)
+            {
+                Debug.LogError($"[EnemyHealth] {itemId}의 pickupPrefab이 null입니다!");
+                return;
+            }
+            
+            prefabToSpawn = pickupData.pickupPrefab;
+            itemName = pickupData.itemName;
+        }
+        else
+        {
+            // 장비 아이템: EquipmentDataCache 사용
+            if (EquipmentDataCache.Instance == null)
+            {
+                Debug.LogError("[EnemyHealth] EquipmentDataCache.Instance가 null입니다!");
+                return;
+            }
+            
+            EquipmentData equipmentData = EquipmentDataCache.Instance.GetEquipmentData(itemId);
+            if (equipmentData == null)
+            {
+                Debug.LogError($"[EnemyHealth] EquipmentData를 찾을 수 없습니다: {itemId}");
+                return;
+            }
+            
+            if (equipmentData.PickupPrefab == null)
+            {
+                Debug.LogError($"[EnemyHealth] {itemId}의 pickupPrefab이 null입니다!");
+                return;
+            }
+            
+            prefabToSpawn = equipmentData.PickupPrefab;
+            itemName = equipmentData.equipmentName;
+        }
+        
+        // 2단계: itemID로 풀링 시도 (풀 키 = itemID로 통일)
         GameObject spawnedItem = null;
         
         try
@@ -472,43 +528,32 @@ public class EnemyHealth : MonoBehaviour
             if (GamePoolManager.Instance != null)
             {
                 spawnedItem = GamePoolManager.Instance.SpawnFromPool(itemId, transform.position, Quaternion.identity);
-                Debug.Log($"[EnemyHealth] 풀에서 아이템 스폰: {itemId} ({rarity})");
+                Debug.Log($"[EnemyHealth] 풀에서 아이템 스폰 성공: {itemId} ({rarity}) - {itemName}");
+            }
+            else
+            {
+                Debug.LogError("[EnemyHealth] GamePoolManager.Instance가 null입니다!");
+                return;
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[EnemyHealth] 풀 스폰 실패: {itemId}, 에러: {e.Message}");
+            Debug.LogError($"[EnemyHealth] 풀 스폰 실패: {itemId}, 에러: {e.Message}");
+            return;
         }
-
-        // 풀링 실패 시 리소스에서 직접 로드
+        
+        // 3단계: 풀링 실패 시 즉시 에러 (fallback 제거)
         if (spawnedItem == null)
         {
-            GameObject prefab = LoadItemPrefab(itemId);
-            if (prefab != null)
-            {
-                spawnedItem = Instantiate(prefab, transform.position, Quaternion.identity);
-                Debug.Log($"[EnemyHealth] 리소스에서 아이템 직접 생성: {itemId} ({rarity})");
-            }
-            else
-            {
-                Debug.LogError($"[EnemyHealth] 아이템 프리팹을 찾을 수 없습니다: {itemId}");
-            }
+            Debug.LogError($"[EnemyHealth] 풀에서 아이템 스폰 실패: {itemId}");
+            Debug.LogError($"   - 풀 키: {itemId}");
+            Debug.LogError($"   - ItemName: {itemName}");
+            Debug.LogError($"   - PrefabToSpawn: {prefabToSpawn?.name}");
+            return;
         }
-
-        // 희귀도별 특수 효과 (선택적)
-        if (spawnedItem != null)
-        {
-            ApplyRarityEffects(spawnedItem, rarity);
-        }
-    }
-
-    /// <summary>
-    /// 아이템 프리팹 로드
-    /// </summary>
-    private GameObject LoadItemPrefab(string itemId)
-    {
-        // Resources/Prefabs/Pickup/ 폴더에서 찾기
-        return Resources.Load<GameObject>($"Prefabs/Pickup/{itemId}");
+        
+        // 4단계: 희귀도별 특수 효과 적용
+        ApplyRarityEffects(spawnedItem, rarity);
     }
 
     /// <summary>

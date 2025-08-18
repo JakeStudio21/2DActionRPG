@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemSystem;  // 🆕 추가 필요
 
 public class PickUpSpawner : MonoBehaviour
 {
@@ -27,34 +28,26 @@ public class PickUpSpawner : MonoBehaviour
         Debug.Log($"🎯 [PickUpSpawner] 현재 플레이어 타입: {(PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected ? PlayerDataManager.Instance.CurrentPlayerType.ToString() : "NULL")}");
         Debug.Log($"🎯 [PickUpSpawner] GamePoolManager 상태: {(GamePoolManager.Instance != null ? "정상" : "NULL")}");
         
-        // Health 드랍 체크
+        // Health 드랍 체크 (새로운 방식)
         if (canDropHealth && Random.Range(0f, 100f) <= healthDropChance) {
             Debug.Log($"💊 [PickUpSpawner] Health 드랍 성공! 개수: {healthDropAmount}");
+            
             for (int i = 0; i < healthDropAmount; i++) {
-                var healthPickup = GamePoolManager.Instance.SpawnFromPool("Health", transform.position, Quaternion.identity);
-                Debug.Log($"💊 [PickUpSpawner] Health 픽업 생성: {(healthPickup != null ? "성공" : "실패")}");
+                SpawnPickupItem("ITEM_HEALTH_POTION");
             }
-        } else {
-            Debug.Log($"💊 [PickUpSpawner] Health 드랍 실패 - canDrop: {canDropHealth}, 확률: {healthDropChance}%");
         }
 
-        // Gold 드랍 체크  
+        // Gold 드랍 체크 (새로운 방식)  
         if (canDropGold && Random.Range(0f, 100f) <= goldDropChance) {
             int goldAmount = Random.Range(goldDropMinAmount, goldDropMaxAmount + 1);
             Debug.Log($"💰 [PickUpSpawner] Gold 드랍 성공! 개수: {goldAmount}");
             
             for (int i = 0; i < goldAmount; i++) {
-                var goldPickup = GamePoolManager.Instance.SpawnFromPool("Gold Coin", transform.position, Quaternion.identity);
-                Debug.Log($"💰 [PickUpSpawner] Gold 픽업 생성 #{i}: {(goldPickup != null ? "성공" : "실패")}");
-                if (goldPickup != null) {
-                    Debug.Log($"💰 [PickUpSpawner] Gold 픽업 위치: {goldPickup.transform.position}, 활성화: {goldPickup.activeInHierarchy}");
-                }
+                SpawnPickupItem("ITEM_GOLD_COIN");
             }
-        } else {
-            Debug.Log($"💰 [PickUpSpawner] Gold 드랍 실패 - canDrop: {canDropGold}, 확률: {goldDropChance}%");
         }
         
-        // Equipment 드랍 체크 - 🛡️ 안전성 검사 추가
+        // Equipment 드랍은 기존 방식 유지
         if (canDropEquipment && possibleEquipmentDrops != null && 
             possibleEquipmentDrops.Length > 0 && Random.Range(0f, 100f) <= equipmentDropChance) {
             
@@ -277,5 +270,58 @@ public class PickUpSpawner : MonoBehaviour
         // 🏷️ ScriptableObject 이름을 풀 태그로 사용
         return equipmentData.name.Replace("_Equipment", "_Pickup");
         // 예: "Sword_A_Equipment" → "Sword_A_Pickup"
+    }
+
+    /// <summary>
+    /// Pickup 아이템 스폰 (통합 메서드)
+    /// </summary>
+    private void SpawnPickupItem(string itemID)
+    {
+        // 1단계: PickupDataCache에서 아이템 데이터 조회
+        BaseItemData itemData = PickupDataCache.Instance.GetPickupItemData(itemID);
+        if (itemData == null)
+        {
+            Debug.LogError($"[PickUpSpawner] PickupItemData를 찾을 수 없습니다: {itemID}");
+            return;
+        }
+        
+        // 2단계: pickupPrefab 참조 확인
+        if (itemData.pickupPrefab == null)
+        {
+            Debug.LogError($"[PickUpSpawner] {itemID}의 pickupPrefab이 null입니다!");
+            return;
+        }
+        
+        // 3단계: itemID로 풀링 시도 (풀 키 = itemID로 통일)
+        GameObject spawnedItem = null;
+        
+        try
+        {
+            if (GamePoolManager.Instance != null)
+            {
+                spawnedItem = GamePoolManager.Instance.SpawnFromPool(itemID, transform.position, Quaternion.identity);
+                Debug.Log($"[PickUpSpawner] 풀에서 아이템 스폰 성공: {itemID}");
+            }
+            else
+            {
+                Debug.LogError("[PickUpSpawner] GamePoolManager.Instance가 null입니다!");
+                return;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[PickUpSpawner] 풀 스폰 실패: {itemID}, 에러: {e.Message}");
+            return;
+        }
+        
+        // 4단계: 풀링 실패 시 즉시 에러 (fallback 제거)
+        if (spawnedItem == null)
+        {
+            Debug.LogError($"[PickUpSpawner] 풀에서 아이템 스폰 실패: {itemID}");
+            Debug.LogError($"   - 풀 키: {itemID}");
+            Debug.LogError($"   - ItemData: {itemData.itemName}");
+            Debug.LogError($"   - PickupPrefab: {itemData.pickupPrefab.name}");
+            return;
+        }
     }
 }

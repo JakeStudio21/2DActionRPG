@@ -41,3 +41,4 @@ MonoBehaviour:
   sellPrice: 100
   isLimited: 0
   quantityLimit: 0
+  pickupPrefab: {fileID: 6665777931767919178, guid: 9da8dd8d96b24d54589a60b0cf327145, type: 3}

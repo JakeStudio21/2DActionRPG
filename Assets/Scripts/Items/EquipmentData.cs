@@ -53,12 +53,28 @@ public class EquipmentData : ScriptableObject
     public bool isLimited = false;      // 한정 판매 여부 (예: 1개만 구매 가능)
     public int quantityLimit = 0;       // 한정 수량 (0이면 무제한)
     
+    [Header("드롭/픽업 연결")]
+    [SerializeField] private GameObject pickupPrefab; // 실제 드롭되는 프리팹
+    
     // 접근자 프로퍼티
     public WeaponType WeaponType => weaponType;
     public float WeaponCooldown => weaponCooldown;
     public float WeaponRange => weaponRange;
     public ArmorType ArmorType => armorType; // 🆕 방어구 타입 프로퍼티
     
+    /// <summary>
+    /// Pickup 프리팹 반환
+    /// </summary>
+    public GameObject PickupPrefab => pickupPrefab;
+    
+    /// <summary>
+    /// Pickup 프리팹 설정
+    /// </summary>
+    public void SetPickupPrefab(GameObject prefab)
+    {
+        pickupPrefab = prefab;
+    }
+
     // 무기 타입 확인
     public bool IsWeapon => equipmentType == EquipmentType.Weapon;
     public bool IsArmor => equipmentType == EquipmentType.Armor;

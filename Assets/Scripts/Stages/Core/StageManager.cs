@@ -389,9 +389,10 @@ public class StageManager : MonoBehaviour
             // 이벤트 발생
             OnStageCompleted?.Invoke(stageConfig, success);
             
-            // 진행도 저장 (성공 시만)
+            // 성공 시 보상 처리 및 진행도 저장
             if (success)
             {
+                ProcessStageRewards(clearTime);
                 SaveStageProgress(clearTime);
                 
                 // FSMStageController에 승리 알림
@@ -407,6 +408,34 @@ public class StageManager : MonoBehaviour
                 {
                     FSMStageController.Instance.TriggerDefeat();
                 }
+            }
+        }
+        
+        /// <summary>
+        /// 스테이지 보상 처리
+        /// </summary>
+        private void ProcessStageRewards(float clearTime)
+        {
+            if (RewardSystem.Instance == null)
+            {
+                Debug.LogWarning("[StageManager] RewardSystem이 없습니다. 보상 처리를 건너뜁니다.");
+                return;
+            }
+            
+            // 진행도 확인하여 첫 클리어 여부 판단
+            bool isFirstClear = false;
+            if (StageProgressManager.Instance != null)
+            {
+                var progress = StageProgressManager.Instance.GetStageProgress(stageConfig.StageID);
+                isFirstClear = progress != null && !progress.isFirstClearRewarded;
+            }
+            
+            // 보상 처리
+            var rewardResult = RewardSystem.Instance.ProcessStageRewards(stageConfig, isFirstClear, clearTime);
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🎁 [StageManager] 보상 처리 완료: 골드 {rewardResult.Gold}, EXP {rewardResult.Exp}");
             }
         }
         

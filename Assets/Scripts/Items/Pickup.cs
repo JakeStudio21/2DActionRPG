@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemSystem; // 🆕 ItemSystem 네임스페이스 추가
 
 public class Pickup : MonoBehaviour
 {
@@ -88,76 +89,101 @@ public class Pickup : MonoBehaviour
     }
 
     private void DetectPickupType() {
-        switch (pickUpType)
+        // 1. ScriptableObject 기반 아이템 처리 (우선순위)
+        if (itemData != null)
         {
-            case PickUpType.GoldCoin:
-                // ⭐ [Phase 1] PlayerDataManager로 통합하여 중복 제거
-                if (PlayerDataManager.Instance != null)
-                {
-                    // 🔍 현재 플레이어 타입 확인 (디버깅용)
-                    PlayerType currentType = PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected 
-                        ? PlayerDataManager.Instance.CurrentPlayerType 
-                        : PlayerType.Warrior; // 기본값
-                    Debug.Log($"�� [Pickup] 골드 추가 - 현재 캐릭터: {currentType}");
-                    
-                    PlayerDataManager.Instance.AddGold(1);
-                }
-                else if (PlayerManager.Instance != null)
-                {
-                    // 백업: 기존 PlayerManager 사용 (호환성)
-                    PlayerManager.Instance.AddGold(1);
-                    Debug.Log("💰 [Pickup] PlayerManager를 통한 골드 추가 (백업)");
-                }
-                else
-                {
-                    Debug.LogWarning("[Pickup] PlayerDataManager를 찾을 수 없습니다!");
-                }
-                
-                Debug.Log("GoldCoin");
-                break;
+            ProcessScriptableObjectItem();
+            return;
+        }
+        
+        // 2. EquipmentData 처리 (호환성)
+        if (equipmentData != null)
+        {
+            ProcessEquipmentItem();
+            return;
+        }
+        
+        // 3. 기존 enum 기반 처리 (레거시 호환성)
+        ProcessLegacyPickup();
+    }
+    
+    /// <summary>
+    /// ScriptableObject 기반 아이템 처리
+    /// </summary>
+    private void ProcessScriptableObjectItem()
+    {
+        if (PlayerDataManager.Instance != null)
+        {
+            itemData.UseItem(PlayerDataManager.Instance);
             
-            case PickUpType.HealthGlobe:
-                var playerHealth = FindObjectOfType<PlayerHealth>();
-                playerHealth.HealPlayer();
-                Debug.Log("HealthGlobe");
-                break;
-            
-            // 🔑 StaminaGlobe 케이스 추가 (사용하지 않지만 enum 호환성 유지)
-            case PickUpType.StaminaGlobe:
-                Debug.LogWarning("[Pickup] StaminaGlobe는 더 이상 사용되지 않습니다.");
-                break;
-            
-            case PickUpType.EquipmentItem:
-                // PlayerDataManager에 인벤토리 추가
-                if (PlayerDataManager.Instance != null && equipmentData != null)
-                {
-                    bool success = PlayerDataManager.Instance.AddToInventory(equipmentData);
-                    if (!success)
-                    {
-                        // 인벤토리가 가득참 알림
-                        Debug.LogWarning($"💼 [Pickup] 인벤토리가 가득 참! {equipmentData.name} 획득 실패");
-                        
-                        // UI 메시지 표시 (옵션)
-                        // TODO: 나중에 UI 알림 시스템 추가 시 사용
-                        // UIManager.Instance?.ShowMessage("인벤토리가 가득 찼습니다!");
-                    }
-                    else
-                    {
-                        Debug.Log($"🎒 [Pickup] 장비 획득: {equipmentData.equipmentName}");
-                    }
-                }
-                else
-                {
-                    Debug.LogError("[Pickup] PlayerDataManager 또는 equipmentData가 없습니다!");
-                }
-                break;
-            
-            default:
-                Debug.LogError($"[Pickup] 알 수 없는 픽업 타입: {pickUpType} (값: {(int)pickUpType})");
-                break;
+            if (enableDebugLogs)
+            {
+                Debug.Log($" [Pickup] 아이템 사용: {itemData.itemName}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[Pickup] PlayerDataManager를 찾을 수 없습니다!");
         }
     }
     
+    /// <summary>
+    /// EquipmentData 처리
+    /// </summary>
+    private void ProcessEquipmentItem()
+    {
+        if (PlayerDataManager.Instance != null && equipmentData != null)
+        {
+            bool success = PlayerDataManager.Instance.AddToInventory(equipmentData);
+            if (success)
+            {
+                Debug.Log($"🎒 [Pickup] 장비 획득: {equipmentData.equipmentName}");
+            }
+            else
+            {
+                Debug.LogWarning($"💼 [Pickup] 인벤토리가 가득 참! {equipmentData.name} 획득 실패");
+            }
+        }
+        else
+        {
+            Debug.LogError("[Pickup] PlayerDataManager 또는 equipmentData가 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 기존 enum 기반 픽업 처리 (호환성 유지)
+    /// </summary>
+    private void ProcessLegacyPickup()
+    {
+        switch (pickUpType)
+        {
+            case PickUpType.GoldCoin:
+                if (PlayerDataManager.Instance != null)
+                {
+                    PlayerDataManager.Instance.AddGold(1);
+                    Debug.Log($" [Pickup] 골드 획득: +1");
+                }
+                break;
+                    
+            case PickUpType.HealthGlobe:
+                var playerHealth = FindObjectOfType<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    playerHealth.HealPlayer();
+                    Debug.Log($"❤️ [Pickup] 체력 회복");
+                }
+                break;
+                    
+            case PickUpType.EquipmentItem:
+                ProcessEquipmentItem();
+                break;
+                    
+            default:
+                Debug.LogError($"[Pickup] 알 수 없는 픽업 타입: {pickUpType}");
+                break;
+        }
+    }
+
     /// <summary>
     /// 🔑 Arrow처럼 GamePoolManager로 정상 반환
     /// </summary>
@@ -200,6 +226,36 @@ public class Pickup : MonoBehaviour
         }
     }
 
-    [Header("🎒 장비 아이템 설정")]
-    [SerializeField] private EquipmentData equipmentData; // 픽업할 장비 아이템
+    /// <summary>
+    /// EquipmentData 설정 (런타임에 동적으로 연결)
+    /// </summary>
+    public void SetEquipmentData(EquipmentData data)
+    {
+        equipmentData = data;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($" [Pickup] EquipmentData 연결: {data?.equipmentName ?? "null"}");
+        }
+    }
+
+    /// <summary>
+    /// ScriptableObject 기반 아이템 데이터 설정 (런타임에 동적으로 연결)
+    /// </summary>
+    public void SetItemData(BaseItemData data)
+    {
+        itemData = data;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($" [Pickup] ItemData 연결: {data?.itemName ?? "null"}");
+        }
+    }
+
+    [Header("🎒 아이템 설정")]
+    [SerializeField] private BaseItemData itemData; // 모든 아이템 타입 지원 (우선순위 1)
+    [SerializeField] private EquipmentData equipmentData; // 장비 아이템 (우선순위 2, 호환성)
+    
+    [Header("디버그 설정")]
+    [SerializeField] private bool enableDebugLogs = true; // 디버그 로그 활성화
 }

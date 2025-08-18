@@ -37,3 +37,8 @@ MonoBehaviour:
   defenseBonus: 20
   speedBonus: 0
   healthBonus: 30
+  buyPrice: 100
+  sellPrice: 50
+  isLimited: 0
+  quantityLimit: 0
+  pickupPrefab: {fileID: 6665777931767919178, guid: e90830465f8a1744f9ffaf0bae5ae438, type: 3}

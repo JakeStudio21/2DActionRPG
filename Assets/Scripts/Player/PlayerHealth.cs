@@ -98,8 +98,24 @@ public class PlayerHealth : Singleton<PlayerHealth>
 
     public void HealPlayer() {
         if (currentHealth < maxHealth) {
-            currentHealth += 1;
-            UpdateUI(); // ✅ 변경: UpdateHealthSlider() → UpdateUI()
+            currentHealth += 1;  // 항상 1씩만 회복
+            UpdateUI();
+        }
+    }
+
+    /// <summary>
+    /// 지정된 양만큼 체력 회복
+    /// </summary>
+    public void HealPlayerAmount(int healAmount) {
+        if (currentHealth < maxHealth) {
+            int actualHeal = Mathf.Min(healAmount, maxHealth - currentHealth);
+            currentHealth += actualHeal;
+            UpdateUI();
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"❤️ [PlayerHealth] 체력 회복: +{actualHeal} ({currentHealth}/{maxHealth})");
+            }
         }
     }
 

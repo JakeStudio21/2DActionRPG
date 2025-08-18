@@ -213,4 +213,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
+  itemData: {fileID: 11400000, guid: 06e9ae419f32b6a4dbbf6d40d6ff084c, type: 2}
   equipmentData: {fileID: 0}
+  enableDebugLogs: 1
