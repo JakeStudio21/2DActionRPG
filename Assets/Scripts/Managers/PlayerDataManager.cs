@@ -1367,10 +1367,20 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     /// </summary>
     public List<StageSystem.StageProgress> GetStageProgresses()
     {
-        if (!IsSlotSelected) return new List<StageSystem.StageProgress>();
+        if (!IsSlotSelected) 
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("[PlayerDataManager] 슬롯이 선택되지 않음");
+            return new List<StageSystem.StageProgress>();
+        }
         
         var currentSlot = GetSlotData(currentSlotIndex);
-        if (currentSlot == null) return new List<StageSystem.StageProgress>();
+        if (currentSlot == null) 
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"[PlayerDataManager] 슬롯 {currentSlotIndex} 데이터가 null");
+            return new List<StageSystem.StageProgress>();
+        }
         
         return currentSlot.stageProgresses ?? new List<StageSystem.StageProgress>();
     }
@@ -1387,10 +1397,10 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         
         currentSlot.stageProgresses = progresses;
         
-        // SelectedPlayerData에도 반영 (캐시 동기화)
+        // 🆕 SelectedPlayerData에도 반영 (캐시 동기화)
         if (selectedPlayerData != null)
         {
-            // 필요시 SelectedPlayerData에도 스테이지 진행도 추가 가능
+            selectedPlayerData.stageProgresses = new List<StageSystem.StageProgress>(progresses);
         }
         
         // 자동 저장

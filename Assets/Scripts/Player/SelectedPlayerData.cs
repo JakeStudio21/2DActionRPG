@@ -76,6 +76,9 @@ public class SelectedPlayerData : ScriptableObject
         }
     }
     
+    [Header("🎯 스테이지 진행도")]
+    public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
+    
     /// <summary>
     /// PlayerSlotData에서 런타임 데이터로 복사
     /// </summary>
@@ -157,6 +160,9 @@ public class SelectedPlayerData : ScriptableObject
             RuntimeExtraStats[kvp.Key] = kvp.Value;
         }
         
+        // 스테이지 진행도 로드
+        stageProgresses = slotData.stageProgresses ?? new List<StageSystem.StageProgress>();
+        
         SyncDictionaries();
         
         Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 로드 완료: {slotData}");
@@ -217,6 +223,9 @@ public class SelectedPlayerData : ScriptableObject
         {
             slotData.SetExtraStat(kvp.Key, kvp.Value);
         }
+        
+        // 스테이지 진행도 저장
+        slotData.stageProgresses = new List<StageSystem.StageProgress>(stageProgresses);
         
         Debug.Log($"📤 [SelectedPlayerData] 슬롯 {selectedSlotIndex} 데이터 저장 준비 완료: {slotData}");
         return slotData;

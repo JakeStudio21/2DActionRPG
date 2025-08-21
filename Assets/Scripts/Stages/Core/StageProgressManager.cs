@@ -5,21 +5,23 @@ using UnityEngine;
 namespace StageSystem
 {
     /// <summary>
-    /// 스테이지 진행도 관리 시스템
-    /// 🔧 수정: 캐릭터별(슬롯별) 진행도 관리
+    /// 스테이지 진행도 관리 시스템 - 슬롯별 독립 관리
     /// </summary>
     public class StageProgressManager : MonoBehaviour
     {
         public static StageProgressManager Instance { get; private set; }
 
-        [Header("디버그")]
-        public bool enableDebugLogs = true;
+        [Header("📊 진행도 관리")]
+        [SerializeField] private bool enableDebugLogs = true;
+        private int currentSlotIndex = -1; // 슬롯 전환 감지용
+        [SerializeField] private bool isInitialized = false;
         
-        // 🆕 초기화 상태 확인용 프로퍼티 추가
-        public bool IsInitialized { get; private set; } = false;
+        // 현재 슬롯 진행도 캐시
+        private Dictionary<string, StageProgress> progressCache = new Dictionary<string, StageProgress>();
         
-        // 🆕 현재 슬롯 추적
-        private int currentSlotIndex = -1;
+        // Public 프로퍼티
+        public bool IsInitialized => isInitialized;
+        public int GetCurrentSlotIndex() => currentSlotIndex;
         
         // 이벤트
         public System.Action<string> OnStageUnlocked;
@@ -27,7 +29,6 @@ namespace StageSystem
         public System.Action<string> OnFirstClearRewardClaimed;
         
         // 런타임 캐시
-        private Dictionary<string, StageProgress> progressCache;
         private List<StageConfig> allStageConfigs;
         
         private void Awake()
@@ -44,9 +45,7 @@ namespace StageSystem
 
         private void Start()
         {
-            // 씬 전환 시에도 유지
             DontDestroyOnLoad(gameObject);
-            
             InitializeProgressSystem();
         }
         
@@ -56,35 +55,28 @@ namespace StageSystem
         private void InitializeProgressSystem()
         {
             if (enableDebugLogs)
-                Debug.Log("🎯 [StageProgressManager] 진행도 시스템 초기화 시작...");
+                Debug.Log("[StageProgressManager] 진행도 시스템 초기화 시작");
             
-            // 🆕 현재 선택된 슬롯 인덱스 가져오기
+            // 현재 선택된 슬롯 인덱스 가져오기
             if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
             {
                 currentSlotIndex = PlayerDataManager.Instance.GetCurrentSlotIndex();
-                if (enableDebugLogs)
-                    Debug.Log($"🎯 [StageProgressManager] 현재 슬롯: {currentSlotIndex}");
             }
             else
             {
-                Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다. 기본값(0) 사용.");
-                currentSlotIndex = 0; // 🆕 기본값 설정
+                if (enableDebugLogs)
+                    Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다. 기본값(0) 사용");
+                currentSlotIndex = 0;
             }
             
-            // 모든 스테이지 설정 로드
             LoadAllStageConfigs();
-            
-            // 진행도 캐시 초기화
             InitializeProgressCache();
-            
-            // 자동 해금 체크
             CheckAutoUnlocks();
             
-            // 🆕 초기화 완료 플래그 설정
-            IsInitialized = true;
+            isInitialized = true;
             
             if (enableDebugLogs)
-                Debug.Log("✅ [StageProgressManager] 진행도 시스템 초기화 완료");
+                Debug.Log("[StageProgressManager] 진행도 시스템 초기화 완료");
         }
         
         /// <summary>
@@ -93,34 +85,51 @@ namespace StageSystem
         private void LoadAllStageConfigs()
         {
             allStageConfigs = new List<StageConfig>();
-            
-            // Resources/Stages/Configs 폴더에서 모든 StageConfig 로드
             StageConfig[] configs = Resources.LoadAll<StageConfig>("Stages/Configs");
             allStageConfigs.AddRange(configs);
             
             if (enableDebugLogs)
-                Debug.Log($"📄 [StageProgressManager] {allStageConfigs.Count}개 스테이지 설정 로드됨");
+                Debug.Log($"[StageProgressManager] {allStageConfigs.Count}개 스테이지 설정 로드됨");
         }
         
         /// <summary>
-        /// 🔧 수정: 진행도 캐시 초기화 (슬롯별)
+        /// 진행도 캐시 초기화
         /// </summary>
         private void InitializeProgressCache()
         {
-            progressCache = new Dictionary<string, StageProgress>();
+            if (enableDebugLogs)
+                Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex} 캐시 초기화");
             
-            // 🆕 현재 선택된 슬롯의 진행도만 로드
-            RefreshProgressForCurrentSlot();
-            
+            LoadCurrentSlotProgress();
+        }
+        
+        /// <summary>
+        /// 현재 슬롯의 진행도 로드
+        /// </summary>
+        private void LoadCurrentSlotProgress()
+        {
             if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
             {
-                Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다.");
+                if (enableDebugLogs)
+                    Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다");
                 return;
             }
             
-            // 🔧 수정: 현재 슬롯의 진행도만 로드
-            var savedProgresses = PlayerDataManager.Instance.GetStageProgresses();
+            // 슬롯 전환 감지 및 캐시 초기화
+            int newSlotIndex = PlayerDataManager.Instance.CurrentSlotIndex;
+            if (newSlotIndex != currentSlotIndex)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] 슬롯 전환 감지: {currentSlotIndex} → {newSlotIndex}");
+                progressCache.Clear();
+                currentSlotIndex = newSlotIndex;
+            }
             
+            var savedProgresses = PlayerDataManager.Instance.GetStageProgresses();
+            if (enableDebugLogs)
+                Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex}에서 로드된 진행도 개수: {savedProgresses.Count}");
+            
+            // 저장된 데이터로 캐시 업데이트
             foreach (var progress in savedProgresses)
             {
                 progressCache[progress.stageId] = progress;
@@ -140,14 +149,31 @@ namespace StageSystem
                     }
                     
                     progressCache[config.StageID] = newProgress;
-                    
-                    if (enableDebugLogs)
-                        Debug.Log($"🆕 [StageProgressManager] 슬롯 {currentSlotIndex} 신규 진행도 생성: {config.StageID}");
                 }
             }
-            
-            // 변경사항 저장
-            SaveProgressesToPlayerData();
+        }
+        
+        /// <summary>
+        /// 스테이지 완료 처리
+        /// </summary>
+        public void CompleteStage(string stageId, float completionTime = 0f, bool isFirstClear = false)
+        {
+            if (progressCache.ContainsKey(stageId))
+            {
+                var progress = progressCache[stageId];
+                progress.isCompleted = true;
+                
+                if (completionTime > 0)
+                {
+                    progress.CompleteStage((int)completionTime);
+                }
+                
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] 스테이지 완료: {stageId}");
+                
+                CheckAutoUnlocks();
+                SaveProgressesToPlayerData();
+            }
         }
         
         /// <summary>
@@ -155,288 +181,153 @@ namespace StageSystem
         /// </summary>
         private void CheckAutoUnlocks()
         {
+            if (enableDebugLogs)
+                Debug.Log($"[StageProgressManager] 자동 해금 체크 시작 - 설정된 스테이지 수: {allStageConfigs.Count}");
+            
             bool hasNewUnlocks = false;
             
             foreach (var config in allStageConfigs)
             {
-                if (IsStageUnlocked(config.StageID))
-                    continue;
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] {config.StageID} 체크 중 - UnlockCondition: '{config.UnlockCondition}'");
                 
-                var unlockData = config.UnlockData;
-                
-                if (unlockData.IsAlwaysUnlocked)
+                if (!IsStageUnlocked(config.StageID))
                 {
-                    UnlockStageInternal(config.StageID);
-                    hasNewUnlocks = true;
-                }
-                else if (!string.IsNullOrEmpty(unlockData.RequiredStageId))
-                {
-                    if (IsStageCompleted(unlockData.RequiredStageId))
+                    if (config.UnlockCondition == "AlwaysUnlocked" || 
+                        (config.UnlockCondition.StartsWith("Clear:") && 
+                         IsStageCompleted(config.UnlockCondition.Substring(6))))
                     {
-                        UnlockStageInternal(config.StageID);
+                        AutoUnlockStage(config.StageID);
                         hasNewUnlocks = true;
-                        
-                        if (enableDebugLogs)
-                            Debug.Log($"🔓 [StageProgressManager] 자동 해금: {config.StageID} (선행: {unlockData.RequiredStageId})");
                     }
                 }
             }
             
-            if (hasNewUnlocks)
+            if (!hasNewUnlocks && enableDebugLogs)
             {
+                Debug.Log("[StageProgressManager] 새로 해금된 스테이지 없음");
+            }
+        }
+        
+        /// <summary>
+        /// 스테이지 해금 (자동 해금용)
+        /// </summary>
+        private void AutoUnlockStage(string stageId)
+        {
+            if (progressCache.ContainsKey(stageId))
+            {
+                progressCache[stageId].isUnlocked = true;
+                
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] 자동 해금: {stageId}");
+                
+                OnStageUnlocked?.Invoke(stageId);
                 SaveProgressesToPlayerData();
             }
         }
         
         /// <summary>
-        /// 🔧 수정: 안전한 스테이지 해금 상태 확인 (디버깅 강화)
+        /// 스테이지 해금 상태 확인
         /// </summary>
         public bool IsStageUnlocked(string stageId)
         {
-            // 🆕 초기화 확인 추가
-            if (!IsInitialized || progressCache == null)
+            if (!isInitialized || progressCache == null)
             {
-                Debug.LogWarning($"[StageProgressManager] 아직 초기화되지 않음. {stageId} 기본값 반환.");
-                return stageId == "STAGE_001"; // STAGE_001만 기본 해금
+                return stageId == "STAGE_001";
             }
             
-            if (progressCache.TryGetValue(stageId, out StageProgress progress))
+            if (progressCache.ContainsKey(stageId))
             {
-                // 🆕 상세 디버깅 로그 추가
-                if (enableDebugLogs)
-                    Debug.Log($"🔍 [StageProgressManager] {stageId} 해금상태: {progress.isUnlocked} (슬롯: {currentSlotIndex})");
-                
-                return progress.isUnlocked;
+                return progressCache[stageId].isUnlocked;
             }
             
-            // 🆕 progressCache에 없는 경우 디버깅
-            Debug.LogWarning($"[StageProgressManager] {stageId}가 progressCache에 없습니다. 현재 캐시 개수: {progressCache.Count}");
-            
-            // progressCache에 있는 모든 키 출력
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[StageProgressManager] 현재 캐시 키들: {string.Join(", ", progressCache.Keys)}");
-            }
-            
-            return false;
+            return stageId == "STAGE_001";
         }
         
         /// <summary>
-        /// 🔧 수정: 안전한 스테이지 완료 상태 확인
+        /// 스테이지 완료 상태 확인
         /// </summary>
         public bool IsStageCompleted(string stageId)
         {
-            // 🆕 초기화 확인 추가
-            if (!IsInitialized || progressCache == null)
+            if (!isInitialized || progressCache == null)
             {
-                Debug.LogWarning($"[StageProgressManager] 아직 초기화되지 않음. {stageId} 기본값 반환.");
                 return false;
             }
             
-            if (progressCache.TryGetValue(stageId, out StageProgress progress))
+            if (progressCache.ContainsKey(stageId))
             {
-                return progress.isCompleted;
+                return progressCache[stageId].isCompleted;
             }
+            
             return false;
         }
         
         /// <summary>
-        /// 스테이지 해금
-        /// </summary>
-        public void UnlockStage(string stageId)
-        {
-            UnlockStageInternal(stageId);
-            SaveProgressesToPlayerData();
-            
-            OnStageUnlocked?.Invoke(stageId);
-            
-            if (enableDebugLogs)
-                Debug.Log($"🔓 [StageProgressManager] 스테이지 해금: {stageId}");
-        }
-        
-        /// <summary>
-        /// 내부 해금 처리 (저장 안함)
-        /// </summary>
-        private void UnlockStageInternal(string stageId)
-        {
-            if (progressCache.TryGetValue(stageId, out StageProgress progress))
-            {
-                progress.isUnlocked = true;
-            }
-            else
-            {
-                var newProgress = new StageProgress(stageId, true);
-                progressCache[stageId] = newProgress;
-            }
-        }
-        
-        /// <summary>
-        /// 스테이지 완료 처리
-        /// </summary>
-        public void CompleteStage(string stageId, int clearTime)
-        {
-            if (!progressCache.TryGetValue(stageId, out StageProgress progress))
-            {
-                Debug.LogWarning($"⚠️ [StageProgressManager] 존재하지 않는 스테이지: {stageId}");
-                return;
-            }
-            
-            bool isFirstClear = !progress.isCompleted;
-            progress.CompleteStage(clearTime);
-            
-            // 자동 해금 체크
-            CheckAutoUnlocks();
-            
-            SaveProgressesToPlayerData();
-            
-            OnStageCompleted?.Invoke(stageId, isFirstClear);
-            
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🏆 [StageProgressManager] 스테이지 완료: {stageId} " +
-                         $"(시간: {clearTime}초, 첫클리어: {isFirstClear})");
-            }
-        }
-        
-        /// <summary>
-        /// 첫 클리어 보상 수령 가능 여부
-        /// </summary>
-        public bool CanClaimFirstClearReward(string stageId)
-        {
-            if (progressCache.TryGetValue(stageId, out StageProgress progress))
-            {
-                return progress.CanClaimFirstClearReward();
-            }
-            return false;
-        }
-        
-        /// <summary>
-        /// 첫 클리어 보상 수령
-        /// </summary>
-        public void ClaimFirstClearReward(string stageId)
-        {
-            if (progressCache.TryGetValue(stageId, out StageProgress progress))
-            {
-                if (progress.CanClaimFirstClearReward())
-                {
-                    progress.ClaimFirstClearReward();
-                    SaveProgressesToPlayerData();
-                    
-                    OnFirstClearRewardClaimed?.Invoke(stageId);
-                    
-                    if (enableDebugLogs)
-                        Debug.Log($"🎁 [StageProgressManager] 첫 클리어 보상 수령: {stageId}");
-                }
-            }
-        }
-        
-        /// <summary>
-        /// 스테이지 진행도 조회
-        /// </summary>
-        public StageProgress GetStageProgress(string stageId)
-        {
-            progressCache.TryGetValue(stageId, out StageProgress progress);
-            return progress;
-        }
-        
-        /// <summary>
-        /// 해금된 스테이지 ID 목록
-        /// </summary>
-        public List<string> GetUnlockedStageIds()
-        {
-            return progressCache.Values
-                .Where(p => p.isUnlocked)
-                .Select(p => p.stageId)
-                .ToList();
-        }
-        
-        /// <summary>
-        /// 완료된 스테이지 ID 목록
-        /// </summary>
-        public List<string> GetCompletedStageIds()
-        {
-            return progressCache.Values
-                .Where(p => p.isCompleted)
-                .Select(p => p.stageId)
-                .ToList();
-        }
-        
-        /// <summary>
-        /// 🔧 수정: 진행도를 현재 슬롯에 저장
+        /// 진행도를 PlayerDataManager에 저장
         /// </summary>
         private void SaveProgressesToPlayerData()
         {
-            if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
-            {
-                Debug.LogWarning("[StageProgressManager] 저장할 슬롯이 선택되지 않았습니다.");
-                return;
-            }
-            
-            var progressList = progressCache.Values.ToList();
-            PlayerDataManager.Instance.UpdateStageProgresses(progressList);
-            
-            if (enableDebugLogs)
-                Debug.Log($"💾 [StageProgressManager] 슬롯 {currentSlotIndex} 진행도 저장 완료");
-        }
-        
-        /// <summary>
-        /// 🆕 현재 선택된 슬롯 변경 시 진행도 갱신
-        /// </summary>
-        public void RefreshProgressForCurrentSlot()
-        {
             if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
             {
-                int newSlotIndex = PlayerDataManager.Instance.GetCurrentSlotIndex();
+                var progressList = new List<StageProgress>(progressCache.Values);
+                PlayerDataManager.Instance.UpdateStageProgresses(progressList);
                 
-                // 슬롯이 변경되었거나 처음 초기화하는 경우
-                if (newSlotIndex != currentSlotIndex)
-                {
-                    currentSlotIndex = newSlotIndex;
-                    
-                    if (enableDebugLogs)
-                        Debug.Log($"🔄 [StageProgressManager] 슬롯 변경: {currentSlotIndex}");
-                    
-                    // 🔧 수정: 진행도 캐시 다시 로드
-                    if (IsInitialized)
-                    {
-                        InitializeProgressCache();
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다.");
-                currentSlotIndex = 0; // 🆕 기본값 설정
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex} 진행도 저장 완료");
             }
         }
         
         /// <summary>
-        /// 🆕 특정 슬롯으로 강제 초기화 (2단계: 순서 고정)
+        /// 특정 슬롯으로 강제 초기화
         /// </summary>
         public void InitializeFor(int slotIndex)
         {
             if (enableDebugLogs)
-                Debug.Log($"🔄 [StageProgressManager] 슬롯 {slotIndex}로 강제 재초기화");
+                Debug.Log($"[StageProgressManager] 슬롯 {slotIndex}로 강제 재초기화");
             
-            currentSlotIndex = slotIndex;
-            
-            // 🔧 수정: 스테이지 설정 먼저 로드
-            if (allStageConfigs == null || allStageConfigs.Count == 0)
-            {
-                LoadAllStageConfigs();
-            }
-            
-            // 진행도 캐시 다시 로드
+            LoadAllStageConfigs();
             InitializeProgressCache();
-            
-            // 자동 해금 체크
             CheckAutoUnlocks();
             
-            // 초기화 완료
-            IsInitialized = true;
+            isInitialized = true;
             
             if (enableDebugLogs)
-                Debug.Log($"✅ [StageProgressManager] 슬롯 {slotIndex} 초기화 완료");
+                Debug.Log($"[StageProgressManager] 슬롯 {slotIndex} 초기화 완료");
+        }
+        
+        /// <summary>
+        /// 특정 스테이지 진행도 가져오기
+        /// </summary>
+        public StageProgress GetStageProgress(string stageId)
+        {
+            if (!isInitialized || progressCache == null)
+            {
+                return null;
+            }
+            
+            if (progressCache.ContainsKey(stageId))
+            {
+                return progressCache[stageId];
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// 스테이지 강제 해금 (디버그용)
+        /// </summary>
+        public void UnlockStage(string stageId)
+        {
+            if (progressCache.ContainsKey(stageId))
+            {
+                progressCache[stageId].isUnlocked = true;
+                
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] 강제 해금: {stageId}");
+                
+                OnStageUnlocked?.Invoke(stageId);
+                SaveProgressesToPlayerData();
+            }
         }
     }
 }

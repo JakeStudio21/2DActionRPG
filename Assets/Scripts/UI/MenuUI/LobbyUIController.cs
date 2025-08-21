@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using StageSystem; // 🆕 StageSystem namespace 추가
+using System.IO; // 🆕 파일 입출력 네임스페이스 추가
+using System.Collections.Generic; // 🆕 리스트 네임스페이스 추가
 
 /// <summary>
 /// 로비 UI 통합 컨트롤러 (캐릭터 선택 + 스테이지 선택)
@@ -84,10 +86,14 @@ public class LobbyUIController : MonoBehaviour
     public Image stage3Image;
     
     [Header("=== UI 스타일 설정 ===")]
-    public Color selectedColor = Color.white;
-    public Color normalColor = new Color(0.7f, 0.7f, 0.7f, 1f);
-    public Color disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
-    public Color completedColor = Color.green; // 🆕 완료된 스테이지 색상
+    // 🗑️ 삭제: 하드코딩된 색상들
+    // public Color selectedColor = Color.white;
+    // public Color normalColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+    // public Color disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    // public Color completedColor = Color.green;
+    
+    [Header("=== 색상 참조 버튼 ===")]
+    public Button colorReferenceButton; // Stage_01 버튼을 참조용으로 사용
     
     // 🆕 StageProgressManager 연동을 위한 필드들
     [Header("=== Stage Progress Integration ===")]
@@ -120,12 +126,34 @@ public class LobbyUIController : MonoBehaviour
         {
             StageProgressManager.Instance.OnStageUnlocked += OnStageUnlocked;
             StageProgressManager.Instance.OnStageCompleted += OnStageCompleted;
+            
+            // 🆕 씬 전환 후 즉시 UI 상태 동기화
+            StartCoroutine(RefreshUIAfterSceneLoad());
         }
         
         // 🆕 캐릭터 생성 이벤트 구독
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnCharacterCreated += OnCharacterCreationCompleted;
+        }
+    }
+
+    // 🆕 씬 로드 후 UI 새로고침 (이벤트 소실 방지)
+    private System.Collections.IEnumerator RefreshUIAfterSceneLoad()
+    {
+        // 1프레임 대기 (모든 초기화 완료 후)
+        yield return null;
+        
+        // 강제 UI 업데이트
+        if (StageProgressManager.Instance != null)
+        {
+            Debug.Log("[LobbyUIController] 씬 로드 후 스테이지 UI 강제 새로고침");
+            UpdateStageProgressUI();
+            
+            if (selectedStageNumber > 0)
+            {
+                UpdateStageSelectionUI();
+            }
         }
     }
 
@@ -185,10 +213,21 @@ public class LobbyUIController : MonoBehaviour
         // 🆕 자동 슬롯 선택 (핵심 추가)
         AutoSelectSlotIfNeeded();
         
-        // 🆕 StageProgressManager 강제 재초기화 (순서 고정)
+        // 🔧 수정: StageProgressManager 초기화 조건 개선
         if (StageProgressManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
         {
-            StageProgressManager.Instance.InitializeFor(PlayerDataManager.Instance.GetCurrentSlotIndex());
+            // 🔧 수정: 이미 초기화되어 있고 같은 슬롯이면 재초기화 하지 않음
+            int currentSlot = PlayerDataManager.Instance.GetCurrentSlotIndex();
+            if (!StageProgressManager.Instance.IsInitialized || 
+                StageProgressManager.Instance.GetCurrentSlotIndex() != currentSlot)
+            {
+                StageProgressManager.Instance.InitializeFor(currentSlot);
+                Debug.Log($"🔄 [LobbyUIController] StageProgressManager 재초기화 필요: 슬롯 {currentSlot}");
+            }
+            else
+            {
+                Debug.Log($"🔄 [LobbyUIController] StageProgressManager 이미 초기화됨: 슬롯 {currentSlot}");
+            }
         }
         
         // 슬롯 UI 업데이트
@@ -1084,12 +1123,19 @@ public class LobbyUIController : MonoBehaviour
         // PlayerDataManager에 슬롯 선택 알림
         PlayerDataManager.Instance.SelectSlot(slotIndex);
         
-        // 🔧 개선: 바로 스테이지 선택으로 가지 않고 로비에서 대기
-        // ShowStageSelectPanel(); // 🗑️ 제거
+        // 🆕 캐릭터 전환 시 StageProgressManager 업데이트 (핵심 추가)
+        if (StageProgressManager.Instance != null)
+        {
+            StageProgressManager.Instance.InitializeFor(slotIndex);
+            Debug.Log($"🔄 [LobbyUIController] 캐릭터 전환: 슬롯 {slotIndex} StageProgressManager 업데이트");
+        }
         
         // 선택된 캐릭터 정보 업데이트 및 게임 시작 버튼 활성화
         UpdateSelectedCharacterInfo(slotData);
         EnableStartGameButton(true);
+        
+        // 🆕 스테이지 진행도 UI 즉시 업데이트
+        UpdateStageProgressUI();
         
         Debug.Log($"[LobbyUIController] 캐릭터 선택 완료. 게임 시작 버튼을 클릭하세요.");
     }
@@ -1173,10 +1219,14 @@ public class LobbyUIController : MonoBehaviour
         {
             startGameButton.interactable = enable;
             
-            // 버튼 색상 변경
-            var colors = startGameButton.colors;
-            colors.normalColor = enable ? Color.white : disabledColor;
-            startGameButton.colors = colors;
+            // 🔧 개선: ColorBlock 기반으로 변경
+            if (colorReferenceButton != null)
+            {
+                var referenceColors = colorReferenceButton.colors;
+                var colors = startGameButton.colors;
+                colors.normalColor = enable ? referenceColors.normalColor : referenceColors.disabledColor;
+                startGameButton.colors = colors;
+            }
         }
     }
     
@@ -1321,19 +1371,28 @@ public class LobbyUIController : MonoBehaviour
         }
     }
     
-    // 🆕 스테이지 버튼 시각적 상태 업데이트
+    /// <summary>
+    /// 스테이지 버튼 시각적 상태 업데이트 (Button ColorBlock 기반)
+    /// </summary>
     private void UpdateStageButtonVisual(Image buttonImage, bool isUnlocked, bool isCompleted, bool isSelected)
     {
-        if (buttonImage == null) return;
+        if (buttonImage == null || colorReferenceButton == null) return;
+        
+        // Button의 ColorBlock에서 색상 가져오기
+        ColorBlock colors = colorReferenceButton.colors;
+        
+        Color targetColor;
         
         if (isSelected)
-            buttonImage.color = selectedColor;      // 선택된 상태 (최우선)
+            targetColor = colors.selectedColor;      // 선택된 상태
         else if (!isUnlocked)
-            buttonImage.color = disabledColor;      // 잠긴 상태
+            targetColor = colors.disabledColor;      // 잠긴 상태
         else if (isCompleted)
-            buttonImage.color = completedColor;     // 완료된 상태
+            targetColor = colors.highlightedColor;   // 완료된 상태 (하이라이트 색상 사용)
         else
-            buttonImage.color = normalColor;        // 해금된 상태
+            targetColor = colors.normalColor;        // 해금된 상태
+            
+        buttonImage.color = targetColor;
     }
     
     // 🔧 수정: 기존 UpdateStageButtonColor 메서드는 제거하고 위 메서드로 대체
@@ -1363,8 +1422,15 @@ public class LobbyUIController : MonoBehaviour
         {
             PlayerDataManager.Instance.SelectSlot(targetSlot);
             
-            // 🆕 UI selectedSlotIndex 업데이트 (핵심 수정)
+            // 🆕 UI selectedSlotIndex 업데이트
             selectedSlotIndex = targetSlot;
+            
+            // 🆕 자동 선택 시에도 StageProgressManager 업데이트 (핵심 추가)
+            if (StageProgressManager.Instance != null)
+            {
+                StageProgressManager.Instance.InitializeFor(targetSlot);
+                Debug.Log($"🔄 [LobbyUIController] 자동 선택: 슬롯 {targetSlot} StageProgressManager 업데이트");
+            }
             
             // 🆕 선택된 캐릭터 정보 UI 업데이트
             var slotData = PlayerDataManager.Instance.GetSlotData(targetSlot);

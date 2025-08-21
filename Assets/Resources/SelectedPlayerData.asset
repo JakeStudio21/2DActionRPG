@@ -13,18 +13,33 @@ MonoBehaviour:
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
   selectedSlotIndex: 0
-  playerName: kkk
+  playerName: asfe
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 3
-  currentExp: 135
-  expToNextLevel: 200
-  currentGold: 159
+  currentLevel: 20
+  currentExp: 190
+  expToNextLevel: 1050
+  currentGold: 13333
   runtimeInventoryItems:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -44,3 +59,25 @@ MonoBehaviour:
   - 0.1
   - 2
   - 1.3
+  stageProgresses:
+  - stageId: STAGE_001
+    isUnlocked: 1
+    isCompleted: 1
+    isFirstClearRewarded: 0
+    bestClearTime: 21
+    clearCount: 1
+    lastPlayedTime: 2025-08-19T14:10:11.5082913+09:00
+  - stageId: STAGE_002
+    isUnlocked: 1
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
+  - stageId: STAGE_003
+    isUnlocked: 0
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
