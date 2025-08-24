@@ -1,0 +1,3 @@
+﻿domain,profile_id,event_key,vfx_ids,sfx_ids,priority,camera_shake_preset,time_stop_ms,note
+Global,test_global,test.effect,TestVFX,TestSFX,50,,0,기본 테스트 이펙트
+Player,test_player,attack.hit,SlashEffect,sword_hit,80,light_shake,50,검 공격 이펙트

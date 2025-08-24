@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using CueSystem; // ✅ 추가
 
 /// <summary>
 /// 근접 공격 구현체 - BaseAttackBehaviour 상속으로 중복 코드 제거
@@ -92,6 +93,9 @@ public class MeleeAttack : BaseAttackBehaviour
         Vector2 attackOrigin = GetAttackOrigin();
         
         Debug.Log($"[MeleeAttack] 공격 실행 - 범위: {currentRange:F1}, 데미지: {currentDamage}, 원점: {attackOrigin}");
+        
+        // ✅ 🎵 Cue 시스템 추가 - 이 줄을 추가하세요!
+        EmitAttackCues(attackOrigin, false); // 일단 false로 설정
         
         // ⭐ 개선된 히트 감지 (각도 고려)
         List<Collider2D> hitTargets = GetHitTargets(attackOrigin, currentRange);
@@ -276,6 +280,69 @@ public class MeleeAttack : BaseAttackBehaviour
             Debug.Log($"  - 데미지: {meleeDamage}");
             Debug.Log($"  - 범위: {attackRange}");
         }
+    }
+    
+    #endregion
+
+    #region ✅ 🎵 Cue 시스템 연동 (Phase B-1 추가)
+    
+    /// <summary>
+    /// 🎵 공격 이펙트 Cue 발행
+    /// </summary>
+    private void EmitAttackCues(Vector2 attackPosition, bool hitPlayer)
+    {
+        try
+        {
+            // ✅ 디버깅: CuePlayer 상태 확인
+            Debug.Log($"🔍 [MeleeAttack] CuePlayer.Instance 존재: {CuePlayer.Instance != null}");
+            Debug.Log($"🔍 [MeleeAttack] CueRegistry.Instance 존재: {CueRegistry.Instance != null}");
+            
+            // CueContext 생성
+            var context = new CueContext
+            {
+                position = attackPosition,
+                rotation = transform.rotation,
+                normal = Vector3.up,
+                facingDir = GetFacingDirection(),
+                follow = null,
+                actorType = ActorType.Enemy,
+                surfaceType = SurfaceType.Default,
+                magnitude = hitPlayer ? 1.5f : 1f,
+                isCritical = RollCriticalHit(),
+                scale = 1.0f
+            };
+            
+            // 이벤트 키 결정
+            string eventKey = context.isCritical ? "attack.melee.crit" : "attack.melee.hit";
+            string domain = "Enemy";
+            
+            // ✅ 디버깅: 발행 전 정보
+            Debug.Log($"🔍 [MeleeAttack] 발행 시도 - 도메인: '{domain}', 키: '{eventKey}'");
+            
+            // Cue 발행
+            bool success = CueEmitter.Emit(eventKey, domain, context);
+            
+            Debug.Log($"🎵 [MeleeAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [MeleeAttack] Cue 발행 오류: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 🧭 방향 벡터 계산
+    /// </summary>
+    private Vector2 GetFacingDirection()
+    {
+        // 플레이어 방향으로 향하는 벡터
+        if (transform.parent != null)
+        {
+            // 부모의 방향 사용 (몬스터 전체 방향)
+            return transform.parent.right;
+        }
+        
+        return transform.right;
     }
     
     #endregion

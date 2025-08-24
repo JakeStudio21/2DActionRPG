@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Stage_stage_base 1
+  m_EditorClassIdentifier: 
+  profileId: stage_base
+  domain: Stage
+  baseProfile: {fileID: 0}
+  vfxCatalog:
+  - vfxId: SpawnEffect
+    poolKey: SpawnEffect
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: BossSpawnEffect
+    poolKey: BossSpawnEffect
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: WaveStartEffect
+    poolKey: WaveStartEffect
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: WaveCompleteEffect
+    poolKey: WaveCompleteEffect
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: StageEnterEffect
+    poolKey: StageEnterEffect
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: StageCompleteEffect
+    poolKey: StageCompleteEffect
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  sfxCatalog:
+  - sfxId: SpawnSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 1
+    maxDistance: 15
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: BossSpawnSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 1
+    maxDistance: 15
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: WaveStartSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 1
+    maxDistance: 15
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: WaveCompleteSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 1
+    maxDistance: 15
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: StageEnterSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 1
+    maxDistance: 15
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: StageCompleteSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 1
+    maxDistance: 15
+    priority: 0
+    cooldown: 0
+    note: 
+  entries:
+  - eventKey: spawn.enemy.normal
+    vfxIds:
+    - SpawnEffect
+    sfxIds:
+    - SpawnSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 50
+    note: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uC2A4\uD3F0"
+  - eventKey: spawn.enemy.boss
+    vfxIds:
+    - BossSpawnEffect
+    sfxIds:
+    - BossSpawnSound
+    priority: 4
+    cameraShakePreset: Heavy
+    timeStopMs: 100
+    note: "\uBCF4\uC2A4 \uC2A4\uD3F0"
+  - eventKey: wave.start
+    vfxIds:
+    - WaveStartEffect
+    sfxIds:
+    - WaveStartSound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 80
+    note: "\uC6E8\uC774\uBE0C \uC2DC\uC791"
+  - eventKey: wave.complete
+    vfxIds:
+    - WaveCompleteEffect
+    sfxIds:
+    - WaveCompleteSound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 60
+    note: "\uC6E8\uC774\uBE0C \uC644\uB8CC"
+  - eventKey: stage.enter
+    vfxIds:
+    - StageEnterEffect
+    sfxIds:
+    - StageEnterSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 40
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC785\uC7A5"
+  - eventKey: stage.complete
+    vfxIds:
+    - StageCompleteEffect
+    sfxIds:
+    - StageCompleteSound
+    priority: 4
+    cameraShakePreset: Heavy
+    timeStopMs: 120
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  description: "\uC2A4\uD14C\uC774\uC9C0 \uAE30\uBCF8 \uD504\uB85C\uD544"

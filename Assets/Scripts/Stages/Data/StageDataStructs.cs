@@ -18,7 +18,7 @@ namespace StageSystem
         public bool IsBoss;
         
         [Header("런타임 연결")]
-        public GameObject MonsterPrefab; // 런타임에 Resources.Load로 연결
+        public GameObject MonsterPrefab; // 런타임에 Resources.Load로 연결 (레거시 호환성)
         
         public MonsterSpawnData(string monsterId, int count, float spawnCount, bool isBoss)
         {

@@ -1,0 +1,237 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Enemy_enemy_base 1
+  m_EditorClassIdentifier: 
+  profileId: enemy_base
+  domain: Enemy
+  baseProfile: {fileID: 0}
+  vfxCatalog:
+  - vfxId: HitSpark
+    poolKey: HitSpark
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: CriticalHit
+    poolKey: CriticalHit
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: MuzzleFlash
+    poolKey: MuzzleFlash
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: BurstEffect
+    poolKey: BurstEffect
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: BossDeathEffect
+    poolKey: BossDeathEffect
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: DeathEffect
+    poolKey: DeathEffect
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: HitEffect
+    poolKey: HitEffect
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - vfxId: CritHitEffect
+    poolKey: CritHitEffect
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0, y: 0, z: 0}
+    followTarget: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  sfxCatalog:
+  - sfxId: SwordHit
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: CriticalSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0.1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: BowShoot
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0.1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: MultiShot
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: DeathSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: BossDeathSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: HitSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: CritHitSound
+    audioClip: {fileID: 8300000, guid: a6de7f6a947afcc488dc16cdf428d55d, type: 3}
+    volume: 0
+    pitch: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  entries:
+  - eventKey: attack.melee.hit
+    vfxIds:
+    - HitSpark
+    sfxIds:
+    - SwordHit
+    priority: 2
+    cameraShakePreset: Medium
+    timeStopMs: 30
+    note: "\uADFC\uC811 \uACF5\uACA9 \uD788\uD2B8"
+  - eventKey: attack.melee.crit
+    vfxIds:
+    - CriticalHit
+    sfxIds:
+    - CriticalSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 60
+    note: "\uD06C\uB9AC\uD2F0\uCEEC \uADFC\uC811 \uACF5\uACA9"
+  - eventKey: attack.ranged.fire
+    vfxIds:
+    - MuzzleFlash
+    sfxIds:
+    - BowShoot
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC"
+  - eventKey: attack.multishot.burst
+    vfxIds:
+    - BurstEffect
+    sfxIds:
+    - MultiShot
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 40
+    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
+  - eventKey: death.enemy.normal
+    vfxIds:
+    - DeathEffect
+    sfxIds:
+    - DeathSound
+    priority: 2
+    cameraShakePreset: Medium
+    timeStopMs: 100
+    note: "\uC77C\uBC18 \uC801 \uC0AC\uB9DD"
+  - eventKey: death.enemy.boss
+    vfxIds:
+    - BossDeathEffect
+    sfxIds:
+    - BossDeathSound
+    priority: 4
+    cameraShakePreset: Heavy
+    timeStopMs: 200
+    note: "\uBCF4\uC2A4 \uC0AC\uB9DD"
+  - eventKey: hit.enemy.normal
+    vfxIds:
+    - HitEffect
+    sfxIds:
+    - HitSound
+    priority: 1
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uC77C\uBC18 \uD53C\uACA9"
+  - eventKey: hit.enemy.critical
+    vfxIds:
+    - CritHitEffect
+    sfxIds:
+    - CritHitSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 80
+    note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
+  description: "\uC801 \uAE30\uBCF8 \uD504\uB85C\uD544"

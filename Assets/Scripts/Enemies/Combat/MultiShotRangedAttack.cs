@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CueSystem; // ✅ 추가
 
 /// <summary>
 /// 복합 원거리 공격 구현체 - BaseAttackBehaviour 상속으로 중복 코드 제거
@@ -134,6 +135,10 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
     public void SpawnProjectileAnimEvent()
     {
         Debug.Log($"[MultiShotRangedAttack] {gameObject.name} - Animation Event 복합 발사체 생성!");
+        
+        // ✅ 🎵 Cue 시스템 추가
+        EmitMultiShotCues();
+        
         Attack();
     }
     
@@ -167,7 +172,7 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         TargetConeOfInfluence(out startAngle, out currentAngle, out angleStep, out endAngle);
 
         if (useStagger) 
-        { 
+        {
             if (currentPattern == MultiShotPattern.Spiral)
             {
                 // Spiral 전용: 매우 짧은 간격 (나선 효과)
@@ -659,6 +664,57 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         // if (Handheld.Vibrate != null) Handheld.Vibrate();
     }
 
+    #endregion
+
+    #region ✅ 🎵 Cue 시스템 연동 (Phase B-1 추가)
+    
+    /// <summary>
+    /// 🎵 복합 공격 이펙트 Cue 발행
+    /// </summary>
+    private void EmitMultiShotCues()
+    {
+        try
+        {
+            // CueContext 생성
+            var context = new CueContext
+            {
+                position = transform.position, // ✅ 수정: projectileSpawnPoint → transform
+                rotation = transform.rotation,
+                normal = Vector3.up,
+                facingDir = GetBaseAimDirection(),
+                follow = null,
+                actorType = ActorType.Enemy,
+                surfaceType = SurfaceType.Default,
+                magnitude = (float)GetCurrentProjectilesPerBurst() / 3f,
+                isCritical = false,
+                scale = 1.0f
+            };
+            
+            // 이벤트 키
+            string eventKey = "attack.multishot.burst";
+            
+            // Cue 발행
+            bool success = CueEmitter.Emit(eventKey, "Enemy", context);
+            
+            Debug.Log($"🎵 [MultiShotRangedAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [MultiShotRangedAttack] Cue 발행 오류: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 🧭 기본 조준 방향 계산
+    /// </summary>
+    private Vector2 GetBaseAimDirection()
+    {
+        if (cachedPlayer == null) return Vector2.right; // ✅ 수정: playerTransform → cachedPlayer
+        
+        Vector2 direction = (cachedPlayer.transform.position - transform.position).normalized; // ✅ 수정: projectileSpawnPoint → transform
+        return direction;
+    }
+    
     #endregion
 
     #region 기존 시스템 메서드들 (100% 유지)

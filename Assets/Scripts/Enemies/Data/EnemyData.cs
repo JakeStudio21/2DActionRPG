@@ -36,6 +36,13 @@ public class EnemyData : ScriptableObject
     [Tooltip("사망 이펙트 프리팹 경로 (Resources 폴더 기준)")]
     [SerializeField] private string deathVFXPrefabPath = "";
 
+    [Header("🎮 프리팹 참조 (풀링 시스템)")]
+    [Tooltip("실제 몬스터 프리팹 (풀링용 직접 참조)")]
+    [SerializeField] private GameObject enemyPrefab;
+    
+    [Tooltip("사망 이펙트 프리팹 (직접 참조, deathVFXPrefabPath보다 우선)")]
+    [SerializeField] private GameObject deathVFXPrefab;
+
     [Header("⚔️ 공격 설정")]
     [SerializeField] private AttackType primaryAttackType = AttackType.Melee;
     // ❌ 삭제: attackCooldown → AttackData에서 관리
@@ -92,6 +99,10 @@ public class EnemyData : ScriptableObject
     // ⭐ 새 필드들 Properties
     public float KnockBackThrust => knockBackThrust;
     public string DeathVFXPrefabPath => deathVFXPrefabPath;
+    
+    // ⭐ 프리팹 참조 Properties (풀링 시스템용)
+    public GameObject EnemyPrefab => enemyPrefab;
+    public GameObject DeathVFXPrefab => deathVFXPrefab;
     
     public AttackType PrimaryAttackType => primaryAttackType;
     
@@ -232,5 +243,75 @@ public class EnemyData : ScriptableObject
                    $"Gold: {GetScaledGoldReward(level, growthProfile)}, Exp: {GetScaledExpReward(level, growthProfile)}\n" +
                    $"DropGroup: {dropGroupId} (x{dropRolls})";
         }
+    }
+    
+    /// <summary>
+    /// 풀링용 프리팹 가져오기 (직접 참조 우선, 경로 기반 fallback)
+    /// </summary>
+    public GameObject GetPoolingPrefab()
+    {
+        // 1순위: 직접 참조된 프리팹
+        if (enemyPrefab != null)
+        {
+            return enemyPrefab;
+        }
+        
+        // 2순위: EnemyId 기반 Resources 로드 (호환성)
+        if (!string.IsNullOrEmpty(enemyId))
+        {
+            // MON_BLUESLIME_001 → Blue_slime 변환 로직
+            string resourcePath = ConvertEnemyIdToResourcePath(enemyId);
+            GameObject fallbackPrefab = Resources.Load<GameObject>(resourcePath);
+            
+            if (fallbackPrefab != null)
+            {
+                Debug.LogWarning($"[EnemyData] {enemyId}: enemyPrefab이 null이어서 Resources에서 로드함: {resourcePath}");
+                return fallbackPrefab;
+            }
+        }
+        
+        Debug.LogError($"[EnemyData] {enemyId}: 프리팹을 찾을 수 없습니다! enemyPrefab을 Inspector에서 할당해주세요.");
+        return null;
+    }
+    
+    /// <summary>
+    /// 사망 이펙트 프리팹 가져오기 (직접 참조 우선, 경로 기반 fallback)
+    /// </summary>
+    public GameObject GetDeathVFXPrefab()
+    {
+        // 1순위: 직접 참조된 프리팹
+        if (deathVFXPrefab != null)
+        {
+            return deathVFXPrefab;
+        }
+        
+        // 2순위: 경로 기반 Resources 로드 (호환성)
+        if (!string.IsNullOrEmpty(deathVFXPrefabPath))
+        {
+            GameObject fallbackVFX = Resources.Load<GameObject>(deathVFXPrefabPath);
+            
+            if (fallbackVFX != null)
+            {
+                return fallbackVFX;
+            }
+        }
+        
+        return null; // 사망 이펙트는 선택사항이므로 에러 로그 없음
+    }
+    
+    /// <summary>
+    /// EnemyId를 Resources 경로로 변환 (기존 호환성용)
+    /// </summary>
+    private string ConvertEnemyIdToResourcePath(string enemyId)
+    {
+        // MON_BLUESLIME_001 → Blue_slime
+        if (enemyId.Contains("BLUESLIME")) return "Blue_slime";
+        if (enemyId.Contains("GRAPE")) return "Enemie1";
+        if (enemyId.Contains("GHOST")) return "Ghost";
+        if (enemyId.Contains("FINALBOSSA")) return "FinalBossA";
+        if (enemyId.Contains("FINALBOSSB")) return "FinalBossB";
+        if (enemyId.Contains("FINALBOSSC")) return "FinalBossC";
+        
+        return enemyId; // 기본값
     }
 }

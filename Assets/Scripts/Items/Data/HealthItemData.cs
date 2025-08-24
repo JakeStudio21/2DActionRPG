@@ -32,14 +32,14 @@ namespace ItemSystem
             var playerHealth = FindObjectOfType<PlayerHealth>();
             if (playerHealth != null)
             {
-                int healValue = isPercentageHeal ? 
-                    Mathf.RoundToInt(playerHealth.MaxHealth * healPercentage) : 
-                    healAmount;
+                // 🔧 HealPlayerAmount() 사용으로 변경 (D-2 단계 완료)
+                playerHealth.HealPlayerAmount(healAmount);
                 
-                // 🆕 직접 체력 회복 로직 구현
-                ApplyHealing(playerHealth, healValue);
-                
-                Debug.Log($"❤️ [HealthItem] 체력 회복: +{healValue}");
+                // ❌ 제거: 기존 반복 호출 방식
+                // for (int i = 0; i < healAmount; i++)
+                // {
+                //     playerHealth.HealPlayer();
+                // }
             }
         }
         

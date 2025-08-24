@@ -1,5 +1,7 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using CueSystem; // ✅ 추가
 
 /// <summary>
 /// 원거리 공격 구현체 - BaseAttackBehaviour 상속으로 중복 코드 제거
@@ -113,6 +115,9 @@ public class RangedAttack : BaseAttackBehaviour
     public void SpawnProjectileAnimEvent()
     {
         Debug.Log($"[RangedAttack] {gameObject.name} - Animation Event 발사체 생성!");
+        
+        // ✅ 🎵 Cue 시스템 추가 - 이 줄을 추가하세요!
+        EmitProjectileCues();
         
         // ⭐ 새 시스템: 데이터 기반 발사체 정보 가져오기
         GameObject currentProjectilePrefab = GetCurrentProjectilePrefab();
@@ -579,6 +584,67 @@ public class RangedAttack : BaseAttackBehaviour
         Debug.Log($"  - 예측 위치: {predictedPos}");
         Debug.Log($"  - 예측 거리: {distance:F1}");
         Debug.Log($"  - 예측 계수: {predictionFactor}");
+    }
+    
+    #endregion
+
+    #region ✅ 🎵 Cue 시스템 연동 (Phase B-1 추가)
+    
+    /// <summary>
+    /// 🎵 발사체 이펙트 Cue 발행
+    /// </summary>
+    private void EmitProjectileCues()
+    {
+        try
+        {
+            // CueContext 생성
+            var context = new CueContext
+            {
+                position = projectileSpawnPoint.position,
+                rotation = CalculateProjectileRotation(),
+                normal = Vector3.up,
+                facingDir = GetAimDirection(),
+                follow = null,
+                actorType = ActorType.Enemy,
+                surfaceType = SurfaceType.Default,
+                magnitude = GetCurrentProjectileSpeed() / 10f,
+                isCritical = false, // ✅ 수정: isCrit → isCritical
+                scale = 1.0f
+            };
+            
+            // 이벤트 키
+            string eventKey = "attack.ranged.fire";
+            
+            // Cue 발행
+            bool success = CueEmitter.Emit(eventKey, "Enemy", context);
+            
+            Debug.Log($"🎵 [RangedAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [RangedAttack] Cue 발행 오류: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 🧭 조준 방향 계산
+    /// </summary>
+    private Vector2 GetAimDirection()
+    {
+        if (cachedPlayer == null) return Vector2.right;
+        
+        Vector2 direction = (cachedPlayer.transform.position - projectileSpawnPoint.position).normalized;
+        return direction;
+    }
+    
+    /// <summary>
+    /// 🎯 발사체 회전 계산
+    /// </summary>
+    private Quaternion CalculateProjectileRotation()
+    {
+        Vector2 aimDirection = GetAimDirection();
+        float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        return Quaternion.AngleAxis(angle, Vector3.forward);
     }
     
     #endregion

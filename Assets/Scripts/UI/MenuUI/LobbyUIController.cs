@@ -3,7 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 using StageSystem; // 🆕 StageSystem namespace 추가
 using System.IO; // 🆕 파일 입출력 네임스페이스 추가
+using System.Collections; // 🔧 IEnumerator를 위한 네임스페이스 추가
 using System.Collections.Generic; // 🆕 리스트 네임스페이스 추가
+using CueSystem; // 🆕 CueSystem namespace 추가
 
 /// <summary>
 /// 로비 UI 통합 컨트롤러 (캐릭터 선택 + 스테이지 선택)
@@ -114,8 +116,15 @@ public class LobbyUIController : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("🚀 [LobbyUIController] Start() 시작");
+        
+        // �� 핵심 매니저들 초기화 상태 확인
+        CheckManagerInitializationStatus();
+        
         InitializeUI();
         InitializeSlotSystem(); // 🔧 슬롯 시스템 초기화
+        
+        Debug.Log("✅ [LobbyUIController] Start() 완료");
     }
     
     // 🆕 이벤트 구독 (컴포넌트 활성화 시)
@@ -366,32 +375,57 @@ public class LobbyUIController : MonoBehaviour
         // 🆕 게임 시작 버튼 이벤트 연결
         if (startGameButton != null)
         {
-            startGameButton.onClick.AddListener(OnStartGameButtonClicked);
+            startGameButton.onClick.AddListener(() => {
+                // 🆕 Cue 이벤트 발행
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                OnStartGameButtonClicked();
+            });
         }
         
         // 🆕 로비 주요 버튼들 연결
         if (inventoryButton != null)
         {
-            inventoryButton.onClick.AddListener(ShowInventoryPanel);
+            inventoryButton.onClick.AddListener(() => {
+                // 🆕 Cue 이벤트 발행
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                ShowInventoryPanel();
+            });
             Debug.Log("✅ [LobbyUIController] 인벤토리 버튼 이벤트 연결");
         }
         
         if (characterInfoButton != null)
         {
-            characterInfoButton.onClick.AddListener(ShowCharacterInfoPanel);
+            characterInfoButton.onClick.AddListener(() => {
+                // 🆕 Cue 이벤트 발행
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                ShowCharacterInfoPanel();
+            });
             Debug.Log("✅ [LobbyUIController] 캐릭터 정보 버튼 이벤트 연결");
         }
         
         if (shopButton != null)  // 🆕 상점 버튼 연결
         {
-            shopButton.onClick.AddListener(ShowShopPanel);
+            shopButton.onClick.AddListener(() => {
+                // 🆕 Cue 이벤트 발행
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                ShowShopPanel();
+            });
             Debug.Log("✅ [LobbyUIController] 상점 버튼 이벤트 연결");
         }
         
         // 🆕 게임 종료 버튼 이벤트 연결
         if (quitGameButton != null)
         {
-            quitGameButton.onClick.AddListener(OnQuitGameButtonClicked);
+            quitGameButton.onClick.AddListener(() => {
+                // 🆕 Cue 이벤트 발행
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                OnQuitGameButtonClicked();
+            });
             Debug.Log("✅ [LobbyUIController] 게임 종료 버튼 이벤트 연결");
         }
         
@@ -655,6 +689,14 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void ShowLobbyPanel()
     {
+        // 🆕 Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.panel.close", "UI", context);
+        
         SetPanelVisibility(lobbyPanel, true);
         SetPanelVisibility(stageSelectPanel, false);
         SetPanelVisibility(inventoryPanel, false);  // 🔧 LobbyInventorySystem 비활성화
@@ -696,13 +738,25 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
         
-        SetPanelVisibility(lobbyPanel, false);
-        SetPanelVisibility(stageSelectPanel, false);
-        SetPanelVisibility(inventoryPanel, true);
-        SetPanelVisibility(shopPanel, false);
-        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
-        
-        Debug.Log("[LobbyUIController] 인벤토리 패널 활성화");
+        // 🔍 초기화 완료 대기 후 실행
+        StartCoroutine(WaitForManagersInitialization(() => {
+            // 🆕 Cue 이벤트 발행
+            var context = new CueContext
+            {
+                position = Vector3.zero,
+                actorType = ActorType.UI
+            };
+            CueEmitter.Emit("ui.button.click", "UI", context);
+            CueEmitter.Emit("ui.inventory.open", "UI", context);
+            
+            SetPanelVisibility(lobbyPanel, false);
+            SetPanelVisibility(stageSelectPanel, false);
+            SetPanelVisibility(inventoryPanel, true);
+            SetPanelVisibility(shopPanel, false);
+            SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
+            
+            Debug.Log("[LobbyUIController] 인벤토리 패널 활성화");
+        }));
     }
     
     /// <summary>
@@ -713,6 +767,14 @@ public class LobbyUIController : MonoBehaviour
         if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
         
         Debug.Log("🏪 [LobbyUIController] ShowShopPanel 호출됨");
+        
+        // 🆕 Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.shop.open", "UI", context);
         
         SetPanelVisibility(lobbyPanel, false);
         SetPanelVisibility(stageSelectPanel, false);
@@ -741,6 +803,14 @@ public class LobbyUIController : MonoBehaviour
     public void ShowCharacterInfoPanel()
     {
         if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
+        
+        // 🆕 Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.panel.open", "UI", context);
         
         SetPanelVisibility(lobbyPanel, false);
         SetPanelVisibility(stageSelectPanel, false);
@@ -1547,5 +1617,116 @@ public class LobbyUIController : MonoBehaviour
         UpdateStageProgressUI();
         
         Debug.Log($"[LobbyUIController] 신규 캐릭터 {slotIndex} 완전 설정 완료");
+    }
+
+    // 🔍 매니저 초기화 상태 확인 메서드 추가
+    private void CheckManagerInitializationStatus()
+    {
+        Debug.Log("🔍 [LobbyUIController] 매니저 초기화 상태 확인:");
+        
+        // GamePoolManager 상태
+        if (GamePoolManager.Instance != null)
+        {
+            Debug.Log($"   - GamePoolManager: ✅ 존재, 로딩 중: {GamePoolManager.Instance.IsLoadingPools}");
+        }
+        else
+        {
+            Debug.LogError("   - GamePoolManager: ❌ 없음");
+        }
+        
+        // SoundManager 상태
+        if (SoundManager.Instance != null)
+        {
+            Debug.Log("   - SoundManager: ✅ 존재");
+        }
+        else
+        {
+            Debug.LogError("   - SoundManager: ❌ 없음");
+        }
+        
+        // CuePlayer 상태 (CueSystem)
+        if (CueSystem.CuePlayer.Instance != null)
+        {
+            Debug.Log("   - CuePlayer: ✅ 존재");
+        }
+        else
+        {
+            Debug.LogError("   - CuePlayer: ❌ 없음");
+        }
+        
+        // CueRegistry 상태
+        if (CueSystem.CueRegistry.Instance != null)
+        {
+            Debug.Log("   - CueRegistry: ✅ 존재");
+        }
+        else
+        {
+            Debug.LogError("   - CueRegistry: ❌ 없음");
+        }
+        
+        // StageProgressManager 상태
+        if (StageProgressManager.Instance != null)
+        {
+            Debug.Log($"   - StageProgressManager: ✅ 존재, 초기화됨: {StageProgressManager.Instance.IsInitialized}");
+        }
+        else
+        {
+            Debug.LogError("   - StageProgressManager: ❌ 없음");
+        }
+        
+        // PlayerDataManager 상태
+        if (PlayerDataManager.Instance != null)
+        {
+            Debug.Log($"   - PlayerDataManager: ✅ 존재, 슬롯 선택됨: {PlayerDataManager.Instance.IsSlotSelected}");
+        }
+        else
+        {
+            Debug.LogError("   - PlayerDataManager: ❌ 없음");
+        }
+    }
+
+    // 🔍 매니저 초기화 완료 대기 메서드
+    private IEnumerator WaitForManagersInitialization(System.Action onComplete)
+    {
+        Debug.Log("⏳ [LobbyUIController] 매니저 초기화 완료 대기 중...");
+        
+        float timeout = 5f; // 5초 타임아웃
+        float elapsed = 0f;
+        
+        while (elapsed < timeout)
+        {
+            bool allReady = true;
+            
+            // GamePoolManager 체크
+            if (GamePoolManager.Instance == null || GamePoolManager.Instance.IsLoadingPools)
+            {
+                allReady = false;
+            }
+            
+            // SoundManager 체크
+            if (SoundManager.Instance == null)
+            {
+                allReady = false;
+            }
+            
+            // CuePlayer 체크
+            if (CueSystem.CuePlayer.Instance == null)
+            {
+                allReady = false;
+            }
+            
+            if (allReady)
+            {
+                Debug.Log("✅ [LobbyUIController] 모든 매니저 초기화 완료!");
+                onComplete?.Invoke();
+                yield break;
+            }
+            
+            elapsed += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        Debug.LogWarning("⚠️ [LobbyUIController] 매니저 초기화 대기 타임아웃!");
+        onComplete?.Invoke(); // 타임아웃이어도 실행
     }
 }

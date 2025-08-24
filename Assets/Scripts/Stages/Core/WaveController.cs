@@ -166,7 +166,17 @@ public class WaveController : MonoBehaviour
                             spawnPosition = targetSpawnPoint.GetSpawnPosition();
                         }
                         
-                        GameObject enemy = SpawnMonster(monsterData.MonsterID, spawnPosition);
+                        GameObject enemy = null;
+                        if (StageManager.Instance != null)
+                        {
+                            // StageManager의 SpawnMonster 사용 (Cue 시스템 포함)
+                            enemy = StageManager.Instance.SpawnMonster(monsterData, spawnPosition);
+                        }
+                        else
+                        {
+                            // fallback: 기존 방식
+                            enemy = SpawnMonster(monsterData.MonsterID, spawnPosition);
+                        }
                         
                         if (enemy != null)
                         {

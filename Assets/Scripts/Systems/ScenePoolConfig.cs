@@ -10,6 +10,7 @@ public class ScenePoolConfig : ScriptableObject
         [Header("Pool Configuration")]
         public string tag;
         public GameObject prefab;
+        
         public int size = 10;
         
         [Header("Auto Management")]

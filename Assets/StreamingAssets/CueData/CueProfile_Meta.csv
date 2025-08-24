@@ -1,0 +1,8 @@
+domain,profile_id,base_profile_id,description
+Global,global_default,,기본 글로벌 프로필
+Player,player_base,global_default,플레이어 기본 프로필
+Enemy,enemy_base,global_default,적 기본 프로필
+Stage,stage_base,global_default,스테이지 기본 프로필
+UI,ui_base,global_default,UI 기본 프로필
+Player,assasin_profile,player_base,어쌔신 전용 프로필
+Enemy,blueslime_profile,enemy_base,블루슬라임 전용 프로필

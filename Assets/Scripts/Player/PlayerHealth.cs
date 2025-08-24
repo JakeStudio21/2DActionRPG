@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using CueSystem;
 
 public class PlayerHealth : Singleton<PlayerHealth>
 {
@@ -101,6 +102,16 @@ public class PlayerHealth : Singleton<PlayerHealth>
             currentHealth += 1;  // 항상 1씩만 회복
             UpdateUI();
         }
+
+        // 🆕 Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = transform.position,
+            actorType = ActorType.Player,
+            magnitude = 1.0f
+        };
+        
+        CueEmitter.Emit("heal.player", "Player", context);
     }
 
     /// <summary>
@@ -111,6 +122,17 @@ public class PlayerHealth : Singleton<PlayerHealth>
             int actualHeal = Mathf.Min(healAmount, maxHealth - currentHealth);
             currentHealth += actualHeal;
             UpdateUI();
+            
+            // 🆕 Cue 이벤트 발행
+            var context = new CueContext
+            {
+                position = transform.position,
+                actorType = ActorType.Player,
+                magnitude = actualHeal / 3f, // 회복량에 비례한 효과 크기
+                damage = actualHeal // 회복량을 damage 필드에 저장
+            };
+            
+            CueEmitter.Emit("heal.player", "Player", context);
             
             if (showDebugLogs)
             {
@@ -150,6 +172,21 @@ public class PlayerHealth : Singleton<PlayerHealth>
         StartCoroutine(DamageRecoveryRoutine());
         StartCoroutine(QuickHitRecoveryRoutine());
         CheckIfPlayerDeath();
+
+        // 🆕 Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = transform.rotation,
+            normal = (transform.position - hitTransform.position).normalized,
+            actorType = ActorType.Player,
+            magnitude = damageAmount / 10f,
+            damage = damageAmount
+        };
+        
+        // 크리티컬 여부는 추후 확장 가능
+        string eventKey = "hit.player.normal";
+        CueEmitter.Emit(eventKey, "Player", context);
     }
 
     private void CheckIfPlayerDeath() {
@@ -176,6 +213,16 @@ public class PlayerHealth : Singleton<PlayerHealth>
                 Debug.LogWarning("[PlayerHealth] FSMStageController를 찾을 수 없습니다. 기존 방식 사용.");
                 StartCoroutine(DeathLoadSceneRoutine());
             }
+
+            // 🆕 Cue 이벤트 발행
+            var context = new CueContext
+            {
+                position = transform.position,
+                actorType = ActorType.Player,
+                magnitude = 2.0f
+            };
+            
+            CueEmitter.Emit("death.player", "Player", context);
         }
     }
 

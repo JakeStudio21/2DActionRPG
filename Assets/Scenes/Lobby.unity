@@ -6355,6 +6355,76 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 314450383}
   m_CullTransparentMesh: 1
+--- !u!1 &314692148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 314692151}
+  - component: {fileID: 314692150}
+  - component: {fileID: 314692149}
+  m_Layer: 0
+  m_Name: CueSystemManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &314692149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314692148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8b6b94f7a0b0a42833e470359335c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxVFX: 30
+  maxSFX: 20
+  maxUI: 8
+  defaultCooldown: 0.05
+  showDebugLogs: 1
+  enableCongestionControl: 1
+--- !u!114 &314692150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314692148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98b479e2c85e7684ab1059223fc6126a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerProfile: {fileID: 11400000, guid: 1970a8983fce55b449e7de0795a13329, type: 2}
+  enemyProfile: {fileID: 11400000, guid: ee84b71fff1a591459c185521fa40793, type: 2}
+  stageProfile: {fileID: 11400000, guid: 13c13be88882a4348b766687dc9ea82f, type: 2}
+  uiProfile: {fileID: 11400000, guid: 7c0843d405741f44bb0384bd92d04f0c, type: 2}
+  globalDefaults: {fileID: 11400000, guid: 64ef782efab9dd743b4b8eccbba0f564, type: 2}
+  showDebugLogs: 1
+  missingKeyPolicy: 1
+--- !u!4 &314692151
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314692148}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 203.68393, y: 155.70177, z: -1.5926535}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &329757863
 GameObject:
   m_ObjectHideFlags: 0
@@ -26161,6 +26231,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1217761601}
   m_CullTransparentMesh: 1
+--- !u!1 &1218571523
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1218571525}
+  - component: {fileID: 1218571524}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1218571524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218571523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b520b79358247c4fb1bf8088f515747, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bgmSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  enableCueSystemIntegration: 1
+--- !u!4 &1218571525
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218571523}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 203.68393, y: 155.70177, z: -1.5926535}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1219714664
 GameObject:
   m_ObjectHideFlags: 0
@@ -50508,3 +50625,5 @@ SceneRoots:
   - {fileID: 678212492}
   - {fileID: 1641825771}
   - {fileID: 1446602894}
+  - {fileID: 314692151}
+  - {fileID: 1218571525}

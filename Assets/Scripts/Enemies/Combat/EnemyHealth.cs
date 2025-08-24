@@ -203,6 +203,9 @@ public class EnemyHealth : MonoBehaviour
 
         currentHealth -= damage;
         
+        // ✅ 🎵 Cue 시스템 추가 - 피격 이펙트 발행
+        EmitHitCues(damage);
+        
         // ⭐ 데이터 기반 넉백 강도 사용
         float knockBackThrust = CalculateKnockBackThrust();
         knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
@@ -298,6 +301,9 @@ public class EnemyHealth : MonoBehaviour
         
         deathEventTriggered = true;
         Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event: 사망 처리 완료!");
+
+        // ✅ 🎵 Cue 시스템 추가 - 사망 이펙트 발행
+        EmitDeathCues();
 
         // 🆕 WaveController에 적 사망 알림
         var waveController = FindObjectOfType<WaveController>();
@@ -624,4 +630,101 @@ public class EnemyHealth : MonoBehaviour
     /// 체력 비율 (UI 표시용)
     /// </summary>
     public float HealthRatio => MaxHealth > 0 ? (float)currentHealth / MaxHealth : 0f;
+
+    #region ✅ 🎵 Cue 시스템 연동 (Phase B-3 추가)
+    
+    /// <summary>
+    /// 🎵 사망 이펙트 Cue 발행
+    /// </summary>
+    private void EmitDeathCues()
+    {
+        try
+        {
+            // CueContext 생성
+            var context = new CueSystem.CueContext
+            {
+                position = transform.position,
+                rotation = transform.rotation,
+                normal = Vector3.up,
+                facingDir = Vector2.down, // 사망 시 아래 방향
+                follow = null,
+                actorType = CueSystem.ActorType.Enemy,
+                surfaceType = CueSystem.SurfaceType.Default,
+                magnitude = IsBoss() ? 2.0f : 1.0f, // 보스는 더 강한 이펙트
+                isCritical = false,
+                scale = IsBoss() ? 1.5f : 1.0f
+            };
+            
+            // 이벤트 키 결정 (보스 vs 일반)
+            string eventKey = IsBoss() ? "death.enemy.boss" : "death.enemy.normal";
+            
+            // Cue 발행
+            bool success = CueSystem.CueEmitter.Emit(eventKey, "Enemy", context);
+            
+            Debug.Log($"🎵 [EnemyHealth] 사망 Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [EnemyHealth] 사망 Cue 발행 오류: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 🎵 피격 이펙트 Cue 발행
+    /// </summary>
+    private void EmitHitCues(int damage)
+    {
+        try
+        {
+            // 크리티컬 판정 (임시: 데미지가 높으면 크리티컬로 간주)
+            int maxHealth = MaxHealth; // ✅ 수정: GetMaxHealth() → MaxHealth
+            bool isCritical = damage >= (maxHealth * 0.3f); // 최대 체력의 30% 이상이면 크리티컬
+            
+            // CueContext 생성
+            var context = new CueSystem.CueContext
+            {
+                position = transform.position,
+                rotation = transform.rotation,
+                normal = Vector3.up,
+                facingDir = GetHitDirection(),
+                follow = null,
+                actorType = CueSystem.ActorType.Enemy,
+                surfaceType = CueSystem.SurfaceType.Flesh, // 적은 기본적으로 살점
+                magnitude = (float)damage / maxHealth, // 데미지 비율로 강도 결정
+                isCritical = isCritical,
+                scale = isCritical ? 1.3f : 1.0f,
+                damage = damage
+            };
+            
+            // 이벤트 키 결정
+            string eventKey = isCritical ? "hit.enemy.critical" : "hit.enemy.normal";
+            
+            // Cue 발행
+            bool success = CueSystem.CueEmitter.Emit(eventKey, "Enemy", context);
+            
+            Debug.Log($"🎵 [EnemyHealth] 피격 Cue 발행: {eventKey} (데미지: {damage}) → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [EnemyHealth] 피격 Cue 발행 오류: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 🧭 피격 방향 계산
+    /// </summary>
+    private Vector2 GetHitDirection()
+    {
+        // 플레이어 방향에서 오는 피격으로 가정
+        var player = FindObjectOfType<PlayerController>();
+        if (player != null)
+        {
+            Vector2 direction = (transform.position - player.transform.position).normalized;
+            return direction;
+        }
+        
+        return Vector2.up; // 기본값
+    }
+    
+    #endregion
 } 

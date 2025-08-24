@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using CueSystem; // ✅ 추가
 
 namespace StageSystem
 {
@@ -146,6 +147,9 @@ public class StageManager : MonoBehaviour
             // 1단계: 풀 시스템 Warmup
             yield return StartCoroutine(WarmupPoolSystem());
             
+            // ✅ 풀 로딩 완료 후 스테이지 입장 이펙트 발행
+            EmitStageEnterCues();
+            
             // 2단계: 스테이지 데이터 로드
             yield return StartCoroutine(LoadStageData());
             
@@ -165,19 +169,25 @@ public class StageManager : MonoBehaviour
                 Debug.Log($"🔥 [StageManager] 풀 시스템 Warmup 시작...");
             }
             
-            // ScenePoolConfig가 있으면 사용, 없으면 StageConfig에서 필요한 풀 계산
-            if (GamePoolManager.Instance.currentSceneConfig != null)
+            // ✅ GamePoolManager가 로딩 중일 때만 대기
+            if (GamePoolManager.Instance != null)
             {
-                // 기존 풀 시스템 사용
-                yield return new WaitForSeconds(0.1f); // 풀 로딩 대기
-            }
-            else
-            {
-                // StageConfig 기반 동적 풀 생성 (추후 구현)
-                if (enableDebugLogs)
+                float timeout = 5f; // 최대 5초 대기
+                float elapsed = 0f;
+                
+                while (GamePoolManager.Instance.IsLoadingPools && elapsed < timeout)
                 {
-                    Debug.LogWarning($"[StageManager] ScenePoolConfig가 없습니다. 동적 풀 생성 생략.");
+                    yield return new WaitForSeconds(0.1f);
+                    elapsed += 0.1f;
                 }
+                
+                if (elapsed >= timeout)
+                {
+                    Debug.LogWarning($"⚠️ [StageManager] 풀 로딩 타임아웃! 강제 진행합니다.");
+                }
+                
+                // 추가 안전 대기 (풀 로딩 완료 확인)
+                yield return new WaitForSeconds(0.1f);
             }
             
             if (enableDebugLogs)
@@ -249,6 +259,9 @@ public class StageManager : MonoBehaviour
                 Debug.Log($"🌊 [StageManager] 웨이브 {currentWaveIndex + 1}/{stageConfig.WaveConfigs.Count} 시작: {currentWave.WaveID}");
             }
             
+            // ✅ 🎵 웨이브 시작 이펙트 발행
+            EmitWaveStartCues(currentWave);
+            
             OnWaveChanged?.Invoke(currentWave);
             waveController.ExecuteWave(currentWave);
         }
@@ -262,6 +275,9 @@ public class StageManager : MonoBehaviour
             {
                 Debug.Log($"✅ [StageManager] 웨이브 완료: {completedWave.WaveID}");
             }
+            
+            // ✅ 🎵 웨이브 완료 이펙트 발행
+            EmitWaveCompleteCues(completedWave);
             
             currentWaveIndex++;
             
@@ -371,6 +387,9 @@ public class StageManager : MonoBehaviour
             if (!isStageActive) return;
             
             isStageActive = false;
+            
+            // ✅ 🎵 스테이지 완료 이펙트 발행
+            EmitStageCompleteCues(success);
             
             // 진행 중인 웨이브 정지
             if (waveController != null)
@@ -549,65 +568,169 @@ public class StageManager : MonoBehaviour
         }
         
         /// <summary>
-        /// 개별 몬스터 스폰 - 실제 GamePoolManager API 사용
+        /// 개별 몬스터 스폰 - 단순화된 EnemyData 기반 시스템
         /// </summary>
         public GameObject SpawnMonster(MonsterSpawnData monsterData, Vector3 position)
         {
-            string poolTag = GetPoolTagFromMonsterID(monsterData.MonsterID);
-            
-            // 실제 GamePoolManager API 사용: SpawnFromPool
-            if (GamePoolManager.Instance != null)
+            if (enableDebugLogs)
             {
-                // GamePoolManager의 실제 메서드: SpawnFromPool 사용
-                GameObject spawnedObject = GamePoolManager.Instance.SpawnFromPool(poolTag, position, Quaternion.identity);
-                
-                if (spawnedObject != null)
+                Debug.Log($"🎯 [StageManager] 몬스터 스폰 요청: {monsterData.MonsterID} at {position}");
+            }
+            
+            // 1단계: EnemyData에서 프리팹 가져오기
+            EnemyData enemyData = GetEnemyDataFromMonsterID(monsterData.MonsterID);
+            GameObject prefabToSpawn = null;
+            
+            if (enemyData != null)
+            {
+                prefabToSpawn = enemyData.GetPoolingPrefab();
+            }
+            else
+            {
+                if (enableDebugLogs)
                 {
-                    if (enableDebugLogs)
-                    {
-                        Debug.Log($"[StageManager] 풀에서 스폰 성공: {poolTag} at {position}");
-                    }
-                    return spawnedObject;
-                }
-                else
-                {
-                    if (enableDebugLogs)
-                    {
-                        Debug.LogWarning($"[StageManager] 풀에서 스폰 실패: {poolTag}");
-                    }
+                    Debug.LogError($"❌ [StageManager] EnemyData 로드 실패: {monsterData.MonsterID}");
                 }
             }
             
-            // 풀에서 실패하면 프리팹 직접 생성 (fallback)
-            if (monsterData.MonsterPrefab != null)
+            // 2단계: 풀링 시스템을 통한 스폰 (올바른 풀 태그 사용)
+            if (prefabToSpawn != null)
             {
-                GameObject directSpawn = Instantiate(monsterData.MonsterPrefab, position, Quaternion.identity);
+                // MonsterID → 풀 태그 매핑 사용
+                string poolTag = GetPoolTagFromMonsterID(monsterData.MonsterID);
+                
+                if (GamePoolManager.Instance != null)
+                {
+                    GameObject spawnedObject = GamePoolManager.Instance.SpawnFromPool(poolTag, position, Quaternion.identity);
+                    
+                    if (spawnedObject != null)
+                    {
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log($"✅ [StageManager] 풀링 스폰 성공: {poolTag} at {position}");
+                        }
+                        
+                        // 🔧 VFX 시스템 재활성화 (풀 에러 해결 후)
+                        EmitSpawnCues(spawnedObject, monsterData, position);
+                        
+                        return spawnedObject;
+                    }
+                    else
+                    {
+                        if (enableDebugLogs)
+                        {
+                            Debug.LogWarning($"⚠️ [StageManager] 풀링 실패, 직접 생성: {poolTag}");
+                        }
+                    }
+                }
+                
+                // 풀링 실패 시 직접 생성 (fallback)
+                GameObject directSpawn = Instantiate(prefabToSpawn, position, Quaternion.identity);
+                
                 if (enableDebugLogs)
                 {
-                    Debug.Log($"[StageManager] 직접 생성: {directSpawn.name} at {position}");
+                    Debug.Log($"🔧 [StageManager] 직접 생성: {directSpawn.name} at {position}");
                 }
+                
+                EmitSpawnCues(directSpawn, monsterData, position);
                 return directSpawn;
             }
             
-            Debug.LogError($"[StageManager] 몬스터 스폰 완전 실패: {monsterData.MonsterID}");
+            // 3단계: 레거시 시스템 fallback (기존 호환성)
+            if (monsterData.MonsterPrefab != null)
+            {
+                GameObject legacySpawn = Instantiate(monsterData.MonsterPrefab, position, Quaternion.identity);
+                
+                if (enableDebugLogs)
+                {
+                    Debug.LogWarning($"⚠️ [StageManager] 레거시 MonsterPrefab 사용: {legacySpawn.name}");
+                }
+                
+                EmitSpawnCues(legacySpawn, monsterData, position);
+                return legacySpawn;
+            }
+            
+            Debug.LogError($"❌ [StageManager] 몬스터 스폰 완전 실패: {monsterData.MonsterID}");
             return null;
         }
-
+        
         /// <summary>
-        /// 몬스터 ID로부터 풀 태그 생성
+        /// 🆕 MonsterID로부터 EnemyData 가져오기 (Resources 기반)
+        /// </summary>
+        private EnemyData GetEnemyDataFromMonsterID(string monsterID)
+        {
+            if (string.IsNullOrEmpty(monsterID))
+                return null;
+            
+            // Resources/EnemyData 폴더에서 EnemyData 찾기
+            string[] possiblePaths = {
+                $"EnemyData/{GetEnemyDataFileName(monsterID)}",
+                $"EnemyData/{monsterID}Data",
+                $"EnemyData/{monsterID}"
+            };
+            
+            foreach (string path in possiblePaths)
+            {
+                EnemyData enemyData = Resources.Load<EnemyData>(path);
+                if (enemyData != null)
+                {
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"✅ [StageManager] EnemyData 로드: {monsterID} → {path}");
+                    }
+                    return enemyData;
+                }
+            }
+            
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"⚠️ [StageManager] EnemyData 없음: {monsterID}");
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// 🆕 MonsterID를 EnemyData 파일명으로 변환
+        /// </summary>
+        private string GetEnemyDataFileName(string monsterID)
+        {
+            // MON_BLUESLIME_001 → BlueSlimeData
+            if (monsterID.Contains("BLUESLIME"))
+            {
+                return monsterID.Contains("BOSS") ? "BlueSlime_BossData" : "BlueSlimeData";
+            }
+            else if (monsterID.Contains("GRAPE"))
+            {
+                return monsterID.Contains("BOSS") ? "Grape_BossData" : "GrapeData";
+            }
+            else if (monsterID.Contains("GHOST"))
+            {
+                return monsterID.Contains("BOSS") ? "Ghost_BossData" : "GhostData";
+            }
+            else if (monsterID.Contains("FINALBOSSA"))
+            {
+                return "FinalBossAData";
+            }
+            else if (monsterID.Contains("FINALBOSSB"))
+            {
+                return "FinalBossBData";
+            }
+            else if (monsterID.Contains("FINALBOSSC"))
+            {
+                return "FinalBossCData";
+            }
+            
+            return $"{monsterID}Data"; // 기본값
+        }
+        
+        /// <summary>
+        /// 몬스터 ID로부터 풀 태그 생성 - MonsterID 직접 사용
         /// </summary>
         private string GetPoolTagFromMonsterID(string monsterID)
         {
-            // 몬스터 ID에서 풀 태그 추출
-            // 예: MON_BLUESLIME_001 → BlueSlime
-            if (monsterID.Contains("BLUESLIME"))
-                return "BlueSlime";
-            else if (monsterID.Contains("GRAPE"))
-                return "Enemie1"; // Grape의 실제 풀 태그
-            else if (monsterID.Contains("GHOST"))
-                return "Ghost";
-            else
-                return monsterID; // 기본적으로 그대로 반환
+            // MonsterID를 풀 태그로 직접 사용 (PoolConfig와 일치)
+            return monsterID;
         }
 
         /// <summary>
@@ -651,5 +774,169 @@ public class StageManager : MonoBehaviour
             // 보스 스폰 UI 이벤트
             OnBossSpawned?.Invoke(bossObject);
         }
+
+        #region ✅ 🎵 Cue 시스템 연동 (Phase C-3 추가)
+    
+    /// <summary>
+    /// 🎵 몬스터 스폰 이펙트 Cue 발행
+    /// </summary>
+    private void EmitSpawnCues(GameObject spawnedMonster, MonsterSpawnData monsterData, Vector3 position)
+    {
+        try
+        {
+            // 보스 여부 확인
+            bool isBoss = monsterData.MonsterID.Contains("BOSS") || monsterData.MonsterID.Contains("Boss");
+            
+            // CueContext 생성
+            var context = new CueSystem.CueContext
+            {
+                position = position,
+                rotation = Quaternion.identity,
+                normal = Vector3.up,
+                facingDir = Vector2.down, // 스폰 시 아래 방향
+                follow = spawnedMonster.transform,
+                actorType = CueSystem.ActorType.Environment, // 스테이지 환경 이벤트
+                surfaceType = CueSystem.SurfaceType.Default,
+                magnitude = isBoss ? 2.0f : 1.0f,
+                isCritical = isBoss,
+                scale = isBoss ? 1.5f : 1.0f
+            };
+            
+            // 이벤트 키 결정
+            string eventKey = isBoss ? "spawn.enemy.boss" : "spawn.enemy.normal";
+            
+            // Cue 발행 (Stage 도메인 사용)
+            bool success = CueSystem.CueEmitter.Emit(eventKey, "Stage", context);
+            
+            Debug.Log($"🎵 [StageManager] 스폰 Cue 발행: {eventKey} ({monsterData.MonsterID}) → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [StageManager] 스폰 Cue 발행 오류: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 🎵 스테이지 입장 이펙트 Cue 발행
+    /// </summary>
+    private void EmitStageEnterCues()
+    {
+        try
+        {
+            var context = new CueSystem.CueContext
+            {
+                position = Vector3.zero, // 화면 중앙
+                rotation = Quaternion.identity,
+                normal = Vector3.up,
+                facingDir = Vector2.down,
+                follow = null,
+                actorType = CueSystem.ActorType.Environment,
+                surfaceType = CueSystem.SurfaceType.Default,
+                magnitude = 1.5f,
+                isCritical = false,
+                scale = 1.2f
+            };
+            
+            bool success = CueSystem.CueEmitter.Emit("stage.enter", "Stage", context);
+            Debug.Log($"🎵 [StageManager] 스테이지 입장 Cue 발행: stage.enter → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [StageManager] 스테이지 입장 Cue 발행 오류: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 🎵 웨이브 시작 이펙트 Cue 발행
+    /// </summary>
+    private void EmitWaveStartCues(WaveConfig waveConfig)
+    {
+        try
+        {
+            var context = new CueSystem.CueContext
+            {
+                position = Vector3.zero,
+                rotation = Quaternion.identity,
+                normal = Vector3.up,
+                facingDir = Vector2.down,
+                follow = null,
+                actorType = CueSystem.ActorType.Environment,
+                surfaceType = CueSystem.SurfaceType.Default,
+                magnitude = 1.0f,
+                isCritical = false,
+                scale = 1.0f
+            };
+            
+            bool success = CueSystem.CueEmitter.Emit("wave.start", "Stage", context);
+            Debug.Log($"🎵 [StageManager] 웨이브 시작 Cue 발행: wave.start ({waveConfig.WaveID}) → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [StageManager] 웨이브 시작 Cue 발행 오류: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 🎵 웨이브 완료 이펙트 Cue 발행
+    /// </summary>
+    private void EmitWaveCompleteCues(WaveConfig completedWave)
+    {
+        try
+        {
+            var context = new CueSystem.CueContext
+            {
+                position = Vector3.zero,
+                rotation = Quaternion.identity,
+                normal = Vector3.up,
+                facingDir = Vector2.down,
+                follow = null,
+                actorType = CueSystem.ActorType.Environment,
+                surfaceType = CueSystem.SurfaceType.Default,
+                magnitude = 1.2f,
+                isCritical = false,
+                scale = 1.1f
+            };
+            
+            bool success = CueSystem.CueEmitter.Emit("wave.complete", "Stage", context);
+            Debug.Log($"🎵 [StageManager] 웨이브 완료 Cue 발행: wave.complete ({completedWave.WaveID}) → {(success ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [StageManager] 웨이브 완료 Cue 발행 오류: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 🎵 스테이지 완료 이펙트 Cue 발행
+    /// </summary>
+    private void EmitStageCompleteCues(bool success)
+    {
+        try
+        {
+            var context = new CueSystem.CueContext
+            {
+                position = Vector3.zero,
+                rotation = Quaternion.identity,
+                normal = Vector3.up,
+                facingDir = Vector2.down,
+                follow = null,
+                actorType = CueSystem.ActorType.Environment,
+                surfaceType = CueSystem.SurfaceType.Default,
+                magnitude = success ? 2.0f : 1.0f,
+                isCritical = success,
+                scale = success ? 2.0f : 1.0f
+            };
+            
+            string eventKey = "stage.complete";
+            bool cueSuccess = CueSystem.CueEmitter.Emit(eventKey, "Stage", context);
+            Debug.Log($"🎵 [StageManager] 스테이지 완료 Cue 발행: {eventKey} (성공: {success}) → {(cueSuccess ? "성공" : "실패")}");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"🔴 [StageManager] 스테이지 완료 Cue 발행 오류: {ex.Message}");
+        }
+    }
+
+    #endregion
     }  // StageManager 클래스 닫기
 }      // StageSystem 네임스페이스 닫기

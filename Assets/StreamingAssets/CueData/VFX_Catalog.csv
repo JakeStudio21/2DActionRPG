@@ -1,0 +1,39 @@
+﻿vfx_id,pool_key,duration,scale,offset_x,offset_y,offset_z,follow_target,cooldown,priority,note
+TestVFX,TestVFX,1,1,0,0,0,FALSE,0,50,기본 테스트 이펙트
+HitSpark,HitSpark,2,1,0,0,0,FALSE,0,50,근접 공격 히트
+CriticalHit,CriticalHit,2,1,0,0,0,FALSE,0,50,크리티컬 근접 공격
+MuzzleFlash,MuzzleFlash,2,1,0,0,0,FALSE,0,50,원거리 발사
+BurstEffect,BurstEffect,2,1,0,0,0,FALSE,0,50,복합 공격 버스트
+DeathEffect,DeathEffect,1,1,0,0,0,FALSE,0,50,일반 적 사망
+BossDeathEffect,BossDeathEffect,1,1,0,0,0,FALSE,0,50,보스 사망
+HitEffect,HitEffect,2,1,0,0,0,FALSE,0,50,일반 피격
+CritHitEffect,CritHitEffect,2,1,0,0,0,FALSE,0,50,크리티컬 피격
+SlimeHit,SlimeHit,2,1,0,0,0,FALSE,0,50,슬라임 근접 공격
+SlimeCrit,SlimeCrit,2,1,0,0,0,FALSE,0,50,슬라임 크리티컬
+PlayerVFX,PlayerVFX,1,1,0,0,0,FALSE,0,50,플레이어 테스트
+SpawnEffect,SpawnEffect,1,1,0,0,0,FALSE,0,50,일반 몬스터 스폰
+BossSpawnEffect,BossSpawnEffect,2,1,0,0,0,FALSE,0,50,보스 스폰
+WaveStartEffect,WaveStartEffect,2,1,0,0,0,FALSE,0,50,웨이브 시작
+WaveCompleteEffect,WaveCompleteEffect,2,1,0,0,0,FALSE,0,50,웨이브 완료
+StageEnterEffect,StageEnterEffect,2,1,0,0,0,FALSE,0,50,스테이지 입장
+StageCompleteEffect,StageCompleteEffect,1,1,0,0,0,FALSE,0,50,스테이지 완료
+PlayerMeleeVFX,HitSpark,-1,1,0,0,0,FALSE,0,50,플레이어 근접 공격 VFX
+PlayerRangedVFX,MuzzleFlash,-1,1,0,0,0,FALSE,0,50,플레이어 원거리 공격 VFX
+PlayerCritVFX,CriticalHit,-1,1.5,0,0,0,FALSE,0,60,플레이어 크리티컬 공격 VFX
+Skill1VFX,MultiArrowEffect,-1,1.2,0,0,0,FALSE,0,55,플레이어 스킬1 VFX
+Skill2VFX,PowerArrowEffect,-1,1.5,0,0,0,FALSE,0,60,플레이어 스킬2 VFX
+PlayerHitVFX,PlayerHitEffect,-1,1,0,0,0,TRUE,0,50,플레이어 피격 VFX
+PlayerCritHitVFX,PlayerCritHitEffect,-1,1.3,0,0,0,TRUE,0,60,플레이어 크리티컬 피격 VFX
+PlayerDeathVFX,PlayerDeathEffect,-1,2,0,0,0,FALSE,0,80,플레이어 사망 VFX
+PlayerReviveVFX,PlayerReviveEffect,-1,1.5,0,0,0,FALSE,0,70,플레이어 부활 VFX
+PlayerHealVFX,HealEffect,-1,1,0,0.5,0,TRUE,0,50,플레이어 회복 VFX
+AssasinBowVFX,AssasinBowEffect,-1,1,0,0,0,FALSE,0,50,어쌔신 활 공격 VFX
+MultiArrowVFX,MultiArrowBurst,-1,1.3,0,0,0,FALSE,0,60,어쌔신 멀티 애로우 VFX
+PowerArrowVFX,PowerArrowCharge,-1,1.8,0,0,0,FALSE,0,70,어쌔신 파워 애로우 VFX
+ButtonClickVFX,ButtonClickVFX,-1,0.8,0,0,0,FALSE,0.1,30,버튼 클릭 VFX
+PanelOpenVFX,PanelOpenVFX,-1,1,0,0,0,FALSE,0,40,패널 열기 VFX
+PanelCloseVFX,PanelCloseVFX,-1,1,0,0,0,FALSE,0,30,패널 닫기 VFX
+ItemEquipVFX,ItemEquipVFX,-1,1.2,0,0,0,FALSE,0,50,아이템 장착 VFX
+ItemPickupVFX,ItemPickupVFX,-1,1,0,0,0,FALSE,0,45,아이템 획득 VFX
+ShopBuyVFX,ShopBuyVFX,-1,1.3,0,0,0,FALSE,0,55,상점 구매 VFX
+InventoryFullVFX,InventoryFullVFX,-1,1,0,0,0,FALSE,0,40,인벤토리 가득참 VFX

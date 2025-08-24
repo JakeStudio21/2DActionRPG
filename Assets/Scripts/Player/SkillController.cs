@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using CueSystem;
 
 /// <summary>
 /// 새로운 BaseSkill<T> 기반 스킬 시스템 컨트롤러
@@ -98,6 +99,16 @@ public class SkillController : MonoBehaviour
     {
         Debug.Log("🔵 [SkillController] 스킬1 실행 요청");
         
+        // 🆕 Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = transform.position,
+            actorType = ActorType.Player,
+            magnitude = 1.5f
+        };
+        
+        CueEmitter.Emit("skill.player.skill1", "Player", context);
+        
         if (skillSet != null)
         {
             // ⭐ 실행 전 스킬 상태 확인
@@ -128,6 +139,16 @@ public class SkillController : MonoBehaviour
     public void TriggerSkill2()
     {
         Debug.Log("🔵 [SkillController] 스킬2 실행 요청");
+        
+        // 🆕 Cue 이벤트 발행  
+        var context = new CueContext
+        {
+            position = transform.position,
+            actorType = ActorType.Player,
+            magnitude = 2.0f
+        };
+        
+        CueEmitter.Emit("skill.player.skill2", "Player", context);
         
         if (skillSet != null)
         {

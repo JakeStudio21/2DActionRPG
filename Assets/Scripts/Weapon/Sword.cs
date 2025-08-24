@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CueSystem; // 🆕 Cue 시스템 네임스페이스 추가
 
 public class Sword : MonoBehaviour, IWeapon
 {
@@ -48,6 +49,19 @@ public class Sword : MonoBehaviour, IWeapon
     public void Attack() {
         Debug.Log("🔵 [Sword] Attack() 시작 - 순수 공격 로직");
 
+        // 🆕 Cue 이벤트 발행 - 공격 시작 시점
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = transform.rotation,
+            actorType = ActorType.Player,
+            magnitude = 1.0f,
+            surfaceType = SurfaceType.Default
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("attack.player.melee", "Player", context);
+        Debug.Log($"🎬 [Sword] Cue 발행 결과: {cueSuccess}");
+
         // ⭐ Sword 애니메이션 트리거 복원
         if (myAnimator != null)
         {
@@ -87,6 +101,20 @@ public class Sword : MonoBehaviour, IWeapon
         if (warrior.IsInBerserkerMode())
         {
             Debug.Log("🔥 [Sword] 버서커 모드! 추가 공격 효과");
+            
+            // 🆕 버서커 모드 전용 Cue 이벤트 발행
+            var berserkerContext = new CueContext
+            {
+                position = transform.position,
+                rotation = transform.rotation,
+                actorType = ActorType.Player,
+                magnitude = 2.0f, // 버서커 모드는 더 강한 효과
+                isCritical = true,
+                surfaceType = SurfaceType.Default
+            };
+            
+            bool berserkerCueSuccess = CueEmitter.Emit("attack.player.critical", "Player", berserkerContext);
+            Debug.Log($"🔥 [Sword] 버서커 Cue 발행 결과: {berserkerCueSuccess}");
             
             // 버서커 모드 시 추가 슬래시 이펙트
             if (slashSpawnPoint != null)

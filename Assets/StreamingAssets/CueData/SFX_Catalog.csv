@@ -1,0 +1,39 @@
+﻿sfx_id,audio_clip_path,volume,pitch,is_3d,max_distance,cooldown,priority,note
+TestSFX,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,기본 테스트 음
+SwordHit,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,근접 공격 히트음
+CriticalSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,크리티컬 근접 공격음
+BowShoot,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,원거리 발사음
+MultiShot,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,복합 공격 버스트음
+DeathSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,일반 적 사망음
+BossDeathSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,보스 사망음
+HitSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,일반 피격음
+CritHitSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,크리티컬 피격음
+SlimeAttack,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,슬라임 근접 공격음
+SlimeCritical,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,슬라임 크리티컬음
+PlayerSFX,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,플레이어 테스트음
+SpawnSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,일반 몬스터 스폰음
+BossSpawnSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,보스 스폰음
+WaveStartSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,웨이브 시작음
+WaveCompleteSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,웨이브 완료음
+StageEnterSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,스테이지 입장음
+StageCompleteSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,0,0,,스테이지 완료음
+PlayerMeleeSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,50,0,50,플레이어 근접 공격 사운드
+PlayerRangedSound,Audio/SFX/Vefects_SFX_Impact_01,0.7,1,FALSE,50,0,50,플레이어 원거리 공격 사운드
+PlayerCritSound,Audio/SFX/Vefects_SFX_Impact_01,0.9,1.2,FALSE,50,0,60,플레이어 크리티컬 공격 사운드
+Skill1Sound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,50,0,55,플레이어 스킬1 사운드
+Skill2Sound,Audio/SFX/Vefects_SFX_Impact_01,0.9,1.1,FALSE,50,0,60,플레이어 스킬2 사운드
+PlayerHitSound,Audio/SFX/Vefects_SFX_Impact_01,0.7,1,FALSE,50,0,50,플레이어 피격 사운드
+PlayerCritHitSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1.3,FALSE,50,0,60,플레이어 크리티컬 피격 사운드
+PlayerDeathSound,Audio/SFX/Vefects_SFX_Impact_01,1,0.9,FALSE,50,0,80,플레이어 사망 사운드
+PlayerReviveSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,50,0,70,플레이어 부활 사운드
+PlayerHealSound,Audio/SFX/Vefects_SFX_Impact_01,0.6,1.2,FALSE,50,0,50,플레이어 회복 사운드
+AssasinBowSound,Audio/SFX/Vefects_SFX_Impact_01,0.7,1,FALSE,50,0,50,어쌔신 활 공격 사운드
+MultiArrowSound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,50,0,60,어쌔신 멀티 애로우 사운드
+PowerArrowSound,Audio/SFX/Vefects_SFX_Impact_01,0.9,1.1,FALSE,50,0,70,어쌔신 파워 애로우 사운드
+ButtonClickSound,Audio/SFX/Vefects_SFX_Impact_01,0.5,1,FALSE,50,0.1,30,버튼 클릭 사운드
+PanelOpenSound,Audio/SFX/Vefects_SFX_Impact_01,0.6,1,FALSE,50,0,40,패널 열기 사운드
+PanelCloseSound,Audio/SFX/Vefects_SFX_Impact_01,0.5,1,FALSE,50,0,30,패널 닫기 사운드
+ItemEquipSound,Audio/SFX/Vefects_SFX_Impact_01,0.7,1,FALSE,50,0,50,아이템 장착 사운드
+ItemPickupSound,Audio/SFX/Vefects_SFX_Impact_01,0.6,1.1,FALSE,50,0,45,아이템 획득 사운드
+ShopBuySound,Audio/SFX/Vefects_SFX_Impact_01,0.8,1,FALSE,50,0,55,상점 구매 사운드
+InventoryFullSound,Audio/SFX/Vefects_SFX_Impact_01,0.7,1,FALSE,50,0,40,인벤토리 가득참 사운드

@@ -390,6 +390,8 @@ GameObject:
   - component: {fileID: 6403347020822746970}
   - component: {fileID: 4632578269491200419}
   - component: {fileID: -2718816271147156856}
+  - component: {fileID: 1756301324097207731}
+  - component: {fileID: -5535195084605027862}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -635,6 +637,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 1
   damageRecoveryTime: 1
+  showDebugLogs: 1
 --- !u!114 &4451406008786218953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -774,4 +777,34 @@ MonoBehaviour:
   finalCriticalChance: 0
   finalCriticalDamage: 1.5
   finalDefense: 0
+  showDebugLogs: 1
+--- !u!114 &1756301324097207731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55e70018112e5694f8be4447a1f56e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultDomain: Player
+  autoDetectDomain: 1
+  showDebugLogs: 1
+--- !u!114 &-5535195084605027862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c7db5ffb72b0bb4f985cd6c45e7d893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableAutoHitDetection: 1
+  criticalThreshold: 1.5
   showDebugLogs: 1

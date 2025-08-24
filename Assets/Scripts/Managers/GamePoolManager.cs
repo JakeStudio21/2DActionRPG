@@ -30,6 +30,9 @@ public class GamePoolManager : Singleton<GamePoolManager>
     // 씬 관리
     private string currentSceneName;
     private bool isLoadingPools = false;
+
+    // ✅ 외부 접근용 프로퍼티 추가
+    public bool IsLoadingPools => isLoadingPools;
     
     protected override void Awake()
     {
@@ -412,9 +415,16 @@ public class GamePoolManager : Singleton<GamePoolManager>
     
     private IEnumerator LoadScenePoolsCoroutine(string sceneName)
     {
-        if (isLoadingPools) yield break;
+        Debug.Log($"🔄 [GamePoolManager] 풀 로딩 시작: {sceneName}");
+        
+        if (isLoadingPools) 
+        {
+            Debug.LogWarning($"⚠️ [GamePoolManager] 이미 풀 로딩 중입니다. 중복 요청 무시.");
+            yield break;
+        }
         
         isLoadingPools = true;
+        Debug.Log($"🔒 [GamePoolManager] 풀 로딩 상태: isLoadingPools = true");
         
         // 기존 풀 정리
         yield return UnloadUnusedPools();
@@ -425,8 +435,11 @@ public class GamePoolManager : Singleton<GamePoolManager>
         {
             Debug.LogWarning($"[GamePoolManager] 씬 '{sceneName}'의 풀 설정을 찾을 수 없습니다.");
             isLoadingPools = false;
+            Debug.Log($"🔓 [GamePoolManager] 풀 로딩 상태: isLoadingPools = false (설정 없음)");
             yield break;
         }
+        
+        Debug.Log($"📋 [GamePoolManager] 씬 설정 발견: {config.name}, 필수 풀: {config.requiredPools?.Count}개");
         
         currentSceneConfig = config;
         
@@ -434,6 +447,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
         {
             Debug.LogError($"[GamePoolManager] 씬 '{sceneName}'의 풀 설정이 유효하지 않습니다.");
             isLoadingPools = false;
+            Debug.Log($"🔓 [GamePoolManager] 풀 로딩 상태: isLoadingPools = false (설정 무효)");
             yield break;
         }
         
@@ -441,24 +455,20 @@ public class GamePoolManager : Singleton<GamePoolManager>
         yield return LoadRequiredPools(config);
         
         isLoadingPools = false;
+        Debug.Log($"🔓 [GamePoolManager] 풀 로딩 상태: isLoadingPools = false (완료)");
         
-        if (enableDebugMode)
+        Debug.Log($"✅ [GamePoolManager] 씬 '{sceneName}' 풀 로딩 완료. 총 풀: {poolDictionary.Count}개");
+        
+        // 🔍 로딩된 풀 목록 출력
+        Debug.Log($"📊 [GamePoolManager] 로딩된 풀 목록:");
+        foreach (var poolTag in poolDictionary.Keys)
         {
-            Debug.Log($"[GamePoolManager] 씬 '{sceneName}' 풀 로딩 완료");
-            if (showPoolStats) PrintPoolStats();
-        }
-        if (enableDebugMode)
-        {
-            Debug.Log("🔍 [GamePoolManager] 로드된 풀 목록:");
-            foreach(var poolTag in poolDictionary.Keys)
-            {
-                Debug.Log($"  - {poolTag}: {poolDictionary[poolTag].Count}개");
-            }
+            Debug.Log($"   - {poolTag}: {poolDictionary[poolTag].Count}개");
         }
     }
     
     /// <summary>
-    /// 개별 풀 생성 메서드 (누락된 메서드 추가)
+    /// 개별 풀 생성 메서드 (단순화 완료)
     /// </summary>
     private IEnumerator CreatePool(ScenePoolConfig.PoolSettings poolSetting)
     {
@@ -468,6 +478,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
             yield break;
         }
         
+        // 🔧 단순화: 직접 프리팹만 사용
         if (poolSetting.prefab == null)
         {
             Debug.LogError($"[GamePoolManager] 풀 '{poolSetting.tag}'의 프리팹이 null입니다!");
@@ -505,6 +516,31 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
     }
     
+    /// <summary>
+    /// 🆕 풀링된 적 오브젝트 초기화 (EnemyData 연결)
+    /// </summary>
+    private void InitializePooledEnemyObject(GameObject pooledObject, EnemyData enemyData)
+    {
+        // BaseEnemy 컴포넌트에 EnemyData 연결
+        BaseEnemy baseEnemy = pooledObject.GetComponent<BaseEnemy>();
+        if (baseEnemy != null)
+        {
+            // 리플렉션을 통한 EnemyData 설정
+            var enemyDataField = typeof(BaseEnemy).GetField("enemyData", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (enemyDataField != null)
+            {
+                enemyDataField.SetValue(baseEnemy, enemyData);
+                
+                if (enableDebugMode)
+                {
+                    Debug.Log($"🔗 [GamePoolManager] 풀 오브젝트에 EnemyData 연결: {pooledObject.name} ← {enemyData.EnemyName}");
+                }
+            }
+        }
+    }
+    
     #endregion
     
     #region Pool Operations (핵심 수정된 로직)
@@ -514,27 +550,33 @@ public class GamePoolManager : Singleton<GamePoolManager>
     /// </summary>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        Debug.Log($"🏭 [GamePoolManager] SpawnFromPool 호출: {tag} at {position}");
-        
         // 풀 존재 확인
         if (!poolDictionary.ContainsKey(tag))
         {
-            Debug.LogError($"🏭 [GamePoolManager] 풀에 없는 태그: {tag}");
-            Debug.LogError($"🏭 [GamePoolManager] 현재 사용 가능한 풀들: {string.Join(", ", poolDictionary.Keys)}");
+            if (enableDebugMode)
+            {
+                Debug.LogError($"🏭 [GamePoolManager] 풀에 없는 태그: {tag}");
+                Debug.LogError($"🔍 [GamePoolManager] 현재 사용 가능한 풀들:");
+                foreach (var poolTag in poolDictionary.Keys)
+                {
+                    Debug.LogError($"  - {poolTag}: {poolDictionary[poolTag].Count}개");
+                }
+            }
             return null;
         }
         
-        Queue<GameObject> pool = poolDictionary[tag];
-        Debug.Log($"🏭 [GamePoolManager] {tag} 풀 크기: {pool.Count}");
+        // 풀에서 오브젝트 가져오기
+        Queue<GameObject> objectPool = poolDictionary[tag];
+        Debug.Log($"📊 [테스트] {tag} 풀 크기: {objectPool.Count}개 대기 중");
         
         // 풀이 비어있으면 확장
-        if (pool.Count == 0)
+        if (objectPool.Count == 0)
         {
             Debug.LogWarning($"🏭 [GamePoolManager] 풀 '{tag}'가 비어있음, 확장 중...");
             
             ExpandPool(tag, 5); // 긴급 확장
             
-            if (pool.Count == 0)
+            if (objectPool.Count == 0)
             {
                 Debug.LogError($"🏭 [GamePoolManager] 풀 '{tag}' 확장 실패!");
                 return null;
@@ -542,7 +584,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         
         // ⭐ 핵심 수정: Dequeue만 하고 다시 Enqueue하지 않음
-        GameObject objectToSpawn = pool.Dequeue();
+        GameObject objectToSpawn = objectPool.Dequeue();
         
         // null 체크 및 재생성
         if (objectToSpawn == null)
@@ -575,7 +617,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         
         Debug.Log($"🏭 [GamePoolManager] 오브젝트 생성 성공: {tag} (이름: {objectToSpawn.name}, 위치: {objectToSpawn.transform.position}, 활성화: {objectToSpawn.activeInHierarchy})");
-        Debug.Log($"�� [GamePoolManager] 풀 남은 개수: {pool.Count}");
+        Debug.Log($"📊 [GamePoolManager] 풀 남은 개수: {objectPool.Count}");
         
         return objectToSpawn;
     }
@@ -713,9 +755,31 @@ public class GamePoolManager : Singleton<GamePoolManager>
         defaultConfig.enableDebugLogs = enableDebugMode;
         
         // ⭐ 핵심 개선: 씬 타입별 지능적 기본 설정
-        if (IsUIOnlyScene(sceneName))
+        if (sceneName.Equals("Lobby", System.StringComparison.OrdinalIgnoreCase))
         {
-            // UI 전용 씬: 빈 설정
+            // 🆕 Lobby 전용: UI VFX 풀들 포함
+            defaultConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>
+            {
+                // UI VFX 풀들
+                CreatePoolSetting("ButtonClickVFX", "ButtonClickVFX", 5),
+                CreatePoolSetting("PanelOpenVFX", "PanelOpenVFX", 3),
+                CreatePoolSetting("PanelCloseVFX", "PanelCloseVFX", 3),
+                CreatePoolSetting("ItemEquipVFX", "ItemEquipVFX", 5),
+                CreatePoolSetting("ShopBuyVFX", "ShopBuyVFX", 3),
+                CreatePoolSetting("InventoryFullVFX", "InventoryFullVFX", 3),
+                
+                // 기본 VFX (fallback용)
+                CreatePoolSetting("Death VFX", "Death VFX", 10),
+                CreatePoolSetting("Barrel VFX", "Barrel VFX", 5)
+            };
+            
+            defaultConfig.optionalPools = new List<ScenePoolConfig.PoolSettings>();
+            
+            Debug.Log($"🎮 [GamePoolManager] Lobby 씬 - UI VFX 풀 설정 사용 ({defaultConfig.requiredPools.Count}개 풀)");
+        }
+        else if (IsUIOnlyScene(sceneName))
+        {
+            // 다른 UI 전용 씬: 빈 설정
             defaultConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>();
             defaultConfig.optionalPools = new List<ScenePoolConfig.PoolSettings>();
             
@@ -726,40 +790,23 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         else if (IsGameplayScene(sceneName))
         {
-            // 🔑 수정: 게임플레이 씬에 개별 장비 픽업 풀들 추가
+            // 🔧 단순화: 기본적인 공통 풀들만 포함, ScenePoolConfig 우선 사용
             defaultConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>
             {
-                // 🆕 필수 픽업 아이템들
-                CreatePoolSetting("Health", "Health", 20),
-                CreatePoolSetting("Gold Coin", "Gold Coin", 30),
-                CreatePoolSetting("Equipment", "Equipment", 15), // 백업용 범용 풀
-                
-                // 🆕 개별 검 장비 풀들
-                CreatePoolSetting("Sword_A_Pickup", "Sword_A_Pickup", 5),
-                CreatePoolSetting("Sword_B_Pickup", "Sword_B_Pickup", 5),
-                CreatePoolSetting("Sword_C_Pickup", "Sword_C_Pickup", 5),
-                CreatePoolSetting("Sword_S_Pickup", "Sword_S_Pickup", 5),
-                
-                // 🆕 개별 활 장비 풀들
-                CreatePoolSetting("Bow_A_Pickup", "Bow_A_Pickup", 5),
-                CreatePoolSetting("Bow_B_Pickup", "Bow_B_Pickup", 5),
-                CreatePoolSetting("Bow_C_Pickup", "Bow_C_Pickup", 5),
-                CreatePoolSetting("Bow_S_Pickup", "Bow_S_Pickup", 5),
-                
-                // 기존 발사체들
+                // 기본 발사체들 (모든 씬에서 공통 사용)
                 CreatePoolSetting("Arrow", "Arrow", 15),
                 CreatePoolSetting("Ghost Bullet", "Ghost_Bullet", 20),
                 CreatePoolSetting("Grape Projectile", "Grape Projectile", 10),
                 CreatePoolSetting("Grape Projectile Splatter", "Grape Projectile Splatter", 10),
                 CreatePoolSetting("GrapeShadow", "Grape_Shadow", 10),
                 
-                // 🆕 VFX 추가
+                // 기본 VFX
                 CreatePoolSetting("Death VFX", "Death VFX", 10)
             };
             
             if (enableDebugMode)
             {
-                Debug.Log($"[GamePoolManager] 게임플레이 씬 '{sceneName}' - 개별 장비 풀 포함 완전한 기본 풀 설정 사용");
+                Debug.Log($"[GamePoolManager] 게임플레이 씬 '{sceneName}' - 기본 공통 풀만 설정, 나머지는 ScenePoolConfig 우선 사용");
             }
         }
         else
@@ -825,6 +872,31 @@ public class GamePoolManager : Singleton<GamePoolManager>
         return false;
     }
     
+    /// <summary>
+    /// 🆕 EnemyData로부터 풀 태그 생성
+    /// </summary>
+    private string GeneratePoolTagFromEnemyData(EnemyData enemyData)
+    {
+        // EnemyId 기반 태그 생성: MON_BLUESLIME_001 → Blue_slime
+        string enemyId = enemyData.EnemyId;
+        
+        if (enemyId.Contains("BLUESLIME"))
+            return "Blue_slime";
+        else if (enemyId.Contains("GRAPE"))
+            return "Enemie1";
+        else if (enemyId.Contains("GHOST"))
+            return "Ghost";
+        else if (enemyId.Contains("FINALBOSSA"))
+            return "FinalBossA";
+        else if (enemyId.Contains("FINALBOSSB"))
+            return "FinalBossB";
+        else if (enemyId.Contains("FINALBOSSC"))
+            return "FinalBossC";
+        
+        // 기본값: EnemyName을 태그로 사용
+        return enemyData.EnemyName.Replace(" ", "_");
+    }
+    
     private ScenePoolConfig.PoolSettings CreatePoolSetting(string tag, string prefabName, int size)
     {
         var setting = new ScenePoolConfig.PoolSettings();
@@ -843,6 +915,11 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         if (prefab == null)
         {
+            // 🆕 추가: VFX 폴더에서 찾기
+            prefab = Resources.Load<GameObject>("Prefabs/VFX/" + prefabName);
+        }
+        if (prefab == null)
+        {
             // 🆕 추가: Pickup 폴더에서 찾기
             prefab = Resources.Load<GameObject>("Prefabs/Pickup/" + prefabName);
         }
@@ -853,20 +930,25 @@ public class GamePoolManager : Singleton<GamePoolManager>
         {
             Debug.LogWarning($"[GamePoolManager] 프리팹을 찾을 수 없습니다: {prefabName}");
         }
+        else if (prefab != null && enableDebugMode)
+        {
+            Debug.Log($"✅ [GamePoolManager] 프리팹 발견: {prefabName} → {prefab.name}");
+        }
         
         return setting;
     }
     
     private IEnumerator LoadRequiredPools(ScenePoolConfig config)
     {
+        Debug.Log($"🔄 [GamePoolManager] 필수 풀 로딩 시작: {config.sceneName}");
+        
         if (config == null || config.requiredPools == null)
         {
-            if (enableDebugMode)
-            {
-                Debug.LogWarning("[GamePoolManager] 로드할 필수 풀이 없습니다.");
-            }
+            Debug.LogWarning("[GamePoolManager] 로드할 필수 풀이 없습니다.");
             yield break;
         }
+        
+        Debug.Log($"📋 [GamePoolManager] 로드할 풀 개수: {config.requiredPools.Count}");
         
         List<ScenePoolConfig.PoolSettings> poolsToLoad = config.requiredPools;
         int loadedThisFrame = 0;
@@ -875,19 +957,29 @@ public class GamePoolManager : Singleton<GamePoolManager>
         {
             if (poolSetting == null || string.IsNullOrEmpty(poolSetting.tag))
             {
+                Debug.LogWarning($"⚠️ [GamePoolManager] 잘못된 풀 설정 건너뜀");
                 continue;
             }
             
+            Debug.Log($"🔍 [GamePoolManager] 풀 로딩 시도: '{poolSetting.tag}' (프리팹: {poolSetting.prefab?.name})");
+            
             if (loadedPoolTags.Contains(poolSetting.tag))
             {
-                if (enableDebugMode)
-                {
-                    Debug.Log($"[GamePoolManager] 풀 '{poolSetting.tag}' 이미 로드됨, 건너뜀");
-                }
+                Debug.Log($"✅ [GamePoolManager] 풀 '{poolSetting.tag}' 이미 로드됨, 건너뜀");
                 continue;
             }
             
             yield return CreatePool(poolSetting);
+            
+            // 🔍 로딩 후 상태 확인
+            if (poolDictionary.ContainsKey(poolSetting.tag))
+            {
+                Debug.Log($"✅ [GamePoolManager] 풀 '{poolSetting.tag}' 로딩 성공: {poolDictionary[poolSetting.tag].Count}개");
+            }
+            else
+            {
+                Debug.LogError($"❌ [GamePoolManager] 풀 '{poolSetting.tag}' 로딩 실패!");
+            }
             
             loadedThisFrame++;
             if (loadedThisFrame >= maxPoolsLoadPerFrame)
@@ -896,6 +988,8 @@ public class GamePoolManager : Singleton<GamePoolManager>
                 yield return null; // 다음 프레임까지 대기
             }
         }
+        
+        Debug.Log($"🎯 [GamePoolManager] 필수 풀 로딩 완료. 총 풀 개수: {poolDictionary.Count}");
     }
     
     private IEnumerator UnloadUnusedPools()
@@ -1328,6 +1422,164 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
     #endregion
     
+    #region 🧪 테스트 및 검증 메서드
+    
+    /// <summary>
+    /// 🧪 몬스터 풀링 시스템 전체 테스트
+    /// </summary>
+    [ContextMenu("🧪 Test Monster Pooling System")]
+    public void TestMonsterPoolingSystem()
+    {
+        Debug.Log($"🧪 ===== 몬스터 풀링 시스템 전체 테스트 시작 =====");
+        
+        // 1. EnemyData 로드 테스트
+        TestEnemyDataLoading();
+        
+        // 2. 풀 생성 테스트
+        TestPoolCreation();
+        
+        // 3. 스폰 테스트
+        TestMonsterSpawning();
+        
+        Debug.Log($"🧪 ===== 몬스터 풀링 시스템 전체 테스트 완료 =====");
+    }
+    
+    /// <summary>
+    /// 🧪 EnemyData 로드 테스트
+    /// </summary>
+    private void TestEnemyDataLoading()
+    {
+        Debug.Log($"🔍 [테스트] EnemyData 로드 테스트 시작");
+        
+        string[] testMonsterIds = {
+            "MON_BLUESLIME_001",
+            "MON_GRAPE_001", 
+            "MON_GHOST_001",
+            "MON_BLUESLIME_001_BOSS"
+        };
+        
+        foreach (string monsterId in testMonsterIds)
+        {
+            // StageManager의 GetEnemyDataFromMonsterID 로직 시뮬레이션
+            string[] possiblePaths = {
+                $"EnemyData/{GetEnemyDataFileNameForTest(monsterId)}",
+                $"EnemyData/{monsterId}Data",
+                $"EnemyData/{monsterId}"
+            };
+            
+            bool found = false;
+            foreach (string path in possiblePaths)
+            {
+                EnemyData enemyData = Resources.Load<EnemyData>(path);
+                if (enemyData != null)
+                {
+                    GameObject prefab = enemyData.GetPoolingPrefab();
+                    Debug.Log($"✅ [테스트] {monsterId}: EnemyData 로드 성공 → {path}");
+                    Debug.Log($"  - EnemyName: {enemyData.EnemyName}");
+                    Debug.Log($"  - Prefab: {(prefab != null ? prefab.name : "NULL")}");
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found)
+            {
+                Debug.LogError($"❌ [테스트] {monsterId}: EnemyData 로드 실패!");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 🧪 풀 생성 테스트
+    /// </summary>
+    private void TestPoolCreation()
+    {
+        Debug.Log($"🏭 [테스트] 풀 생성 테스트 시작");
+        
+        string[] expectedPoolTags = {
+            "Blue_slime",
+            "Enemie1",
+            "Ghost"
+        };
+        
+        foreach (string poolTag in expectedPoolTags)
+        {
+            if (poolDictionary.ContainsKey(poolTag))
+            {
+                int poolSize = poolDictionary[poolTag].Count;
+                Debug.Log($"✅ [테스트] 풀 존재 확인: {poolTag} ({poolSize}개)");
+            }
+            else
+            {
+                Debug.LogError($"❌ [테스트] 풀 누락: {poolTag}");
+            }
+        }
+        
+        Debug.Log($"📊 [테스트] 전체 풀 현황: {poolDictionary.Count}개 풀 등록됨");
+    }
+    
+    /// <summary>
+    /// 🧪 몬스터 스폰 테스트
+    /// </summary>
+    private void TestMonsterSpawning()
+    {
+        Debug.Log($"🎯 [테스트] 몬스터 스폰 테스트 시작");
+        
+        // StageManager가 있는지 확인
+        if (StageSystem.StageManager.Instance == null)
+        {
+            Debug.LogWarning($"⚠️ [테스트] StageManager가 없어서 스폰 테스트 건너뜀");
+            return;
+        }
+        
+        // 테스트용 MonsterSpawnData 생성
+        var testMonsterData = new StageSystem.MonsterSpawnData("MON_BLUESLIME_001", 1, 1f, false);
+        Vector3 testPosition = Vector3.zero;
+        
+        // 스폰 시도
+        GameObject spawnedMonster = StageSystem.StageManager.Instance.SpawnMonster(testMonsterData, testPosition);
+        
+        if (spawnedMonster != null)
+        {
+            Debug.Log($"✅ [테스트] 몬스터 스폰 성공: {spawnedMonster.name}");
+            
+            // 즉시 정리 (테스트용)
+            if (Application.isPlaying)
+            {
+                Destroy(spawnedMonster);
+            }
+        }
+        else
+        {
+            Debug.LogError($"❌ [테스트] 몬스터 스폰 실패!");
+        }
+    }
+    
+    /// <summary>
+    /// 🧪 테스트용 EnemyData 파일명 변환
+    /// </summary>
+    private string GetEnemyDataFileNameForTest(string monsterID)
+    {
+        if (monsterID.Contains("BLUESLIME"))
+        {
+            return monsterID.Contains("BOSS") ? "BlueSlime_BossData" : "BlueSlimeData";
+        }
+        else if (monsterID.Contains("GRAPE"))
+        {
+            return monsterID.Contains("BOSS") ? "Grape_BossData" : "GrapeData";
+        }
+        else if (monsterID.Contains("GHOST"))
+        {
+            return monsterID.Contains("BOSS") ? "Ghost_BossData" : "GhostData";
+        }
+        
+        return $"{monsterID}Data";
+    }
+    
+    #endregion
 }

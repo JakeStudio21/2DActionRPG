@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Player_assasin_profile
+  m_EditorClassIdentifier: 
+  profileId: assasin_profile
+  domain: Player
+  baseProfile: {fileID: 11400000, guid: 1970a8983fce55b449e7de0795a13329, type: 2}
+  vfxCatalog:
+  - vfxId: AssasinBowVFX
+    poolKey: AssasinBowEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9 VFX"
+  - vfxId: MultiArrowVFX
+    poolKey: MultiArrowBurst
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.3, y: 1.3, z: 1.3}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0 VFX"
+  - vfxId: PowerArrowVFX
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.8, y: 1.8, z: 1.8}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  sfxCatalog:
+  - sfxId: AssasinBowSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: MultiArrowSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PowerArrowSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.9
+    pitch: 1.1
+    is3D: 0
+    maxDistance: 50
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 \uC0AC\uC6B4\uB4DC"
+  entries:
+  - eventKey: attack.player.ranged
+    vfxIds:
+    - AssasinBowVFX
+    sfxIds:
+    - AssasinBowSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 25
+    note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9"
+  - eventKey: skill.player.skill1
+    vfxIds:
+    - MultiArrowVFX
+    sfxIds:
+    - MultiArrowSound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 40
+    note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0"
+  - eventKey: skill.player.skill2
+    vfxIds:
+    - PowerArrowVFX
+    sfxIds:
+    - PowerArrowSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  description: "\uC5B4\uC314\uC2E0 \uC804\uC6A9 \uD504\uB85C\uD544"

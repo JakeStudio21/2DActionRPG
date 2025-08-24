@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Global_global_default
+  m_EditorClassIdentifier: 
+  profileId: global_default
+  domain: Global
+  baseProfile: {fileID: 0}
+  vfxCatalog:
+  - vfxId: TestVFX
+    poolKey: TestVFX
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uAE30\uBCF8 \uD14C\uC2A4\uD2B8 \uC774\uD399\uD2B8"
+  sfxCatalog:
+  - sfxId: TestSFX
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 50
+    cooldown: 0
+    note: "\uAE30\uBCF8 \uD14C\uC2A4\uD2B8 \uC74C"
+  entries:
+  - eventKey: test.basic
+    vfxIds:
+    - TestVFX
+    sfxIds:
+    - TestSFX
+    priority: 1
+    cameraShakePreset: Light
+    timeStopMs: 50
+    note: "\uAE30\uBCF8 \uD14C\uC2A4\uD2B8 \uC774\uD399\uD2B8"
+  description: "\uAE30\uBCF8 \uAE00\uB85C\uBC8C \uD504\uB85C\uD544"

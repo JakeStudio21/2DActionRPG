@@ -1,0 +1,210 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: UI_ui_base 1
+  m_EditorClassIdentifier: 
+  profileId: ui_base
+  domain: UI
+  baseProfile: {fileID: 0}
+  vfxCatalog:
+  - vfxId: ButtonClickVFX
+    poolKey: UIClickEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0.8, y: 0.8, z: 0.8}
+    followTarget: 0
+    priority: 30
+    cooldown: 0.1
+    note: "\uBC84\uD2BC \uD074\uB9AD VFX"
+  - vfxId: PanelOpenVFX
+    poolKey: UIPanelOpen
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 40
+    cooldown: 0
+    note: "\uD328\uB110 \uC5F4\uAE30 VFX"
+  - vfxId: PanelCloseVFX
+    poolKey: UIPanelClose
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 30
+    cooldown: 0
+    note: "\uD328\uB110 \uB2EB\uAE30 VFX"
+  - vfxId: ItemEquipVFX
+    poolKey: ItemEquipGlow
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC544\uC774\uD15C \uC7A5\uCC29 VFX"
+  - vfxId: ItemPickupVFX
+    poolKey: ItemPickupSparkle
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 45
+    cooldown: 0
+    note: "\uC544\uC774\uD15C \uD68D\uB4DD VFX"
+  - vfxId: ShopBuyVFX
+    poolKey: ShopBuyEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.3, y: 1.3, z: 1.3}
+    followTarget: 0
+    priority: 55
+    cooldown: 0
+    note: "\uC0C1\uC810 \uAD6C\uB9E4 VFX"
+  - vfxId: InventoryFullVFX
+    poolKey: InventoryFullWarning
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 40
+    cooldown: 0
+    note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38 VFX"
+  sfxCatalog:
+  - sfxId: ButtonClickSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.5
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 30
+    cooldown: 0.1
+    note: "\uBC84\uD2BC \uD074\uB9AD \uC0AC\uC6B4\uB4DC"
+  - sfxId: PanelOpenSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.6
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 40
+    cooldown: 0
+    note: "\uD328\uB110 \uC5F4\uAE30 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PanelCloseSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.5
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 30
+    cooldown: 0
+    note: "\uD328\uB110 \uB2EB\uAE30 \uC0AC\uC6B4\uB4DC"
+  - sfxId: ItemEquipSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uC544\uC774\uD15C \uC7A5\uCC29 \uC0AC\uC6B4\uB4DC"
+  - sfxId: ItemPickupSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.6
+    pitch: 1.1
+    is3D: 0
+    maxDistance: 50
+    priority: 45
+    cooldown: 0
+    note: "\uC544\uC774\uD15C \uD68D\uB4DD \uC0AC\uC6B4\uB4DC"
+  - sfxId: ShopBuySound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 55
+    cooldown: 0
+    note: "\uC0C1\uC810 \uAD6C\uB9E4 \uC0AC\uC6B4\uB4DC"
+  - sfxId: InventoryFullSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 40
+    cooldown: 0
+    note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38 \uC0AC\uC6B4\uB4DC"
+  entries:
+  - eventKey: ui.button.click
+    vfxIds:
+    - ButtonClickVFX
+    sfxIds:
+    - ButtonClickSound
+    priority: 1
+    cameraShakePreset: None
+    timeStopMs: 10
+    note: "\uBC84\uD2BC \uD074\uB9AD"
+  - eventKey: ui.panel.open
+    vfxIds:
+    - PanelOpenVFX
+    sfxIds:
+    - PanelOpenSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uD328\uB110 \uC5F4\uAE30"
+  - eventKey: ui.panel.close
+    vfxIds:
+    - PanelCloseVFX
+    sfxIds:
+    - PanelCloseSound
+    priority: 1
+    cameraShakePreset: None
+    timeStopMs: 15
+    note: "\uD328\uB110 \uB2EB\uAE30"
+  - eventKey: ui.item.equip
+    vfxIds:
+    - ItemEquipVFX
+    sfxIds:
+    - ItemEquipSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 30
+    note: "\uC544\uC774\uD15C \uC7A5\uCC29"
+  - eventKey: ui.item.pickup
+    vfxIds:
+    - ItemPickupVFX
+    sfxIds:
+    - ItemPickupSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 25
+    note: "\uC544\uC774\uD15C \uD68D\uB4DD"
+  - eventKey: ui.shop.buy
+    vfxIds:
+    - ShopBuyVFX
+    sfxIds:
+    - ShopBuySound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 40
+    note: "\uC0C1\uC810 \uAD6C\uB9E4"
+  - eventKey: ui.inventory.full
+    vfxIds:
+    - InventoryFullVFX
+    sfxIds:
+    - InventoryFullSound
+    priority: 1
+    cameraShakePreset: None
+    timeStopMs: 20
+    note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38"
+  description: "UI \uAE30\uBCF8 \uD504\uB85C\uD544"

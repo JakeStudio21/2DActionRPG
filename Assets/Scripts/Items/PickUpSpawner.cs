@@ -267,9 +267,9 @@ public class PickUpSpawner : MonoBehaviour
 
     private string GetEquipmentPoolTag(EquipmentData equipmentData)
     {
-        // 🏷️ ScriptableObject 이름을 풀 태그로 사용
-        return equipmentData.name.Replace("_Equipment", "_Pickup");
-        // 예: "Sword_A_Equipment" → "Sword_A_Pickup"
+        // ✅ ItemID를 풀 태그로 직접 사용 (PoolConfig와 일치)
+        return equipmentData.itemID;
+        // 예: equipmentData.itemID = "ITEM_SWORD_A" → "ITEM_SWORD_A"
     }
 
     /// <summary>

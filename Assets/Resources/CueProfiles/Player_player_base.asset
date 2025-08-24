@@ -1,0 +1,318 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Player_player_base
+  m_EditorClassIdentifier: 
+  profileId: player_base
+  domain: Player
+  baseProfile: {fileID: 0}
+  vfxCatalog:
+  - vfxId: PlayerVFX
+    poolKey: PlayerVFX
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8"
+  - vfxId: PlayerMeleeVFX
+    poolKey: HitSpark
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uADFC\uC811 \uACF5\uACA9 VFX"
+  - vfxId: PlayerRangedVFX
+    poolKey: MuzzleFlash
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9 VFX"
+  - vfxId: PlayerCritVFX
+    poolKey: CriticalHit
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uACF5\uACA9 VFX"
+  - vfxId: Skill1VFX
+    poolKey: MultiArrowEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 55
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1 VFX"
+  - vfxId: Skill2VFX
+    poolKey: PowerArrowEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2 VFX"
+  - vfxId: PlayerHitVFX
+    poolKey: PlayerHitEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 VFX"
+  - vfxId: PlayerCritHitVFX
+    poolKey: PlayerCritHitEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.3, y: 1.3, z: 1.3}
+    followTarget: 1
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9 VFX"
+  - vfxId: PlayerDeathVFX
+    poolKey: PlayerDeathEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 80
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD VFX"
+  - vfxId: PlayerReviveVFX
+    poolKey: PlayerReviveEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C VFX"
+  - vfxId: PlayerHealVFX
+    poolKey: HealEffect
+    duration: -1
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 VFX"
+  sfxCatalog:
+  - sfxId: PlayerSFX
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8\uC74C"
+  - sfxId: PlayerMeleeSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uADFC\uC811 \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerRangedSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerCritSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.9
+    pitch: 1.2
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: Skill1Sound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 55
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1 \uC0AC\uC6B4\uB4DC"
+  - sfxId: Skill2Sound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.9
+    pitch: 1.1
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerHitSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerCritHitSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1.3
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerDeathSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 1
+    pitch: 0.9
+    is3D: 0
+    maxDistance: 50
+    priority: 80
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerReviveSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 70
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerHealSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.6
+    pitch: 1.2
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 \uC0AC\uC6B4\uB4DC"
+  entries:
+  - eventKey: test.effect
+    vfxIds:
+    - PlayerVFX
+    sfxIds:
+    - PlayerSFX
+    priority: 1
+    cameraShakePreset: Light
+    timeStopMs: 25
+    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8"
+  - eventKey: attack.player.melee
+    vfxIds:
+    - PlayerMeleeVFX
+    sfxIds:
+    - PlayerMeleeSound
+    priority: 2
+    cameraShakePreset: Medium
+    timeStopMs: 30
+    note: "\uD50C\uB808\uC774\uC5B4 \uADFC\uC811 \uACF5\uACA9"
+  - eventKey: attack.player.ranged
+    vfxIds:
+    - PlayerRangedVFX
+    sfxIds:
+    - PlayerRangedSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9"
+  - eventKey: attack.player.critical
+    vfxIds:
+    - PlayerCritVFX
+    sfxIds:
+    - PlayerCritSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 60
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uACF5\uACA9"
+  - eventKey: skill.player.skill1
+    vfxIds:
+    - Skill1VFX
+    sfxIds:
+    - Skill1Sound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 50
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1"
+  - eventKey: skill.player.skill2
+    vfxIds:
+    - Skill2VFX
+    sfxIds:
+    - Skill2Sound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 80
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2"
+  - eventKey: hit.player.normal
+    vfxIds:
+    - PlayerHitVFX
+    sfxIds:
+    - PlayerHitSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 40
+    note: "\uD50C\uB808\uC774\uC5B4 \uC77C\uBC18 \uD53C\uACA9"
+  - eventKey: hit.player.critical
+    vfxIds:
+    - PlayerCritHitVFX
+    sfxIds:
+    - PlayerCritHitSound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 80
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
+  - eventKey: death.player
+    vfxIds:
+    - PlayerDeathVFX
+    sfxIds:
+    - PlayerDeathSound
+    priority: 4
+    cameraShakePreset: Heavy
+    timeStopMs: 150
+    note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD"
+  - eventKey: revive.player
+    vfxIds:
+    - PlayerReviveVFX
+    sfxIds:
+    - PlayerReviveSound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 100
+    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C"
+  - eventKey: heal.player
+    vfxIds:
+    - PlayerHealVFX
+    sfxIds:
+    - PlayerHealSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 30
+    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5"
+  description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uD504\uB85C\uD544"
