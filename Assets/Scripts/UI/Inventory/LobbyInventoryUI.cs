@@ -60,7 +60,7 @@ public class LobbyInventoryUI : MonoBehaviour
     [Header("🎯 상세 패널 UI")]
     [SerializeField] private GameObject itemDetailPanel;
     [SerializeField] private Image detailItemIcon;
-    [SerializeField] private Sprite defaultItemIcon;        // 🆕 기본 아이템 이미지
+    [SerializeField] private Sprite originalSourceImage;        // 🆕 원래 Source Image 저장용
     [SerializeField] private TMP_Text itemNameText;         // 아이템 이름
     [SerializeField] private TMP_Text itemGradeText;        // 아이템 등급
     [SerializeField] private TMP_Text stat1Text;            // 스탯 1
@@ -69,6 +69,7 @@ public class LobbyInventoryUI : MonoBehaviour
     [SerializeField] private Button closePanelButton;       // 🆕 범용 패널 닫기 버튼 (상점/캐릭터정보/인벤토리 → 로비)
     [SerializeField] private Button equipButton;            // 🆕 착용 버튼 추가
     [SerializeField] private TMP_Text equipWarningText;     // 🆕 착용 경고 메시지 텍스트
+    [SerializeField] private TMP_Text equipText;            // 🆕 착용 안내 텍스트 추가
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
@@ -93,13 +94,46 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         Debug.Log($"🏠 [LobbyInventoryUI] Start() 호출됨 - 패널 활성화 상태 유지");
         
+        // 🆕 원래 Source Image 저장
+        if (detailItemIcon != null && originalSourceImage == null)
+        {
+            originalSourceImage = detailItemIcon.sprite;
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [LobbyInventoryUI] 원래 Source Image 저장: {originalSourceImage?.name ?? "null"}");
+        }
+        
         // 1. 이벤트 구독
         SetupSlots();
         
         // 🆕 착용 버튼 이벤트 연결
         if (equipButton != null)
         {
+            // 🔧 기존 이벤트 제거 후 재연결
+            equipButton.onClick.RemoveAllListeners();
             equipButton.onClick.AddListener(OnEquipButtonClicked);
+            
+            // 🔧 추가 디버깅: 버튼 상태 확인
+            Debug.Log($"✅ [LobbyInventoryUI] 착용 버튼 이벤트 연결 완료");
+            Debug.Log($"   - 버튼 활성화 상태: {equipButton.gameObject.activeInHierarchy}");
+            Debug.Log($"   - 버튼 interactable: {equipButton.interactable}");
+            Debug.Log($"   - 버튼 GameObject 이름: {equipButton.gameObject.name}");
+            
+            // 🔧 추가: 테스트용 직접 클릭 이벤트 추가
+            equipButton.onClick.AddListener(() => {
+                Debug.Log("🔥🔥🔥 [LobbyInventoryUI] 버튼 클릭 감지됨! (추가 리스너)");
+            });
+        }
+        else
+        {
+            Debug.LogError("❌ [LobbyInventoryUI] equipButton이 null입니다!");
+        }
+        
+        // 🆕 DetailPanel 활성화 보장
+        if (itemDetailPanel != null)
+        {
+            itemDetailPanel.SetActive(true);
+            Debug.Log("✅ [LobbyInventoryUI] DetailPanel 활성화 보장");
         }
         
         if (showDebugLogs)
@@ -175,17 +209,37 @@ public class LobbyInventoryUI : MonoBehaviour
             closePanelButton.onClick.AddListener(ClosePanel);
         }
 
-        // PlayerDataManager 이벤트 구독
+        // PlayerDataManager 이벤트 구독 (지연 갱신 지원)
         if (PlayerDataManager.Instance != null)
         {
-            // 🔑 공용 이벤트 구독
+            // 🔑 공용 이벤트 구독 (유지)
             PlayerDataManager.Instance.OnSlotClicked += OnSlotClicked;
             PlayerDataManager.Instance.OnItemDetailRequested += ShowItemDetailPanel;
             
-            // 인벤토리 변경 이벤트 구독
-            PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
+            // 🔧 지연 갱신: 인벤토리 변경 이벤트는 조건부 구독
+            // 인벤토리 패널이 활성화된 상태에서만 실시간 갱신
+            // PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI; // 제거
+            
             PlayerDataManager.Instance.OnItemAddedToInventory += OnItemAdded;
             PlayerDataManager.Instance.OnItemRemovedFromInventory += OnItemRemoved;
+            
+            // 🆕 지연 로드 완료 이벤트 구독
+            PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoaded;
+        }
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드 완료 시 인벤토리 갱신
+    /// </summary>
+    private void OnSlotLazyLoaded(int slotIndex)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [LobbyInventoryUI] 슬롯 {slotIndex} 지연 로드 완료 - 인벤토리 갱신");
+        
+        // 인벤토리 패널이 활성화된 상태에서만 갱신
+        if (inventoryPanel != null && inventoryPanel.activeInHierarchy)
+        {
+            RefreshInventoryUI();
         }
     }
 
@@ -208,6 +262,14 @@ public class LobbyInventoryUI : MonoBehaviour
             
             if (showDebugLogs)
                 Debug.Log($"ℹ️ [LobbyInventoryUI] {equipmentData.equipmentName} 상세 정보 표시 + 착용 준비");
+        }
+        else
+        {
+            // 🔧 추가: 빈 슬롯 클릭 시 빈 상태 DetailPanel 표시
+            ShowEmptyDetailPanel();
+            
+            if (showDebugLogs)
+                Debug.Log($"🎯 [LobbyInventoryUI] 빈 슬롯 클릭 - 빈 상태 DetailPanel 표시");
         }
     }
     
@@ -317,7 +379,14 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     public void ShowItemDetailPanel(EquipmentData equipmentData)
     {
-        if (itemDetailPanel == null || equipmentData == null) return;
+        if (itemDetailPanel == null) return;
+
+        // 🔧 수정: equipmentData가 null이면 빈 상태 표시
+        if (equipmentData == null)
+        {
+            ShowEmptyDetailPanel();
+            return;
+        }
 
         // 패널 활성화
         itemDetailPanel.SetActive(true);
@@ -333,35 +402,49 @@ public class LobbyInventoryUI : MonoBehaviour
                 if (showDebugLogs)
                     Debug.Log($"🖼️ [LobbyInventoryUI] 아이템 이미지 설정 성공: {equipmentData.equipmentName}");
             }
-            else if (defaultItemIcon != null)
-            {
-                detailItemIcon.sprite = defaultItemIcon;
-                detailItemIcon.color = new Color(1, 1, 1, 0.7f);
-                detailItemIcon.gameObject.SetActive(true);
-                if (showDebugLogs)
-                    Debug.Log($"🖼️ [LobbyInventoryUI] 기본 이미지 사용: {equipmentData.equipmentName}");
-            }
-            else
-            {
-                detailItemIcon.gameObject.SetActive(false);
-                if (showDebugLogs)
-                    Debug.LogWarning($"⚠️ [LobbyInventoryUI] 표시할 이미지 없음: {equipmentData.equipmentName}");
-            }
+            else if (showDebugLogs) // 🔧 수정: defaultItemIcon 제거
+                Debug.LogWarning($"⚠️ [LobbyInventoryUI] 표시할 이미지 없음: {equipmentData.equipmentName}");
         }
 
-        // 🆕 착용 버튼 및 경고 메시지 제어
-        bool isCompatible = IsItemCompatibleWithCurrentClass(equipmentData);
-        SetupEquipButton(isCompatible);
-
-        // 기본 정보 설정
+        // 🔧 텍스트 요소들 활성화
         if (itemNameText != null)
+        {
             itemNameText.text = equipmentData.equipmentName;
+            itemNameText.gameObject.SetActive(true);
+        }
 
         if (itemGradeText != null)
+        {
             itemGradeText.text = GetGradeText(equipmentData);
+            itemGradeText.gameObject.SetActive(true);
+        }
+
+        // 🔧 스탯 텍스트들 활성화 후 설정
+        if (stat1Text != null) stat1Text.gameObject.SetActive(true);
+        if (stat2Text != null) stat2Text.gameObject.SetActive(true);
+        if (stat3Text != null) stat3Text.gameObject.SetActive(true);
 
         // 타입별 스탯 정보 설정
         SetStatsByEquipmentType(equipmentData);
+
+        // 🆕 착용 버튼 및 경고 메시지 제어 (기존 SetupEquipButton 사용)
+        bool isCompatible = IsItemCompatibleWithCurrentClass(equipmentData);
+        SetupEquipButton(isCompatible);
+
+        // 🔧 착용 안내 텍스트 숨김 (아이템이 있을 때)
+        if (equipText != null)
+        {
+            equipText.gameObject.SetActive(false);
+        }
+
+        // �� 추가 디버깅: 버튼 상태 재확인
+        if (equipButton != null)
+        {
+            Debug.Log($"🔘 [LobbyInventoryUI] 아이템 선택 후 버튼 상태:");
+            Debug.Log($"   - interactable: {equipButton.interactable}");
+            Debug.Log($"   - activeInHierarchy: {equipButton.gameObject.activeInHierarchy}");
+            Debug.Log($"   - 호환성: {isCompatible}");
+        }
 
         if (showDebugLogs)
             Debug.Log($"✅ [LobbyInventoryUI] 상세 정보 패널 표시 완료: {equipmentData.equipmentName}");
@@ -375,6 +458,7 @@ public class LobbyInventoryUI : MonoBehaviour
         if (equipButton != null)
         {
             equipButton.gameObject.SetActive(true);
+            equipButton.interactable = true; // 🔧 버튼 활성화
             
             // 버튼 텍스트 설정
             var buttonText = equipButton.GetComponentInChildren<TMP_Text>();
@@ -393,10 +477,21 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
         
-        // 🔧 변경: 경고 메시지는 초기에 숨김 (버튼 클릭 시에만 표시)
+        // 🔧 착용불가 메시지 표시 (호환되지 않을 때)
         if (equipWarningText != null)
         {
-            equipWarningText.gameObject.SetActive(false);
+            if (!isCompatible)
+            {
+                equipWarningText.text = "현재 클래스가 사용할 수 없는 장비입니다";
+                equipWarningText.gameObject.SetActive(true);
+                
+                if (showDebugLogs)
+                    Debug.Log("⚠️ [LobbyInventoryUI] 착용불가 메시지 표시");
+            }
+            else
+            {
+                equipWarningText.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -424,22 +519,21 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnEquipButtonClicked()
     {
+        Debug.Log("🔥 [LobbyInventoryUI] 착용 버튼 클릭됨!"); // 🔧 강제 로그 추가
+        
         if (currentSelectedItem == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("⚠️ [LobbyInventoryUI] 선택된 아이템이 없습니다!");
+            Debug.LogWarning("⚠️ [LobbyInventoryUI] 착용할 아이템이 선택되지 않음");
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [LobbyInventoryUI] 착용 버튼 클릭: {currentSelectedItem.equipmentName}");
+        Debug.Log($"🎯 [LobbyInventoryUI] 착용 버튼 클릭: {currentSelectedItem.equipmentName}");
         
         // 클래스 호환성 체크
         if (!IsItemCompatibleWithCurrentClass(currentSelectedItem))
         {
             // 🔧 착용 불가능한 클래스 - 일시적 경고 메시지 표시
-            if (showDebugLogs)
-                Debug.Log($"🚫 [LobbyInventoryUI] {currentSelectedItem.equipmentName}는 현재 클래스가 사용할 수 없는 장비입니다!");
+            Debug.Log($"🚫 [LobbyInventoryUI] {currentSelectedItem.equipmentName}는 현재 클래스가 사용할 수 없는 장비입니다!");
             
             // 🆕 착용 실패 메시지 표시 (착용 성공과 동일한 방식)
             if (equipWarningText != null)
@@ -454,9 +548,29 @@ public class LobbyInventoryUI : MonoBehaviour
         
         if (equipped)
         {
-            if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] {currentSelectedItem.equipmentName} 착용 성공! (DetailPanel 유지)");
-                
+            Debug.Log($"✅ [LobbyInventoryUI] 아이템 착용 성공: {currentSelectedItem.equipmentName}");
+            
+            // 🔧 디버깅: 착용 전 DetailPanel 상태
+            Debug.Log($"🔍 [LobbyInventoryUI] 착용 성공 후 - ShowEmptyDetailPanel 호출 전:");
+            Debug.Log($"   - currentSelectedItem: {currentSelectedItem?.equipmentName ?? "null"}");
+            Debug.Log($"   - DetailPanel 이미지: {detailItemIcon?.sprite?.name ?? "null"}");
+            
+            // 🔧 착용 성공 후 빈 상태 DetailPanel 표시
+            ShowEmptyDetailPanel();
+            
+            // 🔧 디버깅: ShowEmptyDetailPanel 호출 후 상태
+            Debug.Log($"🔍 [LobbyInventoryUI] ShowEmptyDetailPanel 호출 후:");
+            Debug.Log($"   - currentSelectedItem: {currentSelectedItem?.equipmentName ?? "null"}");
+            Debug.Log($"   - DetailPanel 이미지: {detailItemIcon?.sprite?.name ?? "null"}");
+            
+            // 인벤토리 UI 새로고침 (착용된 아이템이 인벤토리에서 제거됨)
+            RefreshInventoryUI();
+            
+            // 🔧 디버깅: RefreshInventoryUI 호출 후 상태
+            Debug.Log($"🔍 [LobbyInventoryUI] RefreshInventoryUI 호출 후:");
+            Debug.Log($"   - currentSelectedItem: {currentSelectedItem?.equipmentName ?? "null"}");
+            Debug.Log($"   - DetailPanel 이미지: {detailItemIcon?.sprite?.name ?? "null"}");
+            
             // 🆕 착용 성공 메시지 표시
             if (equipWarningText != null)
             {
@@ -465,13 +579,12 @@ public class LobbyInventoryUI : MonoBehaviour
         }
         else
         {
-            if (showDebugLogs)
-                Debug.Log($"❌ [LobbyInventoryUI] {currentSelectedItem.equipmentName} 착용 실패!");
+            Debug.LogError($"❌ [LobbyInventoryUI] 아이템 착용 실패: {currentSelectedItem.equipmentName}");
                 
             // 🆕 착용 실패 메시지 표시
             if (equipWarningText != null)
             {
-                StartCoroutine(ShowTemporaryMessage("착용 실패!", Color.red, 2f));
+                StartCoroutine(ShowTemporaryMessage("착용 실패", Color.red, 2f));
             }
         }
     }
@@ -606,32 +719,79 @@ public class LobbyInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔒 상세 패널만 닫기 (내부용 - 기존 기능 유지)
+    /// 🔧 수정: 상세 패널 닫기 제거 (항상 활성화 상태 유지)
     /// </summary>
     public void CloseDetailPanel()
     {
-        if (itemDetailPanel != null && itemDetailPanel.activeSelf)
-        {
-            itemDetailPanel.SetActive(false);
-            if (showDebugLogs)
-                Debug.Log($"🔒 [LobbyInventoryUI] 상세 패널 닫힘");
-        }
+        // 🔧 수정: DetailPanel 비활성화 로직 제거
+        // DetailPanel은 항상 활성화 상태 유지
+        if (showDebugLogs)
+            Debug.Log($"🎯 [LobbyInventoryUI] DetailPanel 활성화 상태 유지 (비활성화하지 않음)");
     }
 
     /// <summary>
-    /// 인벤토리 UI 새로고침
+    /// 🔄 인벤토리 UI 새로고침 (지연 로드 지원)
     /// </summary>
-    public void RefreshInventoryUI() // 🔧 수정: private → public
+    public void RefreshInventoryUI()
     {
-        if (PlayerDataManager.Instance == null) return;
-
+        // 🔧 지연 갱신: 데이터 로드 상태 확인
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
+        {
+            if (showDebugLogs)
+                Debug.Log("🔄 [LobbyInventoryUI] 지연 로드 필요 - UI 갱신 지연");
+            
+            // 인벤토리 패널이 활성화된 상태에서만 지연 로드 수행
+            if (inventoryPanel != null && inventoryPanel.activeInHierarchy)
+            {
+                StartCoroutine(RefreshInventoryUIWithLazyLoad());
+            }
+            return;
+        }
+        
+        // 기존 RefreshInventoryUI 로직 실행...
+        if (PlayerDataManager.Instance == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [LobbyInventoryUI] PlayerDataManager.Instance가 null입니다");
+            return;
+        }
+        
+        // 🆕 슬롯이 생성되지 않았으면 생성 후 재시도
+        if (lobbySlots == null || lobbySlots.Count == 0)
+        {
+            if (showDebugLogs)
+                Debug.Log("🔄 [LobbyInventoryUI] 슬롯이 없음 - 슬롯 생성 후 재시도");
+            
+            SetupSlots();
+            
+            // 슬롯 생성 후에도 없으면 에러
+            if (lobbySlots == null || lobbySlots.Count == 0)
+            {
+                Debug.LogError("❌ [LobbyInventoryUI] 슬롯 생성 실패!");
+                return;
+            }
+        }
+        
+        // 🆕 디버그: 인벤토리 데이터 상태 확인
         var inventoryItems = PlayerDataManager.Instance.InventoryItems;
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"🔍 [LobbyInventoryUI] 인벤토리 데이터 확인:");
+            Debug.Log($"  - 인벤토리 아이템 수: {inventoryItems?.Count ?? 0}");
+            Debug.Log($"  - 슬롯 수: {lobbySlots?.Count ?? 0}");
+            Debug.Log($"  - 선택된 슬롯: {PlayerDataManager.Instance.GetSelectedSlotIndex()}");
+        }
 
+        // 슬롯 데이터 설정
         for (int i = 0; i < lobbySlots.Count; i++)
         {
             if (i < inventoryItems.Count)
             {
                 lobbySlots[i].SetEquipmentData(inventoryItems[i]);
+                
+                if (showDebugLogs && inventoryItems[i] != null)
+                    Debug.Log($"  - 슬롯 {i}: {inventoryItems[i].equipmentName}");
             }
             else
             {
@@ -640,7 +800,28 @@ public class LobbyInventoryUI : MonoBehaviour
         }
 
         if (showDebugLogs)
-            Debug.Log($"🏠 [LobbyInventoryUI] 인벤토리 새로고침: {inventoryItems.Count}/{maxDisplaySlots}");
+            Debug.Log($"✅ [LobbyInventoryUI] 인벤토리 새로고침: {inventoryItems.Count}/{maxDisplaySlots}");
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드와 함께 인벤토리 UI 갱신
+    /// </summary>
+    private IEnumerator RefreshInventoryUIWithLazyLoad()
+    {
+        // 캐릭터 데이터 로드
+        int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+        bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+        
+        if (!loadSuccess)
+        {
+            Debug.LogError("❌ [LobbyInventoryUI] 캐릭터 데이터 로드 실패");
+            yield break;
+        }
+        
+        yield return new WaitForSeconds(0.1f); // 로드 완료 대기
+        
+        // UI 갱신 재시도
+        RefreshInventoryUI();
     }
 
     /// <summary>
@@ -724,16 +905,14 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     public void ForceRefreshInventory()
     {
-        if (PlayerDataManager.Instance == null)
-        {
-            Debug.LogWarning("⚠️ [LobbyInventoryUI] PlayerDataManager.Instance가 없습니다!");
-            return;
-        }
+        if (showDebugLogs)
+            Debug.Log("🔄 [LobbyInventoryUI] 강제 인벤토리 새로고침");
         
+        // 현재 선택된 캐릭터 기준으로 갱신
         RefreshInventoryUI();
         
         if (showDebugLogs)
-            Debug.Log("🔄 [LobbyInventoryUI] 강제 새로고침 완료");
+            Debug.Log("✅ [LobbyInventoryUI] 강제 인벤토리 새로고침 완료");
     }
     
     /// <summary>
@@ -753,6 +932,210 @@ public class LobbyInventoryUI : MonoBehaviour
                 var equipmentData = slot.GetEquipmentData();
                 Debug.Log($"   - 슬롯 {i}: {(equipmentData?.equipmentName ?? "비어있음")}");
             }
+        }
+    }
+
+    /// <summary>
+    /// 🆕 로비에서 선택된 캐릭터로 인벤토리 강제 갱신 (Z-Order 방식 지원)
+    /// </summary>
+    public void ForceRefreshWithLobbySelectedCharacter(int lobbySelectedSlot)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [LobbyInventoryUI] 로비 선택 캐릭터 {lobbySelectedSlot}로 강제 갱신");
+        
+        // 1. PlayerDataManager의 선택 슬롯을 로비 선택과 동기화
+        if (PlayerDataManager.Instance != null)
+        {
+            int currentSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+            
+            // 로비 선택과 다르면 동기화
+            if (currentSlot != lobbySelectedSlot)
+            {
+                PlayerDataManager.Instance.SetSelectedSlotIndex(lobbySelectedSlot);
+                
+                if (showDebugLogs)
+                    Debug.Log($"🔄 [LobbyInventoryUI] 캐릭터 슬롯 동기화: {currentSlot} → {lobbySelectedSlot}");
+            }
+            
+            // 2. 지연 로드가 필요한 경우 처리
+            if (PlayerDataManager.Instance.IsLazyLoadRequired())
+            {
+                bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(lobbySelectedSlot);
+                
+                if (!loadSuccess)
+                {
+                    Debug.LogError("❌ [LobbyInventoryUI] 로비 선택 캐릭터 데이터 로드 실패");
+                    return;
+                }
+            }
+            
+            // 3. 인벤토리 UI 갱신
+            RefreshInventoryUI();
+            
+            // 4. 🆕 슬롯 클릭 이벤트 재연결 (데이터 갱신 후)
+            SetupSlotClickEvents();
+            
+            // 5. 🔧 수정: 아이템이 선택되지 않은 경우에만 빈 상태 DetailPanel 표시
+            if (currentSelectedItem == null)
+            {
+                ShowEmptyDetailPanel();
+                
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [LobbyInventoryUI] 선택된 아이템 없음 - 빈 DetailPanel 표시");
+            }
+            else
+            {
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [LobbyInventoryUI] 선택된 아이템 유지: {currentSelectedItem.equipmentName}");
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [LobbyInventoryUI] 로비 선택 캐릭터 {lobbySelectedSlot} 인벤토리 갱신 완료");
+        }
+    }
+
+    /// <summary>
+    /// 🆕 슬롯 클릭 이벤트 재연결
+    /// </summary>
+    private void SetupSlotClickEvents()
+    {
+        for (int i = 0; i < lobbySlots.Count; i++)
+        {
+            if (lobbySlots[i] != null)
+            {
+                int slotIndex = i; // 클로저 문제 방지
+                
+                // 기존 이벤트 제거
+                var button = lobbySlots[i].GetComponent<Button>();
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    button.onClick.AddListener(() => OnSlotClicked(lobbySlots[slotIndex].GetEquipmentData(), slotIndex));
+                }
+            }
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🖱️ [LobbyInventoryUI] {lobbySlots.Count}개 슬롯 클릭 이벤트 재연결 완료");
+    }
+
+    /// <summary>
+    /// 🆕 빈 상태 DetailPanel 표시 (원래 Source Image 복원)
+    /// </summary>
+    public void ShowEmptyDetailPanel()
+    {
+        if (itemDetailPanel == null) return;
+
+        // 패널 활성화
+        itemDetailPanel.SetActive(true);
+
+        // 🔧 수정: 원래 Source Image로 복원
+        if (detailItemIcon != null)
+        {
+            if (originalSourceImage != null)
+            {
+                detailItemIcon.sprite = originalSourceImage;
+                detailItemIcon.color = Color.white;
+                detailItemIcon.gameObject.SetActive(true);
+                
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [LobbyInventoryUI] 원래 Source Image로 복원: {originalSourceImage.name}");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [LobbyInventoryUI] originalSourceImage가 저장되지 않았습니다!");
+            }
+        }
+
+        // 🎯 텍스트 요소들 비활성화
+        if (itemNameText != null)
+            itemNameText.gameObject.SetActive(false);
+        
+        if (itemGradeText != null)
+            itemGradeText.gameObject.SetActive(false);
+        
+        if (stat1Text != null)
+            stat1Text.gameObject.SetActive(false);
+        
+        if (stat2Text != null)
+            stat2Text.gameObject.SetActive(false);
+        
+        if (stat3Text != null)
+            stat3Text.gameObject.SetActive(false);
+
+        // 🎯 착용 버튼 비활성화 상태로 설정
+        if (equipButton != null)
+        {
+            equipButton.interactable = false;
+            
+            var buttonText = equipButton.GetComponentInChildren<TMP_Text>();
+            if (buttonText != null)
+            {
+                buttonText.text = "미착용";
+                buttonText.color = Color.gray;
+            }
+        }
+
+        // 🎯 착용 안내 텍스트 표시
+        if (equipText != null)
+        {
+            equipText.text = "착용할 아이템을 선택해주세요";
+            equipText.gameObject.SetActive(true);
+        }
+
+        // 🎯 경고 텍스트 숨김
+        if (equipWarningText != null)
+        {
+            equipWarningText.gameObject.SetActive(false);
+        }
+
+        // 🎯 현재 선택된 아이템 초기화
+        currentSelectedItem = null;
+        currentSelectedSlotIndex = -1;
+
+        if (showDebugLogs)
+            Debug.Log("🎯 [LobbyInventoryUI] 빈 상태 DetailPanel 표시 완료 (원래 Source Image 복원)");
+    }
+
+    /// <summary>
+    /// 🔧 수정: 현재 착용 중인 주요 장비를 DetailPanel에 표시 (빈 상태 지원)
+    /// </summary>
+    private void ShowEquippedItemInDetailPanel()
+    {
+        if (PlayerDataManager.Instance == null) return;
+        
+        var equippedItems = PlayerDataManager.Instance.EquippedItems;
+        
+        // 우선순위: 무기 > 갑옷 > 신발 순으로 표시
+        EquipmentData itemToShow = null;
+        
+        if (equippedItems.ContainsKey(EquipmentSlot.MainWeapon) && equippedItems[EquipmentSlot.MainWeapon] != null)
+        {
+            itemToShow = equippedItems[EquipmentSlot.MainWeapon];
+        }
+        else if (equippedItems.ContainsKey(EquipmentSlot.Armor) && equippedItems[EquipmentSlot.Armor] != null)
+        {
+            itemToShow = equippedItems[EquipmentSlot.Armor];
+        }
+        else if (equippedItems.ContainsKey(EquipmentSlot.Boots) && equippedItems[EquipmentSlot.Boots] != null)
+        {
+            itemToShow = equippedItems[EquipmentSlot.Boots];
+        }
+        
+        if (itemToShow != null)
+        {
+            ShowItemDetailPanel(itemToShow);
+            
+            if (showDebugLogs)
+                Debug.Log($"🎯 [LobbyInventoryUI] DetailPanel에 착용 장비 표시: {itemToShow.equipmentName}");
+        }
+        else
+        {
+            // 🔧 수정: 착용 장비가 없으면 빈 상태 DetailPanel 표시
+            ShowEmptyDetailPanel();
+            
+            if (showDebugLogs)
+                Debug.Log("🎯 [LobbyInventoryUI] 착용 장비 없음 - 빈 상태 DetailPanel 표시");
         }
     }
 }

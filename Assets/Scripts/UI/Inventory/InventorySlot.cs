@@ -108,13 +108,24 @@ public class InventorySlot : MonoBehaviour // 🔧 수정: IPointerClickHandler 
     }
     
     /// <summary>
-    /// 🖱️ 정리된 슬롯 클릭 이벤트 처리
+    /// 🖱️ 정리된 슬롯 클릭 이벤트 처리 (지연 갱신 최적화)
     /// </summary>
     public void OnSlotClicked()
     {
         // 빈 슬롯 클릭 방지
         if (equipmentData == null)
         {
+            return;
+        }
+        
+        // 🔧 지연 갱신 최적화: 데이터 로드 상태 확인
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
+        {
+            if (showDebugLogs)
+                Debug.Log("🔄 [InventorySlot] 지연 로드 필요 - 클릭 이벤트 지연 처리");
+            
+            // 지연 로드 후 클릭 이벤트 재처리
+            StartCoroutine(HandleClickWithLazyLoad());
             return;
         }
         
@@ -467,5 +478,26 @@ public class InventorySlot : MonoBehaviour // 🔧 수정: IPointerClickHandler 
             return "상점";
             
         return "알 수 없음";
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드와 함께 클릭 이벤트 처리
+    /// </summary>
+    private IEnumerator HandleClickWithLazyLoad()
+    {
+        // 현재 선택된 슬롯 데이터 로드
+        int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+        bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+        
+        if (!loadSuccess)
+        {
+            Debug.LogError("❌ [InventorySlot] 지연 로드 실패 - 클릭 이벤트 취소");
+            yield break;
+        }
+        
+        yield return new WaitForSeconds(0.1f); // 로드 완료 대기
+        
+        // 클릭 이벤트 재처리
+        OnSlotClicked();
     }
 } 

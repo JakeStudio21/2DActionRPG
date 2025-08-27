@@ -114,6 +114,10 @@ public class LobbyUIController : MonoBehaviour
     private int selectedStageNumber = 0; // 0 = 선택안함, 1-3 = 스테이지 번호
     private int selectedSlotIndex = -1; // 현재 선택된 슬롯 (-1: 미선택)
     
+    [Header("🎯 배경 오버레이")]
+    [SerializeField] private GameObject backgroundOverlay;          // 🆕 투명 배경 오버레이
+    [SerializeField] private BackgroundOverlayHandler overlayHandler; // 🆕 오버레이 핸들러 (선택사항)
+    
     void Start()
     {
         Debug.Log("🚀 [LobbyUIController] Start() 시작");
@@ -125,6 +129,9 @@ public class LobbyUIController : MonoBehaviour
         InitializeSlotSystem(); // 🔧 슬롯 시스템 초기화
         
         Debug.Log("✅ [LobbyUIController] Start() 완료");
+        
+        // 🆕 배경 오버레이 검증 (Start 메서드 끝부분에 추가)
+        ValidateBackgroundOverlay();
     }
     
     // 🆕 이벤트 구독 (컴포넌트 활성화 시)
@@ -432,21 +439,84 @@ public class LobbyUIController : MonoBehaviour
         // 기존 슬롯, 스테이지 관련 버튼들...
     }
     
+    /// <summary>
+    /// 초기 상태 설정 (상점 미리 초기화 포함)
+    /// </summary>
     private void SetInitialState()
     {
-        // 캐릭터 선택 초기화
-        // OnClassSelected("None"); // 🗑️ 제거
+        Debug.Log("[LobbyUIController] 초기 상태 설정 시작 (Z-Order 방식)");
         
-        // 스테이지 선택 초기화
-        selectedStageNumber = 0;
+        // 🎯 핵심 변경: 모든 패널을 활성화 상태로 유지
+        SetPanelVisibility(lobbyPanel, true);
+        SetPanelVisibility(stageSelectPanel, true);      // ✅ 변경: false → true
+        SetPanelVisibility(inventoryPanel, true);        // ✅ 변경: false → true
+        SetPanelVisibility(shopPanel, true);             // ✅ 변경: false → true
+        SetPanelVisibility(characterInfoPanel, true);    // ✅ 변경: false → true
         
-        // 패널 상태 설정: 로비 메인 패널을 기본으로 활성화
-        ShowLobbyPanel();
+        // 🎯 Z-Order 설정: 로비가 최상위
+        BringPanelToFront(lobbyPanel);
+        
+        // 🎯 모든 패널 백그라운드 초기화 (활성화 상태에서)
+        StartCoroutine(InitializeAllPanelsInBackground());
+        
+        Debug.Log("[LobbyUIController] 초기 상태 설정 완료 (Z-Order 방식)");
+    }
+
+    /// <summary>
+    /// 🔧 수정: 상점 패널 표시 (Z-Order 방식)
+    /// </summary>
+    public void ShowShopPanel()
+    {
+        if (!EnsureCharacterSelected()) return;
+        
+        Debug.Log("🏪 [LobbyUIController] ShowShopPanel 호출됨 (Z-Order 방식)");
+        
+        // Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.button.click", "UI", context);
+        CueEmitter.Emit("ui.shop.open", "UI", context);
+        
+        // 🎯 핵심 변경: SetActive 대신 Z-Order 사용
+        BringPanelToFront(shopPanel);
+        
+        Debug.Log("[LobbyUIController] 상점 패널을 최상위로 이동 완료");
+    }
+
+    /// <summary>
+    /// 🔧 수정: 상점 데이터만 미리 로드 (UI 초기화는 제외)
+    /// </summary>
+    private IEnumerator PreInitializeShop()
+    {
+        Debug.Log("🏪 [LobbyUIController] 상점 데이터 미리 로드 시작");
+        
+        // 매니저 초기화 완료 대기
+        yield return StartCoroutine(WaitForManagersInitialization(() => {}));
+        
+        // 캐릭터 선택 완료 대기
+        while (!PlayerDataManager.Instance.IsSlotSelected)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // 🎯 핵심: 데이터만 미리 로드 (UI는 건드리지 않음)
+        if (ShopInventoryManager.Instance != null)
+        {
+            ShopInventoryManager.Instance.LoadItemsForShop();
+            Debug.Log("✅ [LobbyUIController] 상점 데이터 미리 로드 완료");
+        }
+        else
+        {
+            Debug.LogError("❌ [LobbyUIController] ShopInventoryManager를 찾을 수 없습니다!");
+        }
     }
     
     #region === 캐릭터 선택 관련 ===
     
-    // 🗑️ [삭제됨] public void OnClassSelected(string className)
+    // ️ [삭제됨] public void OnClassSelected(string className)
     // 🗑️ [삭제됨] private void UpdateClassSelectionUI(string className)
     // 🗑️ [삭제됨] private void SetPanelActiveVisual(Image panelImage, bool isActive)
     
@@ -685,11 +755,13 @@ public class LobbyUIController : MonoBehaviour
     #region === 패널 전환 관리 ===
     
     /// <summary>
-    /// 로비 메인 패널 표시 (기본 화면)
+    /// 🔧 수정: 로비 패널 표시 (Z-Order 방식 + 캐릭터 선택 UI 갱신)
     /// </summary>
     public void ShowLobbyPanel()
     {
-        // 🆕 Cue 이벤트 발행
+        Debug.Log("🏠 [LobbyUIController] ShowLobbyPanel 호출됨 (Z-Order 방식)");
+        
+        // Cue 이벤트 발행
         var context = new CueContext
         {
             position = Vector3.zero,
@@ -697,128 +769,200 @@ public class LobbyUIController : MonoBehaviour
         };
         CueEmitter.Emit("ui.panel.close", "UI", context);
         
-        SetPanelVisibility(lobbyPanel, true);
-        SetPanelVisibility(stageSelectPanel, false);
-        SetPanelVisibility(inventoryPanel, false);  // 🔧 LobbyInventorySystem 비활성화
-        SetPanelVisibility(shopPanel, false);
-        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
+        // 🎯 핵심 변경: SetActive 대신 Z-Order 사용
+        BringPanelToFront(lobbyPanel);
         
-        Debug.Log("[LobbyUIController] 로비 메인 패널 활성화");
+        // 🆕 캐릭터 선택 UI 갱신 (다른 패널에서 돌아올 때 필수)
+        RefreshCharacterSelectionUI();
+        
+        Debug.Log("[LobbyUIController] 로비 패널을 최상위로 이동 완료");
     }
     
     // 🗑️ [삭제됨] ShowCharacterSelectPanel() - 더 이상 사용하지 않음
     
     /// <summary>
-    /// 스테이지 선택 패널 표시
+    /// 🔧 수정: 스테이지 선택 패널 표시 (Z-Order 방식)
     /// </summary>
     private void ShowStageSelectPanel()
     {
-        if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
+        if (!EnsureCharacterSelected()) return;
         
-        SetPanelVisibility(lobbyPanel, false);
-        SetPanelVisibility(stageSelectPanel, true);
-        SetPanelVisibility(inventoryPanel, false);
-        SetPanelVisibility(shopPanel, false);
-        SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
+        Debug.Log("🎯 [LobbyUIController] ShowStageSelectPanel 호출됨 (Z-Order 방식)");
+        
+        // 🎯 핵심 변경: Z-Order 방식
+        BringPanelToFront(stageSelectPanel);
         
         // 스테이지 선택 UI 초기화
         selectedStageNumber = 0;
         
-        // 🆕 진행도 기반 UI 업데이트 추가
+        // 진행도 기반 UI 업데이트
         UpdateStageProgressUI();
         UpdateStageSelectionUI();
         
-        Debug.Log("[LobbyUIController] 스테이지 선택 패널 활성화 (진행도 연동)");
+        Debug.Log("[LobbyUIController] 스테이지 선택 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
-    /// 인벤토리 패널 표시
+    /// 🔧 수정: 인벤토리 패널 표시 (컴포넌트 찾기 개선)
     /// </summary>
     public void ShowInventoryPanel()
     {
-        if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
+        if (!EnsureCharacterSelected()) return;
         
-        // 🔍 초기화 완료 대기 후 실행
-        StartCoroutine(WaitForManagersInitialization(() => {
-            // 🆕 Cue 이벤트 발행
-            var context = new CueContext
-            {
-                position = Vector3.zero,
-                actorType = ActorType.UI
-            };
-            CueEmitter.Emit("ui.button.click", "UI", context);
-            CueEmitter.Emit("ui.inventory.open", "UI", context);
-            
-            SetPanelVisibility(lobbyPanel, false);
-            SetPanelVisibility(stageSelectPanel, false);
-            SetPanelVisibility(inventoryPanel, true);
-            SetPanelVisibility(shopPanel, false);
-            SetPanelVisibility(characterInfoPanel, false);  // 🆕 캐릭터 정보창 비활성화
-            
-            Debug.Log("[LobbyUIController] 인벤토리 패널 활성화");
-        }));
-    }
-    
-    /// <summary>
-    /// 상점 패널 표시
-    /// </summary>
-    public void ShowShopPanel()
-    {
-        if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
+        Debug.Log("🎒 [LobbyUIController] ShowInventoryPanel 호출됨 (Z-Order 방식)");
         
-        Debug.Log("🏪 [LobbyUIController] ShowShopPanel 호출됨");
-        
-        // 🆕 Cue 이벤트 발행
+        // Cue 이벤트 발행
         var context = new CueContext
         {
             position = Vector3.zero,
             actorType = ActorType.UI
         };
-        CueEmitter.Emit("ui.shop.open", "UI", context);
+        CueEmitter.Emit("ui.button.click", "UI", context);
+        CueEmitter.Emit("ui.inventory.open", "UI", context);
         
-        SetPanelVisibility(lobbyPanel, false);
-        SetPanelVisibility(stageSelectPanel, false);
-        SetPanelVisibility(inventoryPanel, false);
-        SetPanelVisibility(shopPanel, true);
-        SetPanelVisibility(characterInfoPanel, false);
+        // 🎯 핵심 변경: Z-Order 방식
+        BringPanelToFront(inventoryPanel);
         
-        Debug.Log("[LobbyUIController] 상점 패널 활성화");
-        
-        // 🆕 ShopUIController 수동 호출 (안전장치)
-        var shopUIController = FindObjectOfType<ShopUIController>();
-        if (shopUIController != null)
+        // 🔧 수정: 다양한 방법으로 LobbyInventoryUI 컴포넌트 찾기
+        var inventoryUI = inventoryPanel.GetComponent<LobbyInventoryUI>();
+        if (inventoryUI == null)
         {
-            Debug.Log("🔧 ShopUIController 수동 OnShopOpened 호출");
-            shopUIController.OnShopOpened();
+            // 하위 오브젝트에서 찾기
+            inventoryUI = inventoryPanel.GetComponentInChildren<LobbyInventoryUI>();
+        }
+        if (inventoryUI == null)
+        {
+            // 전체에서 찾기 (최후 수단)
+            inventoryUI = FindObjectOfType<LobbyInventoryUI>();
+        }
+        
+        if (inventoryUI != null)
+        {
+            Debug.Log($"🔍 [LobbyUIController] LobbyInventoryUI 컴포넌트 발견: {inventoryUI.gameObject.name}");
+            inventoryUI.ForceRefreshWithLobbySelectedCharacter(selectedSlotIndex);
         }
         else
         {
-            Debug.LogError("❌ ShopUIController를 찾을 수 없습니다!");
+            Debug.LogError("❌ [LobbyUIController] LobbyInventoryUI 컴포넌트를 찾을 수 없습니다!");
         }
-    }
-
-    /// <summary>
-    /// 캐릭터 정보창 패널 표시
-    /// </summary>
-    public void ShowCharacterInfoPanel()
-    {
-        if (!EnsureCharacterSelected()) return; // 🛡️ 1줄 가드
         
-        // 🆕 Cue 이벤트 발행
+        Debug.Log($"[LobbyUIController] 인벤토리 패널을 최상위로 이동 완료 (슬롯 {selectedSlotIndex})");
+    }
+    
+    /// <summary>
+    /// 🆕 인벤토리 지연 로드 및 표시
+    /// </summary>
+    private IEnumerator LazyLoadAndShowInventory()
+    {
+        Debug.Log("🔄 [LobbyUIController] 인벤토리 진입 - 캐릭터 데이터 지연 로드 시작");
+        
+        // 1. 선택된 캐릭터 데이터 완전 로드
+        int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+        bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+        
+        if (!loadSuccess)
+        {
+            Debug.LogError("❌ [LobbyUIController] 캐릭터 데이터 로드 실패");
+            yield break;
+        }
+        
+        // 2. 인벤토리 관련 UI들 갱신 대기
+        yield return StartCoroutine(RefreshInventoryRelatedUIs());
+        
+        // 3. Cue 이벤트 발행
         var context = new CueContext
         {
             position = Vector3.zero,
             actorType = ActorType.UI
         };
+        CueEmitter.Emit("ui.button.click", "UI", context);
+        CueEmitter.Emit("ui.inventory.open", "UI", context);
+        
+        // 4. 인벤토리 패널 활성화
+        SetPanelVisibility(lobbyPanel, false);
+        SetPanelVisibility(stageSelectPanel, false);
+        SetPanelVisibility(inventoryPanel, true);
+        SetPanelVisibility(shopPanel, false);
+        SetPanelVisibility(characterInfoPanel, false);
+        
+        Debug.Log("[LobbyUIController] 인벤토리 패널 활성화");
+        Debug.Log("✅ [LobbyUIController] 인벤토리 진입 완료 (지연 로드)");
+    }
+
+    /// <summary>
+    /// 🆕 인벤토리 관련 UI 갱신
+    /// </summary>
+    private IEnumerator RefreshInventoryRelatedUIs()
+    {
+        Debug.Log("🔄 [LobbyUIController] 인벤토리 관련 UI 갱신 시작");
+        
+        // LobbyInventoryUI 갱신 대기
+        var lobbyInventoryUI = FindObjectOfType<LobbyInventoryUI>();
+        if (lobbyInventoryUI != null)
+        {
+            // 인벤토리 UI 강제 갱신 (필요시)
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        Debug.Log("✅ [LobbyUIController] 인벤토리 관련 UI 갱신 완료");
+    }
+
+    /// <summary>
+    /// 🆕 캐릭터 정보창 지연 로드 및 표시
+    /// </summary>
+    private IEnumerator LazyLoadAndShowCharacterInfo()
+    {
+        Debug.Log("🔄 [LobbyUIController] 캐릭터 정보창 진입 - 캐릭터 데이터 지연 로드 시작");
+        
+        // 1. 선택된 캐릭터 데이터 완전 로드
+        int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+        bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+        
+        if (!loadSuccess)
+        {
+            Debug.LogError("❌ [LobbyUIController] 캐릭터 데이터 로드 실패");
+            yield break;
+        }
+        
+        // 2. 캐릭터 정보 관련 UI들 갱신 대기
+        yield return StartCoroutine(RefreshCharacterInfoRelatedUIs());
+        
+        // 3. Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.button.click", "UI", context);
         CueEmitter.Emit("ui.panel.open", "UI", context);
         
+        // 4. 캐릭터 정보 패널 활성화
         SetPanelVisibility(lobbyPanel, false);
         SetPanelVisibility(stageSelectPanel, false);
         SetPanelVisibility(inventoryPanel, false);
         SetPanelVisibility(shopPanel, false);
-        SetPanelVisibility(characterInfoPanel, true);   // 🆕 캐릭터 정보창 활성화
+        SetPanelVisibility(characterInfoPanel, true);
         
-        Debug.Log("[LobbyUIController] 캐릭터 정보창 패널 활성화");
+        Debug.Log("[LobbyUIController] 캐릭터 정보 패널 활성화");
+        Debug.Log("✅ [LobbyUIController] 캐릭터 정보창 진입 완료 (지연 로드)");
+    }
+
+    /// <summary>
+    /// 🆕 캐릭터 정보 관련 UI 갱신
+    /// </summary>
+    private IEnumerator RefreshCharacterInfoRelatedUIs()
+    {
+        Debug.Log("🔄 [LobbyUIController] 캐릭터 정보 관련 UI 갱신 시작");
+        
+        // CharacterInfoUI 갱신 대기
+        var characterInfoUI = FindObjectOfType<CharacterInfoUI>();
+        if (characterInfoUI != null)
+        {
+            // 캐릭터 정보 UI 강제 갱신 (필요시)
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        Debug.Log("✅ [LobbyUIController] 캐릭터 정보 관련 UI 갱신 완료");
     }
     
     private void SetPanelVisibility(GameObject panel, bool isVisible)
@@ -826,7 +970,7 @@ public class LobbyUIController : MonoBehaviour
         if (panel != null)
         {
             //  디버그: 어떤 패널이 언제 변경되는지 확인
-            Debug.Log($"🎯 [LobbyUIController] SetPanelVisibility: {panel.name} → {isVisible}");
+            Debug.Log($"�� [LobbyUIController] SetPanelVisibility: {panel.name} → {isVisible}");
             panel.SetActive(isVisible);
         }
     }
@@ -1190,24 +1334,24 @@ public class LobbyUIController : MonoBehaviour
         
         selectedSlotIndex = slotIndex;
         
-        // PlayerDataManager에 슬롯 선택 알림
-        PlayerDataManager.Instance.SelectSlot(slotIndex);
+        // 🔧 지연 갱신: PlayerDataManager에 슬롯 ID만 저장 (UI 갱신 없음)
+        PlayerDataManager.Instance.SetSelectedSlotIndex(slotIndex);
         
-        // 🆕 캐릭터 전환 시 StageProgressManager 업데이트 (핵심 추가)
+        // 🔧 최소 UI 업데이트 (로비에서 보이는 기본 정보만)
+        UpdateSelectedCharacterInfo(slotData);
+        EnableStartGameButton(true);
+        
+        // 🔧 StageProgressManager는 유지 (로비 스테이지 선택 UI에 필요)
         if (StageProgressManager.Instance != null)
         {
             StageProgressManager.Instance.InitializeFor(slotIndex);
             Debug.Log($"🔄 [LobbyUIController] 캐릭터 전환: 슬롯 {slotIndex} StageProgressManager 업데이트");
         }
         
-        // 선택된 캐릭터 정보 업데이트 및 게임 시작 버튼 활성화
-        UpdateSelectedCharacterInfo(slotData);
-        EnableStartGameButton(true);
-        
-        // 🆕 스테이지 진행도 UI 즉시 업데이트
+        // 🔧 스테이지 진행도 UI 즉시 업데이트 (로비에서 필요)
         UpdateStageProgressUI();
         
-        Debug.Log($"[LobbyUIController] 캐릭터 선택 완료. 게임 시작 버튼을 클릭하세요.");
+        Debug.Log($"[LobbyUIController] 캐릭터 선택 완료 (지연 갱신 모드) - 패널 진입 시 완전 로드됨");
     }
     
     // 🔧 Step 2-2: 캐릭터 생성 시작 (빈 슬롯)
@@ -1228,15 +1372,23 @@ public class LobbyUIController : MonoBehaviour
     // 🔧 Step 2-2: 선택된 캐릭터 정보 업데이트
     private void UpdateSelectedCharacterInfo(PlayerSlotData slotData)
     {
+        // 🔧 수정: 간단한 형식으로 변경
         if (selectedPlayerNameText != null)
         {
-            selectedPlayerNameText.text = $"선택된 캐릭터: {slotData.playerName} (Lv.{slotData.level}) - {slotData.playerType}";
+            selectedPlayerNameText.text = $"{slotData.playerName} ({slotData.playerType})";
         }
         
-        // 스테이지 선택 제목 업데이트 (미리 준비)
+        // ✅ 유지: 스테이지 선택 제목 업데이트 (미리 준비)
         if (stageSelectTitleText != null)
         {
             stageSelectTitleText.text = $"{slotData.playerName}의 모험";
+        }
+        
+        // ✅ 유지: LobbyPlayerInfoUI 업데이트
+        var lobbyPlayerInfoUI = FindObjectOfType<LobbyPlayerInfoUI>();
+        if (lobbyPlayerInfoUI != null)
+        {
+            lobbyPlayerInfoUI.UpdatePlayerInfoFromSlotData(slotData);
         }
     }
     
@@ -1256,7 +1408,7 @@ public class LobbyUIController : MonoBehaviour
         }
     }
     
-    // 🔧 Step 2-2: 캐릭터 삭제 실행
+    // 🔧 수정: 캐릭터 삭제 실행 (모든 UI 갱신 포함)
     private void DeleteCharacterSlot(int slotIndex, PlayerSlotData slotData)
     {
         Debug.Log($"[LobbyUIController] 캐릭터 삭제 실행: 슬롯 {slotIndex}, {slotData.playerName}");
@@ -1267,19 +1419,65 @@ public class LobbyUIController : MonoBehaviour
         {
             Debug.Log($"[LobbyUIController] ✅ 캐릭터 삭제 성공: {slotData.playerName}");
             
-            // 삭제된 슬롯이 현재 선택된 슬롯이라면 선택 해제
+            // 삭제된 슬롯이 현재 선택된 슬롯이라면 다른 슬롯 자동 선택
             if (selectedSlotIndex == slotIndex)
             {
-                selectedSlotIndex = -1;
+                int newSelectedSlot = FindNextValidSlot(slotIndex);
+                if (newSelectedSlot >= 0)
+                {
+                    var newSlotData = PlayerDataManager.Instance.GetSlotData(newSelectedSlot);
+                    SelectCharacterSlot(newSelectedSlot, newSlotData);
+                }
+                else
+                {
+                    selectedSlotIndex = -1;
+                    EnableStartGameButton(false);
+                }
             }
             
-            // 슬롯 UI 새로고침
+            // 🎯 로비 슬롯 UI 새로고침
             RefreshSlotUI(slotIndex);
+            
+            // 🆕 CharacterInfoUI도 갱신 (활성화된 경우)
+            var characterInfoUI = characterInfoPanel.GetComponent<CharacterInfoUI>();
+            if (characterInfoUI != null && characterInfoPanel.activeInHierarchy)
+            {
+                characterInfoUI.ForceRefreshWithCurrentSlot(selectedSlotIndex);
+            }
+            
+            // 🆕 LobbyEquippedItemsUI도 직접 갱신 (활성화된 경우)
+            var equippedItemsUI = characterInfoPanel.GetComponentInChildren<LobbyEquippedItemsUI>();
+            if (equippedItemsUI != null && characterInfoPanel.activeInHierarchy)
+            {
+                equippedItemsUI.ForceRefreshEquippedItems();
+            }
+            
+            Debug.Log($"[LobbyUIController] 캐릭터 삭제 후 모든 UI 갱신 완료");
         }
         else
         {
             Debug.LogError($"[LobbyUIController] ❌ 캐릭터 삭제 실패: {slotData.playerName}");
         }
+    }
+
+    /// <summary>
+    /// 🆕 삭제된 슬롯 다음으로 유효한 슬롯 찾기
+    /// </summary>
+    private int FindNextValidSlot(int deletedSlot)
+    {
+        // 다음 슬롯부터 검색
+        for (int i = 0; i < 3; i++)
+        {
+            if (i != deletedSlot)
+            {
+                var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                if (slotData != null && slotData.isSlotUsed)
+                {
+                    return i;
+                }
+            }
+        }
+        return -1; // 유효한 슬롯 없음
     }
 
     // 🆕 게임 시작 버튼 활성화/비활성화
@@ -1728,5 +1926,201 @@ public class LobbyUIController : MonoBehaviour
         
         Debug.LogWarning("⚠️ [LobbyUIController] 매니저 초기화 대기 타임아웃!");
         onComplete?.Invoke(); // 타임아웃이어도 실행
+    }
+
+    /// <summary>
+    /// 🔧 수정: 캐릭터 정보창 패널 표시 (Z-Order 방식)
+    /// </summary>
+    public void ShowCharacterInfoPanel()
+    {
+        if (!EnsureCharacterSelected()) return;
+        
+        Debug.Log("👤 [LobbyUIController] ShowCharacterInfoPanel 호출됨 (Z-Order 방식)");
+        
+        // Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.button.click", "UI", context);
+        CueEmitter.Emit("ui.character.open", "UI", context);
+        
+        // 🎯 핵심 변경: Z-Order 방식
+        BringPanelToFront(characterInfoPanel);
+        
+        // �� 현재 선택된 캐릭터로 강제 갱신
+        var characterInfoUI = characterInfoPanel.GetComponent<CharacterInfoUI>();
+        if (characterInfoUI != null)
+        {
+            characterInfoUI.ForceRefreshWithCurrentSlot(selectedSlotIndex);
+        }
+        
+        Debug.Log($"[LobbyUIController] 캐릭터 정보 패널을 최상위로 이동 완료 (슬롯 {selectedSlotIndex})");
+    }
+
+    /// <summary>
+    /// 🆕 패널을 최상위로 가져오기 (Z-Order 제어)
+    /// </summary>
+    private void BringPanelToFront(GameObject panel)
+    {
+        if (panel != null)
+        {
+            panel.transform.SetAsLastSibling();
+            Debug.Log($"🔝 [LobbyUIController] {panel.name} 패널을 최상위로 이동");
+        }
+    }
+
+    /// <summary>
+    /// 🆕 백그라운드에서 모든 패널 초기화 (단순화)
+    /// </summary>
+    private IEnumerator InitializeAllPanelsInBackground()
+    {
+        Debug.Log("🔄 [LobbyUIController] 백그라운드 패널 초기화 시작");
+        
+        // 매니저 초기화 대기
+        yield return StartCoroutine(WaitForManagersInitialization(() => {}));
+        
+        // 캐릭터 선택 대기
+        while (!PlayerDataManager.Instance.IsSlotSelected)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // 🎯 상점 초기화 (활성화 상태에서)
+        if (ShopInventoryManager.Instance != null)
+        {
+            ShopInventoryManager.Instance.LoadItemsForShop();
+        }
+        
+        var shopUIController = shopPanel.GetComponent<ShopUIController>();
+        if (shopUIController != null)
+        {
+            shopUIController.OnShopOpened();
+        }
+        
+        // 🎯 인벤토리 초기화 (활성화 상태에서)
+        var inventoryUI = inventoryPanel.GetComponent<LobbyInventoryUI>();
+        if (inventoryUI != null)
+        {
+            inventoryUI.ForceRefreshInventory();
+        }
+        
+        // 🎯 캐릭터 정보 초기화 (활성화 상태에서)
+        var characterInfoUI = characterInfoPanel.GetComponent<CharacterInfoUI>();
+        if (characterInfoUI != null)
+        {
+            // 캐릭터 정보 UI 초기화 (필요시)
+        }
+        
+        Debug.Log("✅ [LobbyUIController] 백그라운드 패널 초기화 완료");
+    }
+
+    /// <summary>
+    /// 🆕 캐릭터 선택 UI 갱신 (Button Selected Color 복원)
+    /// </summary>
+    private void RefreshCharacterSelectionUI()
+    {
+        if (PlayerDataManager.Instance == null) return;
+        
+        // 현재 선택된 슬롯 인덱스 가져오기
+        int currentSelectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+        
+        // LobbyUIController의 selectedSlotIndex와 동기화
+        if (selectedSlotIndex != currentSelectedSlot)
+        {
+            selectedSlotIndex = currentSelectedSlot;
+            Debug.Log($"🔄 [LobbyUIController] 선택된 슬롯 동기화: {currentSelectedSlot}");
+        }
+        
+        // 모든 슬롯 버튼의 선택 상태 갱신
+        for (int i = 0; i < characterSlotButtons.Length; i++)
+        {
+            Button slotButton = GetSlotButton(i);
+            if (slotButton != null)
+            {
+                bool isSelected = (selectedSlotIndex == i);
+                
+                if (isSelected)
+                {
+                    // 🎯 핵심: Unity Button의 Select() 메서드로 Selected Color 적용
+                    slotButton.Select();
+                    Debug.Log($"✅ [LobbyUIController] 슬롯 {i} Button Selected Color 적용");
+                }
+                else
+                {
+                    // 선택 해제 (EventSystem에서 현재 선택된 객체가 이 버튼이면 해제)
+                    if (slotButton == UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject?.GetComponent<Button>())
+                    {
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                    }
+                }
+            }
+        }
+        
+        // 선택된 캐릭터 정보도 갱신
+        if (selectedSlotIndex >= 0)
+        {
+            var selectedSlotData = PlayerDataManager.Instance.GetSlotData(selectedSlotIndex);
+            if (selectedSlotData != null && selectedSlotData.isSlotUsed)
+            {
+                UpdateSelectedCharacterInfo(selectedSlotData);
+                EnableStartGameButton(true);
+                Debug.Log($"🎯 [LobbyUIController] 선택된 캐릭터 정보 갱신: {selectedSlotData.playerName}");
+            }
+        }
+        
+        Debug.Log($"✅ [LobbyUIController] 캐릭터 선택 UI 갱신 완료 (선택된 슬롯: {selectedSlotIndex})");
+    }
+
+    // 🆕 배경 오버레이 검증 (Start 메서드 끝부분에 추가)
+    private void ValidateBackgroundOverlay()
+    {
+        if (backgroundOverlay != null)
+        {
+            // 오버레이가 최하위 레이어(Index 0)에 있는지 확인
+            int siblingIndex = backgroundOverlay.transform.GetSiblingIndex();
+            if (siblingIndex != 0)
+            {
+                backgroundOverlay.transform.SetAsFirstSibling();
+                Debug.Log($"🔧 [LobbyUIController] BackgroundOverlay를 최하위 레이어로 이동 (Index: {siblingIndex} → 0)");
+            }
+            
+            // Image 컴포넌트 Raycast Target 확인
+            var overlayImage = backgroundOverlay.GetComponent<UnityEngine.UI.Image>();
+            if (overlayImage != null && !overlayImage.raycastTarget)
+            {
+                Debug.LogWarning("⚠️ [LobbyUIController] BackgroundOverlay Image의 Raycast Target이 비활성화되어 있습니다!");
+            }
+            
+            // BackgroundOverlayHandler 확인
+            var handler = backgroundOverlay.GetComponent<BackgroundOverlayHandler>();
+            if (handler == null)
+            {
+                Debug.LogWarning("⚠️ [LobbyUIController] BackgroundOverlay에 BackgroundOverlayHandler가 없습니다!");
+            }
+            
+            Debug.Log("✅ [LobbyUIController] BackgroundOverlay 검증 완료");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [LobbyUIController] backgroundOverlay가 할당되지 않았습니다!");
+        }
+    }
+
+    /// <summary>
+    /// 🔄 현재 선택된 캐릭터의 Button Selection 복원 (외부 호출용)
+    /// </summary>
+    public void RestoreCharacterSelection()
+    {
+        if (selectedSlotIndex >= 0 && selectedSlotIndex < characterSlotButtons.Length)
+        {
+            Button targetButton = characterSlotButtons[selectedSlotIndex];
+            if (targetButton != null)
+            {
+                targetButton.Select();
+                Debug.Log($"🔄 [LobbyUIController] 캐릭터 선택 복원: 슬롯 {selectedSlotIndex}");
+            }
+        }
     }
 }

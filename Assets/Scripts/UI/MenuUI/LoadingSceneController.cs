@@ -10,6 +10,10 @@ public class LoadingSceneController : MonoBehaviour
     public Slider progressBar;
     public TextMeshProUGUI loadingText;
     public GameObject tapToStartObj;
+    
+    [Header("🆕 프리로딩 시스템")]
+    public LoadingProgressController progressController; // 🆕 진행률 컨트롤러
+    public LobbyPreloadManager preloadManager; // 🆕 프리로딩 매니저
 
     // 이 static 변수에 다음에 로드할 씬의 이름이 저장됩니다.
     public static string nextSceneName;
@@ -36,6 +40,17 @@ public class LoadingSceneController : MonoBehaviour
         if (tapToStartObj == null)
         {
             Debug.LogWarning("[LoadingSceneController] tapToStartObj가 연결되지 않았습니다! (선택적 요소)");
+        }
+        
+        // 🆕 프리로딩 시스템 null 체크
+        if (progressController == null)
+        {
+            Debug.LogWarning("[LoadingSceneController] LoadingProgressController가 연결되지 않았습니다!");
+        }
+        
+        if (preloadManager == null)
+        {
+            Debug.LogWarning("[LoadingSceneController] LobbyPreloadManager가 연결되지 않았습니다!");
         }
 
         // 만약 nextSceneName이 비어있다면, Lobby로 설정 (최초 실행)
@@ -101,6 +116,121 @@ public class LoadingSceneController : MonoBehaviour
     {
         Debug.Log($"[LoadingSceneController] {nextSceneName} 씬 로딩 시작");
         
+        // 🆕 로비 씬인 경우 프리로딩 시스템 사용
+        if (nextSceneName == "Lobby" && preloadManager != null && progressController != null)
+        {
+            yield return StartCoroutine(LoadLobbyWithPreloading());
+        }
+        else
+        {
+            // 기존 로딩 방식 (다른 씬들)
+            yield return StartCoroutine(LoadSceneAsync());
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 로비 프리로딩 시스템을 사용한 로딩
+    /// </summary>
+    private IEnumerator LoadLobbyWithPreloading()
+    {
+        Debug.Log("🚀 [LoadingSceneController] 로비 프리로딩 시스템 시작");
+        
+        // 🔧 프리로딩 매니저 null 체크 강화
+        if (preloadManager == null)
+        {
+            Debug.LogError("❌ [LoadingSceneController] preloadManager가 null입니다!");
+            yield return StartCoroutine(LoadSceneAsync());
+            yield break;
+        }
+        
+        if (progressController == null)
+        {
+            Debug.LogError("❌ [LoadingSceneController] progressController가 null입니다!");
+            yield return StartCoroutine(LoadSceneAsync());
+            yield break;
+        }
+        
+        Debug.Log("✅ [LoadingSceneController] 프리로딩 컴포넌트 확인 완료");
+        
+        // 프리로딩 매니저 이벤트 연결
+        preloadManager.OnProgressUpdated.AddListener(progressController.UpdateProgress);
+        preloadManager.OnStepMessageUpdated.AddListener(progressController.UpdateLoadingMessage);
+        preloadManager.OnPreloadingComplete.AddListener(OnPreloadingComplete);
+        preloadManager.OnPreloadingFailed.AddListener(OnPreloadingFailed);
+        
+        Debug.Log("✅ [LoadingSceneController] 이벤트 연결 완료");
+        
+        // 🔧 먼저 프리로딩 시작 (씬 로드와 병렬 진행)
+        Debug.Log("🚀 [LoadingSceneController] 프리로딩 시작");
+        preloadManager.StartPreloading();
+        
+        // 🔧 비동기 씬 로드 시작
+        Debug.Log("🔄 [LoadingSceneController] 비동기 씬 로드 시작");
+        AsyncOperation sceneLoadOp = SceneManager.LoadSceneAsync(nextSceneName);
+        sceneLoadOp.allowSceneActivation = false;
+        
+        // 씬 로드 진행률 표시와 프리로딩 병렬 진행
+        bool sceneLoadComplete = false;
+        bool preloadingComplete = false;
+        
+        while (!sceneLoadComplete || !preloadingComplete)
+        {
+            // 씬 로드 상태 확인
+            if (!sceneLoadComplete && sceneLoadOp.progress >= 0.9f)
+            {
+                Debug.Log("✅ [LoadingSceneController] 씬 로드 90% 완료");
+                sceneLoadComplete = true;
+            }
+            
+            // 프리로딩 상태 확인
+            if (!preloadingComplete && preloadManager.IsPreloadingComplete)
+            {
+                Debug.Log("✅ [LoadingSceneController] 프리로딩 완료");
+                preloadingComplete = true;
+            }
+            
+            yield return null;
+        }
+        
+        // 🔧 모든 작업 완료 후 씬 활성화
+        Debug.Log("🎯 [LoadingSceneController] 씬 활성화 시작");
+        sceneLoadOp.allowSceneActivation = true;
+        
+        // 씬 활성화 완료 대기
+        while (!sceneLoadOp.isDone)
+        {
+            yield return null;
+        }
+        
+        Debug.Log("✅ [LoadingSceneController] 로비 진입 완료");
+    }
+    
+    /// <summary>
+    /// 🆕 프리로딩 완료 콜백
+    /// </summary>
+    private void OnPreloadingComplete()
+    {
+        progressController.OnLoadingComplete();
+        Debug.Log("✅ [LoadingSceneController] 프리로딩 완료 - 로비 진입 준비됨");
+    }
+    
+    /// <summary>
+    /// 🆕 프리로딩 실패 콜백
+    /// </summary>
+    private void OnPreloadingFailed(string errorMessage)
+    {
+        Debug.LogError($"❌ [LoadingSceneController] 프리로딩 실패: {errorMessage}");
+        progressController.UpdateLoadingMessage("기본 모드로 진입합니다...");
+        
+        // 기본 로딩 방식으로 폴백
+        StartCoroutine(LoadSceneAsync());
+    }
+    
+    /// <summary>
+    /// 기존 씬 로딩 방식 (프리로딩 미사용)
+    /// </summary>
+    private IEnumerator LoadSceneAsync()
+    {
         // 비동기적으로 다음 씬을 로드합니다.
         AsyncOperation op = SceneManager.LoadSceneAsync(nextSceneName);
         op.allowSceneActivation = false; // 씬 로드가 완료되어도 바로 활성화하지 않습니다.

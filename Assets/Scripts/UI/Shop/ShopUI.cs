@@ -123,7 +123,7 @@ public class ShopUI : MonoBehaviour
     /// </summary>
     private void SetupTabSystem()
     {
-        // 모든 탭 내용 강제 활성화
+        // ✅ 이미 올바름: 모든 탭 내용 강제 활성화
         weaponTabContent?.SetActive(true);
         armorTabContent?.SetActive(true);
         bootsTabContent?.SetActive(true);
@@ -223,7 +223,7 @@ public class ShopUI : MonoBehaviour
     {
         currentTab = tabType;
         
-        // 탭 내용 전환 (다른 탭들 비활성화)
+        // 🎯 탭 내용 전환 (이제 Z-Order 방식 사용)
         UpdateTabContent();
         
         // 탭 버튼 시각적 업데이트
@@ -282,26 +282,27 @@ public class ShopUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 탭 내용 전환
+    /// 🔧 수정: 탭 내용 전환 (Z-Order 방식)
     /// </summary>
     private void UpdateTabContent()
     {
-        // 모든 탭 내용 비활성화
-        weaponTabContent?.SetActive(false);
-        armorTabContent?.SetActive(false);
-        bootsTabContent?.SetActive(false);
+        // 🎯 핵심 변경: 비활성화하지 않고 Z-Order로 제어
+        // 모든 탭 내용을 활성화 상태로 유지
+        weaponTabContent?.SetActive(true);
+        armorTabContent?.SetActive(true);
+        bootsTabContent?.SetActive(true);
         
-        // 선택된 탭 내용만 활성화
+        // 선택된 탭을 최상위로 이동
         switch (currentTab)
         {
             case EquipmentType.Weapon:
-                weaponTabContent?.SetActive(true);
+                weaponTabContent?.transform.SetAsLastSibling();
                 break;
             case EquipmentType.Armor:
-                armorTabContent?.SetActive(true);
+                armorTabContent?.transform.SetAsLastSibling();
                 break;
             case EquipmentType.Accessory:
-                bootsTabContent?.SetActive(true);
+                bootsTabContent?.transform.SetAsLastSibling();
                 break;
         }
     }
@@ -572,5 +573,38 @@ public class ShopUI : MonoBehaviour
     public void HideItemDetail()
     {
         // 추후 구현 예정
+    }
+
+    /// <summary>
+    /// 🆕 모든 탭의 슬롯을 미리 생성 (상점 열기 시 한 번만 실행)
+    /// </summary>
+    public void InitializeAllTabSlots()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔄 [ShopUI] 모든 탭 슬롯 미리 생성 시작");
+        
+        // 현재 탭 백업
+        EquipmentType originalTab = currentTab;
+        
+        // 각 탭별로 슬롯 생성
+        EquipmentType[] allTabs = { EquipmentType.Weapon, EquipmentType.Armor, EquipmentType.Accessory };
+        
+        foreach (EquipmentType tabType in allTabs)
+        {
+            // 임시로 탭 변경 (Container 참조를 위해)
+            currentTab = tabType;
+            
+            // 해당 탭의 슬롯들 생성
+            EnsureShopSlotsExist(tabType);
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [ShopUI] {tabType} 탭 슬롯 생성 완료: {tabShopSlots[tabType].Count}개");
+        }
+        
+        // 원래 탭으로 복원
+        currentTab = originalTab;
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [ShopUI] 모든 탭 슬롯 미리 생성 완료");
     }
 }

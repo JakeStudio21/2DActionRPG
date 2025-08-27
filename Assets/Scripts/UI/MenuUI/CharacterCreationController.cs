@@ -115,13 +115,12 @@ public class CharacterCreationController : MonoBehaviour
     }
     
     /// <summary>
-    /// 캐릭터 생성 시작 (외부 호출용)
+    /// 🔧 수정: 캐릭터 생성 시작 (하이브리드 방식)
     /// </summary>
     public void StartCharacterCreation(int slotIndex)
     {
         Debug.Log($"[CharacterCreationController] 슬롯 {slotIndex} 캐릭터 생성 시작");
         
-        // 🔧 개선 3: 슬롯 유효성 검사
         if (!IsValidSlotForCreation(slotIndex))
         {
             ShowErrorMessage($"슬롯 {slotIndex}는 이미 사용 중이거나 유효하지 않습니다.");
@@ -129,7 +128,29 @@ public class CharacterCreationController : MonoBehaviour
         }
         
         targetSlotIndex = slotIndex;
+        
+        // 🎯 1단계: 전체 캐릭터 생성 패널을 최상위로 (Z-Order)
+        BringCharacterCreationToFront();
+        
+        // 🎯 2단계: 내부 서브패널은 기존 방식 유지 (SetActive)
         ShowClassSelectionPanel();
+    }
+    
+    /// <summary>
+    /// 🆕 캐릭터 생성 패널을 최상위로 가져오기 (Z-Order)
+    /// </summary>
+    private void BringCharacterCreationToFront()
+    {
+        if (characterCreationPanel != null)
+        {
+            // 전체 캐릭터 생성 패널 활성화
+            characterCreationPanel.SetActive(true);
+            
+            // 로비의 다른 패널들보다 앞으로
+            characterCreationPanel.transform.SetAsLastSibling();
+            
+            Debug.Log("🔝 [CharacterCreationController] 캐릭터 생성 패널을 최상위로 이동");
+        }
     }
     
     /// <summary>
@@ -148,24 +169,29 @@ public class CharacterCreationController : MonoBehaviour
     }
     
     /// <summary>
-    /// 클래스 선택 패널 표시
+    /// 클래스 선택 패널 표시 (내부는 SetActive 유지)
     /// </summary>
     private void ShowClassSelectionPanel()
     {
-        HideAllPanels();
-        ClearNameError(); // 🔧 개선 3: 오류 메시지 초기화
+        // 🎯 내부 서브패널들은 SetActive로 단계별 제어
+        HideAllSubPanels();
+        ClearNameError();
         
-        if (characterCreationPanel != null) characterCreationPanel.SetActive(true);
-        if (classSelectionPanel != null) classSelectionPanel.SetActive(true);
+        // 클래스 선택 서브패널만 활성화
+        if (classSelectionPanel != null) 
+        {
+            classSelectionPanel.SetActive(true);
+        }
         
-        Debug.Log("[CharacterCreationController] 클래스 선택 패널 활성화");
+        Debug.Log("[CharacterCreationController] 클래스 선택 서브패널 활성화");
     }
     
     /// <summary>
-    /// 이름 입력 패널 표시
+    /// 이름 입력 패널 표시 (내부는 SetActive 유지)
     /// </summary>
     private void ShowNameInputPanel()
     {
+        // 🎯 서브패널 전환: 클래스 선택 → 이름 입력
         if (classSelectionPanel != null) classSelectionPanel.SetActive(false);
         if (nameInputPanel != null) nameInputPanel.SetActive(true);
         
@@ -176,9 +202,9 @@ public class CharacterCreationController : MonoBehaviour
             nameInputField.Select();
         }
         
-        ClearNameError(); // 🔧 개선 3: 오류 메시지 초기화
+        ClearNameError();
         
-        Debug.Log("[CharacterCreationController] 이름 입력 패널 활성화");
+        Debug.Log("[CharacterCreationController] 이름 입력 서브패널 활성화");
     }
     
     /// <summary>
@@ -187,6 +213,15 @@ public class CharacterCreationController : MonoBehaviour
     private void HideAllPanels()
     {
         if (characterCreationPanel != null) characterCreationPanel.SetActive(false);
+        if (classSelectionPanel != null) classSelectionPanel.SetActive(false);
+        if (nameInputPanel != null) nameInputPanel.SetActive(false);
+    }
+    
+    /// <summary>
+    /// 🔧 수정: 모든 서브패널 숨기기 (내부 전환용)
+    /// </summary>
+    private void HideAllSubPanels()
+    {
         if (classSelectionPanel != null) classSelectionPanel.SetActive(false);
         if (nameInputPanel != null) nameInputPanel.SetActive(false);
     }
@@ -385,26 +420,31 @@ public class CharacterCreationController : MonoBehaviour
     }
     
     /// <summary>
-    /// 로비로 돌아가기
+    /// 🔧 수정: 로비로 돌아가기 (Z-Order 방식)
     /// </summary>
     private void OnBackToLobby()
     {
         Debug.Log("[CharacterCreationController] 로비로 돌아갑니다");
         
-        HideAllPanels();
-        ClearNameError(); // 🔧 개선 3: 오류 메시지 지우기
+        // 🎯 1단계: 전체 캐릭터 생성 패널 숨기기
+        if (characterCreationPanel != null)
+        {
+            characterCreationPanel.SetActive(false);
+        }
+        
+        // 🎯 2단계: 내부 상태 초기화
+        HideAllSubPanels();
+        ClearNameError();
         targetSlotIndex = -1;
         inputPlayerName = "";
         
-        // 🔧 개선 2: 직접 참조 사용
+        // 🎯 3단계: 로비를 최상위로
         if (lobbyUIController != null)
         {
-            lobbyUIController.OnBackToLobby();
+            lobbyUIController.ShowLobbyPanel();
         }
-        else
-        {
-            Debug.LogError("[CharacterCreationController] LobbyUIController 참조가 없습니다!");
-        }
+        
+        Debug.Log("[CharacterCreationController] 로비로 복귀 완료");
     }
 }
 

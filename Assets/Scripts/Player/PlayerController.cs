@@ -12,6 +12,9 @@ public class PlayerController : Singleton<PlayerController>
      [SerializeField] private float dashspeed = 4f;
      [SerializeField] private TrailRenderer myTrailRenderer;
      [SerializeField] private Transform weaponCollider;
+     // 🎯 반응성 튜닝 파라미터
+     [SerializeField] private float deadZone = 0.12f;           // 미세 입력 무시
+     [SerializeField] private float snapTurnThreshold = -0.2f;  // 역방향 전환 스냅 컷오프( -1 에 가까울수록 강함 )
 
      // 🔍 디버깅용 공개 프로퍼티
      public float CurrentMoveSpeed => moveSpeed;
@@ -23,6 +26,7 @@ public class PlayerController : Singleton<PlayerController>
      private Animator myAnimator;
      private SpriteRenderer mySpriteRender;
      private Knockback knockback;
+     private PlayerHealth playerHealth; // ✅ FindObjectOfType 캐시
      private float startingMoveSpeed;
 
      private bool facingLeft = false;
@@ -36,7 +40,7 @@ public class PlayerController : Singleton<PlayerController>
      // 무기/스킬별 레벨 통합 관리
      private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
 
-     protected override void Awake() 
+     protected override void Awake()
      {
           base.Awake();
           playerControls = new PlayerControls();
@@ -44,6 +48,7 @@ public class PlayerController : Singleton<PlayerController>
           myAnimator = GetComponent<Animator>();
           mySpriteRender = GetComponent<SpriteRenderer>();
           knockback = GetComponent<Knockback>();
+          playerHealth = FindObjectOfType<PlayerHealth>(); // ✅ 한 번만 찾고 캐시
           
           // 조이스틱 초기화는 Start에서 코루틴으로 처리
      }
@@ -162,10 +167,11 @@ public class PlayerController : Singleton<PlayerController>
           PlayerInput();
      }
 
-     private void FixedUpdate() 
+     private void FixedUpdate()
      {
           AdjustPlayerFacingDirection();
-          Move();
+          // Move();
+          MoveFast(); // ✅ 반응형 이동
      }
 
      public void ReEnableControls()
@@ -179,7 +185,7 @@ public class PlayerController : Singleton<PlayerController>
           return weaponCollider;
      }
 
-     private void PlayerInput() 
+     private void PlayerInput()
      {
           // 조이스틱 전용: 키보드 입력 제거
           movement = Vector2.zero;
@@ -195,11 +201,11 @@ public class PlayerController : Singleton<PlayerController>
                if (Time.frameCount % 60 == 0)
                {
                     Debug.LogWarning($"[PlayerController] 조이스틱 없음 - joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick}");
-                    
+
                     // ⭐ 추가: 실제 씬에 조이스틱이 있는지 확인
                     var joystickInScene = FindObjectOfType<FixedJoystick>();
                     Debug.Log($"[PlayerController] 씬에 조이스틱 존재 여부: {joystickInScene != null}");
-                    
+
                     // ⭐ 씬에 조이스틱이 있는데 연결 안된 경우 강제 재연결
                     if (joystickInScene != null && (!joystickFound || fixedJoystick == null))
                     {
@@ -211,82 +217,120 @@ public class PlayerController : Singleton<PlayerController>
 
           myAnimator.SetFloat("moveX", movement.x);
           myAnimator.SetFloat("moveY", movement.y);
-     } 
-
-     private void Move() 
-     {
-          // ⭐ 안전한 디버깅 (try-catch 추가)
-          try
-          {
-              if (Time.frameCount % 60 == 0)
-              {
-                  Debug.Log($"🔍 [PlayerController] Move 체크:");
-               //    Debug.Log($"   - movement: {movement}");
-                  Debug.Log($"   - rb가 null인가: {rb == null}");
-                  Debug.Log($"   - knockback가 null인가: {knockback == null}");
-                  
-                  if (knockback != null)
-                      Debug.Log($"   - knockback.GettingKnockedBack: {knockback.GettingKnockedBack}");
-              }
-          }
-          catch (System.Exception e)
-          {
-              Debug.LogError($"🔴 [PlayerController] 디버깅 로그 에러: {e.Message}");
-          }
-          
-          // ⭐ 안전한 조건 확인
-          try
-          {
-              if (knockback != null && knockback.GettingKnockedBack) 
-              { 
-                  return; 
-              }
-              
-              var playerHealth = FindObjectOfType<PlayerHealth>();
-              if (playerHealth != null && playerHealth.isDead) 
-              { 
-                  return; 
-              }
-          }
-          catch (System.Exception e)
-          {
-              Debug.LogError($"🔴 [PlayerController] Move 조건 확인 에러: {e.Message}");
-              return;
-          }
-
-          // ⭐ 안전한 이동 실행
-          try
-          {
-              if (rb != null && movement.magnitude > 0.01f)
-              {
-                  Vector2 newPosition = rb.position + movement * (moveSpeed * Time.fixedDeltaTime);
-                  rb.MovePosition(newPosition);
-                  
-                  // ⭐ 간단한 이동 확인 (에러 방지)
-                  if (Time.frameCount % 120 == 0) // 2초마다
-                  {
-                      Debug.Log($"🚀 [PlayerController] 이동 실행: {movement} → {rb.position}");
-                  }
-              }
-          }
-          catch (System.Exception e)
-          {
-              Debug.LogError($"🔴 [PlayerController] rb.MovePosition 에러: {e.Message}");
-          }
      }
 
-     private void AdjustPlayerFacingDirection() 
+     // private void Move() 
+     // {
+     //      // ⭐ 안전한 디버깅 (try-catch 추가)
+     //      try
+     //      {
+     //          if (Time.frameCount % 60 == 0)
+     //          {
+     //              Debug.Log($"🔍 [PlayerController] Move 체크:");
+     //           //    Debug.Log($"   - movement: {movement}");
+     //              Debug.Log($"   - rb가 null인가: {rb == null}");
+     //              Debug.Log($"   - knockback가 null인가: {knockback == null}");
+
+     //              if (knockback != null)
+     //                  Debug.Log($"   - knockback.GettingKnockedBack: {knockback.GettingKnockedBack}");
+     //          }
+     //      }
+     //      catch (System.Exception e)
+     //      {
+     //          Debug.LogError($"🔴 [PlayerController] 디버깅 로그 에러: {e.Message}");
+     //      }
+
+     //      // ⭐ 안전한 조건 확인
+     //      try
+     //      {
+     //          if (knockback != null && knockback.GettingKnockedBack) 
+     //          { 
+     //              return; 
+     //          }
+
+     //          var playerHealth = FindObjectOfType<PlayerHealth>();
+     //          if (playerHealth != null && playerHealth.isDead) 
+     //          { 
+     //              return; 
+     //          }
+     //      }
+     //      catch (System.Exception e)
+     //      {
+     //          Debug.LogError($"🔴 [PlayerController] Move 조건 확인 에러: {e.Message}");
+     //          return;
+     //      
+
+
+     //      // ⭐ 안전한 이동 실행
+     //      try
+     //      {
+     //          if (rb != null && movement.magnitude > 0.01f)
+     //          {
+     //              Vector2 newPosition = rb.position + movement * (moveSpeed * Time.fixedDeltaTime);
+     //              rb.MovePosition(newPosition);
+
+     //              // ⭐ 간단한 이동 확인 (에러 방지)
+     //              if (Time.frameCount % 120 == 0) // 2초마다
+     //              {
+     //                  Debug.Log($"🚀 [PlayerController] 이동 실행: {movement} → {rb.position}");
+     //              }
+     //          }
+     //      }
+     //      catch (System.Exception e)
+     //      {
+     //          Debug.LogError($"🔴 [PlayerController] rb.MovePosition 에러: {e.Message}");
+     //      }
+     // }
+
+          // ⚡ 반응형 이동: velocity 직접 대입 + DeadZone + 역전환 스냅
+     private void MoveFast()
      {
-         if (movement.x < 0) 
-         {
+          // 상태 체크 (넉백/사망 시 이동 금지)
+          if (knockback != null && knockback.GettingKnockedBack) return;
+          if (playerHealth != null && playerHealth.isDead) return;
+          if (rb == null) return;
+ 
+          // DeadZone: 미세 입력은 0으로 간주
+          if (movement.sqrMagnitude < deadZone * deadZone)
+          {
+              rb.velocity = Vector2.zero;            // 손 떼면 즉시 정지
+              myAnimator.SetBool("IsMoving", false);
+              return;
+          }
+ 
+          // 입력 방향 정규화
+          var inputDir = movement.normalized;
+          var desired = inputDir * moveSpeed;
+ 
+          // 역방향 전환 스냅: 현재 속도 방향과 입력 방향이 충분히 반대로 향하면 속도를 0으로 컷
+          if (rb.velocity.sqrMagnitude > 0.0001f)
+          {
+              float dot = Vector2.Dot(rb.velocity.normalized, inputDir);
+              if (dot < snapTurnThreshold)
+              {
+                  rb.velocity = Vector2.zero;        // 방향 전환 즉시 반응
+              }
+          }
+ 
+          // 즉답형 이동
+          rb.velocity = desired;
+          myAnimator.SetBool("IsMoving", true);
+     }
+
+
+
+     private void AdjustPlayerFacingDirection()
+     {
+          if (movement.x < 0)
+          {
                mySpriteRender.flipX = true;
                facingLeft = true;
-         } 
-         else if (movement.x > 0) 
-         {
+          }
+          else if (movement.x > 0)
+          {
                mySpriteRender.flipX = false;
                facingLeft = false;
-         }
+          }
      }
 
      private void Dash() 

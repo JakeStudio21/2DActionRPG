@@ -72,7 +72,7 @@ public class IntegratedInventoryController : MonoBehaviour
         }
         
         SetupControllerEvents();
-        // 🗑️ 제거: 독립적인 이벤트 연결 삭제
+        InitializeIntegratedInventory();
     }
     
     void Update()
@@ -85,14 +85,12 @@ public class IntegratedInventoryController : MonoBehaviour
     /// </summary>
     private void InitializeIntegratedInventory()
     {
-        // 🔧 수정: 패널들의 초기화를 기다린 후 비활성화하도록 변경
         if (activeInventoryPanel != null)
         {
-            // activeInventoryPanel.SetActive(false); // 🗑️ 제거: 즉시 비활성화 금지
             Debug.Log($"✅ [IntegratedInventoryController] ActiveInventory 참조 연결 완료");
             
-            // 🆕 추가: ActiveInventory 초기화 완료까지 대기 후 비활성화
-            StartCoroutine(WaitForInventoryInitializationThenHide());
+            // 🆕 수정: ActiveInventory 초기화 완료 이벤트 구독
+            ActiveInventory.OnActiveInventoryInitialized += OnActiveInventoryInitialized;
         }
         else
         {
@@ -124,6 +122,22 @@ public class IntegratedInventoryController : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log("✅ [IntegratedInventoryController] 참조 방식 초기화 완료");
+    }
+
+    /// <summary>
+    /// 🆕 ActiveInventory 초기화 완료 시 호출
+    /// </summary>
+    private void OnActiveInventoryInitialized()
+    {
+        Debug.Log("🎯 [IntegratedInventoryController] ActiveInventory 초기화 완료 - 패널 비활성화 시작");
+        
+        if (activeInventoryPanel != null)
+            activeInventoryPanel.SetActive(false);
+        
+        if (equippedItemsPanel != null)
+            equippedItemsPanel.SetActive(false);
+        
+        Debug.Log("✅ [IntegratedInventoryController] 인벤토리 초기화 및 비활성화 완료");
     }
 
     /// <summary>
@@ -254,29 +268,16 @@ public class IntegratedInventoryController : MonoBehaviour
     /// </summary>
     private void SetupControllerEvents()
     {
-        // 가방 버튼 이벤트 연결
-        if (bagButton != null)
-        {
-            bagButton.onClick.AddListener(() => {
-                ToggleInventoryPanel(); // 🔧 수정: 통일된 메서드 사용
-            });
-            
-            if (showDebugLogs)
-                Debug.Log("✅ [IntegratedInventoryController] 가방 버튼 이벤트 연결");
-        }
-        
-        // 🆕 PlayerDataManager 이벤트 구독
-        if (PlayerDataManager.Instance != null)
-        {
-            PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
-            PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
-            
-            if (showDebugLogs)
-                Debug.Log("✅ [IntegratedInventoryController] PlayerDataManager 이벤트 구독 완료");
-        }
+        // 🗑️ 제거: BagButton 이벤트 연결 (InitializeIntegratedInventory에서 처리)
+        // if (bagButton != null)
+        // {
+        //     bagButton.onClick.AddListener(() => {
+        //         ToggleInventoryPanel();
+        //     });
+        // }
         
         if (showDebugLogs)
-            Debug.Log("✅ [IntegratedInventoryController] 독립적인 이벤트 시스템 구축 완료");
+            Debug.Log("✅ [IntegratedInventoryController] 컨트롤러 이벤트 설정 완료");
     }
     
     /// <summary>
@@ -320,6 +321,7 @@ public class IntegratedInventoryController : MonoBehaviour
     void OnDestroy()
     {
         // 🆕 이벤트 구독 해제
+        ActiveInventory.OnActiveInventoryInitialized -= OnActiveInventoryInitialized;
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;

@@ -48,6 +48,20 @@ public class GamePoolManager : Singleton<GamePoolManager>
         Debug.Log($"🔍 [GamePoolManager] 현재 씬: {currentSceneName}");
         Debug.Log($"🔍 [GamePoolManager] currentSceneConfig: {(currentSceneConfig != null ? currentSceneConfig.name : "NULL")}");
         
+        // ✅ 중복 로딩 방지: 이미 로딩 중이거나 풀이 존재하면 스킵
+        if (isLoadingPools)
+        {
+            Debug.Log($"🔍 [GamePoolManager] Start() - 이미 풀 로딩 중이므로 스킵");
+            return;
+        }
+        
+        if (poolDictionary.Count > 0)
+        {
+            Debug.Log($"🔍 [GamePoolManager] Start() - 풀이 이미 존재하므로 스킵 (풀 개수: {poolDictionary.Count})");
+            return;
+        }
+        
+        Debug.Log($"🔍 [GamePoolManager] Start() 호출됨 - 풀 로딩 요청");
         StartCoroutine(LoadCurrentScenePools());
     }
     
@@ -90,6 +104,9 @@ public class GamePoolManager : Singleton<GamePoolManager>
     {
         string newSceneName = scene.name;
         
+        Debug.Log($"🔄 [GamePoolManager] OnSceneLoaded 호출됨 - 씬: {newSceneName}");
+        Debug.Log($"�� [GamePoolManager] 씬 전환: {currentSceneName} → {newSceneName}");
+        
         if (enableDebugMode)
         {
             Debug.Log($"🔄 [GamePoolManager] 씬 전환: → {newSceneName}");
@@ -99,6 +116,7 @@ public class GamePoolManager : Singleton<GamePoolManager>
         DestroyAllPools();
         
         currentSceneName = newSceneName;
+        Debug.Log($"🔍 [GamePoolManager] OnSceneLoaded에서 풀 로딩 요청");
         StartCoroutine(LoadScenePoolsCoroutine(newSceneName));
     }
     
@@ -415,11 +433,20 @@ public class GamePoolManager : Singleton<GamePoolManager>
     
     private IEnumerator LoadScenePoolsCoroutine(string sceneName)
     {
+        // 🔍 디버깅: 호출 스택 추적
         Debug.Log($"🔄 [GamePoolManager] 풀 로딩 시작: {sceneName}");
+        Debug.Log($"🔍 [GamePoolManager] 호출 스택:");
+        System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(true);
+        for (int i = 0; i < Mathf.Min(5, stackTrace.FrameCount); i++)
+        {
+            var frame = stackTrace.GetFrame(i);
+            Debug.Log($"   {i}: {frame.GetMethod().DeclaringType?.Name}.{frame.GetMethod().Name}() - Line {frame.GetFileLineNumber()}");
+        }
         
         if (isLoadingPools) 
         {
             Debug.LogWarning($"⚠️ [GamePoolManager] 이미 풀 로딩 중입니다. 중복 요청 무시.");
+            Debug.LogWarning($"🔍 [GamePoolManager] 중복 호출 감지! 위의 호출 스택을 확인하세요.");
             yield break;
         }
         

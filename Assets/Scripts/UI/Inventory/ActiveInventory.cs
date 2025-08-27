@@ -7,6 +7,9 @@ public class ActiveInventory : MonoBehaviour
 {
     private int activeSlotIndexNum = 0;
 
+    // 🆕 초기화 완료 이벤트 추가
+    public static System.Action OnActiveInventoryInitialized;
+
     [Header("🎒 인벤토리 연동")]
     [SerializeField] private bool useDynamicInventory = true; // 동적 인벤토리 사용 여부
     [SerializeField] private int maxDisplaySlots = 16; // 표시할 최대 슬롯 수
@@ -63,15 +66,16 @@ public class ActiveInventory : MonoBehaviour
         EquipWeaponBasedOnCharacterType();
         
         // 🔧 수정: 자동 비활성화 제거 (IntegratedInventoryController가 관리)
-        Debug.Log("✅ [ActiveInventory] 모든 초기화 완료");
+        OnActiveInventoryInitialized?.Invoke();
+        Debug.Log("✅ [ActiveInventory] 모든 초기화 완료 - 이벤트 발행됨");
     }
 
     /// <summary>
-    /// PlayerDataManager와 인벤토리 연동 초기화
+    /// PlayerDataManager와 인벤토리 연동 초기화 (지연 갱신 지원)
     /// </summary>
     private IEnumerator InitializeInventoryConnection()
     {
-        Debug.Log("🔗 [ActiveInventory] PlayerDataManager 연동 시작");
+        Debug.Log("🔗 [ActiveInventory] PlayerDataManager 연동 시작 (지연 갱신 지원)");
         
         // PlayerDataManager가 준비될 때까지 대기
         while (PlayerDataManager.Instance == null)
@@ -80,15 +84,32 @@ public class ActiveInventory : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
-        // 이벤트 구독
+        // 이벤트 구독 (지연 갱신 지원)
         if (PlayerDataManager.Instance != null)
         {
+            // 🔧 지연 갱신: 인게임에서는 실시간 갱신 유지 (무기 교체 등에 필요)
             PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
             PlayerDataManager.Instance.OnSlotClicked += OnSlotClickedForInGame;
-            Debug.Log("✅ [ActiveInventory] PlayerDataManager 이벤트 구독 완료");
+            
+            // 🆕 지연 로드 완료 이벤트 구독
+            PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoadedForInGame;
+            
+            Debug.Log("✅ [ActiveInventory] PlayerDataManager 이벤트 구독 완료 (지연 갱신 지원)");
         }
         
         // 초기 UI 새로고침
+        RefreshInventoryUI();
+    }
+
+    /// <summary>
+    /// 🆕 인게임에서 지연 로드 완료 시 처리
+    /// </summary>
+    private void OnSlotLazyLoadedForInGame(int slotIndex)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [ActiveInventory] 슬롯 {slotIndex} 지연 로드 완료 - 인벤토리 갱신");
+        
+        // 인게임에서는 항상 즉시 갱신 (무기 교체 등에 필요)
         RefreshInventoryUI();
     }
     
@@ -707,6 +728,7 @@ public class ActiveInventory : MonoBehaviour
             PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
             // 🆕 공용 이벤트 구독 해제
             PlayerDataManager.Instance.OnSlotClicked -= OnSlotClickedForInGame;
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForInGame; // 지연 로드 이벤트 해제
         }
     }
 } 

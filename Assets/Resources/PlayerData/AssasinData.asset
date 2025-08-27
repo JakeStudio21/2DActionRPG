@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AssasinData
   m_EditorClassIdentifier: 
   baseMaxHealth: 1
-  baseMoveSpeed: 4
+  baseMoveSpeed: 6
   baseDashSpeed: 6
   baseAttackDamage: 12
   baseDefense: 5

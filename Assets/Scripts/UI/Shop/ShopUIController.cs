@@ -64,6 +64,150 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
+    /// 🆕 캐릭터별 상점 초기화 (지연 로드 지원)
+    /// </summary>
+    public void InitializeShopForCharacter(int characterSlotIndex)
+    {
+        Debug.Log($"🔄 [ShopUIController] 캐릭터별 상점 초기화 시작 - 슬롯 {characterSlotIndex}");
+        
+        StartCoroutine(InitializeShopForCharacterCoroutine(characterSlotIndex));
+    }
+
+    /// <summary>
+    /// 🆕 캐릭터별 상점 초기화 코루틴
+    /// </summary>
+    private IEnumerator InitializeShopForCharacterCoroutine(int characterSlotIndex)
+    {
+        // 1. 캐릭터 데이터 로드 확인
+        if (!PlayerDataManager.Instance.IsSlotSelected || 
+            PlayerDataManager.Instance.GetSelectedSlotIndex() != characterSlotIndex)
+        {
+            Debug.LogWarning($"⚠️ [ShopUIController] 캐릭터 슬롯 {characterSlotIndex} 데이터가 로드되지 않음");
+            yield break;
+        }
+        
+        // 2. ShopInventoryUI 참조 재설정
+        yield return StartCoroutine(RefreshShopInventoryReferences());
+        
+        // 3. UI 구조 검증
+        bool isValid = ValidateShopUIStructure();
+        if (!isValid)
+        {
+            Debug.LogWarning("⚠️ [ShopUIController] UI 구조 검증 실패 - 복구 시도");
+            yield return StartCoroutine(AttemptUIStructureRecovery());
+        }
+        
+        // 4. 상점 데이터 갱신
+        RefreshShopData();
+        
+        Debug.Log($"✅ [ShopUIController] 캐릭터별 상점 초기화 완료 - 슬롯 {characterSlotIndex}");
+    }
+
+    /// <summary>
+    /// 🆕 ShopInventoryUI 참조 재설정
+    /// </summary>
+    private IEnumerator RefreshShopInventoryReferences()
+    {
+        Debug.Log("🔄 [ShopUIController] ShopInventoryUI 참조 재설정 시작");
+        
+        // 기존 참조 초기화
+        playerInventoryUI = null;
+        
+        // 다양한 방법으로 참조 재설정 시도
+        yield return new WaitForSeconds(0.1f); // UI 안정화 대기
+        
+        // 방법 1: FindObjectOfType
+        playerInventoryUI = FindObjectOfType<ShopInventoryUI>();
+        if (playerInventoryUI != null)
+        {
+            Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (FindObjectOfType)");
+            yield break;
+        }
+        
+        // 방법 2: GameObject.Find
+        GameObject shopInventoryObj = GameObject.Find("RightPanel (Shop Inventory UI)");
+        if (shopInventoryObj != null)
+        {
+            playerInventoryUI = shopInventoryObj.GetComponent<ShopInventoryUI>();
+            if (playerInventoryUI != null)
+            {
+                Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (GameObject.Find)");
+                yield break;
+            }
+        }
+        
+        // 방법 3: 상점 UI 하위에서 검색
+        if (shopUI != null)
+        {
+            playerInventoryUI = shopUI.GetComponentInChildren<ShopInventoryUI>();
+            if (playerInventoryUI != null)
+            {
+                Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (GetComponentInChildren)");
+                yield break;
+            }
+        }
+        
+        Debug.LogError("❌ [ShopUIController] ShopInventoryUI 참조 재설정 실패");
+    }
+
+    /// <summary>
+    /// 🆕 상점 UI 구조 검증
+    /// </summary>
+    private bool ValidateShopUIStructure()
+    {
+        Debug.Log("🔍 [ShopUIController] 상점 UI 구조 검증 시작");
+        
+        // 필수 컴포넌트 검증
+        if (shopUI == null)
+        {
+            Debug.LogError("❌ [ShopUIController] shopUI가 null입니다");
+            return false;
+        }
+        
+        if (playerInventoryUI == null)
+        {
+            Debug.LogError("❌ [ShopUIController] playerInventoryUI가 null입니다");
+            return false;
+        }
+        
+        // GameObject 활성화 상태 검증
+        if (!playerInventoryUI.gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning("⚠️ [ShopUIController] playerInventoryUI GameObject가 비활성화되어 있습니다");
+            return false;
+        }
+        
+        // Component 활성화 상태 검증
+        if (!playerInventoryUI.enabled)
+        {
+            Debug.LogWarning("⚠️ [ShopUIController] playerInventoryUI Component가 비활성화되어 있습니다");
+            return false;
+        }
+        
+        Debug.Log("✅ [ShopUIController] 상점 UI 구조 검증 성공");
+        return true;
+    }
+
+    /// <summary>
+    /// 🆕 상점 데이터 갱신
+    /// </summary>
+    private void RefreshShopData()
+    {
+        Debug.Log("🔄 [ShopUIController] 상점 데이터 갱신 시작");
+        
+        // 플레이어 인벤토리 갱신
+        if (playerInventoryUI != null)
+        {
+            StartCoroutine(ForceRefreshInventoryDelayed());
+        }
+        
+        // 상점 아이템 목록 갱신 (기본 무기 탭으로)
+        RefreshShopItems(EquipmentType.Weapon);
+        
+        Debug.Log("✅ [ShopUIController] 상점 데이터 갱신 완료");
+    }
+    
+    /// <summary>
     /// UI 이벤트 연결
     /// </summary>
     private void SetupShopUIEvents()
@@ -103,7 +247,7 @@ public class ShopUIController : MonoBehaviour
         // ShopInventoryUI 이벤트 구독
         if (playerInventoryUI != null)
         {
-            playerInventoryUI.OnInventoryItemClicked += HandleInventorySlotClicked;
+            playerInventoryUI.OnInventoryItemClicked += HandleInventoryItemClicked;
             
             if (showDebugLogs)
                 Debug.Log("✅ [ShopUIController] ShopInventoryUI 이벤트 연결 완료");
@@ -157,37 +301,118 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 상점 열기 시 초기화 (디버깅 강화)
+    /// 🔧 수정: 상점 열기 시 초기화 (UI 활성화 후 초기화)
     /// </summary>
     public void OnShopOpened()
     {
-        Debug.Log("🚀 [ShopUIController] OnShopOpened 시작");
-        
+        if (showDebugLogs)
+            Debug.Log("🚀 [ShopUIController] OnShopOpened 시작");
+    
+        // 기본 유효성 검증
+        if (!ValidateShopSystem())
+        {
+            Debug.LogError("❌ [ShopUIController] 상점 시스템 유효성 검증 실패");
+            return;
+        }
+    
         if (shopUI != null)
         {
-            Debug.Log("✅ [ShopUIController] shopUI 존재함");
-            
-            // 상점 패널 활성화
+            // 🎯 핵심: 상점 패널 먼저 활성화
             shopUI.SetShopPanelActive(true);
             
-            // 기본 탭으로 설정
-            shopUI.SwitchTab(EquipmentType.Weapon);
-            
-            // 🆕 디버깅: PlayerDataManager 상태 확인
-            CheckPlayerDataManagerStatus();
-            
-            // 🆕 디버깅: playerInventoryUI 상태 확인
-            CheckPlayerInventoryUIStatus();
-            
-            // 🆕 플레이어 인벤토리 UI 강제 새로고침
-            RefreshPlayerInventory();
+            // 🔧 수정: 1프레임 대기 후 UI 초기화 (Unity 생명주기 보장)
+            StartCoroutine(InitializeShopUIAfterActivation());
         }
         else
         {
             Debug.LogError("❌ [ShopUIController] shopUI가 null입니다!");
         }
+    }
+
+    /// <summary>
+    /// 🔧 수정: 상점 UI 활성화 후 초기화 (빠른 탭 전환)
+    /// </summary>
+    private System.Collections.IEnumerator InitializeShopUIAfterActivation()
+    {
+        // 1프레임 대기 (UI 완전 활성화 보장)
+        yield return null;
         
-        Debug.Log("🏁 [ShopUIController] OnShopOpened 완료");
+        // 상점 아이템 데이터 로드
+        if (ShopInventoryManager.Instance != null)
+        {
+            ShopInventoryManager.Instance.LoadItemsForShop();
+        }
+        
+        // 🎯 핵심: 빠른 탭 전환으로 모든 탭 초기화 (깜빡임 최소화)
+        yield return StartCoroutine(QuickInitializeAllTabs());
+        
+        // 플레이어 인벤토리 새로고침
+        if (playerInventoryUI != null)
+        {
+            playerInventoryUI.ForceRefreshInventory();
+        }
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [ShopUIController] 상점 UI 초기화 완료 (모든 탭)");
+    }
+
+    /// <summary>
+    /// 🆕 빠른 탭 전환으로 모든 탭 초기화
+    /// </summary>
+    private System.Collections.IEnumerator QuickInitializeAllTabs()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔄 [ShopUIController] 빠른 탭 전환 초기화 시작");
+        
+        // 각 탭을 빠르게 전환하면서 초기화 (깜빡임 최소화)
+        EquipmentType[] allTabs = { EquipmentType.Weapon, EquipmentType.Armor, EquipmentType.Accessory };
+        
+        foreach (EquipmentType tabType in allTabs)
+        {
+            shopUI.SwitchTab(tabType);
+            // 프레임 대기 없이 바로 다음 탭으로 (빠른 전환)
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [ShopUIController] {tabType} 탭 초기화 완료");
+        }
+        
+        // 마지막에 무기 탭으로 설정
+        shopUI.SwitchTab(EquipmentType.Weapon);
+        
+        // 1프레임만 대기 (모든 초기화 완료 후)
+        yield return null;
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [ShopUIController] 빠른 탭 전환 초기화 완료");
+    }
+    
+    /// <summary>
+    /// 🆕 모든 탭의 아이템 데이터 로드
+    /// </summary>
+    private System.Collections.IEnumerator LoadAllTabsData()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔄 [ShopUIController] 모든 탭 데이터 로드 시작");
+        
+        // 각 탭별로 데이터 로드
+        EquipmentType[] allTabs = { EquipmentType.Weapon, EquipmentType.Armor, EquipmentType.Accessory };
+        
+        foreach (EquipmentType tabType in allTabs)
+        {
+            // 해당 탭의 아이템 표시 업데이트
+            if (shopUI != null)
+            {
+                shopUI.UpdateShopDisplay(tabType);
+            }
+            
+            yield return null; // 1프레임 대기 (성능 분산)
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [ShopUIController] {tabType} 탭 데이터 로드 완료");
+        }
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [ShopUIController] 모든 탭 데이터 로드 완료");
     }
     
     /// <summary>
@@ -219,7 +444,7 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 playerInventoryUI 상태 확인
+    /// 🆕 playerInventoryUI 상태 확인 (타이밍 고려)
     /// </summary>
     private void CheckPlayerInventoryUIStatus()
     {
@@ -235,14 +460,10 @@ public class ShopUIController : MonoBehaviour
         Debug.Log($"🎮 GameObject 활성화 상태: {playerInventoryUI.gameObject.activeInHierarchy}");
         Debug.Log($"🎮 Component 활성화 상태: {playerInventoryUI.enabled}");
         
-        // LobbyInventoryUI의 슬롯 상태 확인
-        if (playerInventoryUI.gameObject.activeInHierarchy)
+        // 🔧 수정: 경고 대신 정보 로그 (Unity 생명주기 타이밍 문제)
+        if (!playerInventoryUI.gameObject.activeInHierarchy)
         {
-            // playerInventoryUI.LogSlotStatus(); // 🗑️ 디버그 로그 제거
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ playerInventoryUI GameObject가 비활성화되어 있습니다!");
+            Debug.Log("ℹ️ [ShopUIController] ShopInventoryUI가 아직 활성화 중입니다 (Unity 생명주기 지연)");
         }
     }
     
@@ -300,9 +521,9 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 인벤토리 아이템 클릭 처리 (기존 LobbyInventoryUI 연동)
+    /// 인벤토리 아이템 클릭 처리 (ShopInventoryUI 연동)
     /// </summary>
-    private void HandleInventoryItemClicked(EquipmentData item)
+    private void HandleInventoryItemClicked(EquipmentData item, int slotIndex)
     {
         if (ShopController.Instance != null && item != null)
         {
@@ -315,7 +536,7 @@ public class ShopUIController : MonoBehaviour
             }
             
             if (showDebugLogs)
-                Debug.Log($"💸 [ShopUIController] 인벤토리 아이템 선택: {item.equipmentName}");
+                Debug.Log($"💸 [ShopUIController] 인벤토리 아이템 선택: {item.equipmentName} (슬롯: {slotIndex})");
         }
     }
     
@@ -496,38 +717,254 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔧 수정: 상점에서 인벤토리 새로고침 처리
+    /// 🔧 수정: 상점에서 인벤토리 새로고침 처리 (지연 로드 지원)
     /// </summary>
     private void RefreshPlayerInventory()
     {
-        Debug.Log("🔄 [ShopUIController] RefreshPlayerInventory 시작");
+        Debug.Log("🔄 [ShopUIController] RefreshPlayerInventory 시작 (지연 로드 지원)");
         
-        if (playerInventoryUI == null)
+        // ✅ 상점 패널이 활성화되지 않은 상태에서는 실행하지 않음
+        if (shopUI == null || !shopUI.gameObject.activeInHierarchy)
         {
-            Debug.LogWarning("⚠️ [ShopUIController] playerInventoryUI가 null입니다!");
+            Debug.Log("🔄 [ShopUIController] 상점 패널이 비활성화 상태 - RefreshPlayerInventory 스킵");
             return;
         }
         
-        // ShopInventoryUI 활성화 확인 및 강제 새로고침
-        if (playerInventoryUI.gameObject.activeInHierarchy)
+        // 1. 캐릭터 데이터 로드 상태 확인
+        if (PlayerDataManager.Instance.IsLazyLoadRequired())
         {
-            // 🗑️ 제거: LogSlotStatus는 ShopInventoryUI에 없음
-            if (showDebugLogs)
-                Debug.Log("✅ [ShopUIController] ShopInventoryUI 활성화 상태 확인됨");
+            Debug.Log("🔄 [ShopUIController] 지연 로드 필요 - 데이터 로드 후 재시도");
+            StartCoroutine(RefreshPlayerInventoryWithLazyLoad());
+            return;
+        }
+        
+        // 2. playerInventoryUI 참조 확인
+        if (playerInventoryUI == null)
+        {
+            Debug.LogWarning("⚠️ [ShopUIController] playerInventoryUI가 null - 참조 재설정 시도");
+            StartCoroutine(RefreshPlayerInventoryWithReferenceRecovery());
+            return;
+        }
+        
+        // 3. 기존 로직 실행
+        StartCoroutine(WaitForShopPanelActivation());
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드와 함께 인벤토리 새로고침
+    /// </summary>
+    private IEnumerator RefreshPlayerInventoryWithLazyLoad()
+    {
+        // 캐릭터 데이터 로드
+        int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+        bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+        
+        if (!loadSuccess)
+        {
+            Debug.LogError("❌ [ShopUIController] 캐릭터 데이터 로드 실패");
+            yield break;
+        }
+        
+        yield return new WaitForSeconds(0.1f); // 로드 완료 대기
+        
+        // 인벤토리 새로고침 재시도
+        RefreshPlayerInventory();
+    }
+
+    /// <summary>
+    /// 🆕 참조 복구와 함께 인벤토리 새로고침
+    /// </summary>
+    private IEnumerator RefreshPlayerInventoryWithReferenceRecovery()
+    {
+        // 참조 재설정 시도
+        yield return StartCoroutine(RefreshShopInventoryReferences());
+        
+        if (playerInventoryUI != null)
+        {
+            Debug.Log("✅ [ShopUIController] 참조 복구 성공 - 인벤토리 새로고침 재시도");
+            RefreshPlayerInventory();
         }
         else
         {
-            Debug.LogWarning("⚠️ ShopInventoryUI GameObject가 비활성화되어 있습니다!");
+            Debug.LogError("❌ [ShopUIController] 참조 복구 실패 - 인벤토리 새로고침 불가");
         }
+    }
+    
+    /// <summary>
+    /// 🆕 ShopPanel 활성화 완료 대기 (안전장치 강화)
+    /// </summary>
+    private IEnumerator WaitForShopPanelActivation()
+    {
+        // 1프레임 대기 (GameObject.SetActive 완료 대기)
+        yield return null;
         
-        // playerInventoryUI 활성화
-        if (!playerInventoryUI.enabled)
+        if (playerInventoryUI != null)
         {
-            playerInventoryUI.enabled = true;
+            if (playerInventoryUI.gameObject.activeInHierarchy)
+            {
+                Debug.Log("✅ [ShopUIController] ShopInventoryUI 정상 활성화 확인됨");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [ShopUIController] ShopInventoryUI 활성화 지연 감지, 추가 대기 중...");
+                
+                // 최대 0.2초 추가 대기 (안전장치 강화)
+                yield return new WaitForSeconds(0.2f);
+                
+                if (playerInventoryUI.gameObject.activeInHierarchy)
+                {
+                    Debug.Log("✅ [ShopUIController] ShopInventoryUI 지연 활성화 완료");
+                }
+                else
+                {
+                    // 🔧 추가: UI 구조 복구 시도
+                    Debug.LogWarning("🔧 [ShopUIController] ShopInventoryUI 구조 복구 시도 중...");
+                    yield return AttemptUIStructureRecovery();
+                }
+            }
+            
+            // Component 활성화 확인
+            if (!playerInventoryUI.enabled)
+            {
+                playerInventoryUI.enabled = true;
+                Debug.Log("🔧 [ShopUIController] ShopInventoryUI Component 활성화");
+            }
         }
         
-        // 코루틴으로 지연 실행
-        StartCoroutine(ForceRefreshInventoryDelayed());
+        // 인벤토리 새로고침 실행
+        yield return ForceRefreshInventoryDelayed();
+    }
+    
+    /// <summary>
+    /// 🔧 강화된 UI 구조 복구 시도
+    /// </summary>
+    private IEnumerator AttemptUIStructureRecovery()
+    {
+        Debug.Log("🔧 [ShopUIController] UI 구조 복구 시작 (강화 버전)");
+        
+        // 1. ShopInventoryUI 재참조 시도 (더 강력한 검색)
+        if (playerInventoryUI == null)
+        {
+            Debug.Log("�� [ShopUIController] playerInventoryUI가 null - 재검색 시작");
+            
+            // 방법 1: FindObjectOfType으로 검색
+            var shopInventoryUI = FindObjectOfType<ShopInventoryUI>();
+            if (shopInventoryUI != null)
+            {
+                playerInventoryUI = shopInventoryUI;
+                Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (FindObjectOfType)");
+            }
+            else
+            {
+                // 방법 2: 이름으로 검색
+                GameObject shopInventoryObj = GameObject.Find("RightPanel (Shop Inventory UI)");
+                if (shopInventoryObj != null)
+                {
+                    playerInventoryUI = shopInventoryObj.GetComponent<ShopInventoryUI>();
+                    if (playerInventoryUI != null)
+                    {
+                        Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (GameObject.Find)");
+                    }
+                }
+                
+                // 방법 3: 상점 패널 하위에서 검색
+                if (playerInventoryUI == null && shopUI != null)
+                {
+                    var shopInventoryInChildren = shopUI.GetComponentInChildren<ShopInventoryUI>();
+                    if (shopInventoryInChildren != null)
+                    {
+                        playerInventoryUI = shopInventoryInChildren;
+                        Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (GetComponentInChildren)");
+                    }
+                }
+            }
+        }
+        
+        // 2. GameObject 활성화 상태 강제 수정
+        if (playerInventoryUI != null)
+        {
+            Debug.Log($"🔍 [ShopUIController] playerInventoryUI 상태 - GameObject: {playerInventoryUI.gameObject.name}, Active: {playerInventoryUI.gameObject.activeInHierarchy}");
+            
+            // GameObject가 비활성화되어 있으면 강제 활성화
+            if (!playerInventoryUI.gameObject.activeInHierarchy)
+            {
+                Debug.Log("🔧 [ShopUIController] playerInventoryUI GameObject 강제 활성화 시도");
+                
+                // 부모 GameObject들도 확인하여 활성화
+                Transform current = playerInventoryUI.transform;
+                while (current != null)
+                {
+                    if (!current.gameObject.activeSelf)
+                    {
+                        Debug.Log($"🔧 [ShopUIController] 부모 GameObject 활성화: {current.name}");
+                        current.gameObject.SetActive(true);
+                    }
+                    current = current.parent;
+                }
+                
+                yield return new WaitForSeconds(0.1f);
+            }
+            
+            // Component 활성화 확인
+            if (!playerInventoryUI.enabled)
+            {
+                playerInventoryUI.enabled = true;
+                Debug.Log("🔧 [ShopUIController] ShopInventoryUI Component 활성화");
+            }
+        }
+        
+        // 3. 상점 패널 재활성화 시도 (기존 로직 유지)
+        if (shopUI != null)
+        {
+            shopUI.SetShopPanelActive(false);
+            yield return new WaitForSeconds(0.1f);
+            shopUI.SetShopPanelActive(true);
+            yield return new WaitForSeconds(0.1f);
+            
+            Debug.Log("🔧 [ShopUIController] 상점 패널 재활성화 완료");
+        }
+        
+        // 4. 최종 상태 확인 (더 상세한 로그)
+        if (playerInventoryUI != null)
+        {
+            bool isActive = playerInventoryUI.gameObject.activeInHierarchy;
+            bool isEnabled = playerInventoryUI.enabled;
+            
+            Debug.Log($"🔍 [ShopUIController] 최종 상태 - Active: {isActive}, Enabled: {isEnabled}");
+            
+            if (isActive && isEnabled)
+            {
+                Debug.Log("✅ [ShopUIController] UI 구조 복구 성공");
+            }
+            else
+            {
+                Debug.LogError($"❌ [ShopUIController] UI 구조 복구 실패 - Active: {isActive}, Enabled: {isEnabled}");
+                
+                // 🔧 추가 디버깅 정보
+                Debug.LogError($"🔍 [ShopUIController] GameObject 경로: {GetGameObjectPath(playerInventoryUI.gameObject)}");
+            }
+        }
+        else
+        {
+            Debug.LogError("❌ [ShopUIController] playerInventoryUI가 여전히 null입니다");
+        }
+    }
+
+    /// <summary>
+    /// 🔍 GameObject의 전체 경로를 반환하는 헬퍼 메서드
+    /// </summary>
+    private string GetGameObjectPath(GameObject obj)
+    {
+        string path = obj.name;
+        Transform current = obj.transform.parent;
+        
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+        
+        return path;
     }
     
     /// <summary>

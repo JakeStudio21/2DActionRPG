@@ -53,31 +53,78 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🏠 로비 전용 착용 장비 시스템 초기화
+    /// 🏠 로비 전용 착용 장비 시스템 초기화 (지연 갱신 지원)
     /// </summary>
     private void InitializeLobbyEquippedItems()
     {
-        // PlayerDataManager 이벤트 구독 (🔧 올바른 시그니처)
+        // PlayerDataManager 이벤트 구독 (지연 갱신 지원)
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnItemEquipped += OnItemEquipped;
             PlayerDataManager.Instance.OnItemUnequipped += OnItemUnequipped;
             PlayerDataManager.Instance.OnLevelChanged += OnPlayerLevelChanged;
             
-            // 🆕 플레이어 슬롯 전환 이벤트 구독
-            PlayerDataManager.Instance.OnSlotSelected += OnPlayerSlotChanged; // 🔧 수정
+            // 🔧 지연 갱신: OnSlotSelected 이벤트 구독을 조건부로 변경
+            // 캐릭터 정보창이 활성화된 상태에서만 실시간 갱신
+            // PlayerDataManager.Instance.OnSlotSelected += OnPlayerSlotChanged; // 제거
+            
+            // 🆕 지연 로드 완료 이벤트 구독
+            PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoadedForEquippedItems;
         }
         
         // 각 슬롯의 클릭 이벤트 구독
         SetupSlotClickEvents();
         
+        // 초기 정보 표시 (지연 갱신 지원)
+        StartCoroutine(InitializeEquippedItemsWithLazyLoad());
+        
+        if (showDebugLogs)
+            Debug.Log("🏠 [LobbyEquippedItemsUI] 로비 착용 장비 시스템 초기화 완료 (지연 갱신 지원)");
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드 지원으로 착용 장비 초기화
+    /// </summary>
+    private IEnumerator InitializeEquippedItemsWithLazyLoad()
+    {
+        // 캐릭터 데이터 로드 상태 확인
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
+        {
+            Debug.Log("🔄 [LobbyEquippedItemsUI] 지연 로드 필요 - 캐릭터 데이터 로드 중...");
+            
+            int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+            bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+            
+            if (!loadSuccess)
+            {
+                Debug.LogError("❌ [LobbyEquippedItemsUI] 캐릭터 데이터 로드 실패");
+                yield break;
+            }
+            
+            yield return new WaitForSeconds(0.1f); // 로드 완료 대기
+        }
+        
         // 초기 정보 표시
         UpdatePlayerInfo();
         RefreshAllEquippedItems();
-        UpdatePlayerStats(); // 🆕 로비 전용 능력치 계산
-        
+        UpdatePlayerStats();
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드 완료 시 착용 장비 갱신
+    /// </summary>
+    private void OnSlotLazyLoadedForEquippedItems(int slotIndex)
+    {
         if (showDebugLogs)
-            Debug.Log("🏠 [LobbyEquippedItemsUI] 로비 착용 장비 시스템 초기화 완료");
+            Debug.Log($"🔄 [LobbyEquippedItemsUI] 슬롯 {slotIndex} 지연 로드 완료 - 착용 장비 갱신");
+        
+        // 캐릭터 정보창이 활성화된 상태에서만 갱신
+        if (gameObject.activeInHierarchy)
+        {
+            UpdatePlayerInfo();
+            RefreshAllEquippedItems();
+            UpdatePlayerStats();
+        }
     }
     
     /// <summary>
@@ -399,10 +446,18 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 플레이어 슬롯 전환 이벤트 처리
+    /// 🆕 플레이어 슬롯 전환 이벤트 처리 (지연 갱신 지원)
     /// </summary>
     private void OnPlayerSlotChanged(int newSlotIndex)
     {
+        // 🔧 지연 갱신: 캐릭터 정보창이 활성화된 상태에서만 즉시 갱신
+        if (!gameObject.activeInHierarchy)
+        {
+            if (showDebugLogs)
+                Debug.Log($"🔄 [LobbyEquippedItemsUI] 캐릭터 정보창 비활성화 상태 - 갱신 지연");
+            return;
+        }
+        
         if (showDebugLogs)
             Debug.Log($"🔄 [LobbyEquippedItemsUI] 플레이어 슬롯 전환됨: {newSlotIndex}");
         
@@ -412,18 +467,102 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         UpdatePlayerStats();
         
         if (showDebugLogs)
-            Debug.Log($"✅ [LobbyEquippedItemsUI] 플레이어 전환 갱신 완료");
+            Debug.Log($"✅ [LobbyEquippedItemsUI] 슬롯 {newSlotIndex} 전환 완료");
     }
 
     private void OnDestroy()
     {
-        // 이벤트 구독 해제
+        // 이벤트 구독 해제 (지연 갱신 지원)
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnItemEquipped -= OnItemEquipped;
             PlayerDataManager.Instance.OnItemUnequipped -= OnItemUnequipped;
             PlayerDataManager.Instance.OnLevelChanged -= OnPlayerLevelChanged;
-            PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged; // 🔧 수정
+            // PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged; // 제거
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForEquippedItems; // 🆕 추가
+        }
+    }
+
+    /// <summary>
+    /// 🆕 외부에서 호출 가능한 강제 갱신 메서드 (Z-Order 방식 지원)
+    /// </summary>
+    public void ForceRefreshEquippedItems()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔄 [LobbyEquippedItemsUI] 강제 갱신 시작");
+        
+        // 지연 로드가 필요한 경우 처리
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
+        {
+            int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+            bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+            
+            if (!loadSuccess)
+            {
+                Debug.LogError("❌ [LobbyEquippedItemsUI] 강제 갱신 시 데이터 로드 실패");
+                return;
+            }
+        }
+        
+        // 모든 정보 갱신
+        UpdatePlayerInfo();
+        RefreshAllEquippedItems();
+        UpdatePlayerStats();
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [LobbyEquippedItemsUI] 강제 갱신 완료");
+    }
+
+    /// <summary>
+    /// 🆕 빈 슬롯 상태 표시 (모든 장비 슬롯 비우기)
+    /// </summary>
+    public void ShowEmptySlotState()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔄 [LobbyEquippedItemsUI] 빈 슬롯 상태로 전환");
+        
+        // 모든 장비 슬롯을 빈 상태로 설정
+        ClearSlot(weaponSlot);
+        ClearSlot(armorSlot);
+        ClearSlot(bootsSlot);
+        ClearSlot(helmetSlot);
+        ClearSlot(shieldSlot);
+        ClearSlot(ring1Slot);
+        ClearSlot(ring2Slot);
+        ClearSlot(necklaceSlot);
+        
+        // 플레이어 정보도 빈 상태로 설정
+        if (playerNameText != null)
+            playerNameText.text = "빈 슬롯";
+            
+        if (playerClassIcon != null)
+            playerClassIcon.sprite = null;
+            
+        // 스탯 정보도 초기화
+        if (finalAttackDamageText != null)
+            finalAttackDamageText.text = "-";
+            
+        if (finalDefenseText != null)
+            finalDefenseText.text = "-";
+            
+        if (finalAttackSpeedText != null)
+            finalAttackSpeedText.text = "-";
+            
+        if (finalMoveSpeedText != null)
+            finalMoveSpeedText.text = "-";
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [LobbyEquippedItemsUI] 빈 슬롯 상태 표시 완료");
+    }
+
+    /// <summary>
+    /// 🆕 개별 슬롯 비우기
+    /// </summary>
+    private void ClearSlot(InventorySlot slot)
+    {
+        if (slot != null)
+        {
+            slot.SetEquipmentData(null);
         }
     }
 }

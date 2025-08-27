@@ -536,5 +536,23 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: WaveCompleteEffect
+    prefab: {fileID: 724470073289127030, guid: b427819ddc3c8274987e52fcfa62c856, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BLUESLIME_001_BOSS
+    prefab: {fileID: 3235174918318939483, guid: a9fbdc940f1d7eb44bb72781fc12ad9d, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BossDeathEffect
+    prefab: {fileID: 724470073289127030, guid: 5c35a82fa0916d645a041f947752162f, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

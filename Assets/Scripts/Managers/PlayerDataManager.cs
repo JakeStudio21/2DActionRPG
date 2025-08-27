@@ -45,9 +45,10 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public event Action OnInventoryChanged;
     
     // 슬롯 관리 이벤트
-    public event Action<int> OnSlotSelected; // 슬롯 선택 시
+    public event Action<int> OnSlotSelected; // 슬롯 선택 시 (기존 - 즉시 갱신용)
     public event Action<PlayerSlotData> OnSlotDataChanged; // 슬롯 데이터 변경 시
     public event Action<int> OnCharacterCreated; // 🆕 캐릭터 생성 완료 시
+    public event Action<int> OnSlotLazyLoaded; // 🆕 지연 로드 완료 시 (새로운 이벤트)
     
     // 🆕 로비-인게임 공용 이벤트 시스템
     /// <summary>
@@ -454,8 +455,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
     
     /// <summary>
-    /// 🔄 슬롯 전환 (완전한 데이터 교체 모드)
+    /// 🔄 슬롯 전환 (완전한 데이터 교체 모드) - 즉시 갱신 방식
     /// SelectedPlayerData를 선택된 슬롯 데이터로 완전히 갱신
+    /// 🆕 지연 갱신이 필요한 경우 SetSelectedSlotIndex() + LazyLoadSlotData() 사용 권장
     /// </summary>
     public bool SelectSlot(int slotIndex)
     {
@@ -487,6 +489,100 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         TriggerAllUIEvents();
         
         return true;
+    }
+
+    /// <summary>
+    /// 🔧 지연 갱신: 슬롯 인덱스만 저장 (UI 갱신 없음)
+    /// </summary>
+    public void SetSelectedSlotIndex(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 잘못된 슬롯 인덱스: {slotIndex}");
+            return;
+        }
+        
+        var slotData = GetSlotData(slotIndex);
+        if (slotData == null || !slotData.isSlotUsed)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerDataManager] 슬롯 {slotIndex}는 사용되지 않음 (지연 모드)");
+            return;
+        }
+        
+        // 슬롯 인덱스만 저장 (데이터 로드 없음)
+        currentSlotIndex = slotIndex;
+        lastSelectedSlotIndex = slotIndex;
+        SaveLastSelectedSlotIndex();
+        
+        if (showDebugLogs)
+            Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 선택 저장 (지연 모드) - {slotData.playerName}");
+    }
+
+    /// <summary>
+    /// 🔧 지연 갱신: 필요 시에만 슬롯 데이터 완전 로드
+    /// </summary>
+    public bool LazyLoadSlotData(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots)
+        {
+            if (showDebugLogs)
+                Debug.LogError($"❌ [PlayerDataManager] 잘못된 슬롯 인덱스: {slotIndex}");
+            return false;
+        }
+        
+        var slotData = GetSlotData(slotIndex);
+        if (slotData == null || !slotData.isSlotUsed)
+        {
+            if (showDebugLogs)
+                Debug.LogError($"❌ [PlayerDataManager] 슬롯 {slotIndex} 데이터 없음");
+            return false;
+        }
+        
+        // SelectedPlayerData에 완전 로드
+        if (selectedPlayerData != null)
+        {
+            selectedPlayerData.LoadFromSlotData(slotData);
+            if (showDebugLogs)
+                Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 지연 로드 완료: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
+        }
+        
+        // 현재 슬롯 인덱스 업데이트
+        currentSlotIndex = slotIndex;
+        
+        // 지연 로드 완료 이벤트 발생 (선택적 UI 갱신)
+        OnSlotLazyLoaded?.Invoke(slotIndex);
+        TriggerAllUIEvents(); // 필요한 UI만 갱신
+        
+        return true;
+    }
+
+    /// <summary>
+    /// 🔧 현재 선택된 슬롯 인덱스 반환 (지연 모드용)
+    /// </summary>
+    public int GetSelectedSlotIndex()
+    {
+        return currentSlotIndex;
+    }
+
+    /// <summary>
+    /// 🔧 지연 로드가 필요한지 확인
+    /// </summary>
+    public bool IsLazyLoadRequired()
+    {
+        // currentSlotIndex는 설정되어 있지만 selectedPlayerData가 해당 슬롯과 다른 경우
+        if (currentSlotIndex >= 0 && selectedPlayerData != null)
+        {
+            var currentSlotData = GetSlotData(currentSlotIndex);
+            if (currentSlotData != null)
+            {
+                // 간단한 검증: 플레이어 이름이 다르면 로드 필요
+                return selectedPlayerData.playerName != currentSlotData.playerName;
+            }
+        }
+        
+        return currentSlotIndex >= 0 && (selectedPlayerData == null || string.IsNullOrEmpty(selectedPlayerData.playerName));
     }
 
     #endregion
@@ -1264,12 +1360,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             {
                 selectedPlayerData.runtimeInventoryItems.Insert(slotIndex, currentItem);
                 Debug.Log($"🔄 [PlayerDataManager] 기존 아이템을 슬롯 {slotIndex}에 삽입: {currentItem.equipmentName}");
-            }
-            else
-            {
-                // 🆕 기존 아이템이 없어도 null을 삽입하여 슬롯 위치 유지
-                selectedPlayerData.runtimeInventoryItems.Insert(slotIndex, null);
-                Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex}에 빈 슬롯(null) 삽입하여 위치 유지");
             }
             
             // 🆕 디버그: 최종 상태 확인

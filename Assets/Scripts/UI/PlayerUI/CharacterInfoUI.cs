@@ -64,33 +64,45 @@ public class CharacterInfoUI : MonoBehaviour
     
     private void OnEnable()
     {
-        // 🆕 패널이 활성화될 때마다 상태 갱신
+        // �� 패널이 활성화될 때마다 상태 갱신
         if (PlayerDataManager.Instance != null)
         {
+            // 캐릭터 슬롯 정보 갱신
             RefreshAllCharacterSlots();
             
-            // 현재 선택된 슬롯 시각적 피드백 복원
+            // 현재 선택된 슬롯 복원
             int currentSlot = PlayerDataManager.Instance.CurrentSlotIndex;
             if (currentSlot >= 0)
             {
                 UpdateSlotSelectionVisual(currentSlot);
                 UpdatePlayerInfoDisplay();
+                
+                // EquippedItemsPanel도 갱신
+                if (equippedItemsUI != null)
+                {
+                    equippedItemsUI.ForceRefreshEquippedItems();
+                }
             }
             
             if (showDebugLogs)
                 Debug.Log($"🎮 [CharacterInfoUI] 패널 활성화 - 상태 갱신 완료");
         }
     }
-    
+
     /// <summary>
-    /// 🎮 캐릭터 정보창 초기화
+    /// 🎮 캐릭터 정보창 초기화 (지연 갱신 지원)
     /// </summary>
     private void InitializeCharacterInfoUI()
     {
-        // PlayerDataManager 이벤트 구독
+        // PlayerDataManager 이벤트 구독 (지연 갱신 지원)
         if (PlayerDataManager.Instance != null)
         {
-            PlayerDataManager.Instance.OnSlotSelected += OnPlayerSlotChanged;
+            // 🔧 지연 갱신: OnSlotSelected 이벤트 구독을 조건부로 변경
+            // 캐릭터 정보창이 활성화된 상태에서만 실시간 갱신
+            // PlayerDataManager.Instance.OnSlotSelected += OnPlayerSlotChanged; // 제거
+            
+            // 🆕 지연 로드 완료 이벤트 구독
+            PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoadedForCharacterInfo;
         }
         
         // 캐릭터 슬롯 버튼 이벤트 연결
@@ -107,6 +119,35 @@ public class CharacterInfoUI : MonoBehaviour
         
         // 🆕 빈 슬롯 팝업 초기 비활성화
         // 이 부분은 이제 더 이상 사용되지 않으므로 제거
+        
+        // 초기 캐릭터 슬롯 정보 표시 (지연 갱신 지원)
+        StartCoroutine(InitializeCharacterSlotsWithLazyLoad());
+        
+        if (showDebugLogs)
+            Debug.Log("🎮 [CharacterInfoUI] 캐릭터 정보창 초기화 완료 (지연 갱신 지원)");
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드 지원으로 캐릭터 슬롯 초기화
+    /// </summary>
+    private IEnumerator InitializeCharacterSlotsWithLazyLoad()
+    {
+        // 캐릭터 데이터 로드 상태 확인
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
+        {
+            Debug.Log("🔄 [CharacterInfoUI] 지연 로드 필요 - 캐릭터 데이터 로드 중...");
+            
+            int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+            bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+            
+            if (!loadSuccess)
+            {
+                Debug.LogError("❌ [CharacterInfoUI] 캐릭터 데이터 로드 실패");
+                yield break;
+            }
+            
+            yield return new WaitForSeconds(0.1f); // 로드 완료 대기
+        }
         
         // 초기 캐릭터 슬롯 정보 표시
         RefreshAllCharacterSlots();
@@ -130,9 +171,23 @@ public class CharacterInfoUI : MonoBehaviour
                 }
             }
         }
-        
+    }
+
+    /// <summary>
+    /// 🆕 지연 로드 완료 시 캐릭터 정보 갱신
+    /// </summary>
+    private void OnSlotLazyLoadedForCharacterInfo(int slotIndex)
+    {
         if (showDebugLogs)
-            Debug.Log("🎮 [CharacterInfoUI] 캐릭터 정보창 초기화 완료");
+            Debug.Log($"🔄 [CharacterInfoUI] 슬롯 {slotIndex} 지연 로드 완료 - 캐릭터 정보 갱신");
+        
+        // 캐릭터 정보창이 활성화된 상태에서만 갱신
+        if (gameObject.activeInHierarchy)
+        {
+            RefreshAllCharacterSlots();
+            UpdateSlotSelectionVisual(slotIndex);
+            UpdatePlayerInfoDisplay();
+        }
     }
     
     /// <summary>
@@ -259,11 +314,13 @@ public class CharacterInfoUI : MonoBehaviour
     /// </summary>
     private void ShowEmptySlotInEquipmentArea(int slotIndex)
     {
-        // 기존 장비 정보 숨김 (있다면)
+        // 🆕 EquippedItemsPanel 빈 상태로 초기화
         if (equippedItemsUI != null)
         {
-            // EquippedItemsUI의 표시를 일시적으로 숨기거나 빈 상태로 만들기
-            // 이 부분은 EquippedItemsUI의 구현에 따라 조정 필요
+            equippedItemsUI.ShowEmptySlotState();
+            
+            if (showDebugLogs)
+                Debug.Log($"🎒 [CharacterInfoUI] 빈 슬롯 {slotIndex} - EquippedItemsPanel 빈 상태로 초기화");
         }
         
         // 선택된 슬롯의 EmptyPanel 정보 표시
@@ -294,7 +351,7 @@ public class CharacterInfoUI : MonoBehaviour
     }
     
     /// <summary>
-    /// ✅ 캐릭터 슬롯 선택 처리
+    /// 🔧 수정: 캐릭터 슬롯 선택 처리 (EquippedItemsPanel 갱신 포함)
     /// </summary>
     private void SelectCharacterSlot(int slotIndex)
     {
@@ -306,18 +363,27 @@ public class CharacterInfoUI : MonoBehaviour
             emptySlotDisplay.SetActive(false);
         }
         
-        // PlayerDataManager에서 슬롯 선택
-        PlayerDataManager.Instance.SelectSlot(slotIndex);
+        // 🔧 지연 갱신: PlayerDataManager에 슬롯 ID만 저장 (즉시 갱신 방지)
+        PlayerDataManager.Instance.SetSelectedSlotIndex(slotIndex);
         currentSelectedSlot = slotIndex;
         
-        // 🆕 슬롯 선택 시각적 피드백
+        // 🆕 슬롯 선택 시각적 피드백 (즉시 적용)
         UpdateSlotSelectionVisual(slotIndex);
         
-        // EquippedItemsPanel 정보 업데이트 (자동으로 OnPlayerSlotChanged 이벤트 발생)
+        // 🔧 지연 갱신: 캐릭터 정보창에서는 즉시 정보 표시 (사용자 경험 향상)
         UpdatePlayerInfoDisplay();
         
+        // 🆕 EquippedItemsPanel도 즉시 갱신
+        if (equippedItemsUI != null)
+        {
+            equippedItemsUI.ForceRefreshEquippedItems();
+            
+            if (showDebugLogs)
+                Debug.Log($"🎒 [CharacterInfoUI] 슬롯 {slotIndex} 선택 - EquippedItemsPanel 갱신 완료");
+        }
+        
         if (showDebugLogs)
-            Debug.Log($"✅ [CharacterInfoUI] 슬롯 {slotIndex} 선택 완료");
+            Debug.Log($"✅ [CharacterInfoUI] 슬롯 {slotIndex} 선택 완료 (장비 포함)");
     }
     
     /// <summary>
@@ -432,12 +498,20 @@ public class CharacterInfoUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔄 플레이어 슬롯 변경 이벤트 처리
+    /// 🔄 플레이어 슬롯 변경 이벤트 처리 (지연 갱신 지원)
     /// </summary>
     private void OnPlayerSlotChanged(int newSlotIndex)
     {
+        // 🔧 지연 갱신: 캐릭터 정보창이 활성화된 상태에서만 즉시 갱신
+        if (!gameObject.activeInHierarchy)
+        {
+            if (showDebugLogs)
+                Debug.Log($"🔄 [CharacterInfoUI] 캐릭터 정보창 비활성화 상태 - 갱신 지연");
+            return;
+        }
+        
         currentSelectedSlot = newSlotIndex;
-        UpdateSlotSelectionVisual(newSlotIndex); // 🆕 시각적 피드백 추가
+        UpdateSlotSelectionVisual(newSlotIndex);
         UpdatePlayerInfoDisplay();
         
         if (showDebugLogs)
@@ -505,11 +579,19 @@ public class CharacterInfoUI : MonoBehaviour
             emptySlotDisplay.SetActive(false);
         }
         
-        // 2. CharacterInfoUI 상태 정리
-        currentSelectedSlot = -1; // 선택 상태 초기화
+        // 🔧 수정: 캐릭터 선택 상태 유지 (UI 상태만 초기화)
+        // currentSelectedSlot = -1; // ❌ 제거: 캐릭터 선택 해제하지 않음
         
-        // 3. 슬롯 선택 시각적 피드백 초기화
-        ResetSlotSelectionVisual();
+        // 3. 슬롯 선택 시각적 피드백 초기화 (선택 상태는 유지)
+        // ResetSlotSelectionVisual(); // ❌ 제거: 시각적 선택 상태도 유지
+        
+        // 🆕 현재 선택된 슬롯 유지 (PlayerDataManager와 동기화)
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            currentSelectedSlot = PlayerDataManager.Instance.CurrentSlotIndex;
+            if (showDebugLogs)
+                Debug.Log($"🔧 [CharacterInfoUI] 캐릭터 선택 상태 유지: 슬롯 {currentSelectedSlot}");
+        }
         
         // 4. LobbyUIController를 찾아서 로비 전환 요청
         LobbyUIController lobbyUIController = FindObjectOfType<LobbyUIController>();
@@ -533,5 +615,34 @@ public class CharacterInfoUI : MonoBehaviour
         {
             PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged;
         }
+    }
+
+    /// <summary>
+    /// 🆕 현재 선택된 슬롯으로 강제 갱신 (LobbyEquippedItemsUI 포함)
+    /// </summary>
+    public void ForceRefreshWithCurrentSlot(int currentSlot)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [CharacterInfoUI] 현재 슬롯 {currentSlot}로 강제 갱신");
+        
+        // 모든 캐릭터 슬롯 정보 갱신
+        RefreshAllCharacterSlots();
+        
+        // 현재 선택된 슬롯으로 설정
+        if (currentSlot >= 0 && currentSlot < 3)
+        {
+            SelectCharacterSlot(currentSlot);
+            UpdateSlotSelectionVisual(currentSlot);
+            UpdatePlayerInfoDisplay();
+        }
+        
+        // 🆕 LobbyEquippedItemsUI도 강제 갱신
+        if (equippedItemsUI != null)
+        {
+            equippedItemsUI.ForceRefreshEquippedItems();
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [CharacterInfoUI] 슬롯 {currentSlot} 강제 갱신 완료 (장비 포함)");
     }
 }
