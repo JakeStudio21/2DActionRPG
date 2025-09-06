@@ -93,7 +93,8 @@ public class ShopController : MonoBehaviour
         if (PlayerDataManager.Instance.CurrentGold < buyPrice)
         {
             if (showDebugLogs)
-                Debug.LogWarning($"💸 [ShopController] 골드 부족! 필요: {buyPrice}, 보유: {PlayerDataManager.Instance.CurrentGold}");
+                // Debug.LogWarning($"💸 [ShopController] 골드 부족! 필요: {buyPrice}, 보유: {PlayerDataManager.Instance.CurrentGold}");
+                Debug.LogWarning($"💸 [ShopController] Gold shortage! (Required: {buyPrice}, 보유: {PlayerDataManager.Instance.CurrentGold}");
             OnTransactionFailed?.Invoke(itemID);
             return false;
         }

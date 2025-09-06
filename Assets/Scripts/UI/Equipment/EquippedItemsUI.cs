@@ -171,22 +171,26 @@ public class EquippedItemsUI : MonoBehaviour
         // 3. 실시간 능력치 표시
         if (finalAttackDamageText != null)
         {
-            finalAttackDamageText.text = $"공격력: {playerRuntimeStats.FinalAttackDamage:F0}";
+            // finalAttackDamageText.text = $"공격력: {playerRuntimeStats.FinalAttackDamage:F0}";
+            finalAttackDamageText.text = $"Attack {playerRuntimeStats.FinalAttackDamage:F0}";
         }
         
         if (finalDefenseText != null)
         {
-            finalDefenseText.text = $"방어력: {playerRuntimeStats.FinalDefense:F0}";
+            // finalDefenseText.text = $"방어력: {playerRuntimeStats.FinalDefense:F0}";
+            finalDefenseText.text = $"Defense {playerRuntimeStats.FinalDefense:F0}";
         }
         
         if (finalAttackSpeedText != null)
         {
-            finalAttackSpeedText.text = $"공속: {playerRuntimeStats.FinalAttackSpeed:F1}";
+            // finalAttackSpeedText.text = $"공속: {playerRuntimeStats.FinalAttackSpeed:F1}";
+            finalAttackSpeedText.text = $"AttackSpeed {playerRuntimeStats.FinalAttackSpeed:F1}";
         }
         
         if (finalMoveSpeedText != null)
         {
-            finalMoveSpeedText.text = $"이속: {playerRuntimeStats.FinalMoveSpeed:F1}";
+            // finalMoveSpeedText.text = $"이속: {playerRuntimeStats.FinalMoveSpeed:F1}";
+            finalMoveSpeedText.text = $"MoveSpeed {playerRuntimeStats.FinalMoveSpeed:F1}";
         }
         
         if (showDebugLogs)

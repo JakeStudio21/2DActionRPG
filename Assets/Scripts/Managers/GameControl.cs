@@ -146,14 +146,19 @@ public class GameControl : Singleton<GameControl>
     }
 
     /// <summary>
-    /// 대시 입력 처리 - 완전 비활성화
+    /// 대시 입력 처리 - Spacebar 활성화
     /// </summary>
     private void ProcessDashInput()
     {
         DashPressed = false;
 
-        // 🔴 모든 대시 입력 비활성화
-        // LeftControl, 마우스 우클릭 모두 비활성화
+        // 🆕 Spacebar 대시 입력 활성화
+        if (enableKeyboardInput && Input.GetKeyDown(KeyCode.Space))
+        {
+            DashPressed = true;
+            OnDashPressed?.Invoke();
+            Debug.Log("[GameControl] Spacebar 대시 입력 감지");
+        }
     }
 
     /// <summary>

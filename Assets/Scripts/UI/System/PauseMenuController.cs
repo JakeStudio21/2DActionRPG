@@ -47,20 +47,9 @@ public class PauseMenuController : MonoBehaviour
     {
         Time.timeScale = 1f; // 시간을 다시 흐르게 합니다.
 
-        // DontDestroyOnLoad 오브젝트들을 정리합니다.
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null) { Destroy(player); }
-
-        // ⭐ 수정: Managers 파괴 코드 활성화하여 중복 방지
-        GameObject managers = GameObject.Find("Managers");
-        if (managers != null) 
-        { 
-            Debug.Log("[PauseMenuController] 기존 Managers를 파괴하여 중복을 방지합니다.");
-            Destroy(managers); 
-        }
+        // ✅ Unity가 자동으로 오브젝트를 정리하므로 수동 파괴 제거
+        // 씬 전환 시 모든 오브젝트는 자동으로 정리됨
         
-        if (Stamina.Instance != null) { Destroy(Stamina.Instance.gameObject); }
-
         yield return new WaitForEndOfFrame();
 
         SceneManager.LoadScene("Lobby");

@@ -193,7 +193,8 @@ public class TradeCenterUI : MonoBehaviour
         
         // 버튼 상태 업데이트
         UpdateButtonStates();
-        UpdateTransactionStatus("아이템을 선택해주세요");
+        // UpdateTransactionStatus("아이템을 선택해주세요");
+        UpdateTransactionStatus("Please select an item");
         
         if (showDebugLogs)
             Debug.Log("🔄 [TradeCenterUI] 거래 슬롯 초기화");
@@ -366,17 +367,20 @@ public class TradeCenterUI : MonoBehaviour
                 
                 if (currentGold < currentBuyPrice)
                 {
-                    transactionStatusText.text = $"골드 부족! (필요: {currentBuyPrice})";
+                    // transactionStatusText.text = $"골드 부족! (필요: {currentBuyPrice})";
+                    transactionStatusText.text = $"Gold shortage! (Required: {currentBuyPrice})";
                     transactionStatusText.color = Color.red;
                 }
                 else if (isInventoryFull)
                 {
-                    transactionStatusText.text = "인벤토리가 가득 참!";
+                    // transactionStatusText.text = "인벤토리가 가득 참!";
+                    transactionStatusText.text = "Inventory is full!";
                     transactionStatusText.color = Color.red;
                 }
                 else
                 {
-                    transactionStatusText.text = "구매 준비 완료";
+                    // transactionStatusText.text = "구매 준비 완료";
+                    transactionStatusText.text = "Ready to buy";                    
                     transactionStatusText.color = Color.green;
                 }
             }
@@ -389,18 +393,22 @@ public class TradeCenterUI : MonoBehaviour
         {
             if (currentSellItem.isTradable)
             {
-                transactionStatusText.text = "판매 준비 완료";
+                // transactionStatusText.text = "판매 준비 완료";
+                transactionStatusText.text = "Ready to sell";
                 transactionStatusText.color = Color.green;
             }
             else
             {
-                transactionStatusText.text = "판매할 수 없는 아이템";
+                // transactionStatusText.text = "판매할 수 없는 아이템";
+                transactionStatusText.text = "Items that cannot be sold";
                 transactionStatusText.color = Color.red;
             }
         }
         else
         {
-            transactionStatusText.text = "아이템을 선택해주세요";
+            // transactionStatusText.text = "아이템을 선택해주세요";
+            transactionStatusText.text = "Please select an item";
+
             transactionStatusText.color = Color.white;
         }
     }

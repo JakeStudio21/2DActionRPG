@@ -16,12 +16,12 @@ MonoBehaviour:
   enemyName: Blue Slime Boss
   enemyType: 2
   description: "\uC2AC\uB77C\uC784 \uBCF4\uC2A4"
-  baseHealth: 50
+  baseHealth: 200
   baseDefense: 0
   baseMoveSpeed: 2
-  detectionRange: 5
+  detectionRange: 8
   chaseRange: 8
-  patrolRadius: 3
+  patrolRadius: 10
   knockBackThrust: 5
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: a9fbdc940f1d7eb44bb72781fc12ad9d, type: 3}

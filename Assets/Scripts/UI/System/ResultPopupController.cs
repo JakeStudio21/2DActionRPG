@@ -42,18 +42,9 @@ public class ResultPopupController : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        // 1. 플레이어 오브젝트 파괴
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null) { Destroy(player); }
-
-        // 2. 각종 매니저들의 부모 오브젝트 파괴
-        // GameObject managers = GameObject.Find("Managers");
-        // if (managers != null) { Destroy(managers); }
-
-        // 3. 씬에 독립적으로 존재하는 싱글톤 오브젝트들 파괴
-        if (Stamina.Instance != null) { Destroy(Stamina.Instance.gameObject); }
-
-        // Destroy 명령이 실행될 시간을 벌어주기 위해 한 프레임 대기합니다.
+        // ✅ Unity가 자동으로 오브젝트를 정리하므로 수동 파괴 제거
+        // 씬 전환 시 모든 오브젝트는 자동으로 정리됨
+        
         yield return new WaitForEndOfFrame();
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");

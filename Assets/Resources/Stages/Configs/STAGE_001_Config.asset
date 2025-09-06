@@ -29,6 +29,9 @@ MonoBehaviour:
   RepeatClearDropGroupId: DROP_STG001_CLEAR_REPEAT
   BGMPath: Prefab/BGM/SCENE_FIELD_001
   Description: "\uBABD\uD658\uC758 \uCD08\uC6D0_\uB9D1\uC74C"
-  WaveConfigs: []
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  WaveConfigs:
+  - {fileID: 11400000, guid: 6feec542f1e600a449ddf1cbe90e3543, type: 2}
+  - {fileID: 11400000, guid: 5ae863b259fc7c44299e6e853d34dd75, type: 2}
+  - {fileID: 11400000, guid: c3b6478b6d01faf459623f1e4d07b3f3, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: 386cb0214fb2d79438e63bddabc9f7bd, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: d29369851992fb54fb3ea6ab4401692c, type: 2}

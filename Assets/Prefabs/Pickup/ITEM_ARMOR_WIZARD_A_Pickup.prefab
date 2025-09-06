@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1333045551, guid: c324178344f10a5478dfa3a4f237e670, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 589d8ec17bd8f2047835204549e4c52e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -213,4 +213,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   heightY: 1.5
   popDuration: 0.5
+  itemData: {fileID: 0}
   equipmentData: {fileID: 11400000, guid: 13279fda30ae65d49a8b5009b115c37d, type: 2}
+  enableDebugLogs: 1

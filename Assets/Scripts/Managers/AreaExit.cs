@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq; // LINQ 사용
+using StageSystem; // ✅ 추가: WaveTriggerId 사용을 위한 네임스페이스
 
 /// <summary>
 /// ⭐ 수정: 씬 내 포털 이동 시스템 (기존 씬 이동에서 변경)
@@ -14,7 +15,12 @@ public class AreaExit : MonoBehaviour
     [SerializeField] private string targetAreaName; // AreaEntrance의 transitionName과 매칭
     [SerializeField] private string portalName; // 포털 식별자 (디버그용)
     [SerializeField] private bool requiresBossDefeat = false; // 보스 격파 필요 여부
-    
+
+    [Header("✅ 범용 트리거 설정")]
+    [SerializeField] private bool isTriggerGate = false;      // 트리거 발동 게이트 여부
+    [SerializeField] private WaveTriggerId triggerToActivate = WaveTriggerId.None; // 발동할 트리거 ID
+    [SerializeField] private string gateTag = "BossGate";    // 게이트 식별 태그
+
     [Header("직접 위치 설정 (선택사항)")]
     [SerializeField] private Transform directTargetPosition; // AreaEntrance 대신 직접 위치 지정 가능
     
@@ -24,6 +30,10 @@ public class AreaExit : MonoBehaviour
     [Header("⭐ 사용 중단 예정 (기존 호환성)")]
     [SerializeField] private string sceneToLoad; // 사용 안함 (기존 호환성 유지)
     [SerializeField] private string SceneTransitionName; // targetAreaName으로 대체됨
+
+    // ✅ 외부 접근용 프로퍼티 추가
+    public string GateTag => gateTag;
+    public GameObject PortalGate => portalGate;
 
     private void Start()
     {
@@ -50,7 +60,15 @@ public class AreaExit : MonoBehaviour
         // ⭐ 수정: FSMStageController를 통한 포털 이동
         if (FSMStageController.Instance != null)
         {
-            Debug.Log($"[AreaExit] 포털 '{portalName}' 트리거 - 목표: {targetAreaName}");
+            // ✅ 범용 트리거 게이트인 경우 StageManager에 트리거 알림
+            if (isTriggerGate && triggerToActivate != WaveTriggerId.None)
+            {
+                var stageManager = FindObjectOfType<StageManager>();
+                if (stageManager != null)
+                {
+                    stageManager.TriggerWave(triggerToActivate);
+                }
+            }
             
             // 직접 위치가 지정된 경우
             if (directTargetPosition != null)
@@ -60,11 +78,6 @@ public class AreaExit : MonoBehaviour
                     targetAreaName, 
                     requiresBossDefeat
                 );
-                
-                if (success)
-                {
-                    Debug.Log($"[AreaExit] 직접 위치로 포털 이동: {directTargetPosition.position}");
-                }
                 return;
             }
 
@@ -72,25 +85,12 @@ public class AreaExit : MonoBehaviour
             AreaEntrance targetEntrance = FindTargetAreaEntrance();
             if (targetEntrance != null)
             {
-                bool success = FSMStageController.Instance.TryPortalMovementWithBossCheck(
+                FSMStageController.Instance.TryPortalMovementWithBossCheck(
                     targetEntrance.transform.position, 
                     targetAreaName, 
                     requiresBossDefeat
                 );
-                
-                if (success)
-                {
-                    Debug.Log($"[AreaExit] AreaEntrance로 포털 이동: {targetEntrance.transform.position}");
-                }
             }
-            else
-            {
-                Debug.LogWarning($"[AreaExit] '{targetAreaName}' 이름의 AreaEntrance를 찾을 수 없습니다!");
-            }
-        }
-        else
-        {
-            Debug.LogError("[AreaExit] FSMStageController를 찾을 수 없습니다!");
         }
     }
 

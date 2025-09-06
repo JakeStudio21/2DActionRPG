@@ -173,4 +173,25 @@ public class PlayerAttackInput : MonoBehaviour
             if (showDebugLogs) Debug.LogWarning("[PlayerAttackInput] SkillController를 찾을 수 없습니다!");
         }
     }
+
+    /// <summary>
+    /// 대시 실행
+    /// </summary>
+    private void PerformDash()
+    {
+        if (showDebugLogs) Debug.Log("[PlayerAttackInput] 대시 실행 시도");
+        
+        // PlayerController의 Dash 메서드 직접 호출
+        var playerController = PlayerController.Instance;
+        if (playerController != null)
+        {
+            // PlayerController의 Dash 메서드를 public으로 만들어야 함
+            playerController.PerformDash();
+            if (showDebugLogs) Debug.Log("🟢 [PlayerAttackInput] PlayerController 대시 성공!");
+        }
+        else
+        {
+            if (showDebugLogs) Debug.LogWarning("🟡 [PlayerAttackInput] PlayerController를 찾을 수 없습니다!");
+        }
+    }
 } 

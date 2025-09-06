@@ -35,7 +35,11 @@ public class CharacterCreationController : MonoBehaviour
     public TMP_InputField nameInputField;
     public Button nameConfirmButton;
     public Button nameCancelButton;
-    public TMP_Text nameErrorText; // 🔧 개선 3: 오류 메시지 표시
+    
+    [Header("=== 오류 메시지 UI ===")]
+    public GameObject messageError; // 🔧 변경: 전체 오류 메시지 컨테이너
+    public Image errorIcon;         // 🔧 추가: 오류 아이콘 이미지
+    public TMP_Text errorText;      // 🔧 변경: nameErrorText → errorText
     
     [Header("=== 뒤로가기 버튼 ===")]
     public Button backToLobbyButton;
@@ -287,29 +291,34 @@ public class CharacterCreationController : MonoBehaviour
         // 기본 유효성 검사
         if (string.IsNullOrEmpty(playerName))
         {
-            return "캐릭터 이름을 입력해주세요.";
+            // return "캐릭터 이름을 입력해주세요.";   
+            return "Please enter your character name.";
         }
         
         if (playerName.Length < 2)
         {
-            return "캐릭터 이름은 최소 2자 이상이어야 합니다.";
+            // return "캐릭터 이름은 최소 2자 이상이어야 합니다.";
+            return "Character names must be at least 2 characters long.";
         }
         
         if (playerName.Length > 12)
         {
-            return "캐릭터 이름은 12자 이하여야 합니다.";
+            // return "캐릭터 이름은 12자 이하여야 합니다.";
+            return "Character names must be 12 characters or less.";
         }
         
         // 특수문자 검사 (한글, 영문, 숫자만 허용)
         if (!System.Text.RegularExpressions.Regex.IsMatch(playerName, @"^[가-힣a-zA-Z0-9]+$"))
         {
-            return "캐릭터 이름은 한글, 영문, 숫자만 사용할 수 있습니다.";
+            // return "캐릭터 이름은 한글, 영문, 숫자만 사용할 수 있습니다.";
+            return "Character names can only use Korean, English, and numbers";
         }
         
         // 🔧 개선 1: 중복 이름 검사
         if (IsNameAlreadyUsed(playerName))
         {
-            return "이미 사용 중인 캐릭터 이름입니다.";
+            // return "이미 사용 중인 캐릭터 이름입니다.";
+            return "The character name is already in use.";
         }
         
         return null; // 유효함
@@ -370,33 +379,41 @@ public class CharacterCreationController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔧 개선 3: 이름 오류 메시지 표시
+    /// 🔧 개선: 이미지 + 텍스트 오류 메시지 표시
     /// </summary>
     private void ShowNameError(string message)
     {
-        if (nameErrorText != null)
+        if (errorText != null)
         {
-            nameErrorText.text = message;
-            nameErrorText.gameObject.SetActive(true);
+            errorText.text = message;
+        }
+        
+        if (messageError != null)
+        {
+            messageError.SetActive(true);
         }
         
         Debug.LogWarning($"[CharacterCreationController] 이름 검증 실패: {message}");
     }
     
     /// <summary>
-    /// 🔧 개선 3: 이름 오류 메시지 지우기
+    /// 🔧 개선: 오류 메시지 지우기
     /// </summary>
     private void ClearNameError()
     {
-        if (nameErrorText != null)
+        if (errorText != null)
         {
-            nameErrorText.text = "";
-            nameErrorText.gameObject.SetActive(false);
+            errorText.text = "";
+        }
+        
+        if (messageError != null)
+        {
+            messageError.SetActive(false);
         }
     }
     
     /// <summary>
-    /// 🔧 개선 3: 일반적인 오류 메시지 표시 (추후 Popup 연동 예정)
+    /// �� 개선 3: 일반적인 오류 메시지 표시 (추후 Popup 연동 예정)
     /// </summary>
     private void ShowErrorMessage(string message)
     {

@@ -345,6 +345,15 @@ public class PlayerController : Singleton<PlayerController>
                StartCoroutine(EndDashRoutine());
           }
      }
+     
+     /// <summary>
+     /// 🆕 외부에서 호출 가능한 대시 메서드 (모바일 버튼용)
+     /// </summary>
+     public void PerformDash()
+     {
+         Debug.Log("[PlayerController] 대시 실행 요청");
+         Dash();
+     }
 
      private IEnumerator EndDashRoutine() 
      {

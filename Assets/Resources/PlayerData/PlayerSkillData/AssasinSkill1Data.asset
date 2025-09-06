@@ -20,8 +20,8 @@ MonoBehaviour:
   effectPrefab: {fileID: 0}
   projectilePrefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
   projectileSpeed: 10
-  projectileCount: 18
-  spreadAngle: 20
+  projectileCount: 5
+  spreadAngle: 10
   projectileScale: {x: 1, y: 1, z: 1}
   projectilePoolName: Arrow
   stealthDuration: 2

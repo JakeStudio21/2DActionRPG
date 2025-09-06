@@ -18,4 +18,9 @@ MonoBehaviour:
   StartCondition: 0
   WaveDelaySec: 2
   TriggerId: 0
-  SpawnGroups: []
+  EnablesBossGate: 0
+  BossGateTag: BossGate
+  TriggerToActivate: 1
+  SpawnGroups:
+  - {fileID: 11400000, guid: 53ece398d19910844bf1e85412b4f9af, type: 2}
+  - {fileID: 11400000, guid: 06070c3d45d7108449e6440cc2bf3d27, type: 2}

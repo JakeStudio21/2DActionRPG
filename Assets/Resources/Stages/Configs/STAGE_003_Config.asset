@@ -30,6 +30,9 @@ MonoBehaviour:
   BGMPath: Prefab/BGM/SCENE_FIELD_003
   Description: "\uACE0\uC694\uD55C \uC232\uC18D \uAE38_\uC5B4\uB450\uC6B4 \uC232\uAE38_\uCD18\uCD18\uD55C
     \uB098\uBB34"
-  WaveConfigs: []
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  WaveConfigs:
+  - {fileID: 11400000, guid: 3598384d70c64444da4ada45ab643a1e, type: 2}
+  - {fileID: 11400000, guid: f74bafac041e6254aa7ad37b12e09078, type: 2}
+  - {fileID: 11400000, guid: 54b9653ff61ee604aa728d10d19c504b, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: 06cc11ec751e82b408d0047ecf44ff60, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: ef65d26ec0cb09e47924037000b30d7a, type: 2}

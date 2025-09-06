@@ -334,10 +334,10 @@ public class CharacterInfoUI : MonoBehaviour
             
             // 빈 슬롯 정보 표시 (레벨, 체력 등을 기본값으로)
             if (playerLevelText != null)
-                playerLevelText.text = "레벨: -";
+                playerLevelText.text = "Lv.-";
                 
             if (playerHealthText != null)
-                playerHealthText.text = "체력: -";
+                playerHealthText.text = "Health -";
                 
             if (playerNameText != null)
                 playerNameText.text = "빈 슬롯";
@@ -428,7 +428,7 @@ public class CharacterInfoUI : MonoBehaviour
         // 🔧 수정: PlayerSlotData.level 사용
         if (playerLevelText != null)
         {
-            playerLevelText.text = $"레벨: {slotData.level}";
+            playerLevelText.text = $"Lv.{slotData.level}";
         }
         
         // 🔧 수정: PlayerSlotData.playerType 사용
@@ -436,7 +436,7 @@ public class CharacterInfoUI : MonoBehaviour
         {
             int baseHealth = GetBaseHealthByClass(slotData.playerType);
             int totalHealth = baseHealth + (slotData.level - 1) * 10; // 레벨당 체력 +10
-            playerHealthText.text = $"체력: {totalHealth}";
+            playerHealthText.text = $"Health {totalHealth}";
         }
         
         // 캐릭터명 표시
@@ -614,6 +614,7 @@ public class CharacterInfoUI : MonoBehaviour
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged;
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForCharacterInfo; // 🆕 추가
         }
     }
 

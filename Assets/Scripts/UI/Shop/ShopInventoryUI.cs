@@ -181,6 +181,21 @@ public class ShopInventoryUI : MonoBehaviour
         RefreshInventoryUI();
     }
     
+    /// <summary>
+    /// 🆕 추가: 캐릭터 지연 로드 완료 시 상점 인벤토리 갱신
+    /// </summary>
+    private void OnSlotLazyLoadedForShop(int slotIndex)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [ShopInventoryUI] 슬롯 {slotIndex} 지연 로드 완료 - 상점 인벤토리 갱신");
+        
+        // 상점이 활성화된 상태에서만 갱신
+        if (gameObject.activeInHierarchy)
+        {
+            RefreshInventoryUI();
+        }
+    }
+
     void OnDestroy()
     {
         // 이벤트 구독 해제
@@ -188,6 +203,7 @@ public class ShopInventoryUI : MonoBehaviour
         {
             PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
             PlayerDataManager.Instance.OnSlotClicked -= HandleSlotClicked;
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForShop;
         }
     }
 }

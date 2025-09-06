@@ -21,7 +21,11 @@ public class ShopUI : MonoBehaviour
     [SerializeField] private Button bootsTabButton;            
     [SerializeField] private GameObject weaponTabContent;      
     [SerializeField] private GameObject armorTabContent;       
-    [SerializeField] private GameObject bootsTabContent;       
+    [SerializeField] private GameObject bootsTabContent;   
+
+    [Header("🎨 탭 버튼 색상 설정")]
+    [SerializeField] private Color tabNormalColor = new Color(0.7f, 0.7f, 0.7f, 1f);    // 기본 색상
+    [SerializeField] private Color tabSelectedColor = Color.white;                        // 선택된 탭 색상
     
     [Header("🎯 상점 아이템 진열소")]
     [SerializeField] private Transform weaponItemContainer;    // 무기 탭 전용 Container
@@ -268,15 +272,15 @@ public class ShopUI : MonoBehaviour
         {
             case EquipmentType.Weapon:
                 if (weaponTabButton != null)
-                    weaponTabButton.GetComponent<Image>().color = Color.white;
+                    weaponTabButton.GetComponent<Image>().color = tabSelectedColor;
                 break;
             case EquipmentType.Armor:
                 if (armorTabButton != null)
-                    armorTabButton.GetComponent<Image>().color = Color.white;
+                    armorTabButton.GetComponent<Image>().color = tabSelectedColor;
                 break;
             case EquipmentType.Accessory:
                 if (bootsTabButton != null)
-                    bootsTabButton.GetComponent<Image>().color = Color.white;
+                    bootsTabButton.GetComponent<Image>().color = tabSelectedColor;
                 break;
         }
     }
@@ -312,14 +316,12 @@ public class ShopUI : MonoBehaviour
     /// </summary>
     private void ResetTabButtonColors()
     {
-        Color normalColor = new Color(0.7f, 0.7f, 0.7f, 1f);
-        
         if (weaponTabButton != null)
-            weaponTabButton.GetComponent<Image>().color = normalColor;
+            weaponTabButton.GetComponent<Image>().color = tabNormalColor;
         if (armorTabButton != null)
-            armorTabButton.GetComponent<Image>().color = normalColor;
+            armorTabButton.GetComponent<Image>().color = tabNormalColor;
         if (bootsTabButton != null)
-            bootsTabButton.GetComponent<Image>().color = normalColor;
+            bootsTabButton.GetComponent<Image>().color = tabNormalColor;
     }
     
     /// <summary>

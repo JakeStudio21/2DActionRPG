@@ -18,4 +18,5 @@ MonoBehaviour:
   StartCondition: 1
   WaveDelaySec: 3
   TriggerId: 0
-  SpawnGroups: []
+  SpawnGroups:
+  - {fileID: 11400000, guid: f5b7fe09639e80b44be857181b6fb0fc, type: 2}

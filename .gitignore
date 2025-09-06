@@ -13,6 +13,11 @@
 *.log
 Assets/ignore
 Assets/ignore.meta
+Assets/LayerLab
+Assets/LayerLab.meta
+
+
+
 
 # MCP 서버 코드 제외
 Assets/unity-mcp/

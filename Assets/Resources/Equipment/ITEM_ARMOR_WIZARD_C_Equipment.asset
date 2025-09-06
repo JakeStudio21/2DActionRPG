@@ -21,7 +21,7 @@ MonoBehaviour:
   requiredLevel: 1
   resourceID: RES_ARMOR_WIZARD_C
   description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
-  icon: {fileID: -1967551663, guid: c324178344f10a5478dfa3a4f237e670, type: 3}
+  icon: {fileID: 21300000, guid: e570dfc0d4b8ee0439b33ec47c053aa4, type: 3}
   equipmentPrefab: {fileID: 3046353505542979003, guid: 07b04623626dc5848912ff0695baf122, type: 3}
   weaponType: 0
   weaponCooldown: 0

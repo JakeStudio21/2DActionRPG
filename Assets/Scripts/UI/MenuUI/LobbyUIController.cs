@@ -118,6 +118,12 @@ public class LobbyUIController : MonoBehaviour
     [SerializeField] private GameObject backgroundOverlay;          // 🆕 투명 배경 오버레이
     [SerializeField] private BackgroundOverlayHandler overlayHandler; // 🆕 오버레이 핸들러 (선택사항)
     
+    [Header("🏢 회사 로고 페이드 효과")]  // 🆕 추가
+    public Image companyLogoImage;          // 🆕 회사 로고 이미지 (알파값 0으로 시작)
+    public float fadeInDuration = 1f;       // 🆕 페이드인 시간
+    public float displayDuration = 2f;      // 🆕 로고 표시 시간
+    public float fadeOutDuration = 1f;      // 🆕 페이드아웃 시간
+    
     void Start()
     {
         Debug.Log("🚀 [LobbyUIController] Start() 시작");
@@ -463,7 +469,7 @@ public class LobbyUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 🔧 수정: 상점 패널 표시 (Z-Order 방식)
+    /// 🔧 수정: 상점 패널 표시 (Z-Order 방식 + 안전한 데이터 동기화)
     /// </summary>
     public void ShowShopPanel()
     {
@@ -483,34 +489,42 @@ public class LobbyUIController : MonoBehaviour
         // 🎯 핵심 변경: SetActive 대신 Z-Order 사용
         BringPanelToFront(shopPanel);
         
+        // 🆕 추가: 상점 진입 시 안전한 데이터 동기화
+        StartCoroutine(SafeRefreshShopData());
+        
         Debug.Log("[LobbyUIController] 상점 패널을 최상위로 이동 완료");
     }
 
     /// <summary>
-    /// 🔧 수정: 상점 데이터만 미리 로드 (UI 초기화는 제외)
+    /// 🆕 추가: 상점 데이터 안전한 동기화 (LazyLoad 충돌 방지)
     /// </summary>
-    private IEnumerator PreInitializeShop()
+    private IEnumerator SafeRefreshShopData()
     {
-        Debug.Log("🏪 [LobbyUIController] 상점 데이터 미리 로드 시작");
+        // 1프레임 대기 (패널 전환 완료 후)
+        yield return null;
         
-        // 매니저 초기화 완료 대기
-        yield return StartCoroutine(WaitForManagersInitialization(() => {}));
-        
-        // 캐릭터 선택 완료 대기
-        while (!PlayerDataManager.Instance.IsSlotSelected)
+        // 현재 선택된 캐릭터 데이터가 로드되지 않은 경우에만 로드
+        if (PlayerDataManager.Instance.IsLazyLoadRequired())
         {
+            int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
+            bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
+            
+            if (loadSuccess)
+            {
+                Debug.Log($"🔄 [LobbyUIController] 상점 진입 시 캐릭터 {selectedSlot} 데이터 로드 완료");
+            }
+            else
+            {
+                Debug.LogError("❌ [LobbyUIController] 상점 진입 시 캐릭터 데이터 로드 실패");
+            }
+        }
+        
+        // ShopInventoryUI 강제 새로고침
+        var shopUIController = shopPanel.GetComponent<ShopUIController>();
+        if (shopUIController != null)
+        {
+            // 상점 UI 갱신 (기존 메서드 활용)
             yield return new WaitForSeconds(0.1f);
-        }
-        
-        // 🎯 핵심: 데이터만 미리 로드 (UI는 건드리지 않음)
-        if (ShopInventoryManager.Instance != null)
-        {
-            ShopInventoryManager.Instance.LoadItemsForShop();
-            Debug.Log("✅ [LobbyUIController] 상점 데이터 미리 로드 완료");
-        }
-        else
-        {
-            Debug.LogError("❌ [LobbyUIController] ShopInventoryManager를 찾을 수 없습니다!");
         }
     }
     
@@ -1542,7 +1556,7 @@ public class LobbyUIController : MonoBehaviour
     // 🆕 게임 종료 버튼 클릭 이벤트
     public void OnQuitGameButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 게임 종료 요청");
+        Debug.Log("[LobbyUIController] 게임 종료 요청 - 회사 로고 페이드 효과 시작");
         
         // 현재 데이터 저장
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
@@ -1551,6 +1565,72 @@ public class LobbyUIController : MonoBehaviour
             Debug.Log("[LobbyUIController] 게임 종료 전 데이터 저장 완료");
         }
         
+        // 🆕 회사 로고 페이드 효과 시작
+        if (companyLogoImage != null)
+        {
+            StartCoroutine(ShowCompanyLogoAndQuit());
+        }
+        else
+        {
+            Debug.LogWarning("[LobbyUIController] CompanyLogoImage가 할당되지 않음 - 즉시 종료");
+            QuitGameDirectly();
+        }
+    }
+    
+    // 🆕 회사 로고 페이드 효과 코루틴
+    private IEnumerator ShowCompanyLogoAndQuit()
+    {
+        Debug.Log("[LobbyUIController] 회사 로고 페이드 효과 시작");
+        
+        // 초기 설정: 알파값 0으로 시작
+        Color logoColor = companyLogoImage.color;
+        logoColor.a = 0f;
+        companyLogoImage.color = logoColor;
+        
+        // 1단계: 페이드인 (1초)
+        Debug.Log("[LobbyUIController] 페이드인 시작");
+        float elapsedTime = 0f;
+        while (elapsedTime < fadeInDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, 1f, elapsedTime / fadeInDuration);
+            logoColor.a = alpha;
+            companyLogoImage.color = logoColor;
+            yield return null;
+        }
+        
+        // 완전히 불투명하게 설정
+        logoColor.a = 1f;
+        companyLogoImage.color = logoColor;
+        Debug.Log("[LobbyUIController] 페이드인 완료 - 로고 표시 중");
+        
+        // 2단계: 로고 표시 유지 (2초)
+        yield return new WaitForSeconds(displayDuration);
+        
+        // 3단계: 페이드아웃 (1초)
+        Debug.Log("[LobbyUIController] 페이드아웃 시작");
+        elapsedTime = 0f;
+        while (elapsedTime < fadeOutDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeOutDuration);
+            logoColor.a = alpha;
+            companyLogoImage.color = logoColor;
+            yield return null;
+        }
+        
+        // 완전히 투명하게 설정
+        logoColor.a = 0f;
+        companyLogoImage.color = logoColor;
+        Debug.Log("[LobbyUIController] 페이드아웃 완료 - 게임 종료");
+        
+        // 4단계: 게임 종료
+        QuitGameDirectly();
+    }
+    
+    // 🆕 실제 게임 종료 처리
+    private void QuitGameDirectly()
+    {
         // GameManager를 통한 게임 종료
         if (GameManager.Instance != null)
         {
@@ -1790,6 +1870,20 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log($"[LobbyUIController] 캐릭터 생성 완료: 슬롯 {slotIndex}");
         
+        // 🆕 안전성 검사 추가
+        if (PlayerDataManager.Instance == null)
+        {
+            Debug.LogError("[LobbyUIController] PlayerDataManager.Instance가 null - 처리 중단");
+            return;
+        }
+        
+        var newSlotData = PlayerDataManager.Instance.GetSlotData(slotIndex);
+        if (newSlotData == null || !newSlotData.isSlotUsed)
+        {
+            Debug.LogError($"[LobbyUIController] 슬롯 {slotIndex} 데이터가 유효하지 않음 - 처리 중단");
+            return;
+        }
+        
         // 🆕 UI selectedSlotIndex 즉시 업데이트
         selectedSlotIndex = slotIndex;
         
@@ -1797,13 +1891,9 @@ public class LobbyUIController : MonoBehaviour
         RefreshAllSlots();
         
         // 🆕 신규 생성된 캐릭터 정보 UI 업데이트
-        var newSlotData = PlayerDataManager.Instance.GetSlotData(slotIndex);
-        if (newSlotData != null && newSlotData.isSlotUsed)
-        {
-            UpdateSelectedCharacterInfo(newSlotData);
-            EnableStartGameButton(true);
-            Debug.Log($"[Lobby] New character selected → Slot {slotIndex}");
-        }
+        UpdateSelectedCharacterInfo(newSlotData);
+        EnableStartGameButton(true);
+        Debug.Log($"[Lobby] New character selected → Slot {slotIndex}");
         
         // 🆕 StageProgressManager 강제 재초기화 (확실히 하기 위해)
         if (StageProgressManager.Instance != null)

@@ -45,7 +45,7 @@ using TMPro; // 🆕 추가
 /// - ActiveInventory (인게임 UI)
 /// - ActiveWeapon (무기 교체)
 
-public class InventorySlot : MonoBehaviour // 🔧 수정: IPointerClickHandler 제거
+public class InventorySlot : MonoBehaviour, IPointerClickHandler
 {
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = false; // 🆕 추가: 디버그 로그 제어

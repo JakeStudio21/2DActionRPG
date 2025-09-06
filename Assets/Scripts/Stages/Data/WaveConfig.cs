@@ -19,6 +19,11 @@ namespace StageSystem
         public WaveStartCondition StartCondition;
         public int WaveDelaySec;
         public WaveTriggerId TriggerId;
+
+        [Header("✅ Boss Gate 설정")]
+        public bool EnablesBossGate = false;        // 이 웨이브 완료 시 Boss Gate 활성화 여부
+        public string BossGateTag = "BossGate";     // 활성화할 Boss Gate 태그
+        public WaveTriggerId TriggerToActivate = WaveTriggerId.BossGateOpened; // 활성화할 트리거 ID
         
         [Header("런타임 참조")]
         public List<SpawnGroup> SpawnGroups = new List<SpawnGroup>();

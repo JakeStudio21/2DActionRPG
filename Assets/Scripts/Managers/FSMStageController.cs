@@ -43,7 +43,7 @@ public class FSMStageController : Singleton<FSMStageController>
     [SerializeField] private string loadingSceneName = "Loading";
     
     [Header("플레이어 관리")]
-    [SerializeField] private bool autoSetPlayerPosition = true; // ⭐ 추가: 자동 플레이어 위치 설정
+    [SerializeField] private bool autoSetPlayerPosition = false; // ⭐ 수정: PlayerSpawner와 충돌 방지를 위해 비활성화
 
     // 이벤트
     public System.Action<StageState> OnStageChanged;
@@ -233,7 +233,27 @@ public class FSMStageController : Singleton<FSMStageController>
         
         Debug.Log("[FSMStageController] Defeat! 게임 오버");
         
-        // Defeat 팝업 표시는 PlayerHealth에서 기존대로 처리
+        // ✅ Defeat 팝업 표시 추가
+        StartCoroutine(ShowDefeatPopupRoutine());
+    }
+
+    /// <summary>
+    /// ⭐ 추가: Defeat 팝업 표시 코루틴
+    /// </summary>
+    private IEnumerator ShowDefeatPopupRoutine()
+    {
+        yield return new WaitForSeconds(0.5f); // 사망/타임아웃 연출 대기
+        
+        var resultPopup = FindObjectOfType<ResultPopupController>();
+        if (resultPopup != null)
+        {
+            resultPopup.Show(false); // Defeat
+            Debug.Log("[FSMStageController] Defeat 팝업 표시 완료");
+        }
+        else
+        {
+            Debug.LogError("[FSMStageController] ResultPopupController를 찾을 수 없습니다!");
+        }
     }
 
     /// <summary>

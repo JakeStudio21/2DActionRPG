@@ -9,7 +9,8 @@ public class LevelUI : MonoBehaviour
     private void Awake()
     {
         _levelText = GetComponent<TextMeshProUGUI>();
-        _levelText.text = "Lv. 1"; // 기본값 표시
+        _levelText.text = "12"; // 기본값 표시
+        // _levelText.text = "Lv. 1"; // Lv. 제거
     }
 
     private void Update()
@@ -44,7 +45,8 @@ public class LevelUI : MonoBehaviour
     /// </summary>
     private void UpdateLevelText(int newLevel)
     {
-        _levelText.text = $"Lv. {newLevel}";
+        _levelText.text = $"{newLevel}";
+        // _levelText.text = $" {newLevel}";  // Lv. 제거
         Debug.Log($"🎯 [LevelUI] 레벨 UI 업데이트: Lv. {newLevel}");
     }
 } 

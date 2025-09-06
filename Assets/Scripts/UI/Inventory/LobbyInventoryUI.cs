@@ -1079,7 +1079,8 @@ public class LobbyInventoryUI : MonoBehaviour
         // 🎯 착용 안내 텍스트 표시
         if (equipText != null)
         {
-            equipText.text = "착용할 아이템을 선택해주세요";
+            // equipText.text = "착용할 아이템을 선택해주세요";
+            equipText.text = "Please select the item you want to wear.";
             equipText.gameObject.SetActive(true);
         }
 

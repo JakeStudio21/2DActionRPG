@@ -91,6 +91,25 @@ public class StageManager : MonoBehaviour
                 waveController.OnWaveCompleted += OnWaveCompleted;
             }
             
+            // ✅ Boss Portal 초기 숨김 처리
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+#endif
+                var allAreaExits = FindObjectsOfType<AreaExit>();
+                foreach (var areaExit in allAreaExits)
+                {
+                    if (areaExit != null && (areaExit.name.Contains("BossPortal") || 
+                        areaExit.name.Contains("Portal") ||
+                        areaExit.CompareTag("BossPortal")))
+                    {
+                        areaExit.gameObject.SetActive(false);
+                    }
+                }
+#if UNITY_EDITOR
+            }
+#endif
+            
             if (enableDebugLogs)
             {
                 Debug.Log($"🎮 [StageManager] 초기화 완료");
@@ -280,6 +299,26 @@ public class StageManager : MonoBehaviour
             EmitWaveCompleteCues(completedWave);
             
             currentWaveIndex++;
+
+            // ✅ Boss Gate 활성화 체크
+            if (completedWave.EnablesBossGate)
+            {
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+#endif
+                    var allAreaExits = FindObjectsOfType<AreaExit>(true);
+                    foreach (var areaExit in allAreaExits)
+                    {
+                        if (areaExit != null && areaExit.name.Contains("BossPortal"))
+                        {
+                            areaExit.gameObject.SetActive(true);
+                        }
+                    }
+#if UNITY_EDITOR
+                }
+#endif
+            }
             
             // 다음 웨이브에 보스가 있는지 체크
             if (currentWaveIndex < stageConfig.WaveConfigs.Count)
@@ -359,11 +398,33 @@ public class StageManager : MonoBehaviour
         /// </summary>
         private bool CheckDefeatCondition()
         {
+            // 🔍 디버깅: 스테이지 활성 상태 체크
+            if (!isStageActive)
+            {
+                return false; // 스테이지가 비활성 상태면 패배 조건 체크 안함
+            }
+            
+            // 🔍 디버깅: stageConfig 유효성 체크
+            if (stageConfig == null)
+            {
+                Debug.LogError("🔴 [StageManager] CheckDefeatCondition - stageConfig가 null입니다!");
+                return false; // stageConfig가 없으면 패배 조건 체크 안함
+            }
+            
             // 플레이어 사망 체크
             var playerHealth = FindObjectOfType<PlayerHealth>();
-            if (playerHealth != null && playerHealth.isDead)  // IsDead() → isDead로 변경
+            if (playerHealth != null)
             {
-                return true;
+                if (playerHealth.isDead)
+                {
+                    Debug.LogError($"🔴 [StageManager] 패배 감지 - 플레이어 사망! isDead = {playerHealth.isDead}");
+                    return true;
+                }
+            }
+            else
+            {
+                Debug.LogError("🔴 [StageManager] 패배 감지 - PlayerHealth를 찾을 수 없습니다!");
+                return false; // PlayerHealth가 없어도 패배로 처리하지 않음
             }
             
             // 제한시간 초과 (Survival 모드가 아닌 경우)
@@ -372,7 +433,14 @@ public class StageManager : MonoBehaviour
                 float elapsedTime = Time.time - stageStartTime;
                 if (elapsedTime >= stageConfig.TimeLimitSec)
                 {
+                    Debug.LogError($"🔴 [StageManager] 패배 감지 - 시간 초과! 경과: {elapsedTime:F1}초, 제한: {stageConfig.TimeLimitSec}초");
                     return true;
+                }
+                
+                // 🔍 디버깅: 시간 정보 주기적 출력 (10초마다)
+                if (Mathf.FloorToInt(elapsedTime) % 10 == 0 && elapsedTime > 0)
+                {
+                    Debug.Log($"⏰ [StageManager] 경과시간: {elapsedTime:F1}초 / {stageConfig.TimeLimitSec}초");
                 }
             }
             
@@ -938,5 +1006,16 @@ public class StageManager : MonoBehaviour
     }
 
     #endregion
-    }  // StageManager 클래스 닫기
-}      // StageSystem 네임스페이스 닫기
+    
+    /// <summary>
+    /// ✅ 범용 웨이브 트리거
+    /// </summary>
+    public void TriggerWave(WaveTriggerId triggerId)
+    {
+        if (waveController != null)
+        {
+            waveController.TriggerWave(triggerId);
+        }
+    }
+}  // ✅ StageManager 클래스 닫기
+}  // ✅ StageSystem 네임스페이스 닫기

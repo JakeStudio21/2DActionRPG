@@ -391,16 +391,16 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         
         // 🔧 인게임과 동일한 형식으로 UI 업데이트
         if (finalAttackDamageText != null)
-            finalAttackDamageText.text = $"공격력: {stats.attackDamage:F0}";
+            finalAttackDamageText.text = $"Attack: {stats.attackDamage:F0}";
             
         if (finalDefenseText != null)
-            finalDefenseText.text = $"방어력: {stats.defense:F0}";
+            finalDefenseText.text = $"Defence: {stats.defense:F0}";
             
         if (finalAttackSpeedText != null)
-            finalAttackSpeedText.text = $"공속: {stats.attackSpeed:F1}";
+            finalAttackSpeedText.text = $"AttackSpeed: {stats.attackSpeed:F1}";
             
         if (finalMoveSpeedText != null)
-            finalMoveSpeedText.text = $"이속: {stats.moveSpeed:F1}";
+            finalMoveSpeedText.text = $"MoveSpeed: {stats.moveSpeed:F1}";
         
         if (showDebugLogs)
             Debug.Log($"🎮 [LobbyEquippedItemsUI] 능력치 업데이트 완료 - 공격력:{stats.attackDamage:F0}, 방어력:{stats.defense:F0}, 공속:{stats.attackSpeed:F1}, 이속:{stats.moveSpeed:F1}");

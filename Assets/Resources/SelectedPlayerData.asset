@@ -12,31 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513eac7d499f5b34fac3ea7eefef983f, type: 3}
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
-  selectedSlotIndex: 0
-  playerName: asfe
+  selectedSlotIndex: 1
+  playerName: WQADAW
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 22
-  currentExp: 815
-  expToNextLevel: 1150
-  currentGold: 16944
+  currentLevel: 21
+  currentExp: 605
+  expToNextLevel: 1100
+  currentGold: 10340
   runtimeInventoryItems:
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
   - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
   - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
   - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
   - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
   - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
   - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
-  - {fileID: 11400000, guid: 41eb25b1ee57e504baa15c869ba123ad, type: 2}
   - {fileID: 0}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 0}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -59,9 +64,9 @@ MonoBehaviour:
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 14
-    lastPlayedTime: 2025-08-24T11:27:59.7823161+09:00
+    bestClearTime: 3
+    clearCount: 16
+    lastPlayedTime: 2025-09-03T22:35:27.7218699+09:00
   - stageId: STAGE_002
     isUnlocked: 1
     isCompleted: 0

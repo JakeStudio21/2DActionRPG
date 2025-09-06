@@ -63,7 +63,7 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         
         // 레벨
         if (levelText != null)
-            levelText.text = $"Lv.{playerDataManager.CurrentLevel}";
+            levelText.text = playerDataManager.CurrentLevel.ToString();
         
         // 경험치
         UpdateExpUI();
@@ -78,7 +78,7 @@ public class LobbyPlayerInfoUI : MonoBehaviour
             goldText.text = "0";
         
         if (levelText != null)
-            levelText.text = "Lv.1";
+            levelText.text = "1";
         
         if (expSlider != null)
             expSlider.value = 0f;
@@ -114,7 +114,7 @@ public class LobbyPlayerInfoUI : MonoBehaviour
     private void OnLevelChanged(int newLevel)
     {
         if (levelText != null)
-            levelText.text = $"Lv.{newLevel}";
+            levelText.text = newLevel.ToString();
     }
     
     private void OnExpChanged(int currentExp, int expToNextLevel)
@@ -138,8 +138,7 @@ public class LobbyPlayerInfoUI : MonoBehaviour
             goldText.text = slotData.gold.ToString();
         
         if (levelText != null)
-            levelText.text = $"Lv.{slotData.level}";
-        
+            levelText.text = slotData.level.ToString(); 
         if (expSlider != null)
         {
             float expRatio = (float)slotData.exp / slotData.expToNextLevel;
