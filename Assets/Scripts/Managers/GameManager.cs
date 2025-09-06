@@ -80,6 +80,11 @@ public class GameManager : Singleton<GameManager>
         base.Awake(); // Singleton 로직 실행
         if (instance != this) return; // 중복 생성시 초기화 중단
         
+        // 🆕 추가: PlayerDataManager 데이터 변경 리스너
+        PlayerDataManager.OnSelectedPlayerDataChanged += OnPlayerDataChanged;
+        PlayerDataManager.OnPlayerGoldChanged += OnPlayerGoldChanged;
+        PlayerDataManager.OnPlayerLevelChanged += OnPlayerLevelChanged;
+        
         Debug.Log($"[GameManager] Awake - selectedPlayerData: {selectedPlayerData}");
         if (selectedPlayerData != null)
         {
@@ -211,17 +216,26 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator LoadGameSceneCoroutine(string sceneName)
     {
-        // ⭐ 수정: 기존 SelectedPlayerData로 유효성 검증
-        if (selectedPlayerData == null || !selectedPlayerData.IsPlayerSelected())
+        // 🔧 수정: PlayerDataManager 기반으로 검증 강화
+        var playerDataManager = PlayerDataManager.Instance;
+        if (playerDataManager == null)
         {
-            Debug.LogError("[GameManager] 플레이어 데이터가 유효하지 않습니다! 로비로 돌아갑니다.");
-            Debug.LogError($"[GameManager] 현재 데이터: {selectedPlayerData}");
+            Debug.LogError("[GameManager] PlayerDataManager를 찾을 수 없습니다! 로비로 돌아갑니다.");
+            LoadLobbyScene();
+            yield break;
+        }
+        
+        if (playerDataManager.selectedPlayerData == null || !playerDataManager.selectedPlayerData.IsPlayerSelected())
+        {
+            Debug.LogError("[GameManager] PlayerDataManager의 플레이어 데이터가 유효하지 않습니다! 로비로 돌아갑니다.");
+            Debug.LogError($"[GameManager] 현재 데이터: {playerDataManager.selectedPlayerData}");
             LoadLobbyScene();
             yield break;
         }
 
         Debug.Log($"[GameManager] 씬 전환 시작 - {sceneName}");
         Debug.Log($"[GameManager] 전달될 데이터: {selectedPlayerData}");
+        Debug.Log($"[GameManager] PlayerDataManager 검증: ✅");
 
         // 로딩 씬으로 이동
         currentGameState = GameState.Loading;
@@ -328,5 +342,39 @@ public class GameManager : Singleton<GameManager>
     {
         currentGameState = newState;
         Debug.Log($"[GameManager] 게임 상태 변경: {newState}");
+    }
+
+    #region 🆕 Step 5: PlayerDataManager 이벤트 리스너
+
+    private void OnPlayerDataChanged(SelectedPlayerData newData)
+    {
+        Debug.Log($"🔔 [GameManager] PlayerData 변경 감지: {newData?.selectedPlayerType} Lv.{newData?.CurrentLevel} Gold:{newData?.CurrentGold}");
+        
+        // 🆕 추가 처리들:
+        // - 다른 시스템들에 알림
+        // - UI 갱신 요청 
+        // - 캐시 무효화 등
+    }
+
+    private void OnPlayerGoldChanged(int newGold)
+    {
+        Debug.Log($"🪙 [GameManager] 골드 변경 감지: {newGold}");
+    }
+
+    private void OnPlayerLevelChanged(int newLevel)
+    {
+        Debug.Log($"⭐ [GameManager] 레벨 변경 감지: {newLevel}");
+    }
+
+    #endregion
+
+    protected override void OnDestroy()
+    {
+        // 🆕 추가: 이벤트 구독 해제
+        PlayerDataManager.OnSelectedPlayerDataChanged -= OnPlayerDataChanged;
+        PlayerDataManager.OnPlayerGoldChanged -= OnPlayerGoldChanged;
+        PlayerDataManager.OnPlayerLevelChanged -= OnPlayerLevelChanged;
+        
+        base.OnDestroy();
     }
 }

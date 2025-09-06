@@ -49,7 +49,12 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public event Action<PlayerSlotData> OnSlotDataChanged; // 슬롯 데이터 변경 시
     public event Action<int> OnCharacterCreated; // 🆕 캐릭터 생성 완료 시
     public event Action<int> OnSlotLazyLoaded; // 🆕 지연 로드 완료 시 (새로운 이벤트)
-    
+
+    public static event System.Action<SelectedPlayerData> OnSelectedPlayerDataChanged;
+public static event System.Action<int> OnPlayerGoldChanged;
+public static event System.Action<int> OnPlayerLevelChanged;
+public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
+
     // 🆕 로비-인게임 공용 이벤트 시스템
     /// <summary>
     /// 모든 슬롯 클릭 시 발생 (인게임/로비 공통)
@@ -622,7 +627,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         
         selectedPlayerData.currentGold += amount;
         SaveCurrentSlot();
-        OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
+        
+        // 🔧 수정: 직접 호출 대신 NotifyGoldChanged 사용
+        NotifyGoldChanged(selectedPlayerData.currentGold);
         
         if (showDebugLogs)
             Debug.Log($"💰 [PlayerDataManager] 골드 추가: +{amount}, 현재: {selectedPlayerData.currentGold}");
@@ -1090,7 +1097,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
 
     /// <summary>
-    /// �� 기존 호환성: 현재 골드 가져오기
+    /// 🔄 기존 호환성: 현재 골드 가져오기
     /// </summary>
     public int GetCurrentGold()
     {
@@ -1638,6 +1645,27 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
     }
     
+    #endregion
+
+    #region 🆕 Step 4-5: 이벤트 알림 시스템
+
+    /// <summary>
+    /// 🆕 데이터 변경 시 이벤트 발행
+    /// </summary>
+    private void NotifyDataChanged()
+    {
+        OnSelectedPlayerDataChanged?.Invoke(selectedPlayerData);
+        if (showDebugLogs)
+            Debug.Log($"📢 [PlayerDataManager] 데이터 변경 알림: {selectedPlayerData?.selectedPlayerType} Lv.{selectedPlayerData?.CurrentLevel}");
+    }
+
+    private void NotifyGoldChanged(int newGold)
+    {
+        OnPlayerGoldChanged?.Invoke(newGold);
+        OnGoldChanged?.Invoke(newGold); // 기존 이벤트도 유지
+        NotifyDataChanged();
+    }
+
     #endregion
 }
 

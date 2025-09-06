@@ -35,8 +35,9 @@ public class GameDataManager : MonoBehaviour
         }
         set
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.selectedPlayerData = value;
+            // 🔧 수정: GameManager 대신 PlayerDataManager 사용
+            if (PlayerDataManager.Instance != null)
+                PlayerDataManager.Instance.selectedPlayerData = value;
         }
     }
     

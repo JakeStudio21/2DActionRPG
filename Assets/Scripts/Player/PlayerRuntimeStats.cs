@@ -60,24 +60,22 @@ public class PlayerRuntimeStats : MonoBehaviour
     private float temporaryMaxHealth = 0f;
     private float temporaryDefense = 0f;
     
+    private void Awake()
+    {
+        // 🔧 추가: 참조 초기화를 Awake에서 실행 (Start보다 먼저)
+        InitializeReferences();
+    }
+
     private void Start()
     {
-        InitializeReferences();
+        // 🗑️ 제거: InitializeReferences() 호출 제거 (Awake로 이동)
+        // InitializeReferences();
+        
+        // 모든 스탯 계산
         RecalculateAllStats();
         
-        // 🆕 PlayerDataManager 이벤트 연결
-        if (dataManager != null)
-        {
-            dataManager.OnItemEquipped += OnItemEquipped;
-            dataManager.OnItemUnequipped += OnItemUnequipped;
-            dataManager.OnLevelChanged += OnLevelChanged;
-        }
-        
-        // 🆕 초기화 완료 이벤트 발생
-        OnPlayerRuntimeStatsReady?.Invoke(this);
-        
         if (showDebugLogs)
-            Debug.Log($"🎯 [PlayerRuntimeStats] 초기화 완료 - 공격력: {finalAttackDamage}, 이동속도: {finalMoveSpeed}, 이벤트 발생됨");
+            Debug.Log("🔗 [PlayerRuntimeStats] 초기화 완료");
     }
     
     private void OnDestroy()
