@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public class AssasinSkill2 : BaseSkill<AssasinSkillData>
 {
+    // 🔧 추가: 마지막 공격 방향 저장용 필드
+    private Vector2 lastAttackDirection = Vector2.right;
+    
     #region BaseSkill<T> 구현
     
     /// <summary>
@@ -214,7 +217,7 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
     private Vector2 GetCurrentAttackDirection()
     {
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
-        var activeWeapon = ActiveWeapon.Instance;
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
         {
             Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();

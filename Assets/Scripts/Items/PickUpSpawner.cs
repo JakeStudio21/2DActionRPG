@@ -278,7 +278,7 @@ public class PickUpSpawner : MonoBehaviour
     private void SpawnPickupItem(string itemID)
     {
         // 1단계: PickupDataCache에서 아이템 데이터 조회
-        BaseItemData itemData = PickupDataCache.Instance.GetPickupItemData(itemID);
+        BaseItemData itemData = FindObjectOfType<PickupDataCache>()?.GetPickupItemData(itemID);
         if (itemData == null)
         {
             Debug.LogError($"[PickUpSpawner] PickupItemData를 찾을 수 없습니다: {itemID}");

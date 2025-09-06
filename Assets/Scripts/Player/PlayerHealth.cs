@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using CueSystem;
 
-public class PlayerHealth : Singleton<PlayerHealth>
+public class PlayerHealth : MonoBehaviour
 {
     public bool isDead { get; private set; }
 
@@ -35,8 +35,7 @@ public class PlayerHealth : Singleton<PlayerHealth>
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
 
-    protected override void Awake() {
-        base.Awake();
+    private void Awake() {
         flash = GetComponent<Flash>();
         knockback = GetComponent<Knockback>();
         
@@ -45,6 +44,9 @@ public class PlayerHealth : Singleton<PlayerHealth>
         {
             Debug.LogWarning("⚠️ [PlayerHealth] Knockback 컴포넌트를 찾을 수 없습니다. Player GameObject에 Knockback 컴포넌트를 추가해주세요.");
         }
+        
+        // 씬 로드 이벤트 구독
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void Start()
@@ -60,6 +62,12 @@ public class PlayerHealth : Singleton<PlayerHealth>
         playerUIController = FindObjectOfType<PlayerUIController>();
             
         Debug.Log("🔧 [PlayerHealth] 기본 초기화 완료 (체력은 BaseClassBehaviour에서 설정 예정)");
+    }
+    
+    private void OnDestroy()
+    {
+        // 씬 로드 이벤트 구독 해제 (메모리 누수 방지)
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -201,18 +209,12 @@ public class PlayerHealth : Singleton<PlayerHealth>
             currentHealth = 0;
             GetComponent<Animator>().SetTrigger(DEATH_HASH);
             
-            // ⭐ 수정: FSMStageController를 통한 Defeat 처리
-            if (FSMStageController.Instance != null)
-            {
-                FSMStageController.Instance.TriggerDefeat();
-                StartCoroutine(DeathLoadSceneRoutine()); // 기존 팝업 표시 로직 유지
-            }
-            else
-            {
-                // 백업: 기존 방식
-                Debug.LogWarning("[PlayerHealth] FSMStageController를 찾을 수 없습니다. 기존 방식 사용.");
-                StartCoroutine(DeathLoadSceneRoutine());
-            }
+            // ✅ 수정: FSMStageController 호출 제거 (SRP 준수)
+            // StageManager가 isDead 상태를 감지하여 패배 처리하도록 위임
+            Debug.Log("💀 [PlayerHealth] 플레이어 사망 - StageManager가 패배 조건을 감지할 것입니다.");
+            
+            // 기존 팝업 표시 로직 유지 (UI 책임)
+            StartCoroutine(DeathLoadSceneRoutine());
 
             // 🆕 Cue 이벤트 발행
             var context = new CueContext

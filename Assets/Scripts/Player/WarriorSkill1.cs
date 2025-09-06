@@ -405,7 +405,7 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
     private Vector2 GetCurrentAttackDirection()
     {
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
-        var activeWeapon = ActiveWeapon.Instance;
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
         {
             Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();
@@ -437,7 +437,7 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
         while (true)
         {
             // ActiveWeapon에서 현재 조이스틱 방향 체크
-            var activeWeapon = ActiveWeapon.Instance;
+            var activeWeapon = FindObjectOfType<ActiveWeapon>();
             if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
             {
                 Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();

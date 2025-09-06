@@ -16,22 +16,15 @@ public class Projectile : MonoBehaviour
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
     private bool needsStartPositionUpdate = false; // 🔑 startPosition 업데이트 플래그
 
-    private void Start() {
-        isReturningToPool = false; // 🔑 초기화
-        
+    void Start() {
         // 스킬 레벨별 이펙트 적용
         int skillLevel = 0;
-        var player = PlayerController.Instance;
+        var player = FindObjectOfType<PlayerController>();  // 변경: PlayerController.Instance → FindObjectOfType<PlayerController>()
         if (player != null)
             skillLevel = player.GetSkillLevel("Bow");
-        if (arrowEffectPrefabs != null && arrowEffectPrefabs.Length > 0)
-        {
-            int idx = Mathf.Clamp(skillLevel, 0, arrowEffectPrefabs.Length - 1);
-            if (arrowEffectPrefabs[idx] != null)
-            {
-                GamePoolManager.Instance.SpawnFromPool(arrowEffectPrefabs[idx].name, transform.position, Quaternion.identity).transform.SetParent(transform);
-            }
-        }
+
+        // 🔧 제거: 스킬 레벨에 따른 이펙트 적용 (메서드가 없음)
+        // ApplySkillLevelEffects(skillLevel);
     }
 
     private void Update()

@@ -11,12 +11,12 @@ public class DashButtonController : MonoBehaviour
     /// <summary>
     /// 대시 버튼이 클릭되었을 때 호출될 공용 메서드
     /// </summary>
-    public void OnDashButtonPressed()
+    public void OnButtonClick()
     {
         if (showDebugLogs) Debug.Log("[DashButtonController] 대시 버튼 클릭됨!");
         
         // PlayerController의 PerformDash 메서드 호출
-        var playerController = PlayerController.Instance;
+        var playerController = FindObjectOfType<PlayerController>();  // 변경: PlayerController.Instance → FindObjectOfType<PlayerController>()
         if (playerController != null)
         {
             playerController.PerformDash();
@@ -24,7 +24,7 @@ public class DashButtonController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[DashButtonController] PlayerController.Instance를 찾을 수 없습니다!");
+            Debug.LogWarning("[DashButtonController] PlayerController를 찾을 수 없습니다!");
         }
     }
 }

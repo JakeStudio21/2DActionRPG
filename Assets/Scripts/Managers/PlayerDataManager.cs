@@ -322,6 +322,12 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             {
                 Debug.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} 자동 선택 완료");
                 
+                // ✅ 추가: 신규 캐릭터도 GameManager 동기화 확인
+                if (GameManager.Instance?.selectedPlayerData != null)
+                {
+                    Debug.Log($"🔗 [PlayerDataManager] 신규 캐릭터 GameManager 동기화 확인: {GameManager.Instance.selectedPlayerData.selectedPlayerType}");
+                }
+                
                 // StageProgressManager는 SelectSlot에서 자동으로 초기화됨
                 if (StageSystem.StageProgressManager.Instance != null)
                 {
@@ -482,6 +488,17 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         {
             selectedPlayerData.LoadFromSlotData(slotData);
             Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 완전 전환: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
+            
+            // ✅ 추가: GameManager와 완벽 동기화 (핵심 수정)
+            if (GameManager.Instance?.selectedPlayerData != null)
+            {
+                GameManager.Instance.selectedPlayerData.LoadFromSlotData(slotData);
+                Debug.Log($"🔗 [PlayerDataManager] GameManager 동기화 완료: {slotData.playerType}");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [PlayerDataManager] GameManager 동기화 실패 - GameManager 또는 selectedPlayerData가 null");
+            }
         }
         
         // 이벤트 발생
@@ -546,6 +563,13 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             selectedPlayerData.LoadFromSlotData(slotData);
             if (showDebugLogs)
                 Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 지연 로드 완료: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
+            
+            // ✅ 추가: 지연 로드도 GameManager 동기화
+            if (GameManager.Instance?.selectedPlayerData != null)
+            {
+                GameManager.Instance.selectedPlayerData.LoadFromSlotData(slotData);
+                Debug.Log($"🔗 [PlayerDataManager] 지연 로드 GameManager 동기화 완료: {slotData.playerType}");
+            }
         }
         
         // 현재 슬롯 인덱스 업데이트
@@ -1066,7 +1090,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
 
     /// <summary>
-    /// 🔄 기존 호환성: 현재 골드 가져오기
+    /// �� 기존 호환성: 현재 골드 가져오기
     /// </summary>
     public int GetCurrentGold()
     {

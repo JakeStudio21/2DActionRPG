@@ -48,7 +48,54 @@ public class TradeCenterUI : MonoBehaviour
     {
         InitializeTradeCenterUI();
     }
-    
+
+    // ✅ 추가: OnEnable에서 골드 업데이트 및 이벤트 구독
+    void OnEnable()
+    {
+        // 상점이 활성화될 때마다 골드 업데이트
+        if (PlayerDataManager.Instance != null)
+        {
+            // 지연 로드 완료 이벤트 구독
+            PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoadedForTrade;
+            // 골드 변경 이벤트 구독 (아이템 판매 시 실시간 갱신)
+            PlayerDataManager.Instance.OnGoldChanged += OnGoldChangedForTrade;
+        }
+        
+        UpdatePlayerGoldDisplay();
+        
+        if (showDebugLogs)
+            Debug.Log($"🏪 [TradeCenterUI] 상점 활성화 - 골드 업데이트: {PlayerDataManager.Instance?.CurrentGold ?? 0}");
+    }
+
+    // ✅ 추가: OnDisable에서 이벤트 해제
+    void OnDisable()
+    {
+        // 이벤트 해제
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForTrade;
+            PlayerDataManager.Instance.OnGoldChanged -= OnGoldChangedForTrade;
+        }
+    }
+
+    // ✅ 추가: 지연 로드 완료 시 골드 갱신
+    private void OnSlotLazyLoadedForTrade(int slotIndex)
+    {
+        UpdatePlayerGoldDisplay();
+        
+        if (showDebugLogs)
+            Debug.Log($"💰 [TradeCenterUI] 슬롯 {slotIndex} 지연 로드 완료 - 골드 갱신: {PlayerDataManager.Instance?.CurrentGold ?? 0}");
+    }
+
+    // ✅ 추가: 골드 변경 시 실시간 갱신 (아이템 판매 시)
+    private void OnGoldChangedForTrade(int newGold)
+    {
+        UpdatePlayerGoldDisplay();
+        
+        if (showDebugLogs)
+            Debug.Log($"💰 [TradeCenterUI] 골드 변경 감지 - 새 골드: {newGold}");
+    }
+
     /// <summary>
     /// 거래 센터 UI 초기화
     /// </summary>
@@ -257,7 +304,11 @@ public class TradeCenterUI : MonoBehaviour
     {
         if (playerGoldText != null && PlayerDataManager.Instance != null)
         {
-            playerGoldText.text = PlayerDataManager.Instance.CurrentGold.ToString();
+            int currentGold = PlayerDataManager.Instance.CurrentGold;
+            playerGoldText.text = currentGold.ToString();
+            
+            if (showDebugLogs)
+                Debug.Log($"💰 [TradeCenterUI] 골드 표시 업데이트: {currentGold} (슬롯: {PlayerDataManager.Instance.CurrentSlotIndex})");
         }
     }
     

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : Singleton<PlayerController>
+public class PlayerController : MonoBehaviour
 {
      public bool FacingLeft { get { return facingLeft; } }
      public Vector2 Movement { get { return movement; } }
@@ -40,9 +40,18 @@ public class PlayerController : Singleton<PlayerController>
      // 무기/스킬별 레벨 통합 관리
      private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
 
-     protected override void Awake()
+     // ⚡ 액션 RPG 반응성 설정
+     [Header("🎮 액션 RPG 반응성 설정")]
+     [SerializeField] private float inputBufferTime = 0.1f;    // 입력 버퍼 시간
+     [SerializeField] private float accelerationTime = 0.05f;  // 가속 시간 (0에 가까울수록 즉각적)
+     [SerializeField] private float decelerationTime = 0.03f;  // 감속 시간 (0에 가까울수록 즉각적)
+
+     // 입력 버퍼링 변수
+     private Vector2 bufferedInput = Vector2.zero;
+     private float lastInputTime = -Mathf.Infinity;
+
+     private void Awake()
      {
-          base.Awake();
           playerControls = new PlayerControls();
           rb = GetComponent<Rigidbody2D>();
           myAnimator = GetComponent<Animator>();
@@ -66,6 +75,9 @@ public class PlayerController : Singleton<PlayerController>
 
           // 로비에서 선택한 무기를 장착하는 새로운 로직으로 대체하므로 이 줄을 주석 처리합니다.
           // FindObjectOfType<ActiveInventory>().EquipStartingweapon();
+
+          // 액션 RPG 물리 최적화
+          OptimizePhysicsForActionRPG();
      }
 
      /// <summary>
@@ -170,8 +182,12 @@ public class PlayerController : Singleton<PlayerController>
      private void FixedUpdate()
      {
           AdjustPlayerFacingDirection();
-          // Move();
-          MoveFast(); // ✅ 반응형 이동
+          
+          // ✅ 선택 1: 완전 즉각적 (격투 게임 스타일)
+          MoveFast();
+          
+          // ✅ 선택 2: 부드럽지만 빠른 반응 (액션 RPG 스타일)
+          // MoveFastWithSmoothing();
      }
 
      public void ReEnableControls()
@@ -282,41 +298,128 @@ public class PlayerController : Singleton<PlayerController>
      //      }
      // }
 
-          // ⚡ 반응형 이동: velocity 직접 대입 + DeadZone + 역전환 스냅
+     // ⚡ 액션 RPG 스타일 즉각 반응 이동 시스템
      private void MoveFast()
      {
-          // 상태 체크 (넉백/사망 시 이동 금지)
-          if (knockback != null && knockback.GettingKnockedBack) return;
-          if (playerHealth != null && playerHealth.isDead) return;
-          if (rb == null) return;
- 
-          // DeadZone: 미세 입력은 0으로 간주
-          if (movement.sqrMagnitude < deadZone * deadZone)
-          {
-              rb.velocity = Vector2.zero;            // 손 떼면 즉시 정지
-              myAnimator.SetBool("IsMoving", false);
-              return;
-          }
- 
-          // 입력 방향 정규화
-          var inputDir = movement.normalized;
-          var desired = inputDir * moveSpeed;
- 
-          // 역방향 전환 스냅: 현재 속도 방향과 입력 방향이 충분히 반대로 향하면 속도를 0으로 컷
-          if (rb.velocity.sqrMagnitude > 0.0001f)
-          {
-              float dot = Vector2.Dot(rb.velocity.normalized, inputDir);
-              if (dot < snapTurnThreshold)
-              {
-                  rb.velocity = Vector2.zero;        // 방향 전환 즉시 반응
-              }
-          }
- 
-          // 즉답형 이동
-          rb.velocity = desired;
-          myAnimator.SetBool("IsMoving", true);
+         // 상태 체크 (넉백/사망 시 이동 금지)
+         if (knockback != null && knockback.GettingKnockedBack) return;
+         if (playerHealth != null && playerHealth.isDead) return;
+         if (rb == null) return;
+
+         // ✅ 개선: 더 작은 DeadZone으로 미세한 입력도 반응
+         float improvedDeadZone = 0.05f; // 0.12f → 0.05f로 감소
+         
+         // DeadZone: 미세 입력은 0으로 간주
+         if (movement.sqrMagnitude < improvedDeadZone * improvedDeadZone)
+         {
+             // ✅ 개선: 즉시 완전 정지 (관성 제거)
+             rb.velocity = Vector2.zero;
+             rb.angularVelocity = 0f; // 회전 관성도 제거
+             
+             // Animation 파라미터 처리 (IsMoving 에러 해결)
+             if (myAnimator != null)
+             {
+                 // moveX, moveY를 0으로 설정하여 정지 애니메이션 트리거
+                 myAnimator.SetFloat("moveX", 0f);
+                 myAnimator.SetFloat("moveY", 0f);
+             }
+             return;
+         }
+
+         // ✅ 개선: 입력 방향 즉시 적용 (정규화 + 스케일링)
+         var inputDir = movement.normalized;
+         var targetVelocity = inputDir * moveSpeed;
+
+         // ✅ 개선: 더 민감한 방향 전환 (액션 게임 스타일)
+         float aggressiveSnapThreshold = -0.1f; // -0.2f → -0.1f로 더 민감하게
+         
+         // 역방향 전환 시 즉시 스냅
+         if (rb.velocity.sqrMagnitude > 0.01f) // 더 작은 임계값
+         {
+             float dot = Vector2.Dot(rb.velocity.normalized, inputDir);
+             if (dot < aggressiveSnapThreshold)
+             {
+                 rb.velocity = Vector2.zero; // 즉시 리셋
+             }
+         }
+
+         // ✅ 핵심 개선: 즉각적인 속도 적용 (관성 완전 제거)
+         rb.velocity = targetVelocity;
+         
+         // ✅ 추가: 물리 드래그 동적 조정 (더 반응적으로)
+         rb.drag = movement.sqrMagnitude > 0.01f ? 0f : 15f; // 이동 중: 드래그 0, 정지 시: 높은 드래그
+
+         // Animation 파라미터 업데이트 (moveX, moveY 사용)
+         if (myAnimator != null)
+         {
+             myAnimator.SetFloat("moveX", movement.x);
+             myAnimator.SetFloat("moveY", movement.y);
+         }
      }
 
+     /// <summary>
+     /// 🎮 액션 RPG 스타일 입력 처리 (버퍼링 + 즉각 반응)
+     /// </summary>
+     private void ProcessActionRPGInput()
+     {
+         // 현재 입력이 있으면 버퍼에 저장
+         if (movement.sqrMagnitude > 0.01f)
+         {
+             bufferedInput = movement;
+             lastInputTime = Time.time;
+         }
+         
+         // 버퍼 시간 내의 입력 사용
+         if (Time.time - lastInputTime <= inputBufferTime)
+         {
+             movement = bufferedInput;
+         }
+         else
+         {
+             // 버퍼 시간 초과 시 입력 초기화
+             bufferedInput = Vector2.zero;
+             movement = Vector2.zero;
+         }
+     }
+
+     /// <summary>
+     /// 🚀 부드럽지만 즉각적인 가속/감속 시스템
+     /// </summary>
+     private void MoveFastWithSmoothing()
+     {
+         // 상태 체크
+         if (knockback != null && knockback.GettingKnockedBack) return;
+         if (playerHealth != null && playerHealth.isDead) return;
+         if (rb == null) return;
+
+         // 입력 버퍼링 처리
+         ProcessActionRPGInput();
+
+         Vector2 targetVelocity = Vector2.zero;
+         
+         if (movement.sqrMagnitude > 0.05f * 0.05f)
+         {
+             // 목표 속도 계산
+             targetVelocity = movement.normalized * moveSpeed;
+             
+             // ✅ 즉각적인 가속 (액션 게임 스타일)
+             float accelerationRate = moveSpeed / Mathf.Max(accelerationTime, 0.01f);
+             rb.velocity = Vector2.MoveTowards(rb.velocity, targetVelocity, accelerationRate * Time.fixedDeltaTime);
+         }
+         else
+         {
+             // ✅ 즉각적인 감속 (정지)
+             float decelerationRate = moveSpeed / Mathf.Max(decelerationTime, 0.01f);
+             rb.velocity = Vector2.MoveTowards(rb.velocity, Vector2.zero, decelerationRate * Time.fixedDeltaTime);
+         }
+
+         // Animation 업데이트
+         if (myAnimator != null)
+         {
+             myAnimator.SetFloat("moveX", rb.velocity.x / moveSpeed);
+             myAnimator.SetFloat("moveY", rb.velocity.y / moveSpeed);
+         }
+     }
 
 
      private void AdjustPlayerFacingDirection()
@@ -428,5 +531,24 @@ public class PlayerController : Singleton<PlayerController>
             Debug.LogWarning("⚠️ [PlayerController] PlayerRuntimeStats를 찾을 수 없어 동기화 실패");
         }
     }
+
+     /// <summary>
+     /// 액션 RPG 스타일 물리 설정 최적화
+     /// </summary>
+     private void OptimizePhysicsForActionRPG()
+     {
+         if (rb != null)
+         {
+             // ✅ 즉각 반응을 위한 Rigidbody2D 설정
+             rb.gravityScale = 0f;           // 2D 탑뷰이므로 중력 제거
+             rb.drag = 0f;                   // 기본 드래그 0 (MoveFast에서 동적 조정)
+             rb.angularDrag = 10f;           // 회전 저항 높임
+             rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 부드러운 움직임
+             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // 빠른 움직임에서 충돌 감지
+             rb.freezeRotation = true;       // Z축 회전 고정 (캐릭터가 넘어지지 않음)
+             
+             Debug.Log("🎮 [PlayerController] 액션 RPG 물리 설정 완료");
+         }
+     }
 }
 

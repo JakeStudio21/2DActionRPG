@@ -478,13 +478,14 @@ public class EnemyHealth : MonoBehaviour
         if (itemId.StartsWith("ITEM_GOLD") || itemId.StartsWith("ITEM_HEALTH"))
         {
             // Gold, Health 아이템: PickupDataCache 사용
-            if (PickupDataCache.Instance == null)
+            var pickupDataCache = FindObjectOfType<PickupDataCache>();
+            if (pickupDataCache == null)
             {
-                Debug.LogError("[EnemyHealth] PickupDataCache.Instance가 null입니다!");
+                Debug.LogError("[EnemyHealth] PickupDataCache를 찾을 수 없습니다!");
                 return;
             }
             
-            BaseItemData pickupData = PickupDataCache.Instance.GetPickupItemData(itemId);
+            BaseItemData pickupData = pickupDataCache.GetPickupItemData(itemId);
             if (pickupData == null)
             {
                 Debug.LogError($"[EnemyHealth] PickupItemData를 찾을 수 없습니다: {itemId}");
@@ -503,13 +504,14 @@ public class EnemyHealth : MonoBehaviour
         else
         {
             // 장비 아이템: EquipmentDataCache 사용
-            if (EquipmentDataCache.Instance == null)
+            var equipmentDataCache = FindObjectOfType<EquipmentDataCache>();
+            if (equipmentDataCache == null)
             {
-                Debug.LogError("[EnemyHealth] EquipmentDataCache.Instance가 null입니다!");
+                Debug.LogError("[EnemyHealth] EquipmentDataCache를 찾을 수 없습니다!");
                 return;
             }
             
-            EquipmentData equipmentData = EquipmentDataCache.Instance.GetEquipmentData(itemId);
+            EquipmentData equipmentData = equipmentDataCache.GetEquipmentData(itemId);
             if (equipmentData == null)
             {
                 Debug.LogError($"[EnemyHealth] EquipmentData를 찾을 수 없습니다: {itemId}");

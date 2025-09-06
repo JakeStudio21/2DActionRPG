@@ -6,7 +6,7 @@ using ItemSystem;
 /// 🚀 Pickup 아이템 데이터 캐시 시스템 (Gold, Health 통합)
 /// 파일명 의존성 제거 + O(1) 조회 성능
 /// </summary>
-public class PickupDataCache : Singleton<PickupDataCache>
+public class PickupDataCache : MonoBehaviour
 {
     [Header("📊 캐시 상태")]
     [SerializeField] private int cachedGoldItemCount = 0;
@@ -22,13 +22,8 @@ public class PickupDataCache : Singleton<PickupDataCache>
     private Dictionary<string, HealthItemData> healthItemCache = new Dictionary<string, HealthItemData>();
     private Dictionary<string, BaseItemData> allItemCache = new Dictionary<string, BaseItemData>(); // 통합 조회용
     
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-        
-        // 씬 전환 시에도 유지되도록 설정
-        DontDestroyOnLoad(gameObject);
-        
         InitializeCache();
     }
     

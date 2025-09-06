@@ -135,7 +135,7 @@ public class PlayerSpawner : MonoBehaviour
         Debug.Log("[PlayerSpawner] 지연된 무기 장착 시작 - 클래스 초기화 대기");
         
         // 클래스 시스템 초기화 대기
-        int maxAttempts = 20; // 최대 2초 대기
+        int maxAttempts = 30; // 1.5초 대기
         int attempts = 0;
         bool classSystemReady = false;
         
@@ -180,21 +180,29 @@ public class PlayerSpawner : MonoBehaviour
     {
         if (spawnedPlayer == null) return false;
         
-        // BaseClassBehaviour 컴포넌트들 확인
         var allClasses = spawnedPlayer.GetComponents<BaseClassBehaviour>();
         if (allClasses.Length == 0)
         {
+            Debug.Log($"[PlayerSpawner] BaseClassBehaviour 컴포넌트 없음");
             return false;
         }
         
-        // 활성화된 클래스가 하나라도 있는지 확인
+        // ✅ 수정: 더 관대한 조건으로 변경
         foreach (var classComp in allClasses)
         {
-            if (classComp.IsActiveClass)
+            // 클래스가 초기화되었고 활성화되었거나, 또는 단순히 enabled 상태라면 준비된 것으로 간주
+            if (classComp.IsActiveClass || (classComp.enabled && !string.IsNullOrEmpty(classComp.ClassName)))
             {
                 Debug.Log($"[PlayerSpawner] 활성 클래스 발견: {classComp.ClassName}");
                 return true;
             }
+        }
+        
+        // ✅ 추가: 디버깅 정보
+        Debug.Log($"[PlayerSpawner] 클래스 상태 확인:");
+        for (int i = 0; i < allClasses.Length; i++)
+        {
+            Debug.Log($"  - {allClasses[i].GetType().Name}: enabled={allClasses[i].enabled}, IsActive={allClasses[i].IsActiveClass}, ClassName={allClasses[i].ClassName}");
         }
         
         return false;
@@ -264,12 +272,42 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void SpawnPlayer(GameObject prefab)
     {
+        Debug.Log($"🔍 [PlayerSpawner] === SpawnPlayer 시작 ===");
+        Debug.Log($"🔍 [PlayerSpawner] prefab: {(prefab != null ? prefab.name : "NULL")}");
+        Debug.Log($"🔍 [PlayerSpawner] 현재 spawnedPlayer: {(spawnedPlayer != null ? spawnedPlayer.name : "NULL")}");
+        
+        // ✅ 추가: 기존 플레이어들 완전 정리
+        var existingPlayers = FindObjectsOfType<PlayerController>();
+        Debug.Log($"🗑️ [PlayerSpawner] 씬에서 발견된 기존 플레이어 개수: {existingPlayers.Length}");
+        
+        for (int i = 0; i < existingPlayers.Length; i++)
+        {
+            Debug.Log($"🗑️ [PlayerSpawner] 기존 플레이어 제거: {existingPlayers[i].name} (ID: {existingPlayers[i].GetInstanceID()})");
+            Destroy(existingPlayers[i].gameObject);
+        }
+        
+        // ✅ 추가: PlayerHealth도 확인
+        var existingHealths = FindObjectsOfType<PlayerHealth>();
+        Debug.Log($"🗑️ [PlayerSpawner] 씬에서 발견된 기존 PlayerHealth 개수: {existingHealths.Length}");
+        
+        // 기존 참조도 초기화
+        spawnedPlayer = null;
+        
         if (spawnPoint == null)
         {
-            spawnPoint = transform; // 스폰 포인트가 없으면 자신의 위치 사용
+            spawnPoint = transform;
         }
 
-        // 플레이어는 씬에 하나만 존재하므로 직접 생성
+        // 한 프레임 대기 후 새 플레이어 생성
+        StartCoroutine(SpawnPlayerDelayed(prefab));
+    }
+
+    /// <summary>
+    /// 플레이어 실제 스폰 (플레이어는 풀링 사용하지 않고 직접 생성)
+    /// </summary>
+    private IEnumerator SpawnPlayerDelayed(GameObject prefab)
+    {
+        yield return null; // 한 프레임 대기
         spawnedPlayer = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
         Debug.Log($"[PlayerSpawner] {prefab.name} 스폰 완료 (직접 생성) - spawnedPlayer: {spawnedPlayer?.name}");
         

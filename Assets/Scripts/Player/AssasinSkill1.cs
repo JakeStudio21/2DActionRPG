@@ -227,7 +227,7 @@ public class AssasinSkill1 : BaseSkill<AssasinSkillData>
     private Vector2 GetCurrentAttackDirection()
     {
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
-        var activeWeapon = ActiveWeapon.Instance;
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
         {
             Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();

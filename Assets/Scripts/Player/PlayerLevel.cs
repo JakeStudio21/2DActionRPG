@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PlayerLevel : Singleton<PlayerLevel>
+public class PlayerLevel : MonoBehaviour
 {
     [SerializeField] private int _currentLevel = 1;
     [SerializeField] private int _currentExp = 0;
@@ -12,7 +12,7 @@ public class PlayerLevel : Singleton<PlayerLevel>
     // 레벨이 변경될 때 다른 스크립트에 알려주기 위한 이벤트입니다.
     public event Action OnLevelChanged;
 
-    private void Start()
+    private void Awake()
     {
         // 게임 시작 시 UI를 초기화하기 위해 이벤트를 한번 발생시킵니다.
         OnLevelChanged?.Invoke();

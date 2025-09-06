@@ -70,6 +70,13 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     
     protected virtual void Awake()
     {
+        // ✅ 추가: 씬 전환 시 정적 변수 초기화
+        if (allClasses.Count == 0)
+        {
+            isSystemInitialized = false;
+            managerClass = null;
+        }
+        
         // ⭐ [Phase C] 다중 클래스 시스템에 등록
         RegisterToClassSystem();
     }
@@ -86,17 +93,13 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             InitializeClassSystem();
         }
         
-        // 개별 클래스 초기화는 시스템에서 관리
-        if (!isSystemInitialized)
+        // ✅ 수정: 개별 초기화를 시스템 초기화 이후로 이동
+        // 개별 클래스 초기화는 시스템에서 관리하므로 여기서는 하지 않음
+        
+        // PlayerLevel 이벤트 구독만 여기서 처리
+        if (playerLevel != null)
         {
-            // 클래스 초기화
-            InitializeClass();
-            
-            // PlayerLevel 이벤트 구독
-            if (playerLevel != null)
-            {
-                playerLevel.OnLevelChanged += HandleLevelUp;
-            }
+            playerLevel.OnLevelChanged += HandleLevelUp;
         }
     }
     

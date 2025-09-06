@@ -23,7 +23,7 @@ MonoBehaviour:
   baseKnockbackThrust: 5
   baseExpToNextLevel: 20
   expIncreasePerLevel: 5
-  className: 
+  className: "\uC6CC\uB9AC\uC5B4"
   playerType: 1
   classIcon: {fileID: 0}
   description: 

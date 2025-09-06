@@ -82,7 +82,7 @@ public class PlayerAttackInput : MonoBehaviour
             return;
         }
         
-        var activeWeapon = ActiveWeapon.Instance;
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null)
         {
             activeWeapon.ExecuteWeaponAttack();  // ✅ PerformAttack() → ExecuteWeaponAttack()
@@ -182,7 +182,7 @@ public class PlayerAttackInput : MonoBehaviour
         if (showDebugLogs) Debug.Log("[PlayerAttackInput] 대시 실행 시도");
         
         // PlayerController의 Dash 메서드 직접 호출
-        var playerController = PlayerController.Instance;
+        var playerController = FindObjectOfType<PlayerController>();
         if (playerController != null)
         {
             // PlayerController의 Dash 메서드를 public으로 만들어야 함

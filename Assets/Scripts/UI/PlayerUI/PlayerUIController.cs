@@ -440,9 +440,10 @@ public class PlayerUIController : MonoBehaviour
     {
         if (healthUI == null || !healthUI.IsReady) return;
         
-        if (PlayerHealth.Instance != null)
+        var playerHealth = FindObjectOfType<PlayerHealth>();  // 변경: PlayerHealth.Instance → FindObjectOfType<PlayerHealth>()
+        if (playerHealth != null)
         {
-            healthUI.UpdateHealthUI(PlayerHealth.Instance.CurrentHealth, PlayerHealth.Instance.MaxHealth);
+            healthUI.UpdateHealthUI(playerHealth.CurrentHealth, playerHealth.MaxHealth);  // 변경: PlayerHealth.Instance → playerHealth
         }
     }
 

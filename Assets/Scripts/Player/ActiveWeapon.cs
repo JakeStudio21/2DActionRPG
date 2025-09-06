@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ⚔️ 현재 장착된 무기의 런타임 상태 및 공격 실행 관리
+/// 🎯 [2단계] ActiveWeapon 통합 무기 관리자
 /// SRP: 활성 무기의 런타임 데이터와 실행 로직만 담당
 /// </summary>
-public class ActiveWeapon : Singleton<ActiveWeapon>
+public class ActiveWeapon : MonoBehaviour
 {
     [Header("🔗 시스템 연동")]
     private PlayerEquipment playerEquipment;
     private PlayerAnimationController playerAnimationController;
+    private Rigidbody2D rb;  // 추가: rb 필드 선언
     
     // ❌ 프로퍼티에는 [Header] 사용 불가
     // [Header("⚔️ 현재 활성 무기 런타임 상태")]
@@ -27,9 +28,10 @@ public class ActiveWeapon : Singleton<ActiveWeapon>
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
 
-    protected override void Awake() 
+    private void Awake() 
     {
-        base.Awake();
+        // 컴포넌트 캐싱
+        rb = GetComponent<Rigidbody2D>();
         
         // PlayerEquipment 참조 가져오기 (부모에서 찾기)
         playerEquipment = GetComponent<PlayerEquipment>();

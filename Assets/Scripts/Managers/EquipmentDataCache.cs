@@ -5,7 +5,7 @@ using UnityEngine;
 /// 🚀 EquipmentData 캐시 시스템
 /// 파일명 의존성 제거 + O(1) 조회 성능
 /// </summary>
-public class EquipmentDataCache : Singleton<EquipmentDataCache>
+public class EquipmentDataCache : MonoBehaviour
 {
     [Header("📊 캐시 상태")]
     [SerializeField] private int cachedEquipmentCount = 0;
@@ -17,13 +17,8 @@ public class EquipmentDataCache : Singleton<EquipmentDataCache>
     // 캐시 딕셔너리
     private Dictionary<string, EquipmentData> equipmentCache = new Dictionary<string, EquipmentData>();
     
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-        
-        // 씬 전환 시에도 유지되도록 설정
-        DontDestroyOnLoad(gameObject);
-        
         InitializeCache();
     }
     

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections; // ✅ 추가: IEnumerator 사용을 위해 필요
 
 /// <summary>
 /// 🎯 PlayerRuntimeStats - 런타임 전용 최종 스탯 계산/관리 클래스

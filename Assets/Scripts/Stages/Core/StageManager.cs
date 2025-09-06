@@ -411,20 +411,12 @@ public class StageManager : MonoBehaviour
                 return false; // stageConfig가 없으면 패배 조건 체크 안함
             }
             
-            // 플레이어 사망 체크
+            // 플레이어 사망 체크 (이미 Update에서 PlayerHealth 존재 확인함)
             var playerHealth = FindObjectOfType<PlayerHealth>();
-            if (playerHealth != null)
+            if (playerHealth != null && playerHealth.isDead)
             {
-                if (playerHealth.isDead)
-                {
-                    Debug.LogError($"🔴 [StageManager] 패배 감지 - 플레이어 사망! isDead = {playerHealth.isDead}");
-                    return true;
-                }
-            }
-            else
-            {
-                Debug.LogError("🔴 [StageManager] 패배 감지 - PlayerHealth를 찾을 수 없습니다!");
-                return false; // PlayerHealth가 없어도 패배로 처리하지 않음
+                Debug.Log($"💀 [StageManager] 패배 감지 - 플레이어 사망! isDead = {playerHealth.isDead}");
+                return true;
             }
             
             // 제한시간 초과 (Survival 모드가 아닌 경우)
@@ -433,7 +425,7 @@ public class StageManager : MonoBehaviour
                 float elapsedTime = Time.time - stageStartTime;
                 if (elapsedTime >= stageConfig.TimeLimitSec)
                 {
-                    Debug.LogError($"🔴 [StageManager] 패배 감지 - 시간 초과! 경과: {elapsedTime:F1}초, 제한: {stageConfig.TimeLimitSec}초");
+                    Debug.Log($"⏰ [StageManager] 패배 감지 - 제한시간 초과! {elapsedTime:F1}초 >= {stageConfig.TimeLimitSec}초");
                     return true;
                 }
                 
@@ -576,6 +568,13 @@ public class StageManager : MonoBehaviour
         /// </summary>
         private void Update()
         {
+            // ✅ 추가: 플레이어가 스폰되기 전에는 패배 조건 체크하지 않음
+            var playerHealth = FindObjectOfType<PlayerHealth>();
+            if (playerHealth == null)
+            {
+                return; // PlayerHealth가 없으면 패배 조건 체크 안함
+            }
+            
             if (isStageActive && CheckDefeatCondition())
             {
                 CompleteStage(false);

@@ -39,7 +39,8 @@ public class HealthUI : MonoBehaviour
     private void Update()
     {
         // PlayerHealth가 준비될 때까지 대기 후 이벤트 연결
-        if (!isHealthSubscribed && PlayerHealth.Instance != null)
+        var playerHealthInstance = FindObjectOfType<PlayerHealth>();
+        if (!isHealthSubscribed && playerHealthInstance != null)
         {
             ConnectToPlayerHealth();
         }
@@ -85,11 +86,11 @@ public class HealthUI : MonoBehaviour
     }
     
     /// <summary>
-    /// PlayerHealth와 연결
+    /// PlayerHealth와 이벤트 연결
     /// </summary>
     private void ConnectToPlayerHealth()
     {
-        playerHealth = PlayerHealth.Instance;
+        playerHealth = FindObjectOfType<PlayerHealth>();
         if (playerHealth != null)
         {
             // 즉시 현재 체력 표시
@@ -98,7 +99,7 @@ public class HealthUI : MonoBehaviour
             
             if (showDebugLogs)
             {
-                Debug.Log($"🔗 [HealthUI] PlayerHealth 연결 완료: {playerHealth.CurrentHealth}/{playerHealth.MaxHealth}");
+                Debug.Log($"🔗 [HealthUI] PlayerHealth와 연결 완료 - 체력: {playerHealth.CurrentHealth}/{playerHealth.MaxHealth}");
             }
         }
     }

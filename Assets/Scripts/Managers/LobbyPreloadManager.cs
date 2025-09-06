@@ -161,7 +161,7 @@ public class LobbyPreloadManager : MonoBehaviour
         yield return new WaitForSeconds(0.8f); // 시각적 효과 증가
         
         // EquipmentDataCache 초기화 확인
-        if (EquipmentDataCache.Instance != null)
+        if (FindObjectOfType<EquipmentDataCache>() != null)
         {
             if (enableDebugLogs)
                 Debug.Log("✅ [LobbyPreloadManager] EquipmentDataCache 확인됨");
@@ -171,7 +171,7 @@ public class LobbyPreloadManager : MonoBehaviour
         yield return new WaitForSeconds(0.8f);
         
         // PickupDataCache 초기화 확인
-        if (PickupDataCache.Instance != null)
+        if (FindObjectOfType<PickupDataCache>() != null)
         {
             if (enableDebugLogs)
                 Debug.Log("✅ [LobbyPreloadManager] PickupDataCache 확인됨");
