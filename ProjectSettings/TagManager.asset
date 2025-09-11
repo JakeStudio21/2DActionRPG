@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - BossGate
+  - Occluder
   layers:
   - Default
   - TransparentFX
@@ -42,4 +43,22 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 450286985
+    locked: 0
+  - name: Ground
+    uniqueID: 3755536667
+    locked: 0
+  - name: Character
+    uniqueID: 1855332111
+    locked: 0
+  - name: Decoration
+    uniqueID: 464310443
+    locked: 0
+  - name: ' Effects'
+    uniqueID: 1325618135
+    locked: 0
+  - name: ' UI'
+    uniqueID: 355474473
     locked: 0

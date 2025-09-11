@@ -15,6 +15,17 @@ public class WarriorData : BaseClassData
     [SerializeField] private float skillCooldownMultiplier = 1.0f; // 기본 쿨다운 (밸런스)
     [SerializeField] private float healthMultiplier = 1.5f;        // 50% 체력 증가 (탱커)
 
+
+// 아이소메트릭 캐릭터 구현
+    [Header("아이소메트릭 설정")]
+    [SerializeField] private IsometricCharacterData isometricData = new IsometricCharacterData();
+
+    /// <summary>
+    /// 아이소메트릭 캐릭터 데이터 접근
+    /// </summary>
+    public IsometricCharacterData IsometricData => isometricData;
+
+
     // BaseClassData의 추상 속성들 구현
     public override float AttackPowerMultiplier => attackPowerMultiplier;
     public override float MoveSpeedMultiplier => moveSpeedMultiplier;
@@ -92,5 +103,20 @@ public class WarriorData : BaseClassData
         // 데미지 배율 값들이 음수가 아닌지 확인
         warriorCounterAttackDamage = Mathf.Max(0f, warriorCounterAttackDamage);
         warriorBerserkerDamageBonus = Mathf.Max(0f, warriorBerserkerDamageBonus);
+        
+        // 🆕 아이소메트릭 데이터 기본값 설정
+        if (isometricData == null)
+        {
+            isometricData = new IsometricCharacterData();
+            isometricData.SetDefaults();
+        }
+        
+        // 🆕 아이소메트릭 데이터 유효성 검증
+        if (!isometricData.IsValid())
+        {
+            Debug.LogWarning($"[WarriorData] {name}의 아이소메트릭 데이터가 유효하지 않습니다.");
+            isometricData.SetDefaults();
+        }
     }
+
 }

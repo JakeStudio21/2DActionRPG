@@ -32,6 +32,11 @@ public class AssasinData : BaseClassData
     [Tooltip("백어택 데미지 보너스 배율")]
     public float assasinBackAttackBonus = 1.3f;      // 백어택 보너스 30%
 
+    [Header("아이소메트릭 설정")]
+    [SerializeField] private IsometricCharacterData isometricData = new IsometricCharacterData();
+
+    public IsometricCharacterData IsometricData => isometricData;
+
     /// <summary>
     /// 어쌔신 전용 정보 출력 (부모 메서드 오버라이드)
     /// </summary>
@@ -57,5 +62,12 @@ public class AssasinData : BaseClassData
         // 배율 값들이 음수가 아닌지 확인
         assasinBackAttackBonus = Mathf.Max(0f, assasinBackAttackBonus);
         assasinStealthDuration = Mathf.Max(0f, assasinStealthDuration);
+        
+        // 아이소메트릭 데이터 기본값 설정
+        if (isometricData == null)
+        {
+            isometricData = new IsometricCharacterData();
+            isometricData.SetDefaults();
+        }
     }
 }

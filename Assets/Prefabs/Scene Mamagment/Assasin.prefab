@@ -392,6 +392,7 @@ GameObject:
   - component: {fileID: -2718816271147156856}
   - component: {fileID: 1756301324097207731}
   - component: {fileID: -5535195084605027862}
+  - component: {fileID: 4620531986320996637}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -454,8 +455,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1855332111
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -75224854, guid: 478a100d121726e43b8030f7be703933, type: 3}
   m_Color: {r: 0, g: 0.54191923, b: 1, a: 1}
@@ -476,10 +477,10 @@ SortingGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7542120236176968360}
   m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1855332111
+  m_SortingLayer: 3
   m_SortingOrder: 0
-  m_SortAtRoot: 0
+  m_SortAtRoot: 1
 --- !u!50 &2625955227663354421
 Rigidbody2D:
   serializedVersion: 4
@@ -608,7 +609,12 @@ MonoBehaviour:
   dashspeed: 1
   myTrailRenderer: {fileID: 4602630472629665941}
   weaponCollider: {fileID: 5337248612677347209}
+  deadZone: 0.12
+  snapTurnThreshold: -0.2
   fixedJoystick: {fileID: 0}
+  inputBufferTime: 0.1
+  accelerationTime: 0.05
+  decelerationTime: 0.03
 --- !u!114 &472274624499914740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -808,3 +814,25 @@ MonoBehaviour:
   enableAutoHitDetection: 1
   criticalThreshold: 1.5
   showDebugLogs: 1
+--- !u!114 &4620531986320996637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footPosition: {fileID: 0}
+  footOffset: {x: 0, y: 0}
+  baseLayer: 1000
+  heightOffset: 0
+  updatePolicy: 1
+  updateInterval: 0.1
+  moveThreshold: 0.01
+  showDebugGizmo: 1
+  showOrderInInspector: 0
+  enableDebugLogs: 1

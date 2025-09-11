@@ -204,5 +204,28 @@ public class BlueSlime : BaseEnemy
         Debug.Log(info);
     }
 
+    [Header("아이소메트릭 설정")]
+    [SerializeField] private IsometricCharacterData isometricData = new IsometricCharacterData();
+
+    public IsometricCharacterData IsometricData => isometricData;
+
+    private void OnValidate()
+    {
+        // 기존 OnValidate 내용들...
+        
+        // 아이소메트릭 데이터 기본값 설정
+        if (isometricData == null)
+        {
+            isometricData = new IsometricCharacterData();
+            isometricData.SetDefaults();
+        }
+        
+        if (!isometricData.IsValid())
+        {
+            Debug.LogWarning($"[{GetType().Name}] {name}의 아이소메트릭 데이터가 유효하지 않습니다.");
+            isometricData.SetDefaults();
+        }
+    }
+
     #endregion
 } 

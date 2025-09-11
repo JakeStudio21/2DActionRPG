@@ -83,8 +83,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1855332111
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -1468931158, guid: f4e859bd1b8db634faeb1f6c4c29bdf3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -205,13 +205,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  knockBackThrust: 5
-  deathVFXPrefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
-  experienceGiven: 10
-  isBoss: 0
-  bossId: 
-  isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
 --- !u!114 &4792411720221729903
@@ -362,3 +355,8 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: e2b2d339f5f94044d9716d89a75d5c4b, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  homePosition: {x: 0, y: 0, z: 0}
+  patrolRadius: 3
+  spawnPosition: {x: 0, y: 0, z: 0}
+  enableDebugLogs: 1
+  meleeAttack: {fileID: 0}
