@@ -1274,7 +1274,8 @@ public class GamePoolManager : Singleton<GamePoolManager>
         }
         
         // 2. 활성 오브젝트들도 파괴
-        foreach (var activeObj in activePools.Values)
+        var activeObjectsList = new List<GameObject>(activePools.Values);
+        foreach (var activeObj in activeObjectsList)
         {
             if (activeObj != null)
                 DestroyImmediate(activeObj);

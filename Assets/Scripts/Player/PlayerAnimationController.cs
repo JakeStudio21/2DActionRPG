@@ -10,9 +10,17 @@ public class PlayerAnimationController : MonoBehaviour
     [Header("Animation Parameters")]
     [SerializeField] private bool showDebugLogs = true;
     
+    // ⭐ 아이소메트릭 데이터 연동 추가
+    [Header("🗺️ 아이소메트릭 설정")]
+    [SerializeField] private bool useIsometricData = true;
+    
     private Animator animator;
     private ActiveWeapon activeWeapon;
     private SkillController skillController; // ⭐ 스킬 컨트롤러 참조 추가
+    
+    // ⭐ 플레이어 클래스 참조 추가
+    private BaseClassBehaviour playerClass;
+    private DirectionPreset currentDirectionPreset = DirectionPreset.E8; // 기본값
     
     // Animation Parameter Hashes (성능 최적화)
     readonly int IS_ATTACKING_HASH = Animator.StringToHash("isAttacking");
@@ -25,6 +33,12 @@ public class PlayerAnimationController : MonoBehaviour
     // ⭐ 스킬2 Parameters 추가 (신규)
     readonly int IS_SKILL2_HASH = Animator.StringToHash("isSkill2");
     readonly int SKILL2_TRIGGER_HASH = Animator.StringToHash("Skill2");
+    
+    // ⭐ Dash Parameters 추가 (E8 방식)
+    readonly int IS_DASHING_HASH = Animator.StringToHash("isDashing");
+    readonly int DASH_TRIGGER_HASH = Animator.StringToHash("Dash");
+    readonly int LAST_MOVE_X_HASH = Animator.StringToHash("lastMoveX");
+    readonly int LAST_MOVE_Y_HASH = Animator.StringToHash("lastMoveY");
     
     // 공격 상태 추적
     private bool isAttacking = false;
@@ -40,6 +54,12 @@ public class PlayerAnimationController : MonoBehaviour
     private bool isSkill2 = false;
     private bool canSkill2 = true;
     private float skill2Cooldown = 3f; // 스킬2는 조금 더 긴 쿨다운
+    
+    // ⭐ Dash 상태 추적 추가 (E8 방식)
+    private bool isDashing = false;
+    private bool canDash = true;
+    private float dashCooldown = 0.25f; // PlayerController와 동일
+    private Vector2 lastMoveDirection = Vector2.down; // 기본값: 남쪽
     
     // ⭐ 글로벌 스킬 쿨다운 추가 (핵심 해결책)
     private bool isAnySkillActive = false;
@@ -151,8 +171,57 @@ public class PlayerAnimationController : MonoBehaviour
         // 초기 Animation Parameters 설정
         InitializeAnimationParameters();
         
+        // 🗺️ 아이소메트릭 데이터 초기화 추가
+        InitializePlayerClassReference();
+        
         if (showDebugLogs)
             Debug.Log("🟢 [PlayerAnimationController] 초기화 완료!");
+    }
+    
+    /// <summary>
+    /// 플레이어 클래스 컴포넌트 참조 초기화
+    /// </summary>
+    private void InitializePlayerClassReference()
+    {
+        if (showDebugLogs)
+            Debug.Log("🔍 [PlayerAnimationController] 플레이어 클래스 참조 초기화 시작");
+            
+        // Assasin 또는 Warrior 컴포넌트 찾기
+        var assasin = GetComponent<Assasin>();
+        var warrior = GetComponent<Warrior>();
+        
+        if (assasin != null)
+        {
+            playerClass = assasin;
+            currentDirectionPreset = assasin.GetDirectionPreset();
+            
+            if (showDebugLogs)
+                Debug.Log($"🗺️ [PlayerAnimationController] Assasin 감지됨, DirectionPreset: {currentDirectionPreset}");
+        }
+        else if (warrior != null)
+        {
+            playerClass = warrior;
+            currentDirectionPreset = warrior.GetDirectionPreset();
+            
+            if (showDebugLogs)
+                Debug.Log($"🗺️ [PlayerAnimationController] Warrior 감지됨, DirectionPreset: {currentDirectionPreset}");
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerAnimationController] 플레이어 클래스 미감지 - Assasin/Warrior 컴포넌트 없음");
+        }
+        
+        if (playerClass != null && useIsometricData)
+        {
+            if (showDebugLogs)
+                Debug.Log($"✅ [PlayerAnimationController] 아이소메트릭 데이터 연동 활성화: {playerClass.ClassName}");
+        }
+        else if (!useIsometricData)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [PlayerAnimationController] IsometricData 비활성화됨 (useIsometricData = false)");
+        }
     }
     
     /// <summary>
@@ -513,6 +582,7 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnAttackStart()
     {
+        Debug.Log("🔥🔥🔥 [CRITICAL] OnAttackStart Animation Event 호출됨! 🔥🔥🔥");
         if (showDebugLogs)
             Debug.Log("🟢 [PlayerAnimationController] OnAttackStart - Animation Event");
         
@@ -552,6 +622,7 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnAttackComplete()
     {
+        Debug.Log("🔥🔥🔥 [CRITICAL] OnAttackComplete Animation Event 호출됨! 🔥🔥🔥");
         if (showDebugLogs)
             Debug.Log("🟢 [PlayerAnimationController] OnAttackComplete - Animation Event");
         
@@ -965,5 +1036,208 @@ public class PlayerAnimationController : MonoBehaviour
         if (stateHash == Animator.StringToHash("Death")) return "Death";
         
         return $"Unknown({stateHash})";
+    }
+
+    /// <summary>
+    /// ⭐ 대시 트리거 (E8 방식 방향 저장)
+    /// </summary>
+    public bool TriggerDash(Vector2 direction)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🚀 [PlayerAnimationController] TriggerDash 호출: {direction}");
+        
+        if (animator == null)
+        {
+            Debug.LogError("🔴 [PlayerAnimationController] Animator가 null입니다!");
+            return false;
+        }
+        
+        if (!canDash)
+        {
+            if (showDebugLogs)
+                Debug.Log("🟡 [PlayerAnimationController] 대시 쿨다운 중입니다!");
+            return false;
+        }
+        
+        // 방향이 거의 0이면 마지막 저장된 방향 사용
+        if (direction.magnitude < 0.1f)
+        {
+            direction = lastMoveDirection;
+        }
+        
+        // 방향 저장 (E8 방식 변환)
+        Vector2 dashDirection = ConvertToDirection(direction);
+        lastMoveDirection = dashDirection;
+        
+        // 애니메이션 파라미터 설정
+        try
+        {
+            animator.SetFloat(LAST_MOVE_X_HASH, dashDirection.x);
+            animator.SetFloat(LAST_MOVE_Y_HASH, dashDirection.y);
+            animator.SetBool(IS_DASHING_HASH, true);
+            animator.SetTrigger(DASH_TRIGGER_HASH);
+            
+            isDashing = true;
+            canDash = false;
+            
+            if (showDebugLogs)
+                Debug.Log($"🟢 [PlayerAnimationController] 대시 트리거 성공! 방향: {dashDirection}");
+            
+            // 대시 지속시간 후 상태 리셋
+            StartCoroutine(DashRoutine());
+            
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"🔴 [PlayerAnimationController] 대시 트리거 실패: {e.Message}");
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 동적 방향 변환 (DirectionPreset 기반)
+    /// </summary>
+    private Vector2 ConvertToDirection(Vector2 direction)
+    {
+        direction = direction.normalized;
+        
+        // 아이소메트릭 데이터 사용하지 않으면 기존 E5 방식 (하위 호환)
+        if (!useIsometricData)
+        {
+            return ConvertToE5Legacy(direction);
+        }
+        
+        // DirectionPreset에 따른 분기
+        switch (currentDirectionPreset)
+        {
+            case DirectionPreset.E4M:
+                return ConvertToE4M(direction);
+            case DirectionPreset.E8:
+                return ConvertToE8(direction);
+            default:
+                return ConvertToE8(direction); // 기본값
+        }
+    }
+    
+    /// <summary>
+    /// E8 (8방향) 변환 
+    /// </summary>
+    private Vector2 ConvertToE8(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (angle < 0) angle += 360f;
+        
+        // 8방향 정밀 변환 (22.5도 간격)
+        if (angle >= 337.5f || angle < 22.5f)
+            return Vector2.right;                    // E (0°)
+        else if (angle >= 22.5f && angle < 67.5f)
+            return new Vector2(0.7071f, 0.7071f);   // NE (45°)
+        else if (angle >= 67.5f && angle < 112.5f)
+            return Vector2.up;                       // N (90°)
+        else if (angle >= 112.5f && angle < 157.5f)
+            return new Vector2(-0.7071f, 0.7071f);  // NW (135°)
+        else if (angle >= 157.5f && angle < 202.5f)
+            return Vector2.left;                     // W (180°)
+        else if (angle >= 202.5f && angle < 247.5f)
+            return new Vector2(-0.7071f, -0.7071f); // SW (225°)
+        else if (angle >= 247.5f && angle < 292.5f)
+            return Vector2.down;                     // S (270°)
+        else
+            return new Vector2(0.7071f, -0.7071f);  // SE (315°)
+    }
+    
+    /// <summary>
+    /// E4M (4방향+미러링) 변환
+    /// </summary>
+    private Vector2 ConvertToE4M(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (angle < 0) angle += 360f;
+        
+        // 4방향 스냅핑 (45도 간격)
+        if (angle >= 315f || angle < 45f)
+            return Vector2.right;                    // E (0°)
+        else if (angle >= 45f && angle < 135f)
+            return Vector2.up;                       // N (90°)
+        else if (angle >= 135f && angle < 225f)
+            return Vector2.left;                     // W (180°)
+        else
+            return Vector2.down;                     // S (270°)
+    }
+    
+    /// <summary>
+    /// 기존 E5 방식 (하위 호환용)
+    /// </summary>
+    private Vector2 ConvertToE5Legacy(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (angle < 0) angle += 360f;
+        
+        // 기존 E5 로직 유지
+        if (angle >= 337.5f || angle < 22.5f)
+            return Vector2.right;
+        else if (angle >= 22.5f && angle < 67.5f)
+            return new Vector2(0.7f, 0.7f);
+        else if (angle >= 67.5f && angle < 112.5f)
+            return Vector2.up;
+        else if (angle >= 112.5f && angle < 157.5f)
+            return new Vector2(0.7f, 0.7f);  // NW → NE
+        else if (angle >= 157.5f && angle < 202.5f)
+            return Vector2.right;    // W → E
+        else if (angle >= 202.5f && angle < 247.5f)
+            return new Vector2(0.7f, -0.7f);  // SW → SE
+        else if (angle >= 247.5f && angle < 292.5f)
+            return Vector2.down;
+        else
+            return new Vector2(0.7f, -0.7f);  // SE
+    }
+    
+    /// <summary>
+    /// ⭐ 대시 상태 관리 코루틴
+    /// </summary>
+    private IEnumerator DashRoutine()
+    {
+        // 대시 지속시간 (PlayerController와 동일)
+        yield return new WaitForSeconds(0.2f);
+        
+        // isDashing 해제
+        if (animator != null)
+        {
+            animator.SetBool(IS_DASHING_HASH, false);
+        }
+        isDashing = false;
+        
+        if (showDebugLogs)
+            Debug.Log("🟢 [PlayerAnimationController] 대시 완료");
+        
+        // 쿨다운
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+        
+        if (showDebugLogs)
+            Debug.Log("🟢 [PlayerAnimationController] 대시 쿨다운 완료");
+    }
+    
+    /// <summary>
+    /// ⭐ Animation Event: 대시 시작 시점
+    /// </summary>
+    public void OnDashStart()
+    {
+        if (showDebugLogs)
+            Debug.Log("🚀 [PlayerAnimationController] OnDashStart - Animation Event");
+        
+        // 추가 대시 로직 (파티클 이펙트 등)이 필요하면 여기에 구현
+    }
+    
+    /// <summary>
+    /// ⭐ Animation Event: 대시 완료 시점  
+    /// </summary>
+    public void OnDashComplete()
+    {
+        if (showDebugLogs)
+            Debug.Log("🚀 [PlayerAnimationController] OnDashComplete - Animation Event");
+        
+        // 대시 완료 시 추가 로직이 필요하면 여기에 구현
     }
 } 

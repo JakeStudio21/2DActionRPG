@@ -609,8 +609,10 @@ MonoBehaviour:
   dashspeed: 1
   myTrailRenderer: {fileID: 4602630472629665941}
   weaponCollider: {fileID: 5337248612677347209}
+  showDebugLogs: 1
   deadZone: 0.12
   snapTurnThreshold: -0.2
+  debugLogInterval: 1
   fixedJoystick: {fileID: 0}
   inputBufferTime: 0.1
   accelerationTime: 0.05

@@ -567,7 +567,7 @@ Animator:
   m_GameObject: {fileID: 7542120236176968360}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 408b85f358e9dd342879fa7e3f975bd7, type: 2}
+  m_Controller: {fileID: 9100000, guid: 74d93639f31d18d469f944cc7fe6409f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -607,8 +607,10 @@ MonoBehaviour:
   dashspeed: 1
   myTrailRenderer: {fileID: 4602630472629665941}
   weaponCollider: {fileID: 5337248612677347209}
+  showDebugLogs: 1
   deadZone: 0.12
   snapTurnThreshold: -0.2
+  debugLogInterval: 1
   fixedJoystick: {fileID: 0}
   inputBufferTime: 0.1
   accelerationTime: 0.05

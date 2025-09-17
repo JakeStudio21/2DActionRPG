@@ -532,4 +532,99 @@ public class Assasin : BaseClassBehaviour
             Debug.LogWarning($"🟡 [Assasin] 능력치 재적용 중 오류 (무시됨): {e.Message}");
         }
     }
+
+    #region 🗺️ 아이소메트릭 데이터 활용 (신규 추가)
+    
+    /// <summary>
+    /// ScriptableObject에서 아이소메트릭 데이터 가져오기
+    /// </summary>
+    public IsometricCharacterData GetIsometricData()
+    {
+        return assasinData?.IsometricData ?? CreateDefaultIsometricData();
+    }
+    
+    /// <summary>
+    /// 발 위치 오프셋 가져오기
+    /// </summary>
+    public Vector2 GetFootOffset()
+    {
+        var isometricData = GetIsometricData();
+        if (showDebugLogs)
+            Debug.Log($"🦶 [Assasin] FootOffset: {isometricData.FootOffset}");
+        return isometricData.FootOffset;
+    }
+    
+    /// <summary>
+    /// 방향 프리셋 가져오기
+    /// </summary>
+    public DirectionPreset GetDirectionPreset()
+    {
+        var isometricData = GetIsometricData();
+        if (showDebugLogs)
+            Debug.Log($"🧭 [Assasin] DirectionPreset: {isometricData.DirectionPreset}");
+        return isometricData.DirectionPreset;
+    }
+    
+    /// <summary>
+    /// 높이 오프셋 계산 (점프, 스킬 등에 사용)
+    /// </summary>
+    /// <param name="t">높이 곡선 시간 (0~1)</param>
+    /// <returns>계산된 높이 오프셋</returns>
+    public int CalculateHeightOffset(float t)
+    {
+        var isometricData = GetIsometricData();
+        int heightOffset = isometricData.CalculateHeightOffset(t);
+        
+        if (showDebugLogs && heightOffset != 0)
+            Debug.Log($"📈 [Assasin] HeightOffset: t={t:F2} → {heightOffset}");
+            
+        return heightOffset;
+    }
+    
+    /// <summary>
+    /// 월드 좌표 기준 발 위치 계산
+    /// </summary>
+    /// <param name="centerPosition">캐릭터 중심 위치</param>
+    /// <returns>발 위치 월드 좌표</returns>
+    public Vector3 GetFootWorldPosition(Vector3 centerPosition)
+    {
+        var isometricData = GetIsometricData();
+        return isometricData.GetFootWorldPosition(centerPosition);
+    }
+    
+    /// <summary>
+    /// 아이소메트릭 데이터 유효성 검증 및 로그 출력
+    /// </summary>
+    private void ValidateIsometricData()
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log($"🗺️ [Assasin] 아이소메트릭 데이터 검증 시작");
+            
+            var isometricData = GetIsometricData();
+            Debug.Log($"   - DirectionPreset: {isometricData.DirectionPreset}");
+            Debug.Log($"   - FootOffset: {isometricData.FootOffset}");
+            Debug.Log($"   - HeightAmplitude: {isometricData.HeightAmplitude}");
+            Debug.Log($"   - IsValid: {isometricData.IsValid()}");
+            
+            // 샘플 높이 계산 테스트
+            Debug.Log($"   - 높이 테스트: 0.0={CalculateHeightOffset(0f)}, 0.5={CalculateHeightOffset(0.5f)}, 1.0={CalculateHeightOffset(1f)}");
+        }
+    }
+    
+    /// <summary>
+    /// 기본 아이소메트릭 데이터 생성 (Fallback)
+    /// </summary>
+    private IsometricCharacterData CreateDefaultIsometricData()
+    {
+        var defaultData = new IsometricCharacterData();
+        defaultData.SetDefaults();
+        
+        if (showDebugLogs)
+            Debug.LogWarning($"⚠️ [Assasin] AssasinData가 없어 기본 아이소메트릭 데이터 사용");
+            
+        return defaultData;
+    }
+    
+    #endregion
 }

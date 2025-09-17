@@ -66,32 +66,17 @@ public class PlayerAttackInput : MonoBehaviour
             if (success)
             {
                 Debug.Log("🟢 [PlayerAttackInput] PlayerAnimationController 공격 성공!");
-                return;
             }
             else
             {
-                Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 공격 실패!");
+                Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 공격 실패! (쿨다운 중)");
             }
+            
+            return; // ⭐ 성공/실패와 관계없이 여기서 종료
         }
         
-        // 백업: ActiveWeapon 직접 호출
-        var foundActiveWeapon = FindObjectOfType<ActiveWeapon>();
-        if (foundActiveWeapon != null)
-        {
-            foundActiveWeapon.ExecuteWeaponAttack();  // ✅ PerformAttack() → ExecuteWeaponAttack()
-            return;
-        }
-        
-        var activeWeapon = FindObjectOfType<ActiveWeapon>();
-        if (activeWeapon != null)
-        {
-            activeWeapon.ExecuteWeaponAttack();  // ✅ PerformAttack() → ExecuteWeaponAttack()
-            Debug.Log("🟢 [PlayerAttackInput] ExecuteWeaponAttack() 호출 완료");
-        }
-        else
-        {
-            Debug.LogError("🔴 [PlayerAttackInput] ActiveWeapon을 찾을 수 없습니다!");
-        }
+        // ❌ 백업 시스템 완전 제거 (77-95번 라인 모두 삭제)
+        Debug.LogError("🔴 [PlayerAttackInput] PlayerAnimationController를 찾을 수 없습니다!");
     }
 
     /// <summary>

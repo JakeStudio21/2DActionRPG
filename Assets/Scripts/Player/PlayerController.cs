@@ -4,512 +4,598 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-     public bool FacingLeft { get { return facingLeft; } }
-     public Vector2 Movement { get { return movement; } }
+    
+    private bool _seenAnimLogger = false;
+    public bool FacingLeft { get { return facingLeft; } }
+    public Vector2 Movement { get { return movement; } }
+
+    [SerializeField] private float moveSpeed = 1f;
+    [SerializeField] private float dashspeed = 4f;
+    [SerializeField] private TrailRenderer myTrailRenderer;
+    [SerializeField] private Transform weaponCollider;
+
+    // ⭐ 아이소메트릭 디버그 설정 추가
+    [Header("🧭 아이소메트릭 방향 디버그")]
+    [SerializeField] private bool showDebugLogs = true;
+    // 🎯 반응성 튜닝 파라미터
+    [SerializeField] private float deadZone = 0.12f;           // 미세 입력 무시
+    [SerializeField] private float snapTurnThreshold = -0.2f;  // 역방향 전환 스냅 컷오프( -1 에 가까울수록 강함 )
+
+    // 로그 주기 (초). 필요시 인스펙터에서 조절 가능
+    [SerializeField] private float debugLogInterval = 1f;
+    private float _nextAnimLogAt = 0f;
 
 
-     [SerializeField] private float moveSpeed = 1f;
-     [SerializeField] private float dashspeed = 4f;
-     [SerializeField] private TrailRenderer myTrailRenderer;
-     [SerializeField] private Transform weaponCollider;
-     // 🎯 반응성 튜닝 파라미터
-     [SerializeField] private float deadZone = 0.12f;           // 미세 입력 무시
-     [SerializeField] private float snapTurnThreshold = -0.2f;  // 역방향 전환 스냅 컷오프( -1 에 가까울수록 강함 )
+    // 🔍 디버깅용 공개 프로퍼티
+    public float CurrentMoveSpeed => moveSpeed;
+    public float CurrentDashSpeed => dashspeed;
 
-     // 🔍 디버깅용 공개 프로퍼티
-     public float CurrentMoveSpeed => moveSpeed;
-     public float CurrentDashSpeed => dashspeed;
+    private PlayerControls playerControls;
+    private Vector2 movement;
+    private Rigidbody2D rb;
+    private Animator myAnimator;
+    private SpriteRenderer mySpriteRender;
+    private Knockback knockback;
+    private PlayerHealth playerHealth; // ✅ FindObjectOfType 캐시
+    private float startingMoveSpeed;
 
-     private PlayerControls playerControls;
-     private Vector2 movement;
-     private Rigidbody2D rb;
-     private Animator myAnimator;
-     private SpriteRenderer mySpriteRender;
-     private Knockback knockback;
-     private PlayerHealth playerHealth; // ✅ FindObjectOfType 캐시
-     private float startingMoveSpeed;
+    private bool facingLeft = false;
+    private bool isDashing = false;
 
-     private bool facingLeft = false;
-     private bool isDashing = false;
+    // ⭐ 마지막 이동 방향 저장 (새로 추가)
+    private Vector2 lastMoveDirection = Vector2.down; // 기본값: 북쪽
 
-     // FixedJoystick 참조 추가
-     [Header("조이스틱 입력")]
-     public FixedJoystick fixedJoystick;
-     private bool joystickFound = false;
+    // FixedJoystick 참조 추가
+    [Header("조이스틱 입력")]
+    public FixedJoystick fixedJoystick;
+    private bool joystickFound = false;
 
-     // 무기/스킬별 레벨 통합 관리
-     private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
+    // 무기/스킬별 레벨 통합 관리
+    private Dictionary<string, int> skillLevels = new Dictionary<string, int>();
 
-     // ⚡ 액션 RPG 반응성 설정
-     [Header("🎮 액션 RPG 반응성 설정")]
-     [SerializeField] private float inputBufferTime = 0.1f;    // 입력 버퍼 시간
-     [SerializeField] private float accelerationTime = 0.05f;  // 가속 시간 (0에 가까울수록 즉각적)
-     [SerializeField] private float decelerationTime = 0.03f;  // 감속 시간 (0에 가까울수록 즉각적)
+    // ⚡ 액션 RPG 반응성 설정
+    [Header("🎮 액션 RPG 반응성 설정")]
+    [SerializeField] private float inputBufferTime = 0.1f;    // 입력 버퍼 시간
+    [SerializeField] private float accelerationTime = 0.05f;  // 가속 시간 (0에 가까울수록 즉각적)
+    [SerializeField] private float decelerationTime = 0.03f;  // 감속 시간 (0에 가까울수록 즉각적)
 
-     // 입력 버퍼링 변수
-     private Vector2 bufferedInput = Vector2.zero;
-     private float lastInputTime = -Mathf.Infinity;
+    // 입력 버퍼링 변수
+    private Vector2 bufferedInput = Vector2.zero;
+    private float lastInputTime = -Mathf.Infinity;
 
-     private void Awake()
-     {
-          playerControls = new PlayerControls();
-          rb = GetComponent<Rigidbody2D>();
-          myAnimator = GetComponent<Animator>();
-          mySpriteRender = GetComponent<SpriteRenderer>();
-          knockback = GetComponent<Knockback>();
-          playerHealth = FindObjectOfType<PlayerHealth>(); // ✅ 한 번만 찾고 캐시
-          
-          // 조이스틱 초기화는 Start에서 코루틴으로 처리
-     }
+    private void Awake()
+    {
+        playerControls = new PlayerControls();
+        rb = GetComponent<Rigidbody2D>();
+        myAnimator = GetComponent<Animator>();
+        mySpriteRender = GetComponent<SpriteRenderer>();
+        knockback = GetComponent<Knockback>();
+        playerHealth = FindObjectOfType<PlayerHealth>(); // ✅ 한 번만 찾고 캐시
+        // 조이스틱 초기화는 Start에서 코루틴으로 처리
+    }
 
-     private void Start() 
-     {
-          playerControls.Combat.Dash.performed += _ => Dash();
-          startingMoveSpeed = moveSpeed;
+    private void Start()
+    {
+        playerControls.Combat.Dash.performed += _ => Dash();
+        startingMoveSpeed = moveSpeed;
 
-          // 조이스틱 찾기 코루틴 시작
-          StartCoroutine(FindJoystickCoroutine());
-          
-          // ⭐ 안전한 Rigidbody2D 상태 확인
-          StartCoroutine(SafeCheckRigidbodyState());
+        // 조이스틱 찾기 코루틴 시작
+        StartCoroutine(FindJoystickCoroutine());
 
-          // 로비에서 선택한 무기를 장착하는 새로운 로직으로 대체하므로 이 줄을 주석 처리합니다.
-          // FindObjectOfType<ActiveInventory>().EquipStartingweapon();
+        // ⭐ 안전한 Rigidbody2D 상태 확인
+        StartCoroutine(SafeCheckRigidbodyState());
 
-          // 액션 RPG 물리 최적화
-          OptimizePhysicsForActionRPG();
-     }
+        // 액션 RPG 물리 최적화
+        OptimizePhysicsForActionRPG();
+    }
 
-     /// <summary>
-     /// 안전한 Rigidbody2D 상태 확인 (코루틴으로 지연 실행)
-     /// </summary>
-     private IEnumerator SafeCheckRigidbodyState()
-     {
-          yield return new WaitForSeconds(0.1f); // 약간 지연
-          
-          try
-          {
-               if (rb == null)
-               {
-                    Debug.LogError("🔴 [PlayerController] Rigidbody2D가 null입니다!");
-                    yield break;
-               }
-               
-               Debug.Log($"🔍 [PlayerController] Rigidbody2D 상태:");
-               Debug.Log($"   - isKinematic: {rb.isKinematic}");
-               Debug.Log($"   - bodyType: {rb.bodyType}");
-               Debug.Log($"   - position: {rb.position}");
-               
-               // ⭐ 문제 해결: Kinematic이면 Dynamic으로 변경
-               if (rb.isKinematic)
-               {
-                    Debug.LogWarning("🟡 [PlayerController] Rigidbody2D가 Kinematic입니다! Dynamic으로 변경");
-                    rb.isKinematic = false;
-                    rb.bodyType = RigidbodyType2D.Dynamic;
-               }
-          }
-          catch (System.Exception e)
-          {
-               Debug.LogError($"🔴 [PlayerController] Rigidbody2D 상태 확인 에러: {e.Message}");
-          }
-     }
+    /// <summary>
+    /// 안전한 Rigidbody2D 상태 확인 (코루틴으로 지연 실행)
+    /// </summary>
+    private IEnumerator SafeCheckRigidbodyState()
+    {
+        yield return new WaitForSeconds(0.1f); // 약간 지연
 
-     /// <summary>
-     /// 안전한 조이스틱 찾기 코루틴
-     /// </summary>
-     private IEnumerator FindJoystickCoroutine()
-     {
-          float timeout = 5f; // 5초 타임아웃
-          float elapsed = 0f;
+        try
+        {
+            if (rb == null)
+            {
+                Debug.LogError("🔴 [PlayerController] Rigidbody2D가 null입니다!");
+                yield break;
+            }
 
-          while (!joystickFound && elapsed < timeout)
-          {
-               fixedJoystick = FindObjectOfType<FixedJoystick>();
-               if (fixedJoystick != null)
-               {
+            Debug.Log($"🔍 [PlayerController] Rigidbody2D 상태:");
+            Debug.Log($"   - isKinematic: {rb.isKinematic}");
+            Debug.Log($"   - bodyType: {rb.bodyType}");
+            Debug.Log($"   - position: {rb.position}");
+
+            // ⭐ 문제 해결: Kinematic이면 Dynamic으로 변경
+            if (rb.isKinematic)
+            {
+                Debug.LogWarning("🟡 [PlayerController] Rigidbody2D가 Kinematic입니다! Dynamic으로 변경");
+                rb.isKinematic = false;
+                rb.bodyType = RigidbodyType2D.Dynamic;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"🔴 [PlayerController] Rigidbody2D 상태 확인 에러: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 안전한 조이스틱 찾기 코루틴
+    /// </summary>
+    private IEnumerator FindJoystickCoroutine()
+    {
+        float timeout = 5f; // 5초 타임아웃
+        float elapsed = 0f;
+
+        while (!joystickFound && elapsed < timeout)
+        {
+            fixedJoystick = FindObjectOfType<FixedJoystick>();
+            if (fixedJoystick != null)
+            {
+                joystickFound = true;
+                Debug.Log("[PlayerController] 조이스틱을 찾았습니다!");
+                break;
+            }
+
+            elapsed += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        if (!joystickFound)
+        {
+            Debug.LogWarning("[PlayerController] 조이스틱을 찾을 수 없습니다. 키보드 입력만 사용됩니다.");
+        }
+    }
+
+    private void OnEnable()
+    {
+        playerControls.Enable();
+    }
+
+    private void OnDisable()
+    {
+        if (playerControls != null)
+            playerControls.Disable();
+    }
+
+    private void Update()
+    {
+        // ⭐ 조이스틱 연결 상태 실시간 체크 (안전하게)
+        try
+        {
+            if ((!joystickFound || fixedJoystick == null) && Time.frameCount % 60 == 0)
+            {
+                var joystickInScene = FindObjectOfType<FixedJoystick>();
+                if (joystickInScene != null)
+                {
+                    Debug.Log("[PlayerController] Update에서 조이스틱 재연결 시도");
+                    fixedJoystick = joystickInScene;
                     joystickFound = true;
-                    Debug.Log("[PlayerController] 조이스틱을 찾았습니다!");
-                    break;
-               }
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"🔴 [PlayerController] 조이스틱 체크 에러: {e.Message}");
+        }
 
-               elapsed += 0.1f;
-               yield return new WaitForSeconds(0.1f);
-          }
+        PlayerInput();
+    }
 
-          if (!joystickFound)
-          {
-               Debug.LogWarning("[PlayerController] 조이스틱을 찾을 수 없습니다. 키보드 입력만 사용됩니다.");
-          }
-     }
+    private void FixedUpdate()
+    {
+        // 이동 처리 (즉각 반응)
+        MoveFast();
 
-     private void OnEnable() 
-     {
-          playerControls.Enable();
-     }
+        // 최종 속도를 기준으로 애니/flipX를 "한 번만" 갱신
+        UpdateAnimAndFlipFromVelocity(rb != null ? rb.velocity : Vector2.zero);
+    }
 
-     private void OnDisable() 
-     {
-          if (playerControls != null)
-               playerControls.Disable();
-     }
-
-     private void Update()
-     {
-          // ⭐ 조이스틱 연결 상태 실시간 체크 (안전하게)
-          try
-          {
-               if ((!joystickFound || fixedJoystick == null) && Time.frameCount % 60 == 0)
-               {
-                    var joystickInScene = FindObjectOfType<FixedJoystick>();
-                    if (joystickInScene != null)
-                    {
-                         Debug.Log("[PlayerController] Update에서 조이스틱 재연결 시도");
-                         fixedJoystick = joystickInScene;
-                         joystickFound = true;
-                    }
-               }
-          }
-          catch (System.Exception e)
-          {
-               Debug.LogError($"🔴 [PlayerController] 조이스틱 체크 에러: {e.Message}");
-          }
-          
-          // ⭐ 강제 위치 변경 테스트 제거 (에러 원인 제거)
-          
-          PlayerInput();
-     }
-
-     private void FixedUpdate()
-     {
-          AdjustPlayerFacingDirection();
-          
-          // ✅ 선택 1: 완전 즉각적 (격투 게임 스타일)
-          MoveFast();
-          
-          // ✅ 선택 2: 부드럽지만 빠른 반응 (액션 RPG 스타일)
-          // MoveFastWithSmoothing();
-     }
-
-     public void ReEnableControls()
-     {
+    public void ReEnableControls()
+    {
         playerControls.Disable();
         playerControls.Enable();
-     }
+    }
 
-     public Transform GetWeaponCollider() 
-     {
-          return weaponCollider;
-     }
+    public Transform GetWeaponCollider()
+    {
+        return weaponCollider;
+    }
 
-     private void PlayerInput()
-     {
-          // 조이스틱 전용: 키보드 입력 제거
-          movement = Vector2.zero;
+    private void PlayerInput()
+    {
+        // 조이스틱 전용: 키보드 입력 제거
+        movement = Vector2.zero;
 
-          // 조이스틱이 발견되었고 유효하면 조이스틱 입력 사용
-          if (joystickFound && fixedJoystick != null)
-          {
-               movement = fixedJoystick.Direction;
-          }
-          else
-          {
-               // ⭐ 디버그: 1초마다 한 번씩만 로그
-               if (Time.frameCount % 60 == 0)
-               {
-                    Debug.LogWarning($"[PlayerController] 조이스틱 없음 - joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick}");
+        // 조이스틱이 발견되었고 유효하면 조이스틱 입력 사용
+        if (joystickFound && fixedJoystick != null)
+        {
+            movement = fixedJoystick.Direction;
+        }
+        else
+        {
+            // ⭐ 디버그: 1초마다 한 번씩만 로그
+            if (Time.frameCount % 60 == 0)
+            {
+                Debug.LogWarning($"[PlayerController] 조이스틱 없음 - joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick}");
 
-                    // ⭐ 추가: 실제 씬에 조이스틱이 있는지 확인
-                    var joystickInScene = FindObjectOfType<FixedJoystick>();
-                    Debug.Log($"[PlayerController] 씬에 조이스틱 존재 여부: {joystickInScene != null}");
+                // ⭐ 추가: 실제 씬에 조이스틱이 있는지 확인
+                var joystickInScene = FindObjectOfType<FixedJoystick>();
+                Debug.Log($"[PlayerController] 씬에 조이스틱 존재 여부: {joystickInScene != null}");
 
-                    // ⭐ 씬에 조이스틱이 있는데 연결 안된 경우 강제 재연결
-                    if (joystickInScene != null && (!joystickFound || fixedJoystick == null))
-                    {
-                         Debug.Log("[PlayerController] 조이스틱 발견! 강제 재연결 시도");
-                         RefreshJoystickReference();
-                    }
-               }
-          }
+                // ⭐ 씬에 조이스틱이 있는데 연결 안된 경우 강제 재연결
+                if (joystickInScene != null && (!joystickFound || fixedJoystick == null))
+                {
+                    Debug.Log("[PlayerController] 조이스틱 발견! 강제 재연결 시도");
+                    RefreshJoystickReference();
+                }
+            }
+        }
 
-          myAnimator.SetFloat("moveX", movement.x);
-          myAnimator.SetFloat("moveY", movement.y);
-     }
+        // ❌ moveX/moveY를 여기서 세팅하지 않습니다 (E5 미러링 충돌 방지)
+        // myAnimator.SetFloat("moveX", movement.x);
+        // myAnimator.SetFloat("moveY", movement.y);
+    }
 
-     // private void Move() 
-     // {
-     //      // ⭐ 안전한 디버깅 (try-catch 추가)
-     //      try
-     //      {
-     //          if (Time.frameCount % 60 == 0)
-     //          {
-     //              Debug.Log($"🔍 [PlayerController] Move 체크:");
-     //           //    Debug.Log($"   - movement: {movement}");
-     //              Debug.Log($"   - rb가 null인가: {rb == null}");
-     //              Debug.Log($"   - knockback가 null인가: {knockback == null}");
+    // ⚡ 액션 RPG 스타일 즉각 반응 이동 시스템
+    private void MoveFast()
+    {
+        // ⭐ 강제 디버그 - 매 2초마다
+        if (Time.frameCount % 120 == 0) 
+        {
+            Debug.Log($"🔍 [MoveFast] === 이동 시스템 상태 ===");
+            Debug.Log($"   movement 입력: ({movement.x:F3}, {movement.y:F3})");
+            Debug.Log($"   rb.velocity: ({(rb?.velocity.x ?? 0):F3}, {(rb?.velocity.y ?? 0):F3})");
+            Debug.Log($"   joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick != null}");
+        }
 
-     //              if (knockback != null)
-     //                  Debug.Log($"   - knockback.GettingKnockedBack: {knockback.GettingKnockedBack}");
-     //          }
-     //      }
-     //      catch (System.Exception e)
-     //      {
-     //          Debug.LogError($"🔴 [PlayerController] 디버깅 로그 에러: {e.Message}");
-     //      }
+        // 상태 체크 (넉백/사망 시 이동 금지)
+        if (knockback != null && knockback.GettingKnockedBack)
+        {
+            if (Time.frameCount % 60 == 0) Debug.Log("❌ [MoveFast] knockback 중단");
+            return;
+        }
+        if (playerHealth != null && playerHealth.isDead)
+        {
+            if (Time.frameCount % 60 == 0) Debug.Log("❌ [MoveFast] 사망 상태 중단");
+            return;
+        }
+        if (rb == null)
+        {
+            if (Time.frameCount % 60 == 0) Debug.Log("❌ [MoveFast] rb null 중단");
+            return;
+        }
 
-     //      // ⭐ 안전한 조건 확인
-     //      try
-     //      {
-     //          if (knockback != null && knockback.GettingKnockedBack) 
-     //          { 
-     //              return; 
-     //          }
+        // ✅ 개선: deadZone 필드 사용 (더 작은 값으로 조정)
+        float improvedDeadZone = deadZone * 0.5f; // deadZone 필드 사용하되 더 민감하게
 
-     //          var playerHealth = FindObjectOfType<PlayerHealth>();
-     //          if (playerHealth != null && playerHealth.isDead) 
-     //          { 
-     //              return; 
-     //          }
-     //      }
-     //      catch (System.Exception e)
-     //      {
-     //          Debug.LogError($"🔴 [PlayerController] Move 조건 확인 에러: {e.Message}");
-     //          return;
-     //      
+        // ⭐ DeadZone 체크 디버그
+        float movementMagnitude = movement.sqrMagnitude;
+        bool inDeadZone = movementMagnitude < improvedDeadZone * improvedDeadZone;
 
+        if (Time.frameCount % 60 == 0)
+        {
+            Debug.Log($"🔍 [MoveFast] DeadZone 체크 - magnitude: {movementMagnitude:F4}, threshold: {improvedDeadZone * improvedDeadZone:F4}, inDeadZone: {inDeadZone}");
+        }
 
-     //      // ⭐ 안전한 이동 실행
-     //      try
-     //      {
-     //          if (rb != null && movement.magnitude > 0.01f)
-     //          {
-     //              Vector2 newPosition = rb.position + movement * (moveSpeed * Time.fixedDeltaTime);
-     //              rb.MovePosition(newPosition);
+        // DeadZone: 미세 입력은 0으로 간주
+        if (inDeadZone)
+        {
+            if (Time.frameCount % 60 == 0) Debug.Log("🔍 [MoveFast] DeadZone - 정지 상태");
 
-     //              // ⭐ 간단한 이동 확인 (에러 방지)
-     //              if (Time.frameCount % 120 == 0) // 2초마다
-     //              {
-     //                  Debug.Log($"🚀 [PlayerController] 이동 실행: {movement} → {rb.position}");
-     //              }
-     //          }
-     //      }
-     //      catch (System.Exception e)
-     //      {
-     //          Debug.LogError($"🔴 [PlayerController] rb.MovePosition 에러: {e.Message}");
-     //      }
-     // }
+            // ✅ 개선: 즉시 완전 정지 (관성 제거)
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f; // 회전 관성도 제거
 
-     // ⚡ 액션 RPG 스타일 즉각 반응 이동 시스템
-     private void MoveFast()
-     {
-         // 상태 체크 (넉백/사망 시 이동 금지)
-         if (knockback != null && knockback.GettingKnockedBack) return;
-         if (playerHealth != null && playerHealth.isDead) return;
-         if (rb == null) return;
+            // 정지 애니메이션 신호는 FixedUpdate에서 일괄 처리
+            return;
+        }
 
-         // ✅ 개선: 더 작은 DeadZone으로 미세한 입력도 반응
-         float improvedDeadZone = 0.05f; // 0.12f → 0.05f로 감소
-         
-         // DeadZone: 미세 입력은 0으로 간주
-         if (movement.sqrMagnitude < improvedDeadZone * improvedDeadZone)
-         {
-             // ✅ 개선: 즉시 완전 정지 (관성 제거)
-             rb.velocity = Vector2.zero;
-             rb.angularVelocity = 0f; // 회전 관성도 제거
-             
-             // Animation 파라미터 처리 (IsMoving 에러 해결)
-             if (myAnimator != null)
-             {
-                 // moveX, moveY를 0으로 설정하여 정지 애니메이션 트리거
-                 myAnimator.SetFloat("moveX", 0f);
-                 myAnimator.SetFloat("moveY", 0f);
-             }
-             return;
-         }
+        if (Time.frameCount % 60 == 0) Debug.Log("🔍 [MoveFast] 이동 로직 진입!");
 
-         // ✅ 개선: 입력 방향 즉시 적용 (정규화 + 스케일링)
-         var inputDir = movement.normalized;
-         var targetVelocity = inputDir * moveSpeed;
+        // ✅ 개선: 입력 방향 즉시 적용 (정규화 + 스케일링)
+        var inputDir = movement.normalized;
+        var targetVelocity = inputDir * moveSpeed;
 
-         // ✅ 개선: 더 민감한 방향 전환 (액션 게임 스타일)
-         float aggressiveSnapThreshold = -0.1f; // -0.2f → -0.1f로 더 민감하게
-         
-         // 역방향 전환 시 즉시 스냅
-         if (rb.velocity.sqrMagnitude > 0.01f) // 더 작은 임계값
-         {
-             float dot = Vector2.Dot(rb.velocity.normalized, inputDir);
-             if (dot < aggressiveSnapThreshold)
-             {
-                 rb.velocity = Vector2.zero; // 즉시 리셋
-             }
-         }
+        // ✅ 개선: 더 민감한 방향 전환 (액션 게임 스타일)
+        float aggressiveSnapThreshold = snapTurnThreshold * 0.5f;
 
-         // ✅ 핵심 개선: 즉각적인 속도 적용 (관성 완전 제거)
-         rb.velocity = targetVelocity;
-         
-         // ✅ 추가: 물리 드래그 동적 조정 (더 반응적으로)
-         rb.drag = movement.sqrMagnitude > 0.01f ? 0f : 15f; // 이동 중: 드래그 0, 정지 시: 높은 드래그
+        // 역방향 전환 시 즉시 스냅
+        if (rb.velocity.sqrMagnitude > 0.01f)
+        {
+            float dot = Vector2.Dot(rb.velocity.normalized, inputDir);
+            if (dot < aggressiveSnapThreshold)
+            {
+                rb.velocity = Vector2.zero; // 즉시 리셋
+            }
+        }
 
-         // Animation 파라미터 업데이트 (moveX, moveY 사용)
-         if (myAnimator != null)
-         {
-             myAnimator.SetFloat("moveX", movement.x);
-             myAnimator.SetFloat("moveY", movement.y);
-         }
-     }
+        // ✅ 핵심 개선: 즉각적인 속도 적용 (관성 완전 제거)
+        rb.velocity = targetVelocity;
 
-     /// <summary>
-     /// 🎮 액션 RPG 스타일 입력 처리 (버퍼링 + 즉각 반응)
-     /// </summary>
-     private void ProcessActionRPGInput()
-     {
-         // 현재 입력이 있으면 버퍼에 저장
-         if (movement.sqrMagnitude > 0.01f)
-         {
-             bufferedInput = movement;
-             lastInputTime = Time.time;
-         }
-         
-         // 버퍼 시간 내의 입력 사용
-         if (Time.time - lastInputTime <= inputBufferTime)
-         {
-             movement = bufferedInput;
-         }
-         else
-         {
-             // 버퍼 시간 초과 시 입력 초기화
-             bufferedInput = Vector2.zero;
-             movement = Vector2.zero;
-         }
-     }
+        // ✅ 추가: 물리 드래그 동적 조정 (더 반응적으로)
+        rb.drag = movement.sqrMagnitude > 0.01f ? 0f : 15f; // 이동 중: 드래그 0, 정지 시: 높은 드래그
 
-     /// <summary>
-     /// 🚀 부드럽지만 즉각적인 가속/감속 시스템
-     /// </summary>
-     private void MoveFastWithSmoothing()
-     {
-         // 상태 체크
-         if (knockback != null && knockback.GettingKnockedBack) return;
-         if (playerHealth != null && playerHealth.isDead) return;
-         if (rb == null) return;
+        // ⭐ (중요) 여기서는 Animator/flipX를 건드리지 않는다.
+        // 애니/flipX는 FixedUpdate 마지막에 UpdateAnimAndFlipFromVelocity()로 일원화 처리.
+    }
 
-         // 입력 버퍼링 처리
-         ProcessActionRPGInput();
+    /// <summary>
+    /// 🎮 액션 RPG 스타일 입력 처리 (버퍼링 + 즉각 반응)
+    /// </summary>
+    private void ProcessActionRPGInput()
+    {
+        // 현재 입력이 있으면 버퍼에 저장
+        if (movement.sqrMagnitude > 0.01f)
+        {
+            bufferedInput = movement;
+            lastInputTime = Time.time;
+        }
 
-         Vector2 targetVelocity = Vector2.zero;
-         
-         if (movement.sqrMagnitude > 0.05f * 0.05f)
-         {
-             // 목표 속도 계산
-             targetVelocity = movement.normalized * moveSpeed;
-             
-             // ✅ 즉각적인 가속 (액션 게임 스타일)
-             float accelerationRate = moveSpeed / Mathf.Max(accelerationTime, 0.01f);
-             rb.velocity = Vector2.MoveTowards(rb.velocity, targetVelocity, accelerationRate * Time.fixedDeltaTime);
-         }
-         else
-         {
-             // ✅ 즉각적인 감속 (정지)
-             float decelerationRate = moveSpeed / Mathf.Max(decelerationTime, 0.01f);
-             rb.velocity = Vector2.MoveTowards(rb.velocity, Vector2.zero, decelerationRate * Time.fixedDeltaTime);
-         }
+        // 버퍼 시간 내의 입력 사용
+        if (Time.time - lastInputTime <= inputBufferTime)
+        {
+            movement = bufferedInput;
+        }
+        else
+        {
+            // 버퍼 시간 초과 시 입력 초기화
+            bufferedInput = Vector2.zero;
+            movement = Vector2.zero;
+        }
+    }
 
-         // Animation 업데이트
-         if (myAnimator != null)
-         {
-             myAnimator.SetFloat("moveX", rb.velocity.x / moveSpeed);
-             myAnimator.SetFloat("moveY", rb.velocity.y / moveSpeed);
-         }
-     }
+    /// <summary>
+    /// 🚀 부드럽지만 즉각적인 가속/감속 시스템 (미사용/참고용)
+    /// </summary>
+    private void MoveFastWithSmoothing()
+    {
+        if (knockback != null && knockback.GettingKnockedBack) return;
+        if (playerHealth != null && playerHealth.isDead) return;
+        if (rb == null) return;
 
+        ProcessActionRPGInput();
 
-     private void AdjustPlayerFacingDirection()
-     {
-          if (movement.x < 0)
-          {
-               mySpriteRender.flipX = true;
-               facingLeft = true;
-          }
-          else if (movement.x > 0)
-          {
-               mySpriteRender.flipX = false;
-               facingLeft = false;
-          }
-     }
+        Vector2 targetVelocity = Vector2.zero;
 
-     private void Dash() 
-     {
-          // Stamina 체크 제거 - 이제 스태미나 제한 없이 대시 가능
-          if ( !isDashing ) 
-          {
-               // Stamina.Instance.UseStamina(); // 주석처리              
-               isDashing = true;
-               moveSpeed += dashspeed;
-               myTrailRenderer.emitting = true;
-               StartCoroutine(EndDashRoutine());
-          }
-     }
-     
-     /// <summary>
-     /// 🆕 외부에서 호출 가능한 대시 메서드 (모바일 버튼용)
-     /// </summary>
-     public void PerformDash()
-     {
-         Debug.Log("[PlayerController] 대시 실행 요청");
-         Dash();
-     }
+        if (movement.sqrMagnitude > 0.05f * 0.05f)
+        {
+            targetVelocity = movement.normalized * moveSpeed;
+            float accelerationRate = moveSpeed / Mathf.Max(accelerationTime, 0.01f);
+            rb.velocity = Vector2.MoveTowards(rb.velocity, targetVelocity, accelerationRate * Time.fixedDeltaTime);
+        }
+        else
+        {
+            float decelerationRate = moveSpeed / Mathf.Max(decelerationTime, 0.01f);
+            rb.velocity = Vector2.MoveTowards(rb.velocity, Vector2.zero, decelerationRate * Time.fixedDeltaTime);
+        }
 
-     private IEnumerator EndDashRoutine() 
-     {
-          float dashTime = .2f;
-          float dashCD = .25f;
-          yield return new WaitForSecondsRealtime(dashTime);
-          moveSpeed = startingMoveSpeed;
-          myTrailRenderer.emitting = false;
-          yield return new WaitForSecondsRealtime(dashCD);
-          isDashing = false;
-     }
+        // 애니/flipX는 UpdateAnimAndFlipFromVelocity에서 처리
+    }
 
-     // Bow, Sword 등 스킬/무기 이름으로 레벨 조회
-     public int GetSkillLevel(string skillName)
-     {
-          if (skillLevels.ContainsKey(skillName))
-               return skillLevels[skillName];
-          return 0; // 기본값
-     }
+    /// <summary>
+    /// rb.velocity를 기준으로 5방향(E5) + flipX 방식으로
+    /// Animator 파라미터(moveX, moveY, speed, isMoving)와 SpriteRenderer.flipX를 "단 한 곳에서" 갱신
+    /// </summary>
+    private void UpdateAnimAndFlipFromVelocity(Vector2 velocity)
+    {
+        if (myAnimator == null || mySpriteRender == null)
+        {
+            if (Time.frameCount % 60 == 0)
+                Debug.LogError("🔴 [UpdateAnim] myAnimator 또는 mySpriteRender가 null입니다!");
+            return;
+        }
 
-     // Bow, Sword 등 스킬/무기 이름으로 레벨 설정
-     public void SetSkillLevel(string skillName, int level)
-     {
-          skillLevels[skillName] = level;
-     }
+        float speed = velocity.magnitude;
+        myAnimator.SetFloat("speed", speed);
+        myAnimator.SetBool("isMoving", speed > 0.01f);
 
-     /// <summary>
-     /// 외부에서 조이스틱 참조를 다시 설정할 수 있는 메서드 (강제 재연결)
-     /// </summary>
-     public void RefreshJoystickReference()
-     {
-          // ⭐ 핵심 수정: 무조건 강제로 초기화 후 재탐색
-          joystickFound = false;
-          fixedJoystick = null;
-          StartCoroutine(FindJoystickCoroutine());
-          
-          Debug.Log("[PlayerController] 조이스틱 강제 재연결 시도 - joystickFound를 false로 초기화");
-     }
+        // ⭐ 항상 출력되는 기본 디버깅
+        if (Time.frameCount % 30 == 0) // 0.5초마다
+        {
+            Debug.Log($"🔍 [UpdateAnim] === 기본 정보 ===");
+            Debug.Log($"   velocity: ({velocity.x:F3}, {velocity.y:F3}) | speed: {speed:F3}");
+            Debug.Log($"   lastMoveDirection: ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
+            Debug.Log($"   isMoving: {speed > 0.01f} | 정지조건: {speed < 0.1f}");
+        }
 
-     // 🔧 클래스별 능력치 적용용 공개 메서드 추가
-     public void SetMoveSpeed(float newMoveSpeed)
-     {
-         moveSpeed = newMoveSpeed;
-         startingMoveSpeed = newMoveSpeed;
-         Debug.Log($"🔧 [PlayerController] moveSpeed 직접 설정: {newMoveSpeed}");
-     }
+        if (speed < 0.1f)
+        {
+            // ⭐ 정지 상태 상세 디버깅
+            Debug.Log($"🛑 [IDLE] === 정지 상태 진입 ===");
+            Debug.Log($"   speed: {speed:F3} < 0.1f (정지 조건 만족)");
+            Debug.Log($"   현재 lastMoveDirection: ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
+            
+            // ✅ 수정: 정지 시 마지막 방향 유지
+            Vector2 idleDirection = lastMoveDirection.normalized;
+            Debug.Log($"   정규화된 idleDirection: ({idleDirection.x:F3}, {idleDirection.y:F3})");
+            
+            // ⬅️ 좌측 방향이면 flipX + 양수 변환
+            if (idleDirection.x < -0.1f)
+            {
+                Debug.Log($"   🔄 좌측 처리: x={idleDirection.x:F3} < -0.1");
+                mySpriteRender.flipX = true;
+                myAnimator.SetFloat("moveX", Mathf.Abs(idleDirection.x));
+                myAnimator.SetFloat("moveY", idleDirection.y);
+                Debug.Log($"   설정값: flipX=true, moveX={Mathf.Abs(idleDirection.x):F3}, moveY={idleDirection.y:F3}");
+            }
+            // ➡️ 우측 방향이면 그대로
+            else if (idleDirection.x > 0.1f)
+            {
+                Debug.Log($"   ➡️ 우측 처리: x={idleDirection.x:F3} > 0.1");
+                mySpriteRender.flipX = false;
+                myAnimator.SetFloat("moveX", idleDirection.x);
+                myAnimator.SetFloat("moveY", idleDirection.y);
+                Debug.Log($"   설정값: flipX=false, moveX={idleDirection.x:F3}, moveY={idleDirection.y:F3}");
+            }
+            // ⬆️⬇️ 수직 방향
+            else
+            {
+                Debug.Log($"   ⬆️⬇️ 수직 처리: x={idleDirection.x:F3} (-0.1~0.1 범위)");
+                myAnimator.SetFloat("moveX", 0f);
+                myAnimator.SetFloat("moveY", idleDirection.y);
+                Debug.Log($"   설정값: moveX=0.0, moveY={idleDirection.y:F3}, flipX 유지");
+            }
+            
+            // ⭐ 설정 후 실제 Animator 값 확인
+            Debug.Log($"🎬 [IDLE] 실제 Animator 설정값:");
+            Debug.Log($"   moveX: {myAnimator.GetFloat("moveX"):F3}");
+            Debug.Log($"   moveY: {myAnimator.GetFloat("moveY"):F3}");
+            Debug.Log($"   speed: {myAnimator.GetFloat("speed"):F3}");
+            Debug.Log($"   isMoving: {myAnimator.GetBool("isMoving")}");
+            Debug.Log($"   flipX: {mySpriteRender.flipX}");
+            
+            return;
+        }
 
-     public void SetDashSpeed(float newDashSpeed)
-     {
-         dashspeed = newDashSpeed;
-         Debug.Log($"🔧 [PlayerController] dashSpeed 직접 설정: {newDashSpeed}");
-     }
-    
+        // ✅ 이동 중: 현재 방향 저장 + 애니메이션 적용
+        Vector2 dir = velocity.normalized;
+        Vector2 previousLastMove = lastMoveDirection; // 이전 값 저장
+        lastMoveDirection = dir; // ⭐ 마지막 방향 업데이트
+
+        // ⭐ 이동 중 디버깅
+        if (Time.frameCount % 30 == 0) // 0.5초마다
+        {
+            Debug.Log($"🏃 [MOVING] === 이동 상태 ===");
+            Debug.Log($"   dir: ({dir.x:F3}, {dir.y:F3})");
+            Debug.Log($"   lastMoveDirection 업데이트: ({previousLastMove.x:F3}, {previousLastMove.y:F3}) → ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
+        }
+
+        // ⬅️ 좌측: flipX = true, moveX는 양수(Abs)로 (오른쪽 전용 5방향 블렌드 사용)
+        if (dir.x < -0.1f)
+        {
+            mySpriteRender.flipX = true;
+            facingLeft = true;
+
+            myAnimator.SetFloat("moveX", Mathf.Abs(dir.x)); // ★★ 핵심: 양수
+            myAnimator.SetFloat("moveY", dir.y);            // Y는 그대로
+            
+            if (Time.frameCount % 30 == 0)
+            {
+                Debug.Log($"🏃 [MOVING] 좌측: moveX={Mathf.Abs(dir.x):F3}, moveY={dir.y:F3}, flipX=true");
+            }
+        }
+        // ➡️ 우측: flipX = false, 파라미터 그대로
+        else if (dir.x > 0.1f)
+        {
+            mySpriteRender.flipX = false;
+            facingLeft = false;
+
+            myAnimator.SetFloat("moveX", dir.x);
+            myAnimator.SetFloat("moveY", dir.y);
+            
+            if (Time.frameCount % 30 == 0)
+            {
+                Debug.Log($"🏃 [MOVING] 우측: moveX={dir.x:F3}, moveY={dir.y:F3}, flipX=false");
+            }
+        }
+        // ⬆️⬇️ 수직 이동: flipX 유지, X=0
+        else
+        {
+            myAnimator.SetFloat("moveX", 0f);
+            myAnimator.SetFloat("moveY", dir.y);
+            
+            if (Time.frameCount % 30 == 0)
+            {
+                Debug.Log($"🏃 [MOVING] 수직: moveX=0.0, moveY={dir.y:F3}, flipX 유지");
+            }
+        }
+    }
+
+    /// <summary>
+    /// (unused) 방향 보정은 UpdateAnimAndFlipFromVelocity로 통합
+    /// </summary>
+    private void AdjustPlayerFacingDirection() { }
+
+    /// <summary>
+    /// (unused) 좌우 미러링/애니 파라미터는 UpdateAnimAndFlipFromVelocity에서만 처리
+    /// </summary>
+    private void UpdateIsometricDirection(Vector2 normalizedMovement) { }
+
+    private void Dash()
+    {
+        if (!isDashing)
+        {
+            // ⭐ 대시 애니메이션 트리거 추가
+            var animController = GetComponent<PlayerAnimationController>();
+            if (animController != null)
+            {
+                // 현재 이동 방향 저장 후 대시 실행
+                animController.TriggerDash(movement.normalized);
+            }
+
+            isDashing = true;
+            moveSpeed += dashspeed;
+            myTrailRenderer.emitting = true;
+            StartCoroutine(EndDashRoutine());
+        }
+    }
+
+    /// <summary>
+    /// 🆕 외부에서 호출 가능한 대시 메서드 (모바일 버튼용)
+    /// </summary>
+    public void PerformDash()
+    {
+        Debug.Log("[PlayerController] 대시 실행 요청");
+        Dash();
+    }
+
+    private IEnumerator EndDashRoutine()
+    {
+        float dashTime = .2f;
+        float dashCD = .25f;
+        yield return new WaitForSecondsRealtime(dashTime);
+        moveSpeed = startingMoveSpeed;
+        myTrailRenderer.emitting = false;
+        yield return new WaitForSecondsRealtime(dashCD);
+        isDashing = false;
+    }
+
+    // Bow, Sword 등 스킬/무기 이름으로 레벨 조회
+    public int GetSkillLevel(string skillName)
+    {
+        if (skillLevels.ContainsKey(skillName))
+            return skillLevels[skillName];
+        return 0; // 기본값
+    }
+
+    // Bow, Sword 등 스킬/무기 이름으로 레벨 설정
+    public void SetSkillLevel(string skillName, int level)
+    {
+        skillLevels[skillName] = level;
+    }
+
+    /// <summary>
+    /// 외부에서 조이스틱 참조를 다시 설정할 수 있는 메서드 (강제 재연결)
+    /// </summary>
+    public void RefreshJoystickReference()
+    {
+        // ⭐ 핵심 수정: 무조건 강제로 초기화 후 재탐색
+        joystickFound = false;
+        fixedJoystick = null;
+        StartCoroutine(FindJoystickCoroutine());
+
+        Debug.Log("[PlayerController] 조이스틱 강제 재연결 시도 - joystickFound를 false로 초기화");
+    }
+
+    // 🔧 클래스별 능력치 적용용 공개 메서드 추가
+    public void SetMoveSpeed(float newMoveSpeed)
+    {
+        moveSpeed = newMoveSpeed;
+        startingMoveSpeed = newMoveSpeed;
+        Debug.Log($"🔧 [PlayerController] moveSpeed 직접 설정: {newMoveSpeed}");
+    }
+
+    public void SetDashSpeed(float newDashSpeed)
+    {
+        dashspeed = newDashSpeed;
+        Debug.Log($"🔧 [PlayerController] dashSpeed 직접 설정: {newDashSpeed}");
+    }
+
     /// <summary>
     /// 🎯 PlayerRuntimeStats에서 이동속도 동기화
     /// </summary>
@@ -520,10 +606,10 @@ public class PlayerController : MonoBehaviour
         {
             float newMoveSpeed = playerRuntimeStats.FinalMoveSpeed;
             float newDashSpeed = playerRuntimeStats.FinalMoveSpeed * 2f; // 대시는 2배
-            
+
             SetMoveSpeed(newMoveSpeed);
             SetDashSpeed(newDashSpeed);
-            
+
             Debug.Log($"🎯 [PlayerController] PlayerRuntimeStats와 동기화: 이동속도 {newMoveSpeed:F1}, 대시속도 {newDashSpeed:F1}");
         }
         else
@@ -532,23 +618,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-     /// <summary>
-     /// 액션 RPG 스타일 물리 설정 최적화
-     /// </summary>
-     private void OptimizePhysicsForActionRPG()
-     {
-         if (rb != null)
-         {
-             // ✅ 즉각 반응을 위한 Rigidbody2D 설정
-             rb.gravityScale = 0f;           // 2D 탑뷰이므로 중력 제거
-             rb.drag = 0f;                   // 기본 드래그 0 (MoveFast에서 동적 조정)
-             rb.angularDrag = 10f;           // 회전 저항 높임
-             rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 부드러운 움직임
-             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // 빠른 움직임에서 충돌 감지
-             rb.freezeRotation = true;       // Z축 회전 고정 (캐릭터가 넘어지지 않음)
-             
-             Debug.Log("🎮 [PlayerController] 액션 RPG 물리 설정 완료");
-         }
-     }
+    /// <summary>
+    /// 액션 RPG 스타일 물리 설정 최적화
+    /// </summary>
+    private void OptimizePhysicsForActionRPG()
+    {
+        if (rb != null)
+        {
+            rb.gravityScale = 0f;           // 2D 탑뷰이므로 중력 제거
+            rb.drag = 0f;                   // 기본 드래그 0 (MoveFast에서 동적 조정)
+            rb.angularDrag = 10f;           // 회전 저항 높임
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 부드러운 움직임
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // 빠른 움직임에서 충돌 감지
+            rb.freezeRotation = true;       // Z축 회전 고정
+            Debug.Log("🎮 [PlayerController] 액션 RPG 물리 설정 완료");
+        }
+    }
 }
-
