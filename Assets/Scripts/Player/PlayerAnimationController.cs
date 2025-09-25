@@ -589,7 +589,6 @@ public class PlayerAnimationController : MonoBehaviour
         // 무기의 순수 공격 로직만 실행
         if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
         {
-            // ⭐ 무기별 애니메이션 트리거 추가 (복원)
             var weaponAnimator = activeWeapon.CurrentActiveWeapon.GetComponent<Animator>();
             if (weaponAnimator != null)
             {
@@ -598,11 +597,11 @@ public class PlayerAnimationController : MonoBehaviour
                     weaponAnimator.SetTrigger("Attack");
                     Debug.Log("🎬 [PlayerAnimationController] Sword 애니메이션 트리거 실행");
                 }
-                else if (activeWeapon.CurrentActiveWeapon.name.Contains("Bow"))
-                {
-                    weaponAnimator.SetTrigger("Fire");
-                    Debug.Log("🎬 [PlayerAnimationController] Bow 애니메이션 트리거 실행");
-                }
+                // ❌ Bow Animation Event 제거 (중복 발사 방지)
+                // else if (activeWeapon.CurrentActiveWeapon.name.Contains("Bow"))
+                // {
+                //     weaponAnimator.SetTrigger("Fire");
+                // }
             }
             
             // 무기의 순수 공격 로직

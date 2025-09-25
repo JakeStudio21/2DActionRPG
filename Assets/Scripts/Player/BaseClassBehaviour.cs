@@ -28,6 +28,12 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     public abstract float GetBaseAttackDamage();
     public abstract float GetBaseDefense();
     
+    // 🗺️ 아이소메트릭 관련 추상 메서드 추가
+    public abstract DirectionPreset GetDirectionPreset();
+    public abstract Vector2 GetFootOffset();
+    public abstract IsometricCharacterData GetIsometricData();
+    public abstract int CalculateHeightOffset(float t);
+    
     #endregion
     
     #region ⭐ [Phase C] 다중 클래스 관리 설정

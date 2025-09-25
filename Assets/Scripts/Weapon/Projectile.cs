@@ -16,6 +16,17 @@ public class Projectile : MonoBehaviour
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
     private bool needsStartPositionUpdate = false; // 🔑 startPosition 업데이트 플래그
 
+    [Header("🏹 궤도 시스템")]
+    [SerializeField] private TrajectoryType trajectoryType = TrajectoryType.Straight;
+    [SerializeField] private float arcHeight = 2f; // 포물선 높이 (단위: Unity units)
+    [SerializeField] private AnimationCurve trajectoryCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    // 궤도 계산용 변수
+    private Vector3 targetPosition;
+    private float totalDistance;
+    private float traveledDistance = 0f;
+    private Vector3 initialDirection;
+
     void Start() {
         // 스킬 레벨별 이펙트 적용
         int skillLevel = 0;
@@ -36,8 +47,18 @@ public class Projectile : MonoBehaviour
         {
             startPosition = transform.position;
             needsStartPositionUpdate = false;
+            
+            // 🆕 startPosition 설정 후 궤도 초기화
+            InitializeTrajectory();
+            
+            // 🔧 위치 설정 완료 후 TrailRenderer 최종 초기화
+            var trailRenderer = GetComponent<TrailRenderer>();
+            if (trailRenderer != null)
+            {
+                trailRenderer.Clear();
+                Debug.Log("🔧 [Projectile] 위치 설정 후 TrailRenderer 최종 초기화");
+            }
         }
-        
         MoveProjectile();
         DetectFireDistance();
     }
@@ -134,14 +155,145 @@ public class Projectile : MonoBehaviour
     }
 
     // 🔑 풀에서 다시 사용할 때 초기화 - startPosition 업데이트 플래그 설정
+    // private void OnEnable()
+    // {
+    //     Debug.Log("🔵🔵🔵 [PROJECTILE DEBUG] OnEnable() 호출됨!");
+        
+    //     isReturningToPool = false;
+    //     needsStartPositionUpdate = true;
+        
+    //     // 🆕 궤도 초기화
+    //     InitializeTrajectory();
+        
+    //     // 🚨 TrailRenderer 즉시 초기화 문제 해결
+    //     StartCoroutine(DelayedTrailInitialization());
+    // }
     private void OnEnable()
     {
+        Debug.Log("🔵🔵🔵 [PROJECTILE DEBUG] OnEnable() 호출됨!");
+        
         isReturningToPool = false;
-        needsStartPositionUpdate = true; // ⭐ 핵심 수정: 다음 Update에서 startPosition 업데이트하도록 플래그 설정
+        needsStartPositionUpdate = true;
+        
+        // 🚨 InitializeTrajectory() 제거 - Update()에서 startPosition 설정 후 호출
+        
+        // 🚨 TrailRenderer 즉시 초기화 문제 해결
+        StartCoroutine(DelayedTrailInitialization());
+    }
+
+
+    /// <summary>
+    /// 궤도 초기화
+    /// </summary>
+    private void InitializeTrajectory()
+    {
+        traveledDistance = 0f;
+        
+        if (trajectoryType == TrajectoryType.Arc)
+        {
+            // 포물선용 타겟 위치 계산 (사거리 기반)
+            // initialDirection = transform.right; // 현재 회전 방향
+            initialDirection = transform.rotation * Vector3.right; // 실제 회전된 방향
+            targetPosition = transform.position + initialDirection * projectileRange;
+            totalDistance = Vector3.Distance(transform.position, targetPosition);
+            
+            Debug.Log($"🏹 [Projectile] 포물선 궤도 초기화 - 타겟: {targetPosition}, 거리: {totalDistance:F2}");
+            Debug.Log($"🎯 [Projectile] 실제 발사 방향: {initialDirection}, 회전: {transform.rotation.eulerAngles}");
+        }
+    }
+
+    /// <summary>
+    /// 🔧 지연된 TrailRenderer 초기화 (위치 설정 후)
+    /// </summary>
+    private System.Collections.IEnumerator DelayedTrailInitialization()
+    {
+        var trailRenderer = GetComponent<TrailRenderer>();
+        if (trailRenderer != null)
+        {
+            // 1단계: TrailRenderer 일시 비활성화
+            trailRenderer.emitting = false;
+            Debug.Log("🔧 [Projectile] TrailRenderer 일시 비활성화");
+            
+            // 2단계: 한 프레임 대기 (위치 설정 완료까지)
+            yield return null;
+            
+            // 3단계: 궤적 완전 제거 + 재활성화
+            trailRenderer.Clear();
+            trailRenderer.emitting = true;
+            Debug.Log("🔧 [Projectile] TrailRenderer 재활성화 완료");
+        }
     }
 
     private void MoveProjectile()
-    {   
+    {
+        switch (trajectoryType)
+        {
+            case TrajectoryType.Straight:
+                MoveStraight();
+                break;
+            case TrajectoryType.Arc:
+                MoveInArc();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 직선 이동 (기존 방식)
+    /// </summary>
+    private void MoveStraight()
+    {
         transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
     }
-} 
+
+    /// <summary>
+    /// 포물선 이동 (새로운 방식)
+    /// </summary>
+    private void MoveInArc()
+    {
+        // 🆕 디버그: 첫 프레임에만 로그 출력
+        if (traveledDistance == 0f)
+        {
+            Debug.Log($"🏹 [MoveInArc] 포물선 이동 시작 - Start: {startPosition}, Target: {targetPosition}");
+        }
+        
+        // 거리 업데이트
+        float deltaDistance = moveSpeed * Time.deltaTime;
+        traveledDistance += deltaDistance;
+        
+        // 진행률 계산 (0 ~ 1)
+        float progress = Mathf.Clamp01(traveledDistance / totalDistance);
+        
+        // 직선 보간으로 기본 위치 계산
+        Vector3 linearPosition = Vector3.Lerp(startPosition, targetPosition, progress);
+        
+        // Y축 오프셋 계산 (포물선 곡선)
+        float heightOffset = arcHeight * trajectoryCurve.Evaluate(progress);
+        
+        // 최종 위치 설정
+        transform.position = linearPosition + Vector3.up * heightOffset;
+        
+        // 포물선 방향으로 회전 (선택적)
+        if (progress < 1f)
+        {
+            Vector3 nextPos = Vector3.Lerp(startPosition, targetPosition, progress + 0.01f);
+            float nextHeightOffset = arcHeight * trajectoryCurve.Evaluate(progress + 0.01f);
+            Vector3 nextPosition = nextPos + Vector3.up * nextHeightOffset;
+            
+            Vector3 direction = (nextPosition - transform.position).normalized;
+            if (direction != Vector3.zero)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            }
+        }
+    }
+
+/// <summary>
+/// 발사체 궤도 타입
+/// </summary>
+    public enum TrajectoryType
+    {
+        Straight,   // 직선
+        Arc         // 포물선
+    }
+}

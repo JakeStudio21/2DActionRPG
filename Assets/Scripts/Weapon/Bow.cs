@@ -5,6 +5,9 @@ using CueSystem; // 🆕 Cue 시스템 네임스페이스 추가
 
 public class Bow : MonoBehaviour, IWeapon
 {
+    // 🔍 디버깅용 static 카운터
+    private static int attackCallCount = 0;
+    private static int spawnArrowCallCount = 0;
 
     [SerializeField] private EquipmentData equipmentData;  // WeaponInfo → EquipmentData
     [SerializeField] private GameObject arrowPrefab;
@@ -22,6 +25,9 @@ public class Bow : MonoBehaviour, IWeapon
 
     public void Attack()
     {
+        attackCallCount++;
+        Debug.Log($"🔵🔵🔵 [BOW DEBUG] Attack() 호출됨! (호출 횟수: {attackCallCount})");
+        
         // ⭐ 디버깅 로그 정리
         Debug.Log("🔵 [Bow] Attack() 실행");
         
@@ -36,7 +42,7 @@ public class Bow : MonoBehaviour, IWeapon
         };
         
         bool cueSuccess = CueEmitter.Emit("attack.player.ranged", "Player", context);
-        Debug.Log($"🏹 [Bow] Cue 발행 결과: {cueSuccess}");
+        Debug.Log($"🏹 [Bow] 발사 이펙트 Cue 발행: {cueSuccess}");
         
         // ⭐ 애니메이션 트리거 제거 - PlayerAnimationController에서 관리
         // myAnimator.SetTrigger(FIRM_HASH);
@@ -51,14 +57,26 @@ public class Bow : MonoBehaviour, IWeapon
     /// </summary>
     public void SpawnArrow()
     {
+        spawnArrowCallCount++;
+        Debug.Log($"🔴🔴🔴 [BOW DEBUG] SpawnArrow() 호출됨! (호출 횟수: {spawnArrowCallCount})");
+        
         // 🔧 Cue 발행 제거 - Attack()에서 이미 처리했으므로 중복 방지
         // 순수 화살 스폰 로직만 담당
         
-        GameObject newArrow = GamePoolManager.Instance.SpawnFromPool("Arrow", arrowSpawnPoint.position, arrowSpawnPoint.rotation);
+        Debug.Log("🔴🔴🔴 [BOW DEBUG] SpawnArrow() 호출됨!");
+        Debug.Log($"🔍 [BOW DEBUG] GamePoolManager.Instance 존재: {GamePoolManager.Instance != null}");
+        
+        // ⭐ 호출 전 로그
+        Debug.Log("🔥 [BOW DEBUG] SpawnFromPool() 호출 전!");
+        
+        GameObject newArrow = GamePoolManager.Instance.SpawnFromPool(arrowPrefab.name, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
+        
+        // ⭐ 호출 후 로그
+        Debug.Log("🔥 [BOW DEBUG] SpawnFromPool() 호출 후!");
         
         if (newArrow != null)
         {
-            Debug.Log("🟢 [Bow] 화살 스폰 성공: " + newArrow.name);
+            Debug.Log($"🟢 [BOW DEBUG] 화살 스폰 성공: {newArrow.name} (InstanceID: {newArrow.GetInstanceID()})");
             
             if (newArrow.TryGetComponent(out Projectile projectile))
             {
@@ -72,8 +90,10 @@ public class Bow : MonoBehaviour, IWeapon
         }
         else
         {
-            Debug.LogError("🔴 [Bow] 화살 스폰 실패! GamePoolManager에서 Arrow를 찾을 수 없습니다.");
+            Debug.LogError("🔴 [Bow] 화살 스폰 실패!");
         }
+        
+        Debug.Log("🔴🔴🔴 [BOW DEBUG] SpawnArrow() 완료!");
     }
 
     public EquipmentData GetEquipmentData()  // WeaponInfo → EquipmentData

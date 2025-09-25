@@ -111,7 +111,8 @@ public class AssasinSkill1 : BaseSkill<AssasinSkillData>
         float spreadAngle = SkillData.spreadAngle;
         float arrowSpeed = SkillData.projectileSpeed;
         Vector3 arrowScale = SkillData.projectileScale;
-        string poolName = SkillData.projectilePoolName;
+        // string poolName = SkillData.projectilePoolName;
+        string poolName = SkillData.projectilePrefab != null ? SkillData.projectilePrefab.name : "Arrow";
         
         // ⭐ 수정: 조이스틱 방향 사용 (기본공격과 동일한 방식)
         Vector2 baseDirection = GetCurrentAttackDirection();

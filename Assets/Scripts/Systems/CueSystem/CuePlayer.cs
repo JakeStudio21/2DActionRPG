@@ -141,7 +141,10 @@ namespace CueSystem
             // 스케일 적용
             if (vfxCue.scale != Vector3.one)
                 vfxObj.transform.localScale = Vector3.Scale(vfxObj.transform.localScale, vfxCue.scale);
-            
+
+            // 🆕 아이소메트릭 소팅 자동 적용 (EFFECT_LAYER = 2000 사용)
+            IsometricSorting.ApplyEffectSorting(vfxObj, spawnPos);
+
             // 따라다니기
             if (vfxCue.followTarget && context.follow != null)
             {

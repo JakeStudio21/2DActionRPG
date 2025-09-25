@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 8813411787559020723}
   - component: {fileID: -72455256398735164}
   m_Layer: 0
-  m_Name: Arrow_B
+  m_Name: Arrow_B_Arc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,8 +81,8 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 8bc9aac7d0e781f409eda90dd5c2e533, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 622da4b2086cc574fbc5619ea57e2d1c, type: 3}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -291,33 +291,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 593d99897da702340afd15fa81edfc3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 20
   particleOnHitPrefabVFX: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
   isEnemyProjectile: 0
   projectileRange: 10
   arrowEffectPrefabs: []
-  trajectoryType: 0
-  arcHeight: 2
+  trajectoryType: 1
+  arcHeight: 4
   trajectoryCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 34
+      value: 0
+      inSlope: -1.4595366
+      outSlope: -1.4595366
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.045045014
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

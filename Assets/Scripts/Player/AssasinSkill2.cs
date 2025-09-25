@@ -101,10 +101,11 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
         // SkillData에서 설정값 가져오기
         float arrowSpeed = SkillData.projectileSpeed; // 빠른 속도
         Vector3 arrowScale = SkillData.projectileScale; // 큰 크기
-        string poolName = !string.IsNullOrEmpty(SkillData.projectilePoolName) 
-            ? SkillData.projectilePoolName 
-            : "PowerArrow"; // Power Arrow 전용 풀 사용
-        
+        // string poolName = !string.IsNullOrEmpty(SkillData.projectilePoolName) 
+        //     ? SkillData.projectilePoolName 
+        //     : "PowerArrow"; // Power Arrow 전용 풀 사용
+        string poolName = SkillData.projectilePrefab != null ? SkillData.projectilePrefab.name : "PowerArrow";
+
         // ⭐ 수정: 조이스틱 방향 사용 (기본공격과 동일한 방식)
         Vector2 shootDirection = GetCurrentAttackDirection();
         

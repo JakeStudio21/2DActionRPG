@@ -47,20 +47,30 @@ public class Sword : MonoBehaviour, IWeapon
     }
 
     public void Attack() {
+        
+        Vector3 effectPosition = slashSpawnPoint != null ? slashSpawnPoint.position : transform.position;
+        Quaternion effectRotation = GetWeaponColliderRotation();
+        Vector2 effectDirection = GetWeaponFacingDirection();
+
         Debug.Log("🔵 [Sword] Attack() 시작 - 순수 공격 로직");
+        // 🔍 디버깅: CueContext 전달값 확인 (중복 방지)
+        Debug.Log($"🎯 [Sword] HitSpark 생성 - 위치: {effectPosition}, 회전: {effectRotation.eulerAngles.z:F1}도, 방향: {effectDirection}");
+        
+
 
         // 🆕 Cue 이벤트 발행 - 공격 시작 시점
         var context = new CueContext
         {
-            position = transform.position,
-            rotation = transform.rotation,
+            position = effectPosition,          // ✅ SlashSpawnPoint 위치
+            rotation = effectRotation,          // ✅ WeaponCollider 동적 회전
             actorType = ActorType.Player,
             magnitude = 1.0f,
-            surfaceType = SurfaceType.Default
+            surfaceType = SurfaceType.Default,
+            facingDir = effectDirection         // ✅ WeaponCollider 방향
         };
         
         bool cueSuccess = CueEmitter.Emit("attack.player.melee", "Player", context);
-        Debug.Log($"🎬 [Sword] Cue 발행 결과: {cueSuccess}");
+        Debug.Log($"🎬 [Sword] HitSpark Cue 발행 결과: {cueSuccess}");
 
         // ⭐ Sword 애니메이션 트리거 복원
         if (myAnimator != null)
@@ -116,22 +126,8 @@ public class Sword : MonoBehaviour, IWeapon
             bool berserkerCueSuccess = CueEmitter.Emit("attack.player.critical", "Player", berserkerContext);
             Debug.Log($"🔥 [Sword] 버서커 Cue 발행 결과: {berserkerCueSuccess}");
             
-            // 버서커 모드 시 추가 슬래시 이펙트
-            if (slashSpawnPoint != null)
-            {
-                var berserkerSlash = GamePoolManager.Instance.SpawnFromPool("Slash Prefab", 
-                    slashSpawnPoint.position + Vector3.up * 0.5f, Quaternion.identity);
-                if (berserkerSlash != null)
-                {
-                    berserkerSlash.transform.parent = this.transform.parent;
-                    // 버서커 이펙트는 빨간색으로 변경
-                    var spriteRenderer = berserkerSlash.GetComponent<SpriteRenderer>();
-                    if (spriteRenderer != null)
-                    {
-                        spriteRenderer.color = Color.red;
-                    }
-                }
-            }
+            // ✅ [완전 삭제] 중복 버서커 슬래시 제거 (방안 1)
+            // CueSystem의 "attack.player.critical" → PlayerCritVFX가 이미 완벽한 크리티컬 이펙트 제공
         }
         
         // 블록 확률과 반격 확률 정보 출력 (디버깅용)
@@ -143,27 +139,23 @@ public class Sword : MonoBehaviour, IWeapon
     /// </summary>
     public void PerformSwordAttack()
     {
-        // 무기 콜라이더 활성화
+        Debug.Log("🎯 [Sword] PerformSwordAttack() - CueSystem 전용 모드");
+        
+        // WeaponCollider 활성화 (히트박스 관리)
         if (weaponCollider != null)
         {
             weaponCollider.gameObject.SetActive(true);
-            Debug.Log("�� [Sword] 무기 콜라이더 활성화");
+            Debug.Log("✅ [Sword] WeaponCollider 활성화");
+            
+            // 일정 시간 후 자동 비활성화
+            StartCoroutine(DeactivateWeaponAfterDelay());
         }
         
-        // 슬래시 이펙트 생성
-        if (slashSpawnPoint != null)
-        {
-            slashAnim = GamePoolManager.Instance.SpawnFromPool("Slash Prefab", slashSpawnPoint.position, Quaternion.identity);
-            if (slashAnim != null)
-            {
-                slashAnim.transform.parent = this.transform.parent;
-                Debug.Log("🟢 [Sword] 슬래시 이펙트 생성");
-            }
-        }
+        // ❌ [완전 제거] 중복 Slash Prefab 생성 코드 삭제
+        // CueSystem의 HitSpark가 attack.player.melee 이벤트로 이미 생성되므로 불필요
+        // WeaponCollider 회전 방향도 CueSystem에서 자동 적용됨
         
-        // ⭐ [Phase B] WeaponDamage 참조 제거 (존재하지 않는 클래스)
-        // 데미지는 DamageSource.cs에서 이미 Warrior 배율을 적용하므로 여기서는 필요 없음
-        Debug.Log("🟢 [Sword] 기본 공격 로직 완료");
+        Debug.Log("🎬 [Sword] CueSystem 전용 공격 완료");
     }
 
     public void DoneAttackingAnimEnvet() {
@@ -226,5 +218,74 @@ public class Sword : MonoBehaviour, IWeapon
         // 중요: localScale 건드리지 않음 (위아래 전환 방지)
         // 중요: rotation 건드리지 않음 (Bow와의 차이점)
         // 오직 flipX만 사용 (캐릭터와 100% 동일)
+    }
+    
+    /// <summary>
+    /// 🧭 WeaponCollider에서 방향값만 가져오는 헬퍼 메서드
+    /// </summary>
+    private Quaternion GetWeaponColliderRotation()
+    {
+        var playerController = FindObjectOfType<PlayerController>();
+        if (playerController != null)
+        {
+            Transform weaponColliderTransform = playerController.GetWeaponCollider();
+            if (weaponColliderTransform != null)
+            {
+                Debug.Log($"🧭 [GetWeaponColliderRotation] 콜라이더 회전: {weaponColliderTransform.eulerAngles.z:F1}도");
+                return weaponColliderTransform.rotation;
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [GetWeaponColliderRotation] WeaponCollider가 null입니다!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [GetWeaponColliderRotation] PlayerController를 찾을 수 없습니다!");
+        }
+        
+        // Fallback: 기본 회전값
+        Debug.Log("🔄 [GetWeaponColliderRotation] Fallback: Quaternion.identity 사용");
+        return Quaternion.identity;
+    }
+    
+    /// <summary>
+    /// 🧭 WeaponCollider 방향 벡터 계산
+    /// </summary>
+    private Vector2 GetWeaponFacingDirection()
+    {
+        var playerController = FindObjectOfType<PlayerController>();
+        if (playerController != null)
+        {
+            Transform weaponColliderTransform = playerController.GetWeaponCollider();
+            if (weaponColliderTransform != null)
+            {
+                Vector2 facingDir = weaponColliderTransform.right;
+                Debug.Log($"🧭 [Sword] WeaponCollider 방향: {facingDir}");
+                return facingDir;
+            }
+        }
+        
+        // Fallback
+        return Vector2.right;
+    }
+    
+    /// <summary>
+    /// ⏰ WeaponCollider 비활성화 딜레이 코루틴
+    /// </summary>
+    private IEnumerator DeactivateWeaponAfterDelay()
+    {
+        // 0.3초 후 WeaponCollider 비활성화 (공격 지속 시간)
+        yield return new WaitForSeconds(0.3f);
+        
+        if (weaponCollider != null)
+        {
+            weaponCollider.gameObject.SetActive(false);
+            Debug.Log("⏰ [Sword] WeaponCollider 자동 비활성화 완료");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [Sword] weaponCollider가 null이어서 비활성화할 수 없습니다!");
+        }
     }
 } 

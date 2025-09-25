@@ -36,7 +36,7 @@ MonoBehaviour:
   assasinBackAttackBonus: 1.3
   isometricData:
     directionPreset: 1
-    footOffset: {x: 0, y: -0.5}
+    footOffset: {x: -0.5, y: -1}
     heightCurve:
       serializedVersion: 2
       m_Curve:

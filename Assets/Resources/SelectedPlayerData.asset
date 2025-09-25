@@ -12,20 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513eac7d499f5b34fac3ea7eefef983f, type: 3}
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
-  selectedSlotIndex: 2
-  playerName: qwd
+  selectedSlotIndex: 1
+  playerName: WQADAW
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 1
-  currentExp: 0
-  expToNextLevel: 100
-  currentGold: 0
-  runtimeInventoryItems: []
+  currentLevel: 26
+  currentExp: 715
+  expToNextLevel: 1350
+  currentGold: 15040
+  runtimeInventoryItems:
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
+  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
+  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -38,9 +54,36 @@ MonoBehaviour:
   - dodgeChance
   - stealthDuration
   - backAttackBonus
+  - blockChance
+  - counterAttackChance
+  - berserkerThreshold
   runtimeStatValues:
   - 0.15
   - 0.1
   - 2
   - 1.3
-  stageProgresses: []
+  - 0.2
+  - 0.15
+  - 0.3
+  stageProgresses:
+  - stageId: STAGE_001
+    isUnlocked: 1
+    isCompleted: 1
+    isFirstClearRewarded: 0
+    bestClearTime: 3
+    clearCount: 22
+    lastPlayedTime: 2025-09-06T21:34:45.4836247+09:00
+  - stageId: STAGE_002
+    isUnlocked: 1
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
+  - stageId: STAGE_003
+    isUnlocked: 0
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000

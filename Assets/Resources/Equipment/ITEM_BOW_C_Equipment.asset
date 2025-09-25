@@ -25,11 +25,11 @@ MonoBehaviour:
   equipmentPrefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
   weaponType: 2
   weaponCooldown: 2
-  weaponRange: 7
+  weaponRange: 12
   armorType: 0
   attackDamage: 5
-  attackSpeed: 5
-  attackRange: 4
+  attackSpeed: 2
+  attackRange: 8
   attackShape: 2
   criticalChance: 8
   criticalDamage: 2

@@ -199,6 +199,7 @@ public class ActiveWeapon : MonoBehaviour
     
     /// <summary>
     /// 🎮 무기 방향 업데이트 (런타임 제어)
+    /// 🗡️ [아이소메트릭] WeaponCollider 회전 시스템 추가
     /// </summary>
     private void UpdateWeaponDirection()
     {
@@ -211,7 +212,28 @@ public class ActiveWeapon : MonoBehaviour
         var playerController = FindObjectOfType<PlayerController>();
         bool facingLeft = playerController != null && playerController.FacingLeft;
         
-        // 무기에 방향 전달
+        // 🗡️ [아이소메트릭] WeaponCollider 회전 시스템
+        if (dir.magnitude > 0.1f && playerController != null)
+        {
+            Transform weaponCollider = playerController.GetWeaponCollider();
+            if (weaponCollider != null)
+            {
+                // 조이스틱 방향을 각도로 변환
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                weaponCollider.rotation = Quaternion.Euler(0, 0, angle);
+                
+                if (showDebugLogs && Time.frameCount % 60 == 0) // 1초마다 로그
+                {
+                    Debug.Log($"🗡️ [ActiveWeapon] WeaponCollider 회전: {angle:F1}도 (방향: {dir})");
+                }
+            }
+            else if (showDebugLogs && Time.frameCount % 60 == 0)
+            {
+                Debug.LogWarning("🟡 [ActiveWeapon] WeaponCollider를 찾을 수 없습니다!");
+            }
+        }
+        
+        // 무기에 방향 전달 (기존 로직 유지)
         var weaponInterface = CurrentActiveWeapon as IWeapon;
         if (weaponInterface != null)
         {

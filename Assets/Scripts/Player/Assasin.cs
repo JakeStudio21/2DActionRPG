@@ -538,7 +538,7 @@ public class Assasin : BaseClassBehaviour
     /// <summary>
     /// ScriptableObject에서 아이소메트릭 데이터 가져오기
     /// </summary>
-    public IsometricCharacterData GetIsometricData()
+    public override IsometricCharacterData GetIsometricData()
     {
         return assasinData?.IsometricData ?? CreateDefaultIsometricData();
     }
@@ -546,7 +546,7 @@ public class Assasin : BaseClassBehaviour
     /// <summary>
     /// 발 위치 오프셋 가져오기
     /// </summary>
-    public Vector2 GetFootOffset()
+    public override Vector2 GetFootOffset()
     {
         var isometricData = GetIsometricData();
         if (showDebugLogs)
@@ -557,7 +557,7 @@ public class Assasin : BaseClassBehaviour
     /// <summary>
     /// 방향 프리셋 가져오기
     /// </summary>
-    public DirectionPreset GetDirectionPreset()
+    public override DirectionPreset GetDirectionPreset()
     {
         var isometricData = GetIsometricData();
         if (showDebugLogs)
@@ -570,7 +570,7 @@ public class Assasin : BaseClassBehaviour
     /// </summary>
     /// <param name="t">높이 곡선 시간 (0~1)</param>
     /// <returns>계산된 높이 오프셋</returns>
-    public int CalculateHeightOffset(float t)
+    public override int CalculateHeightOffset(float t)
     {
         var isometricData = GetIsometricData();
         int heightOffset = isometricData.CalculateHeightOffset(t);

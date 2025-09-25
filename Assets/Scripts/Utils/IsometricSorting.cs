@@ -66,4 +66,64 @@ public static class IsometricSorting
     {
         Debug.Log($"🔢 [IsometricSorting] {objName}: Y={footY:F2} → Order={sortingOrder} (base={baseLayer})");
     }
+
+    /// <summary>
+    /// 🎨 이펙트 오브젝트에 아이소메트릭 소팅 자동 적용
+    /// CueSystem에서 생성되는 이펙트용
+    /// </summary>
+    /// <param name="effectObject">이펙트 GameObject</param>
+    /// <param name="position">이펙트 위치 (Y값 기준 소팅)</param>
+    /// <param name="heightOffset">추가 높이 오프셋 (기본 0)</param>
+    public static void ApplyEffectSorting(GameObject effectObject, Vector3 position, int heightOffset = 0)
+    {
+        if (effectObject == null) return;
+        
+        // 이펙트 소팅 오더 계산 (EFFECT_LAYER = 2000 기준)
+        float gridCellSizeY = GetGridCellSizeY();
+        int sortingOrder = CalculateSortingOrder(position.y, gridCellSizeY, EFFECT_LAYER, heightOffset);
+        
+        // 모든 렌더러 컴포넌트에 소팅 적용
+        ApplySortingToAllRenderers(effectObject, sortingOrder);
+        
+        Debug.Log($"🎨 [IsometricSorting] {effectObject.name} 이펙트 소팅 적용: Y={position.y:F2} → Order={sortingOrder}");
+    }
+    
+    /// <summary>
+    /// 🎨 이펙트의 모든 렌더러에 소팅 오더 적용
+    /// </summary>
+    private static void ApplySortingToAllRenderers(GameObject effectObject, int sortingOrder)
+    {
+        // ParticleSystemRenderer 처리
+        var particleRenderers = effectObject.GetComponentsInChildren<ParticleSystemRenderer>();
+        foreach (var renderer in particleRenderers)
+        {
+            renderer.sortingLayerName = "Effects"; // Effects 소팅 레이어 사용
+            renderer.sortingOrder = sortingOrder;
+            Debug.Log($"   └ ParticleSystemRenderer: {renderer.name} → Layer=Effects, Order={sortingOrder}");
+        }
+        
+        // SpriteRenderer 처리
+        var spriteRenderers = effectObject.GetComponentsInChildren<SpriteRenderer>();
+        foreach (var renderer in spriteRenderers)
+        {
+            renderer.sortingLayerName = "Effects";
+            renderer.sortingOrder = sortingOrder;
+            Debug.Log($"   └ SpriteRenderer: {renderer.name} → Layer=Effects, Order={sortingOrder}");
+        }
+        
+        // 기타 렌더러들도 처리
+        var lineRenderers = effectObject.GetComponentsInChildren<LineRenderer>();
+        foreach (var renderer in lineRenderers)
+        {
+            renderer.sortingLayerName = "Effects";
+            renderer.sortingOrder = sortingOrder;
+        }
+        
+        var trailRenderers = effectObject.GetComponentsInChildren<TrailRenderer>();
+        foreach (var renderer in trailRenderers)
+        {
+            renderer.sortingLayerName = "Effects";
+            renderer.sortingOrder = sortingOrder;
+        }
+    }
 }

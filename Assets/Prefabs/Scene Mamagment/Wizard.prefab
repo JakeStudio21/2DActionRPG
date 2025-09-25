@@ -185,7 +185,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7264508375256867420}
   m_Father: {fileID: 3597342599379846293}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &6988780603166527602
@@ -293,12 +294,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5614862686505903872}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.97, y: 0.38, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3597342599379846293}
+  m_Father: {fileID: 5337248612677347209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5667318303195344136
 GameObject:
@@ -331,7 +332,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7264508375256867420}
   - {fileID: 5337248612677347209}
   m_Father: {fileID: 8477380869007209772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -455,7 +455,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -75224854, guid: 478a100d121726e43b8030f7be703933, type: 3}
-  m_Color: {r: 0.10201049, g: 1, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -585,6 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLogs: 1
+  useIsometricData: 1
 --- !u!114 &3412523220790301595
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,8 +602,10 @@ MonoBehaviour:
   dashspeed: 6
   myTrailRenderer: {fileID: 4602630472629665941}
   weaponCollider: {fileID: 5337248612677347209}
+  showDebugLogs: 1
   deadZone: 0.12
   snapTurnThreshold: -0.2
+  debugLogInterval: 1
   fixedJoystick: {fileID: 0}
   inputBufferTime: 0.1
   accelerationTime: 0.05
@@ -764,6 +767,8 @@ MonoBehaviour:
   footOffset: {x: 0, y: 0}
   baseLayer: 1000
   heightOffset: 0
+  useIsometricData: 1
+  enableDynamicHeight: 1
   updatePolicy: 1
   updateInterval: 0.1
   moveThreshold: 0.01
