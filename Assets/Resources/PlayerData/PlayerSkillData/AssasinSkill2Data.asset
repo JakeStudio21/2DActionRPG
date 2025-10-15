@@ -18,7 +18,7 @@ MonoBehaviour:
   damage: 10
   range: 5
   effectPrefab: {fileID: 0}
-  projectilePrefab: {fileID: 4149642069968341746, guid: afcf4578eaaa23e48b54dbcc836f4560, type: 3}
+  projectilePrefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
   projectileSpeed: 10
   projectileCount: 2
   spreadAngle: 5

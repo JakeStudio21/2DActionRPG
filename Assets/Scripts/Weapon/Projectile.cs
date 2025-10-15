@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
@@ -48,6 +49,15 @@ public class Projectile : MonoBehaviour
             startPosition = transform.position;
             needsStartPositionUpdate = false;
             
+            // 🚨 N/S 방향 특별 체크
+            float angle = transform.rotation.eulerAngles.z;
+            bool isNorthSouth = (Mathf.Abs(angle - 90f) < 10f) || (Mathf.Abs(angle - 270f) < 10f);
+            if (isNorthSouth)
+            {
+                Debug.LogWarning($"🚨🚨🚨 [N/S DIRECTION] 감지! 각도: {angle:F1}도, 위치: {transform.position}");
+                Debug.LogWarning($"🚨🚨🚨 [N/S DIRECTION] 활성화 상태: {gameObject.activeInHierarchy}");
+            }
+            
             // 🆕 startPosition 설정 후 궤도 초기화
             InitializeTrajectory();
             
@@ -74,6 +84,14 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
+        
+        // 🚨 N/S 방향에서 충돌 로그
+        float angle = transform.rotation.eulerAngles.z;
+        bool isNorthSouth = (Mathf.Abs(angle - 90f) < 10f) || (Mathf.Abs(angle - 270f) < 10f);
+        if (isNorthSouth)
+        {
+            Debug.LogWarning($"🚨🚨🚨 [N/S COLLISION] {other.gameObject.name}와 충돌! 위치: {transform.position}");
+        }
         
         EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
         Indestructible indestructible = other.gameObject.GetComponent<Indestructible>();
@@ -130,9 +148,13 @@ public class Projectile : MonoBehaviour
     private void DetectFireDistance() {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
         
+        // 🔧 포물선은 MoveInArc()에서 progress 기반으로 체크하므로 직선만 처리
+        if (trajectoryType == TrajectoryType.Arc) return;
+        
         float currentDistance = Vector3.Distance(transform.position, startPosition);
         
         if (currentDistance > projectileRange) {
+            Debug.Log($"🏹 [DetectFireDistance] 직선 발사체 사거리 초과: {currentDistance:F2} > {projectileRange:F2}");
             ReturnProjectileToPool();
         }
     }
@@ -142,11 +164,21 @@ public class Projectile : MonoBehaviour
     {
         if (isReturningToPool) return; // 🔑 중복 반환 방지
         
+        // 🚨 N/S 방향에서 반환 로그
+        float angle = transform.rotation.eulerAngles.z;
+        bool isNorthSouth = (Mathf.Abs(angle - 90f) < 10f) || (Mathf.Abs(angle - 270f) < 10f);
+        if (isNorthSouth)
+        {
+            Debug.LogWarning($"🚨🚨🚨 [N/S POOL RETURN] 풀 반환됨! 각도: {angle:F1}도, 위치: {transform.position}");
+        }
+        
         isReturningToPool = true; // 🔑 반환 중 플래그 설정
         
         if (GamePoolManager.Instance != null)
         {
-            GamePoolManager.Instance.ReturnToPool("Arrow", gameObject);
+            // 🔧 수정: 동적 풀 태그 사용 (하드코딩 제거)
+            string poolTag = gameObject.name.Replace("(Clone)", "").Trim();
+            GamePoolManager.Instance.ReturnToPool(poolTag, gameObject);
         }
         else
         {
@@ -171,6 +203,31 @@ public class Projectile : MonoBehaviour
     private void OnEnable()
     {
         Debug.Log("🔵🔵🔵 [PROJECTILE DEBUG] OnEnable() 호출됨!");
+        Debug.Log($"🚨 [SPAWN POSITION] 스폰 위치: {transform.position}");
+        Debug.Log($"🚨 [SPAWN ROTATION] 스폰 회전: {transform.rotation.eulerAngles}");
+        
+        // 🚨 실제 발사인지 풀 초기화인지 구분
+        bool isActualFire = transform.position.magnitude > 0.1f; // 원점이 아니면 실제 발사
+        Debug.Log($"🚨 [FIRE TYPE] {(isActualFire ? "실제 발사" : "풀 초기화")}");
+        
+        if (isActualFire)
+        {
+            Debug.LogWarning($"🚨🚨🚨 [REAL FIRE] 실제 발사 감지! 위치: {transform.position}, 회전: {transform.rotation.eulerAngles}");
+            
+            // 🆕 N/S 방향 확인 및 상위 시스템 상태 진단
+            float angle = transform.rotation.eulerAngles.z;
+            bool isNorthSouth = (Mathf.Abs(angle - 90f) < 10f) || (Mathf.Abs(angle - 270f) < 10f);
+            
+            if (isNorthSouth)
+            {
+                Debug.LogWarning($"🎉🎉🎉 [N/S SUCCESS] N/S 방향 발사 성공! 각도: {angle:F1}도");
+                Debug.LogWarning($"🎉🎉🎉 [N/S SUCCESS] 상위 시스템이 정상 작동함!");
+            }
+            else
+            {
+                Debug.Log($"📍 [E/W FIRE] E/W 방향 발사 - 각도: {angle:F1}도");
+            }
+        }
         
         isReturningToPool = false;
         needsStartPositionUpdate = true;
@@ -224,6 +281,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
+
     private void MoveProjectile()
     {
         switch (trajectoryType)
@@ -238,11 +296,13 @@ public class Projectile : MonoBehaviour
     }
 
     /// <summary>
-    /// 직선 이동 (기존 방식)
+    /// 직선 이동 (수정: 실제 회전 방향으로 이동)
     /// </summary>
     private void MoveStraight()
     {
-        transform.Translate(Vector3.right * Time.deltaTime * moveSpeed);
+        // 🔧 수정: 발사체의 실제 회전 방향으로 이동
+        Vector3 moveDirection = transform.rotation * Vector3.right;
+        transform.position += moveDirection * Time.deltaTime * moveSpeed;
     }
 
     /// <summary>
@@ -271,6 +331,19 @@ public class Projectile : MonoBehaviour
         
         // 최종 위치 설정
         transform.position = linearPosition + Vector3.up * heightOffset;
+        
+        // 🔧 바닥 도달 체크 및 풀링 반환 (개선된 방식)
+        float groundLevel = startPosition.y - 0.1f; // 시작 지점보다 약간 아래를 바닥으로 간주 (여유 공간)
+        bool reachedGround = transform.position.y <= groundLevel;
+        bool reachedMaxDistance = progress >= 1.0f;
+        
+        if (reachedGround || reachedMaxDistance)
+        {
+            string reason = reachedGround ? "바닥 도달" : "최대 거리 도달";
+            Debug.Log($"🏹 [MoveInArc] 포물선 완료! 사유: {reason}, Y좌표: {transform.position.y:F2} (기준: {groundLevel:F2}), progress: {progress:F3}");
+            ReturnProjectileToPool();
+            return;
+        }
         
         // 포물선 방향으로 회전 (선택적)
         if (progress < 1f)

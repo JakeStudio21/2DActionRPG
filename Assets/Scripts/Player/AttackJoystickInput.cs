@@ -63,11 +63,16 @@ public class AttackJoystickInput : MonoBehaviour
     {
         var direction = (joystickFound && attackJoystick != null) ? attackJoystick.Direction : Vector2.zero;
         
-        // ⭐ 디버그: 방향 값 출력 (1초마다)
-        // if (Time.frameCount % 60 == 0 && direction.magnitude > 0.1f)
-        // {
-        //     Debug.Log($"[AttackJoystickInput] GetAttackDirection: {direction}");
-        // }
+        // 🔍 N/S 방향만 특별 추적 (디버깅 간소화)
+        if (direction.magnitude > 0.1f)
+        {
+            bool isNorthSouth = Mathf.Abs(direction.x) < 0.3f && Mathf.Abs(direction.y) > 0.7f;
+            if (isNorthSouth)
+            {
+                string directionName = direction.y > 0 ? "NORTH" : "SOUTH";
+                Debug.Log($"🧭 [AttackJoystickInput] {directionName} 방향 감지됨! Vector: {direction}");
+            }
+        }
         
         return direction;
     }

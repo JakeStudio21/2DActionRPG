@@ -177,24 +177,28 @@ public class ActiveWeapon : MonoBehaviour
     /// </summary>
     public void ExecuteWeaponAttack()
     {
+        // 🚨 N/S 방향 문제 진단용 로그
+        Debug.LogWarning($"🚨🚨🚨 [EXECUTE WEAPON] ExecuteWeaponAttack() 호출됨!");
+        Debug.LogWarning($"🚨🚨🚨 [EXECUTE WEAPON] CurrentActiveWeapon: {(CurrentActiveWeapon != null ? CurrentActiveWeapon.name : "NULL")}");
+        Debug.LogWarning($"🚨🚨🚨 [EXECUTE WEAPON] CurrentWeaponData: {(CurrentWeaponData != null ? CurrentWeaponData.equipmentName : "NULL")}");
+        
         if (CurrentActiveWeapon == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("⚠️ [ActiveWeapon] 활성 무기가 없습니다!");
+            Debug.LogError("🔴🔴🔴 [EXECUTE WEAPON] 활성 무기가 NULL! 공격 중단!");
             return;
         }
         
         var weaponInterface = CurrentActiveWeapon as IWeapon;
         if (weaponInterface == null)
         {
-            Debug.LogError("🔴 [ActiveWeapon] 현재 무기가 IWeapon을 구현하지 않습니다!");
+            Debug.LogError($"🔴🔴🔴 [EXECUTE WEAPON] {CurrentActiveWeapon.name}이 IWeapon을 구현하지 않습니다!");
             return;
         }
         
+        Debug.LogWarning($"🎯🎯🎯 [EXECUTE WEAPON] {CurrentActiveWeapon.name}.Attack() 호출!");
         weaponInterface.Attack();
         
-        if (showDebugLogs)
-            Debug.Log("⚔️ [ActiveWeapon] 무기 공격 실행 완료");
+        Debug.LogWarning("✅✅✅ [EXECUTE WEAPON] 무기 공격 실행 완료!");
     }
     
     /// <summary>

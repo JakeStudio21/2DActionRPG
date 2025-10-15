@@ -217,6 +217,9 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
     /// </summary>
     private Vector2 GetCurrentAttackDirection()
     {
+        // 🔍 스킬2 방향 감지 비교 로그
+        Debug.Log($"💥 [AssasinSkill2] GetCurrentAttackDirection 호출됨 - 시간: {Time.time:F3}");
+        
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
@@ -225,8 +228,16 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
             
             if (joystickDir.magnitude > 0.1f)
             {
+                // 🔍 N/S 방향 특별 확인
+                bool isNorthSouth = Mathf.Abs(joystickDir.x) < 0.3f && Mathf.Abs(joystickDir.y) > 0.7f;
+                if (isNorthSouth)
+                {
+                    string directionName = joystickDir.y > 0 ? "NORTH" : "SOUTH";
+                    Debug.Log($"🧭 [AssasinSkill2] {directionName} 방향 스킬2 사용! 실시간 조이스틱: {joystickDir}");
+                }
+                
                 if (showDebugLogs)
-                    Debug.Log($"🎮 [AssasinSkill2] 조이스틱 방향 사용: {joystickDir}");
+                    Debug.Log($"🎮 [AssasinSkill2] 조이스틱 방향 사용: {joystickDir} (실시간 감지)");
                 return joystickDir.normalized;
             }
         }

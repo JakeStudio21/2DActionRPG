@@ -10,6 +10,9 @@ public class PlayerAttackInput : MonoBehaviour
     
     [Header("디버그")]
     [SerializeField] private bool showDebugLogs = true; // ⭐ true로 변경
+    
+    // 🔍 키 입력 추적
+    private static int aKeyPressCount = 0;
 
     void Start()
     {
@@ -31,7 +34,11 @@ public class PlayerAttackInput : MonoBehaviour
         // ⭐ A키: 기본공격 (통합 관리)
         if (Input.GetKeyDown(KeyCode.A))
         {
-            Debug.Log("🟢 [PlayerAttackInput] A키 입력 감지됨!");
+            aKeyPressCount++;
+            Debug.Log($"🔥🔥🔥 [PlayerAttackInput] A키 입력 #{aKeyPressCount} 감지됨! 🔥🔥🔥");
+            Debug.Log($"   - 현재 시간: {Time.time:F3}");
+            Debug.Log($"   - enableKeyboardInput: {enableKeyboardInput}");
+            Debug.Log($"   - A키 누른 총 횟수: {aKeyPressCount}");
             PerformAttack();
         }
         
@@ -55,28 +62,30 @@ public class PlayerAttackInput : MonoBehaviour
     /// </summary>
     private void PerformAttack()
     {
-        Debug.Log("🔵 [PlayerAttackInput] PerformAttack() 시작");
+        Debug.Log($"🔵 [PlayerAttackInput] PerformAttack() 시작 (A키 입력 #{aKeyPressCount})");
         
         // PlayerAnimationController 우선 사용
         var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
         if (playerAnimationController != null)
         {
+            Debug.Log($"🎯 [PlayerAttackInput] TriggerAttack() 호출 시작 (A키 #{aKeyPressCount})");
             bool success = playerAnimationController.TriggerAttack();
+            Debug.Log($"🎯 [PlayerAttackInput] TriggerAttack() 호출 완료 (A키 #{aKeyPressCount})");
             
             if (success)
             {
-                Debug.Log("🟢 [PlayerAttackInput] PlayerAnimationController 공격 성공!");
+                Debug.Log($"🟢 [PlayerAttackInput] PlayerAnimationController 공격 성공! (A키 #{aKeyPressCount})");
             }
             else
             {
-                Debug.LogWarning("🟡 [PlayerAttackInput] PlayerAnimationController 공격 실패! (쿨다운 중)");
+                Debug.LogWarning($"🟡 [PlayerAttackInput] PlayerAnimationController 공격 실패! (A키 #{aKeyPressCount}) (쿨다운 중)");
             }
             
             return; // ⭐ 성공/실패와 관계없이 여기서 종료
         }
         
         // ❌ 백업 시스템 완전 제거 (77-95번 라인 모두 삭제)
-        Debug.LogError("🔴 [PlayerAttackInput] PlayerAnimationController를 찾을 수 없습니다!");
+        Debug.LogError($"🔴 [PlayerAttackInput] PlayerAnimationController를 찾을 수 없습니다! (A키 #{aKeyPressCount})");
     }
 
     /// <summary>

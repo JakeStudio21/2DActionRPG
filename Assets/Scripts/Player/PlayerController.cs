@@ -2,6 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 플레이어 공격 타입별 이동 제한 분류
+/// </summary>
+public enum PlayerAttackType
+{
+    BasicAttack,  // 기본공격 (80% 감쇠)
+    Skill,        // 스킬 (완전정지)
+    Dash,         // 대쉬 (50% 감쇠)
+    Normal        // 정상 (제한없음)
+}
+
 public class PlayerController : MonoBehaviour
 {
     
@@ -58,6 +69,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float inputBufferTime = 0.1f;    // 입력 버퍼 시간
     [SerializeField] private float accelerationTime = 0.05f;  // 가속 시간 (0에 가까울수록 즉각적)
     [SerializeField] private float decelerationTime = 0.03f;  // 감속 시간 (0에 가까울수록 즉각적)
+
+    [Header("⚔️ 공격 중 이동 제어")]
+    [SerializeField] private bool showMovementDebug = false;
+
+    // 🆕 이동 제어 변수들
+    private float movementScale = 1.0f;          // 이동 속도 배율 (0.0 ~ 1.0)
+    private bool isMovementLocked = false;       // 완전 이동 차단
+    private float defaultMovementScale = 1.0f;   // 기본 배율
+
+    // 🆕 부드러운 전환을 위한 변수들
+    private float targetMovementScale = 1.0f;    // 목표 배율
+    private float scaleTransitionSpeed = 5.0f;   // 전환 속도
 
     // 입력 버퍼링 변수
     private Vector2 bufferedInput = Vector2.zero;
@@ -153,7 +176,10 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        playerControls.Enable();
+        if (playerControls != null)
+        {
+            playerControls.Enable();
+        }
     }
 
     private void OnDisable()
@@ -251,7 +277,27 @@ public class PlayerController : MonoBehaviour
             Debug.Log($"   movement 입력: ({movement.x:F3}, {movement.y:F3})");
             Debug.Log($"   rb.velocity: ({(rb?.velocity.x ?? 0):F3}, {(rb?.velocity.y ?? 0):F3})");
             Debug.Log($"   joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick != null}");
+            // 🆕 이동 제어 상태 로그 추가
+            if (showMovementDebug)
+            {
+                Debug.Log($"   movementScale: {movementScale:F2}, isLocked: {isMovementLocked}");
+            }
         }
+
+        // 🆕 이동 잠금 체크 (최우선 체크)
+        if (isMovementLocked)
+        {
+            if (showMovementDebug && Time.frameCount % 60 == 0)
+                Debug.Log("🔒 [MoveFast] 이동 잠금됨 - 완전 정지");
+            
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            return;
+        }
+
+        // 🆕 이동 스케일 부드러운 전환
+        movementScale = Mathf.MoveTowards(movementScale, targetMovementScale, 
+                                          scaleTransitionSpeed * Time.fixedDeltaTime);
 
         // 상태 체크 (넉백/사망 시 이동 금지)
         if (knockback != null && knockback.GettingKnockedBack)
@@ -299,7 +345,16 @@ public class PlayerController : MonoBehaviour
 
         // ✅ 개선: 입력 방향 즉시 적용 (정규화 + 스케일링)
         var inputDir = movement.normalized;
-        var targetVelocity = inputDir * moveSpeed;
+        
+        // 🆕 이동 스케일 적용
+        var effectiveMoveSpeed = moveSpeed * movementScale;
+        var targetVelocity = inputDir * effectiveMoveSpeed;
+        
+        // 🆕 이동 스케일 디버그
+        if (showMovementDebug && Time.frameCount % 30 == 0)
+        {
+            Debug.Log($"⚔️ [MoveFast] 이동 스케일 적용 - 기본속도: {moveSpeed:F1}, 스케일: {movementScale:F2}, 최종속도: {effectiveMoveSpeed:F1}");
+        }
 
         // ✅ 개선: 더 민감한 방향 전환 (액션 게임 스타일)
         float aggressiveSnapThreshold = snapTurnThreshold * 0.5f;
@@ -634,4 +689,85 @@ public class PlayerController : MonoBehaviour
             Debug.Log("🎮 [PlayerController] 액션 RPG 물리 설정 완료");
         }
     }
+
+    #region ⚔️ 공격 중 이동 제어 시스템
+
+    /// <summary>
+    /// 이동 스케일 설정 (0.0 = 완전정지, 1.0 = 정상속도)
+    /// </summary>
+    public void SetMovementScale(float scale)
+    {
+        targetMovementScale = Mathf.Clamp01(scale);
+        
+        if (showMovementDebug)
+            Debug.Log($"⚔️ [PlayerController] 이동 스케일 설정: {scale:F2} (현재: {movementScale:F2} → 목표: {targetMovementScale:F2})");
+    }
+
+    /// <summary>
+    /// 이동 완전 잠금/해제
+    /// </summary>
+    public void SetMovementLocked(bool locked)
+    {
+        isMovementLocked = locked;
+        
+        if (showMovementDebug)
+            Debug.Log($"🔒 [PlayerController] 이동 잠금 {(locked ? "활성화" : "해제")}");
+        
+        // 잠금 해제 시 즉시 정지
+        if (locked && rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+    }
+
+    /// <summary>
+    /// 공격 타입별 이동 제한 적용
+    /// </summary>
+    public void ApplyAttackMovementRestriction(PlayerAttackType attackType)
+    {
+        switch (attackType)
+        {
+            case PlayerAttackType.BasicAttack:
+                SetMovementScale(0.2f); // 80% 감쇠
+                break;
+                
+            case PlayerAttackType.Skill:
+                SetMovementLocked(true); // 완전 정지
+                break;
+                
+            case PlayerAttackType.Dash:
+                SetMovementScale(0.5f); // 50% 감쇠
+                break;
+                
+            default:
+                SetMovementScale(1.0f); // 정상 이동
+                break;
+        }
+        
+        if (showMovementDebug)
+            Debug.Log($"⚔️ [PlayerController] {attackType} 공격 - 이동 제한 적용");
+    }
+
+    /// <summary>
+    /// 이동 제한 해제 (정상 상태로 복구)
+    /// </summary>
+    public void RestoreNormalMovement()
+    {
+        SetMovementLocked(false);
+        SetMovementScale(1.0f);
+        
+        if (showMovementDebug)
+            Debug.Log("✅ [PlayerController] 정상 이동 복구");
+    }
+
+    /// <summary>
+    /// 현재 이동 제한 상태 조회
+    /// </summary>
+    public bool IsMovementRestricted()
+    {
+        return isMovementLocked || movementScale < 0.99f;
+    }
+
+    #endregion
 }

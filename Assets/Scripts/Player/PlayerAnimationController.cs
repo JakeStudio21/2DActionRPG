@@ -17,6 +17,7 @@ public class PlayerAnimationController : MonoBehaviour
     private Animator animator;
     private ActiveWeapon activeWeapon;
     private SkillController skillController; // ⭐ 스킬 컨트롤러 참조 추가
+    private PlayerController playerController; // 🆕 이동 제어를 위한 PlayerController 참조
     
     // ⭐ 플레이어 클래스 참조 추가
     private BaseClassBehaviour playerClass;
@@ -45,6 +46,18 @@ public class PlayerAnimationController : MonoBehaviour
     private bool canAttack = true;
     private float attackCooldown = 1f;
     
+    // ⭐ 기본적인 상태 추적만 유지
+    private int currentAttackSequence = 0;
+    
+    // 임시 디버깅 변수들 (나중에 정리 예정)
+    private static int onAttackStartCallCount = 0;
+    private static float sessionStartTime = -1f;
+    private int lastProcessedAttackSequence = -1;
+    private int lastAttackFrameCount = -1;
+    private float lastOnAttackStartTime = -1f;
+    private float lastOnAttackCompleteTime = -1f;
+    private float animationEventCooldown = 0.2f;
+    
     // ⭐ 스킬1 상태 추적 추가
     private bool isSkill1 = false;
     private bool canSkill1 = true;
@@ -72,6 +85,7 @@ public class PlayerAnimationController : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        playerController = GetComponent<PlayerController>(); // 🆕 PlayerController 참조 초기화
         
         // ✅ 유지: 현재 사용 중인 Animation Controller 로그 출력
         if (animator != null && animator.runtimeAnimatorController != null)
@@ -296,35 +310,35 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public bool TriggerAttack()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] TriggerAttack 요청: BasicAttack");
-        
         // 공격 가능 여부 확인
         if (!CanPerformAttack())
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 공격 불가능 상태입니다!");
             return false;
         }
         
-        // Animation Parameters 안전하게 설정
-        try
+        // ⭐ 새로운 공격 시퀀스 시작
+        currentAttackSequence++;
+        Debug.Log($"🎯 [PlayerAnimationController] 새로운 공격 시퀀스 #{currentAttackSequence} 시작");
+        
+        // Animation Parameters 설정
+        if (HasParameter(animator, "isAttacking"))
         {
-            if (HasParameter(animator, "isAttacking"))
-                animator.SetBool(IS_ATTACKING_HASH, true);
-                
-            if (HasParameter(animator, "Attack"))
-                animator.SetTrigger(ATTACK_TRIGGER_HASH);
-            else
+            animator.SetBool(IS_ATTACKING_HASH, true);
+        }
+            
+        if (HasParameter(animator, "Attack"))
+        {
+            animator.SetTrigger(ATTACK_TRIGGER_HASH);
+            
+            // 기본공격 이동 제한 적용
+            if (playerController != null)
             {
-                Debug.LogWarning("[PlayerAnimationController] 'Attack' Trigger Parameter가 없어서 무기 공격을 직접 실행합니다.");
-                ExecuteWeaponAttack();
+                playerController.ApplyAttackMovementRestriction(PlayerAttackType.BasicAttack);
             }
         }
-        catch (System.Exception e)
+        else
         {
-            Debug.LogError($"[PlayerAnimationController] Animation Parameters 설정 중 오류: {e.Message}");
-            return false;
+            ExecuteWeaponAttack();
         }
         
         // 내부 상태 업데이트
@@ -332,7 +346,7 @@ public class PlayerAnimationController : MonoBehaviour
         canAttack = false;
         
         if (showDebugLogs)
-            Debug.Log($"🟢 [PlayerAnimationController] 공격 트리거 실행: BasicAttack");
+            Debug.Log($"🟢 [PlayerAnimationController] 공격 트리거 실행: BasicAttack (시퀀스 #{currentAttackSequence})");
         
         return true;
     }
@@ -364,7 +378,16 @@ public class PlayerAnimationController : MonoBehaviour
                 animator.SetBool(IS_SKILL1_HASH, true);
                 
             if (HasParameter(animator, "Skill1"))
+            {
                 animator.SetTrigger(SKILL1_TRIGGER_HASH);
+                
+                // 🆕 스킬1 이동 제한 적용 (완전정지)
+                if (playerController != null)
+                {
+                    playerController.ApplyAttackMovementRestriction(PlayerAttackType.Skill);
+                    Debug.Log("⚔️ [TriggerSkill1] 스킬1 이동 제한 적용 (완전정지)");
+                }
+            }
             else
             {
                 ExecuteSkill1();
@@ -412,7 +435,16 @@ public class PlayerAnimationController : MonoBehaviour
                 animator.SetBool(IS_SKILL2_HASH, true);
                 
             if (HasParameter(animator, "Skill2"))
+            {
                 animator.SetTrigger(SKILL2_TRIGGER_HASH);
+                
+                // 🆕 스킬2 이동 제한 적용 (완전정지)
+                if (playerController != null)
+                {
+                    playerController.ApplyAttackMovementRestriction(PlayerAttackType.Skill);
+                    Debug.Log("⚔️ [TriggerSkill2] 스킬2 이동 제한 적용 (완전정지)");
+                }
+            }
             else
             {
                 ExecuteSkill2();
@@ -579,54 +611,196 @@ public class PlayerAnimationController : MonoBehaviour
     
     /// <summary>
     /// Animation Event에서 호출: 공격 시작 시점
+    /// ⭐ 중복 호출 방지 로직 추가
     /// </summary>
     public void OnAttackStart()
     {
-        Debug.Log("🔥🔥🔥 [CRITICAL] OnAttackStart Animation Event 호출됨! 🔥🔥🔥");
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] OnAttackStart - Animation Event");
+        // 🔍 호출 카운터 증가
+        onAttackStartCallCount++;
+        if (sessionStartTime < 0) sessionStartTime = Time.time;
         
-        // 무기의 순수 공격 로직만 실행
-        if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
+        float currentTime = Time.time;
+        float sessionTime = currentTime - sessionStartTime;
+        
+        Debug.Log($"⚡⚡⚡ [PlayerAnimationController] OnAttackStart() 호출 #{onAttackStartCallCount} - 시간: {currentTime:F3} (세션: {sessionTime:F3}초)");
+        
+        // 🔍 호출 경로 추적 (Animation Event 소스 확인)
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        string stateName = GetStateName(stateInfo.shortNameHash);
+        Debug.Log($"🎬 [PlayerAnimationController] #{onAttackStartCallCount} 현재 애니메이션: {stateName} (진행도: {stateInfo.normalizedTime:F2})");
+        Debug.Log($"🔍 [PlayerAnimationController] #{onAttackStartCallCount} 애니메이션 상세 정보:");
+        Debug.Log($"   - shortNameHash: {stateInfo.shortNameHash}");
+        Debug.Log($"   - fullPathHash: {stateInfo.fullPathHash}");
+        Debug.Log($"   - normalizedTime: {stateInfo.normalizedTime:F3}");
+        Debug.Log($"   - length: {stateInfo.length:F3}");
+        
+        // 🔍 추가: 다른 레이어들도 확인
+        for (int layer = 0; layer < animator.layerCount; layer++)
         {
-            var weaponAnimator = activeWeapon.CurrentActiveWeapon.GetComponent<Animator>();
-            if (weaponAnimator != null)
+            AnimatorStateInfo layerState = animator.GetCurrentAnimatorStateInfo(layer);
+            string layerStateName = GetStateName(layerState.shortNameHash);
+            Debug.Log($"   - Layer {layer}: {layerStateName} (시간: {layerState.normalizedTime:F3})");
+        }
+        
+        // 🔍 Animation Clip Events 확인 (근본 원인 파악)
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            var clips = animator.runtimeAnimatorController.animationClips;
+            int onAttackStartCount = 0;
+            
+            Debug.Log($"🎬 [CLIP ANALYSIS] 현재 상태: {GetStateName(stateInfo.shortNameHash)}");
+            Debug.Log($"   - shortNameHash: {stateInfo.shortNameHash}");
+            
+            // 🔍 BlendTree 특별 분석: OnAttackStart가 있는 모든 클립 찾기
+            foreach (var clip in clips)
             {
-                if (activeWeapon.CurrentActiveWeapon.name.Contains("Sword"))
+                bool hasOnAttackStart = false;
+                foreach (var evt in clip.events)
                 {
-                    weaponAnimator.SetTrigger("Attack");
-                    Debug.Log("🎬 [PlayerAnimationController] Sword 애니메이션 트리거 실행");
+                    if (evt.functionName == "OnAttackStart")
+                    {
+                        hasOnAttackStart = true;
+                        onAttackStartCount++;
+                        break;
+                    }
                 }
-                // ❌ Bow Animation Event 제거 (중복 발사 방지)
-                // else if (activeWeapon.CurrentActiveWeapon.name.Contains("Bow"))
-                // {
-                //     weaponAnimator.SetTrigger("Fire");
-                // }
+                
+                if (hasOnAttackStart)
+                {
+                    Debug.Log($"🎯 [BLEND ANALYSIS] OnAttackStart가 있는 클립: {clip.name}");
+                    Debug.Log($"   - 클립 길이: {clip.length:F3}초");
+                    Debug.Log($"   - 이벤트 개수: {clip.events.Length}개");
+                    
+                    for (int i = 0; i < clip.events.Length; i++)
+                    {
+                        var evt = clip.events[i];
+                        Debug.Log($"   - Event {i}: {evt.functionName} at {evt.time:F3}초 (정규화: {evt.time / clip.length:F3})");
+                    }
+                }
             }
             
-            // 무기의 순수 공격 로직
+            Debug.Log($"🚨 [CRITICAL] OnAttackStart를 가진 총 클립 개수: {onAttackStartCount}개");
+            if (onAttackStartCount > 1)
+            {
+                Debug.LogError($"💥 [ROOT CAUSE] BlendTree에서 {onAttackStartCount}개 클립이 OnAttackStart를 가지고 있음 → 중복 호출 원인!");
+            }
+        }
+        
+        // ⭐ 시퀀스 기반 중복 호출 방지 체크 (강화)
+        Debug.Log($"🔍 [PlayerAnimationController] #{onAttackStartCallCount} 시퀀스 체크: current={currentAttackSequence}, lastProcessed={lastProcessedAttackSequence}");
+        
+        if (currentAttackSequence == lastProcessedAttackSequence)
+        {
+            Debug.LogWarning($"🟡🟡🟡 [PlayerAnimationController] OnAttackStart #{onAttackStartCallCount} 시퀀스 중복 방지! 시퀀스 #{currentAttackSequence} 이미 처리됨 - RETURN!");
+            return;
+        }
+        
+        // 🔥 추가: BlendTree 전용 강력한 중복 방지 (같은 프레임 내 중복 호출 차단)
+        if (Time.frameCount == lastAttackFrameCount)
+        {
+            Debug.LogWarning($"🔥🔥🔥 [PlayerAnimationController] OnAttackStart #{onAttackStartCallCount} 프레임 중복 방지! 프레임: {Time.frameCount} - RETURN!");
+            return;
+        }
+        lastAttackFrameCount = Time.frameCount;
+        
+        // ⭐ 추가: 시퀀스가 다르다면 왜 다른지 확인
+        if (currentAttackSequence != lastProcessedAttackSequence)
+        {
+            Debug.Log($"✅ [PlayerAnimationController] #{onAttackStartCallCount} 시퀀스 통과: {lastProcessedAttackSequence} → {currentAttackSequence}");
+        }
+        
+        // ⭐ 시간 기반 중복 호출 방지 체크
+        float timeDiff = currentTime - lastOnAttackStartTime;
+        Debug.Log($"🕐 [PlayerAnimationController] #{onAttackStartCallCount} 시간 체크: 현재={currentTime:F3}, 마지막={lastOnAttackStartTime:F3}, 차이={timeDiff:F3}, 쿨다운={animationEventCooldown:F3}");
+        
+        if (timeDiff < animationEventCooldown)
+        {
+            Debug.LogWarning($"🟡🟡🟡 [PlayerAnimationController] OnAttackStart #{onAttackStartCallCount} 시간 중복 방지! 차이={timeDiff:F3}초 < 쿨다운={animationEventCooldown:F3}초 - RETURN!");
+            return;
+        }
+        
+        Debug.Log($"✅ [PlayerAnimationController] #{onAttackStartCallCount} 시간 체크 통과: {timeDiff:F3}초 >= {animationEventCooldown:F3}초");
+        
+        // ⭐ 중복 방지 통과 - 처리 시작
+        lastProcessedAttackSequence = currentAttackSequence;
+        lastOnAttackStartTime = currentTime;
+        
+        // ✅ 방향 정보만 간단히 표시
+        if (animator != null && showDebugLogs)
+        {
+            float moveX = animator.GetFloat("moveX");
+            float moveY = animator.GetFloat("moveY");
+            
+            // 🔍 N/S 방향 특별 추적
+            bool isNorthSouth = Mathf.Abs(moveX) < 0.3f && Mathf.Abs(moveY) > 0.7f;
+            if (isNorthSouth)
+            {
+                string directionName = moveY > 0 ? "NORTH" : "SOUTH";
+                Debug.Log($"🧭 [PlayerAnimationController] #{onAttackStartCallCount} {directionName} 방향 Animation Event! moveX: {moveX:F2}, moveY: {moveY:F2}");
+            }
+        }
+        
+        Debug.Log($"✅ [PlayerAnimationController] OnAttackStart #{onAttackStartCallCount} 승인 (시퀀스 #{currentAttackSequence}) → weapon.Attack() 호출");
+        
+        // 무기 공격 실행
+        if (activeWeapon != null && activeWeapon.CurrentActiveWeapon != null)
+        {
+            // 🔍 무기 타입 확인
+            string weaponName = activeWeapon.CurrentActiveWeapon.name;
+            Debug.Log($"🗡️ [PlayerAnimationController] #{onAttackStartCallCount} 무기 공격 실행: {weaponName}");
+            
+            var weaponAnimator = activeWeapon.CurrentActiveWeapon.GetComponent<Animator>();
+            if (weaponAnimator != null && activeWeapon.CurrentActiveWeapon.name.Contains("Sword"))
+            {
+                weaponAnimator.SetTrigger("Attack");
+            }
+            
+            // 무기 공격 로직
             var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
             if (weapon != null)
             {
+                Debug.Log($"🎯 [PlayerAnimationController] #{onAttackStartCallCount} weapon.Attack() 호출 시작");
                 weapon.Attack();
-                
-                if (showDebugLogs)
-                    Debug.Log($"🟢 [PlayerAnimationController] 무기 공격 실행: {activeWeapon.CurrentActiveWeapon.name}");
+                Debug.Log($"🎯 [PlayerAnimationController] #{onAttackStartCallCount} weapon.Attack() 호출 완료");
             }
+        }
+        else
+        {
+            Debug.LogError($"❌ [PlayerAnimationController] #{onAttackStartCallCount} ActiveWeapon 또는 CurrentActiveWeapon이 null!");
         }
     }
     
     /// <summary>
     /// Animation Event에서 호출: 공격 완료 시점
+    /// ⭐ 중복 호출 방지 로직 추가
     /// </summary>
     public void OnAttackComplete()
     {
-        Debug.Log("🔥🔥🔥 [CRITICAL] OnAttackComplete Animation Event 호출됨! 🔥🔥🔥");
+        // ⭐ 중복 호출 방지 체크
+        float currentTime = Time.time;
+        if (currentTime - lastOnAttackCompleteTime < animationEventCooldown)
+        {
+            Debug.LogWarning($"🟡 [PlayerAnimationController] OnAttackComplete 중복 호출 방지! 마지막 호출: {lastOnAttackCompleteTime:F3}, 현재: {currentTime:F3}");
+            return;
+        }
+        lastOnAttackCompleteTime = currentTime;
+        
+        Debug.Log($"🔥🔥🔥 [CRITICAL] OnAttackComplete Animation Event 호출됨! 시퀀스 #{currentAttackSequence}");
         if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] OnAttackComplete - Animation Event");
+            Debug.Log($"🟢 [PlayerAnimationController] OnAttackComplete - Animation Event (시퀀스 #{currentAttackSequence})");
+        
+        // ⭐ 공격 시퀀스 완료 처리
+        Debug.Log($"✅ [PlayerAnimationController] 공격 시퀀스 #{currentAttackSequence} 완료");
         
         // Animation Parameters 리셋
         animator.SetBool(IS_ATTACKING_HASH, false);
+        
+        // 🆕 기본공격 이동 제한 해제
+        if (playerController != null)
+        {
+            playerController.RestoreNormalMovement();
+            Debug.Log("✅ [OnAttackComplete] 기본공격 이동 제한 해제");
+        }
         
         // 쿨다운 시작
         StartCoroutine(AttackCooldownRoutine());
@@ -656,6 +830,13 @@ public class PlayerAnimationController : MonoBehaviour
         if (HasParameter(animator, "isSkill1"))
             animator.SetBool(IS_SKILL1_HASH, false);
         
+        // 🆕 스킬1 이동 제한 해제
+        if (playerController != null)
+        {
+            playerController.RestoreNormalMovement();
+            Debug.Log("✅ [OnSkill1Complete] 스킬1 이동 제한 해제");
+        }
+        
         // 스킬1 쿨다운 시작
         StartCoroutine(Skill1CooldownRoutine());
     }
@@ -683,6 +864,13 @@ public class PlayerAnimationController : MonoBehaviour
         // Animation Parameters 리셋
         if (HasParameter(animator, "isSkill2"))
             animator.SetBool(IS_SKILL2_HASH, false);
+        
+        // 🆕 스킬2 이동 제한 해제
+        if (playerController != null)
+        {
+            playerController.RestoreNormalMovement();
+            Debug.Log("✅ [OnSkill2Complete] 스킬2 이동 제한 해제");
+        }
         
         // 스킬2 쿨다운 시작
         StartCoroutine(Skill2CooldownRoutine());
@@ -1021,18 +1209,64 @@ public class PlayerAnimationController : MonoBehaviour
     }
 
     /// <summary>
-    /// State Hash를 이름으로 변환 (디버깅용)
+    /// State Hash를 이름으로 변환 (디버깅용) - 강화된 버전
     /// </summary>
     private string GetStateName(int stateHash)
     {
-        // 주요 State Hash들을 문자열로 매핑
+        // 기본 상태들
         if (stateHash == Animator.StringToHash("Idle")) return "Idle";
         if (stateHash == Animator.StringToHash("Running")) return "Running";
-        if (stateHash == Animator.StringToHash("Attack_Assain")) return "Attack_Assain";
-        if (stateHash == Animator.StringToHash("Hit_Assain")) return "Hit_Assain";
-        if (stateHash == Animator.StringToHash("Skill1_Assain")) return "Skill1_Assain"; // ⭐ 추가
-        if (stateHash == Animator.StringToHash("Skill2_Assain")) return "Skill2_Assain"; // ⭐ 추가
         if (stateHash == Animator.StringToHash("Death")) return "Death";
+        
+        // 기본 공격 애니메이션들
+        if (stateHash == Animator.StringToHash("Attack_Assain")) return "Attack_Assain";
+        if (stateHash == Animator.StringToHash("Attack_Assain_E")) return "Attack_Assain_E";
+        if (stateHash == Animator.StringToHash("Attack_Assain_N")) return "Attack_Assain_N";
+        if (stateHash == Animator.StringToHash("Attack_Assain_S")) return "Attack_Assain_S";
+        if (stateHash == Animator.StringToHash("Attack_Assain_NE")) return "Attack_Assain_NE";
+        if (stateHash == Animator.StringToHash("Attack_Assain_SE")) return "Attack_Assain_SE";
+        if (stateHash == Animator.StringToHash("Attack_Assain_NW")) return "Attack_Assain_NW";
+        if (stateHash == Animator.StringToHash("Attack_Assain_SW")) return "Attack_Assain_SW";
+        if (stateHash == Animator.StringToHash("Attack_Assain_W")) return "Attack_Assain_W";
+        
+        // 스킬 애니메이션들
+        if (stateHash == Animator.StringToHash("Skill1_Assain")) return "Skill1_Assain";
+        if (stateHash == Animator.StringToHash("Skill2_Assain")) return "Skill2_Assain";
+        
+        // 피격 애니메이션들
+        if (stateHash == Animator.StringToHash("Hit_Assain")) return "Hit_Assain";
+        
+        // 🔍 실제 클립 이름들도 확인
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            var clips = animator.runtimeAnimatorController.animationClips;
+            foreach (var clip in clips)
+            {
+                if (Animator.StringToHash(clip.name) == stateHash)
+                {
+                    return $"CLIP:{clip.name}";
+                }
+            }
+            
+            // 🔍 State 이름들도 확인 (Editor 전용)
+#if UNITY_EDITOR
+            if (animator.runtimeAnimatorController is UnityEditor.Animations.AnimatorController animatorController)
+            {
+                var layers = animatorController.layers;
+                foreach (var layer in layers)
+                {
+                    var stateMachine = layer.stateMachine;
+                    foreach (var state in stateMachine.states)
+                    {
+                        if (Animator.StringToHash(state.state.name) == stateHash)
+                        {
+                            return $"STATE:{state.state.name}";
+                        }
+                    }
+                }
+            }
+#endif
+        }
         
         return $"Unknown({stateHash})";
     }
