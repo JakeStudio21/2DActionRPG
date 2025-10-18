@@ -578,5 +578,23 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: Golem Projectile
+    prefab: {fileID: 6830296691463287077, guid: 61357f20c7386224bb4654399e49ddd5, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Crystals front attack
+    prefab: {fileID: 3156866507962234106, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_CRYSTALGOLEM_001
+    prefab: {fileID: 8853189013130719682, guid: ee591e99639a5a94a98c58950da4cbeb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

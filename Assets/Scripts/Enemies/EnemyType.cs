@@ -34,13 +34,3 @@ public enum StatusEffectType
     Stun     // 기절: 일시적 행동 불가
 }
 
-/// <summary>
-/// ⭐ 새 추가: 복합 공격 발사 패턴 정의
-/// Ghost 전용이었던 패턴을 범용으로 확장
-/// </summary>
-public enum MultiShotPattern
-{
-    Spread,  // 부채꼴 패턴 (기본)
-    Spiral,  // 나선형 패턴
-    Random   // 랜덤 패턴
-}

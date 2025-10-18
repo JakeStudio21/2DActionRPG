@@ -29,6 +29,7 @@ public class GrapeProjectile : MonoBehaviour
     // 🔑 중복 반환 방지 플래그 추가
     private bool isReturningToPool = false;
     private bool isShadowReturningToPool = false;
+    private bool fallbackStarted = false;
     
     private void Awake()
     {
@@ -74,11 +75,40 @@ public class GrapeProjectile : MonoBehaviour
         isLaunched = false;
         isReturningToPool = false;
         isShadowReturningToPool = false;
+        fallbackStarted = false;
         
-        // 0.1초 후 발사 시작 (풀링 시스템 호환)
-        if (gameObject.activeInHierarchy)
+        // ⭐ DelayedLaunch 제거: RangedAttack에서 목표를 설정하므로 불필요
+        Debug.Log("[GrapeProjectile] OnEnable: RangedAttack에서 목표 설정 대기 중");
+    }
+    
+    private void Update()
+    {
+        // ⭐ 안전장치: RangedAttack에서 목표를 설정하지 않은 경우 fallback
+        if (!isLaunched && !isReturningToPool && gameObject.activeInHierarchy && !fallbackStarted)
         {
-            StartCoroutine(DelayedLaunch());
+            // 0.2초 후에도 목표가 설정되지 않으면 fallback 실행
+            StartCoroutine(FallbackLaunch());
+            fallbackStarted = true;
+        }
+    }
+    
+    private IEnumerator FallbackLaunch()
+    {
+        yield return new WaitForSeconds(0.2f);
+        
+        // 여전히 목표가 설정되지 않은 경우에만 fallback 실행
+        if (!isLaunched && !isReturningToPool && gameObject.activeInHierarchy)
+        {
+            if (cachedPlayer != null)
+            {
+                LaunchToTarget(cachedPlayer.transform.position);
+                Debug.Log("[GrapeProjectile] FallbackLaunch: 현재 플레이어 위치로 설정");
+            }
+            else
+            {
+                LaunchToTarget(transform.position + Vector3.right * 5f);
+                Debug.Log("[GrapeProjectile] FallbackLaunch: 플레이어 없음, 기본 방향으로 발사");
+            }
         }
     }
     
@@ -92,6 +122,7 @@ public class GrapeProjectile : MonoBehaviour
         isLaunched = false;
         isReturningToPool = false;
         isShadowReturningToPool = false;
+        fallbackStarted = false;
     }
     
     public void SetDamage(int newDamage)
@@ -111,24 +142,6 @@ public class GrapeProjectile : MonoBehaviour
         StartCoroutine(ProjectileMotionCoroutine());
     }
     
-    private IEnumerator DelayedLaunch()
-    {
-        yield return new WaitForSeconds(0.1f);
-        
-        if (gameObject.activeInHierarchy && !isLaunched && !isReturningToPool)
-        {
-            // 플레이어 위치를 목표로 설정
-            if (cachedPlayer != null)
-            {
-                LaunchToTarget(cachedPlayer.transform.position);
-            }
-            else
-            {
-                // 플레이어를 찾을 수 없으면 앞쪽으로 발사
-                LaunchToTarget(transform.position + Vector3.right * 5f);
-            }
-        }
-    }
     
     private void CreateShadow()
     {

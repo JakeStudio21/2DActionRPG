@@ -18,7 +18,7 @@ MonoBehaviour:
   RepeatCount: 1
   RepeatIntervalSec: 0
   Monsters:
-  - MonsterID: MON_BLUESLIME_001
+  - MonsterID: MON_CRYSTALGOLEM_001
     Count: 2
     SpawnCount: 0.3
     IsBoss: 0

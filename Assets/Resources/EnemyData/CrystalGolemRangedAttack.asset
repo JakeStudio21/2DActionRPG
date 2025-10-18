@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64c07a372114658468c055ebdb17ab75, type: 3}
-  m_Name: GrapeRangedAttack
+  m_Name: CrystalGolemRangedAttack
   m_EditorClassIdentifier: 
   attackName: "\uD3EC\uB3C4 \uB3C5\uD654\uC0B4"
   attackType: 1
@@ -24,7 +24,7 @@ MonoBehaviour:
   attackRange: 8
   attackAngle: 90
   stopMovingWhileAttacking: 1
-  projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+  projectilePrefab: {fileID: 3156866507962234106, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
   projectileSpeed: 1
   projectileLifetime: 4
   projectileCount: 1

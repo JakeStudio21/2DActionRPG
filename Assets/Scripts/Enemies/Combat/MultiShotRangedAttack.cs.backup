@@ -1,0 +1,5 @@
+// 백업 파일 - 2025-10-18
+// 기존 MultiShotRangedAttack.cs의 복잡한 버전
+// 새 버전으로 교체됨 (RangedAttack 기반 단순화)
+// 필요 시 복원 가능
+

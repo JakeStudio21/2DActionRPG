@@ -18,24 +18,17 @@ MonoBehaviour:
   baseDamage: 4
   criticalChance: 0.08
   criticalMultiplier: 2.2
-  attackCooldown: 3.5
-  animationDuration: 2
+  attackCooldown: 0.1
+  animationDuration: 1
   animationTrigger: Attack
   attackRange: 5
-  attackAngle: 360
+  attackAngle: 60
   stopMovingWhileAttacking: 1
   projectilePrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
-  projectileSpeed: 1
-  projectileLifetime: 5
-  projectileCount: 18
-  multiShotAngle: 360
-  shotPattern: 1
-  useProjectileArc: 0
-  useScreenShake: 0
-  showDebugGizmos: 1
-  timeBetweenBursts: 0.1
-  restTime: 1
-  useStaggeredFiring: 1
+  projectileSpeed: 3
+  projectileLifetime: 1
+  projectileCount: 5
+  multiShotAngle: 75
   onHitEffects: []
   effectChances: []
   attackStartEffect: {fileID: 0}

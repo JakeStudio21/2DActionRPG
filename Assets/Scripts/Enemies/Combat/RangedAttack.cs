@@ -46,6 +46,9 @@ public class RangedAttack : BaseAttackBehaviour
     // 발사체 추적용
     private List<GameObject> activProjectiles = new List<GameObject>();
     
+    // ⭐ 저장된 공격 방향 (Animation Event 지연 대응)
+    private Vector2 savedAttackDirection = Vector2.right;
+    
     #endregion
 
     #region BaseAttackBehaviour 추상 메서드 구현 (기존 + 확장)
@@ -67,10 +70,19 @@ public class RangedAttack : BaseAttackBehaviour
 
     protected override void OnAttack()
     {
-        // 플레이어 방향으로 스프라이트 회전
-        if (cachedPlayer != null && spriteRenderer != null)
+        // ⭐ BlueSlime 방식 적용: 월드 좌표를 BlendTree 좌표로 직접 전달
+        if (cachedPlayer != null && animationController != null)
         {
-            spriteRenderer.flipX = (transform.position.x - cachedPlayer.transform.position.x >= 0);
+            Vector2 toPlayerWorld = (cachedPlayer.transform.position - transform.position).normalized;
+            Vector2 toPlayerBlendTree = toPlayerWorld; // 아이소메트릭 변환 제거
+            bool shouldFlipX = toPlayerWorld.x < 0;
+            
+            // ⭐ 방향 저장 (Animation Event에서 사용)
+            savedAttackDirection = toPlayerWorld;
+            
+            animationController.UpdateAttackDirectionWithFlip(toPlayerBlendTree, shouldFlipX);
+            
+            Debug.Log($"[RangedAttack] {gameObject.name} - 공격 방향 저장 및 설정: World({toPlayerWorld.x:F2}, {toPlayerWorld.y:F2}), flipX: {shouldFlipX}");
         }
         
         // ⭐ 새 시스템: 반동 효과
@@ -234,8 +246,20 @@ public class RangedAttack : BaseAttackBehaviour
     /// </summary>
     private void ConfigureGrapeProjectile(GrapeProjectile grapeProjectile)
     {
-        // 예측 조준
-        Vector3 targetPosition = GetPredictedPlayerPosition();
+        // ⭐ 예측 시스템 비활성화: 현재 플레이어 위치 사용 (테스트용)
+        Vector3 targetPosition;
+        
+        if (cachedPlayer != null)
+        {
+            targetPosition = cachedPlayer.transform.position;
+            Debug.Log($"[RangedAttack] Grape 발사체 설정 - 현재 플레이어 위치 사용: {targetPosition}");
+        }
+        else
+        {
+            targetPosition = transform.position + Vector3.right * 5f;
+            Debug.Log($"[RangedAttack] Grape 발사체 설정 - 플레이어 없음, 기본 방향 사용: {targetPosition}");
+        }
+        
         grapeProjectile.LaunchToTarget(targetPosition);
         
         // ⭐ 새 시스템: 데이터 기반 데미지 및 속도 설정
@@ -249,24 +273,21 @@ public class RangedAttack : BaseAttackBehaviour
     /// </summary>
     private void ConfigureGenericProjectile(GameObject projectile)
     {
-        // 기본 방향 설정 (플레이어 방향)
-        if (cachedPlayer != null)
+        // ⭐ 저장된 방향 사용 (애니메이션과 일치)
+        Vector3 direction = savedAttackDirection;
+        projectile.transform.right = direction;
+        
+        // Rigidbody2D가 있으면 속도 설정
+        if (projectile.TryGetComponent(out Rigidbody2D rb))
         {
-            Vector3 direction = GetAdjustedAimDirection();
-            projectile.transform.right = direction;
-            
-            // Rigidbody2D가 있으면 속도 설정
-            if (projectile.TryGetComponent(out Rigidbody2D rb))
-            {
-                float speed = GetCurrentProjectileSpeed();
-                rb.velocity = direction * speed;
-            }
+            float speed = GetCurrentProjectileSpeed();
+            rb.velocity = direction * speed;
         }
         
         // ⭐ 새 시스템: 데이터 기반 스탯 설정
         ConfigureProjectileStats(projectile);
         
-        Debug.Log($"[RangedAttack] 범용 발사체 설정 완료");
+        Debug.Log($"[RangedAttack] 범용 발사체 설정 완료 - 저장된 방향 사용: ({direction.x:F2}, {direction.y:F2})");
     }
     
     /// <summary>
@@ -349,6 +370,39 @@ public class RangedAttack : BaseAttackBehaviour
         
         // 예측 위치 계산
         Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);
+        
+        return predictedPosition;
+    }
+    
+    /// <summary>
+    /// ⭐ 신규: 저장된 방향을 기준으로 플레이어 예측 위치 계산
+    /// </summary>
+    private Vector3 GetPredictedPlayerPositionFromDirection(Vector2 attackDirection)
+    {
+        if (cachedPlayer == null)
+        {
+            // fallback: 저장된 방향 기준 기본 거리
+            return transform.position + (Vector3)attackDirection * GetScaledRange();
+        }
+        
+        Vector3 currentPlayerPos = cachedPlayer.transform.position;
+        
+        // 플레이어의 이동 속도 계산
+        Vector2 playerVelocity = Vector2.zero;
+        if (cachedPlayer.TryGetComponent(out Rigidbody2D playerRb))
+        {
+            playerVelocity = playerRb.velocity;
+        }
+        
+        // 저장된 방향 기준으로 거리 계산
+        float distance = Vector3.Distance(transform.position, currentPlayerPos);
+        float currentSpeed = GetCurrentProjectileSpeed();
+        float projectileTravelTime = currentSpeed > 0 ? distance / currentSpeed : 2f;
+        
+        // 예측 위치 계산
+        Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);
+        
+        Debug.Log($"[RangedAttack] 저장된 방향 기반 예측: 현재({currentPlayerPos.x:F1},{currentPlayerPos.y:F1}) → 예측({predictedPosition.x:F1},{predictedPosition.y:F1})");
         
         return predictedPosition;
     }

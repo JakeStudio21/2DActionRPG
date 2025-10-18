@@ -20726,7 +20726,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000
+  m_ApplyToSortingLayers: 0000000089d5d61a1bf1d8df0f1f966eabd0ac1bd753034f291c3015
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -26365,6 +26365,9 @@ MonoBehaviour:
   targetAreaName: SecretAreaB
   portalName: SecretPortalB
   requiresBossDefeat: 0
+  isTriggerGate: 0
+  triggerToActivate: 0
+  gateTag: BossGate
   directTargetPosition: {fileID: 0}
   portalGate: {fileID: 992960108}
   sceneToLoad: 
@@ -55101,6 +55104,9 @@ MonoBehaviour:
   targetAreaName: SecretAreaA
   portalName: SecretPortalA
   requiresBossDefeat: 0
+  isTriggerGate: 0
+  triggerToActivate: 0
+  gateTag: BossGate
   directTargetPosition: {fileID: 0}
   portalGate: {fileID: 992960108}
   sceneToLoad: 
@@ -56792,6 +56798,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ghost (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7421774030207711173, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 5c5e5c84050bffe4aba2342ee33a2168, type: 2}
     - target: {fileID: 9163205061197253037, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.10289097

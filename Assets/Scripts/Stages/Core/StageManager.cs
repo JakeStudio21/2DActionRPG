@@ -791,6 +791,10 @@ public class StageManager : MonoBehaviour
             {
                 return monsterID.Contains("BOSS") ? "StoneGolem_BossData" : "StoneGolemData";
             }
+            else if (monsterID.Contains("CRYSTALGOLEM"))
+            {
+                return monsterID.Contains("BOSS") ? "CrystalGolem_BossData" : "CrystalGolemData";
+            }
             
             return $"{monsterID}Data"; // 기본값
         }

@@ -61,32 +61,6 @@ public class AttackData : ScriptableObject
     [Tooltip("다중 발사 각도 간격")]
     [SerializeField] private float multiShotAngle = 15f;
 
-    // ⭐ 새 추가: 복합 공격 고급 설정 (Ghost 전용 → 범용 확장)
-    [Header("🎯 복합 공격 고급 설정")]
-    [Tooltip("발사 패턴 (Spread: 부채꼴, Spiral: 나선형, Random: 랜덤)")]
-    [SerializeField] private MultiShotPattern shotPattern = MultiShotPattern.Spread;
-    
-    [Tooltip("발사체 궤도 곡선 사용 여부 (포물선, 곡선 등)")]
-    [SerializeField] private bool useProjectileArc = false;
-    
-    [Tooltip("공격 시 화면 흔들림 효과 (임팩트 강화)")]
-    [SerializeField] private bool useScreenShake = false;
-    
-    [Tooltip("에디터에서 발사 패턴 기즈모 표시 (디버깅용)")]
-    [SerializeField] private bool showDebugGizmos = true;
-    
-    [Header("🎯 복합 공격 타이밍 설정")]
-    [Tooltip("버스트 발사 간격 (초)")]
-    [SerializeField] private float timeBetweenBursts = 0.2f;
-    
-    [Tooltip("발사 후 휴식 시간 (초)")]
-    [SerializeField] private float restTime = 1f;
-    
-    [Tooltip("발사체를 순차적으로 발사 (false: 동시 발사, true: 순차 발사)")]
-    [SerializeField] private bool useStaggeredFiring = false;
-
-    // Properties 섹션에 추가:
-    public bool UseStaggeredFiring => useStaggeredFiring;
 
     [Header("☠️ 상태이상 효과")]
     [Tooltip("공격 시 적용할 상태이상들")]
@@ -133,13 +107,6 @@ public class AttackData : ScriptableObject
     public AudioClip AttackSound => attackSound;
     public AudioClip HitSound => hitSound;
 
-    // ⭐ 새 추가: 복합 공격 고급 설정 Properties
-    public MultiShotPattern ShotPattern => shotPattern;
-    public bool UseProjectileArc => useProjectileArc;
-    public bool UseScreenShake => useScreenShake;
-    public bool ShowDebugGizmos => showDebugGizmos;
-    public float TimeBetweenBursts => timeBetweenBursts;
-    public float RestTime => restTime;
 
     /// <summary>
     /// 레벨에 따른 스케일된 데미지 계산
