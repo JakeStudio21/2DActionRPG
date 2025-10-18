@@ -71,6 +71,22 @@ public class ColliderGizmosDrawer : MonoBehaviour
             Gizmos.matrix = transform.localToWorldMatrix;
             DrawWireCapsule2D(capsule);
         }
+        
+        // CompositeCollider2D 🆕 추가
+        var composite = GetComponent<CompositeCollider2D>();
+        if (composite != null)
+        {
+            Gizmos.matrix = Matrix4x4.identity; // CompositeCollider2D는 월드 좌표 사용
+            DrawCompositeCollider2D(composite);
+        }
+        
+        // PolygonCollider2D 🆕 추가
+        var polygon = GetComponent<PolygonCollider2D>();
+        if (polygon != null)
+        {
+            Gizmos.matrix = transform.localToWorldMatrix;
+            DrawPolygonCollider2D(polygon);
+        }
     }
     
     private void DrawMonsterRanges()
@@ -436,6 +452,52 @@ public class ColliderGizmosDrawer : MonoBehaviour
                 Vector2 p3 = leftCenter + new Vector2(Mathf.Cos(angle1 + Mathf.PI / 2f), Mathf.Sin(angle1 + Mathf.PI / 2f)) * radius;
                 Vector2 p4 = leftCenter + new Vector2(Mathf.Cos(angle2 + Mathf.PI / 2f), Mathf.Sin(angle2 + Mathf.PI / 2f)) * radius;
                 Gizmos.DrawLine(p3, p4);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// CompositeCollider2D 그리기 (🆕 추가)
+    /// </summary>
+    void DrawCompositeCollider2D(CompositeCollider2D composite)
+    {
+        // 각 path를 순회하면서 그리기
+        for (int pathIndex = 0; pathIndex < composite.pathCount; pathIndex++)
+        {
+            Vector2[] pathPoints = new Vector2[composite.GetPathPointCount(pathIndex)];
+            composite.GetPath(pathIndex, pathPoints);
+            
+            // 각 path의 점들을 연결해서 그리기
+            for (int i = 0; i < pathPoints.Length; i++)
+            {
+                Vector2 currentPoint = pathPoints[i];
+                Vector2 nextPoint = pathPoints[(i + 1) % pathPoints.Length]; // 마지막과 첫번째 연결
+                
+                Gizmos.DrawLine(currentPoint, nextPoint);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// PolygonCollider2D 그리기 (🆕 추가)
+    /// </summary>
+    void DrawPolygonCollider2D(PolygonCollider2D polygon)
+    {
+        // PolygonCollider2D는 여러 path를 가질 수 있음 (구멍이 있는 폴리곤 등)
+        for (int pathIndex = 0; pathIndex < polygon.pathCount; pathIndex++)
+        {
+            Vector2[] pathPoints = polygon.GetPath(pathIndex);
+            
+            // 점이 3개 미만이면 폴리곤이 아니므로 건너뛰기
+            if (pathPoints.Length < 3) continue;
+            
+            // 각 점들을 연결해서 폴리곤 그리기
+            for (int i = 0; i < pathPoints.Length; i++)
+            {
+                Vector2 currentPoint = pathPoints[i];
+                Vector2 nextPoint = pathPoints[(i + 1) % pathPoints.Length]; // 마지막과 첫번째 연결
+                
+                Gizmos.DrawLine(currentPoint, nextPoint);
             }
         }
     }

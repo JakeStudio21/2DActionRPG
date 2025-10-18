@@ -23,7 +23,7 @@ MonoBehaviour:
     SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_GRAPE_001
+  - MonsterID: MON_STONEGOLEM_001
     Count: 1
     SpawnCount: 0
     IsBoss: 0

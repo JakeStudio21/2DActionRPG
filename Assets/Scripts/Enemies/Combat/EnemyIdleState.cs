@@ -17,10 +17,22 @@ public class EnemyIdleState : IEnemyState
         // ❌ 제거: enemy.AnimationController?.PlayIdle();
         // ✅ Walking이 기본 상태이므로 별도 애니메이션 호출 불필요
         idleTimer = 0f;
+        
+        // ⭐ 8방향 애니메이션: Idle 강제 적용 (speed=0, isMoving=false)
+        if (enemy is BaseEnemy baseEnemy)
+        {
+            baseEnemy.AnimationController?.ForceIdle();
+        }
     }
 
     public void Execute()
     {
+        // ⭐ 8방향 애니메이션: 매 프레임 Idle 유지 (안전)
+        if (enemy is BaseEnemy baseEnemy)
+        {
+            baseEnemy.AnimationController?.ForceIdle();
+        }
+        
         // 플레이어 감지
         if (enemy.IsPlayerInRange(enemy.DetectionRange))
         {

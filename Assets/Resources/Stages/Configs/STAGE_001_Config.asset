@@ -23,7 +23,7 @@ MonoBehaviour:
     IsAlwaysUnlocked: 1
     RequiredStageId: 
   WaveCount: 3
-  TimeLimitSec: 60
+  TimeLimitSec: 300
   Victory: 1
   FirstClearDropGroupId: DROP_STG001_CLEAR_FIRST
   RepeatClearDropGroupId: DROP_STG001_CLEAR_REPEAT

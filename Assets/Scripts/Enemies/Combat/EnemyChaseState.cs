@@ -92,8 +92,16 @@ public class EnemyChaseState : IEnemyState
             return;
         }
         
-        Vector2 dir = (enemy.TargetPlayer.transform.position - enemy.transform.position).normalized;
-        enemy.transform.position += (Vector3)dir * moveSpeed * Time.deltaTime;
+        Vector2 toPlayer = (enemy.TargetPlayer.transform.position - enemy.transform.position);
+        Vector2 dir = toPlayer.sqrMagnitude > 0.0001f ? toPlayer.normalized : Vector2.zero;
+        Vector2 velocity = dir * moveSpeed;
+        enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+        
+        // ⭐ 8방향 애니메이션 업데이트 (실제 속도 기반)
+        if (enemy is BaseEnemy baseEnemy)
+        {
+            baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+        }
         
         float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
         

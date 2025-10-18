@@ -430,8 +430,8 @@ public class EnemyPatrolState : IEnemyState
         float smoothTime = tuning.Acceleration.speedTransitionSmoothing / changeRate;
         currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedChangeVelocity, smoothTime);
         
-        // 최소 속도 보장
-        currentSpeed = Mathf.Max(currentSpeed, 0.1f);
+        // 최소 속도 보장 (정지 허용: 0까지 내려갈 수 있도록)
+        currentSpeed = Mathf.Max(currentSpeed, 0f);
     }
 
     public void Enter()
@@ -476,6 +476,9 @@ public class EnemyPatrolState : IEnemyState
 
     public void Execute()
     {
+        // ⭐ BaseEnemy 참조를 메서드 시작 부분에서 한 번만 캐싱 (중복 선언 방지)
+        BaseEnemy baseEnemy = enemy as BaseEnemy;
+        
         patrolTimer += Time.deltaTime;
 
         // 대기 상태 업데이트
@@ -511,6 +514,12 @@ public class EnemyPatrolState : IEnemyState
         // 대기 중이면 이동하지 않음
         if (isPausing)
         {
+            // ⭐ 대기 중에는 속도 0 보장 + Idle 강제 적용 (깜빡임 방지)
+            currentSpeed = 0f;
+            if (baseEnemy != null)
+            {
+                baseEnemy.AnimationController?.ForceIdle();
+            }
             return;
         }
 
@@ -522,7 +531,15 @@ public class EnemyPatrolState : IEnemyState
             Vector2 moveDirection = GetFinalMovementDirection(baseDirection);
             
             // 🔑 노이즈가 적용된 방향으로 이동
-            enemy.transform.position += (Vector3)moveDirection * currentSpeed * Time.deltaTime;
+            Vector2 velocity = moveDirection * currentSpeed;
+            enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+            
+            // ⭐ 8방향 애니메이션 업데이트
+            if (baseEnemy != null)
+            {
+                // 실제 속도 기반으로 speed/isMoving 반영
+                baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+            }
 
             float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
             if (distToHome <= 0.5f)
@@ -537,7 +554,7 @@ public class EnemyPatrolState : IEnemyState
                 
                 StartPause(true);
                 
-                if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
                 {
                     Debug.Log($"[EnemyPatrolState] {enemy.name} 홈 도착! 새 순찰 목표: {patrolTarget}");
                 }
@@ -550,7 +567,15 @@ public class EnemyPatrolState : IEnemyState
             Vector2 moveDirection = GetFinalMovementDirection(baseDirection);
             
             // 🔑 노이즈가 적용된 방향으로 이동
-            enemy.transform.position += (Vector3)moveDirection * currentSpeed * Time.deltaTime;
+            Vector2 velocity = moveDirection * currentSpeed;
+            enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+            
+            // ⭐ 8방향 애니메이션 업데이트
+            if (baseEnemy != null)
+            {
+                // 실제 속도 기반으로 speed/isMoving 반영
+                baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+            }
 
             // 목표 도달 또는 시간 초과 체크
             float distToTarget = Vector2.Distance(enemy.transform.position, patrolTarget);
@@ -565,7 +590,7 @@ public class EnemyPatrolState : IEnemyState
                 
                 StartPause(true);
                 
-                if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
                 {
                     Debug.Log($"[EnemyPatrolState] {enemy.name} 새 순찰 목표: {patrolTarget}, 속도: {currentSpeed:F1}");
                 }
@@ -584,7 +609,7 @@ public class EnemyPatrolState : IEnemyState
                 
                 UpdateTargetSpeed();
                 
-                if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
                 {
                     Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 범위 이탈! 홈으로 복귀");
                 }

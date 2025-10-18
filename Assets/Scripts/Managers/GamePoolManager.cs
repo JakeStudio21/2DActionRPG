@@ -1605,6 +1605,10 @@ public class GamePoolManager : Singleton<GamePoolManager>
         {
             return monsterID.Contains("BOSS") ? "Ghost_BossData" : "GhostData";
         }
+        else if (monsterID.Contains("STONEGOLEM"))
+        {
+            return monsterID.Contains("BOSS") ? "StoneGolem_BossData" : "StoneGolemData";
+        }
         
         return $"{monsterID}Data";
     }

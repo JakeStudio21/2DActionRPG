@@ -143,6 +143,9 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         // 스폰 지점 저장
         SpawnPoint = transform.position;
         
+        // 🎨 렌더링 소팅 설정
+        InitializeRenderingSorting();
+        
         // 추가 초기화 (하위 클래스에서 구현)
         OnAwakeInitialize();
     }
@@ -275,6 +278,67 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     protected abstract void OnStartInitialize();
     protected abstract void InitializeAttackSystem();
     public abstract void Attack(); // IEnemy 인터페이스 구현
+    
+    #region 🗺️ 아이소메트릭 데이터 시스템 (플레이어 클래스와 동일 구조)
+    
+    /// <summary>
+    /// 아이소메트릭 데이터 가져오기 (자식 클래스에서 구현)
+    /// </summary>
+    public abstract IsometricCharacterData GetIsometricData();
+    
+    /// <summary>
+    /// 방향 프리셋 가져오기 (E4M, E8 등)
+    /// </summary>
+    public virtual DirectionPreset GetDirectionPreset()
+    {
+        var isometricData = GetIsometricData();
+        if (enableDebugLogs && Time.frameCount % 300 == 0) // 5초마다
+            Debug.Log($"🧭 [{GetType().Name}] DirectionPreset: {isometricData.DirectionPreset}");
+        return isometricData.DirectionPreset;
+    }
+    
+    /// <summary>
+    /// 발 위치 오프셋 가져오기 (Y-소팅 기준점)
+    /// </summary>
+    public virtual Vector2 GetFootOffset()
+    {
+        var isometricData = GetIsometricData();
+        if (enableDebugLogs && Time.frameCount % 300 == 0) // 5초마다
+            Debug.Log($"🦶 [{GetType().Name}] FootOffset: {isometricData.FootOffset}");
+        return isometricData.FootOffset;
+    }
+    
+    /// <summary>
+    /// 높이 오프셋 계산 (점프, 날기 등에 사용)
+    /// </summary>
+    /// <param name="t">높이 곡선 시간 (0~1)</param>
+    /// <returns>계산된 높이 오프셋</returns>
+    public virtual int CalculateHeightOffset(float t)
+    {
+        var isometricData = GetIsometricData();
+        int heightOffset = isometricData.CalculateHeightOffset(t);
+        
+        if (enableDebugLogs && heightOffset != 0)
+            Debug.Log($"📈 [{GetType().Name}] HeightOffset: t={t:F2} → {heightOffset}");
+            
+        return heightOffset;
+    }
+    
+    /// <summary>
+    /// 기본 아이소메트릭 데이터 생성 (fallback용)
+    /// </summary>
+    protected IsometricCharacterData CreateDefaultIsometricData()
+    {
+        var defaultData = new IsometricCharacterData();
+        defaultData.SetDefaults();
+        
+        if (enableDebugLogs)
+            Debug.Log($"⚠️ [{GetType().Name}] 기본 IsometricData 생성됨 (ScriptableObject 할당 권장)");
+        
+        return defaultData;
+    }
+    
+    #endregion
 
     // BaseEnemy 클래스에 추가할 필드들
     [Header("위치 정보")]
@@ -447,4 +511,72 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         Debug.Log($"🐲 [BaseEnemy] {gameObject.name}: EnemyData 동적 변경 완료 → {newEnemyData.name}");
         Debug.Log($"🐲 [BaseEnemy] IsBoss: {enemyData.IsBoss}, EnemyType: {enemyData.EnemyType}");
     }
+
+    #region 🎨 렌더링 소팅 시스템
+
+    /// <summary>
+    /// 몬스터용 렌더링 소팅 초기화
+    /// FootPositionSorter 컴포넌트 자동 추가 및 설정
+    /// </summary>
+    private void InitializeRenderingSorting()
+    {
+        // FootPositionSorter 컴포넌트 확인/추가
+        var footSorter = GetComponent<FootPositionSorter>();
+        if (footSorter == null)
+        {
+            footSorter = gameObject.AddComponent<FootPositionSorter>();
+        }
+
+        // 몬스터 기본 설정
+        footSorter.enabled = true;
+        
+        // 발 위치 기준점 설정 (몬스터의 중심점 사용)
+        if (footSorter.GetType().GetField("footPosition", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance) != null)
+        {
+            var footPositionField = footSorter.GetType().GetField("footPosition", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            footPositionField.SetValue(footSorter, transform);
+        }
+
+        // 몬스터용 기본 설정 적용
+        SetFootSorterSettings(footSorter);
+        
+        Debug.Log($"🎨 [BaseEnemy] {gameObject.name}: FootPositionSorter 설정 완료");
+    }
+
+    /// <summary>
+    /// 몬스터별 FootPositionSorter 설정
+    /// </summary>
+    private void SetFootSorterSettings(FootPositionSorter footSorter)
+    {
+        // 몬스터 기본 설정
+        var footOffsetField = footSorter.GetType().GetField("footOffset", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        footOffsetField?.SetValue(footSorter, Vector2.zero);
+
+        var baseLayerField = footSorter.GetType().GetField("baseLayer", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        baseLayerField?.SetValue(footSorter, IsometricSorting.CHARACTER_LAYER);
+
+        var heightOffsetField = footSorter.GetType().GetField("heightOffset", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        heightOffsetField?.SetValue(footSorter, 0);
+
+        // 업데이트 정책 설정 (성능 최적화)
+        var updatePolicyField = footSorter.GetType().GetField("updatePolicy", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        updatePolicyField?.SetValue(footSorter, FootPositionSorter.UpdatePolicy.LateUpdate);
+
+        var updateIntervalField = footSorter.GetType().GetField("updateInterval", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        updateIntervalField?.SetValue(footSorter, 0.1f);
+
+        // 디버그 설정 (개발 시에만)
+        var enableDebugLogsField = footSorter.GetType().GetField("enableDebugLogs", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        enableDebugLogsField?.SetValue(footSorter, false); // 배포 시 false
+    }
+
+    #endregion
 } 

@@ -566,5 +566,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: VFX_2D_Charge_02
+    prefab: {fileID: 9048577567042440302, guid: ed5eed06736be60468b94bc1180c59a5, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_STONEGOLEM_001
+    prefab: {fileID: 3235174918318939483, guid: b8b2ec0d6ca9ba44b90e35c5c3cfa764, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

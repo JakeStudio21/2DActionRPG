@@ -15,8 +15,8 @@ Assets/ignore
 Assets/ignore.meta
 Assets/LayerLab
 Assets/LayerLab.meta
-
-
+Assets/Exports
+Assets/Exports.meta
 
 
 # MCP 서버 코드 제외

@@ -20,13 +20,8 @@ public class AttackJoystickInput : MonoBehaviour
             var joystickInScene = FindObjectOfType<FixedJoystick>();
             if (joystickInScene != null)
             {
-                Debug.Log("[AttackJoystickInput] Update에서 조이스틱 재연결 시도");
                 attackJoystick = joystickInScene;
                 joystickFound = true;
-            }
-            else
-            {
-                Debug.LogWarning($"[AttackJoystickInput] 조이스틱 없음 - joystickFound: {joystickFound}, attackJoystick: {attackJoystick}");
             }
         }
     }
@@ -45,7 +40,6 @@ public class AttackJoystickInput : MonoBehaviour
             if (attackJoystick != null)
             {
                 joystickFound = true;
-                Debug.Log("[AttackJoystickInput] 공격 조이스틱을 찾았습니다!");
                 break;
             }
 
@@ -53,28 +47,11 @@ public class AttackJoystickInput : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        if (!joystickFound)
-        {
-            Debug.LogWarning("[AttackJoystickInput] 공격 조이스틱을 찾을 수 없습니다.");
-        }
     }
 
     public Vector2 GetAttackDirection()
     {
-        var direction = (joystickFound && attackJoystick != null) ? attackJoystick.Direction : Vector2.zero;
-        
-        // 🔍 N/S 방향만 특별 추적 (디버깅 간소화)
-        if (direction.magnitude > 0.1f)
-        {
-            bool isNorthSouth = Mathf.Abs(direction.x) < 0.3f && Mathf.Abs(direction.y) > 0.7f;
-            if (isNorthSouth)
-            {
-                string directionName = direction.y > 0 ? "NORTH" : "SOUTH";
-                Debug.Log($"🧭 [AttackJoystickInput] {directionName} 방향 감지됨! Vector: {direction}");
-            }
-        }
-        
-        return direction;
+        return (joystickFound && attackJoystick != null) ? attackJoystick.Direction : Vector2.zero;
     }
 
     /// <summary>
@@ -87,6 +64,5 @@ public class AttackJoystickInput : MonoBehaviour
         attackJoystick = null;
         StartCoroutine(FindJoystickCoroutine());
         
-        Debug.Log("[AttackJoystickInput] 조이스틱 강제 재연결 시도 - joystickFound를 false로 초기화");
     }
 }

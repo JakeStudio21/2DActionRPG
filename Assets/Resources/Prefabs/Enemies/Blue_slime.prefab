@@ -220,6 +220,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1996716122504307104}
+  spriteRenderer: {fileID: 0}
+  useIsometricData: 1
+  showDebugLogs: 0
+  startMoveThreshold: 0.12
+  stopMoveThreshold: 0.06
 --- !u!114 &-8070876538002613510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -360,3 +365,31 @@ MonoBehaviour:
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   meleeAttack: {fileID: 0}
+  isometricData:
+    directionPreset: 0
+    footOffset: {x: 0, y: 0}
+    heightCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heightAmplitude: 0

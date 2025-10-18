@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: WarriorData
   m_EditorClassIdentifier: 
   baseMaxHealth: 50
-  baseMoveSpeed: 10
-  baseDashSpeed: 12
+  baseMoveSpeed: 3
+  baseDashSpeed: 8
   baseAttackDamage: 10
   baseDefense: 10
   baseDamageRecoveryTime: 1

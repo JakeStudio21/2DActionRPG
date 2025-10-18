@@ -394,6 +394,7 @@ GameObject:
   - component: {fileID: 1756301324097207731}
   - component: {fileID: -5535195084605027862}
   - component: {fileID: 4620531986320996637}
+  - component: {fileID: 7154712043368475352}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -459,7 +460,7 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1572034964, guid: 2a1b0cc47b97a0d4fa1f72587242bd54, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2e5130688ad35f548a615cb3916f3fe0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -619,6 +620,7 @@ MonoBehaviour:
   inputBufferTime: 0.1
   accelerationTime: 0.05
   decelerationTime: 0.03
+  showMovementDebug: 0
 --- !u!114 &472274624499914740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -842,3 +844,23 @@ MonoBehaviour:
   showDebugGizmo: 1
   showOrderInInspector: 0
   enableDebugLogs: 1
+--- !u!114 &7154712043368475352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d4906c2d948014c9c5d5e846271c64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRadius: 2
+  occluderLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  checkInterval: 0.2
+  sortingOrderBuffer: 50
+  enableDebugLogs: 0
+  showDetectionGizmo: 0

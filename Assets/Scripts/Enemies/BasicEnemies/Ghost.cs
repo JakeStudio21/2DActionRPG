@@ -217,10 +217,26 @@ public class Ghost : BaseEnemy
         Debug.Log(info);
     }
 
+    #endregion
+    
+    #region 🗺️ 아이소메트릭 데이터 시스템 (BaseEnemy 추상 메서드 구현)
+    
     [Header("아이소메트릭 설정")]
     [SerializeField] private IsometricCharacterData isometricData = new IsometricCharacterData();
 
-    public IsometricCharacterData IsometricData => isometricData;
+    /// <summary>
+    /// BaseEnemy 추상 메서드 구현 - 아이소메트릭 데이터 반환
+    /// </summary>
+    public override IsometricCharacterData GetIsometricData()
+    {
+        // isometricData가 유효하지 않으면 기본값 생성
+        if (isometricData == null || !isometricData.IsValid())
+        {
+            return CreateDefaultIsometricData();
+        }
+        
+        return isometricData;
+    }
 
     private void OnValidate()
     {
@@ -239,8 +255,6 @@ public class Ghost : BaseEnemy
             isometricData.SetDefaults();
         }
     }
-
-
 
     #endregion
 } 

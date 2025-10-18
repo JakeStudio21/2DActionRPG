@@ -268,6 +268,9 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         
         canAttack = false;
         
+        // ⭐ 공격 방향 설정 (플레이어 방향으로)
+        UpdateAttackDirectionTowardsPlayer();
+        
         // ⭐ 새 시스템: 데이터 기반 애니메이션 트리거
         TriggerAttackAnimation();
         
@@ -284,6 +287,43 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         
         // ⭐ 새 시스템: 데이터 기반 쿨다운
         StartCoroutine(AttackCooldownRoutine(GetScaledCooldown()));
+    }
+    
+    /// <summary>
+    /// ⭐ 신규 추가: 플레이어 방향으로 공격 방향 설정
+    /// </summary>
+    protected virtual void UpdateAttackDirectionTowardsPlayer()
+    {
+        if (animationController == null)
+        {
+            Debug.LogWarning($"❌ [{GetType().Name}] {gameObject.name} - AnimationController가 없습니다!");
+            return;
+        }
+        
+        if (cachedPlayer == null)
+        {
+            Debug.LogWarning($"❌ [{GetType().Name}] {gameObject.name} - cachedPlayer가 없습니다!");
+            return;
+        }
+        
+        // 플레이어를 향하는 방향 계산 (월드 좌표계)
+        Vector2 toPlayerWorld = (cachedPlayer.transform.position - transform.position).normalized;
+        
+        // ⭐ 임시: 변환 없이 월드 좌표 그대로 사용 (테스트용)
+        Vector2 toPlayerBlendTree = toPlayerWorld;
+        
+        // ⭐ 강제 디버그 로그 (항상 출력)
+        Debug.Log($"🎯 [{GetType().Name}] {gameObject.name} - 공격 방향 설정:");
+        Debug.Log($"   플레이어 위치: {cachedPlayer.transform.position}");
+        Debug.Log($"   몬스터 위치: {transform.position}");
+        Debug.Log($"   월드 좌표 방향: ({toPlayerWorld.x:F2}, {toPlayerWorld.y:F2})");
+        Debug.Log($"   BlendTree 방향: ({toPlayerBlendTree.x:F2}, {toPlayerBlendTree.y:F2})");
+        
+        // ⭐ 월드 좌표계 기반 flipX 결정
+        bool shouldFlipX = toPlayerWorld.x < 0;
+        
+        // 애니메이션 컨트롤러에 방향 + flipX 전달
+        animationController.UpdateAttackDirectionWithFlip(toPlayerBlendTree, shouldFlipX);
     }
     
     /// <summary>
