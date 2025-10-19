@@ -61,6 +61,19 @@ public class AttackData : ScriptableObject
     [Tooltip("다중 발사 각도 간격")]
     [SerializeField] private float multiShotAngle = 15f;
 
+    [Header("💥 AOE 설정 (영역 공격 전용)")]
+    [Tooltip("AOE 이펙트 프리팹")]
+    [SerializeField] private GameObject aoeEffectPrefab;
+    
+    [Tooltip("AOE 지속시간 (초)")]
+    [SerializeField] private float aoeDuration = 1f;
+    
+    [Tooltip("AOE 모양 타입")]
+    [SerializeField] private AOEShapeType aoeShape = AOEShapeType.Circle;
+    
+    [Tooltip("AOE 크기 조절 (1.0 = 기본 크기)")]
+    [SerializeField] private float aoeScale = 1f;
+
 
     [Header("☠️ 상태이상 효과")]
     [Tooltip("공격 시 적용할 상태이상들")]
@@ -106,6 +119,12 @@ public class AttackData : ScriptableObject
     public GameObject HitEffect => hitEffect;
     public AudioClip AttackSound => attackSound;
     public AudioClip HitSound => hitSound;
+
+    // AOE 설정 Properties
+    public GameObject AOEEffectPrefab => aoeEffectPrefab;
+    public float AOEDuration => aoeDuration;
+    public AOEShapeType AOEShape => aoeShape;
+    public float AOEScale => aoeScale;
 
 
     /// <summary>

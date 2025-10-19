@@ -40,7 +40,19 @@ public class Grape : BaseEnemy
         } 
     }
     
-    public float ChaseRange 
+    public override float DetectionRange
+    {
+        get
+        {
+            if (EnemyData != null)
+                return EnemyData.DetectionRange;
+                
+            Debug.LogError($"[Grape] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가!");
+            return 7f; // Grape는 더 긴 감지 범위
+        }
+    }
+    
+    public override float ChaseRange 
     { 
         get 
         {

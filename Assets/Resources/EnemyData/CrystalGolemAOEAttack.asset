@@ -10,25 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64c07a372114658468c055ebdb17ab75, type: 3}
-  m_Name: CrystalGolemRangedAttack
+  m_Name: CrystalGolemAOEAttack
   m_EditorClassIdentifier: 
-  attackName: "\uD3EC\uB3C4 \uB3C5\uD654\uC0B4"
-  attackType: 1
-  description: "\uB3C5\uC744 \uBC14\uB978 \uC6D0\uAC70\uB9AC \uBC1C\uC0AC\uCCB4\"\n"
-  baseDamage: 6
+  attackName: "\uB545\uCE58\uAE30"
+  attackType: 2
+  description: "\"\uB545\uC744 \uCCD0\uC11C \uC0BC\uAC01\uD615 \uC601\uC5ED\uC5D0
+    \uB370\uBBF8\uC9C0\""
+  baseDamage: 15
   criticalChance: 0.05
   criticalMultiplier: 1.8
-  attackCooldown: 1.5
-  animationDuration: 1.2
-  animationTrigger: Fire
-  attackRange: 8
-  attackAngle: 90
+  attackCooldown: 2
+  animationDuration: 2
+  animationTrigger: GroundSmash
+  attackRange: 5
+  attackAngle: 6
   stopMovingWhileAttacking: 1
-  projectilePrefab: {fileID: 3156866507962234106, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
+  projectilePrefab: {fileID: 0}
   projectileSpeed: 1
   projectileLifetime: 4
   projectileCount: 1
   multiShotAngle: 1
+  aoeEffectPrefab: {fileID: 7883441628179305771, guid: 12cfa14e89836e84c88056d5c7a5bf83, type: 3}
+  aoeDuration: 1
+  aoeShape: 2
+  aoeScale: 1
   onHitEffects:
   - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
   effectChances:

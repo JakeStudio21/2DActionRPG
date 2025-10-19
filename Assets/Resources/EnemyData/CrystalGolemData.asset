@@ -18,15 +18,15 @@ MonoBehaviour:
   description: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC\uCCB4 \uACF5\uACA9 \uBAAC\uC2A4\uD130\n"
   baseHealth: 40
   baseDefense: 10
-  baseMoveSpeed: 2
-  detectionRange: 6
-  chaseRange: 8
-  patrolRadius: 4
+  baseMoveSpeed: 1.5
+  detectionRange: 8
+  chaseRange: 10
+  patrolRadius: 10
   knockBackThrust: 15
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 8853189013130719682, guid: ee591e99639a5a94a98c58950da4cbeb, type: 3}
   deathVFXPrefab: {fileID: 0}
-  primaryAttackType: 1
+  primaryAttackType: 2
   hasSkills: 0
   skillIds: []
   immuneEffects: 

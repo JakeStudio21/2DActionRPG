@@ -40,7 +40,19 @@ public class StoneGolem : BaseEnemy
         } 
     }
     
-    public float ChaseRange 
+    public override float DetectionRange
+    {
+        get
+        {
+            if (EnemyData != null)
+                return EnemyData.DetectionRange;
+                
+            Debug.LogError($"[StoneGolem] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가!");
+            return 5f; // StoneGolem은 기본 감지 범위
+        }
+    }
+    
+    public override float ChaseRange 
     { 
         get 
         {

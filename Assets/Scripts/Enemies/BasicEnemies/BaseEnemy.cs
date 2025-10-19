@@ -416,13 +416,28 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
             // 데이터 기반 값이 있으면 사용 (접근 가능한 프로퍼티 사용)
             if (enemyData != null)
             {
-                // DetectionRange 프로퍼티가 있는지 확인하고 사용
-                // detectionRange 필드가 private이므로 기본값 반환
-                return 5f; // 기본 감지 범위
+                // EnemyData의 DetectionRange 프로퍼티 사용
+                return enemyData.DetectionRange;
             }
                 
             // 기본값 반환
             return 5f;
+        } 
+    }
+
+    // ChaseRange 프로퍼티 추가 (데이터 기반)
+    public virtual float ChaseRange 
+    { 
+        get 
+        {
+            if (enemyData != null)
+            {
+                // EnemyData의 ChaseRange 프로퍼티 사용
+                return enemyData.ChaseRange;
+            }
+                
+            // 기본값 반환
+            return 8f;
         } 
     }
 

@@ -19,7 +19,8 @@ public enum EnemyType
 public enum AttackType
 {
     Melee,   // 근접 공격
-    Ranged   // 원거리 공격 (혼합은 리스트로 처리)
+    Ranged,  // 원거리 공격
+    AOE      // 영역 공격 (Area of Effect)
 }
 
 /// <summary>
@@ -32,5 +33,15 @@ public enum StatusEffectType
     Slow,    // 둔화: 이동속도 감소
     Burn,    // 화상: 화염 지속 데미지
     Stun     // 기절: 일시적 행동 불가
+}
+
+/// <summary>
+/// AOE 공격 모양 타입 정의
+/// </summary>
+public enum AOEShapeType
+{
+    Circle,     // 원형
+    Rectangle,  // 사각형
+    Triangle    // 삼각형
 }
 

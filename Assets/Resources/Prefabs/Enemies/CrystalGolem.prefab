@@ -21,8 +21,8 @@ GameObject:
   - component: {fileID: 2733928855307480320}
   - component: {fileID: 4795855821891295909}
   - component: {fileID: 9183738283701349947}
-  - component: {fileID: 3262521904585385439}
-  - component: {fileID: -1970779111418326641}
+  - component: {fileID: 9204212491328607842}
+  - component: {fileID: 1435029210058762242}
   m_Layer: 6
   m_Name: CrystalGolem
   m_TagString: Enemy
@@ -87,7 +87,7 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2085561721, guid: fcccfb3cae1a1ad41994c8b8c4615d3a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3ad96ab0413c9b44a916c0e541231817, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -320,7 +320,7 @@ MonoBehaviour:
   roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
   detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
---- !u!114 &3262521904585385439
+--- !u!114 &9204212491328607842
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -329,25 +329,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 081d543d4d8d22a42a0b26d1b768ba49, type: 3}
+  m_Script: {fileID: 11500000, guid: 0ed35a45c75c2844a951d38107712ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackData: {fileID: 11400000, guid: 9dd4ed2d4f10950409cb8216dd87c657, type: 2}
+  attackData: {fileID: 11400000, guid: c6b6a68c1ac8ed04b80aee3e74d739d9, type: 2}
   attackCooldown: 2
-  detectionRange: 5.25
+  detectionRange: 5
   chaseRange: 8
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}
-  projectilePrefab: {fileID: 3156866507962234106, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
-  projectileSpawnPoint: {fileID: 0}
-  predictionFactor: 0.5
-  projectileLifetime: 5
-  projectileSpeed: 10
-  aimAccuracy: 0.8
-  useRecoilEffect: 1
-  muzzleFlashEffect: {fileID: 0}
-  showRangedGizmos: 1
---- !u!114 &-1970779111418326641
+  aoeEffectPrefab: {fileID: 7883441628179305771, guid: 12cfa14e89836e84c88056d5c7a5bf83, type: 3}
+  aoeSpawnPoint: {fileID: 0}
+  fallbackAOERange: 5
+  fallbackAOEDuration: 1
+  fallbackAOEShape: 0
+  fallbackAOEScale: 1
+  aoeOffset: {x: 0, y: 0, z: 0}
+  showDebugGizmos: 1
+--- !u!114 &1435029210058762242
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,7 +355,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7ef4357949de3141b3db28bd422464c, type: 3}
+  m_Script: {fileID: 11500000, guid: aff81c2f9a01a4342ababb85415bf2ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: 04159703aed41c246add829558edea00, type: 2}
@@ -366,35 +365,7 @@ MonoBehaviour:
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
-  rangedAttack: {fileID: 0}
-  isometricData:
-    directionPreset: 0
-    footOffset: {x: 0, y: 0}
-    heightCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    heightAmplitude: 0
+  aoeAttack: {fileID: 0}
 --- !u!1 &9119814869723337947
 GameObject:
   m_ObjectHideFlags: 0
