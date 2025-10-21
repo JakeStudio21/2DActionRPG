@@ -9772,7 +9772,7 @@ GameObject:
   - component: {fileID: 6013317033843827723}
   - component: {fileID: 1667045297642010080}
   m_Layer: 0
-  m_Name: Crystals front attack
+  m_Name: CrystalGolem_Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

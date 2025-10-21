@@ -18,8 +18,8 @@ MonoBehaviour:
   RepeatCount: 2
   RepeatIntervalSec: 1
   Monsters:
-  - MonsterID: MON_BLUESLIME_001
-    Count: 3
+  - MonsterID: MON_WATERGOLEM_001
+    Count: 2
     SpawnCount: 0.2
     IsBoss: 0
     MonsterPrefab: {fileID: 0}

@@ -114,7 +114,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1372933304524358166}
   m_Layer: 0
-  m_Name: Triangle_AOE_Effect
+  m_Name: VFX_CrystalGolem_Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

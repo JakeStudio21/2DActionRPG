@@ -22,9 +22,9 @@ GameObject:
   - component: {fileID: 4795855821891295909}
   - component: {fileID: 9183738283701349947}
   - component: {fileID: 9204212491328607842}
-  - component: {fileID: 1435029210058762242}
+  - component: {fileID: 5697817518092821939}
   m_Layer: 6
-  m_Name: CrystalGolem
+  m_Name: WaterGolem
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,7 +170,7 @@ Animator:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 85e00af1f6c89024a916338b4aa66288, type: 2}
+  m_Controller: {fileID: 9100000, guid: 82c09117a6415c54b8bba404f35f48e7, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ed35a45c75c2844a951d38107712ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackData: {fileID: 11400000, guid: c6b6a68c1ac8ed04b80aee3e74d739d9, type: 2}
+  attackData: {fileID: 11400000, guid: a6fc08fdabd928847a377e1060c70e0f, type: 2}
   attackCooldown: 2
   detectionRange: 5
   chaseRange: 8
@@ -345,7 +345,7 @@ MonoBehaviour:
   fallbackAOEScale: 1
   aoeOffset: {x: 0, y: 0, z: 0}
   showDebugGizmos: 1
---- !u!114 &1435029210058762242
+--- !u!114 &5697817518092821939
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -354,10 +354,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8853189013130719682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aff81c2f9a01a4342ababb85415bf2ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 124a66090185ffb4da9e1a4ec1d1553f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: 04159703aed41c246add829558edea00, type: 2}
+  enemyData: {fileID: 11400000, guid: 53d096ff0fd0ea940bfbb15681748764, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
   homePosition: {x: 0, y: 0, z: 0}

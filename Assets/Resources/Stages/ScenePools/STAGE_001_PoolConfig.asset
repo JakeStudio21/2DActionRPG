@@ -584,14 +584,32 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: Crystals front attack
-    prefab: {fileID: 3156866507962234106, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
+  - tag: VFX_CrystalGolem_Attack
+    prefab: {fileID: 7883441628179305771, guid: 12cfa14e89836e84c88056d5c7a5bf83, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
   - tag: MON_CRYSTALGOLEM_001
     prefab: {fileID: 8853189013130719682, guid: ee591e99639a5a94a98c58950da4cbeb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_WATERGOLEM_001
+    prefab: {fileID: 8853189013130719682, guid: e82380e75f0bab14c9cdf5e9dfba3d73, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_WaterGolem_Attack
+    prefab: {fileID: 7883441628179305771, guid: 062eaafe138967442bc236948eda3f23, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_Stone_Hit_01
+    prefab: {fileID: 1758473627833946668, guid: c1f15932686dbe448aeff133b4bdfb51, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
