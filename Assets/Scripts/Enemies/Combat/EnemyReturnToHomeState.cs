@@ -68,6 +68,9 @@ public class EnemyReturnToHomeState : IEnemyState
 
     public void Execute() // 🔑 Update() → Execute()로 변경
     {
+        // ⭐ BaseEnemy 참조를 메서드 시작 부분에서 한 번만 캐싱 (중복 선언 방지)
+        BaseEnemy baseEnemy = enemy as BaseEnemy;
+        
         // 플레이어 감지 체크 (우선순위) - 복귀 중에도 플레이어가 너무 가까이 오면 추격
         if (enemy.TargetPlayer != null)
         {
@@ -79,7 +82,7 @@ public class EnemyReturnToHomeState : IEnemyState
             if (distToPlayer < returnDetectionRange)
             {
                 // 🔑 디버그 로그 추가
-                if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
                 {
                     Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 복귀 중 플레이어 감지! 추격 시작");
                 }
@@ -91,14 +94,21 @@ public class EnemyReturnToHomeState : IEnemyState
 
         // 홈 위치로 이동
         Vector2 direction = (homePosition - (Vector2)enemy.transform.position).normalized;
-        enemy.transform.position += (Vector3)direction * moveSpeed * Time.deltaTime;
+        Vector2 velocity = direction * moveSpeed;
+        enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+        
+        // ⭐ 8방향 애니메이션 업데이트 (실제 속도 기반) - Chase와 동일
+        if (baseEnemy != null)
+        {
+            baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+        }
         
         // 홈 근처 도달 시 대기 상태로
         float distanceToHome = Vector2.Distance(enemy.transform.position, homePosition);
         if (distanceToHome < 1f)
         {
             // 🔑 디버그 로그 추가
-            if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+            if (baseEnemy != null && baseEnemy.EnableDebugLogs)
             {
                 Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 집 도착! 대기 상태로 전환");
             }
