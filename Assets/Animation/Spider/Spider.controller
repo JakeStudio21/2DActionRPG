@@ -461,7 +461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9a1f4c1da499714fae64e4271959b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathCompleteTime: 0.85
+  deathCompleteTime: 0.7
   showDebugLogs: 1
 --- !u!206 &1513676237092934349
 BlendTree:

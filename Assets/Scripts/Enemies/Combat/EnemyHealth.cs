@@ -206,26 +206,20 @@ public class EnemyHealth : MonoBehaviour
         // ✅ 🎵 Cue 시스템 추가 - 피격 이펙트 발행
         EmitHitCues(damage);
         
-        // ⭐ 데이터 기반 넉백 강도 사용
-        float knockBackThrust = CalculateKnockBackThrust();
-        knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
-        StartCoroutine(flash.FlashRoutine());
-
-        // FSM 기반 Hit 상태 전환 (IEnemy 구현 몬스터만)
+        // FSM 기반 Hit/Die 상태 전환 (IEnemy 구현 몬스터만)
         IEnemy enemyFSM = GetComponent<IEnemy>();
-        if (enemyFSM != null && enemyFSM.FSMController != null)
-        {
-            // 현재 상태를 저장하고 Hit 상태로 전환
-            enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
-        }
-
+        
         if (currentHealth <= 0)
         {
             // ⭐ 즉시 데미지 차단용 플래그 설정
             isDead = true;
             isDeathAnimationPlaying = true;
             
-            Debug.Log($"[EnemyHealth] {gameObject.name}: 사망 상태 진입, 추가 데미지 차단");
+            Debug.Log($"[EnemyHealth] {gameObject.name}: 사망 상태 진입, 넉백 스킵!");
+            
+            // ⭐ 사망 시 넉백 스킵 (Die 애니메이션 방해 방지)
+            // Flash만 실행
+            StartCoroutine(flash.FlashRoutine());
             
             // FSM 기반 Die 상태 전환 (IEnemy 구현 몬스터만)
             if (enemyFSM != null && enemyFSM.FSMController != null)
@@ -234,6 +228,19 @@ public class EnemyHealth : MonoBehaviour
             }
             
             StartCoroutine(DieRoutine());
+        }
+        else
+        {
+            // ⭐ 살아있을 때만 넉백 및 Hit 상태 전환
+            float knockBackThrust = CalculateKnockBackThrust();
+            knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
+            StartCoroutine(flash.FlashRoutine());
+            
+            if (enemyFSM != null && enemyFSM.FSMController != null)
+            {
+                // 현재 상태를 저장하고 Hit 상태로 전환
+                enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
+            }
         }
     }
 
@@ -244,15 +251,66 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 플래그 초기화 (이미 TakeDamage에서 설정됨)
         deathEventTriggered = false;
 
+        // ⭐ 모든 물리 효과 즉시 중지 (넉백, 이동 등)
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            // Rigidbody를 Kinematic으로 변경하여 물리 연산 완전 차단
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            Debug.Log($"[EnemyHealth] {gameObject.name} 물리 효과 중지 (Kinematic)");
+        }
+        
+        // ⭐ 이동 시스템 중지 (EnemyPathfinding)
+        EnemyPathfinding pathfinding = GetComponent<EnemyPathfinding>();
+        if (pathfinding != null)
+        {
+            pathfinding.StopMoving();
+            Debug.Log($"[EnemyHealth] {gameObject.name} 이동 시스템 중지");
+        }
+
         // ⭐ 사망 애니메이션 재생
         Animator animator = GetComponent<Animator>();
+        float animationLength = 1.333f; // 기본값
         
         if (animator != null)
         {
             // 사망 애니메이션 트리거
             animator.SetTrigger("Die");
             
-            Debug.Log($"[EnemyHealth] {gameObject.name} 사망 애니메이션 시작");
+            Debug.Log($"[EnemyHealth] {gameObject.name} 사망 애니메이션 트리거!");
+            
+            // ⭐ Die State로 전환될 때까지 대기 (최대 0.5초)
+            float waitTime = 0f;
+            float maxWaitTime = 0.5f;
+            
+            while (waitTime < maxWaitTime)
+            {
+                AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                
+                // Die State 확인 (이름으로)
+                if (stateInfo.IsName("Die") || stateInfo.IsName("Death") || stateInfo.IsName("Dead"))
+                {
+                    animationLength = stateInfo.length;
+                    Debug.Log($"[EnemyHealth] {gameObject.name} Die State 진입 확인! 길이: {animationLength:F2}초");
+                    break;
+                }
+                
+                yield return new WaitForSeconds(0.05f);
+                waitTime += 0.05f;
+            }
+            
+            if (waitTime >= maxWaitTime)
+            {
+                Debug.LogWarning($"[EnemyHealth] {gameObject.name} Die State 전환 타임아웃! 기본값 사용");
+            }
+            
+            // ⭐ 애니메이션이 완전히 재생되도록 대기
+            Debug.Log($"[EnemyHealth] {gameObject.name} Die 애니메이션 재생 중... ({animationLength:F2}초)");
+            yield return new WaitForSeconds(animationLength);
+            
+            Debug.Log($"[EnemyHealth] {gameObject.name} Die 애니메이션 재생 완료!");
         }
         else
         {
@@ -262,7 +320,7 @@ public class EnemyHealth : MonoBehaviour
             yield break;
         }
 
-        // ⭐ 즉시 경험치/골드 지급 (타격감 향상)
+        // ⭐ 경험치/골드 지급
         int experience = CalculateExperienceReward();
         int goldReward = CalculateGoldReward();
         
@@ -271,25 +329,9 @@ public class EnemyHealth : MonoBehaviour
         PlayerDataManager.Instance.AddGold(goldReward);
         PlayerDataManager.Instance.AddExp(experience);
 
-        // ⭐ Animation Event를 기다림 (동적 타임아웃)
-        // ⭐ BlueSlime처럼 빠른 처리 (0.1초 타임아웃)
-        // 원래 설정으로 완전 복원
-        float timeout = 3f; // 1초 → 3초 (원래 설정)
-        float elapsedTime = 0f;
-
-        Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event 대기 시작 (빠른 타임아웃: {timeout}초)");
-        
-        while (!deathEventTriggered && elapsedTime < timeout)
-        {
-            yield return null; // 매 프레임 체크
-            elapsedTime += Time.deltaTime;
-        }
-
-        if (!deathEventTriggered)
-        {
-            Debug.LogWarning($"[EnemyHealth] {gameObject.name}: Animation Event 타임아웃, 강제 완료 처리");
-            OnDeathAnimationComplete();
-        }
+        // ⭐ 애니메이션 완료 후 즉시 사망 처리
+        Debug.Log($"[EnemyHealth] {gameObject.name} 사망 처리 시작!");
+        OnDeathAnimationComplete();
     }
 
     /// <summary>
@@ -335,8 +377,10 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 최종 상태 정리
         isDeathAnimationPlaying = false; // 애니메이션 완료
         
-        Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event 완료 후 파괴!");
-        Destroy(gameObject);
+        Debug.Log($"[EnemyHealth] {gameObject.name} 페이드 아웃 시작 후 파괴!");
+        
+        // ⭐ 페이드 아웃 효과 후 파괴 (0.5~1초)
+        StartCoroutine(FadeOutAndDestroy(0.7f));
     }
 
     /// <summary>
@@ -360,6 +404,49 @@ public class EnemyHealth : MonoBehaviour
         {
             Instantiate(deathVFX, transform.position, Quaternion.identity);
         }
+    }
+
+    /// <summary>
+    /// ⭐ 페이드 아웃 효과 후 오브젝트 파괴
+    /// </summary>
+    private IEnumerator FadeOutAndDestroy(float fadeTime)
+    {
+        Debug.Log($"[EnemyHealth] {gameObject.name} 페이드 아웃 시작 ({fadeTime}초)");
+        
+        // SpriteRenderer 찾기 (8방향 몬스터용)
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        
+        // SpriteRenderer가 없으면 자식에서 찾기 (구조가 복잡한 경우)
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+        
+        if (spriteRenderer != null)
+        {
+            float elapsedTime = 0f;
+            Color originalColor = spriteRenderer.color;
+            
+            // 알파값을 1 → 0으로 부드럽게 감소
+            while (elapsedTime < fadeTime)
+            {
+                elapsedTime += Time.deltaTime;
+                float alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeTime);
+                spriteRenderer.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+                yield return null;
+            }
+            
+            Debug.Log($"[EnemyHealth] {gameObject.name} 페이드 아웃 완료, 파괴 실행");
+        }
+        else
+        {
+            // SpriteRenderer가 없으면 그냥 대기만
+            Debug.LogWarning($"[EnemyHealth] {gameObject.name} SpriteRenderer 없음, {fadeTime}초 대기 후 파괴");
+            yield return new WaitForSeconds(fadeTime);
+        }
+        
+        // 최종 파괴
+        Destroy(gameObject);
     }
 
     /// <summary>

@@ -16,13 +16,13 @@ MonoBehaviour:
   enemyName: WaterGolem
   enemyType: 0
   description: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC\uCCB4 \uACF5\uACA9 \uBAAC\uC2A4\uD130\n"
-  baseHealth: 40
+  baseHealth: 80
   baseDefense: 10
-  baseMoveSpeed: 1.5
+  baseMoveSpeed: 2.2
   detectionRange: 8
   chaseRange: 10
   patrolRadius: 10
-  knockBackThrust: 15
+  knockBackThrust: 5
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 8853189013130719682, guid: e82380e75f0bab14c9cdf5e9dfba3d73, type: 3}
   deathVFXPrefab: {fileID: 0}

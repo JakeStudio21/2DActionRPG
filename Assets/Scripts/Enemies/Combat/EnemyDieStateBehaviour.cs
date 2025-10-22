@@ -10,7 +10,7 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
     [Header("💀 Death Timing Settings")]
     [Tooltip("사망 처리 실행 시점 (0.0 ~ 1.0, 애니메이션 진행도 기준)")]
     [SerializeField] [Range(0f, 1f)] 
-    private float deathCompleteTime = 0.85f;  // 85% 지점에서 사망 처리 완료
+    private float deathCompleteTime = 0.05f;  // 5% 지점에서 즉시 사망 처리 (State 조기 종료 대응)
     
     [Header("🔧 Debug Settings")]
     [SerializeField] private bool showDebugLogs = true;
@@ -22,7 +22,7 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
     private EnemyHealth cachedEnemyHealth;
     
     /// <summary>
-    /// State 진입 시 호출 - 초기화
+    /// State 진입 시 호출 - 초기화 및 즉시 사망 처리
     /// </summary>
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -50,6 +50,20 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
                     Debug.Log($"🔍 [EnemyDieStateBehaviour] {animator.gameObject.name} - EnemyHealth 컴포넌트 발견");
                 }
             }
+        }
+        
+        // ⭐ State가 조기 종료될 수 있으므로 진입 시 즉시 사망 처리 실행
+        // (페이드 아웃 코루틴이 State 종료와 무관하게 실행되도록)
+        if (deathCompleteTime <= 0.1f) // 매우 빠른 설정이면 즉시 실행
+        {
+            deathCompleteTriggered = true;
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"⚡ [EnemyDieStateBehaviour] {animator.gameObject.name} - Die State 진입 시 즉시 사망 처리!");
+            }
+            
+            ExecuteDeathComplete(animator);
         }
     }
 
