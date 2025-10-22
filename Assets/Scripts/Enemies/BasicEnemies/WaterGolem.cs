@@ -48,9 +48,13 @@ public class WaterGolem : BaseEnemy
         get
         {
             if (EnemyData != null)
-                return EnemyData.DetectionRange;
+            {
+                float range = EnemyData.DetectionRange;
+                Debug.Log($"[WaterGolem] {gameObject.name} DetectionRange: {range} (from EnemyData)");
+                return range;
+            }
                 
-            Debug.LogError($"[WaterGolem] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가!");
+            Debug.LogError($"[WaterGolem] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가! fallback 16f 사용");
             return 16f; // WaterGolem은 더 긴 감지 범위
         }
     }
@@ -60,9 +64,13 @@ public class WaterGolem : BaseEnemy
         get 
         {
             if (EnemyData != null)
-                return EnemyData.ChaseRange;
+            {
+                float range = EnemyData.ChaseRange;
+                Debug.Log($"[WaterGolem] {gameObject.name} ChaseRange: {range} (from EnemyData)");
+                return range;
+            }
                 
-            Debug.LogError($"[WaterGolem] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가!");
+            Debug.LogError($"[WaterGolem] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가! fallback 5f 사용");
             return 5f; // WaterGolem은 더 긴 추적 범위
         } 
     }

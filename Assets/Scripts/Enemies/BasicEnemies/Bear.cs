@@ -45,9 +45,13 @@ public class Bear : BaseEnemy
         get
         {
             if (EnemyData != null)
-                return EnemyData.DetectionRange;
+            {
+                float range = EnemyData.DetectionRange;
+                Debug.Log($"[Bear] {gameObject.name} DetectionRange: {range} (from EnemyData)");
+                return range;
+            }
                 
-            Debug.LogError($"[Bear] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가!");
+            Debug.LogError($"[Bear] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가! fallback 5.5f 사용");
             return 5.5f; // Bear는 보통 감지 범위
         }
     }
@@ -57,9 +61,13 @@ public class Bear : BaseEnemy
         get 
         {
             if (EnemyData != null)
-                return EnemyData.ChaseRange;
+            {
+                float range = EnemyData.ChaseRange;
+                Debug.Log($"[Bear] {gameObject.name} ChaseRange: {range} (from EnemyData)");
+                return range;
+            }
                 
-            Debug.LogError($"[Bear] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가!");
+            Debug.LogError($"[Bear] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가! fallback 7f 사용");
             return 7f; // Bear는 중간 추적 범위 (영역 방어형)
         } 
     }

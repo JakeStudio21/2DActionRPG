@@ -18,9 +18,9 @@ MonoBehaviour:
   description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2AC\uB77C\uC784\n"
   baseHealth: 50
   baseDefense: 50
-  baseMoveSpeed: 1.5
+  baseMoveSpeed: 2.5
   detectionRange: 5
-  chaseRange: 8
+  chaseRange: 10
   patrolRadius: 8
   knockBackThrust: 5
   deathVFXPrefabPath: 

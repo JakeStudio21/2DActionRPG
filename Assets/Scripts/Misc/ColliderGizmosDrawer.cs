@@ -340,9 +340,163 @@ public class ColliderGizmosDrawer : MonoBehaviour
 #endif
         }
         
-        // MeleeAttack 공격 범위
+        // Bear 범위들 (Melee)
+        var bear = GetComponent<Bear>();
+        if (bear != null)
+        {
+            Vector2 spawnPoint = bear.SpawnPosition;
+            float patrolRadius = bear.PatrolRadius;
+            float attackRange = bear.AttackRange;
+            float detectionRange = bear.DetectionRange;
+            float chaseRange = bear.ChaseRange;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 공격 범위 표시 (빨간색)
+            Gizmos.color = attackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+            // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+            Gizmos.color = detectionRangeColor;
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
+            
+            // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+            Gizmos.color = chaseRangeColor;
+            Gizmos.DrawWireSphere(transform.position, chaseRange);
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브)
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 스폰 지점 테두리 (검은색)
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                    $"Bear (Melee)\n공격: {attackRange:F1} | 감지: {detectionRange:F1}\n추격: {chaseRange:F1} | 순찰: {patrolRadius:F1}");
+            }
+#endif
+        }
+        
+        // Spider 범위들 (Melee)
+        var spider = GetComponent<Spider>();
+        if (spider != null)
+        {
+            Vector2 spawnPoint = spider.SpawnPosition;
+            float patrolRadius = spider.PatrolRadius;
+            float attackRange = spider.AttackRange;
+            float detectionRange = spider.DetectionRange;
+            float chaseRange = spider.ChaseRange;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 공격 범위 표시 (빨간색)
+            Gizmos.color = attackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+            // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+            Gizmos.color = detectionRangeColor;
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
+            
+            // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+            Gizmos.color = chaseRangeColor;
+            Gizmos.DrawWireSphere(transform.position, chaseRange);
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브)
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 스폰 지점 테두리 (검은색)
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                    $"Spider (Melee)\n공격: {attackRange:F1} | 감지: {detectionRange:F1}\n추격: {chaseRange:F1} | 순찰: {patrolRadius:F1}");
+            }
+#endif
+        }
+        
+        // WaterGolem 범위들 (AOE)
+        var waterGolem = GetComponent<WaterGolem>();
+        if (waterGolem != null)
+        {
+            Vector2 spawnPoint = waterGolem.SpawnPosition;
+            float patrolRadius = waterGolem.PatrolRadius;
+            float attackRange = waterGolem.AttackRange;
+            float detectionRange = waterGolem.DetectionRange;
+            float chaseRange = waterGolem.ChaseRange;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 공격 범위 표시 (빨간색)
+            Gizmos.color = attackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+            // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+            Gizmos.color = detectionRangeColor;
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
+            
+            // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+            Gizmos.color = chaseRangeColor;
+            Gizmos.DrawWireSphere(transform.position, chaseRange);
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브)
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 스폰 지점 테두리 (검은색)
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.5f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                    $"WaterGolem (AOE)\n공격: {attackRange:F1} | 감지: {detectionRange:F1}\n추격: {chaseRange:F1} | 순찰: {patrolRadius:F1}");
+            }
+#endif
+        }
+        
+        // MeleeAttack 공격 범위 (개별 몬스터가 아닌 경우만 표시)
         var meleeAttackComponent = GetComponent<MeleeAttack>();
-        if (meleeAttackComponent != null && GetComponent<BlueSlime>() == null && GetComponent<StoneGolem>() == null) // BlueSlime, StoneGolem이 아닌 경우만
+        if (meleeAttackComponent != null && 
+            GetComponent<BlueSlime>() == null && 
+            GetComponent<StoneGolem>() == null && 
+            GetComponent<Bear>() == null && 
+            GetComponent<Spider>() == null) // 개별 표시가 있는 몬스터 제외
         {
             Gizmos.color = attackRangeColor;
             float attackRange = meleeAttackComponent.GetAttackRange();

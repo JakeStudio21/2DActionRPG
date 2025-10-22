@@ -45,9 +45,13 @@ public class Spider : BaseEnemy
         get
         {
             if (EnemyData != null)
-                return EnemyData.DetectionRange;
+            {
+                float range = EnemyData.DetectionRange;
+                Debug.Log($"[Spider] {gameObject.name} DetectionRange: {range} (from EnemyData)");
+                return range;
+            }
                 
-            Debug.LogError($"[Spider] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가!");
+            Debug.LogError($"[Spider] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가! fallback 6f 사용");
             return 6f; // Spider는 넓은 감지 범위
         }
     }
@@ -57,9 +61,13 @@ public class Spider : BaseEnemy
         get 
         {
             if (EnemyData != null)
-                return EnemyData.ChaseRange;
+            {
+                float range = EnemyData.ChaseRange;
+                Debug.Log($"[Spider] {gameObject.name} ChaseRange: {range} (from EnemyData)");
+                return range;
+            }
                 
-            Debug.LogError($"[Spider] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가!");
+            Debug.LogError($"[Spider] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가! fallback 8f 사용");
             return 8f; // Spider는 긴 추적 범위 (끈질긴 추적)
         } 
     }
