@@ -135,9 +135,17 @@ public class MeleeAttack : BaseAttackBehaviour
     {
         Vector2 basePosition = transform.position;
         
-        // 몬스터가 바라보는 방향으로 오프셋 적용
-        Vector2 forward = transform.right; // 또는 몬스터의 방향에 따라 조정
-        Vector2 offsetPosition = basePosition + Vector2.Scale(attackOriginOffset, forward);
+        // ✅ 수정: X축만 방향에 따라 반전, Y축은 절대값으로 적용
+        Vector2 forward = transform.right;
+        float directionMultiplier = forward.x >= 0 ? 1f : -1f; // 좌우 방향만 고려
+        
+        Vector2 offsetPosition = basePosition + new Vector2(
+            attackOriginOffset.x * directionMultiplier, // X축: 방향에 따라 반전
+            attackOriginOffset.y                         // Y축: 절대값 적용
+        );
+        
+        // 🔍 디버그: 공격 원점 계산 과정 출력
+        Debug.Log($"🎯 [GetAttackOrigin] basePosition: {basePosition}, offset: {attackOriginOffset}, result: {offsetPosition}");
         
         return offsetPosition;
     }

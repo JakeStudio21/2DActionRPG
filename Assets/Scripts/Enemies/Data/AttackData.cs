@@ -233,7 +233,8 @@ public class AttackData : ScriptableObject
             case AttackType.Melee:
                 // 근접 공격은 발사체 설정 비활성화
                 projectileCount = 1;
-                if (attackRange > 3f) attackRange = 2f; // 근접은 최대 2까지
+                // ✅ 수정: 근접 공격 범위 제한 완화 (2 → 5)
+                if (attackRange > 5f) attackRange = 5f; // 근접은 최대 5까지
                 break;
                 
             case AttackType.Ranged:

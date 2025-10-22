@@ -9,22 +9,22 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1357538892725404220}
-  - component: {fileID: 3241228118347545228}
+  - component: {fileID: 2106861080513923722}
   - component: {fileID: 2593015259640542914}
   - component: {fileID: 2142061137914716384}
-  - component: {fileID: 1996716122504307104}
   - component: {fileID: 5709947880115937855}
   - component: {fileID: 5752732880782816917}
   - component: {fileID: 4792411720221729903}
+  - component: {fileID: 4045494338668433670}
   - component: {fileID: -8070876538002613510}
   - component: {fileID: -752092573500323026}
   - component: {fileID: 3746799392073795553}
   - component: {fileID: 8403660534966338527}
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -3420654551023502779}
-  - component: {fileID: -9110043429021353378}
+  - component: {fileID: 5793775717648097079}
   m_Layer: 6
-  m_Name: Blue_slime
+  m_Name: Bear
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &3241228118347545228
+--- !u!212 &2106861080513923722
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -86,7 +86,7 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1468931158, guid: f4e859bd1b8db634faeb1f6c4c29bdf3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b82dbd06961d95a4f93c21b57a5263e8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -159,27 +159,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!95 &1996716122504307104
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 645a596175f5d354ca8b18c39f91a01f, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &5709947880115937855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,12 +198,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a85e75df1587944db4927abf753409b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 1996716122504307104}
+  animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   useIsometricData: 1
   showDebugLogs: 0
   startMoveThreshold: 0.12
   stopMoveThreshold: 0.06
+--- !u!95 &4045494338668433670
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4b6a5071a555b0149836f5594753760e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &-8070876538002613510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackData: {fileID: 11400000, guid: 32a2d5a1a7116fd46b3c4241418e0a09, type: 2}
+  attackData: {fileID: 11400000, guid: aabd19d6e3a67a641a743117b2c8bb22, type: 2}
   attackCooldown: 1.5
   detectionRange: 5
   chaseRange: 8
@@ -345,7 +345,7 @@ MonoBehaviour:
   attackOriginOffset: {x: 0, y: 0}
   criticalHitEffect: {fileID: 0}
   showAttackGizmos: 1
---- !u!114 &-9110043429021353378
+--- !u!114 &5793775717648097079
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -354,10 +354,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
+  m_Script: {fileID: 11500000, guid: d6b5d294b4fe70241a636d750529df5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: e2b2d339f5f94044d9716d89a75d5c4b, type: 2}
+  enemyData: {fileID: 11400000, guid: df37dcfdccf11bb419e7efdc5dc4ee21, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
   homePosition: {x: 0, y: 0, z: 0}

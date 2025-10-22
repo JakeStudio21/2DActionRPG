@@ -22,9 +22,9 @@ GameObject:
   - component: {fileID: 8403660534966338527}
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -3420654551023502779}
-  - component: {fileID: -9110043429021353378}
+  - component: {fileID: -4845567831799266774}
   m_Layer: 6
-  m_Name: Blue_slime
+  m_Name: Spider
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39,7 +39,7 @@ Transform:
   m_GameObject: {fileID: 3235174918318939483}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -86,7 +86,7 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1468931158, guid: f4e859bd1b8db634faeb1f6c4c29bdf3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 11cb7623bebb4f44b9c17553f1674ce7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -169,7 +169,7 @@ Animator:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 645a596175f5d354ca8b18c39f91a01f, type: 2}
+  m_Controller: {fileID: 9100000, guid: e3a182e233b453e41bcd14a53a1bd0ba, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackData: {fileID: 11400000, guid: 32a2d5a1a7116fd46b3c4241418e0a09, type: 2}
+  attackData: {fileID: 11400000, guid: 7bba3184f483f3141acffd37984f6163, type: 2}
   attackCooldown: 1.5
   detectionRange: 5
   chaseRange: 8
@@ -342,10 +342,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   attackAngle: 90
-  attackOriginOffset: {x: 0, y: 0}
+  attackOriginOffset: {x: 0, y: 1}
   criticalHitEffect: {fileID: 0}
   showAttackGizmos: 1
---- !u!114 &-9110043429021353378
+--- !u!114 &-4845567831799266774
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -354,10 +354,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
+  m_Script: {fileID: 11500000, guid: 3ffff741584a69444a87dd8363a18c1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: e2b2d339f5f94044d9716d89a75d5c4b, type: 2}
+  enemyData: {fileID: 11400000, guid: e56da1fe6f885604daface3676f7a6bd, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
   homePosition: {x: 0, y: 0, z: 0}

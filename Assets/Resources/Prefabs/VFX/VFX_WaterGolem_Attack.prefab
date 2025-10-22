@@ -575,7 +575,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: moveWithTransform
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: InitialModule.size3D
@@ -583,7 +583,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: ShapeModule.arc.value
-      value: 30
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: ShapeModule.arc.spread
@@ -595,6 +595,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: VelocityModule.x.scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
+      propertyPath: ShapeModule.m_Position.x
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
+      propertyPath: ShapeModule.m_Position.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
@@ -659,7 +667,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: InitialModule.startLifetime.minScalar
-      value: 0.4
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 8603489021393189653, guid: bf97aaa7a02fd834782d32dcc497cbef, type: 3}
       propertyPath: InitialModule.startRotation.minScalar

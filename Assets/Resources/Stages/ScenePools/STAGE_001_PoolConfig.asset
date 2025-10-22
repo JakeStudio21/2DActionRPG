@@ -614,5 +614,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: MON_BEAR_001
+    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SPIDER_001
+    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

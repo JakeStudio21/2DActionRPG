@@ -23,8 +23,13 @@ MonoBehaviour:
     SpawnCount: 0.2
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_GRAPE_001
-    Count: 4
+  - MonsterID: MON_SPIDER_001
+    Count: 2
+    SpawnCount: 0.1
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_BEAR_001
+    Count: 2
     SpawnCount: 0.1
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
