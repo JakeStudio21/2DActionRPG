@@ -229,16 +229,89 @@ public class RangedAttack : BaseAttackBehaviour
     /// </summary>
     private void ConfigureProjectile(GameObject projectile)
     {
-        // ⭐ 새 시스템: 다양한 발사체 타입 지원
+        // ⭐ 새 발사체: ArcProjectile 우선 처리
+        if (projectile.TryGetComponent(out ArcProjectile arcProjectile))
+        {
+            ConfigureArcProjectile(arcProjectile);
+            return;
+        }
+        
+        // ⭐ 새 발사체: StraightProjectile 처리
+        if (projectile.TryGetComponent(out StraightProjectile straightProjectile))
+        {
+            ConfigureStraightProjectile(straightProjectile);
+            return;
+        }
+        
+        // 기존: GrapeProjectile 처리
         if (projectile.TryGetComponent(out GrapeProjectile grapeProjectile))
         {
             ConfigureGrapeProjectile(grapeProjectile);
+            return;
         }
-        else
+        
+        // 범용 발사체 설정 (fallback)
+        ConfigureGenericProjectile(projectile);
+    }
+    
+    /// <summary>
+    /// ⭐ ArcProjectile 설정 (신규)
+    /// </summary>
+    private void ConfigureArcProjectile(ArcProjectile arcProjectile)
+    {
+        // 목표 위치 계산
+        Vector3 targetPosition = cachedPlayer != null ? 
+            cachedPlayer.transform.position : 
+            transform.position + Vector3.right * 5f;
+        
+        // 발사
+        arcProjectile.LaunchToTarget(targetPosition);
+        
+        // AttackData 기반 설정
+        if (attackData != null)
         {
-            // 범용 발사체 설정
-            ConfigureGenericProjectile(projectile);
+            arcProjectile.SetDamage(GetScaledDamage());
+            arcProjectile.SetMoveSpeed(attackData.ProjectileSpeed);
+            arcProjectile.SetArcHeight(attackData.ArcHeight);
+            
+            // Hit 이펙트 설정
+            if (attackData.HitEffect != null)
+            {
+                arcProjectile.SetHitEffect(attackData.HitEffect);
+            }
         }
+        
+        Debug.Log($"🎯 [RangedAttack] ArcProjectile 설정 완료 - Target: {targetPosition}, Height: {attackData?.ArcHeight ?? 3f}");
+    }
+    
+    /// <summary>
+    /// ⭐ StraightProjectile 설정 (신규)
+    /// </summary>
+    private void ConfigureStraightProjectile(StraightProjectile straightProjectile)
+    {
+        // 플레이어 방향 계산
+        Vector2 direction = cachedPlayer != null ? 
+            ((Vector2)(cachedPlayer.transform.position - transform.position)).normalized : 
+            Vector2.right;
+        
+        // 발사
+        straightProjectile.SetDirection(direction);
+        
+        // AttackData 기반 설정
+        if (attackData != null)
+        {
+            straightProjectile.SetDamage(GetScaledDamage());
+            straightProjectile.SetMoveSpeed(attackData.ProjectileSpeed);
+            straightProjectile.SetProjectileRange(attackData.AttackRange);
+            
+            // Hit 이펙트 설정
+            if (attackData.HitEffect != null)
+            {
+                straightProjectile.SetHitEffect(attackData.HitEffect);
+            }
+        }
+        
+        Debug.Log($"🎯 [RangedAttack] StraightProjectile 설정 완료 - Direction: {direction}, Speed: {attackData?.ProjectileSpeed ?? 10f}");
     }
     
     /// <summary>

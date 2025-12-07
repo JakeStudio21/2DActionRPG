@@ -48,10 +48,10 @@ public class GolemProjectile : MonoBehaviour
     {
         fireDirection = dir.normalized;
 
-        // 좌/우 반전
-        Vector3 scale = transform.localScale;
-        scale.x = (fireDirection.x < 0) ? Mathf.Abs(scale.x) * -1 : Mathf.Abs(scale.x);
-        transform.localScale = scale;
+        // ✅ 아이소메트릭: 회전만 사용 (미러링 제거)
+        // 미러링은 이펙트/자식 오브젝트의 방향을 망가뜨림
+        float angle = Mathf.Atan2(fireDirection.y, fireDirection.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
     public void UpdateProjectileRange(float newRange)

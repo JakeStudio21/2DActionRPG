@@ -126,8 +126,8 @@ CapsuleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.02665464, y: 0.03280549}
-  m_Size: {x: 0.68014765, y: 0.2454796}
+  m_Offset: {x: 0.02087306, y: 0.027024534}
+  m_Size: {x: 0.9923395, y: 0.81204724}
   m_Direction: 1
 --- !u!50 &1667091747660218827
 Rigidbody2D:
@@ -299,6 +299,7 @@ MonoBehaviour:
   projectileRange: 10
   arrowEffectPrefabs:
   - {fileID: 1597112295188672555, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+  showDebugLogs: 0
   trajectoryType: 0
   arcHeight: 2
   trajectoryCurve:

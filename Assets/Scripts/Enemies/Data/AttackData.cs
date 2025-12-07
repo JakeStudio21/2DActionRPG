@@ -49,6 +49,12 @@ public class AttackData : ScriptableObject
     [Tooltip("발사체 프리팹")]
     [SerializeField] private GameObject projectilePrefab;
     
+    [Tooltip("발사체 궤적 타입 (직선/포물선)")]
+    [SerializeField] private ProjectileTrajectoryType trajectoryType = ProjectileTrajectoryType.Straight;
+    
+    [Tooltip("포물선 높이 (trajectoryType이 Arc일 때만 사용)")]
+    [SerializeField] private float arcHeight = 3f;
+    
     [Tooltip("발사체 속도")]
     [SerializeField] private float projectileSpeed = 10f;
     
@@ -109,6 +115,8 @@ public class AttackData : ScriptableObject
     public float AttackAngle => attackAngle;
     public bool StopMovingWhileAttacking => stopMovingWhileAttacking;
     public GameObject ProjectilePrefab => projectilePrefab;
+    public ProjectileTrajectoryType TrajectoryType => trajectoryType;
+    public float ArcHeight => arcHeight;
     public float ProjectileSpeed => projectileSpeed;
     public float ProjectileLifetime => projectileLifetime;
     public int ProjectileCount => projectileCount;
@@ -276,4 +284,13 @@ public class AttackData : ScriptableObject
         
         return info;
     }
+}
+
+/// <summary>
+/// 발사체 궤적 타입
+/// </summary>
+public enum ProjectileTrajectoryType
+{
+    Straight,   // 직선
+    Arc         // 포물선
 }

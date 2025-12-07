@@ -25,10 +25,16 @@ MonoBehaviour:
   attackAngle: 90
   stopMovingWhileAttacking: 1
   projectilePrefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
-  projectileSpeed: 1
+  trajectoryType: 1
+  arcHeight: 2
+  projectileSpeed: 5
   projectileLifetime: 4
   projectileCount: 1
   multiShotAngle: 1
+  aoeEffectPrefab: {fileID: 0}
+  aoeDuration: 1
+  aoeShape: 0
+  aoeScale: 1
   onHitEffects:
   - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
   effectChances:
