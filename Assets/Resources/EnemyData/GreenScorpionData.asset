@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: GreenScorpionData
+  m_EditorClassIdentifier: 
+  enemyId: MON_SCORPION_GREEN_001
+  enemyName: Green Scorpion
+  enemyType: 0
+  description: "\uCD08\uB85D \uC804\uAC08 - \uB9F9\uB3C5 \uD6A8\uACFC\n\uAC00\uC7A5
+    \uAC15\uB825\uD55C \uB3C5\uC744 \uAC00\uC9C4 \uC704\uD5D8\uD55C \uC804\uAC08
+    (\uC57D\uAC04 \uB192\uC740 \uCCB4\uB825)"
+  baseHealth: 80
+  baseDefense: 45
+  baseMoveSpeed: 1.8
+  detectionRange: 6
+  chaseRange: 8
+  patrolRadius: 5
+  knockBackThrust: 7
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 0}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 20
+  baseExpReward: 50
+  dropGroupId: DROP_SCORPION_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 279a9d63ccc66c64a8a840bd0d957f90, type: 2}
+

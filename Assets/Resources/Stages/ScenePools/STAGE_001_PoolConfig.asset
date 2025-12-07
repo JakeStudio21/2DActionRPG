@@ -812,5 +812,65 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: MON_SCORPION_RED_001
+    prefab: {fileID: 3235174918318939483, guid: be8860c454d0ccc468d53716f9eefe81, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SCORPION_BROWN_001
+    prefab: {fileID: 3235174918318939483, guid: 3ec4d020a30a0cc4ba964b0677e69e40, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SCORPION_BLUE_001
+    prefab: {fileID: 3235174918318939483, guid: 9eb32a6f579ac464cb06276365518316, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_COBRA_001
+    prefab: {fileID: 3235174918318939483, guid: 87f130fa60505c942904cf5470968768, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_ANUBIS_001
+    prefab: {fileID: 3235174918318939483, guid: b8414791dabac184cbd3d716a7691d13, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SPHINX_001
+    prefab: {fileID: 3235174918318939483, guid: 30e980b315e8f8b4da844a43c74677fe, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: FX_PF_Fire_ImpactBurst_01
+    prefab: {fileID: 1625881847255917415, guid: 098b836f3d9958f4685d2ee911be8fef, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BEETLE_001
+    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_LADYBUG_001
+    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_MIMIC_001
+    prefab: {fileID: 3235174918318939483, guid: db9c56b0c203f0c488dd705a2aa6ada3, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

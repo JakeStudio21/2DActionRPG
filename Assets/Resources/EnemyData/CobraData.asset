@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: CobraData
+  m_EditorClassIdentifier: 
+  enemyId: MON_COBRA_001
+  enemyName: Cobra
+  enemyType: 0
+  description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2AC\uB77C\uC784\n"
+  baseHealth: 100
+  baseDefense: 50
+  baseMoveSpeed: 2
+  detectionRange: 5
+  chaseRange: 8
+  patrolRadius: 8
+  knockBackThrust: 5
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 12
+  baseExpReward: 30
+  dropGroupId: DROP_BLUESLIME_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 4558e5815177e274aa182b2b81ddd7d7, type: 2}

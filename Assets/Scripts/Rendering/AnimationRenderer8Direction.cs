@@ -54,7 +54,7 @@ public class AnimationRenderer8Direction : MonoBehaviour
     public Transform outlineSourceRoot;
     [Range(1.0f, 1.2f)]
     [Tooltip("아웃라인 두께 (캐릭터 스케일 배율)")]
-    public float outlineThickness = 1.03f;     // 3% 크게
+    public float outlineThickness = 1.02f;     // 3% 크게
     public Color outlineColor = new Color(0f, 0f, 0f, 1f); // 검은색 불투명
     [Tooltip("아웃라인 전용 머티리얼 (없으면 자동 생성)")]
     public Material outlineMaterial;

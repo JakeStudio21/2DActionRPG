@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: MimicData
+  m_EditorClassIdentifier: 
+  enemyId: MON_MIMIC_001
+  enemyName: Mimic
+  enemyType: 0
+  description: "\uADFC\uC811 \uACF5\uACA9 \uBBF8\uBBF9"
+  baseHealth: 80
+  baseDefense: 80
+  baseMoveSpeed: 2.2
+  detectionRange: 6
+  chaseRange: 10
+  patrolRadius: 10
+  knockBackThrust: 5
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: db9c56b0c203f0c488dd705a2aa6ada3, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 18
+  baseExpReward: 45
+  dropGroupId: DROP_STONEGOLEM_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

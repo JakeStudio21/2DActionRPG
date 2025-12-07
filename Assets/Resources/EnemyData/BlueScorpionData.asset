@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: BlueScorpionData
+  m_EditorClassIdentifier: 
+  enemyId: MON_SCORPION_BLUE_001
+  enemyName: BlueScorpion
+  enemyType: 0
+  description: "\uD30C\uB780 \uC804\uAC08 - \uBE59\uACB0 \uD6A8\uACFC\n\uCC28\uAC00\uC6B4
+    \uB3C5\uC73C\uB85C \uC801\uC744 \uB460\uD654\uC2DC\uD0A4\uB294 \uC5BC\uC74C \uC804\uAC08"
+  baseHealth: 70
+  baseDefense: 40
+  baseMoveSpeed: 1.8
+  detectionRange: 6
+  chaseRange: 8
+  patrolRadius: 5
+  knockBackThrust: 7
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: 9eb32a6f579ac464cb06276365518316, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 18
+  baseExpReward: 45
+  dropGroupId: DROP_SCORPION_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 279a9d63ccc66c64a8a840bd0d957f90, type: 2}

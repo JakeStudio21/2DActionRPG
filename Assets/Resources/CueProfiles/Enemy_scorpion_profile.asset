@@ -1,0 +1,153 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Enemy_scorpion_profile
+  m_EditorClassIdentifier: 
+  profileId: scorpion_profile
+  domain: Enemy
+  baseProfile: {fileID: 11400000, guid: ee84b71fff1a591459c185521fa40793, type: 2}
+  vfxCatalog:
+  - vfxId: ScorpionStingHit
+    poolKey: ScorpionStingEffect
+    duration: 1.5
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "전갈 독침 일반 공격 이펙트"
+  - vfxId: ScorpionStingCrit
+    poolKey: ScorpionStingCritEffect
+    duration: 2
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "전갈 독침 크리티컬 공격 이펙트"
+  - vfxId: ScorpionPoisonCloud
+    poolKey: PoisonCloudEffect
+    duration: 3
+    offset: {x: 0, y: 0.2, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 40
+    cooldown: 0
+    note: "독 구름 지속 이펙트 (피격자 추적)"
+  - vfxId: ScorpionHitEffect
+    poolKey: ScorpionHitVFX
+    duration: 1
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 0.8, y: 0.8, z: 0.8}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "전갈 피격 이펙트"
+  - vfxId: ScorpionDeathEffect
+    poolKey: ScorpionDeathVFX
+    duration: 2
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "전갈 사망 이펙트"
+  sfxCatalog:
+  - sfxId: ScorpionAttackSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "전갈 독침 공격음 (높은 톤)"
+  - sfxId: ScorpionCriticalSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.9
+    pitch: 1.5
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "전갈 크리티컬 공격음 (더 높은 톤)"
+  - sfxId: ScorpionPoisonHiss
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.5
+    pitch: 0.8
+    is3D: 0
+    maxDistance: 50
+    priority: 40
+    cooldown: 0
+    note: "독 쉬익 소리 (낮은 톤)"
+  - sfxId: ScorpionHitSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.6
+    pitch: 1
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "전갈 피격음"
+  - sfxId: ScorpionDeathSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 0.7
+    is3D: 0
+    maxDistance: 50
+    priority: 70
+    cooldown: 0
+    note: "전갈 사망음 (낮은 톤)"
+  entries:
+  - eventKey: attack.melee.hit
+    vfxIds:
+    - ScorpionStingHit
+    - ScorpionPoisonCloud
+    sfxIds:
+    - ScorpionAttackSound
+    - ScorpionPoisonHiss
+    priority: 2
+    cameraShakePreset: Medium
+    timeStopMs: 40
+    note: "전갈 일반 독침 공격 (독 이펙트 포함)"
+  - eventKey: attack.melee.crit
+    vfxIds:
+    - ScorpionStingCrit
+    - ScorpionPoisonCloud
+    sfxIds:
+    - ScorpionCriticalSound
+    - ScorpionPoisonHiss
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 80
+    note: "전갈 크리티컬 독침 공격 (강화된 독 이펙트)"
+  - eventKey: enemy.hit
+    vfxIds:
+    - ScorpionHitEffect
+    sfxIds:
+    - ScorpionHitSound
+    priority: 2
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: "전갈 피격"
+  - eventKey: enemy.death
+    vfxIds:
+    - ScorpionDeathEffect
+    sfxIds:
+    - ScorpionDeathSound
+    priority: 3
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: "전갈 사망"
+  description: "스콜피온(전갈) 전용 Cue 프로필 - 독침 공격과 독 이펙트 특화"
+
+

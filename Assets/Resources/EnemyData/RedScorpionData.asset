@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: RedScorpionData
+  m_EditorClassIdentifier: 
+  enemyId: MON_SCORPION_RED_001
+  enemyName: RedScorpion
+  enemyType: 0
+  description: "\uBD89\uC740 \uC804\uAC08 - \uB3C5 \uACF5\uACA9 \uD2B9\uD654\n\uBE60\uB978
+    \uC774\uB3D9\uACFC \uB113\uC740 \uACBD\uACC4 \uBC94\uC704\uB97C \uAC00\uC9C4
+    \uC704\uD611\uC801\uC778 \uBAB9\uC2A4\uD130"
+  baseHealth: 70
+  baseDefense: 40
+  baseMoveSpeed: 1.8
+  detectionRange: 6
+  chaseRange: 8
+  patrolRadius: 5
+  knockBackThrust: 7
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: be8860c454d0ccc468d53716f9eefe81, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 18
+  baseExpReward: 45
+  dropGroupId: DROP_SCORPION_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 279a9d63ccc66c64a8a840bd0d957f90, type: 2}

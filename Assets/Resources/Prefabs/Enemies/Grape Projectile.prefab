@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6659009966643706876}
   - component: {fileID: 1909275267210369570}
   - component: {fileID: 3891736347750222825}
+  - component: {fileID: 878221009583598358}
   m_Layer: 0
   m_Name: Grape Projectile
   m_TagString: Untagged
@@ -163,6 +164,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &3891736347750222825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,3 +213,16 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256
+  projectileDamage: 10
+--- !u!210 &878221009583598358
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6774872879692375580}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0

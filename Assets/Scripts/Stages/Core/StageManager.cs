@@ -807,16 +807,57 @@ public class StageManager : MonoBehaviour
             {
                 return monsterID.Contains("BOSS") ? "Bear_BossData" : "BearData";
             }
+            else if (monsterID.Contains("SCORPION"))
+            {
+                // 색상별 Scorpion 매핑
+                if (monsterID.Contains("RED"))
+                    return "RedScorpionData";
+                else if (monsterID.Contains("BLUE"))
+                    return "BlueScorpionData";
+                else if (monsterID.Contains("BROWN") || monsterID.Contains("BRWON"))
+                    return "BrownScorpionData";
+                
+                // Boss 버전 (미래 확장용)
+                if (monsterID.Contains("BOSS"))
+                    return "Scorpion_BossData";
+                
+                return "RedScorpionData"; // 기본값 (Red)
+            }
+            else if (monsterID.Contains("COBRA"))
+            {
+                return monsterID.Contains("BOSS") ? "Cobra_BossData" : "CobraData";
+            }
+            else if (monsterID.Contains("ANUBIS"))
+            {
+                return monsterID.Contains("BOSS") ? "Anubis_BossData" : "AnubisData";
+            }
+            else if (monsterID.Contains("SPHINX"))
+            {
+                return monsterID.Contains("BOSS") ? "Sphinx_BossData" : "SphinxData";
+            }
+            else if (monsterID.Contains("BEETLE"))
+            {
+                return monsterID.Contains("BOSS") ? "Beetle_BossData" : "BeetleData";
+            }
+            else if (monsterID.Contains("LADYBUG"))
+            {
+                return monsterID.Contains("BOSS") ? "LadyBug_BossData" : "LadyBugData";
+            }
+            else if (monsterID.Contains("MIMIC"))
+            {
+                return monsterID.Contains("BOSS") ? "Mimic_BossData" : "MimicData";
+            }
             
             return $"{monsterID}Data"; // 기본값
         }
         
         /// <summary>
         /// 몬스터 ID로부터 풀 태그 생성 - MonsterID 직접 사용
+        /// 기존 규칙: Bear(MON_BEAR_001), WaterGolem(MON_WATERGOLEM_001) 등 MonsterID 그대로 사용
         /// </summary>
         private string GetPoolTagFromMonsterID(string monsterID)
         {
-            // MonsterID를 풀 태그로 직접 사용 (PoolConfig와 일치)
+            // 기존 규칙: MonsterID를 풀 태그로 직접 사용 (PoolConfig와 일치)
             return monsterID;
         }
 

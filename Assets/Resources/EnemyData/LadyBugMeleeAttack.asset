@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64c07a372114658468c055ebdb17ab75, type: 3}
+  m_Name: LadyBugMeleeAttack
+  m_EditorClassIdentifier: 
+  attackName: "\uD48D\uB385\uC774 \uADFC\uC811\uACF5\uACA9"
+  attackType: 0
+  description: "\uB3C5\uC131 \uCF54\uBE0C\uB77C\uC758 \uADFC\uC811 \uACF5\uACA9\n"
+  baseDamage: 8
+  criticalChance: 0.1
+  criticalMultiplier: 2
+  attackCooldown: 1
+  animationDuration: 1.3
+  animationTrigger: Attack
+  attackRange: 2.5
+  attackAngle: 360
+  stopMovingWhileAttacking: 1
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 10
+  projectileLifetime: 5
+  projectileCount: 1
+  multiShotAngle: 15
+  aoeEffectPrefab: {fileID: 0}
+  aoeDuration: 1
+  aoeShape: 0
+  aoeScale: 1
+  onHitEffects:
+  - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
+  effectChances:
+  - 1
+  attackStartEffect: {fileID: 0}
+  hitEffect: {fileID: 1758473627833946668, guid: c1f15932686dbe448aeff133b4bdfb51, type: 3}
+  attackSound: {fileID: 0}
+  hitSound: {fileID: 0}
