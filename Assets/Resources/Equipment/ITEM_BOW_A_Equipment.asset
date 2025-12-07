@@ -28,7 +28,7 @@ MonoBehaviour:
   weaponRange: 7
   armorType: 0
   attackDamage: 5
-  attackSpeed: 1
+  attackSpeed: 20
   attackRange: 1
   attackShape: 1
   criticalChance: 0

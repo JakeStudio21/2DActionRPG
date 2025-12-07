@@ -132,6 +132,9 @@ public class ActiveWeapon : MonoBehaviour
         // 다른 시스템에 무기 변경 알림
         NotifyWeaponChanged(weaponData);
         
+        // ⭐ Phase 2: 무기 등급에 따른 콜라이더 크기 자동 조절
+        UpdateWeaponColliderForEquipment(weaponComponent);
+        
         if (showDebugLogs)
             Debug.Log($"⚔️ [ActiveWeapon] 활성 무기 상태 업데이트: {weaponData.equipmentName}");
     }
@@ -280,6 +283,33 @@ public class ActiveWeapon : MonoBehaviour
     /// ✅ 활성 무기 보유 여부 (런타임 상태 조회)
     /// </summary>
     public bool HasActiveWeapon() => CurrentActiveWeapon != null && CurrentWeaponData != null;
+    
+    #endregion
+    
+    #region ⭐ Phase 2: 등급별 공격 범위 시스템
+    
+    /// <summary>
+    /// 무기 장착 시 콜라이더 크기 자동 조절
+    /// </summary>
+    private void UpdateWeaponColliderForEquipment(MonoBehaviour weaponComponent)
+    {
+        // Sword인 경우 콜라이더 크기 조절
+        var sword = weaponComponent as Sword;
+        if (sword != null)
+        {
+            // Sword의 UpdateWeaponColliderSize() 메서드 호출
+            sword.SendMessage("UpdateWeaponColliderSize", SendMessageOptions.DontRequireReceiver);
+            
+            if (showDebugLogs)
+                Debug.Log($"⚔️ [ActiveWeapon] Sword 콜라이더 크기 자동 조절 요청");
+            
+            return;
+        }
+        
+        // 원거리 무기(Bow, Staff)는 콜라이더 크기 조절 불필요
+        if (showDebugLogs)
+            Debug.Log($"🏹 [ActiveWeapon] 원거리 무기는 콜라이더 크기 조절 불필요");
+    }
     
     #endregion
     

@@ -17,59 +17,293 @@ MonoBehaviour:
   baseProfile: {fileID: 0}
   vfxCatalog:
   - vfxId: PlayerVFX
-    poolKey: TestVFX
+    poolKey: PlayerVFX
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8"
+  - vfxId: PlayerMeleeVFX
+    poolKey: FX_PF_Electricity_Slash_01
     duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     priority: 50
     cooldown: 0
-    note: 
-  - vfxId: PlayerMeleeVFX
-    poolKey: PlayerMeleeVFX
-    duration: 1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0, y: 0, z: 0}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: 
+    note: "\uD50C\uB808\uC774\uC5B4 \uADFC\uC811 \uACF5\uACA9 VFX"
   - vfxId: PlayerRangedVFX
-    poolKey: PlayerRangedVFX
-    duration: 1
+    poolKey: MuzzleFlash
+    duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     priority: 50
     cooldown: 0
-    note: 
+    note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9 VFX"
   - vfxId: PlayerCritVFX
-    poolKey: PlayerCritVFX
-    duration: 1
+    poolKey: CriticalHit
+    duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
     followTarget: 0
-    priority: 50
+    priority: 60
     cooldown: 0
-    note: 
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uACF5\uACA9 VFX"
   - vfxId: Skill1VFX
-    poolKey: Skill1VFX
-    duration: 1
+    poolKey: MultiArrowEffect
+    duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
     followTarget: 0
-    priority: 50
+    priority: 55
     cooldown: 0
-    note: 
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1 VFX"
   - vfxId: Skill2VFX
-    poolKey: Skill2VFX
-    duration: 1
+    poolKey: PowerArrowEffect
+    duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2 VFX"
+  - vfxId: PlayerHitVFX
+    poolKey: PlayerHitEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 VFX"
+  - vfxId: PlayerCritHitVFX
+    poolKey: PlayerCritHitEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.3, y: 1.3, z: 1.3}
+    followTarget: 1
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9 VFX"
+  - vfxId: PlayerDeathVFX
+    poolKey: PlayerDeathEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 80
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD VFX"
+  - vfxId: PlayerReviveVFX
+    poolKey: PlayerReviveEffect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C VFX"
+  - vfxId: PlayerHealVFX
+    poolKey: HealEffect
+    duration: -1
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 VFX"
+  - vfxId: PlayerHealVFX
+    poolKey: HitSpark_C
+    duration: -1
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC2AC\uB798\uC2DC"
+  - vfxId: SwordSlash_S
+    poolKey: Slash_S_Effect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "S\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
+  - vfxId: SwordSlash_A
+    poolKey: Slash_A_Effect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 55
+    cooldown: 0
+    note: "A\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
+  - vfxId: SwordSlash_B
+    poolKey: Slash_B_Effect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 52
+    cooldown: 0
+    note: "B\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
+  - vfxId: SwordSlash_C
+    poolKey: Slash_C_Effect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     priority: 50
     cooldown: 0
-    note: 
+    note: "C\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
+  - vfxId: SwordSlash_D
+    poolKey: Slash_D_Effect
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0.8, y: 0.8, z: 0.8}
+    followTarget: 0
+    priority: 45
+    cooldown: 0
+    note: "D\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8(\uAE30\uBCF8)"
+  - vfxId: MeleeHit_S
+    poolKey: HitImpact_S
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 65
+    cooldown: 0
+    note: "S\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: MeleeHit_A
+    poolKey: HitImpact_A
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 58
+    cooldown: 0
+    note: "A\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: MeleeHit_B
+    poolKey: HitImpact_B
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 53
+    cooldown: 0
+    note: "B\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: MeleeHit_C
+    poolKey: HitImpact_C
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "C\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: MeleeHit_D
+    poolKey: HitImpact_D
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0.8, y: 0.8, z: 0.8}
+    followTarget: 0
+    priority: 45
+    cooldown: 0
+    note: "D\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: BowMuzzle_S
+    poolKey: MuzzleFlash_S
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 60
+    cooldown: 0
+    note: "S \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
+  - vfxId: BowMuzzle_A
+    poolKey: MuzzleFlash_A
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 55
+    cooldown: 0
+    note: "A \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
+  - vfxId: BowMuzzle_B
+    poolKey: MuzzleFlash_B
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 52
+    cooldown: 0
+    note: "B \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
+  - vfxId: BowMuzzle_C
+    poolKey: MuzzleFlash_C
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "C \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
+  - vfxId: BowMuzzle_D
+    poolKey: MuzzleFlash_D
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0.8, y: 0.8, z: 0.8}
+    followTarget: 0
+    priority: 45
+    cooldown: 0
+    note: "D \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
+  - vfxId: ArrowHit_S
+    poolKey: ArrowImpact_S
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 65
+    cooldown: 0
+    note: "S \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: ArrowHit_A
+    poolKey: ArrowImpact_A
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.5, y: 1.5, z: 1.5}
+    followTarget: 0
+    priority: 58
+    cooldown: 0
+    note: "A \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: ArrowHit_B
+    poolKey: ArrowImpact_B
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1.2, y: 1.2, z: 1.2}
+    followTarget: 0
+    priority: 53
+    cooldown: 0
+    note: "B \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: ArrowHit_C
+    poolKey: ArrowImpact_C
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "C \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
+  - vfxId: ArrowHit_D
+    poolKey: ArrowImpact_D
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 0.8, y: 0.8, z: 0.8}
+    followTarget: 0
+    priority: 45
+    cooldown: 0
+    note: "D \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
   sfxCatalog:
   - sfxId: PlayerSFX
     audioClip: {fileID: 8300000, guid: 3f8feb85c7ab6924694cdacde17e5cf7, type: 3}

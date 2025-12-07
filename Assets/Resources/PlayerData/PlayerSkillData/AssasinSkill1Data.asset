@@ -19,12 +19,16 @@ MonoBehaviour:
   range: 5
   effectPrefab: {fileID: 0}
   projectilePrefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
-  projectileSpeed: 10
+  projectileSpeed: 20
   projectileCount: 5
-  spreadAngle: 10
+  spreadAngle: 15
   projectileScale: {x: 1, y: 1, z: 1}
   projectilePoolName: Arrow
   stealthDuration: 2
   criticalChanceBonus: 0.2
   backAttackMultiplier: 1.5
   dodgeChanceBonus: 0.05
+  aoeShape: 2
+  aoeSize: {x: 3, y: 2}
+  aoeFanAngle: 90
+  aoeDuration: 0.5

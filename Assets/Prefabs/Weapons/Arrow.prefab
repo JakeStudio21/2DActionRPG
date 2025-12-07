@@ -162,7 +162,7 @@ TrailRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4149642069968341746}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -291,11 +291,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 593d99897da702340afd15fa81edfc3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
-  particleOnHitPrefabVFX: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
+  moveSpeed: 15
+  particleOnHitPrefabVFX: {fileID: 1020301050692611391, guid: 061c305cf54fbb24db098cf5c06d20ff, type: 3}
   isEnemyProjectile: 0
   projectileRange: 10
-  arrowEffectPrefabs: []
+  arrowEffectPrefabs:
+  - {fileID: 4839014159920536022, guid: 26bee6af42a0e9f44b2aa8742e6bbbbd, type: 3}
+  showDebugLogs: 0
   trajectoryType: 0
   arcHeight: 2
   trajectoryCurve:

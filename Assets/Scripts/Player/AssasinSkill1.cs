@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using CueSystem; // ⭐ Assasin Skill 이펙트 시스템
 
 /// <summary>
 /// 어쌔신 스킬1: Multi Arrow (다중 화살 발사)
@@ -54,8 +56,18 @@ public class AssasinSkill1 : BaseSkill<AssasinSkillData>
         Debug.Log($"   - ProjectilePrefab: {(SkillData.projectilePrefab != null ? "✅ 존재" : "❌ 없음")}");
         Debug.Log($"   - ProjectileSpeed: {SkillData.projectileSpeed}");
         Debug.Log($"   - ProjectilePoolName: {SkillData.projectilePoolName}");
-            
+        
+        // ⭐ 1단계: Cast 이펙트 (시전 이펙트)
+        EmitSkillCastCue();
+        
+        // 조이스틱 방향 가져오기
+        Vector2 baseDirection = GetCurrentAttackDirection();
+        
+        // ⭐ 2단계: 화살 발사 (순수 비주얼)
         FireMultipleArrows();
+        
+        // ⭐ 3단계: 0.1초 딜레이 후 AOE 발동 (코루틴)
+        StartCoroutine(DelayedAOESpawn(baseDirection, 0.2f));
     }
     
     /// <summary>
@@ -152,10 +164,56 @@ public class AssasinSkill1 : BaseSkill<AssasinSkillData>
             SpawnEffect(SkillData.effectPrefab, firePoint.position, firePoint.rotation);
         }
         
+        // ⭐ Phase 3: AOE 생성 (부채꼴)
+        SpawnSkillAOE(baseDirection);
+        
         if (showDebugLogs)
         {
             Debug.Log($"🏹 [AssasinSkill1] 화살 발사 완료: {successCount}/{arrowCount}개 성공 - 기준각도: {baseAngle:F1}°");
         }
+    }
+    
+    /// <summary>
+    /// ⭐ 0.3초 딜레이 후 AOE 발동 (차징 느낌)
+    /// </summary>
+    private IEnumerator DelayedAOESpawn(Vector2 direction, float delay)
+    {
+        // 딜레이
+        yield return new WaitForSeconds(delay);
+        
+        // AOE 이펙트 발행
+        EmitSkillAOECue(direction);
+        
+        // AOE 비주얼 생성
+        SpawnSkillAOE(direction);
+        
+        if (showDebugLogs)
+            Debug.Log($"🏹 [AssasinSkill1] AOE 딜레이 후 발동 ({delay}초)");
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 3: 스킬 AOE 생성
+    /// </summary>
+    private void SpawnSkillAOE(Vector2 direction)
+    {
+        if (!IsSkillDataValid) return;
+        
+        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
+        SkillAOESpawner.SpawnAOE(
+            SkillData.aoeShape,
+            transform.position,
+            direction,
+            SkillData.aoeSize,
+            SkillData.aoeFanAngle,
+            SkillData.damage,
+            SkillData.aoeDuration,
+            LayerMask.GetMask("Enemy"),
+            "skill.assasin.skill1.hit",  // ⭐ Hit Cue 이벤트 키
+            this
+        );
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill1] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
     }
     
     /// <summary>
@@ -257,4 +315,63 @@ public class AssasinSkill1 : BaseSkill<AssasinSkillData>
             Debug.Log($"🎮 [AssasinSkill1] 백업 방향 사용: firePoint.right");
         return firePoint.right;
     }
+    
+    
+    #region ⭐ 스킬 이펙트 Cue 시스템 (Cast → AOE → Hit)
+    
+    /// <summary>
+    /// 1단계: 스킬 시전 이펙트 (Cast)
+    /// </summary>
+    private void EmitSkillCastCue()
+    {
+        // 조이스틱 방향 가져오기
+        Vector2 direction = GetCurrentAttackDirection();
+        
+        // 각도 계산 (회전만 사용)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = rotation,
+            actorType = ActorType.Player,
+            magnitude = 1.2f,
+            surfaceType = SurfaceType.Default,
+            follow = transform
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.assasin.skill1.cast", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"🏹 [AssasinSkill1] Cast Cue 발행 (시전 이펙트, 각도: {angle:F1}°) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// 2단계: AOE 범위 이펙트 (부채꼴)
+    /// </summary>
+    private void EmitSkillAOECue(Vector2 direction)
+    {
+        // 각도 계산 (회전만 사용)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = rotation,
+            actorType = ActorType.Player,
+            magnitude = 1.5f,
+            surfaceType = SurfaceType.Default,
+            facingDir = direction,
+            scale = 1.0f  // ⭐ 명시적 선언 (향후 GetSkillLevelScale()로 변경 가능)
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.assasin.skill1.aoe", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"🏹 [AssasinSkill1] AOE Cue 발행 (부채꼴 범위, 각도: {angle:F1}°) → {cueSuccess}");
+    }
+    
+    #endregion
 }

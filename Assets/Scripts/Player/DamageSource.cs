@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CueSystem; // ⭐ Phase 1-1: 히트 이펙트 Cue 시스템
 
 /// <summary>
 /// 🎯 DamageSource - PlayerRuntimeStats 기반 데미지 처리
@@ -70,6 +71,9 @@ public class DamageSource : MonoBehaviour
         // 최종 데미지 적용
         int roundedDamage = Mathf.RoundToInt(finalDamage);
         enemyHealth.TakeDamage(roundedDamage);
+        
+        // ⭐ Phase 1-1: 히트 이펙트 Cue 발행
+        EmitHitEffectCue(other.transform.position);
         
         if (showDebugLogs)
             Debug.Log($"💥 [DamageSource] 최종 데미지: {roundedDamage} → {other.name}");
@@ -214,4 +218,101 @@ public class DamageSource : MonoBehaviour
     {
         InitializeReferences();
     }
+    
+    #region ⭐ Phase 1-1: 히트 이펙트 시스템
+    
+    /// <summary>
+    /// 💥 히트 이펙트 Cue 발행 (등급별)
+    /// </summary>
+    private void EmitHitEffectCue(Vector3 hitPosition)
+    {
+        // 등급별 히트 이벤트 키 생성
+        string eventKey = GetHitEffectEventKey();
+        float magnitude = GetHitMagnitudeByGrade();
+        
+        var context = new CueContext
+        {
+            position = hitPosition,
+            rotation = transform.rotation,
+            actorType = ActorType.Player,
+            magnitude = magnitude,
+            surfaceType = SurfaceType.Default
+        };
+        
+        bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [DamageSource] Hit Cue 발행: {eventKey} (강도: {magnitude}) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// 무기 등급에 따른 히트 이벤트 키 생성
+    /// </summary>
+    private string GetHitEffectEventKey()
+    {
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon?.CurrentActiveWeapon == null)
+        {
+            return "hit.player.normal"; // 기본값
+        }
+        
+        var weaponComponent = activeWeapon.CurrentActiveWeapon as IWeapon;
+        if (weaponComponent == null)
+        {
+            return "hit.player.normal";
+        }
+        
+        var equipmentData = weaponComponent.GetEquipmentData();
+        if (equipmentData == null)
+        {
+            return "hit.player.normal";
+        }
+        
+        // 무기 타입 확인 (근접 vs 원거리)
+        string weaponTypeKey = equipmentData.WeaponType == WeaponType.Sword ? "melee" : "ranged";
+        
+        // 등급별 이벤트 키 매핑
+        switch (equipmentData.itemGrade)
+        {
+            case ItemGrade.S:
+                return $"hit.player.{weaponTypeKey}_s";
+            case ItemGrade.A:
+                return $"hit.player.{weaponTypeKey}_a";
+            case ItemGrade.B:
+                return $"hit.player.{weaponTypeKey}_b";
+            case ItemGrade.C:
+                return $"hit.player.{weaponTypeKey}_c";
+            case ItemGrade.D:
+                return $"hit.player.{weaponTypeKey}_d";
+            default:
+                return "hit.player.normal"; // fallback
+        }
+    }
+    
+    /// <summary>
+    /// 등급별 히트 이펙트 강도
+    /// </summary>
+    private float GetHitMagnitudeByGrade()
+    {
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon?.CurrentActiveWeapon == null) return 1.0f;
+        
+        var weaponComponent = activeWeapon.CurrentActiveWeapon as IWeapon;
+        if (weaponComponent == null) return 1.0f;
+        
+        var equipmentData = weaponComponent.GetEquipmentData();
+        if (equipmentData == null) return 1.0f;
+        
+        switch (equipmentData.itemGrade)
+        {
+            case ItemGrade.S: return 2.5f;  // S등급: 2.5배 강도
+            case ItemGrade.A: return 1.8f;  // A등급: 1.8배
+            case ItemGrade.B: return 1.3f;  // B등급: 1.3배
+            case ItemGrade.C: return 1.0f;  // C등급: 기본
+            case ItemGrade.D: return 0.7f;  // D등급: 0.7배
+            default: return 1.0f;
+        }
+    }
+    
+    #endregion
 }

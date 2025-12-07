@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using CueSystem; // ⭐ Assasin Skill 이펙트 시스템
 
 /// <summary>
 /// 어쌔신 스킬2: Power Arrow (강력한 단일 화살)
@@ -46,8 +48,15 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
         
         if (showDebugLogs)
             Debug.Log($"💥 [AssasinSkill2] Power Arrow 발사 시작");
-            
-        FirePowerArrow();
+        
+        // ⭐ 1단계: Cast 이펙트 (시전 이펙트)
+        EmitSkillCastCue();
+        
+        // 조이스틱 방향 가져오기
+        Vector2 shootDirection = GetCurrentAttackDirection();
+        
+        // ⭐ 2단계: 큰 화살 발사 (비주얼 + 착탄 지점 결정)
+        FirePowerArrow(shootDirection);
     }
     
     /// <summary>
@@ -94,20 +103,14 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
     /// <summary>
     /// 강력한 단일 화살 발사 메인 로직
     /// </summary>
-    private void FirePowerArrow()
+    private void FirePowerArrow(Vector2 shootDirection)
     {
         if (!IsSkillDataValid || firePoint == null) return;
         
         // SkillData에서 설정값 가져오기
         float arrowSpeed = SkillData.projectileSpeed; // 빠른 속도
         Vector3 arrowScale = SkillData.projectileScale; // 큰 크기
-        // string poolName = !string.IsNullOrEmpty(SkillData.projectilePoolName) 
-        //     ? SkillData.projectilePoolName 
-        //     : "PowerArrow"; // Power Arrow 전용 풀 사용
         string poolName = SkillData.projectilePrefab != null ? SkillData.projectilePrefab.name : "PowerArrow";
-
-        // ⭐ 수정: 조이스틱 방향 사용 (기본공격과 동일한 방식)
-        Vector2 shootDirection = GetCurrentAttackDirection();
         
         // 방향을 각도로 변환
         float shootAngle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
@@ -127,8 +130,11 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
             // Power Arrow 설정
             SetupPowerArrow(powerArrow, arrowSpeed, arrowScale);
             
+            // ⭐ 화살 추적 → 착탄 시 AOE 폭발
+            StartCoroutine(TrackPowerArrowAndExplode(powerArrow, shootDirection, firePoint.position));
+            
             if (showDebugLogs)
-                Debug.Log($"💥 [AssasinSkill2] Power Arrow 발사 성공 - 각도: {shootAngle:F1}°, 속도: {arrowSpeed}, 크기: {arrowScale}");
+                Debug.Log($"🏹 [AssasinSkill2] Power Arrow 발사 - 시작위치: {firePoint.position}, 각도: {shootAngle:F1}°, 방향: {shootDirection}");
         }
         else
         {
@@ -143,6 +149,31 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
         
         // 추가 파워 이펙트 (muzzle flash 등)
         CreatePowerEffects();
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 3: 스킬 AOE 생성
+    /// </summary>
+    private void SpawnSkillAOE(Vector2 direction)
+    {
+        if (!IsSkillDataValid) return;
+        
+        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
+        SkillAOESpawner.SpawnAOE(
+            SkillData.aoeShape,
+            transform.position,
+            direction,
+            SkillData.aoeSize,
+            SkillData.aoeFanAngle,
+            SkillData.damage,
+            SkillData.aoeDuration,
+            LayerMask.GetMask("Enemy"),
+            "skill.assasin.skill2.hit",  // ⭐ Hit Cue 이벤트 키
+            this
+        );
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
     }
     
     /// <summary>
@@ -247,4 +278,127 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
             Debug.Log($"🎮 [AssasinSkill2] 백업 방향 사용: firePoint.right");
         return firePoint.right;
     }
+    
+    #region ⭐ Power Arrow 추적 및 원형 AOE 폭발
+    
+    /// <summary>
+    /// ⭐ Power Arrow 추적 및 착탄 시 원형 AOE 폭발
+    /// </summary>
+    private IEnumerator TrackPowerArrowAndExplode(GameObject arrow, Vector2 direction, Vector3 startPosition)
+    {
+        if (arrow == null) yield break;
+        
+        var projectile = arrow.GetComponent<Projectile>();
+        float maxTime = 3f; // 최대 추적 시간
+        float elapsedTime = 0f;
+        
+        // ⭐ 마지막 위치 추적 (풀 반환 전 위치 저장)
+        Vector3 lastPosition = arrow.transform.position;
+        
+        // 화살이 활성화되어 있는 동안 추적
+        while (arrow != null && arrow.activeInHierarchy && elapsedTime < maxTime)
+        {
+            lastPosition = arrow.transform.position; // ⭐ 매 프레임 위치 업데이트
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        // ⭐ 착탄 지점 (마지막 저장된 위치 사용)
+        Vector3 impactPosition = lastPosition;
+        
+        // ⭐ 거리 계산
+        float travelDistance = Vector2.Distance(
+            new Vector2(startPosition.x, startPosition.y), 
+            new Vector2(impactPosition.x, impactPosition.y)
+        );
+        
+        if (showDebugLogs)
+            Debug.Log($"🎯 [AssasinSkill2] Power Arrow 착탄! 발사: {startPosition} → 착탄: {impactPosition}, 비행거리: {travelDistance:F2}");
+        
+        // ⭐ 3단계: AOE Cue (원형 범위 이펙트)
+        EmitSkillAOECue(impactPosition);
+        
+        // ⭐ 4단계: AOE 비주얼 생성 - PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리
+        SpawnSkillAOEAtPosition(impactPosition, direction);
+    }
+    
+    /// <summary>
+    /// ⭐ 착탄 지점에 AOE 비주얼 생성
+    /// </summary>
+    private void SpawnSkillAOEAtPosition(Vector3 position, Vector2 direction)
+    {
+        if (!IsSkillDataValid) return;
+        
+        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
+        SkillAOESpawner.SpawnAOE(
+            SkillData.aoeShape,
+            position,
+            direction,
+            SkillData.aoeSize,
+            SkillData.aoeFanAngle,
+            SkillData.damage,
+            SkillData.aoeDuration,
+            LayerMask.GetMask("Enemy"),
+            "skill.assasin.skill2.hit",  // ⭐ Hit Cue 이벤트 키
+            this
+        );
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}, 위치: {position}");
+    }
+    
+    #endregion
+    
+    #region ⭐ 스킬 이펙트 Cue 시스템 (Cast → AOE → Hit)
+    
+    /// <summary>
+    /// 1단계: 스킬 시전 이펙트 (Cast)
+    /// </summary>
+    private void EmitSkillCastCue()
+    {
+        // 조이스틱 방향 가져오기
+        Vector2 direction = GetCurrentAttackDirection();
+        
+        // 각도 계산 (회전만 사용)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = rotation,
+            actorType = ActorType.Player,
+            magnitude = 2.0f, // 강력한 시전
+            surfaceType = SurfaceType.Default,
+            follow = transform
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.assasin.skill2.cast", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] Cast Cue 발행 (시전 이펙트, 각도: {angle:F1}°) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// 2단계: AOE 범위 이펙트 (원형) - 착탄 지점에서
+    /// </summary>
+    private void EmitSkillAOECue(Vector3 impactPosition)
+    {
+        var context = new CueContext
+        {
+            position = impactPosition, // ⭐ 착탄 지점!
+            rotation = Quaternion.identity,
+            actorType = ActorType.Player,
+            magnitude = 2.5f, // 큰 범위
+            surfaceType = SurfaceType.Default,
+            scale = 1.0f  // ⭐ 명시적 선언 (향후 GetSkillLevelScale()로 변경 가능)
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.assasin.skill2.aoe", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] AOE Cue 발행 (원형, 착탄지점: {impactPosition}) → {cueSuccess}");
+    }
+    
+    #endregion
 }

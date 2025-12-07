@@ -30,3 +30,7 @@ MonoBehaviour:
   slashEffectPrefab: {fileID: 0}
   dashEffectPoolName: DashEffect
   slashEffectPoolName: SlashEffect
+  aoeShape: 1
+  aoeSize: {x: 8, y: 5}
+  aoeFanAngle: 0
+  aoeDuration: 0.5

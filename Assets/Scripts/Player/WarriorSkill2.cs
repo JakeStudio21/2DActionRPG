@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using CueSystem; // ⭐ Warrior Skill 이펙트 시스템
 
 /// <summary>
 /// 워리어 스킬2: Ground Slam (땅을 내리쳐 원형 충격파 발생)
@@ -65,6 +66,9 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
         Debug.Log($"   - 기본 데미지: {BaseDamage}");
         Debug.Log($"   - 공격 범위: {SkillData.attackRadius}");
         Debug.Log($"   - 기절 시간: {SkillData.stunDuration}");
+        
+        // ⭐ 1단계: Cast 이펙트를 제일 먼저 발동 (애니메이션 시작과 동시)
+        EmitSkillCastCue();
         
         // 실행 중 플래그 설정
         isExecuting = true;
@@ -142,7 +146,7 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
     /// </summary>
     private IEnumerator ChargePhase()
     {
-        float chargeTime = 0.8f; // WarriorSkillData에서 가져올 수 있도록 확장 가능
+        float chargeTime = 0.3f; // ⭐ 0.8초 → 0.3초로 변경 (0.5초 빠르게)
         
         if (showDebugLogs)
             Debug.Log($"⚡ [WarriorSkill2] 차징 시작 ({chargeTime}초)");
@@ -182,14 +186,10 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
         if (showDebugLogs)
             Debug.Log("🔨 [WarriorSkill2] 내려치기 시작");
         
+        // ⭐ Cast 이펙트는 OnAnimationEvent()에서 이미 발동됨
+        
         // 내려치기 사운드 재생
         PlaySound("Slam");
-        
-        // 땅 균열 이펙트 생성
-        if (SkillData.effectPrefab != null)
-        {
-            SpawnEffect(SkillData.effectPrefab, transform.position, transform.rotation);
-        }
         
         // 내려치기 애니메이션 시간 대기
         yield return new WaitForSeconds(0.2f);
@@ -212,54 +212,45 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
         // 충격파 사운드 재생
         PlaySound("Shockwave");
         
-        // 충격파 범위 내 적들 감지 및 데미지 적용
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(
-            transform.position, 
-            shockwaveRadius, 
-            LayerMask.GetMask("Enemy")
-        );
+        // ⭐ 2단계: AOE 이펙트 (충격파 확산)
+        EmitSkillAOECue();
         
-        // 데미지 적용
-        foreach (var enemy in enemies)
-        {
-            var enemyHealth = enemy.GetComponent<EnemyHealth>();
-            if (enemyHealth != null)
-            {
-                // 거리별 데미지 감소 적용
-                float distance = Vector2.Distance(transform.position, enemy.transform.position);
-                float damageMultiplier = Mathf.Lerp(1f, 0.3f, distance / shockwaveRadius);
-                int finalDamage = Mathf.RoundToInt(BaseDamage * damageMultiplier);
-                
-                enemyHealth.TakeDamage(finalDamage);
-                
-                // 넉백 효과 적용
-                ApplyKnockback(enemy.transform, distance, shockwaveRadius);
-                
-                if (showDebugLogs)
-                    Debug.Log($"💥 [WarriorSkill2] {enemy.name}에게 {finalDamage} 데미지! (거리: {distance:F1})");
-            }
-        }
+        // ⭐ Phase 3: AOE 생성 (원형) - PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리
+        SpawnSkillAOE();
         
         // 충격파 시각 효과 대기
         yield return new WaitForSeconds(expandTime);
         
         if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] 충격파 확산 완료 - {enemies.Length}명 타격");
+            Debug.Log($"💥 [WarriorSkill2] 충격파 확산 완료");
     }
     
     /// <summary>
-    /// 넉백 효과 적용
+    /// ⭐ Phase 3: 스킬 AOE 생성 (원형)
     /// </summary>
-    private void ApplyKnockback(Transform target, float distance, float maxRange)
+    private void SpawnSkillAOE()
     {
-        var knockback = target.GetComponent<Knockback>();
-        if (knockback != null)
-        {
-            Vector2 direction = (target.position - transform.position).normalized;
-            float knockbackForce = Mathf.Lerp(15f, 5f, distance / maxRange);
-            
-            knockback.GetKnockedBack(transform, knockbackForce);
-        }
+        if (!IsSkillDataValid) return;
+        
+        // 방향은 상관없음 (원형이므로)
+        Vector2 direction = Vector2.right;
+        
+        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
+        SkillAOESpawner.SpawnAOE(
+            SkillData.aoeShape,
+            transform.position,
+            direction,
+            SkillData.aoeSize,
+            SkillData.aoeFanAngle,
+            SkillData.damage,
+            SkillData.aoeDuration,
+            LayerMask.GetMask("Enemy"),
+            "skill.warrior.skill2.hit",  // ⭐ Hit Cue 이벤트 키
+            this
+        );
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [WarriorSkill2] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
     }
     
     /// <summary>
@@ -272,6 +263,57 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
             Debug.Log($"🔊 [WarriorSkill2] {soundType} 사운드 재생");
             // 실제 AudioClip 재생은 나중에 오디오 시스템과 연동
         }
+    }
+    
+    #endregion
+    
+    #region ⭐ 스킬 이펙트 Cue 시스템 (Cast → AOE → Hit)
+    
+    /// <summary>
+    /// 1단계: 스킬 시전 이펙트 (Cast) - 땅 내리치기
+    /// </summary>
+    private void EmitSkillCastCue()
+    {
+        // 땅 내리치기는 방향 없음 (회전 없음)
+        Quaternion rotation = Quaternion.identity;
+        
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = rotation,
+            actorType = ActorType.Player,
+            magnitude = 2.0f, // 강력한 시전 이펙트
+            surfaceType = SurfaceType.Stone, // 땅 내리치기
+            facingDir = Vector2.down,
+            follow = transform
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.warrior.skill2.cast", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [WarriorSkill2] Cast Cue 발행 (땅 내리치기) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// 2단계: AOE 범위 이펙트 (충격파 확산)
+    /// </summary>
+    private void EmitSkillAOECue()
+    {
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = Quaternion.identity, // 원형이므로 방향 없음
+            actorType = ActorType.Player,
+            magnitude = 2.5f, // 매우 강력한 범위 이펙트
+            surfaceType = SurfaceType.Stone,
+            facingDir = Vector2.zero,
+            scale = 1.0f  // ⭐ 명시적 선언 (향후 GetSkillLevelScale()로 변경 가능)
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.warrior.skill2.aoe", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [WarriorSkill2] AOE Cue 발행 (충격파 확산) → {cueSuccess}");
     }
     
     #endregion

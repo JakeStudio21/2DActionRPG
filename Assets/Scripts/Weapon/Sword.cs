@@ -39,6 +39,9 @@ public class Sword : MonoBehaviour, IWeapon
         weaponCollider = FindObjectOfType<PlayerController>().GetWeaponCollider();
         slashSpawnPoint = GameObject.Find("SlashSpawnPoint").transform;
         activeWeapon = FindObjectOfType<ActiveWeapon>();
+        
+        // ⭐ Phase 2: 무기 등급에 따른 콜라이더 크기 자동 조절
+        UpdateWeaponColliderSize();
     }
 
     public EquipmentData GetEquipmentData()  // WeaponInfo → EquipmentData
@@ -58,19 +61,22 @@ public class Sword : MonoBehaviour, IWeapon
         
 
 
-        // 🆕 Cue 이벤트 발행 - 공격 시작 시점
+        // 🆕 Cue 이벤트 발행 - 공격 시작 시점 (등급별)
+        string eventKey = GetMeleeAttackEventKey();
+        float magnitude = GetMagnitudeByGrade();
+        
         var context = new CueContext
         {
             position = effectPosition,          // ✅ SlashSpawnPoint 위치
             rotation = effectRotation,          // ✅ WeaponCollider 동적 회전
             actorType = ActorType.Player,
-            magnitude = 1.0f,
+            magnitude = magnitude,              // ⭐ 등급별 강도
             surfaceType = SurfaceType.Default,
             facingDir = effectDirection         // ✅ WeaponCollider 방향
         };
         
-        bool cueSuccess = CueEmitter.Emit("attack.player.melee", "Player", context);
-        Debug.Log($"🎬 [Sword] HitSpark Cue 발행 결과: {cueSuccess}");
+        bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
+        Debug.Log($"🎬 [Sword] Slash Cue 발행: {eventKey} (등급: {equipmentData?.itemGrade}, 강도: {magnitude}) → {cueSuccess}");
 
         // ⭐ Sword 애니메이션 트리거 복원
         if (myAnimator != null)
@@ -288,4 +294,132 @@ public class Sword : MonoBehaviour, IWeapon
             Debug.LogWarning("⚠️ [Sword] weaponCollider가 null이어서 비활성화할 수 없습니다!");
         }
     }
+    
+    #region ⭐ Phase 1-1: 등급별 이펙트 시스템
+    
+    /// <summary>
+    /// 무기 등급에 따른 근접 공격 이벤트 키 생성
+    /// </summary>
+    private string GetMeleeAttackEventKey()
+    {
+        if (equipmentData == null)
+        {
+            return "attack.player.melee"; // 기본값
+        }
+        
+        // 등급별 이벤트 키 매핑
+        switch (equipmentData.itemGrade)
+        {
+            case ItemGrade.S:
+                return "attack.player.melee.sword_s";
+            case ItemGrade.A:
+                return "attack.player.melee.sword_a";
+            case ItemGrade.B:
+                return "attack.player.melee.sword_b";
+            case ItemGrade.C:
+                return "attack.player.melee.sword_c";
+            case ItemGrade.D:
+                return "attack.player.melee.sword_d";
+            default:
+                return "attack.player.melee"; // fallback
+        }
+    }
+    
+    /// <summary>
+    /// 등급에 따른 이펙트 강도
+    /// </summary>
+    private float GetMagnitudeByGrade()
+    {
+        if (equipmentData == null) return 1.0f;
+        
+        switch (equipmentData.itemGrade)
+        {
+            case ItemGrade.S: return 2.0f;  // S등급: 2배 강도
+            case ItemGrade.A: return 1.5f;  // A등급: 1.5배
+            case ItemGrade.B: return 1.2f;  // B등급: 1.2배
+            case ItemGrade.C: return 1.0f;  // C등급: 기본
+            case ItemGrade.D: return 0.8f;  // D등급: 0.8배
+            default: return 1.0f;
+        }
+    }
+    
+    #endregion
+    
+    #region ⭐ Phase 2: 등급별 공격 범위 시스템
+    
+    /// <summary>
+    /// 무기 등급에 따른 콜라이더 크기 조절
+    /// </summary>
+    public void UpdateWeaponColliderSize()
+    {
+        if (equipmentData == null)
+        {
+            Debug.LogWarning("🟡 [Sword] EquipmentData가 null이어서 콜라이더 크기를 조절할 수 없습니다.");
+            return;
+        }
+        
+        var playerController = FindObjectOfType<PlayerController>();
+        if (playerController == null)
+        {
+            Debug.LogWarning("🟡 [Sword] PlayerController를 찾을 수 없습니다.");
+            return;
+        }
+        
+        Transform weaponCollider = playerController.GetWeaponCollider();
+        if (weaponCollider == null)
+        {
+            Debug.LogWarning("🟡 [Sword] WeaponCollider를 찾을 수 없습니다.");
+            return;
+        }
+        
+        // ⭐ 등급별 스케일 배율
+        float sizeMultiplier = GetColliderSizeMultiplier();
+        
+        // BoxCollider2D 또는 PolygonCollider2D 조절
+        var boxCollider = weaponCollider.GetComponent<BoxCollider2D>();
+        var polygonCollider = weaponCollider.GetComponent<PolygonCollider2D>();
+        
+        if (boxCollider != null)
+        {
+            // 기본 크기 설정 (C등급 기준)
+            Vector2 baseSize = new Vector2(1.5f, 0.8f); // 검의 기본 크기
+            boxCollider.size = baseSize * sizeMultiplier;
+            
+            if (showDebugLogs)
+                Debug.Log($"⚔️ [Sword] BoxCollider 크기 조절: {boxCollider.size} (등급: {equipmentData.itemGrade}, 배율: {sizeMultiplier})");
+        }
+        else if (polygonCollider != null)
+        {
+            // PolygonCollider는 localScale로 조절
+            weaponCollider.localScale = Vector3.one * sizeMultiplier;
+            
+            if (showDebugLogs)
+                Debug.Log($"⚔️ [Sword] PolygonCollider 스케일 조절: {sizeMultiplier} (등급: {equipmentData.itemGrade})");
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [Sword] WeaponCollider에 BoxCollider2D나 PolygonCollider2D가 없습니다.");
+        }
+    }
+    
+    /// <summary>
+    /// 등급별 콜라이더 크기 배율
+    /// </summary>
+    private float GetColliderSizeMultiplier()
+    {
+        if (equipmentData == null) return 1.0f;
+        
+        switch (equipmentData.itemGrade)
+        {
+            case ItemGrade.S: return 1.5f;   // S등급: 1.5배 크기
+            case ItemGrade.A: return 1.3f;   // A등급: 1.3배
+            case ItemGrade.B: return 1.15f;  // B등급: 1.15배
+            case ItemGrade.C: return 1.0f;   // C등급: 기본
+            case ItemGrade.D: return 0.85f;  // D등급: 0.85배
+            default: return 1.0f;
+        }
+    }
+    
+    #endregion
 } 

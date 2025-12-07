@@ -454,7 +454,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
-  m_SortingOrder: 0
+  m_SortingOrder: 1000
   m_Sprite: {fileID: -75224854, guid: 478a100d121726e43b8030f7be703933, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -789,3 +789,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47d4906c2d948014c9c5d5e846271c64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  detectionRadius: 2
+  occluderLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  checkInterval: 0.2
+  sortingOrderBuffer: 50
+  enableDebugLogs: 0
+  showDetectionGizmo: 0

@@ -28,12 +28,12 @@ MonoBehaviour:
   weaponRange: 12
   armorType: 0
   attackDamage: 5
-  attackSpeed: 5
+  attackSpeed: 20
   attackRange: 8
   attackShape: 2
   criticalChance: 8
   criticalDamage: 2
-  projectileId: PRO_WEAPON_BOW_1
+  projectileId: Arrow_B
   defenseBonus: 0
   speedBonus: 0
   healthBonus: 0

@@ -138,9 +138,17 @@ namespace CueSystem
                 return false;
             }
             
-            // 스케일 적용
-            if (vfxCue.scale != Vector3.one)
-                vfxObj.transform.localScale = Vector3.Scale(vfxObj.transform.localScale, vfxCue.scale);
+            // 스케일 적용 (context.scale 우선, 직접 할당으로 누적 방지)
+            if (context.scale > 0)
+            {
+                // 동적 스케일 우선 (스킬 레벨 등)
+                vfxObj.transform.localScale = vfxCue.scale * context.scale;
+            }
+            else if (vfxCue.scale != Vector3.one)
+            {
+                // 정적 스케일 (CueProfile 기본값)
+                vfxObj.transform.localScale = vfxCue.scale;
+            }
 
             // 🆕 아이소메트릭 소팅 자동 적용 (EFFECT_LAYER = 2000 사용)
             IsometricSorting.ApplyEffectSorting(vfxObj, spawnPos);

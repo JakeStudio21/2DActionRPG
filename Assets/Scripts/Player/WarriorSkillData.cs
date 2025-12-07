@@ -46,4 +46,18 @@ public class WarriorSkillData : BaseSkillData
     
     [Tooltip("베기 이펙트 풀 이름")]
     public string slashEffectPoolName = "SlashEffect";
+    
+    [Header("⭐ Phase 3: AOE 설정")]
+    [Tooltip("AOE 형태 (Circle/Rectangle/Fan/Line)")]
+    public SkillAOEShape aoeShape = SkillAOEShape.Rectangle;
+    
+    [Tooltip("AOE 크기 (x=반지름 또는 가로, y=세로)")]
+    public Vector2 aoeSize = new Vector2(4f, 2f);
+    
+    [Tooltip("부채꼴 각도 (Fan일 때만)")]
+    [Range(0f, 360f)]
+    public float aoeFanAngle = 90f;
+    
+    [Tooltip("AOE 지속시간 (초)")]
+    public float aoeDuration = 0.5f;
 }

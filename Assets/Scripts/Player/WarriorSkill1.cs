@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using CueSystem; // ⭐ Warrior Skill 이펙트 시스템
 
 /// <summary>
 /// 워리어 스킬1: Dash Attack (돌진 공격)
@@ -78,6 +79,9 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
         Debug.Log($"   - 돌진 속도: {SkillData.dashSpeed}");
         Debug.Log($"   - 돌진 범위: {SkillData.dashRange}");
         Debug.Log($"   - 공격 횟수: {SkillData.attackCount}");
+        
+        // ⭐ 1단계: Cast 이펙트를 제일 먼저 발동 (애니메이션 시작과 동시)
+        EmitSkillCastCue();
         
         // 원래 위치 저장
         originalPosition = transform.position;
@@ -213,17 +217,19 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
                 Debug.Log("🔄 [WarriorSkill1] 플레이어 속도 초기화");
         }
         
-        // 돌진 이펙트 생성
-        if (SkillData.dashEffectPrefab != null)
-        {
-            SpawnEffect(SkillData.dashEffectPrefab, transform.position, transform.rotation);
-        }
+        // ⭐ Cast 이펙트는 OnAnimationEvent()에서 이미 발동됨
         
-        // 돌진 실행
+        // ⭐ 0.3초 딜레이 (차징 느낌)
+        yield return new WaitForSeconds(0.3f);
+        
+        // ⭐ 2단계: AOE 이펙트 (돌진 경로 전체)
+        EmitSkillAOECue();
+        
+        // ⭐ AOE 비주얼 생성 (주황색 반투명 영역)
+        SpawnSkillAOE();
+        
+        // 돌진 실행 (돌진 중 적 감지 및 Hit 이펙트 포함)
         yield return StartCoroutine(PerformDash());
-        
-        // 연속 공격 실행
-        yield return StartCoroutine(PerformComboAttacks());
         
         // ⭐ 핵심 수정: PlayerController 재활성화
         if (playerController != null)
@@ -286,6 +292,9 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
         float dashTime = SkillData.dashRange / SkillData.dashSpeed;
         float elapsedTime = 0f;
         
+        // ⭐ 돌진 중 맞은 적 추적 (중복 데미지 방지)
+        System.Collections.Generic.HashSet<Collider2D> hitEnemies = new System.Collections.Generic.HashSet<Collider2D>();
+        
         while (elapsedTime < dashTime)
         {
             elapsedTime += Time.deltaTime;
@@ -293,6 +302,8 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
             
             Vector3 currentPos = Vector3.Lerp(originalPosition, targetPosition, progress);
             playerRigidbody.MovePosition(currentPos);
+            
+            // ⭐ 3단계: 적 감지는 PlayerSkillAOEDamage가 자동 처리
             
             // ⭐ 중간 진행상황 로깅 (5번만)
             if (showDebugLogs && (int)(progress * 5) > (int)((progress - Time.deltaTime / dashTime) * 5))
@@ -309,58 +320,10 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
         if (showDebugLogs)
         {
             float actualDistance = Vector3.Distance(originalPosition, transform.position);
-            Debug.Log($"🏃 [WarriorSkill1] 돌진 완료 - 실제 이동 거리: {actualDistance:F1}");
+            Debug.Log($"🏃 [WarriorSkill1] 돌진 완료 - 실제 이동 거리: {actualDistance:F1}, 맞은 적: {hitEnemies.Count}명");
         }
     }
     
-    /// <summary>
-    /// 연속 공격 실행
-    /// </summary>
-    private IEnumerator PerformComboAttacks()
-    {
-        int attackCount = SkillData.attackCount;
-        float attackDelay = SkillData.attackDelay;
-        float attackRadius = SkillData.attackRadius;
-        
-        for (int i = 0; i < attackCount; i++)
-        {
-            // 공격 범위 내 적들 탐지
-            Collider2D[] enemies = Physics2D.OverlapCircleAll(
-                transform.position, 
-                attackRadius, 
-                LayerMask.GetMask("Enemy")
-            );
-            
-            // 데미지 적용
-            foreach (var enemy in enemies)
-            {
-                var enemyHealth = enemy.GetComponent<EnemyHealth>();
-                if (enemyHealth != null)
-                {
-                    // EnemyHealth.TakeDamage는 int 하나만 받음
-                    enemyHealth.TakeDamage((int)BaseDamage);
-                    
-                    if (showDebugLogs)
-                        Debug.Log($"⚔️ [WarriorSkill1] {enemy.name}에게 {BaseDamage} 데미지!");
-                }
-            }
-            
-            // 베기 이펙트 생성
-            if (SkillData.slashEffectPrefab != null)
-            {
-                SpawnEffect(SkillData.slashEffectPrefab, transform.position, transform.rotation);
-            }
-            
-            // 다음 공격까지 대기 (마지막 공격이 아닌 경우)
-            if (i < attackCount - 1)
-            {
-                yield return new WaitForSeconds(attackDelay);
-            }
-        }
-        
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [WarriorSkill1] {attackCount}연속 공격 완료!");
-    }
     
     #endregion
     
@@ -453,4 +416,94 @@ public class WarriorSkill1 : BaseSkill<WarriorSkillData>
             yield return new WaitForSeconds(1f / 60f);
         }
     }
+    
+    /// <summary>
+    /// ⭐ AOE 비주얼 생성 (주황색 반투명 영역)
+    /// </summary>
+    private void SpawnSkillAOE()
+    {
+        if (!IsSkillDataValid) return;
+        
+        // 방향 결정 (마지막 공격 방향 사용)
+        Vector2 direction = lastAttackDirection.magnitude > 0.1f ? lastAttackDirection : Vector2.right;
+        
+        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
+        SkillAOESpawner.SpawnAOE(
+            SkillData.aoeShape,
+            transform.position,
+            direction,
+            SkillData.aoeSize,
+            SkillData.aoeFanAngle,
+            SkillData.damage,
+            SkillData.aoeDuration,
+            LayerMask.GetMask("Enemy"),
+            "skill.warrior.skill1.hit",  // ⭐ Hit Cue 이벤트 키
+            this
+        );
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [WarriorSkill1] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
+    }
+    
+    #region ⭐ 스킬 이펙트 Cue 시스템 (Cast → AOE → Hit)
+    
+    /// <summary>
+    /// 1단계: 스킬 시전 이펙트 (Cast)
+    /// </summary>
+    private void EmitSkillCastCue()
+    {
+        // 방향 결정
+        Vector2 direction = lastAttackDirection.magnitude > 0.1f ? lastAttackDirection : Vector2.right;
+        
+        // 각도 계산 (회전만 사용)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = rotation,
+            actorType = ActorType.Player,
+            magnitude = 1.5f,
+            surfaceType = SurfaceType.Default,
+            facingDir = direction,
+            follow = transform
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.warrior.skill1.cast", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"⚔️ [WarriorSkill1] Cast Cue 발행 (돌진 시작, 각도: {angle:F1}°) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// 2단계: AOE 범위 이펙트 (돌진 경로 전체)
+    /// </summary>
+    private void EmitSkillAOECue()
+    {
+        // 방향 결정
+        Vector2 direction = lastAttackDirection.magnitude > 0.1f ? lastAttackDirection : Vector2.right;
+        
+        // 각도 계산 (회전만 사용)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.Euler(0, 0, angle);
+        
+        var context = new CueContext
+        {
+            position = transform.position, // 돌진 시작 위치
+            rotation = rotation,
+            actorType = ActorType.Player,
+            magnitude = 2.0f, // 돌진 강도
+            surfaceType = SurfaceType.Default,
+            facingDir = direction,
+            scale = 1.0f  // ⭐ 명시적 선언 (향후 GetSkillLevelScale()로 변경 가능)
+        };
+        
+        bool cueSuccess = CueEmitter.Emit("skill.warrior.skill1.aoe", "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"⚔️ [WarriorSkill1] AOE Cue 발행 (돌진 경로, 각도: {angle:F1}°) → {cueSuccess}");
+    }
+    
+    #endregion
 }

@@ -626,5 +626,191 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: FX_PF_Electricity_Slash_01
+    prefab: {fileID: 7502250425806291784, guid: 07baebcac6175074f9b2b86ab3fd8bbf, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_S_Effect
+    prefab: {fileID: 7502250425806291784, guid: 871be6227cccd0f419775463b85f4d00, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_A_Effect
+    prefab: {fileID: 7502250425806291784, guid: 787d7864554ead14082ad0f028da6b38, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_B_Effect
+    prefab: {fileID: 7502250425806291784, guid: e60ef66583c25e54f8985d9eda7f2efd, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_C_Effect
+    prefab: {fileID: 7502250425806291784, guid: 12e330c74502aea48b17b19156dec2a1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_D_Effect
+    prefab: {fileID: 7502250425806291784, guid: a15e655533f99384d9f4f84e9ed51559, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_S
+    prefab: {fileID: 1625881847255917415, guid: 13b7993b92e2829418f13883adc11c1b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_A
+    prefab: {fileID: 1625881847255917415, guid: a570ff5c164385c44970fb95ddcbc2ae, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_B
+    prefab: {fileID: 1625881847255917415, guid: 001deb3a5ba65144ca405d025176afd4, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_C
+    prefab: {fileID: 1625881847255917415, guid: 29f50b9dfdc1356418ffb92dec9be2a6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_D
+    prefab: {fileID: 1625881847255917415, guid: cc6c02def7ddcb241a1a7b1fcc402e60, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_S
+    prefab: {fileID: 4186470608034871016, guid: 3b50e1877bbe6864aa902408559cf11e, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_A
+    prefab: {fileID: 4186470608034871016, guid: f6461b1af7b35c44cbedbd8f7d8e35ad, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_B
+    prefab: {fileID: 4186470608034871016, guid: 6ff1d7a2afd8c5a44a97d456f023b4d1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_C
+    prefab: {fileID: 4186470608034871016, guid: 3dd2aebcc29f67d48bbb81c299a4aa05, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_D
+    prefab: {fileID: 4186470608034871016, guid: a42f46903f50b4d49be4ff5b6f1a91bc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_S
+    prefab: {fileID: 4186470608034871016, guid: 5e108dd8d0b9d294e8dba70f2f281465, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_A
+    prefab: {fileID: 4186470608034871016, guid: 8a88e8bf65d663042b25e0fbeecd7639, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_B
+    prefab: {fileID: 4186470608034871016, guid: 70ebca9d5fa456e4b969be91f82cdcfa, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_C
+    prefab: {fileID: 4186470608034871016, guid: 36d844b35f9844745b1889ba7574d132, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_D
+    prefab: {fileID: 4186470608034871016, guid: 068113f0c3ce66b41b93c81004f978d6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WarriorImpactEffect
+    prefab: {fileID: 8683933021285538514, guid: 506cd49043a8618429e82330f09a61eb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WarriorSlashAreaEffect
+    prefab: {fileID: 3156866507962234106, guid: c37d9a12995e3d5458ca015d30db56df, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WarriorDashEffect
+    prefab: {fileID: 9103632281160831739, guid: 51b1d0e0936800c41a01cb19f101f953, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Shockwave_Slash_Effect
+    prefab: {fileID: 7502250425806291784, guid: 1b916a9e567ce4b49b97f2b89339abad, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Shockwave_AOE_Effect
+    prefab: {fileID: 3156866507962234106, guid: 96377ab1dae0e12459be8e08167871f4, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitSpark_Dust_Effect
+    prefab: {fileID: 8683933021285538514, guid: f37d2194aeb700c4a8288499b0ce1a49, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowCone_AOE_Effect
+    prefab: {fileID: 1610135258165438031, guid: 108071442001d8147aae018ae9986bcb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ExplosionCircle_AOE_Effect
+    prefab: {fileID: 6046721123087866165, guid: da90519ad97a2064c996c9d5cc29bfd6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fire_Projectile_Effect
+    prefab: {fileID: 1597112295188672555, guid: 285ee1c9be918c44a8139755b67d3918, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: PlayerDashEffect
+    prefab: {fileID: 9103632281160831739, guid: a85f8dc19fc1a7a44bc0cb00de3b4470, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

@@ -42,4 +42,18 @@ public class AssasinSkillData : BaseSkillData
     [Tooltip("회피 확률 보너스 (0.0 ~ 1.0)")]
     [Range(0f, 1f)]
     public float dodgeChanceBonus = 0.05f;
+    
+    [Header("⭐ Phase 3: AOE 설정")]
+    [Tooltip("AOE 형태 (Circle/Rectangle/Fan/Line)")]
+    public SkillAOEShape aoeShape = SkillAOEShape.Fan;
+    
+    [Tooltip("AOE 크기 (x=반지름 또는 가로, y=세로)")]
+    public Vector2 aoeSize = new Vector2(3f, 2f);
+    
+    [Tooltip("부채꼴 각도 (Fan일 때만)")]
+    [Range(0f, 360f)]
+    public float aoeFanAngle = 90f;
+    
+    [Tooltip("AOE 지속시간 (초)")]
+    public float aoeDuration = 0.5f;
 }

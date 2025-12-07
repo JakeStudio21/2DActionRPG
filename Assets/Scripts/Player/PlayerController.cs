@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CueSystem;
 
 /// <summary>
 /// 플레이어 공격 타입별 이동 제한 분류
@@ -95,6 +96,10 @@ public class PlayerController : MonoBehaviour
         knockback = GetComponent<Knockback>();
         playerHealth = FindObjectOfType<PlayerHealth>(); // ✅ 한 번만 찾고 캐시
         // 조이스틱 초기화는 Start에서 코루틴으로 처리
+        
+        // ⭐ Trail Renderer 초기 비활성화
+        if (myTrailRenderer != null)
+            myTrailRenderer.emitting = false;
     }
 
     private void Start()
@@ -586,6 +591,27 @@ public class PlayerController : MonoBehaviour
             isDashing = true;
             moveSpeed += dashspeed;
             myTrailRenderer.emitting = true;
+            
+            // ⭐ CueSystem으로 Dash 이펙트 발행
+            Vector2 dashDirection = movement.magnitude > 0.1f ? movement.normalized : Vector2.right;
+            float angle = Mathf.Atan2(dashDirection.y, dashDirection.x) * Mathf.Rad2Deg + 180f;  // 뒤로 이펙트
+            
+            var context = new CueContext
+            {
+                position = transform.position,
+                rotation = Quaternion.Euler(0, 0, angle),
+                actorType = ActorType.Player,
+                magnitude = 1.5f,
+                surfaceType = SurfaceType.Default,
+                facingDir = dashDirection,
+                follow = transform  // 캐릭터 따라다님
+            };
+            
+            bool cueSuccess = CueEmitter.Emit("player.dash.start", "Player", context);
+            
+            if (showDebugLogs)
+                Debug.Log($"🏃 [Dash] 이펙트 발행 → {cueSuccess}, 방향: {dashDirection}, 각도: {angle:F1}°");
+            
             StartCoroutine(EndDashRoutine());
         }
     }
@@ -606,6 +632,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSecondsRealtime(dashTime);
         moveSpeed = startingMoveSpeed;
         myTrailRenderer.emitting = false;
+        
         yield return new WaitForSecondsRealtime(dashCD);
         isDashing = false;
     }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using CueSystem; // ⭐ Phase 1-2: 히트 이펙트 Cue 시스템
 
 public class Projectile : MonoBehaviour
 {
@@ -12,10 +13,17 @@ public class Projectile : MonoBehaviour
 
     // 스킬 레벨별 이펙트 프리팹 배열 (Inspector에서 할당)
     public GameObject[] arrowEffectPrefabs;
+    
+    [Header("디버그")]
+    [SerializeField] private bool showDebugLogs = false;
 
     private Vector3 startPosition;
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
     private bool needsStartPositionUpdate = false; // 🔑 startPosition 업데이트 플래그
+    
+    // ⭐ Phase 1-2: 등급 정보 저장
+    private ItemGrade projectileGrade = ItemGrade.C;
+    private WeaponType weaponType = WeaponType.Bow;
 
     [Header("🏹 궤도 시스템")]
     [SerializeField] private TrajectoryType trajectoryType = TrajectoryType.Straight;
@@ -112,9 +120,12 @@ public class Projectile : MonoBehaviour
                     // 플레이어가 쏘는 발사체의 데미지 로직 (필요 시 수정)
                     int playerProjectileDamage = 1; // 예시 데미지
                     enemyHealth.TakeDamage(playerProjectileDamage);
+                    
+                    // ⭐ Phase 1-2: 히트 이펙트 Cue 발행 (플레이어 발사체만)
+                    EmitHitEffectCue(transform.position);
                 }
 
-                // 🔑 VFX 생성
+                // 🔑 VFX 생성 (Fallback)
                 if (particleOnHitPrefabVFX != null)
                 {
                     GamePoolManager.Instance.SpawnFromPool(particleOnHitPrefabVFX.name, transform.position, transform.rotation);
@@ -249,16 +260,39 @@ public class Projectile : MonoBehaviour
         if (trajectoryType == TrajectoryType.Arc)
         {
             // 포물선용 타겟 위치 계산 (사거리 기반)
-            // initialDirection = transform.right; // 현재 회전 방향
             initialDirection = transform.rotation * Vector3.right; // 실제 회전된 방향
-            targetPosition = transform.position + initialDirection * projectileRange;
-            totalDistance = Vector3.Distance(transform.position, targetPosition);
             
-            Debug.Log($"🏹 [Projectile] 포물선 궤도 초기화 - 타겟: {targetPosition}, 거리: {totalDistance:F2}");
-            Debug.Log($"🎯 [Projectile] 실제 발사 방향: {initialDirection}, 회전: {transform.rotation.eulerAngles}");
+            // ⭐ 아이소메트릭 수정: 방향을 정규화하여 일정한 거리 보장
+            initialDirection.Normalize();
+            targetPosition = transform.position + initialDirection * projectileRange;
+            
+            // ⭐ 거리는 projectileRange 고정 (3D Distance 사용 안 함)
+            totalDistance = projectileRange;
+            
+            Debug.Log($"🏹 [Projectile] 포물선 궤도 초기화 - Start: {transform.position}, Target: {targetPosition}, 고정거리: {totalDistance:F2}");
+            Debug.Log($"🎯 [Projectile] 정규화 방향: {initialDirection}, 회전: {transform.rotation.eulerAngles}");
         }
     }
 
+    /// <summary>
+    /// 방향을 이름으로 변환 (디버그용)
+    /// </summary>
+    private string GetDirectionName(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
+        if (angle >= -22.5f && angle < 22.5f) return "E";
+        if (angle >= 22.5f && angle < 67.5f) return "NE";
+        if (angle >= 67.5f && angle < 112.5f) return "N";
+        if (angle >= 112.5f && angle < 157.5f) return "NW";
+        if (angle >= 157.5f || angle < -157.5f) return "W";
+        if (angle >= -157.5f && angle < -112.5f) return "SW";
+        if (angle >= -112.5f && angle < -67.5f) return "S";
+        if (angle >= -67.5f && angle < -22.5f) return "SE";
+        
+        return "UNKNOWN";
+    }
+    
     /// <summary>
     /// 🔧 지연된 TrailRenderer 초기화 (위치 설정 후)
     /// </summary>
@@ -313,7 +347,9 @@ public class Projectile : MonoBehaviour
         // 🆕 디버그: 첫 프레임에만 로그 출력
         if (traveledDistance == 0f)
         {
-            Debug.Log($"🏹 [MoveInArc] 포물선 이동 시작 - Start: {startPosition}, Target: {targetPosition}");
+            Vector2 direction2D = (targetPosition - startPosition).normalized;
+            string directionName = GetDirectionName(direction2D);
+            Debug.Log($"🏹 [MoveInArc] 포물선 이동 시작 [{directionName}] - Start: {startPosition}, Target: {targetPosition}, 거리: {totalDistance:F2}");
         }
         
         // 거리 업데이트
@@ -332,15 +368,13 @@ public class Projectile : MonoBehaviour
         // 최종 위치 설정
         transform.position = linearPosition + Vector3.up * heightOffset;
         
-        // 🔧 바닥 도달 체크 및 풀링 반환 (개선된 방식)
-        float groundLevel = startPosition.y - 0.1f; // 시작 지점보다 약간 아래를 바닥으로 간주 (여유 공간)
-        bool reachedGround = transform.position.y <= groundLevel;
-        bool reachedMaxDistance = progress >= 1.0f;
-        
-        if (reachedGround || reachedMaxDistance)
+        // ⭐ 아이소메트릭 수정: progress >= 1.0만으로 착탄 판정 (groundLevel 제거)
+        // 이유: 아이소메트릭에서 startPosition.y는 방향에 따라 달라져서 일관성 없음
+        if (progress >= 1.0f)
         {
-            string reason = reachedGround ? "바닥 도달" : "최대 거리 도달";
-            Debug.Log($"🏹 [MoveInArc] 포물선 완료! 사유: {reason}, Y좌표: {transform.position.y:F2} (기준: {groundLevel:F2}), progress: {progress:F3}");
+            float actualDistance = Vector2.Distance(new Vector2(startPosition.x, startPosition.y), 
+                                                    new Vector2(transform.position.x, transform.position.y));
+            Debug.Log($"🎯 [MoveInArc] 포물선 착탄! progress: {progress:F3}, 실제거리: {actualDistance:F2}, 목표거리: {totalDistance:F2}");
             ReturnProjectileToPool();
             return;
         }
@@ -360,6 +394,91 @@ public class Projectile : MonoBehaviour
             }
         }
     }
+    
+    #region ⭐ Phase 1-2: 등급별 히트 이펙트 시스템
+    
+    /// <summary>
+    /// 발사체 초기화 (무기에서 호출)
+    /// </summary>
+    public void Initialize(ItemGrade grade, WeaponType type)
+    {
+        projectileGrade = grade;
+        weaponType = type;
+        
+        if (showDebugLogs)
+            Debug.Log($"🏹 [Projectile] 초기화: 등급={grade}, 타입={type}");
+    }
+    
+    /// <summary>
+    /// 🎨 히트 이펙트 발행 (등급별)
+    /// </summary>
+    private void EmitHitEffectCue(Vector3 hitPosition)
+    {
+        // 등급별 히트 이벤트 키 생성
+        string eventKey = GetHitEffectEventKey();
+        float magnitude = GetHitMagnitudeByGrade();
+        
+        var context = new CueContext
+        {
+            position = hitPosition,
+            rotation = transform.rotation,
+            actorType = ActorType.Player,
+            magnitude = magnitude,
+            isCritical = false, // 크리티컬은 별도 판정
+            surfaceType = SurfaceType.Default
+        };
+        
+        bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [Projectile] Hit Effect Cue 발행: {eventKey} (등급: {projectileGrade}, 강도: {magnitude}) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// 등급별 히트 이벤트 키
+    /// </summary>
+    private string GetHitEffectEventKey()
+    {
+        // 무기 타입 문자열
+        string weaponTypeStr = weaponType == WeaponType.Bow ? "arrow" : 
+                               weaponType == WeaponType.Magic ? "magic" : 
+                               "ranged";
+        
+        // 등급별 이벤트 키
+        switch (projectileGrade)
+        {
+            case ItemGrade.S:
+                return $"hit.player.{weaponTypeStr}_s";
+            case ItemGrade.A:
+                return $"hit.player.{weaponTypeStr}_a";
+            case ItemGrade.B:
+                return $"hit.player.{weaponTypeStr}_b";
+            case ItemGrade.C:
+                return $"hit.player.{weaponTypeStr}_c";
+            case ItemGrade.D:
+                return $"hit.player.{weaponTypeStr}_d";
+            default:
+                return "hit.player.normal"; // fallback
+        }
+    }
+    
+    /// <summary>
+    /// 등급별 히트 이펙트 강도
+    /// </summary>
+    private float GetHitMagnitudeByGrade()
+    {
+        switch (projectileGrade)
+        {
+            case ItemGrade.S: return 2.5f;
+            case ItemGrade.A: return 1.8f;
+            case ItemGrade.B: return 1.3f;
+            case ItemGrade.C: return 1.0f;
+            case ItemGrade.D: return 0.7f;
+            default: return 1.0f;
+        }
+    }
+    
+    #endregion
 
 /// <summary>
 /// 발사체 궤도 타입
