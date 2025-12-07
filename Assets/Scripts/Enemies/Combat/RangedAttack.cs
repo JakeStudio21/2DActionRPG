@@ -142,8 +142,8 @@ public class RangedAttack : BaseAttackBehaviour
         // ⭐ 새 시스템: 머즐 플래시 이펙트
         PlayMuzzleFlashEffect();
         
-        // 발사체 생성
-        Vector3 spawnPosition = projectileSpawnPoint.position;
+        // ⭐ 동적 발사 위치 계산 (모든 8방향 대응)
+        Vector3 spawnPosition = CalculateDynamicSpawnPosition();
         GameObject proj = CreateProjectile(currentProjectilePrefab, spawnPosition);
         
         if (proj != null)
@@ -175,6 +175,34 @@ public class RangedAttack : BaseAttackBehaviour
         
         // 2순위: Inspector 설정 (기존 방식)
         return projectilePrefab;
+    }
+    
+    /// <summary>
+    /// ⭐ 동적 발사 위치 계산 - 플레이어 방식 모방 (8방향 대응)
+    /// </summary>
+    private Vector3 CalculateDynamicSpawnPosition()
+    {
+        // 저장된 공격 방향 사용 (OnAttack에서 설정됨)
+        Vector2 attackDirection = savedAttackDirection.normalized;
+        
+        // 발사 거리 계산 (ProjectileSpawnPoint의 로컬 위치 magnitude 사용)
+        float spawnDistance = 0.8f; // 기본값
+        
+        if (projectileSpawnPoint != null)
+        {
+            // ProjectileSpawnPoint의 로컬 위치 magnitude를 발사 거리로 사용
+            Vector3 localPos = projectileSpawnPoint.localPosition;
+            spawnDistance = new Vector2(localPos.x, localPos.y).magnitude;
+            
+            Debug.Log($"[RangedAttack] 발사 거리: {spawnDistance:F2} (ProjectileSpawnPoint 기준)");
+        }
+        
+        // ⭐ 핵심 계산: 몬스터 중심 + (공격 방향 * 거리)
+        Vector3 dynamicSpawnPosition = transform.position + (Vector3)(attackDirection * spawnDistance);
+        
+        Debug.Log($"[RangedAttack] 동적 발사 위치 계산 - 방향: {attackDirection}, 거리: {spawnDistance:F2}, 최종 위치: {dynamicSpawnPosition}");
+        
+        return dynamicSpawnPosition;
     }
     
     /// <summary>
@@ -538,8 +566,12 @@ public class RangedAttack : BaseAttackBehaviour
         
         if (effectToPlay != null)
         {
-            GameObject effect = Instantiate(effectToPlay, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-            Debug.Log($"[RangedAttack] 머즐 플래시 이펙트 재생: {effectToPlay.name}");
+            // ⭐ 동적 발사 위치 사용
+            Vector3 effectPosition = CalculateDynamicSpawnPosition();
+            Quaternion effectRotation = CalculateProjectileRotation();
+            
+            GameObject effect = Instantiate(effectToPlay, effectPosition, effectRotation);
+            Debug.Log($"[RangedAttack] 머즐 플래시 이펙트 재생: {effectToPlay.name} at {effectPosition}");
         }
     }
     
@@ -636,25 +668,43 @@ public class RangedAttack : BaseAttackBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, GetScaledRange());
         
-        // 발사 지점 표시
-        if (projectileSpawnPoint != null)
+        // ⭐ 동적 발사 위치 표시 (Play 모드에서만)
+        Vector3 displaySpawnPosition;
+        if (Application.isPlaying && savedAttackDirection.magnitude > 0.1f)
         {
+            // Play 모드: 동적 계산된 위치 표시
+            displaySpawnPosition = CalculateDynamicSpawnPosition();
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(projectileSpawnPoint.position, 0.2f);
+            Gizmos.DrawWireSphere(displaySpawnPosition, 0.25f);
             
-            // 발사 방향 표시
-            if (cachedPlayer != null)
-            {
-                Vector3 direction = GetAdjustedAimDirection();
-                Gizmos.color = Color.green;
-                Gizmos.DrawRay(projectileSpawnPoint.position, direction * GetScaledRange());
-                
-                // 예측 위치 표시
-                Vector3 predictedPos = GetPredictedPlayerPosition();
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireSphere(predictedPos, 0.3f);
-                Gizmos.DrawLine(projectileSpawnPoint.position, predictedPos);
-            }
+            // 몬스터 중심에서 발사 위치까지 선 그리기
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(transform.position, displaySpawnPosition);
+        }
+        else if (projectileSpawnPoint != null)
+        {
+            // 에디터 모드: 기존 SpawnPoint 위치 표시
+            displaySpawnPosition = projectileSpawnPoint.position;
+            Gizmos.color = Color.gray;
+            Gizmos.DrawWireSphere(displaySpawnPosition, 0.2f);
+        }
+        else
+        {
+            displaySpawnPosition = transform.position;
+        }
+        
+        // 발사 방향 표시
+        if (cachedPlayer != null)
+        {
+            Vector3 direction = GetAdjustedAimDirection();
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(displaySpawnPosition, direction * GetScaledRange());
+            
+            // 예측 위치 표시
+            Vector3 predictedPos = GetPredictedPlayerPosition();
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(predictedPos, 0.3f);
+            Gizmos.DrawLine(displaySpawnPosition, predictedPos);
         }
     }
     
@@ -673,6 +723,20 @@ public class RangedAttack : BaseAttackBehaviour
         info += $"Aim Accuracy: {aimAccuracy * 100:F0}%\n";
         info += $"Prediction Factor: {predictionFactor:F1}\n";
         info += $"Active Projectiles: {activProjectiles.Count}개\n";
+        
+        // ⭐ 동적 발사 위치 정보 추가
+        info += "\n=== 발사 위치 시스템 ===\n";
+        info += $"Saved Attack Direction: {savedAttackDirection}\n";
+        if (projectileSpawnPoint != null)
+        {
+            float spawnDistance = new Vector2(projectileSpawnPoint.localPosition.x, projectileSpawnPoint.localPosition.y).magnitude;
+            info += $"Spawn Distance: {spawnDistance:F2}\n";
+            info += $"Dynamic Spawn Position: {CalculateDynamicSpawnPosition()}\n";
+        }
+        else
+        {
+            info += "ProjectileSpawnPoint: 없음\n";
+        }
         
         if (AttackData != null)
         {
@@ -724,10 +788,13 @@ public class RangedAttack : BaseAttackBehaviour
     {
         try
         {
+            // ⭐ 동적 발사 위치 사용
+            Vector3 dynamicPosition = CalculateDynamicSpawnPosition();
+            
             // CueContext 생성
             var context = new CueContext
             {
-                position = projectileSpawnPoint.position,
+                position = dynamicPosition,
                 rotation = CalculateProjectileRotation(),
                 normal = Vector3.up,
                 facingDir = GetAimDirection(),

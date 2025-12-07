@@ -847,6 +847,10 @@ public class StageManager : MonoBehaviour
             {
                 return monsterID.Contains("BOSS") ? "Mimic_BossData" : "MimicData";
             }
+            else if (monsterID.Contains("PLANTS") || monsterID.Contains("PLANT"))
+            {
+                return monsterID.Contains("BOSS") ? "PlantsMonster_BossData" : "PlantsMonsterData";
+            }
             
             return $"{monsterID}Data"; // 기본값
         }
