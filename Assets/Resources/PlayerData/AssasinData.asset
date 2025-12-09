@@ -29,7 +29,7 @@ MonoBehaviour:
   description: 
   attackPowerMultiplier: 1.1
   moveSpeedMultiplier: 1.1
-  skillCooldownMultiplier: 3
+  skillCooldownMultiplier: 1
   healthMultiplier: 1
   assasinStealthDuration: 2
   assasinDodgeChance: 0.1

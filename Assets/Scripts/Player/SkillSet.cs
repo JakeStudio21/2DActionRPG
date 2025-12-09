@@ -132,13 +132,8 @@ public class SkillSet
         if (showDebugLogs)
             Debug.Log($"🔵 [SkillSet] 슬롯 {slot} 스킬 '{skill.SkillName}' Animation Event 호출");
             
-        // ⭐ 추가: 스킬 실행 가능 여부 체크
-        if (!skill.CanUse())
-        {
-            Debug.LogWarning($"🟡 [SkillSet] 스킬 '{skill.SkillName}' 사용 불가능 (쿨다운: {skill.GetCooldownRemaining():F1}초)");
-            return;
-        }
-            
+        // ⭐ CanUse() 체크 제거: Animation Event는 이미 실행된 스킬의 결과이므로 무조건 실행
+        // 쿨다운 체크는 TriggerSkill1/2()에서 이미 수행됨
         skill.OnAnimationEvent();
     }
     

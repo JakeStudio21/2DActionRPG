@@ -619,6 +619,32 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnSkill1Start()
     {
+        // ⭐ BaseSkill 쿨다운 시작
+        if (skillController != null)
+        {
+            var skill1 = skillController.SkillSet?.GetSkill(0);
+            if (skill1 != null)
+            {
+                // Reflection으로 lastSkillTime 설정
+                var baseType = skill1.GetType().BaseType;
+                while (baseType != null && !baseType.IsGenericType)
+                {
+                    baseType = baseType.BaseType;
+                }
+                
+                if (baseType != null)
+                {
+                    var field = baseType.GetField("lastSkillTime", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (field != null)
+                    {
+                        field.SetValue(skill1, Time.time);
+                        Debug.Log($"🕐 [OnSkill1Start] BaseSkill 쿨다운 시작: {skill1.SkillName} (쿨다운: {skill1.Cooldown}초)");
+                    }
+                }
+            }
+        }
+        
         ExecuteSkill1();
     }
     
@@ -646,6 +672,32 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnSkill2Start()
     {
+        // ⭐ BaseSkill 쿨다운 시작
+        if (skillController != null)
+        {
+            var skill2 = skillController.SkillSet?.GetSkill(1);
+            if (skill2 != null)
+            {
+                // Reflection으로 lastSkillTime 설정
+                var baseType = skill2.GetType().BaseType;
+                while (baseType != null && !baseType.IsGenericType)
+                {
+                    baseType = baseType.BaseType;
+                }
+                
+                if (baseType != null)
+                {
+                    var field = baseType.GetField("lastSkillTime", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (field != null)
+                    {
+                        field.SetValue(skill2, Time.time);
+                        Debug.Log($"🕐 [OnSkill2Start] BaseSkill 쿨다운 시작: {skill2.SkillName} (쿨다운: {skill2.Cooldown}초)");
+                    }
+                }
+            }
+        }
+        
         ExecuteSkill2();
     }
     
