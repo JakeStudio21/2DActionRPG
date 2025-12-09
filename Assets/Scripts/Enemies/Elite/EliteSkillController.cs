@@ -28,6 +28,9 @@ public class EliteSkillController : MonoBehaviour
     [Tooltip("AOE 중심점 오프셋 (Y값 음수로 발쪽 이동)")]
     [SerializeField] private Vector3 aoeOffset = new Vector3(0, -0.5f, 0);
     
+    [Tooltip("⭐ 스킬 스폰 위치 (PlantsMonster 방식) - 프리팹 내부 Transform")]
+    [SerializeField] private Transform skillSpawnPoint;
+    
     [Header("🎮 디버그")]
     [SerializeField] private bool enableDebugLogs = true;
 
@@ -506,24 +509,124 @@ public class EliteSkillController : MonoBehaviour
     #region 유틸리티
 
     /// <summary>
-    /// AOE 중심점 계산
+    /// AOE 중심점 계산 (SpawnPoint 방식 + 아이소메트릭 거리 보정)
     /// </summary>
     private Vector3 CalculateAOECenter()
     {
         Vector3 basePosition = transform.position;
         
-        // ⭐ 몬스터별 기본 오프셋 적용 (발 위치 등)
+        // ⭐ 몬스터별 기본 오프셋 적용 (고정 오프셋 - 회전 안 함)
         basePosition += aoeOffset;
         
-        // 스킬별 추가 오프셋 적용 (전방향 등)
-        if (currentSkill != null && currentSkill.AoeOffset != Vector2.zero)
+        // ✅ SpawnPoint 방식 (PlantsMonster + 아이소메트릭 보정)
+        if (skillSpawnPoint != null)
         {
             Vector3 direction = GetDirectionToPlayer();
-            basePosition += direction * currentSkill.AoeOffset.y;
-            basePosition += Vector3.Cross(direction, Vector3.forward) * currentSkill.AoeOffset.x;
+            
+            // SpawnPoint의 로컬 위치를 거리로 사용
+            Vector3 localPos = skillSpawnPoint.localPosition;
+            float distance = new Vector2(localPos.x, localPos.y).magnitude;
+            
+            // 🎯 아이소메트릭 뷰 거리 보정 (방향별 시각적 거리 조정)
+            float correctedDistance = GetIsometricDistanceCorrection(direction, distance);
+            
+            // 몬스터 중심 + (공격 방향 * 보정된 거리)
+            basePosition = transform.position + (direction * correctedDistance);
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"✅ [EliteSkillController] SpawnPoint + 아이소메트릭 보정:");
+                Debug.Log($"  - 몬스터 위치: {transform.position}");
+                Debug.Log($"  - 공격 방향: {direction}");
+                Debug.Log($"  - SpawnPoint 로컬 위치: {localPos}");
+                Debug.Log($"  - 기본 거리: {distance:F2}");
+                Debug.Log($"  - 보정된 거리: {correctedDistance:F2}");
+                Debug.Log($"  - 최종 위치: {basePosition}");
+            }
         }
         
         return basePosition;
+    }
+    
+    /// <summary>
+    /// 아이소메트릭 뷰 거리 보정 계산
+    /// </summary>
+    private float GetIsometricDistanceCorrection(Vector3 direction, float baseDistance)
+    {
+        // 방향을 각도로 변환 (0° = E, 90° = N, 180° = W, 270° = S)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (angle < 0) angle += 360f;
+        
+        // 방향별 보정 계수
+        float correctionFactor = 1.0f;
+        
+        // 8방향 판별 (22.5도 간격)
+        if (angle >= 337.5f || angle < 22.5f)
+        {
+            // E (0°) - 좌우 방향
+            correctionFactor = 1.0f;
+        }
+        else if (angle >= 22.5f && angle < 67.5f)
+        {
+            // NE (45°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        else if (angle >= 67.5f && angle < 112.5f)
+        {
+            // N (90°) - 상하 방향
+            correctionFactor = 0.7f;
+        }
+        else if (angle >= 112.5f && angle < 157.5f)
+        {
+            // NW (135°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        else if (angle >= 157.5f && angle < 202.5f)
+        {
+            // W (180°) - 좌우 방향
+            correctionFactor = 1.0f;
+        }
+        else if (angle >= 202.5f && angle < 247.5f)
+        {
+            // SW (225°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        else if (angle >= 247.5f && angle < 292.5f)
+        {
+            // S (270°) - 상하 방향
+            correctionFactor = 0.7f;
+        }
+        else if (angle >= 292.5f && angle < 337.5f)
+        {
+            // SE (315°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        
+        float correctedDistance = baseDistance * correctionFactor;
+        
+        if (enableDebugLogs)
+        {
+            string directionName = GetDirectionName(angle);
+            Debug.Log($"🎯 [거리 보정] 방향: {directionName} ({angle:F1}°), 계수: {correctionFactor:F2}, 원본: {baseDistance:F2} → 보정: {correctedDistance:F2}");
+        }
+        
+        return correctedDistance;
+    }
+    
+    /// <summary>
+    /// 각도를 방향 이름으로 변환 (디버그용)
+    /// </summary>
+    private string GetDirectionName(float angle)
+    {
+        if (angle >= 337.5f || angle < 22.5f) return "E (우측)";
+        if (angle >= 22.5f && angle < 67.5f) return "NE (우상단)";
+        if (angle >= 67.5f && angle < 112.5f) return "N (위쪽)";
+        if (angle >= 112.5f && angle < 157.5f) return "NW (좌상단)";
+        if (angle >= 157.5f && angle < 202.5f) return "W (좌측)";
+        if (angle >= 202.5f && angle < 247.5f) return "SW (좌하단)";
+        if (angle >= 247.5f && angle < 292.5f) return "S (아래쪽)";
+        if (angle >= 292.5f && angle < 337.5f) return "SE (우하단)";
+        return "Unknown";
     }
 
     /// <summary>

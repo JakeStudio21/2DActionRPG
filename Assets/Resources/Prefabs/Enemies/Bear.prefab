@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a85e75df1587944db4927abf753409b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
+  animator: {fileID: 4045494338668433670}
   spriteRenderer: {fileID: 0}
   useIsometricData: 1
   showDebugLogs: 0

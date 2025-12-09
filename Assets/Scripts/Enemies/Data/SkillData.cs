@@ -54,7 +54,7 @@ public class SkillData : ScriptableObject
     [Range(0f, 360f)]
     [SerializeField] private float aoeAngle = 90f;
     
-    [Tooltip("AOE 중심점 오프셋 (몬스터로부터의 거리)")]
+    [Tooltip("AOE 중심점 오프셋 (몬스터로부터의 거리) - Deprecated: EliteSkillController의 SpawnPoint 사용 권장")]
     [SerializeField] private Vector2 aoeOffset = Vector2.zero;
 
     [Header("📍 텔레그래프 (경고 표시)")]

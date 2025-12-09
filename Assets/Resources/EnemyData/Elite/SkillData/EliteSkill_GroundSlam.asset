@@ -18,7 +18,7 @@ MonoBehaviour:
   castTime: 1.5
   cooldown: 8
   actionDuration: 3
-  damageMultiplier: 2.5
+  damageMultiplier: 2
   canCritical: 1
   criticalChanceBonus: 0.05
   aoeShape: 0

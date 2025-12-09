@@ -42,9 +42,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 505429217177140206}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2106861080513923722
@@ -414,7 +415,8 @@ MonoBehaviour:
   currentSkill: {fileID: 0}
   isCasting: 0
   isActionExecuting: 0
-  aoeOffset: {x: -2, y: -1.5, z: 0}
+  aoeOffset: {x: 0, y: 3, z: 0}
+  skillSpawnPoint: {fileID: 505429217177140206}
   enableDebugLogs: 1
 --- !u!114 &5211488974049482479
 MonoBehaviour:
@@ -438,3 +440,34 @@ MonoBehaviour:
   meleeAttack: {fileID: 0}
   enableDebugLogs: 1
   trackStatistics: 1
+--- !u!1 &5935677080312344865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 505429217177140206}
+  m_Layer: 0
+  m_Name: SkillSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &505429217177140206
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5935677080312344865}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5, y: -1.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1357538892725404220}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

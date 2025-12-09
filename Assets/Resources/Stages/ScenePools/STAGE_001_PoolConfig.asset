@@ -849,7 +849,7 @@ MonoBehaviour:
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
   - tag: FX_PF_Fire_ImpactBurst_01
-    prefab: {fileID: 1625881847255917415, guid: 098b836f3d9958f4685d2ee911be8fef, type: 3}
+    prefab: {fileID: 1625881847255917415, guid: 19d3abea3b1935240a430eeec13fb739, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
