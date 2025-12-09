@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c8815f4e37c1064b8ba4adc333291d9, type: 3}
   m_Name: STAGE_002_G05_Config
   m_EditorClassIdentifier: 
-  SpawnGroupID: STAGE_002_G02
+  SpawnGroupID: STAGE_002_G05
   WaveID: STAGE_002_WAVE_01
   SpawnDelaySec: 0.5
   RepeatCount: 2

@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c8815f4e37c1064b8ba4adc333291d9, type: 3}
-  m_Name: STAGE_003_G04_Config
+  m_Name: STAGE_003_G06_Config
   m_EditorClassIdentifier: 
-  SpawnGroupID: STAGE_003_G04
-  WaveID: STAGE_003_WAVE_03
+  SpawnGroupID: STAGE_003_G06
+  WaveID: STAGE_003_WAVE_02
   SpawnDelaySec: 0
   RepeatCount: 1
   RepeatIntervalSec: 0
   Monsters:
-  - MonsterID: MON_PLANTS_001
-    Count: 2
+  - MonsterID: MON_MIMIC_001
+    Count: 4
     SpawnCount: 0.1
     IsBoss: 0
     MonsterPrefab: {fileID: 0}

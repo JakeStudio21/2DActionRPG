@@ -10,16 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c8815f4e37c1064b8ba4adc333291d9, type: 3}
-  m_Name: STAGE_003_G04_Config
+  m_Name: STAGE_003_G05_Config
   m_EditorClassIdentifier: 
-  SpawnGroupID: STAGE_003_G04
-  WaveID: STAGE_003_WAVE_03
-  SpawnDelaySec: 0
-  RepeatCount: 1
-  RepeatIntervalSec: 0
+  SpawnGroupID: STAGE_003_G05
+  WaveID: STAGE_003_WAVE_01
+  SpawnDelaySec: 0.5
+  RepeatCount: 2
+  RepeatIntervalSec: 1
   Monsters:
-  - MonsterID: MON_PLANTS_001
+  - MonsterID: MON_SPIDER_001
     Count: 2
     SpawnCount: 0.1
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_COBRA_001
+    Count: 2
+    SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}

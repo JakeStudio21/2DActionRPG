@@ -56411,7 +56411,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP03
+      value: STAGE_002_G03
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -65304,7 +65304,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP02
+      value: STAGE_002_G02
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -66658,7 +66658,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP04
+      value: STAGE_002_G04
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -68048,7 +68048,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP07
+      value: STAGE_002_G07
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -74465,7 +74465,7 @@ PrefabInstance:
     - target: {fileID: 5272159293615511465, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
       propertyPath: stageConfig
       value: 
-      objectReference: {fileID: 11400000, guid: 6c8889d03706c7343b7f2396e56401fb, type: 2}
+      objectReference: {fileID: 11400000, guid: 83146fd07614b954283e1d307d0aab32, type: 2}
     - target: {fileID: 5272159293615511465, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
       propertyPath: autoStartStage
       value: 1
@@ -77989,7 +77989,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP01
+      value: STAGE_002_G01
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -81252,7 +81252,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP06
+      value: STAGE_002_G06
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -92128,7 +92128,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_002_SP05
+      value: STAGE_002_G05
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name

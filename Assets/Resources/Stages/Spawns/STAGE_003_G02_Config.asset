@@ -18,13 +18,8 @@ MonoBehaviour:
   RepeatCount: 2
   RepeatIntervalSec: 1
   Monsters:
-  - MonsterID: MON_GRAPE_001
+  - MonsterID: MON_PLANTS_001
     Count: 2
-    SpawnCount: 0.3
-    IsBoss: 0
-    MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_GHOST_001
-    Count: 1
-    SpawnCount: 0
+    SpawnCount: 0.1
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
