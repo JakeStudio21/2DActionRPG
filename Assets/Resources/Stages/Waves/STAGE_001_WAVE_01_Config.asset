@@ -24,3 +24,4 @@ MonoBehaviour:
   SpawnGroups:
   - {fileID: 11400000, guid: 53ece398d19910844bf1e85412b4f9af, type: 2}
   - {fileID: 11400000, guid: 06070c3d45d7108449e6440cc2bf3d27, type: 2}
+  - {fileID: 11400000, guid: 835842c20aa7b9f428f90e11ccd915bf, type: 2}

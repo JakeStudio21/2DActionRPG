@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: Elite_SandGolemData
+  m_EditorClassIdentifier: 
+  enemyId: ELITEMON_SANDGOLEM_001
+  enemyName: Elite_SandGolem
+  enemyType: 1
+  description: "\"\uAC15\uD654\uB41C \uC0CC\uB4DC\uACE8\uB818\""
+  baseHealth: 75
+  baseDefense: 3
+  baseMoveSpeed: 2
+  detectionRange: 5
+  chaseRange: 8
+  patrolRadius: 8
+  knockBackThrust: 5
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: d5876ef400ab1ef488957fc8a6249bf9, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  skillDataList:
+  - {fileID: 11400000, guid: a7214b9d3b707584c8e76ddcafe158ca, type: 2}
+  meleeAttackProbability: 60
+  skillUseProbability: 40
+  skillProbabilities: 64000000
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 20
+  baseExpReward: 40
+  dropGroupId: DROP_BLUESLIME_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

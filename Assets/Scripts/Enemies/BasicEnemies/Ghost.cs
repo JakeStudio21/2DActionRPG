@@ -52,7 +52,7 @@ public class Ghost : BaseEnemy
         }
     }
     
-    public float ChaseRange
+    public override float ChaseRange
     {
         get
         {

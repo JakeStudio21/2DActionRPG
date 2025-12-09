@@ -23,17 +23,7 @@ MonoBehaviour:
     SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_COBRA_001
-    Count: 3
-    SpawnCount: 0.3
-    IsBoss: 0
-    MonsterPrefab: {fileID: 0}
   - MonsterID: MON_ANUBIS_001
-    Count: 3
-    SpawnCount: 0.3
-    IsBoss: 0
-    MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_SPHINX_001
     Count: 3
     SpawnCount: 0.3
     IsBoss: 0

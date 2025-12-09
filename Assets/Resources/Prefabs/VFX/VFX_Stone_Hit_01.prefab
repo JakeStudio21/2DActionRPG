@@ -4908,6 +4908,8 @@ GameObject:
   - component: {fileID: 2452082064152055796}
   - component: {fileID: 484368387861551534}
   - component: {fileID: 8206432625395753029}
+  - component: {fileID: 4087063860075140901}
+  - component: {fileID: 6423613597239128437}
   m_Layer: 0
   m_Name: VFX_Stone_Hit_01
   m_TagString: Untagged
@@ -9797,6 +9799,31 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &4087063860075140901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758473627833946668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolTag: VFX_Stone_Hit_01
+--- !u!210 &6423613597239128437
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758473627833946668}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1 &3195425902662666683
 GameObject:
   m_ObjectHideFlags: 0

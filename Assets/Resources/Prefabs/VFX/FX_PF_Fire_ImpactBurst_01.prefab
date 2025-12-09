@@ -14702,6 +14702,7 @@ GameObject:
   - component: {fileID: 1625881847255917412}
   - component: {fileID: 1625881847255917413}
   - component: {fileID: 1625881847255917414}
+  - component: {fileID: -7733487632062061085}
   m_Layer: 0
   m_Name: FX_PF_Fire_ImpactBurst_01
   m_TagString: Untagged
@@ -19533,6 +19534,19 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &-7733487632062061085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625881847255917415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolTag: FX_PF_Fire_ImpactBurst_01
 --- !u!1 &5142343053635851250
 GameObject:
   m_ObjectHideFlags: 0

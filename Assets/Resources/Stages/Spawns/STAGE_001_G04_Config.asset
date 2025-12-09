@@ -13,13 +13,18 @@ MonoBehaviour:
   m_Name: STAGE_001_G04_Config
   m_EditorClassIdentifier: 
   SpawnGroupID: STAGE_001_G04
-  WaveID: STAGE_001_WAVE_03
+  WaveID: STAGE_001_WAVE_02
   SpawnDelaySec: 0
   RepeatCount: 1
   RepeatIntervalSec: 0
   Monsters:
-  - MonsterID: MON_BLUESLIME_001_BOSS
-    Count: 1
-    SpawnCount: 1
-    IsBoss: 1
+  - MonsterID: MON_ANUBIS_001
+    Count: 3
+    SpawnCount: 0.3
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_SCORPION_BROWN_001
+    Count: 3
+    SpawnCount: 0.3
+    IsBoss: 0
     MonsterPrefab: {fileID: 0}

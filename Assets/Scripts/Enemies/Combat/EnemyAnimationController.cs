@@ -35,6 +35,12 @@ public class EnemyAnimationController : MonoBehaviour
     private readonly int HIT_TRIGGER_HASH = Animator.StringToHash("Hit");
     private readonly int DIE_TRIGGER_HASH = Animator.StringToHash("Die");
     
+    // ⚡ 스킬 관련 Parameters (엘리트/보스 전용)
+    private readonly int IS_SKILL_CASTING_HASH = Animator.StringToHash("isSkillCasting");
+    private readonly int IS_SKILL_ACTION_HASH = Animator.StringToHash("isSkillAction");
+    private readonly int SKILL_CAST_TRIGGER_HASH = Animator.StringToHash("SkillCast");
+    private readonly int SKILL_ACTION_TRIGGER_HASH = Animator.StringToHash("SkillAction");
+    
     // 마지막 이동 방향 저장 (정지 시 방향 유지용)
     private Vector2 lastMoveDirection = Vector2.down; // 기본값: 남쪽
     
@@ -596,6 +602,84 @@ public class EnemyAnimationController : MonoBehaviour
     public void SetDebugLogs(bool enabled)
     {
         showDebugLogs = enabled;
+    }
+    
+    #endregion
+    
+    #region ⚡ 스킬 애니메이션 (엘리트/보스 전용)
+    
+    /// <summary>
+    /// 스킬 캐스팅 트리거
+    /// </summary>
+    public void TriggerSkillCast()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(SKILL_CAST_TRIGGER_HASH);
+            animator.SetBool(IS_SKILL_CASTING_HASH, true);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔮 [EnemyAnimationController] {gameObject.name} - SkillCast 트리거 실행!");
+        }
+    }
+    
+    /// <summary>
+    /// 스킬 액션 트리거
+    /// </summary>
+    public void TriggerSkillAction()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(SKILL_ACTION_TRIGGER_HASH);
+            animator.SetBool(IS_SKILL_CASTING_HASH, false);
+            animator.SetBool(IS_SKILL_ACTION_HASH, true);
+            
+            if (showDebugLogs)
+                Debug.Log($"💥 [EnemyAnimationController] {gameObject.name} - SkillAction 트리거 실행!");
+        }
+    }
+    
+    /// <summary>
+    /// 스킬 캐스팅 상태 설정
+    /// </summary>
+    public void SetSkillCasting(bool value)
+    {
+        if (animator != null)
+        {
+            animator.SetBool(IS_SKILL_CASTING_HASH, value);
+            
+            if (showDebugLogs)
+                Debug.Log($"[EnemyAnimationController] {gameObject.name} - isSkillCasting = {value}");
+        }
+    }
+    
+    /// <summary>
+    /// 스킬 액션 상태 설정
+    /// </summary>
+    public void SetSkillAction(bool value)
+    {
+        if (animator != null)
+        {
+            animator.SetBool(IS_SKILL_ACTION_HASH, value);
+            
+            if (showDebugLogs)
+                Debug.Log($"[EnemyAnimationController] {gameObject.name} - isSkillAction = {value}");
+        }
+    }
+    
+    /// <summary>
+    /// 모든 스킬 상태 리셋
+    /// </summary>
+    public void ResetSkillStates()
+    {
+        if (animator != null)
+        {
+            animator.SetBool(IS_SKILL_CASTING_HASH, false);
+            animator.SetBool(IS_SKILL_ACTION_HASH, false);
+            
+            if (showDebugLogs)
+                Debug.Log($"[EnemyAnimationController] {gameObject.name} - 스킬 상태 리셋");
+        }
     }
     
     #endregion

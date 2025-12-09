@@ -17,7 +17,7 @@ MonoBehaviour:
   SceneName: Stage_002
   BackgroundType: 0
   IsDungeon: 0
-  RequiredLevel: 3
+  RequiredLevel: 2
   UnlockCondition: Clear:STAGE_001
   unlockData:
     IsAlwaysUnlocked: 0

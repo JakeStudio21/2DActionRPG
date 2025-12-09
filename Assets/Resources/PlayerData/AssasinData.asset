@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22779d5eaa3661a45b1256067b7795c6, type: 3}
   m_Name: AssasinData
   m_EditorClassIdentifier: 
-  baseMaxHealth: 1
+  baseMaxHealth: 50
   baseMoveSpeed: 3
   baseDashSpeed: 6
-  baseAttackDamage: 12
+  baseAttackDamage: 20
   baseDefense: 5
   baseDamageRecoveryTime: 1
   flashDuration: 0.5
   knockbackTime: 0.2
-  baseKnockbackThrust: 5
+  baseKnockbackThrust: 3
   baseExpToNextLevel: 5
   expIncreasePerLevel: 5
   className: "\uC5B4\uC314\uC2E0"
@@ -29,7 +29,7 @@ MonoBehaviour:
   description: 
   attackPowerMultiplier: 1.1
   moveSpeedMultiplier: 1.1
-  skillCooldownMultiplier: 1
+  skillCooldownMultiplier: 3
   healthMultiplier: 1
   assasinStealthDuration: 2
   assasinDodgeChance: 0.1

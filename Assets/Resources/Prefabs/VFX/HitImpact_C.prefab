@@ -14703,6 +14703,7 @@ GameObject:
   - component: {fileID: 1625881847255917413}
   - component: {fileID: 1625881847255917414}
   - component: {fileID: 7491951858473155021}
+  - component: {fileID: -3366567041737313247}
   m_Layer: 0
   m_Name: HitImpact_C
   m_TagString: Untagged
@@ -19547,6 +19548,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolTag: HitImpact_C
+--- !u!210 &-3366567041737313247
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625881847255917415}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1 &5142343053635851250
 GameObject:
   m_ObjectHideFlags: 0

@@ -4900,6 +4900,7 @@ GameObject:
   - component: {fileID: 7917120168021017062}
   - component: {fileID: 6951045033159309328}
   - component: {fileID: -5870883766454326591}
+  - component: {fileID: -2158711976114405291}
   m_Layer: 0
   m_Name: ArrowImpact_D
   m_TagString: Untagged
@@ -9797,6 +9798,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolTag: ArrowImpact_D
+--- !u!210 &-2158711976114405291
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4186470608034871016}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1001 &92965274031062807
 PrefabInstance:
   m_ObjectHideFlags: 0

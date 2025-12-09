@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Power Arrow
   icon: {fileID: 0}
-  cooldown: 2
+  cooldown: 5
   damage: 10
   range: 5
   effectPrefab: {fileID: 0}

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8490142234187954587}
   - component: {fileID: -1754987645752490569}
   - component: {fileID: 8050623025704833457}
+  - component: {fileID: -966492649951738481}
   m_Layer: 0
   m_Name: ArcProjectile
   m_TagString: Untagged
@@ -214,6 +215,19 @@ MonoBehaviour:
   projectileDamage: 10
   hitEffectPrefab: {fileID: 0}
   showDebugLogs: 0
+--- !u!114 &-966492649951738481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6830296691463287077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolTag: ArcProjectile
 --- !u!1001 &4800532971194545236
 PrefabInstance:
   m_ObjectHideFlags: 0

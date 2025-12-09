@@ -34421,6 +34421,7 @@ GameObject:
   - component: {fileID: 7502250425806291782}
   - component: {fileID: 7502250425806291785}
   - component: {fileID: -1359635431083495205}
+  - component: {fileID: 8514271463635284905}
   m_Layer: 0
   m_Name: Slash_D_Effect
   m_TagString: Untagged
@@ -39336,3 +39337,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolTag: Slash_D_Effect
+--- !u!210 &8514271463635284905
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7502250425806291784}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0

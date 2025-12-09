@@ -14715,6 +14715,7 @@ GameObject:
   - component: {fileID: 7917120168021017062}
   - component: {fileID: 6951045033159309328}
   - component: {fileID: -5928374067640849121}
+  - component: {fileID: 1621841468475933769}
   m_Layer: 0
   m_Name: MuzzleFlash_D
   m_TagString: Untagged
@@ -19610,6 +19611,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolTag: MuzzleFlash_D
+--- !u!210 &1621841468475933769
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4186470608034871016}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1 &5644041996352743565
 GameObject:
   m_ObjectHideFlags: 0

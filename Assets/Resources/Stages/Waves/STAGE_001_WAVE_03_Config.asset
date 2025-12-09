@@ -15,11 +15,12 @@ MonoBehaviour:
   WaveID: STAGE_001_WAVE_03
   StageID: STAGE_001
   WaveIndex: 3
-  StartCondition: 2
+  StartCondition: 1
   WaveDelaySec: 1
-  TriggerId: 1
+  TriggerId: 0
   EnablesBossGate: 0
   BossGateTag: 
   TriggerToActivate: 0
   SpawnGroups:
-  - {fileID: 11400000, guid: ccee8c9732592d642b73af3f601b42ce, type: 2}
+  - {fileID: 11400000, guid: aed8e24f40f86f24e8ea44043701177b, type: 2}
+  - {fileID: 11400000, guid: ca1e8849699cb24429ce8e563509994f, type: 2}

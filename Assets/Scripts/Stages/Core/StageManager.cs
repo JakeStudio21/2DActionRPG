@@ -729,11 +729,16 @@ public class StageManager : MonoBehaviour
             if (string.IsNullOrEmpty(monsterID))
                 return null;
             
-            // Resources/EnemyData 폴더에서 EnemyData 찾기
+            string fileName = GetEnemyDataFileName(monsterID);
+            
+            // Resources/EnemyData 폴더에서 EnemyData 찾기 (서브폴더 포함)
             string[] possiblePaths = {
-                $"EnemyData/{GetEnemyDataFileName(monsterID)}",
-                $"EnemyData/{monsterID}Data",
-                $"EnemyData/{monsterID}"
+                $"EnemyData/{fileName}",                    // 기본 경로
+                $"EnemyData/Elite/{fileName}",              // Elite 서브폴더
+                $"EnemyData/Boss/{fileName}",               // Boss 서브폴더
+                $"EnemyData/Normal/{fileName}",             // Normal 서브폴더
+                $"EnemyData/{monsterID}Data",               // 레거시 1
+                $"EnemyData/{monsterID}"                    // 레거시 2
             };
             
             foreach (string path in possiblePaths)
@@ -752,6 +757,8 @@ public class StageManager : MonoBehaviour
             if (enableDebugLogs)
             {
                 Debug.LogWarning($"⚠️ [StageManager] EnemyData 없음: {monsterID}");
+                Debug.LogWarning($"   시도한 파일명: {fileName}");
+                Debug.LogWarning($"   경로 확인: Resources/EnemyData/, Resources/EnemyData/Elite/, Resources/EnemyData/Boss/");
             }
             
             return null;
@@ -850,6 +857,15 @@ public class StageManager : MonoBehaviour
             else if (monsterID.Contains("PLANTS") || monsterID.Contains("PLANT"))
             {
                 return monsterID.Contains("BOSS") ? "PlantsMonster_BossData" : "PlantsMonsterData";
+            }
+            else if (monsterID.Contains("SANDGOLEM"))
+            {
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_SandGolemData";
+                else if (monsterID.Contains("BOSS"))
+                    return "SandGolem_BossData";
+                else
+                    return "SandGolemData";
             }
             
             return $"{monsterID}Data"; // 기본값

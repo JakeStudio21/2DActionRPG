@@ -48,9 +48,25 @@ public class EnemyData : ScriptableObject
     // ❌ 삭제: attackCooldown → AttackData에서 관리
     // ❌ 삭제: attackDamage → AttackData에서 관리
 
+    [Header("⚡ 스킬 시스템 (엘리트/보스)")]
+    [Tooltip("스킬 데이터 리스트 (일반 몬스터는 비워둠)")]
+    [SerializeField] private List<SkillData> skillDataList = new List<SkillData>();
+    
+    [Header("🎲 공격 확률 설정")]
+    [Tooltip("평타 사용 확률 (%) - 일반: 100, 엘리트: 60, 보스: 30")]
+    [Range(0, 100)]
+    [SerializeField] private int meleeAttackProbability = 100;
+    
+    [Tooltip("스킬 사용 확률 (%) - 일반: 0, 엘리트: 40, 보스: 70")]
+    [Range(0, 100)]
+    [SerializeField] private int skillUseProbability = 0;
+    
+    [Tooltip("개별 스킬 확률 (%) - skillDataList 개수만큼 설정, 합계 100%")]
+    [SerializeField] private List<int> skillProbabilities = new List<int>();
+
     [Header("🎮 보스 전용 (Boss 타입만)")]
-    [SerializeField] private bool hasSkills = false;
-    [SerializeField] private List<string> skillIds = new List<string>();
+    [SerializeField] private bool hasSkills = false; // Deprecated: skillDataList 사용
+    [SerializeField] private List<string> skillIds = new List<string>(); // Deprecated
     [SerializeField] private List<StatusEffectType> immuneEffects = new List<StatusEffectType>();
     
     [Header("🏆 보스 식별")]
@@ -106,7 +122,15 @@ public class EnemyData : ScriptableObject
     
     public AttackType PrimaryAttackType => primaryAttackType;
     
-    public bool HasSkills => hasSkills;
+    // ⭐ 스킬 시스템 Properties
+    public List<SkillData> SkillDataList => skillDataList;
+    public int MeleeAttackProbability => meleeAttackProbability;
+    public int SkillUseProbability => skillUseProbability;
+    public List<int> SkillProbabilities => skillProbabilities;
+    public bool HasSkillData => skillDataList != null && skillDataList.Count > 0;
+    
+    // Deprecated: 호환성 유지용
+    public bool HasSkills => hasSkills || HasSkillData;
     public List<string> SkillIds => skillIds;
     public List<StatusEffectType> ImmuneEffects => immuneEffects;
     
@@ -195,6 +219,56 @@ public class EnemyData : ScriptableObject
             }
         }
         
+        // ⭐ 스킬 시스템 검증
+        meleeAttackProbability = Mathf.Clamp(meleeAttackProbability, 0, 100);
+        skillUseProbability = Mathf.Clamp(skillUseProbability, 0, 100);
+        
+        // 스킬 확률 리스트 크기 자동 조정
+        if (skillDataList != null && skillDataList.Count > 0)
+        {
+            // 스킬 개수만큼 확률 리스트 조정
+            while (skillProbabilities.Count < skillDataList.Count)
+            {
+                // 균등 분배로 초기화 (예: 스킬 2개면 각각 50%)
+                int defaultProb = 100 / Mathf.Max(1, skillDataList.Count);
+                skillProbabilities.Add(defaultProb);
+            }
+            while (skillProbabilities.Count > skillDataList.Count)
+            {
+                skillProbabilities.RemoveAt(skillProbabilities.Count - 1);
+            }
+            
+            // 각 확률값 범위 제한
+            for (int i = 0; i < skillProbabilities.Count; i++)
+            {
+                skillProbabilities[i] = Mathf.Clamp(skillProbabilities[i], 0, 100);
+            }
+            
+            // 확률 합계 검증 (경고만)
+            int totalSkillProb = 0;
+            foreach (int prob in skillProbabilities)
+            {
+                totalSkillProb += prob;
+            }
+            if (totalSkillProb != 100 && skillProbabilities.Count > 1)
+            {
+                Debug.LogWarning($"[EnemyData] {enemyName}: 스킬 확률 합계가 100%가 아닙니다! (현재: {totalSkillProb}%)");
+            }
+        }
+        else
+        {
+            // 스킬이 없으면 확률 리스트 비우기
+            skillProbabilities.Clear();
+            skillUseProbability = 0;
+        }
+        
+        // 확률 합계 검증 (평타 + 스킬)
+        int totalProb = meleeAttackProbability + skillUseProbability;
+        if (totalProb != 100)
+        {
+            Debug.LogWarning($"[EnemyData] {enemyName}: 평타({meleeAttackProbability}%) + 스킬({skillUseProbability}%) 합계가 100%가 아닙니다! (현재: {totalProb}%)");
+        }
+        
         // 보상 최소값 보장
         baseGoldReward = Mathf.Max(0, baseGoldReward);
         baseExpReward = Mathf.Max(0, baseExpReward);
@@ -234,7 +308,7 @@ public class EnemyData : ScriptableObject
         }
         else
         {
-            return $"{enemyName} Lv.{level} ({enemyType})\n" +
+            string info = $"{enemyName} Lv.{level} ({enemyType})\n" +
                    $"ID: {enemyId}\n" +
                    $"HP: {GetScaledHealth(level, growthProfile):F1}\n" +
                    $"ATK: AttackData에서 관리됨\n" +
@@ -242,6 +316,25 @@ public class EnemyData : ScriptableObject
                    $"Speed: {GetScaledMoveSpeed(level, growthProfile):F1}\n" +
                    $"Gold: {GetScaledGoldReward(level, growthProfile)}, Exp: {GetScaledExpReward(level, growthProfile)}\n" +
                    $"DropGroup: {dropGroupId} (x{dropRolls})";
+            
+            // ⭐ 스킬 정보 추가
+            if (HasSkillData)
+            {
+                info += $"\n\n=== 공격 확률 ===\n";
+                info += $"평타: {meleeAttackProbability}%, 스킬: {skillUseProbability}%\n";
+                info += $"\n=== 스킬 목록 ({skillDataList.Count}개) ===\n";
+                for (int i = 0; i < skillDataList.Count; i++)
+                {
+                    if (skillDataList[i] != null)
+                    {
+                        int prob = i < skillProbabilities.Count ? skillProbabilities[i] : 0;
+                        info += $"{i + 1}. {skillDataList[i].SkillName} ({prob}%)\n";
+                        info += $"   - Cooldown: {skillDataList[i].Cooldown}s, Damage: x{skillDataList[i].DamageMultiplier}\n";
+                    }
+                }
+            }
+            
+            return info;
         }
     }
     
