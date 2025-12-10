@@ -189,6 +189,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDead: 0
   bossSpawner: {fileID: 0}
+  eliteHealthBarPrefab: {fileID: 6935039637879996987, guid: 30280503994122d4fb0a396f9d9db5de, type: 3}
+  healthBarOffsetY: 6
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -438,6 +440,7 @@ MonoBehaviour:
   attackSound: {fileID: 0}
   skillController: {fileID: 0}
   meleeAttack: {fileID: 0}
+  globalAttackCooldown: 1.5
   enableDebugLogs: 1
   trackStatistics: 1
 --- !u!1 &5935677080312344865

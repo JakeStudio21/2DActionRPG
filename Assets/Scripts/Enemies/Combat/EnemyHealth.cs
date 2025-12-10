@@ -34,6 +34,15 @@ public class EnemyHealth : MonoBehaviour
     private bool deathEventTriggered = false;      // Animation Event 트리거 플래그
     
     public FinalBossSpawner bossSpawner; // Inspector에서 설정 (특수 케이스)
+    
+    [Header("🎯 엘리트/보스 체력바 시스템")]
+    [Tooltip("엘리트/보스 몬스터 머리 위 체력바 Prefab (World Space)")]
+    [SerializeField] private GameObject eliteHealthBarPrefab;
+    [Tooltip("체력바 Y축 오프셋 (몬스터 머리 위 높이)")]
+    [SerializeField] private float healthBarOffsetY = 2.5f;
+    
+    // 체력바 인스턴스
+    private EliteHealthBarUI activeHealthBar;
 
     private void Awake()
     {
@@ -50,6 +59,9 @@ public class EnemyHealth : MonoBehaviour
         currentHealth = CalculateMaxHealth();
         
         Debug.Log($"[EnemyHealth] {gameObject.name} 체력 초기화: {currentHealth}");
+        
+        // ⭐ 엘리트/보스 체력바 생성
+        InitializeHealthBar();
     }
 
     /// <summary>
@@ -203,6 +215,9 @@ public class EnemyHealth : MonoBehaviour
 
         currentHealth -= damage;
         
+        // ⭐ 체력바 업데이트
+        UpdateHealthBar();
+        
         // ✅ 🎵 Cue 시스템 추가 - 피격 이펙트 발행
         EmitHitCues(damage);
         
@@ -250,6 +265,9 @@ public class EnemyHealth : MonoBehaviour
         
         // ⭐ 플래그 초기화 (이미 TakeDamage에서 설정됨)
         deathEventTriggered = false;
+        
+        // ⭐ 체력바 제거
+        DestroyHealthBar();
 
         // ⭐ 모든 물리 효과 즉시 중지 (넉백, 이동 등)
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
@@ -813,6 +831,94 @@ public class EnemyHealth : MonoBehaviour
         }
         
         return Vector2.up; // 기본값
+    }
+    
+    #endregion
+    
+    #region 🎯 엘리트/보스 체력바 시스템
+    
+    /// <summary>
+    /// 엘리트/보스 체력바 초기화
+    /// </summary>
+    private void InitializeHealthBar()
+    {
+        // 엘리트/보스 타입만 체력바 생성
+        if (!ShouldShowHealthBar())
+        {
+            return;
+        }
+        
+        // Prefab이 할당되지 않았으면 생성 안 함
+        if (eliteHealthBarPrefab == null)
+        {
+            Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name}: 엘리트/보스인데 체력바 Prefab이 할당되지 않았습니다!");
+            return;
+        }
+        
+        // 체력바 생성
+        Vector3 healthBarPosition = transform.position + Vector3.up * healthBarOffsetY;
+        GameObject healthBarObj = Instantiate(eliteHealthBarPrefab, healthBarPosition, Quaternion.identity, transform);
+        
+        activeHealthBar = healthBarObj.GetComponent<EliteHealthBarUI>();
+        
+        if (activeHealthBar != null)
+        {
+            // 초기 체력 설정
+            activeHealthBar.SetHealthImmediate(HealthRatio);
+            
+            Debug.Log($"✅ [EnemyHealth] {gameObject.name} 체력바 생성 완료 (Y오프셋: {healthBarOffsetY})");
+        }
+        else
+        {
+            Debug.LogError($"❌ [EnemyHealth] {gameObject.name}: 체력바 Prefab에 EliteHealthBarUI 컴포넌트가 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 체력바를 표시해야 하는지 확인 (엘리트/보스만)
+    /// </summary>
+    private bool ShouldShowHealthBar()
+    {
+        if (baseEnemy?.EnemyData == null)
+        {
+            return false;
+        }
+        
+        // 엘리트 또는 보스 타입만 체력바 표시
+        EnemyType enemyType = baseEnemy.EnemyData.EnemyType;
+        bool shouldShow = enemyType == EnemyType.Elite || enemyType == EnemyType.Boss;
+        
+        if (shouldShow)
+        {
+            Debug.Log($"🎯 [EnemyHealth] {gameObject.name}: {enemyType} 타입 → 체력바 표시");
+        }
+        
+        return shouldShow;
+    }
+    
+    /// <summary>
+    /// 체력바 업데이트
+    /// </summary>
+    private void UpdateHealthBar()
+    {
+        if (activeHealthBar != null)
+        {
+            activeHealthBar.UpdateHealthBar(HealthRatio);
+        }
+    }
+    
+    /// <summary>
+    /// 체력바 제거
+    /// </summary>
+    private void DestroyHealthBar()
+    {
+        if (activeHealthBar != null)
+        {
+            Destroy(activeHealthBar.gameObject);
+            activeHealthBar = null;
+            
+            Debug.Log($"🗑️ [EnemyHealth] {gameObject.name} 체력바 제거");
+        }
     }
     
     #endregion
