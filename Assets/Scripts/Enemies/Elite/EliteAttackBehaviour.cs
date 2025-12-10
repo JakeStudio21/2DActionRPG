@@ -11,6 +11,11 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     [SerializeField] private EliteSkillController skillController;
     [SerializeField] private MeleeAttack meleeAttack; // 평타용
     
+    [Header("⏱️ 전역 공격 쿨다운")]
+    [Tooltip("모든 공격(평타/스킬) 후 대기 시간")]
+    [SerializeField] private float globalAttackCooldown = 1.5f;
+    private float lastAttackTime = -999f;
+    
     [Header("🎲 공격 결정")]
     private EliteAttackDecision attackDecision;
     private EliteAttackDecision.AttackStatistics statistics;
@@ -144,6 +149,14 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         }
 
         meleeAttack.Attack();
+        
+        // ⭐ 평타 후 전역 쿨다운 시작 (1.5초)
+        lastAttackTime = Time.time;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[EliteAttackBehaviour] {gameObject.name} 평타 완료 → {globalAttackCooldown}초 대기 시작");
+        }
     }
 
     /// <summary>
@@ -175,6 +188,9 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         }
 
         skillController.StartSkillCast(skill);
+        
+        // ⭐ 수정: 전역 쿨다운은 스킬 완료 시점에 설정 (OnSkillComplete 콜백에서)
+        // lastAttackTime은 OnSkillComplete()에서 설정됨
     }
 
     /// <summary>
@@ -211,6 +227,17 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
 
     public override bool CanAttack()
     {
+        // ⭐ 전역 공격 쿨다운 체크 (스킬/평타 모두 1.5초 대기)
+        if (Time.time < lastAttackTime + globalAttackCooldown)
+        {
+            if (enableDebugLogs)
+            {
+                float remaining = (lastAttackTime + globalAttackCooldown) - Time.time;
+                Debug.Log($"[EliteAttackBehaviour] {gameObject.name} 전역 쿨다운 중 (남은 시간: {remaining:F1}초)");
+            }
+            return false;
+        }
+        
         // 평타 또는 스킬 중 하나라도 사용 가능하면 true
         bool meleeReady = meleeAttack != null && meleeAttack.CanAttack();
         bool skillReady = HasAvailableSkill();
@@ -296,6 +323,20 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         }
 
         return true; // 기본값: 정지
+    }
+
+    /// <summary>
+    /// 스킬 완료 콜백 (EliteSkillController에서 호출)
+    /// </summary>
+    public void OnSkillComplete()
+    {
+        // ⭐⭐ 스킬 완료 시점에 전역 쿨다운 시작
+        lastAttackTime = Time.time;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"⏰ [EliteAttackBehaviour] {gameObject.name} 스킬 완료 → 전역 쿨다운 {globalAttackCooldown}초 시작!");
+        }
     }
 
     #region 디버그 도구

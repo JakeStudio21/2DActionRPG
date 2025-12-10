@@ -258,6 +258,40 @@ public class EliteSkillController : MonoBehaviour
         
         isActionExecuting = false;
         
+        // ⭐⭐⭐ 핵심 수정: Animator 파라미터 업데이트!
+        if (animController != null)
+        {
+            animController.SetSkillAction(false);
+            
+            // ⭐⭐ 추가: Attack 트리거 리셋 (혹시 남아있을 수 있음)
+            var animator = animController.GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.ResetTrigger("Attack");
+                
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"🧹 [EliteSkillController] {gameObject.name}: Attack 트리거 리셋!");
+                }
+            }
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🎬 [EliteSkillController] {gameObject.name}: isSkillAction = false 설정!");
+            }
+        }
+        else
+        {
+            Debug.LogError($"❌ [EliteSkillController] {gameObject.name}: EnemyAnimationController가 없습니다!");
+        }
+        
+        // ⭐⭐⭐ EliteAttackBehaviour에 스킬 완료 알림 (전역 쿨다운 시작)
+        var eliteAttack = GetComponent<EliteAttackBehaviour>();
+        if (eliteAttack != null)
+        {
+            eliteAttack.OnSkillComplete();
+        }
+        
         // 쿨다운 시작
         if (skillCooldowns.ContainsKey(currentSkill))
         {

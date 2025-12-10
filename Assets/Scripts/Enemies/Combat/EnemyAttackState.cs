@@ -16,7 +16,7 @@ public class EnemyAttackState : IEnemyState
     {
         Debug.Log($"🗡️ [EnemyAttackState] {enemy.transform.name} - 공격 상태 진입!");
         
-        // 🔑 공격 시도 (CanAttack 체크는 BlueSlime.Attack()에서 처리)
+        // 🔑 공격 시도 (CanAttack 체크는 각 Attack 컴포넌트에서 처리)
         enemy.Attack();
         attackTimer = 0f;
         
@@ -54,11 +54,11 @@ public class EnemyAttackState : IEnemyState
             {
                 float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
                 
-                // ⭐ 수정: 공격 범위 안에 있으면 다시 Attack 상태로 (쿨타임 대기)
+                // ⭐ 공격 범위 안에 있으면 다시 Attack 상태로
                 if (dist <= enemy.AttackRange * 1.2f)
                 {
-                    // 공격 범위 안 - 다시 Attack 상태로 전환하여 쿨타임 후 재공격
-                    Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 범위 내({dist:F2}), 재공격 대기 (거리: {dist:F2})");
+                    // 공격 범위 안 - 다시 Attack 상태로 전환
+                    Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 범위 내, 재공격 대기 (거리: {dist:F2})");
                     enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                 }
                 else if (dist < enemy.AttackRange * 3f)

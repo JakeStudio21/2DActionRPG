@@ -31,7 +31,4 @@ MonoBehaviour:
   Description: "\uC774\uC2AC \uB4E4\uD310_\uC548\uAC1C \uB080 \uD3C9\uC57C_\uC774\uB978\uC544\uCE68"
   WaveConfigs:
   - {fileID: 11400000, guid: bd64ee6f42b08e54dbf633772c1cada0, type: 2}
-  - {fileID: 11400000, guid: db20017296adebc4aa663e7a82de1cf9, type: 2}
-  - {fileID: 11400000, guid: 582ebea4d03eb2f43b402b32d94ccc9a, type: 2}
-  FirstClearDropTable: {fileID: 11400000, guid: fe238180538bb9f448eadd8ad5a56c5e, type: 2}
-  RepeatClearDropTable: {fileID: 11400000, guid: 7289a9fe3031f6f4ea9729806f9a237b, type: 2}
+  - {fileID: 11400000, guid: db20017296a햣 
