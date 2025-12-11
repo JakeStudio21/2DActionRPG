@@ -840,6 +840,60 @@ public class ColliderGizmosDrawer : MonoBehaviour
 #endif
         }
         
+        // Boss_SandElemental 범위들 (Boss Melee + Skills) ⭐ 보스 전용
+        var bossSandElemental = GetComponent<Boss_SandElemental>();
+        if (bossSandElemental != null)
+        {
+            Vector2 spawnPoint = bossSandElemental.SpawnPosition;
+            float patrolRadius = bossSandElemental.PatrolRadius;
+            float attackRange = bossSandElemental.AttackRange;
+            float detectionRange = bossSandElemental.DetectionRange;
+            float chaseRange = bossSandElemental.ChaseRange;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색)
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 공격 범위 표시 (빨간색)
+            Gizmos.color = attackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+            // 🟡 감지 범위 (노란색) - 플레이어를 처음 발견하는 범위
+            Gizmos.color = detectionRangeColor;
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
+            
+            // 🟠 추격 범위 (주황색) - 추격을 포기하는 범위
+            Gizmos.color = chaseRangeColor;
+            Gizmos.DrawWireSphere(transform.position, chaseRange);
+            
+            // ⭐ 보스 전용: Melee Attack Range (근거리/원거리 구분선 - 시안색)
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, 6f); // meleeAttackRange
+            
+            // ✅ 스폰 지점 마커 (흰색 큐브 - 보스는 더 크게)
+            Gizmos.color = Color.white;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.8f);
+            
+            // ✅ 스폰 지점 테두리 (금색 - 보스 강조)
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.8f);
+            
+            // ✅ 현재 위치와 스폰 지점 연결선 (회색)
+            if (Vector2.Distance(transform.position, spawnPoint) > 0.1f)
+            {
+                Gizmos.color = Color.gray;
+                Gizmos.DrawLine(transform.position, spawnPoint);
+            }
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 3, 
+                    $"🐲 BOSS SandElemental\n공격: {attackRange:F1} | 감지: {detectionRange:F1}\n추격: {chaseRange:F1} | 순찰: {patrolRadius:F1}\n거리 구분선: 6.0f (시안색)");
+            }
+#endif
+        }
+        
         // WaterGolem 범위들 (AOE)
         var waterGolem = GetComponent<WaterGolem>();
         if (waterGolem != null)
@@ -905,6 +959,7 @@ public class ColliderGizmosDrawer : MonoBehaviour
             GetComponent<LadyBug>() == null && 
             GetComponent<Mimic>() == null && 
             GetComponent<Elite_SandGolem>() == null && 
+            GetComponent<Boss_SandElemental>() == null && 
             GetComponent<CrystalGolem>() == null && 
             GetComponent<WaterGolem>() == null) // 개별 표시가 있는 몬스터 제외
         {

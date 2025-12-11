@@ -105,7 +105,21 @@ public class EnemyChaseState : IEnemyState
         
         float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
         
-        if (dist <= enemy.AttackRange * 0.8f) // 🔑 공격 범위의 80%에 도달해야 공격
+        // ⭐ 보스는 원거리 스킬을 사용하므로 더 넓은 범위에서 공격 시도
+        float attackCheckRange = enemy.AttackRange * 0.8f;
+        
+        if (enemy is Boss_SandElemental)
+        {
+            // 보스는 원거리 스킬 최대 범위(10f) 내에서 공격 가능
+            attackCheckRange = 10f; // 원거리 스킬 사용 가능 범위
+            
+            if (dist <= attackCheckRange)
+            {
+                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 스킬 사용 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
+                enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+            }
+        }
+        else if (dist <= attackCheckRange) // 일반 몬스터는 기존 로직
         {
             Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 공격 범위 도달! Attack 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
             enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
