@@ -102,7 +102,36 @@ public class Boss_SandElemental : BaseEnemy
     protected override void OnStartInitialize()
     {
         ApplyBossSandElementalSpecificSettings();
+        
+        // ⭐ StageManager에 보스 스폰 알림
+        NotifyBossSpawned();
+        
         Debug.Log($"[Boss_SandElemental] {gameObject.name} Start 초기화 완료");
+    }
+    
+    /// <summary>
+    /// ⭐ StageManager에 보스 스폰 알림
+    /// StageUI가 OnBossSpawned 이벤트를 받아서 BossHealthUI 자동 연결
+    /// </summary>
+    private void NotifyBossSpawned()
+    {
+        if (StageSystem.StageManager.Instance != null)
+        {
+            StageSystem.StageManager.Instance.OnBossSpawned?.Invoke(gameObject);
+            Debug.Log($"🐲 [Boss_SandElemental] StageManager에 보스 스폰 알림 완료!");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [Boss_SandElemental] StageManager.Instance가 null입니다!");
+            
+            // Fallback: 직접 StageUI 찾기
+            StageSystem.StageUI stageUI = FindObjectOfType<StageSystem.StageUI>();
+            if (stageUI != null)
+            {
+                stageUI.ActivateBossHealthUI(gameObject);
+                Debug.Log($"🐲 [Boss_SandElemental] StageUI 직접 연결 완료 (Fallback)");
+            }
+        }
     }
     
     protected override void InitializeAttackSystem()

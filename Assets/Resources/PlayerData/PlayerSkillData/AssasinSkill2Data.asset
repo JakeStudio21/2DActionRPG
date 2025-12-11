@@ -15,7 +15,7 @@ MonoBehaviour:
   skillName: Power Arrow
   icon: {fileID: 0}
   cooldown: 2
-  damage: 10
+  damage: 50
   range: 5
   effectPrefab: {fileID: 0}
   projectilePrefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}

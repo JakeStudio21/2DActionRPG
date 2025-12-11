@@ -16,7 +16,7 @@ MonoBehaviour:
   enemyName: Boss_SandElemental
   enemyType: 2
   description: "\"\uAC15\uD654\uB41C \uC0CC\uB4DC\uACE8\uB818\""
-  baseHealth: 500
+  baseHealth: 100
   baseDefense: 15
   baseMoveSpeed: 1.5
   detectionRange: 15
@@ -28,10 +28,13 @@ MonoBehaviour:
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 0
   skillDataList:
-  - {fileID: 11400000, guid: a7214b9d3b707584c8e76ddcafe158ca, type: 2}
+  - {fileID: 11400000, guid: 277c5cde1c86f364a9949d054a1a6d5d, type: 2}
+  - {fileID: 11400000, guid: 4b907c595b8cb704b91042bd264a6494, type: 2}
+  - {fileID: 11400000, guid: adeed1bbb6dccdb4dbbf3034e7f105b0, type: 2}
+  - {fileID: 11400000, guid: e9cb7f623a7b16e43bef072c4307fff6, type: 2}
   meleeAttackProbability: 60
   skillUseProbability: 40
-  skillProbabilities: 64000000
+  skillProbabilities: 64000000320000002100000019000000
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000

@@ -23,9 +23,15 @@ MonoBehaviour:
     individualCooldown: 5
     skillScaleMultiplier: 1
     skillDescription: "\"\uAC15\uB825\uD55C \uC6D0\uAC70\uB9AC \uC2A4\uD0AC\""
+  - skillData: {fileID: 11400000, guid: 4b907c595b8cb704b91042bd264a6494, type: 2}
+    weight: 15
+    distanceType: 0
+    individualCooldown: 8
+    skillScaleMultiplier: 1
+    skillDescription: "\"\uAC15\uB825\uD55C \uC6D0\uAC70\uB9AC \uC2A4\uD0AC\""
   hasTransitionAnimation: 1
   transitionInvincibleTime: 1
   resetCooldownsOnTransition: 1
-  transitionEffect: {fileID: 0}
+  transitionEffect: {fileID: 938325736547915660, guid: 935a78000a2084746ac80f698cc838eb, type: 3}
   transitionSound: {fileID: 0}
   phaseDescription: "\uD398\uC774\uC988 \uC124\uBA85\uC744 \uC785\uB825\uD558\uC138\uC694."

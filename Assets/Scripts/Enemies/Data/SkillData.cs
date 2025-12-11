@@ -2,6 +2,18 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
+/// 스킬 타입 (패턴별 분류)
+/// </summary>
+public enum SkillType
+{
+    AOE,        // 일반 AOE (Circle, Fan, Rectangle)
+    Dash,       // 돌진 스킬
+    Projectile, // 멀티샷/발사체
+    Buff,       // 버프/디버프 (향후 확장)
+    Summon      // 소환 (향후 확장)
+}
+
+/// <summary>
 /// 스킬 데이터 ScriptableObject
 /// 엘리트/보스 몬스터의 스킬 정보를 정의
 /// AttackData와 분리하여 스킬만의 특성 관리
@@ -10,6 +22,9 @@ using System.Collections.Generic;
 public class SkillData : ScriptableObject
 {
     [Header("🏷️ 스킬 정보")]
+    [Tooltip("스킬 타입 (패턴별 분류)")]
+    [SerializeField] private SkillType skillType = SkillType.AOE;
+    
     [Tooltip("스킬 표시 이름")]
     [SerializeField] private string skillName = "스킬";
     
@@ -102,6 +117,7 @@ public class SkillData : ScriptableObject
     [SerializeField] private bool stopMovingWhileCasting = true;
 
     // Public Properties (Read-Only)
+    public SkillType SkillType => skillType;
     public string SkillName => skillName;
     public string SkillId => skillId;
     public string Description => description;
@@ -187,6 +203,7 @@ public class SkillData : ScriptableObject
     public string GetDebugInfo(int baseAttackDamage = 10)
     {
         string info = $"=== {skillName} ({skillId}) ===\n";
+        info += $"Type: {skillType}\n";
         info += $"Cast: {castTime}s, Cooldown: {cooldown}s\n";
         info += $"Damage: {baseAttackDamage} x {damageMultiplier} = {GetScaledDamage(baseAttackDamage)}\n";
         info += $"AOE: {aoeShape}";

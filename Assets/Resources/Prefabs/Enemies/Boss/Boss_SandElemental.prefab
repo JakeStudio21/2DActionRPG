@@ -26,6 +26,9 @@ GameObject:
   - component: {fileID: -6477805641063854489}
   - component: {fileID: 5093505229533745824}
   - component: {fileID: 6376443038196798269}
+  - component: {fileID: 3412258947461422548}
+  - component: {fileID: -6743165854896849057}
+  - component: {fileID: -7579856380117773579}
   m_Layer: 6
   m_Name: Boss_SandElemental
   m_TagString: Enemy
@@ -190,7 +193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDead: 0
   bossSpawner: {fileID: 0}
-  eliteHealthBarPrefab: {fileID: 6935039637879996987, guid: 30280503994122d4fb0a396f9d9db5de, type: 3}
+  eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 6
 --- !u!114 &4792411720221729903
 MonoBehaviour:
@@ -418,7 +421,6 @@ MonoBehaviour:
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   meleeAttack: {fileID: 0}
-  skillController: {fileID: 0}
   phaseController: {fileID: 0}
   bossAttack: {fileID: 0}
   isometricData:
@@ -464,6 +466,9 @@ MonoBehaviour:
   baseEnemy: {fileID: 0}
   animController: {fileID: 0}
   phaseController: {fileID: 0}
+  dashSkill: {fileID: 0}
+  aoeSkill: {fileID: 0}
+  multiShotSkill: {fileID: 0}
   currentSkillEntry:
     skillData: {fileID: 0}
     weight: 15
@@ -474,6 +479,57 @@ MonoBehaviour:
   isCasting: 0
   isActionExecuting: 0
   skillSpawnPoint: {fileID: 0}
+  enableDebugLogs: 1
+--- !u!114 &3412258947461422548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4324e21bf3fb0bc4f87f07dbe4c0be38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseEnemy: {fileID: 0}
+  baseDashSpeed: 8
+  enableDebugLogs: 1
+--- !u!114 &-6743165854896849057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa417b44b3888ec43821729344335c9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseEnemy: {fileID: 0}
+  enableDebugLogs: 1
+--- !u!114 &-7579856380117773579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac83f6b1e302e7b45aa29a3fbbd50b90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseEnemy: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+  spiralProjectileCount: 24
+  spiralRotationSpeed: 360
+  fireInterval: 0.05
+  startingDistance: 0.5
+  projectilePrefab: {fileID: 6830296691463287077, guid: 83ae11102c63fd94594904bd0df3e079, type: 3}
+  projectileSpeed: 8
+  projectileLifetime: 5
   enableDebugLogs: 1
 --- !u!1 &5935677080312344865
 GameObject:

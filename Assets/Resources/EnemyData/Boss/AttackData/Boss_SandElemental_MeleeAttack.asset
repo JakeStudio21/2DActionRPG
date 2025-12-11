@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64c07a372114658468c055ebdb17ab75, type: 3}
   m_Name: Boss_SandElemental_MeleeAttack
   m_EditorClassIdentifier: 
-  attackName: "\"\uC5D8\uB9AC\uD2B8 \uC0CC\uB4DC\uACE8\uB818 \uADFC\uC811 \uACF5\uACA9\""
+  attackName: "\"\uBCF4\uC2A4 \uC0CC\uB4DC\uACE8\uB818 \uADFC\uC811 \uACF5\uACA9\""
   attackType: 0
   description: "\"\uAC15\uD654\uB41C \uADFC\uC811 \uACF5\uACA9\"\n"
   baseDamage: 20

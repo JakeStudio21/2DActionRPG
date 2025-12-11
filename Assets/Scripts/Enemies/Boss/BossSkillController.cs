@@ -14,6 +14,11 @@ public class BossSkillController : MonoBehaviour
     [SerializeField] private EnemyAnimationController animController;
     [SerializeField] private BossPhaseController phaseController;
     
+    [Header("🎯 스킬 패턴")]
+    [SerializeField] private BossDashSkill dashSkill;
+    [SerializeField] private BossAOESkill aoeSkill;
+    [SerializeField] private BossMultiShotSkill multiShotSkill;
+    
     [Header("🎯 현재 스킬 상태")]
     [SerializeField] private BossSkillEntry currentSkillEntry; // 스킬 + 스케일 정보
     [SerializeField] private bool isCasting = false;
@@ -45,6 +50,16 @@ public class BossSkillController : MonoBehaviour
         
         if (phaseController == null)
             phaseController = GetComponent<BossPhaseController>();
+        
+        // ⭐ 스킬 패턴 스크립트 자동 참조
+        if (dashSkill == null)
+            dashSkill = GetComponent<BossDashSkill>();
+        
+        if (aoeSkill == null)
+            aoeSkill = GetComponent<BossAOESkill>();
+        
+        if (multiShotSkill == null)
+            multiShotSkill = GetComponent<BossMultiShotSkill>();
     }
     
     private void Start()
@@ -238,136 +253,49 @@ public class BossSkillController : MonoBehaviour
         // ⭐ Telegraph 제거 (데미지 판정 직전)
         RemoveTelegraph();
         
-        // 스킬 타입별 실행
-        switch (currentSkillEntry.skillData.SkillName)
+        // ⭐ 패턴별 스크립트 호출
+        string skillName = currentSkillEntry.skillData.SkillName;
+        
+        switch (skillName)
         {
             case "Boss_Dash": // 스킬1: 돌진
-                ExecuteDashSkill();
+                if (dashSkill != null)
+                {
+                    dashSkill.Execute(currentSkillEntry);
+                }
+                else
+                {
+                    Debug.LogError($"[BossSkillController] BossDashSkill 컴포넌트가 없습니다!");
+                }
+                break;
+            
+            case "Boss_CircleAOE": // 스킬2: 원형 AOE
+            case "Boss_FanAOE":    // 스킬3: 부채꼴 AOE
+                if (aoeSkill != null)
+                {
+                    aoeSkill.Execute(currentSkillEntry);
+                }
+                else
+                {
+                    Debug.LogError($"[BossSkillController] BossAOESkill 컴포넌트가 없습니다!");
+                }
+                break;
+            
+            case "Boss_SpiralFire": // 스킬4: 나선형 멀티샷
+                if (multiShotSkill != null)
+                {
+                    multiShotSkill.Execute(currentSkillEntry);
+                }
+                else
+                {
+                    Debug.LogError($"[BossSkillController] BossMultiShotSkill 컴포넌트가 없습니다!");
+                }
                 break;
             
             default:
-                // 기본 AOE 스킬
-                ExecuteDefaultAOESkill();
+                Debug.LogWarning($"[BossSkillController] 알 수 없는 스킬: {skillName}");
                 break;
         }
-    }
-    
-    /// <summary>
-    /// 돌진 스킬 실행 (스킬1)
-    /// </summary>
-    private void ExecuteDashSkill()
-    {
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏃 [BossSkillController] 돌진 스킬 실행!");
-        }
-        
-        // 돌진 코루틴 시작
-        StartCoroutine(DashSkillRoutine());
-    }
-    
-    /// <summary>
-    /// 돌진 스킬 코루틴
-    /// </summary>
-    private IEnumerator DashSkillRoutine()
-    {
-        SkillData skill = currentSkillEntry.skillData;
-        float scaleMultiplier = currentSkillEntry.skillScaleMultiplier;
-        
-        // 플레이어 방향 계산
-        Vector3 direction = GetDirectionToPlayer();
-        Vector3 startPosition = transform.position;
-        
-        // 돌진 거리 (스킬 데이터의 AoeRadius 사용)
-        float dashDistance = skill.AoeRadius * scaleMultiplier;
-        Vector3 targetPosition = startPosition + (direction * dashDistance);
-        
-        // 돌진 속도 계산 (페이즈별 속도 증가)
-        // 페이즈1: 기본, 페이즈2: 1.5배, 페이즈3: 2배
-        float baseDashSpeed = 8f;
-        float dashSpeed = baseDashSpeed * scaleMultiplier;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏃 돌진 시작: {startPosition} → {targetPosition}");
-            Debug.Log($"   거리: {dashDistance:F1}f, 속도: {dashSpeed:F1}f/s, 스케일: {scaleMultiplier}x");
-        }
-        
-        // 돌진 중 프레임 업데이트
-        float elapsedTime = 0f;
-        float dashDuration = dashDistance / dashSpeed;
-        
-        while (elapsedTime < dashDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / dashDuration;
-            
-            // 선형 이동
-            transform.position = Vector3.Lerp(startPosition, targetPosition, t);
-            
-            // 돌진 경로에 사각 AOE 데미지 판정 (Phase 2, 3만)
-            if (scaleMultiplier > 1.0f) // Phase 2, 3
-            {
-                CheckDashPathDamage();
-            }
-            
-            yield return null;
-        }
-        
-        // 최종 위치 보정
-        transform.position = targetPosition;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏁 돌진 완료: {transform.position}");
-        }
-        
-        // AOE 이펙트 생성
-        SpawnAOEEffect();
-    }
-    
-    /// <summary>
-    /// 돌진 경로 데미지 체크 (사각 AOE)
-    /// </summary>
-    private void CheckDashPathDamage()
-    {
-        SkillData skill = currentSkillEntry.skillData;
-        float scaleMultiplier = currentSkillEntry.skillScaleMultiplier;
-        
-        // 사각 AOE 크기 (스킬 데이터의 AoeSize 사용)
-        Vector2 boxSize = skill.AoeSize * scaleMultiplier;
-        
-        // 보스 중심에서 사각 충돌 체크
-        Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, boxSize, 0f, LayerMask.GetMask("Player"));
-        
-        if (hits.Length > 0)
-        {
-            foreach (var hit in hits)
-            {
-                if (hit.CompareTag("Player"))
-                {
-                    ApplyDamageToPlayer(hit.gameObject);
-                    break; // 플레이어는 한 번만
-                }
-            }
-        }
-    }
-    
-    /// <summary>
-    /// 기본 AOE 스킬 실행 (스킬2, 3, 4용)
-    /// </summary>
-    private void ExecuteDefaultAOESkill()
-    {
-        if (enableDebugLogs)
-        {
-            Debug.Log($"💥 [BossSkillController] 기본 AOE 스킬 실행");
-        }
-        
-        // AOE 이펙트 생성
-        SpawnAOEEffect();
-        
-        // AOE 데미지 판정
-        PerformAOEDamage();
     }
     
     /// <summary>
@@ -462,7 +390,15 @@ public class BossSkillController : MonoBehaviour
         // 돌진 스킬은 플레이어 방향으로 표시
         if (currentSkillEntry.skillData.SkillName == "Boss_Dash")
         {
-            Vector3 direction = GetDirectionToPlayer();
+            // 플레이어 방향 계산
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            Vector3 direction = Vector3.down;
+            
+            if (player != null)
+            {
+                direction = (player.transform.position - transform.position).normalized;
+            }
+            
             float distance = currentSkillEntry.skillData.AoeRadius * currentSkillEntry.skillScaleMultiplier;
             return transform.position + (direction * distance * 0.5f); // 중간 지점
         }
@@ -499,144 +435,6 @@ public class BossSkillController : MonoBehaviour
     
     #endregion
     
-    #region AOE 데미지 판정
-    
-    /// <summary>
-    /// AOE 데미지 판정
-    /// </summary>
-    private void PerformAOEDamage()
-    {
-        if (currentSkillEntry?.skillData == null) return;
-        
-        SkillData skill = currentSkillEntry.skillData;
-        float scaleMultiplier = currentSkillEntry.skillScaleMultiplier;
-        
-        Vector3 center = transform.position;
-        Vector3 direction = GetDirectionToPlayer();
-        
-        Collider2D[] hits = null;
-        
-        switch (skill.AoeShape)
-        {
-            case AOEShapeType.Circle:
-                float radius = skill.AoeRadius * scaleMultiplier;
-                hits = Physics2D.OverlapCircleAll(center, radius, LayerMask.GetMask("Player"));
-                break;
-                
-            case AOEShapeType.Triangle: // Fan
-                float fanRadius = skill.AoeRadius * scaleMultiplier;
-                hits = GetFanHits(center, direction, fanRadius, skill.AoeAngle);
-                break;
-                
-            case AOEShapeType.Rectangle:
-                Vector2 size = skill.AoeSize * scaleMultiplier;
-                hits = Physics2D.OverlapBoxAll(center, size, GetAngleToPlayer(), LayerMask.GetMask("Player"));
-                break;
-        }
-        
-        if (hits == null || hits.Length == 0)
-        {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[BossSkillController] AOE 데미지 대상 없음");
-            }
-            return;
-        }
-        
-        // 플레이어에게 데미지 적용
-        foreach (var hit in hits)
-        {
-            if (hit.CompareTag("Player"))
-            {
-                ApplyDamageToPlayer(hit.gameObject);
-                break;
-            }
-        }
-    }
-    
-    /// <summary>
-    /// 플레이어에게 데미지 적용
-    /// </summary>
-    private void ApplyDamageToPlayer(GameObject player)
-    {
-        if (player == null) return;
-        
-        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-        if (playerHealth == null) return;
-        
-        // 기본 데미지 획득
-        int baseDamage = 10;
-        
-        if (baseEnemy != null)
-        {
-            var meleeAttack = baseEnemy.GetComponent<MeleeAttack>();
-            if (meleeAttack != null && meleeAttack.AttackData != null)
-            {
-                baseDamage = meleeAttack.GetScaledDamage();
-            }
-        }
-        
-        // 스킬 데미지 계산 (기본 데미지 × 스킬 배율 × 페이즈 스케일)
-        SkillData skill = currentSkillEntry.skillData;
-        float totalMultiplier = skill.DamageMultiplier * currentSkillEntry.skillScaleMultiplier;
-        int skillDamage = Mathf.RoundToInt(baseDamage * totalMultiplier);
-        
-        // 플레이어에게 데미지 적용
-        playerHealth.TakeDamage(skillDamage, transform);
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossSkillController] 플레이어 피격: {skillDamage} 데미지");
-            Debug.Log($"   기본: {baseDamage}, 스킬 배율: {skill.DamageMultiplier}x, 페이즈 스케일: {currentSkillEntry.skillScaleMultiplier}x");
-        }
-        
-        // Hit 이펙트
-        if (skill.HitEffect != null)
-        {
-            GameObject hitEffect = Instantiate(skill.HitEffect, player.transform.position, Quaternion.identity);
-            Destroy(hitEffect, 2f);
-        }
-        
-        // Screen Shake
-        TriggerScreenShake(skill.ShakeIntensity);
-    }
-    
-    /// <summary>
-    /// 부채꼴 범위 충돌 감지
-    /// </summary>
-    private Collider2D[] GetFanHits(Vector3 center, Vector3 direction, float radius, float angle)
-    {
-        Collider2D[] allHits = Physics2D.OverlapCircleAll(center, radius, LayerMask.GetMask("Player"));
-        List<Collider2D> fanHits = new List<Collider2D>();
-        
-        foreach (var hit in allHits)
-        {
-            Vector3 toTarget = (hit.transform.position - center).normalized;
-            float dotProduct = Vector3.Dot(direction, toTarget);
-            float angleToTarget = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-            
-            if (angleToTarget <= angle / 2f)
-            {
-                fanHits.Add(hit);
-            }
-        }
-        
-        return fanHits.ToArray();
-    }
-    
-    /// <summary>
-    /// Screen Shake 트리거
-    /// </summary>
-    private void TriggerScreenShake(float intensity)
-    {
-        if (ScreenShakeManager.Instance != null)
-        {
-            ScreenShakeManager.Instance.ShakeScreen(intensity);
-        }
-    }
-    
-    #endregion
-    
     #region 유틸리티
     
     /// <summary>
@@ -644,31 +442,16 @@ public class BossSkillController : MonoBehaviour
     /// </summary>
     private Quaternion CalculateAOERotation()
     {
-        Vector3 direction = GetDirectionToPlayer();
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        return Quaternion.Euler(0, 0, angle - 90f);
-    }
-    
-    /// <summary>
-    /// 플레이어 방향 벡터
-    /// </summary>
-    private Vector3 GetDirectionToPlayer()
-    {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
+        Vector3 direction = Vector3.down;
+        
         if (player != null)
         {
-            return (player.transform.position - transform.position).normalized;
+            direction = (player.transform.position - transform.position).normalized;
         }
-        return Vector3.down;
-    }
-    
-    /// <summary>
-    /// 플레이어 각도
-    /// </summary>
-    private float GetAngleToPlayer()
-    {
-        Vector3 direction = GetDirectionToPlayer();
-        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        return Quaternion.Euler(0, 0, angle - 90f);
     }
     
     #endregion

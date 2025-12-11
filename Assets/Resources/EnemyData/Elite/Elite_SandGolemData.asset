@@ -29,9 +29,10 @@ MonoBehaviour:
   primaryAttackType: 0
   skillDataList:
   - {fileID: 11400000, guid: a7214b9d3b707584c8e76ddcafe158ca, type: 2}
+  - {fileID: 11400000, guid: a7214b9d3b707584c8e76ddcafe158ca, type: 2}
   meleeAttackProbability: 60
   skillUseProbability: 40
-  skillProbabilities: 64000000
+  skillProbabilities: 6400000032000000
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000

@@ -87,8 +87,8 @@ public class BossPhaseController : MonoBehaviour
     {
         if (enemyHealth == null || CurrentPhase == null) return;
         
-        // 현재 HP 비율 계산
-        float currentHpPercent = enemyHealth.CurrentHealth / enemyHealth.MaxHealth;
+        // 현재 HP 비율 계산 (float 캐스팅으로 정수 나눗셈 방지!)
+        float currentHpPercent = (float)enemyHealth.CurrentHealth / enemyHealth.MaxHealth;
         
         // 현재 페이즈 범위를 벗어났는지 확인
         if (!CurrentPhase.IsInHpRange(currentHpPercent))
@@ -100,7 +100,7 @@ public class BossPhaseController : MonoBehaviour
             {
                 if (enableDebugLogs)
                 {
-                    Debug.Log($"🔄 [BossPhaseController] HP {currentHpPercent * 100:F1}% → 페이즈 전환 감지!");
+                    Debug.Log($"🔄 [BossPhaseController] HP {currentHpPercent * 100:F1}% ({enemyHealth.CurrentHealth}/{enemyHealth.MaxHealth}) → 페이즈 전환 감지!");
                     Debug.Log($"   현재: {CurrentPhase.phaseName} → 다음: {phases[nextPhaseIndex].phaseName}");
                 }
                 

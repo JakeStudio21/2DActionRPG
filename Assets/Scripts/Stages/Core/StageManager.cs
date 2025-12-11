@@ -867,6 +867,16 @@ public class StageManager : MonoBehaviour
                 else
                     return "SandGolemData";
             }
+            else if (monsterID.Contains("SANDELEMENTAL"))
+            {
+                // ⭐ Boss_SandElemental 매핑 추가
+                if (monsterID.Contains("BOSS"))
+                    return "Boss_SandElementalData";
+                else if (monsterID.Contains("ELITE"))
+                    return "Elite_SandElementalData";
+                else
+                    return "SandElementalData";
+            }
             
             return $"{monsterID}Data"; // 기본값
         }
