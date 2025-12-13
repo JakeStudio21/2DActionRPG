@@ -26,7 +26,9 @@ public class BossAOESkill : MonoBehaviour
     /// <summary>
     /// AOE 스킬 실행 (외부에서 호출)
     /// </summary>
-    public void Execute(BossSkillEntry skillEntry)
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향 (Cast 시작 시점 저장됨, null이면 현재 플레이어 방향 사용)</param>
+    public void Execute(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
@@ -34,123 +36,77 @@ public class BossAOESkill : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"💥 [BossAOESkill] {gameObject.name}: {skillEntry.skillData.SkillName} 실행!");
-        }
+        // AOE 이펙트 생성 (저장된 방향 사용)
+        SpawnAOEEffect(skillEntry, targetDirection);
         
-        // AOE 이펙트 생성
-        SpawnAOEEffect(skillEntry);
-        
-        // AOE 데미지 판정
-        PerformAOEDamage(skillEntry);
+        // ⭐ AOE 데미지 판정 (DamageArea 사용)
+        SpawnDamageArea(skillEntry, targetDirection);
     }
     
     /// <summary>
-    /// AOE 데미지 판정
+    /// DamageArea 생성 및 데미지 판정
     /// </summary>
-    private void PerformAOEDamage(BossSkillEntry skillEntry)
+    private void SpawnDamageArea(BossSkillEntry skillEntry, Vector3? targetDirection)
     {
-        if (skillEntry?.skillData == null) return;
-        
-        SkillData skill = skillEntry.skillData;
-        float scaleMultiplier = skillEntry.skillScaleMultiplier;
-        
-        Vector3 center = transform.position;
-        Vector3 direction = GetDirectionToPlayer();
-        
-        Collider2D[] hits = null;
-        
-        switch (skill.AoeShape)
+        if (skillEntry?.skillData == null)
         {
-            case AOEShapeType.Circle:
-                float radius = skill.AoeRadius * scaleMultiplier;
-                hits = Physics2D.OverlapCircleAll(center, radius, LayerMask.GetMask("Player"));
-                
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"[BossAOESkill] Circle AOE: 반경 {radius:F1}f");
-                }
-                break;
-                
-            case AOEShapeType.Triangle: // Fan
-                float fanRadius = skill.AoeRadius * scaleMultiplier;
-                hits = GetFanHits(center, direction, fanRadius, skill.AoeAngle);
-                
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"[BossAOESkill] Fan AOE: 반경 {fanRadius:F1}f, 각도 {skill.AoeAngle}도");
-                }
-                break;
-                
-            case AOEShapeType.Rectangle:
-                Vector2 size = skill.AoeSize * scaleMultiplier;
-                hits = Physics2D.OverlapBoxAll(center, size, GetAngleToPlayer(), LayerMask.GetMask("Player"));
-                
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"[BossAOESkill] Rectangle AOE: 크기 ({size.x:F1}, {size.y:F1})");
-                }
-                break;
-        }
-        
-        if (hits == null || hits.Length == 0)
-        {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[BossAOESkill] AOE 데미지 대상 없음");
-            }
+            Debug.LogError("[BossAOESkill] SkillEntry가 null!");
             return;
         }
         
-        // 플레이어에게 데미지 적용
-        foreach (var hit in hits)
+        // Origin 계산 (보스 중심 위치)
+        Vector3 origin = GetSkillOrigin(skillEntry);
+        
+        // Forward 방향 결정
+        Vector3 forward = targetDirection.HasValue ? targetDirection.Value : GetDirectionToPlayer();
+        forward = forward.normalized;
+        
+        // DamageArea 프리팹 로드
+        GameObject damageAreaPrefab = Resources.Load<GameObject>("Prefabs/VFX/DamageArea");
+        if (damageAreaPrefab == null)
         {
-            if (hit.CompareTag("Player"))
-            {
-                ApplyDamageToPlayer(hit.gameObject, skillEntry);
-                break;
-            }
+            Debug.LogError("[BossAOESkill] DamageArea 프리팹을 찾을 수 없습니다! 경로: Prefabs/VFX/DamageArea");
+            return;
         }
+        
+        // DamageArea 인스턴스 생성
+        GameObject damageAreaGO = Instantiate(damageAreaPrefab);
+        DamageArea damageArea = damageAreaGO.GetComponent<DamageArea>();
+        
+        if (damageArea == null)
+        {
+            Debug.LogError("[BossAOESkill] DamageArea 컴포넌트가 없습니다!");
+            Destroy(damageAreaGO);
+            return;
+        }
+        
+        // DamageArea 초기화 (SkillData의 AoeCenterMode 사용)
+        damageArea.Initialize(skillEntry.skillData, skillEntry, origin, forward, baseEnemy);
+        
+        // 데미지 판정 실행
+        damageArea.PerformDamage();
+        
+        // ⭐ 1초 후 제거 (Gizmos 확인용)
+        Destroy(damageAreaGO, 1.0f);
     }
     
     /// <summary>
-    /// 부채꼴 범위 충돌 감지
+    /// 스킬 Origin 위치 계산 (보스 중심 위치)
     /// </summary>
-    private Collider2D[] GetFanHits(Vector3 center, Vector3 direction, float radius, float angle)
+    private Vector3 GetSkillOrigin(BossSkillEntry skillEntry)
     {
-        Collider2D[] allHits = Physics2D.OverlapCircleAll(center, radius, LayerMask.GetMask("Player"));
-        List<Collider2D> fanHits = new List<Collider2D>();
-        
-        foreach (var hit in allHits)
-        {
-            Vector3 toTarget = (hit.transform.position - center).normalized;
-            float dotProduct = Vector3.Dot(direction, toTarget);
-            float angleToTarget = Mathf.Acos(dotProduct) * Mathf.Rad2Deg;
-            
-            if (angleToTarget <= angle / 2f)
-            {
-                fanHits.Add(hit);
-            }
-        }
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossAOESkill] Fan 감지: 전체 {allHits.Length}개 중 범위 내 {fanHits.Count}개");
-        }
-        
-        return fanHits.ToArray();
+        return transform.position;
     }
     
     /// <summary>
     /// AOE 이펙트 생성
     /// </summary>
-    private void SpawnAOEEffect(BossSkillEntry skillEntry)
+    private void SpawnAOEEffect(BossSkillEntry skillEntry, Vector3? targetDirection)
     {
         if (skillEntry?.skillData == null || skillEntry.skillData.AoeEffect == null) return;
         
         Vector3 spawnPosition = transform.position;
-        Quaternion rotation = CalculateAOERotation();
+        Quaternion rotation = CalculateAOERotation(targetDirection);
         
         GameObject effect = Instantiate(skillEntry.skillData.AoeEffect, spawnPosition, rotation);
         Destroy(effect, 2f);
@@ -159,59 +115,14 @@ public class BossAOESkill : MonoBehaviour
     /// <summary>
     /// AOE 회전 계산
     /// </summary>
-    private Quaternion CalculateAOERotation()
+    private Quaternion CalculateAOERotation(Vector3? targetDirection)
     {
-        Vector3 direction = GetDirectionToPlayer();
+        // ⭐ 방향 결정: 저장된 방향 우선, 없으면 현재 플레이어 방향
+        Vector3 direction = targetDirection.HasValue ? targetDirection.Value : GetDirectionToPlayer();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         return Quaternion.Euler(0, 0, angle - 90f);
     }
     
-    /// <summary>
-    /// 플레이어에게 데미지 적용
-    /// </summary>
-    private void ApplyDamageToPlayer(GameObject player, BossSkillEntry skillEntry)
-    {
-        if (player == null) return;
-        
-        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-        if (playerHealth == null) return;
-        
-        // 기본 데미지 획득
-        int baseDamage = 10;
-        
-        if (baseEnemy != null)
-        {
-            var meleeAttack = baseEnemy.GetComponent<MeleeAttack>();
-            if (meleeAttack != null && meleeAttack.AttackData != null)
-            {
-                baseDamage = meleeAttack.GetScaledDamage();
-            }
-        }
-        
-        // 스킬 데미지 계산
-        SkillData skill = skillEntry.skillData;
-        float totalMultiplier = skill.DamageMultiplier * skillEntry.skillScaleMultiplier;
-        int skillDamage = Mathf.RoundToInt(baseDamage * totalMultiplier);
-        
-        // 데미지 적용
-        playerHealth.TakeDamage(skillDamage, transform);
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossAOESkill] 플레이어 피격: {skillDamage} 데미지");
-            Debug.Log($"   기본: {baseDamage}, 스킬 배율: {skill.DamageMultiplier}x, 페이즈 스케일: {skillEntry.skillScaleMultiplier}x");
-        }
-        
-        // Hit 이펙트
-        if (skill.HitEffect != null)
-        {
-            GameObject hitEffect = Instantiate(skill.HitEffect, player.transform.position, Quaternion.identity);
-            Destroy(hitEffect, 2f);
-        }
-        
-        // Screen Shake
-        TriggerScreenShake(skill.ShakeIntensity);
-    }
     
     /// <summary>
     /// 플레이어 방향 벡터
@@ -235,15 +146,5 @@ public class BossAOESkill : MonoBehaviour
         return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
     }
     
-    /// <summary>
-    /// Screen Shake 트리거
-    /// </summary>
-    private void TriggerScreenShake(float intensity)
-    {
-        if (ScreenShakeManager.Instance != null)
-        {
-            ScreenShakeManager.Instance.ShakeScreen(intensity);
-        }
-    }
 }
 

@@ -53,7 +53,9 @@ public class BossMultiShotSkill : MonoBehaviour
     /// <summary>
     /// 나선형 멀티샷 스킬 실행 (외부에서 호출)
     /// </summary>
-    public void Execute(BossSkillEntry skillEntry)
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향 (Cast 시작 시점 저장됨, null이면 현재 플레이어 방향 사용)</param>
+    public void Execute(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
@@ -64,21 +66,31 @@ public class BossMultiShotSkill : MonoBehaviour
         if (enableDebugLogs)
         {
             Debug.Log($"🌀 [BossMultiShotSkill] {gameObject.name}: 나선형 난사 시작!");
+            if (targetDirection.HasValue)
+            {
+                Debug.Log($"   📍 저장된 방향 사용: {targetDirection.Value}");
+            }
+            else
+            {
+                Debug.Log($"   📍 현재 플레이어 방향 사용");
+            }
         }
         
-        StartCoroutine(SpiralFireRoutine(skillEntry));
+        StartCoroutine(SpiralFireRoutine(skillEntry, targetDirection));
     }
     
     /// <summary>
     /// 나선형 발사 코루틴
     /// </summary>
-    private IEnumerator SpiralFireRoutine(BossSkillEntry skillEntry)
+    private IEnumerator SpiralFireRoutine(BossSkillEntry skillEntry, Vector3? targetDirection)
     {
         SkillData skill = skillEntry.skillData;
         float scaleMultiplier = skillEntry.skillScaleMultiplier;
         
-        // 시작 각도 (플레이어 방향)
-        float currentAngle = GetTargetAngle();
+        // ⭐ 시작 각도: 저장된 방향 우선, 없으면 현재 플레이어 방향
+        float currentAngle = targetDirection.HasValue 
+            ? DirectionToAngle(targetDirection.Value) 
+            : GetTargetAngle();
         
         // 각도 증가량 (나선 패턴)
         float angleStep = spiralRotationSpeed * fireInterval;
@@ -270,6 +282,14 @@ public class BossMultiShotSkill : MonoBehaviour
             direction = (player.transform.position - transform.position).normalized;
         }
         
+        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+    }
+    
+    /// <summary>
+    /// 방향 벡터를 각도로 변환
+    /// </summary>
+    private float DirectionToAngle(Vector3 direction)
+    {
         return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
     }
     

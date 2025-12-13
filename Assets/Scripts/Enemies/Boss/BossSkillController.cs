@@ -27,9 +27,9 @@ public class BossSkillController : MonoBehaviour
     [Header("📍 텔레그래프")]
     private GameObject activeTelegraph;
     
-    [Header("📐 위치 조정")]
-    [Tooltip("스킬 스폰 위치 - 프리팹 내부 Transform")]
-    [SerializeField] private Transform skillSpawnPoint;
+    [Header("🎯 스킬 타겟 정보")]
+    private Vector3 cachedTargetDirection; // Cast 시작 시점의 플레이어 방향 (싱크 맞춤용)
+    private Vector3 cachedTargetPosition;  // Cast 시작 시점의 플레이어 위치
     
     [Header("🎮 디버그")]
     [SerializeField] private bool enableDebugLogs = true;
@@ -125,9 +125,17 @@ public class BossSkillController : MonoBehaviour
     {
         if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
         
-        if (enableDebugLogs)
+        // Cast 시작 시점의 플레이어 방향/위치 저장 (Telegraph와 실제 스킬 싱크 맞춤)
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
         {
-            Debug.Log($"✨ [BossSkillController] {gameObject.name}: Cast 이펙트 + Telegraph 생성");
+            cachedTargetPosition = player.transform.position;
+            cachedTargetDirection = (cachedTargetPosition - transform.position).normalized;
+        }
+        else
+        {
+            cachedTargetDirection = Vector3.down; // fallback
+            cachedTargetPosition = transform.position + Vector3.down * 5f;
         }
         
         // Cast 이펙트 생성
@@ -148,12 +156,6 @@ public class BossSkillController : MonoBehaviour
         if (currentSkillEntry?.skillData == null) yield break;
         
         float castTime = currentSkillEntry.skillData.CastTime;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏱️ [BossSkillController] {castTime}초 후 Action 트리거 예약...");
-        }
-        
         yield return new WaitForSeconds(castTime);
         
         // Cast 완료 처리
@@ -170,12 +172,7 @@ public class BossSkillController : MonoBehaviour
         isCasting = false;
         isActionExecuting = true;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎯 [BossSkillController] {gameObject.name}: Cast 완료 → Action 단계");
-        }
-        
-        // ⭐ 스킬 이름에 따라 적절한 Action 트리거 호출
+        // 스킬 이름에 따라 적절한 Action 트리거 호출
         if (animController != null)
         {
             string skillName = currentSkillEntry.skillData.SkillName;
@@ -188,43 +185,23 @@ public class BossSkillController : MonoBehaviour
                 {
                     case "Boss_Dash":
                         animator.SetTrigger("Skill1Action");
-                        if (enableDebugLogs)
-                        {
-                            Debug.Log($"✅ [BossSkillController] Skill1Action 트리거 실행!");
-                        }
                         break;
                     
                     case "Boss_CircleAOE":
                         animator.SetTrigger("Skill2Action");
-                        if (enableDebugLogs)
-                        {
-                            Debug.Log($"✅ [BossSkillController] Skill2Action 트리거 실행!");
-                        }
                         break;
                     
                     case "Boss_FanAOE":
                         animator.SetTrigger("Skill3Action");
-                        if (enableDebugLogs)
-                        {
-                            Debug.Log($"✅ [BossSkillController] Skill3Action 트리거 실행!");
-                        }
                         break;
                     
                     case "Boss_SpiralFire":
                         animator.SetTrigger("Skill4Action");
-                        if (enableDebugLogs)
-                        {
-                            Debug.Log($"✅ [BossSkillController] Skill4Action 트리거 실행!");
-                        }
                         break;
                     
                     default:
                         // 범용 SkillAction 사용
                         animController.TriggerSkillAction();
-                        if (enableDebugLogs)
-                        {
-                            Debug.LogWarning($"⚠️ [BossSkillController] 알 수 없는 스킬: {skillName}, 범용 SkillAction 사용");
-                        }
                         break;
                 }
                 
@@ -245,23 +222,17 @@ public class BossSkillController : MonoBehaviour
     {
         if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"💥 [BossSkillController] {gameObject.name}: {currentSkillEntry.skillData.SkillName} 실행!");
-        }
-        
-        // ⭐ Telegraph 제거 (데미지 판정 직전)
-        RemoveTelegraph();
-        
-        // ⭐ 패턴별 스크립트 호출
+        // 패턴별 스크립트 호출
         string skillName = currentSkillEntry.skillData.SkillName;
         
         switch (skillName)
         {
             case "Boss_Dash": // 스킬1: 돌진
+                RemoveTelegraph();
+                
                 if (dashSkill != null)
                 {
-                    dashSkill.Execute(currentSkillEntry);
+                    dashSkill.Execute(currentSkillEntry, cachedTargetDirection);
                 }
                 else
                 {
@@ -273,7 +244,8 @@ public class BossSkillController : MonoBehaviour
             case "Boss_FanAOE":    // 스킬3: 부채꼴 AOE
                 if (aoeSkill != null)
                 {
-                    aoeSkill.Execute(currentSkillEntry);
+                    aoeSkill.Execute(currentSkillEntry, cachedTargetDirection);
+                    RemoveTelegraph();
                 }
                 else
                 {
@@ -282,9 +254,11 @@ public class BossSkillController : MonoBehaviour
                 break;
             
             case "Boss_SpiralFire": // 스킬4: 나선형 멀티샷
+                RemoveTelegraph();
+                
                 if (multiShotSkill != null)
                 {
-                    multiShotSkill.Execute(currentSkillEntry);
+                    multiShotSkill.Execute(currentSkillEntry, cachedTargetDirection);
                 }
                 else
                 {
@@ -319,16 +293,11 @@ public class BossSkillController : MonoBehaviour
             }
         }
         
-        // ⭐ BossAttackBehaviour에 스킬 완료 알림 (전역 쿨다운 시작)
+        // BossAttackBehaviour에 스킬 완료 알림 (전역 쿨다운 시작)
         var bossAttack = GetComponent<BossAttackBehaviour>();
         if (bossAttack != null)
         {
             bossAttack.OnSkillComplete();
-        }
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [BossSkillController] {gameObject.name}: {currentSkillEntry.skillData.SkillName} 완료!");
         }
         
         currentSkillEntry = null;
@@ -355,21 +324,33 @@ public class BossSkillController : MonoBehaviour
         if (currentSkillEntry?.skillData == null || currentSkillEntry.skillData.TelegraphPrefab == null) return;
         
         Vector3 spawnPosition = CalculateTelegraphPosition();
+        Quaternion rotation = CalculateTelegraphRotation();
         
-        // Telegraph 생성
-        activeTelegraph = Instantiate(currentSkillEntry.skillData.TelegraphPrefab, spawnPosition, Quaternion.identity);
-        
-        if (enableDebugLogs)
+        // ⭐ 이전 Telegraph가 있으면 제거
+        if (activeTelegraph != null)
         {
-            Debug.Log($"[BossSkillController] Telegraph 생성: {activeTelegraph.name} at {spawnPosition}");
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"⚠️ [BossSkillController] 이전 Telegraph 남아있음! 제거합니다: ID={activeTelegraph.GetInstanceID()}");
+            }
+            Destroy(activeTelegraph);
+            activeTelegraph = null;
         }
         
-        // Telegraph 설정
+        // Telegraph 생성 (위치 + 회전 적용)
+        activeTelegraph = Instantiate(currentSkillEntry.skillData.TelegraphPrefab, spawnPosition, rotation);
+        
+        // Telegraph 설정 (Phase별 스케일 적용 + Center Mode 적용)
         var indicator = activeTelegraph.GetComponent<TelegraphIndicator>();
         if (indicator != null)
         {
             float duration = currentSkillEntry.skillData.TelegraphDuration;
-            indicator.Initialize(currentSkillEntry.skillData, duration);
+            float scaleMultiplier = currentSkillEntry.skillScaleMultiplier;
+            
+            indicator.Initialize(currentSkillEntry.skillData, duration, scaleMultiplier);
+            
+            // Center Mode에 따라 Telegraph 위치 조정
+            AdjustTelegraphPositionForCenterMode(activeTelegraph, currentSkillEntry.skillData, scaleMultiplier);
         }
         else
         {
@@ -377,33 +358,71 @@ public class BossSkillController : MonoBehaviour
             if (indicatorMesh != null)
             {
                 float duration = currentSkillEntry.skillData.TelegraphDuration;
-                indicatorMesh.Initialize(currentSkillEntry.skillData, duration);
+                float scaleMultiplier = currentSkillEntry.skillScaleMultiplier;
+                
+                indicatorMesh.Initialize(currentSkillEntry.skillData, duration, scaleMultiplier);
+                
+                // Center Mode에 따라 Telegraph 위치 조정
+                AdjustTelegraphPositionForCenterMode(activeTelegraph, currentSkillEntry.skillData, scaleMultiplier);
             }
         }
     }
     
     /// <summary>
-    /// Telegraph 위치 계산
+    /// Telegraph 위치 계산 (Origin 기준, Center Mode는 AdjustTelegraphPositionForCenterMode에서 처리)
     /// </summary>
     private Vector3 CalculateTelegraphPosition()
     {
-        // 돌진 스킬은 플레이어 방향으로 표시
-        if (currentSkillEntry.skillData.SkillName == "Boss_Dash")
+        // Origin 위치 반환 (보스 중심)
+        // ForwardAnchored 모드는 AdjustTelegraphPositionForCenterMode에서 조정
+        return CalculateTelegraphOriginPosition();
+    }
+    
+    /// <summary>
+    /// Center Mode에 따라 Telegraph 위치 조정
+    /// </summary>
+    private void AdjustTelegraphPositionForCenterMode(GameObject telegraph, SkillData skillData, float scaleMultiplier)
+    {
+        if (telegraph == null || skillData == null) return;
+        
+        // ForwardAnchored 모드일 때만 위치 조정
+        if (skillData.AoeCenterMode == AOECenterMode.ForwardAnchored)
         {
-            // 플레이어 방향 계산
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            Vector3 direction = Vector3.down;
-            
-            if (player != null)
+            // Center Offset 계산 (DamageArea와 동일한 로직)
+            float centerOffset = skillData.AoeCenterOffset;
+            if (centerOffset <= 0f)
             {
-                direction = (player.transform.position - transform.position).normalized;
+                // Fallback: AoeOffset 사용
+                Vector2 aoeOffset = skillData.AoeOffset;
+                centerOffset = aoeOffset.magnitude;
             }
             
-            float distance = currentSkillEntry.skillData.AoeRadius * currentSkillEntry.skillScaleMultiplier;
-            return transform.position + (direction * distance * 0.5f); // 중간 지점
+            // 오프셋이 여전히 0이면 경고 후 종료
+            if (centerOffset <= 0f)
+            {
+                Debug.LogWarning($"[BossSkillController] ⚠️ ForwardAnchored 모드인데 Center Offset이 0입니다! SkillData에서 AoeCenterOffset을 설정해주세요.");
+                return;
+            }
+            
+            // 스케일 적용된 오프셋 (DamageArea와 동일)
+            float finalOffset = centerOffset * scaleMultiplier;
+            
+            // Forward 방향으로 위치 이동
+            Vector3 forward = cachedTargetDirection.normalized;
+            
+            // Origin 위치를 기준으로 오프셋 적용 (보스 중심)
+            Vector3 originPosition = CalculateTelegraphOriginPosition();
+            Vector3 newPosition = originPosition + forward * finalOffset;
+            
+            telegraph.transform.position = newPosition;
         }
-        
-        // 기본은 보스 중심
+    }
+    
+    /// <summary>
+    /// Telegraph Origin 위치 계산 (보스 중심 위치)
+    /// </summary>
+    private Vector3 CalculateTelegraphOriginPosition()
+    {
         return transform.position;
     }
     
@@ -433,25 +452,126 @@ public class BossSkillController : MonoBehaviour
         Destroy(effect, 2f);
     }
     
+    
     #endregion
     
     #region 유틸리티
+    
+    /// <summary>
+    /// 플레이어 방향 벡터
+    /// </summary>
+    private Vector3 GetDirectionToPlayer()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            return (player.transform.position - transform.position).normalized;
+        }
+        return Vector3.down;
+    }
     
     /// <summary>
     /// AOE 회전 계산
     /// </summary>
     private Quaternion CalculateAOERotation()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        Vector3 direction = Vector3.down;
-        
-        if (player != null)
-        {
-            direction = (player.transform.position - transform.position).normalized;
-        }
-        
+        Vector3 direction = GetDirectionToPlayer();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         return Quaternion.Euler(0, 0, angle - 90f);
+    }
+    
+    /// <summary>
+    /// Telegraph 회전 계산 (플레이어 방향)
+    /// </summary>
+    private Quaternion CalculateTelegraphRotation()
+    {
+        // ⭐ Cast 시작 시점에 저장한 방향 사용 (Telegraph와 실제 스킬 싱크 맞춤)
+        Vector3 direction = cachedTargetDirection;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
+        // 스킬별 회전 보정
+        string skillName = currentSkillEntry?.skillData?.SkillName;
+        
+        switch (skillName)
+        {
+            case "Boss_Dash":
+                // 돌진: 진행 방향 (스프라이트가 위쪽 향하는 경우 -90)
+                return Quaternion.Euler(0, 0, angle);
+            
+            case "Boss_CircleAOE":
+                // 원형: 회전 불필요 (원은 모든 방향 동일)
+                return Quaternion.identity;
+            
+            case "Boss_FanAOE":
+                // 부채꼴: 진행 방향
+                return Quaternion.Euler(0, 0, angle);
+            
+            case "Boss_SpiralFire":
+                // 나선형: 회전 불필요 (360도 발사)
+                return Quaternion.identity;
+            
+            default:
+                // 기본: 플레이어 방향
+                return Quaternion.Euler(0, 0, angle);
+        }
+    }
+    
+    /// <summary>
+    /// 아이소메트릭 거리 보정 계산 (EliteSkillController와 동일)
+    /// </summary>
+    private float GetIsometricDistanceCorrection(Vector3 direction, float baseDistance)
+    {
+        // 방향을 각도로 변환 (0° = E, 90° = N, 180° = W, 270° = S)
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        if (angle < 0) angle += 360f;
+        
+        // 방향별 보정 계수
+        float correctionFactor = 1.0f;
+        
+        // 8방향 판별 (22.5도 간격)
+        if (angle >= 337.5f || angle < 22.5f)
+        {
+            // E (0°) - 좌우 방향
+            correctionFactor = 1.0f;
+        }
+        else if (angle >= 22.5f && angle < 67.5f)
+        {
+            // NE (45°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        else if (angle >= 67.5f && angle < 112.5f)
+        {
+            // N (90°) - 상하 방향
+            correctionFactor = 0.7f;
+        }
+        else if (angle >= 112.5f && angle < 157.5f)
+        {
+            // NW (135°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        else if (angle >= 157.5f && angle < 202.5f)
+        {
+            // W (180°) - 좌우 방향
+            correctionFactor = 1.0f;
+        }
+        else if (angle >= 202.5f && angle < 247.5f)
+        {
+            // SW (225°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        else if (angle >= 247.5f && angle < 292.5f)
+        {
+            // S (270°) - 상하 방향
+            correctionFactor = 0.7f;
+        }
+        else if (angle >= 292.5f && angle < 337.5f)
+        {
+            // SE (315°) - 대각선
+            correctionFactor = 0.85f;
+        }
+        
+        float correctedDistance = baseDistance * correctionFactor;
+        return correctedDistance;
     }
     
     #endregion

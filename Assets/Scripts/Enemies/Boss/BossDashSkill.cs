@@ -30,7 +30,9 @@ public class BossDashSkill : MonoBehaviour
     /// <summary>
     /// 돌진 스킬 실행 (외부에서 호출)
     /// </summary>
-    public void Execute(BossSkillEntry skillEntry)
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향 (Cast 시작 시점 저장됨, null이면 현재 플레이어 방향 사용)</param>
+    public void Execute(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
@@ -41,21 +43,29 @@ public class BossDashSkill : MonoBehaviour
         if (enableDebugLogs)
         {
             Debug.Log($"🏃 [BossDashSkill] {gameObject.name}: 돌진 스킬 실행!");
+            if (targetDirection.HasValue)
+            {
+                Debug.Log($"   📍 저장된 방향 사용: {targetDirection.Value}");
+            }
+            else
+            {
+                Debug.Log($"   📍 현재 플레이어 방향 사용");
+            }
         }
         
-        StartCoroutine(DashRoutine(skillEntry));
+        StartCoroutine(DashRoutine(skillEntry, targetDirection));
     }
     
     /// <summary>
     /// 돌진 코루틴
     /// </summary>
-    private IEnumerator DashRoutine(BossSkillEntry skillEntry)
+    private IEnumerator DashRoutine(BossSkillEntry skillEntry, Vector3? targetDirection)
     {
         SkillData skill = skillEntry.skillData;
         float scaleMultiplier = skillEntry.skillScaleMultiplier;
         
-        // 플레이어 방향 계산
-        Vector3 direction = GetDirectionToPlayer();
+        // ⭐ 방향 결정: 저장된 방향 우선, 없으면 현재 플레이어 방향
+        Vector3 direction = targetDirection.HasValue ? targetDirection.Value : GetDirectionToPlayer();
         Vector3 startPosition = transform.position;
         
         // 돌진 거리 (스킬 데이터의 AoeRadius 사용)

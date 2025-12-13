@@ -37,13 +37,21 @@ public class TelegraphIndicator : MonoBehaviour
     /// <summary>
     /// Telegraph 초기화
     /// </summary>
-    public void Initialize(SkillData skill, float displayDuration)
+    /// <param name="skill">스킬 데이터</param>
+    /// <param name="displayDuration">표시 시간</param>
+    /// <param name="scaleMultiplier">Phase별 스케일 배율 (기본 1.0)</param>
+    public void Initialize(SkillData skill, float displayDuration, float scaleMultiplier = 1.0f)
     {
         if (skill == null)
         {
             Debug.LogError("[TelegraphIndicator] SkillData가 null입니다!");
             return;
         }
+
+        Debug.Log($"📍 [TelegraphIndicator] Initialize() 호출:");
+        Debug.Log($"   스킬: {skill.SkillName}");
+        Debug.Log($"   표시 시간: {displayDuration}초");
+        Debug.Log($"   스케일 배율: {scaleMultiplier}x");
 
         skillData = skill;
         duration = displayDuration;
@@ -60,17 +68,77 @@ public class TelegraphIndicator : MonoBehaviour
             );
         }
 
-        // 크기 설정 (AOE 형태에 따라)
-        SetupSize();
+        // ⭐ 크기 설정 (AOE 형태 + Phase별 스케일 적용)
+        SetupSize(scaleMultiplier);
+        
+        // ⭐⭐⭐ Collider 강제 설정 (Trigger 활성화 + Rigidbody 제거)
+        ForceColliderToTrigger();
+        
+        // ⭐⭐⭐ Physics2D 즉시 동기화 (Collider Bounds 업데이트)
+        Physics2D.SyncTransforms();
+        
+        // 📍 Collider 확인 (디버그)
+        var collider = GetComponent<Collider2D>();
+        if (collider != null)
+        {
+            Debug.Log($"   Collider: {collider.GetType().Name} (Is Trigger: {collider.isTrigger})");
+            Debug.Log($"   Collider Bounds (초기화 직후): Center={collider.bounds.center}, Extents={collider.bounds.extents}");
+        }
+        else
+        {
+            Debug.LogWarning($"   Collider: 없음!");
+        }
 
         // 페이드 인 → 대기 → 페이드 아웃 → 파괴
         StartFadeSequence();
     }
+    
+    /// <summary>
+    /// Collider를 강제로 Trigger로 설정 (물리 충돌 방지)
+    /// </summary>
+    private void ForceColliderToTrigger()
+    {
+        // 1. Rigidbody2D 제거 (있으면 물리 충돌 발생)
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            Debug.LogWarning($"[TelegraphIndicator] Rigidbody2D 발견! 제거합니다.");
+            Destroy(rb);
+        }
+        
+        // 2. 모든 Collider2D를 Trigger로 강제 설정
+        Collider2D[] colliders = GetComponents<Collider2D>();
+        foreach (var col in colliders)
+        {
+            if (!col.isTrigger)
+            {
+                Debug.LogWarning($"[TelegraphIndicator] {col.GetType().Name}이 Trigger가 아닙니다! Is Trigger = true로 변경합니다.");
+                col.isTrigger = true;
+            }
+        }
+        
+        // 3. 자식 GameObject의 Collider도 확인
+        Collider2D[] childColliders = GetComponentsInChildren<Collider2D>();
+        foreach (var col in childColliders)
+        {
+            if (col.gameObject != gameObject) // 자식만
+            {
+                if (!col.isTrigger)
+                {
+                    Debug.LogWarning($"[TelegraphIndicator] 자식 {col.gameObject.name}의 {col.GetType().Name}이 Trigger가 아닙니다! Is Trigger = true로 변경합니다.");
+                    col.isTrigger = true;
+                }
+            }
+        }
+        
+        Debug.Log($"✅ [TelegraphIndicator] Collider Trigger 설정 완료!");
+    }
 
     /// <summary>
-    /// AOE 형태에 따른 크기 설정
+    /// AOE 형태에 따른 크기 설정 (Phase별 스케일 적용)
     /// </summary>
-    private void SetupSize()
+    /// <param name="scaleMultiplier">Phase별 스케일 배율 (Phase 1: 1.0, Phase 2: 1.5, Phase 3: 2.0)</param>
+    private void SetupSize(float scaleMultiplier = 1.0f)
     {
         if (skillData == null)
         {
@@ -78,28 +146,30 @@ public class TelegraphIndicator : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[TelegraphIndicator] SetupSize: 스킬={skillData.SkillName}, 형태={skillData.AoeShape}, 반경={skillData.AoeRadius}");
+        Debug.Log($"[TelegraphIndicator] SetupSize: 스킬={skillData.SkillName}, 형태={skillData.AoeShape}, 반경={skillData.AoeRadius}, 스케일={scaleMultiplier}x");
 
         switch (skillData.AoeShape)
         {
             case AOEShapeType.Circle:
-                // 원형: 반경을 지름으로 변환
-                float diameter = skillData.AoeRadius * 2f;
-                transform.localScale = new Vector3(diameter, diameter, 1f);
-                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={skillData.AoeRadius}, 지름={diameter}, Scale={transform.localScale}");
+                // 원형: 반경에 Phase 스케일 적용 (DamageArea와 일치)
+                float radius = skillData.AoeRadius * scaleMultiplier;
+                transform.localScale = new Vector3(radius, radius, 1f);
+                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={radius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Triangle: // Fan (부채꼴)
-                // 부채꼴: 반경을 기준으로
-                float fanDiameter = skillData.AoeRadius * 2f;
-                transform.localScale = new Vector3(fanDiameter, fanDiameter, 1f);
-                Debug.Log($"[TelegraphIndicator] Fan 크기 설정: 반경={skillData.AoeRadius}, 지름={fanDiameter}, Scale={transform.localScale}");
+                // 부채꼴: 반경에 Phase 스케일 적용 (DamageArea와 일치)
+                float fanRadius = skillData.AoeRadius * scaleMultiplier;
+                transform.localScale = new Vector3(fanRadius, fanRadius, 1f);
+                Debug.Log($"[TelegraphIndicator] Fan 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={fanRadius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Rectangle:
-                // 직사각형: 크기 직접 사용
-                transform.localScale = new Vector3(skillData.AoeSize.x, skillData.AoeSize.y, 1f);
-                Debug.Log($"[TelegraphIndicator] Rectangle 크기 설정: 크기={skillData.AoeSize}, Scale={transform.localScale}");
+                // 직사각형: 크기 직접 사용 + Phase 스케일 적용
+                float rectX = skillData.AoeSize.x * scaleMultiplier;
+                float rectY = skillData.AoeSize.y * scaleMultiplier;
+                transform.localScale = new Vector3(rectX, rectY, 1f);
+                Debug.Log($"[TelegraphIndicator] Rectangle 크기 설정: 원본={skillData.AoeSize}, 배율={scaleMultiplier}x, 최종=({rectX}, {rectY}), Scale={transform.localScale}");
                 break;
         }
     }

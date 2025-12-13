@@ -45,3 +45,12 @@ public enum AOEShapeType
     Triangle    // 삼각형
 }
 
+/// <summary>
+/// AOE 중심점 계산 모드 정의
+/// </summary>
+public enum AOECenterMode
+{
+    Centered,       // center = origin (오프셋 0)
+    ForwardAnchored // center = origin + forward * offset
+}
+

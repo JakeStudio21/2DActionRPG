@@ -56,7 +56,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 0.1
+    scalar: 0.2
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -288,7 +288,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 2
-      minScalar: 1
+      minScalar: 0.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -341,7 +341,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 2
-      minScalar: 1
+      minScalar: 0.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -394,7 +394,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.5
-      minScalar: 0.5
+      minScalar: 0.25
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -987,16 +987,16 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 0.698822
-          inSlope: 0.90834063
-          outSlope: 0.90834063
+          value: 0.14754105
+          inSlope: 2.4400218
+          outSlope: 2.4400218
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
-          outWeight: 0.19133842
+          outWeight: 0.25793436
         - serializedVersion: 3
-          time: 0.37558958
-          value: 0.90648115
+          time: 0.4989111
+          value: 0.7654556
           inSlope: 0.03635773
           outSlope: 0.03635773
           tangentMode: 0
@@ -1004,13 +1004,13 @@ ParticleSystem:
           inWeight: 0.33333334
           outWeight: 0.12666497
         - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 0
-          outSlope: 0
+          time: 0.9946289
+          value: 0.2564125
+          inSlope: -1.5003349
+          outSlope: -1.5003349
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0
+          inWeight: 0.2758023
           outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -14671,7 +14671,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 0.1
+    scalar: 0.2
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -19519,7 +19519,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 0.1
+    scalar: 0.2
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -29143,7 +29143,6 @@ GameObject:
   - component: {fileID: 1597112295188672552}
   - component: {fileID: 1597112295188672553}
   - component: {fileID: 1597112295188672554}
-  - component: {fileID: 7413586424986533570}
   - component: {fileID: -9080433251872800719}
   m_Layer: 0
   m_Name: FX_PF_Fire_Projectile
@@ -34024,27 +34023,6 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!95 &7413586424986533570
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1597112295188672555}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!210 &-9080433251872800719
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -43831,7 +43809,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 0.1
+    scalar: 0.2
     minScalar: 0
     maxCurve:
       serializedVersion: 2

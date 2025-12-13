@@ -18,22 +18,22 @@ MonoBehaviour:
   meleeAttackWeight: 50
   availableSkills:
   - skillData: {fileID: 11400000, guid: 277c5cde1c86f364a9949d054a1a6d5d, type: 2}
-    weight: 16.67
+    weight: 5
     distanceType: 1
     individualCooldown: 5
-    skillScaleMultiplier: 1.5
+    skillScaleMultiplier: 1.2
     skillDescription: "\uC2A4\uD0AC"
   - skillData: {fileID: 11400000, guid: 4b907c595b8cb704b91042bd264a6494, type: 2}
-    weight: 16.67
+    weight: 5
     distanceType: 1
     individualCooldown: 5
-    skillScaleMultiplier: 1.5
+    skillScaleMultiplier: 1.2
     skillDescription: "\uC2A4\uD0AC2"
   - skillData: {fileID: 11400000, guid: adeed1bbb6dccdb4dbbf3034e7f105b0, type: 2}
-    weight: 16.67
+    weight: 40
     distanceType: 2
     individualCooldown: 10
-    skillScaleMultiplier: 1.2
+    skillScaleMultiplier: 1
     skillDescription: 
   hasTransitionAnimation: 1
   transitionInvincibleTime: 1

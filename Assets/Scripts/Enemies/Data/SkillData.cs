@@ -71,6 +71,12 @@ public class SkillData : ScriptableObject
     
     [Tooltip("AOE 중심점 오프셋 (몬스터로부터의 거리) - Deprecated: EliteSkillController의 SpawnPoint 사용 권장")]
     [SerializeField] private Vector2 aoeOffset = Vector2.zero;
+    
+    [Tooltip("AOE 중심점 계산 모드 (Centered: 보스 중심, ForwardAnchored: 보스 앞쪽으로 오프셋)")]
+    [SerializeField] private AOECenterMode aoeCenterMode = AOECenterMode.Centered;
+    
+    [Tooltip("AOE 중심점 오프셋 거리 (ForwardAnchored 모드일 때만 사용, AoeRadius 대비 비율 또는 절대값)")]
+    [SerializeField] private float aoeCenterOffset = 0f;
 
     [Header("📍 텔레그래프 (경고 표시)")]
     [Tooltip("텔레그래프 프리팹 (바닥 경고 이펙트)")]
@@ -132,6 +138,8 @@ public class SkillData : ScriptableObject
     public Vector2 AoeSize => aoeSize;
     public float AoeAngle => aoeAngle;
     public Vector2 AoeOffset => aoeOffset;
+    public AOECenterMode AoeCenterMode => aoeCenterMode;
+    public float AoeCenterOffset => aoeCenterOffset;
     public GameObject TelegraphPrefab => telegraphPrefab;
     public float TelegraphDuration => telegraphDuration;
     public Color TelegraphColor => telegraphColor;
