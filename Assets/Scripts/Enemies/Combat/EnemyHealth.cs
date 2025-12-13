@@ -251,6 +251,13 @@ public class EnemyHealth : MonoBehaviour
             knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
             StartCoroutine(flash.FlashRoutine());
             
+            // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
+            var bossSkillController = GetComponent<BossSkillController>();
+            if (bossSkillController != null)
+            {
+                bossSkillController.ForceCancelSkill();
+            }
+            
             if (enemyFSM != null && enemyFSM.FSMController != null)
             {
                 // 현재 상태를 저장하고 Hit 상태로 전환

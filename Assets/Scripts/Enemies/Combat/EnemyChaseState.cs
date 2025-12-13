@@ -4,13 +4,39 @@ public class EnemyChaseState : IEnemyState
 {
     private readonly IEnemy enemy;
     private float moveSpeed; // 필요시 enemy에서 가져오도록 개선 가능
+    private float baseMoveSpeed; // 기본 이동 속도 저장
+    
+    // ⭐ 보스 전용 추격 시스템
+    private float chaseStartTime = 0f;           // 추격 시작 시간
+    private float chaseTimeoutDuration = 2f;     // 타임아웃 지속시간 (2초)
+    private float speedBoostMultiplier = 1.25f;  // 속도 증가 배율 (25%)
+    private float speedBoostDuration = 3f;       // 속도 증가 지속시간 (3초)
+    private float speedBoostEndTime = -999f;     // 속도 증가 종료 시간
+    private bool isSpeedBoostActive = false;     // 속도 증가 활성화 여부
+    
+    // 히스테리시스
+    private float chaseStartHysteresis = 1.5f;   // 추격 시작 여유값 (AttackRange + 1.5f)
+    private float chaseEndHysteresis = 0.5f;     // 추격 종료 여유값 (AttackRange - 0.5f)
+    private bool isChasing = false;              // 추격 상태 플래그
+    
+    // 리드 타겟팅
+    private float leadOffset = 1.5f;             // 플레이어 앞쪽 오프셋 거리
 
     public EnemyChaseState(IEnemy enemy)
     {
         this.enemy = enemy;
         
         // 🔑 데이터 기반 이동속도 사용 (추격 시에는 1.1배 빠르게)
-        moveSpeed = enemy.MoveSpeed * 1.1f; // BaseEnemy의 GetScaledMoveSpeed() * 1.2
+        baseMoveSpeed = enemy.MoveSpeed;
+        moveSpeed = baseMoveSpeed * 1.1f; // BaseEnemy의 GetScaledMoveSpeed() * 1.1
+        
+        // 보스 전용 추격 시스템 초기화
+        if (enemy is Boss_SandElemental)
+        {
+            isChasing = false;
+            isSpeedBoostActive = false;
+            speedBoostEndTime = -999f;
+        }
         
         // BaseEnemy의 HomePosition 시스템 사용
         if (enemy is BaseEnemy baseEnemy)
@@ -81,6 +107,14 @@ public class EnemyChaseState : IEnemyState
     {
         // ❌ 제거: enemy.AnimationController?.PlayWalk();
         // ✅ Walking이 기본 상태이므로 별도 애니메이션 호출 불필요
+        
+        // ⭐ 보스 전용: 추격 시작 시간 기록
+        if (enemy is Boss_SandElemental)
+        {
+            chaseStartTime = Time.time;
+            isSpeedBoostActive = false;
+            speedBoostEndTime = -999f;
+        }
     }
 
     public void Execute()
@@ -92,8 +126,24 @@ public class EnemyChaseState : IEnemyState
             return;
         }
         
-        Vector2 toPlayer = (enemy.TargetPlayer.transform.position - enemy.transform.position);
-        Vector2 dir = toPlayer.sqrMagnitude > 0.0001f ? toPlayer.normalized : Vector2.zero;
+        // ⭐ 보스 전용: 리드 타겟팅 (플레이어 앞쪽 오프셋 지점으로 이동)
+        Vector2 targetPosition = enemy.TargetPlayer.transform.position;
+        if (enemy is Boss_SandElemental)
+        {
+            Vector2 toPlayer = targetPosition - (Vector2)enemy.transform.position;
+            Vector2 playerDirection = toPlayer.sqrMagnitude > 0.0001f ? toPlayer.normalized : Vector2.zero;
+            targetPosition = targetPosition + playerDirection * leadOffset; // 플레이어 앞쪽 지점
+        }
+        
+        Vector2 toTarget = targetPosition - (Vector2)enemy.transform.position;
+        Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.zero;
+        
+        // ⭐ 보스 전용: 속도 증가 체크 및 적용
+        if (enemy is Boss_SandElemental)
+        {
+            UpdateBossChaseSpeed();
+        }
+        
         Vector2 velocity = dir * moveSpeed;
         enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
         
@@ -105,21 +155,55 @@ public class EnemyChaseState : IEnemyState
         
         float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
         
-        // ⭐ 보스는 원거리 스킬을 사용하므로 더 넓은 범위에서 공격 시도
-        float attackCheckRange = enemy.AttackRange * 0.8f;
-        
-        if (enemy is Boss_SandElemental)
+        // ⭐ 보스 전용: 히스테리시스 적용 공격 범위 체크
+        if (enemy is Boss_SandElemental boss)
         {
-            // 보스는 원거리 스킬 최대 범위(10f) 내에서 공격 가능
-            attackCheckRange = 10f; // 원거리 스킬 사용 가능 범위
+            float attackRange = boss.AttackRange;
+            float chaseEndRange = attackRange - chaseEndHysteresis; // 추격 종료 거리
+            float chaseStartRange = attackRange + chaseStartHysteresis; // 추격 시작 거리
+            float rangedSkillRange = 10f; // 원거리 스킬 사용 가능 범위
             
-            if (dist <= attackCheckRange)
+            // 평타 범위 내 진입 → Attack 상태 (평타 7:3 비율 적용)
+            if (!isChasing && dist <= chaseEndRange)
             {
-                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 스킬 사용 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
+                isChasing = false;
+                isSpeedBoostActive = false; // 속도 증가 해제
+                moveSpeed = baseMoveSpeed * 1.1f;
+                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 평타 범위 도달! Attack 상태로 전환 (거리: {dist:F2}, 범위: {attackRange:F2})");
                 enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                return;
+            }
+            
+            // 추격 중 범위 내 진입 → Attack 상태
+            if (isChasing && dist <= chaseEndRange)
+            {
+                isChasing = false;
+                isSpeedBoostActive = false; // 속도 증가 해제
+                moveSpeed = baseMoveSpeed * 1.1f;
+                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 추격 중 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
+                enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                return;
+            }
+            
+            // 추격 시작 조건 (AttackRange + 여유값)
+            if (!isChasing && dist > chaseStartRange)
+            {
+                isChasing = true;
+                chaseStartTime = Time.time; // 추격 시작 시간 재설정
+            }
+            
+            // 원거리 스킬 범위 내 → Attack 상태 (스킬만 사용)
+            if (dist <= rangedSkillRange)
+            {
+                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
+                enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                return;
             }
         }
-        else if (dist <= attackCheckRange) // 일반 몬스터는 기존 로직
+        
+        // ⭐ 일반 몬스터는 기존 로직
+        float attackCheckRange = enemy.AttackRange * 0.8f;
+        if (!(enemy is Boss_SandElemental) && dist <= attackCheckRange) // 일반 몬스터는 기존 로직
         {
             Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 공격 범위 도달! Attack 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
             enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
@@ -168,5 +252,49 @@ public class EnemyChaseState : IEnemyState
         }
     }
 
-    public void Exit() { }
+    public void Exit() 
+    {
+        // ⭐ 보스 전용: 추격 종료 시 상태 초기화
+        if (enemy is Boss_SandElemental)
+        {
+            isSpeedBoostActive = false;
+            moveSpeed = baseMoveSpeed * 1.1f;
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 보스 전용: 추격 타임아웃 및 속도 증가 체크
+    /// </summary>
+    private void UpdateBossChaseSpeed()
+    {
+        float currentTime = Time.time;
+        float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
+        
+        // 속도 증가 해제 조건: 평타 범위 내 진입 또는 시간 초과
+        if (isSpeedBoostActive)
+        {
+            if (dist <= enemy.AttackRange || currentTime >= speedBoostEndTime)
+            {
+                isSpeedBoostActive = false;
+                moveSpeed = baseMoveSpeed * 1.1f;
+                if (dist <= enemy.AttackRange)
+                {
+                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 평타 범위 진입, 속도 증가 해제");
+                }
+            }
+        }
+        
+        // 추격 타임아웃 체크: 2초 동안 평타 범위 밖에 있으면 속도 증가
+        if (!isSpeedBoostActive && isChasing)
+        {
+            float chaseDuration = currentTime - chaseStartTime;
+            if (chaseDuration >= chaseTimeoutDuration && dist > enemy.AttackRange)
+            {
+                isSpeedBoostActive = true;
+                speedBoostEndTime = currentTime + speedBoostDuration;
+                moveSpeed = baseMoveSpeed * 1.1f * speedBoostMultiplier;
+                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 추격 타임아웃! 속도 증가 활성화 ({moveSpeed:F2}, 지속: {speedBoostDuration}초)");
+            }
+        }
+    }
 } 

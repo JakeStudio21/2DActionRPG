@@ -34,7 +34,7 @@ MonoBehaviour:
   telegraphDuration: 1.2
   telegraphColor: {r: 0, g: 0.2463131, b: 1, a: 0.5}
   castEffect: {fileID: 6079819295311992884, guid: 9d6f4245a3816de458b2d83ca5c4a2cf, type: 3}
-  aoeEffect: {fileID: 2825740286487543389, guid: 1609060f2208d5144bb8e8a5df54c76a, type: 3}
+  aoeEffect: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
   hitEffect: {fileID: 8683933021285538514, guid: ee4dcd56239c78b40bc8725875ddd6e6, type: 3}
   castSound: {fileID: 0}
   skillSound: {fileID: 0}
@@ -43,3 +43,8 @@ MonoBehaviour:
   minRange: 0
   maxRange: 6
   stopMovingWhileCasting: 1
+  vfxMode: 0
+  vfxTime: 0.5
+  damageMode: 2
+  damageTime: 0.5
+  damageWindow: 0

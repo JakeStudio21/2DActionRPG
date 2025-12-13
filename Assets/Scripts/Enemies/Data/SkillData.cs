@@ -14,6 +14,16 @@ public enum SkillType
 }
 
 /// <summary>
+/// VFX/Damage 타이밍 모드
+/// </summary>
+public enum SkillTimingMode
+{
+    OnStateEnter,   // 애니메이션 시작 시점 (0.0)
+    OnStateExit,    // 애니메이션 종료 시점 (1.0)
+    CustomTime      // 커스텀 타이밍 (0.0 ~ 1.0)
+}
+
+/// <summary>
 /// 스킬 데이터 ScriptableObject
 /// 엘리트/보스 몬스터의 스킬 정보를 정의
 /// AttackData와 분리하여 스킬만의 특성 관리
@@ -122,6 +132,24 @@ public class SkillData : ScriptableObject
     [Tooltip("스킬 사용 시 이동 정지 여부")]
     [SerializeField] private bool stopMovingWhileCasting = true;
 
+    [Header("⏱️ AOE 이펙트/데미지 타이밍")]
+    [Tooltip("VFX 이펙트 발동 타이밍 모드")]
+    [SerializeField] private SkillTimingMode vfxMode = SkillTimingMode.OnStateExit;
+    
+    [Tooltip("VFX 커스텀 타이밍 (vfxMode가 CustomTime일 때 사용, 0~1)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float vfxTime = 0.5f;
+    
+    [Tooltip("데미지 판정 타이밍 모드")]
+    [SerializeField] private SkillTimingMode damageMode = SkillTimingMode.OnStateExit;
+    
+    [Tooltip("데미지 커스텀 타이밍 (damageMode가 CustomTime일 때 사용, 0~1)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float damageTime = 0.5f;
+    
+    [Tooltip("데미지 윈도우 지속시간 (초, 0이면 즉시 판정)")]
+    [SerializeField] private float damageWindow = 0f;
+
     // Public Properties (Read-Only)
     public SkillType SkillType => skillType;
     public string SkillName => skillName;
@@ -153,6 +181,11 @@ public class SkillData : ScriptableObject
     public float MinRange => minRange;
     public float MaxRange => maxRange;
     public bool StopMovingWhileCasting => stopMovingWhileCasting;
+    public SkillTimingMode VfxMode => vfxMode;
+    public float VfxTime => vfxTime;
+    public SkillTimingMode DamageMode => damageMode;
+    public float DamageTime => damageTime;
+    public float DamageWindow => damageWindow;
 
     /// <summary>
     /// 레벨과 기본 데미지를 적용한 실제 스킬 데미지 계산

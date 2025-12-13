@@ -130,8 +130,15 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // 해당 거리에서 사용 가능한 스킬 필터링
         List<BossSkillEntry> availableSkills = GetAvailableSkills(phase, distanceCategory);
         
-        // ⭐ 원거리에서는 평타 가중치 0으로 설정 (스킬만 사용)
-        float meleeWeight = (distanceCategory == BossSkillDistance.Ranged) ? 0f : phase.meleeAttackWeight;
+        // ⭐ 평타 범위 체크: 평타 범위 내에서만 평타 가중치 적용 (7:3 비율 유지)
+        // - 평타 범위 내(≤ AttackRange): 평타 70%, 스킬 30%
+        // - 평타 범위 밖, 근거리(AttackRange ~ 6f): 스킬만 사용
+        // - 원거리(> 6f): 스킬만 사용
+        float meleeWeight = 0f;
+        if (distanceCategory == BossSkillDistance.Melee && distanceToPlayer <= baseEnemy.AttackRange)
+        {
+            meleeWeight = phase.meleeAttackWeight;
+        }
         
         // 가중치 기반 랜덤 선택
         float totalWeight = meleeWeight;
@@ -175,12 +182,23 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             }
         }
         
-        // Fallback: 평타
-        if (enableDebugLogs)
+        // Fallback: 평타 범위 내에 있을 때만 평타 실행
+        if (distanceToPlayer <= baseEnemy.AttackRange)
         {
-            Debug.LogWarning($"[BossAttackBehaviour] 공격 선택 실패 → 평타로 Fallback");
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"[BossAttackBehaviour] 공격 선택 실패 → 평타로 Fallback (거리: {distanceToPlayer:F2})");
+            }
+            ExecuteMeleeAttack();
         }
-        ExecuteMeleeAttack();
+        else
+        {
+            // 평타 범위 밖이면 공격하지 않음 (추격 상태로 유지)
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"[BossAttackBehaviour] 공격 선택 실패, 평타 범위 밖 → 공격 불가 (거리: {distanceToPlayer:F2}, 범위: {baseEnemy.AttackRange:F2})");
+            }
+        }
     }
     
     /// <summary>

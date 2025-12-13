@@ -944,5 +944,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: BossProjectile
+    prefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SandRec_AOE_Effect
+    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

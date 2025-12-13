@@ -216,23 +216,42 @@ public class BossSkillController : MonoBehaviour
     }
     
     /// <summary>
-    /// 스킬 액션 실행 (StateMachineBehaviour 콜백 - 데미지 판정)
+    /// 스킬 액션 실행 (StateMachineBehaviour 콜백 - 하위 호환성: VFX와 Damage 동시 실행)
     /// </summary>
     public void ExecuteSkillAction()
     {
+        // 기존 동작 유지 (하위 호환성)
+        ExecuteSkillVFX();
+        ExecuteSkillDamage();
+    }
+    
+    /// <summary>
+    /// VFX만 실행 (BossSkillActionStateBehaviour에서 호출)
+    /// </summary>
+    public void ExecuteSkillVFX()
+    {
         if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
         
-        // 패턴별 스크립트 호출
         string skillName = currentSkillEntry.skillData.SkillName;
         
         switch (skillName)
         {
-            case "Boss_Dash": // 스킬1: 돌진
-                RemoveTelegraph();
-                
+            case "Boss_CircleAOE":
+            case "Boss_FanAOE":
+                if (aoeSkill != null)
+                {
+                    aoeSkill.ExecuteVFXOnly(currentSkillEntry, cachedTargetDirection);
+                }
+                else
+                {
+                    Debug.LogError($"[BossSkillController] BossAOESkill 컴포넌트가 없습니다!");
+                }
+                break;
+            
+            case "Boss_Dash":
                 if (dashSkill != null)
                 {
-                    dashSkill.Execute(currentSkillEntry, cachedTargetDirection);
+                    dashSkill.ExecuteVFXOnly(currentSkillEntry, cachedTargetDirection);
                 }
                 else
                 {
@@ -240,11 +259,32 @@ public class BossSkillController : MonoBehaviour
                 }
                 break;
             
-            case "Boss_CircleAOE": // 스킬2: 원형 AOE
-            case "Boss_FanAOE":    // 스킬3: 부채꼴 AOE
+            case "Boss_SpiralFire":
+                // 멀티샷은 VFX 없음 (프로젝타일 자체가 이펙트)
+                break;
+            
+            default:
+                Debug.LogWarning($"[BossSkillController] 알 수 없는 스킬: {skillName}");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// Damage만 실행 (BossSkillActionStateBehaviour에서 호출)
+    /// </summary>
+    public void ExecuteSkillDamage()
+    {
+        if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
+        
+        string skillName = currentSkillEntry.skillData.SkillName;
+        
+        switch (skillName)
+        {
+            case "Boss_CircleAOE":
+            case "Boss_FanAOE":
                 if (aoeSkill != null)
                 {
-                    aoeSkill.Execute(currentSkillEntry, cachedTargetDirection);
+                    aoeSkill.ExecuteDamageOnly(currentSkillEntry, cachedTargetDirection);
                     RemoveTelegraph();
                 }
                 else
@@ -253,7 +293,19 @@ public class BossSkillController : MonoBehaviour
                 }
                 break;
             
-            case "Boss_SpiralFire": // 스킬4: 나선형 멀티샷
+            case "Boss_Dash":
+                if (dashSkill != null)
+                {
+                    dashSkill.ExecuteDamageOnly(currentSkillEntry, cachedTargetDirection);
+                    RemoveTelegraph();
+                }
+                else
+                {
+                    Debug.LogError($"[BossSkillController] BossDashSkill 컴포넌트가 없습니다!");
+                }
+                break;
+            
+            case "Boss_SpiralFire":
                 RemoveTelegraph();
                 
                 if (multiShotSkill != null)
@@ -290,6 +342,11 @@ public class BossSkillController : MonoBehaviour
             if (animator != null)
             {
                 animator.ResetTrigger("Attack");
+                // ⭐ 모든 스킬 트리거 리셋 (Skill2Action, Skill3Action 등이 활성화 상태로 남는 버그 방지)
+                animator.ResetTrigger("Skill1Action");
+                animator.ResetTrigger("Skill2Action");
+                animator.ResetTrigger("Skill3Action");
+                animator.ResetTrigger("Skill4Action");
             }
         }
         
@@ -300,6 +357,51 @@ public class BossSkillController : MonoBehaviour
             bossAttack.OnSkillComplete();
         }
         
+        currentSkillEntry = null;
+    }
+    
+    /// <summary>
+    /// ⭐ 스킬 강제 취소 (피격 등으로 인한 비정상 종료 시 호출)
+    /// </summary>
+    public void ForceCancelSkill()
+    {
+        // 스킬 실행 중이 아니면 무시
+        if (!isCasting && !isActionExecuting) return;
+        
+        if (enableDebugLogs)
+        {
+            Debug.LogWarning($"[BossSkillController] {gameObject.name} 스킬 강제 취소 (isCasting: {isCasting}, isActionExecuting: {isActionExecuting})");
+        }
+        
+        // 상태 플래그 리셋
+        isCasting = false;
+        isActionExecuting = false;
+        
+        // ⭐ Animator 파라미터 및 트리거 리셋
+        if (animController != null)
+        {
+            animController.SetSkillAction(false);
+            
+            var animator = animController.GetComponent<Animator>();
+            if (animator != null)
+            {
+                // 모든 스킬 관련 트리거 리셋
+                animator.ResetTrigger("Skill1Action");
+                animator.ResetTrigger("Skill2Action");
+                animator.ResetTrigger("Skill3Action");
+                animator.ResetTrigger("Skill4Action");
+                animator.SetBool("isSkillCasting", false);
+            }
+        }
+        
+        // 텔레그래프 정리
+        if (activeTelegraph != null)
+        {
+            Destroy(activeTelegraph);
+            activeTelegraph = null;
+        }
+        
+        // 스킬 엔트리 초기화 (OnSkillComplete는 호출하지 않음 - 강제 취소이므로)
         currentSkillEntry = null;
     }
     

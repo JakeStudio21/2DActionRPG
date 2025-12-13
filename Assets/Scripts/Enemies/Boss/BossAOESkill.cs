@@ -24,11 +24,23 @@ public class BossAOESkill : MonoBehaviour
     }
     
     /// <summary>
-    /// AOE 스킬 실행 (외부에서 호출)
+    /// AOE 스킬 실행 (외부에서 호출 - 하위 호환성: VFX와 Damage 동시 실행)
     /// </summary>
     /// <param name="skillEntry">스킬 엔트리</param>
     /// <param name="targetDirection">타겟 방향 (Cast 시작 시점 저장됨, null이면 현재 플레이어 방향 사용)</param>
     public void Execute(BossSkillEntry skillEntry, Vector3? targetDirection = null)
+    {
+        // 기존 동작 유지 (하위 호환성)
+        ExecuteVFXOnly(skillEntry, targetDirection);
+        ExecuteDamageOnly(skillEntry, targetDirection);
+    }
+    
+    /// <summary>
+    /// VFX만 실행 (BossSkillController에서 호출)
+    /// </summary>
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향</param>
+    public void ExecuteVFXOnly(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
@@ -36,10 +48,22 @@ public class BossAOESkill : MonoBehaviour
             return;
         }
         
-        // AOE 이펙트 생성 (저장된 방향 사용)
         SpawnAOEEffect(skillEntry, targetDirection);
+    }
+    
+    /// <summary>
+    /// Damage만 실행 (BossSkillController에서 호출)
+    /// </summary>
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향</param>
+    public void ExecuteDamageOnly(BossSkillEntry skillEntry, Vector3? targetDirection = null)
+    {
+        if (skillEntry == null || skillEntry.skillData == null)
+        {
+            Debug.LogError("[BossAOESkill] SkillEntry가 null!");
+            return;
+        }
         
-        // ⭐ AOE 데미지 판정 (DamageArea 사용)
         SpawnDamageArea(skillEntry, targetDirection);
     }
     

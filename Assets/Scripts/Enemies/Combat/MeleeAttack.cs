@@ -32,6 +32,14 @@ public class MeleeAttack : BaseAttackBehaviour
     [Tooltip("근접 공격 디버그 표시")]
     [SerializeField] private bool showAttackGizmos = true;
     
+    // ⭐ 마지막 공격 히트 여부 (미스 카운트용)
+    private bool lastAttackHit = false;
+    
+    /// <summary>
+    /// 마지막 공격이 히트했는지 여부 (EnemyAttackState에서 연속 미스 체크용)
+    /// </summary>
+    public bool LastAttackHit => lastAttackHit;
+    
     #endregion
 
     #region BaseAttackBehaviour 추상 메서드 구현 (기존 + 확장)
@@ -100,11 +108,17 @@ public class MeleeAttack : BaseAttackBehaviour
         // ⭐ 개선된 히트 감지 (각도 고려)
         List<Collider2D> hitTargets = GetHitTargets(attackOrigin, currentRange);
         
+        // ⭐ 초기화: 미스로 가정
+        lastAttackHit = false;
+        
         foreach (Collider2D hitCollider in hitTargets)
         {
             PlayerHealth playerHealth = hitCollider.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
+                // ⭐ 히트 성공
+                lastAttackHit = true;
+                
                 // ⭐ 새 시스템: 크리티컬 판정
                 bool isCritical = RollCriticalHit();
                 int finalDamage = isCritical ? GetCriticalDamage(currentDamage) : currentDamage;
@@ -121,6 +135,12 @@ public class MeleeAttack : BaseAttackBehaviour
                 Debug.Log($"[MeleeAttack] {gameObject.name}이 플레이어에게 {finalDamage} 데미지를 입혔습니다. {(isCritical ? "(크리티컬!)" : "")}");
                 break; // 한 번에 하나의 플레이어만 타격
             }
+        }
+        
+        // 미스인 경우 로그 출력
+        if (!lastAttackHit)
+        {
+            Debug.Log($"[MeleeAttack] {gameObject.name} - 공격 미스! (범위: {currentRange:F1}, 원점: {attackOrigin})");
         }
     }
     

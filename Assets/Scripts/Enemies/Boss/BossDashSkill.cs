@@ -28,11 +28,22 @@ public class BossDashSkill : MonoBehaviour
     }
     
     /// <summary>
-    /// 돌진 스킬 실행 (외부에서 호출)
+    /// 돌진 스킬 실행 (외부에서 호출 - 하위 호환성: VFX와 Damage 동시 실행)
     /// </summary>
     /// <param name="skillEntry">스킬 엔트리</param>
     /// <param name="targetDirection">타겟 방향 (Cast 시작 시점 저장됨, null이면 현재 플레이어 방향 사용)</param>
     public void Execute(BossSkillEntry skillEntry, Vector3? targetDirection = null)
+    {
+        // 기존 동작 유지 (하위 호환성)
+        StartCoroutine(DashRoutine(skillEntry, targetDirection, true, true));
+    }
+    
+    /// <summary>
+    /// VFX만 실행 (BossSkillController에서 호출)
+    /// </summary>
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향 (Cast 시작 시점 저장됨, 텔레그래프/데미지와 동기화)</param>
+    public void ExecuteVFXOnly(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
@@ -40,26 +51,34 @@ public class BossDashSkill : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
+        // ⭐ 저장된 방향 사용 (텔레그래프/데미지와 동일한 방향)
+        SpawnAOEEffect(skillEntry, targetDirection);
+    }
+    
+    /// <summary>
+    /// Damage만 실행 (BossSkillController에서 호출)
+    /// </summary>
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향</param>
+    public void ExecuteDamageOnly(BossSkillEntry skillEntry, Vector3? targetDirection = null)
+    {
+        if (skillEntry == null || skillEntry.skillData == null)
         {
-            Debug.Log($"🏃 [BossDashSkill] {gameObject.name}: 돌진 스킬 실행!");
-            if (targetDirection.HasValue)
-            {
-                Debug.Log($"   📍 저장된 방향 사용: {targetDirection.Value}");
-            }
-            else
-            {
-                Debug.Log($"   📍 현재 플레이어 방향 사용");
-            }
+            Debug.LogError("[BossDashSkill] SkillEntry가 null!");
+            return;
         }
         
-        StartCoroutine(DashRoutine(skillEntry, targetDirection));
+        StartCoroutine(DashRoutine(skillEntry, targetDirection, false, true));
     }
     
     /// <summary>
     /// 돌진 코루틴
     /// </summary>
-    private IEnumerator DashRoutine(BossSkillEntry skillEntry, Vector3? targetDirection)
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향</param>
+    /// <param name="executeVFX">VFX 실행 여부</param>
+    /// <param name="executeDamage">Damage 실행 여부</param>
+    private IEnumerator DashRoutine(BossSkillEntry skillEntry, Vector3? targetDirection, bool executeVFX, bool executeDamage)
     {
         SkillData skill = skillEntry.skillData;
         float scaleMultiplier = skillEntry.skillScaleMultiplier;
@@ -93,8 +112,11 @@ public class BossDashSkill : MonoBehaviour
             // 선형 이동
             transform.position = Vector3.Lerp(startPosition, targetPosition, t);
             
-            // 돌진 경로에 사각 AOE 데미지 판정
-            CheckDashPathDamage(skillEntry);
+            // 돌진 경로에 사각 AOE 데미지 판정 (executeDamage가 true일 때만)
+            if (executeDamage)
+            {
+                CheckDashPathDamage(skillEntry);
+            }
             
             yield return null;
         }
@@ -107,8 +129,12 @@ public class BossDashSkill : MonoBehaviour
             Debug.Log($"🏁 돌진 완료: {transform.position}");
         }
         
-        // AOE 이펙트 생성 (도착 지점)
-        SpawnAOEEffect(skillEntry);
+        // AOE 이펙트 생성 (도착 지점, executeVFX가 true일 때만)
+        if (executeVFX)
+        {
+            // ⭐ 저장된 방향 사용 (텔레그래프/데미지와 동일한 방향)
+            SpawnAOEEffect(skillEntry, targetDirection);
+        }
     }
     
     /// <summary>
@@ -141,12 +167,15 @@ public class BossDashSkill : MonoBehaviour
     /// <summary>
     /// AOE 이펙트 생성
     /// </summary>
-    private void SpawnAOEEffect(BossSkillEntry skillEntry)
+    /// <param name="skillEntry">스킬 엔트리</param>
+    /// <param name="targetDirection">타겟 방향 (null이면 현재 플레이어 방향 사용)</param>
+    private void SpawnAOEEffect(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry?.skillData == null || skillEntry.skillData.AoeEffect == null) return;
         
         Vector3 spawnPosition = transform.position;
-        Quaternion rotation = CalculateAOERotation();
+        // ⭐ 저장된 방향 사용 (텔레그래프/데미지와 동일한 방향)
+        Quaternion rotation = CalculateAOERotation(targetDirection);
         
         GameObject effect = Instantiate(skillEntry.skillData.AoeEffect, spawnPosition, rotation);
         Destroy(effect, 2f);
@@ -155,9 +184,11 @@ public class BossDashSkill : MonoBehaviour
     /// <summary>
     /// AOE 회전 계산
     /// </summary>
-    private Quaternion CalculateAOERotation()
+    /// <param name="targetDirection">타겟 방향 (null이면 현재 플레이어 방향 사용)</param>
+    private Quaternion CalculateAOERotation(Vector3? targetDirection = null)
     {
-        Vector3 direction = GetDirectionToPlayer();
+        // ⭐ 저장된 방향 우선, 없으면 현재 플레이어 방향 사용
+        Vector3 direction = targetDirection.HasValue ? targetDirection.Value : GetDirectionToPlayer();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         return Quaternion.Euler(0, 0, angle - 90f);
     }
