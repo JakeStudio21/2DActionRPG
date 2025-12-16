@@ -162,6 +162,8 @@ public class StageManager : MonoBehaviour
             isStageActive = true;
             stageStartTime = Time.time;
             currentWaveIndex = 0;
+            totalEnemyKillCount = 0;
+            isBossKilled = false; // ✅ 보스 처치 플래그 초기화
             
             // 1단계: 풀 시스템 Warmup
             yield return StartCoroutine(WarmupPoolSystem());
@@ -281,6 +283,9 @@ public class StageManager : MonoBehaviour
             // ✅ 🎵 웨이브 시작 이펙트 발행
             EmitWaveStartCues(currentWave);
             
+            // ✅ 🎵 전투/보스 BGM 전환
+            HandleWaveBGM(currentWave, isWaveStart: true);
+            
             OnWaveChanged?.Invoke(currentWave);
             waveController.ExecuteWave(currentWave);
         }
@@ -297,6 +302,9 @@ public class StageManager : MonoBehaviour
             
             // ✅ 🎵 웨이브 완료 이펙트 발행
             EmitWaveCompleteCues(completedWave);
+            
+            // ✅ 🎵 전투/보스 BGM 종료
+            HandleWaveBGM(completedWave, isWaveStart: false);
             
             currentWaveIndex++;
 
@@ -326,9 +334,45 @@ public class StageManager : MonoBehaviour
                 CheckForBossInNextWave();
             }
             
-            // 승리 조건 체크
-            if (CheckVictoryCondition())
+            // ✅ 승리 조건 체크 (Victory 타입별로 처리)
+            if (enableDebugLogs)
+                Debug.Log($"🔍 [StageManager] OnWaveCompleted - Victory: {stageConfig.Victory}, WaveIndex: {currentWaveIndex}/{stageConfig.WaveConfigs.Count}");
+            
+            bool shouldCheckVictory = false;
+            
+            switch (stageConfig.Victory)
             {
+                case VictoryCondition.KillAll:
+                    // 모든 웨이브 완료 시에만 승리 체크
+                    shouldCheckVictory = (currentWaveIndex >= stageConfig.WaveConfigs.Count);
+                    if (enableDebugLogs && shouldCheckVictory)
+                        Debug.Log($"📋 [StageManager] KillAll - 모든 웨이브 완료, 승리 체크");
+                    break;
+                    
+                case VictoryCondition.BossKill:
+                    // 보스 처치는 NotifyEnemyKilled()에서 이미 처리했으므로 여기서는 체크 안함
+                    shouldCheckVictory = false;
+                    if (enableDebugLogs)
+                        Debug.Log($"📋 [StageManager] BossKill - NotifyEnemyKilled()에서 처리됨");
+                    break;
+                    
+                case VictoryCondition.Survival:
+                    // 제한시간은 Update()에서 체크하므로 여기서는 체크 안함
+                    shouldCheckVictory = false;
+                    if (enableDebugLogs)
+                        Debug.Log($"📋 [StageManager] Survival - Update()에서 처리됨");
+                    break;
+                    
+                case VictoryCondition.ObjectiveComplete:
+                    // 특수 목표는 별도 로직에서 처리
+                    shouldCheckVictory = false;
+                    break;
+            }
+            
+            if (shouldCheckVictory && CheckVictoryCondition())
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"🏆 [StageManager] 승리! CompleteStage(true)");
                 CompleteStage(true);
             }
             else
@@ -564,18 +608,46 @@ public class StageManager : MonoBehaviour
     
         
         /// <summary>
-        /// Update에서 패배 조건 체크
+        /// Update에서 승리/패배 조건 체크
         /// </summary>
         private void Update()
         {
-            // ✅ 추가: 플레이어가 스폰되기 전에는 패배 조건 체크하지 않음
+            if (!isStageActive)
+                return;
+            
+            // ✅ 추가: 플레이어가 스폰되기 전에는 체크하지 않음
             var playerHealth = FindObjectOfType<PlayerHealth>();
             if (playerHealth == null)
             {
-                return; // PlayerHealth가 없으면 패배 조건 체크 안함
+                return; // PlayerHealth가 없으면 체크 안함
             }
             
-            if (isStageActive && CheckDefeatCondition())
+            // ✅ Survival 조건 승리 체크
+            if (stageConfig.Victory == VictoryCondition.Survival)
+            {
+                float elapsedTime = Time.time - stageStartTime;
+                if (elapsedTime >= stageConfig.TimeLimitSec)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"🏆 [StageManager] Survival 승리! 제한시간 달성: {elapsedTime:F1}초");
+                    
+                    // ✅ 승리 전에 모든 전투/보스 BGM 상태 정리
+                    if (BGMController.Instance != null)
+                    {
+                        BGMController.Instance.OnBossEnd();
+                        BGMController.Instance.OnBattleEnd();
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"🎵 [StageManager] Survival 승리 - BGM 상태 정리 완료");
+                    }
+                    
+                    CompleteStage(true);
+                    return; // 승리 처리 후 패배 체크 스킵
+                }
+            }
+            
+            // 패배 조건 체크
+            if (CheckDefeatCondition())
             {
                 CompleteStage(false);
             }
@@ -908,12 +980,23 @@ public class StageManager : MonoBehaviour
                 isBossKilled = true;
                 
                 if (enableDebugLogs)
-                    Debug.Log($"🐲 [StageManager] 보스 처치됨: {enemy.name} - 승리 조건 달성!");
+                    Debug.Log($"🐲 [StageManager] 보스 처치됨: {enemy.name} (Victory 조건: {stageConfig.Victory})");
                 
-                // 즉시 승리 조건 체크
-                if (CheckVictoryCondition())
+                // ✅ Victory 조건이 BossKill일 때만 즉시 승리 체크
+                if (stageConfig.Victory == VictoryCondition.BossKill)
                 {
-                    CompleteStage(true);
+                    if (enableDebugLogs)
+                        Debug.Log($"🏆 [StageManager] 승리 조건 달성! (BossKill) - 즉시 승리 처리");
+                    
+                    if (CheckVictoryCondition())
+                    {
+                        CompleteStage(true);
+                    }
+                }
+                else
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"📋 [StageManager] 보스 처치 완료, 승리 조건: {stageConfig.Victory} - 계속 진행");
                 }
             }
             
@@ -933,7 +1016,118 @@ public class StageManager : MonoBehaviour
             OnBossSpawned?.Invoke(bossObject);
         }
 
-        #region ✅ 🎵 Cue 시스템 연동 (Phase C-3 추가)
+        #region ✅ 🎵 BGM 시스템 연동 (Phase 1.3 추가)
+    
+    /// <summary>
+    /// 웨이브 시작/종료 시 BGM 처리
+    /// </summary>
+    private void HandleWaveBGM(WaveConfig waveConfig, bool isWaveStart)
+    {
+        if (BGMController.Instance == null)
+        {
+            if (enableDebugLogs)
+                Debug.LogWarning("⚠️ [StageManager] BGMController가 없습니다!");
+            return;
+        }
+        
+        if (isWaveStart)
+        {
+            // 웨이브 시작: 보스 여부 체크
+            bool hasBoss = CheckIfWaveHasBoss(waveConfig);
+            
+            if (hasBoss)
+            {
+                // 보스 웨이브: 보스 BGM
+                BGMController.Instance.OnBossStart(currentStageId);
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎵 [StageManager] 보스 BGM 시작: {currentStageId}");
+            }
+            else
+            {
+                // 일반 웨이브: 전투 BGM
+                BGMController.Instance.OnBattleStart(currentStageId);
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎵 [StageManager] 전투 BGM 시작: {currentStageId}");
+            }
+        }
+        else
+        {
+            // 웨이브 종료: 이전 BGM으로 복귀
+            bool hasBoss = CheckIfWaveHasBoss(waveConfig);
+            
+            if (hasBoss)
+            {
+                BGMController.Instance.OnBossEnd();
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎵 [StageManager] 보스 BGM 종료");
+            }
+            else
+            {
+                BGMController.Instance.OnBattleEnd();
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎵 [StageManager] 전투 BGM 종료");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 웨이브에 보스가 있는지 체크 (EnemyType 기반)
+    /// </summary>
+    private bool CheckIfWaveHasBoss(WaveConfig waveConfig)
+    {
+        if (waveConfig == null || waveConfig.SpawnGroups == null)
+            return false;
+        
+        foreach (var spawnGroup in waveConfig.SpawnGroups)
+        {
+            if (spawnGroup.Monsters == null)
+                continue;
+            
+            foreach (var monster in spawnGroup.Monsters)
+            {
+                // ✅ EnemyData의 EnemyType으로 보스 확인 (가장 정확)
+                EnemyData enemyData = GetEnemyDataFromMonsterID(monster.MonsterID);
+                if (enemyData != null)
+                {
+                    // EnemyType이 Boss인 경우
+                    if (enemyData.EnemyType == EnemyType.Boss)
+                    {
+                        if (enableDebugLogs)
+                            Debug.Log($"🐲 [StageManager] 보스 발견: {monster.MonsterID} (EnemyType: Boss)");
+                        return true;
+                    }
+                    
+                    // 또는 IsBoss 플래그가 true인 경우
+                    if (enemyData.IsBoss)
+                    {
+                        if (enableDebugLogs)
+                            Debug.Log($"🐲 [StageManager] 보스 발견: {monster.MonsterID} (IsBoss: true)");
+                        return true;
+                    }
+                }
+                else
+                {
+                    // ✅ Fallback: EnemyData 로드 실패 시 MonsterID로 판단 (레거시 호환)
+                    if (monster.MonsterID.Contains("BOSS") || monster.MonsterID.Contains("Boss"))
+                    {
+                        if (enableDebugLogs)
+                            Debug.LogWarning($"⚠️ [StageManager] 보스 감지 (MonsterID 기반): {monster.MonsterID} - EnemyData 로드 실패");
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    #endregion
+    
+    #region ✅ 🎵 Cue 시스템 연동 (Phase C-3 추가)
     
     /// <summary>
     /// 🎵 몬스터 스폰 이펙트 Cue 발행

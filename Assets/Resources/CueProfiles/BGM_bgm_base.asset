@@ -47,6 +47,36 @@ MonoBehaviour:
     priority: 0
     cooldown: 0
     note: 
+  - sfxId: bgm_stage_003_001
+    audioClip: {fileID: 8300000, guid: aa44eece47688bc4290a4212868495b6, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: bgm_stage_battle_001
+    audioClip: {fileID: 8300000, guid: 2744e13c07991064c93eab4fc2ebbb06, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: bgm_stage_boss_001
+    audioClip: {fileID: 8300000, guid: e3b7c21565612ff49bc4b5e35d3d93eb, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
   entries:
   - eventKey: bgm.Login
     vfxIds: []
@@ -68,6 +98,30 @@ MonoBehaviour:
     vfxIds: []
     sfxIds:
     - bgm_stage_default_001
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: 
+  - eventKey: bgm.stage.STAGE_003
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_003_001
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: 
+  - eventKey: bgm.stage.battle
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_battle_001
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: 
+  - eventKey: bgm.stage.boss
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_boss_001
     priority: 0
     cameraShakePreset: 
     timeStopMs: 0

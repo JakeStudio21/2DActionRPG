@@ -34,6 +34,9 @@ public class BGMController : Singleton<BGMController>
     // 현재 재생 중인 BGM
     private string currentBGM = "";
     
+    // 현재 스테이지 ID (폴백 시스템용)
+    private string _currentStageId = null;
+    
     protected override void Awake()
     {
         base.Awake();
@@ -71,6 +74,15 @@ public class BGMController : Singleton<BGMController>
         if (enableDebugLogs)
             Debug.Log($"📥 [BGMController] PlayDefaultBGM() 호출됨 - Key: '{bgmKey}', StageId: '{stageId}'");
         
+        // ✅ 씬 전환 시 이전 상태 초기화 (Battle, Boss 등 제거)
+        if (enableDebugLogs && activeStates.Count > 0)
+            Debug.Log($"🔄 [BGMController] 이전 씬 상태 초기화 (활성 상태 수: {activeStates.Count})");
+        
+        activeStates.Clear();
+        
+        // ✅ 현재 스테이지 ID 저장 (폴백 시스템용)
+        _currentStageId = stageId;
+        
         string resolvedKey = ResolveKey(bgmKey, stageId);
         
         if (enableDebugLogs)
@@ -84,11 +96,11 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void OnBattleStart(string stageId = null)
     {
-        string key = stageId != null 
-            ? $"bgm.stage.{stageId}.battle"
-            : "bgm.stage.battle";
+        // ✅ stageId가 없으면 현재 스테이지 ID 사용
+        string targetStageId = stageId ?? _currentStageId;
         
-        string resolvedKey = ResolveKey(key, stageId);
+        string key = "bgm.stage.battle";
+        string resolvedKey = ResolveKey(key, targetStageId);
         AddState(BGMPriority.Battle, resolvedKey);
     }
     
@@ -105,11 +117,11 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void OnBossStart(string stageId = null)
     {
-        string key = stageId != null
-            ? $"bgm.stage.{stageId}.boss"
-            : "bgm.stage.boss";
+        // ✅ stageId가 없으면 현재 스테이지 ID 사용
+        string targetStageId = stageId ?? _currentStageId;
         
-        string resolvedKey = ResolveKey(key, stageId);
+        string key = "bgm.stage.boss";
+        string resolvedKey = ResolveKey(key, targetStageId);
         AddState(BGMPriority.Boss, resolvedKey);
     }
     
@@ -226,7 +238,7 @@ public class BGMController : Singleton<BGMController>
     #region BGM 재생
     
     /// <summary>
-    /// BGM 재생 (실제 CueSystem 호출)
+    /// BGM 재생 (실제 CueSystem 호출) - Fade 지원
     /// </summary>
     private void PlayBGM(string bgmKey)
     {
@@ -240,18 +252,28 @@ public class BGMController : Singleton<BGMController>
             return;
         }
         
-        // TODO: FadeOut 현재 BGM (fadeTime)
-        // TODO: FadeIn 새 BGM (fadeTime)
-        
-        if (enableDebugLogs)
-            Debug.Log($"📤 [BGMController] CueEmitter.Emit() 호출 - Key: '{bgmKey}', Domain: '{bgmDomain}'");
-        
-        // 현재는 즉시 전환 (나중에 Fade 추가)
-        CueEmitter.Emit(bgmKey, bgmDomain);
-        currentBGM = bgmKey;
-        
-        if (enableDebugLogs)
-            Debug.Log($"✅ [BGMController] 🎵 BGM 재생 완료: {bgmKey}");
+        // ✅ Fade 적용 BGM 재생
+        if (CueSystem.CuePlayer.Instance != null)
+        {
+            bool success = CueSystem.CuePlayer.Instance.PlayBGMWithFade(bgmKey, bgmDomain, fadeTime);
+            
+            if (success)
+            {
+                currentBGM = bgmKey;
+                
+                if (enableDebugLogs)
+                    Debug.Log($"✅ [BGMController] 🎵 BGM 재생 완료 (Fade {fadeTime}s): {bgmKey}");
+            }
+            else
+            {
+                if (enableDebugLogs)
+                    Debug.LogWarning($"⚠️ [BGMController] BGM 재생 실패: {bgmKey}");
+            }
+        }
+        else
+        {
+            Debug.LogError("🔴 [BGMController] CuePlayer가 없습니다!");
+        }
     }
     
     #endregion
@@ -283,9 +305,24 @@ public class BGMController : Singleton<BGMController>
                 if (enableDebugLogs)
                     Debug.Log($"   → 스테이지 전용 키 생성: '{stageSpecificKey}' (suffix: {suffix})");
                 
-                // 1순위: 스테이지 전용 키 시도
-                // TODO: CueProfile에서 키 존재 여부 확인 (현재는 그냥 반환)
-                return stageSpecificKey;
+                // ✅ 1순위: 스테이지 전용 키 존재 확인
+                if (CueSystem.CueRegistry.Instance != null)
+                {
+                    bool hasStageSpecificKey = CueSystem.CueRegistry.Instance.HasKey(bgmDomain, stageSpecificKey);
+                    
+                    if (hasStageSpecificKey)
+                    {
+                        if (enableDebugLogs)
+                            Debug.Log($"   ✅ 스테이지 전용 키 발견: '{stageSpecificKey}'");
+                        return stageSpecificKey;
+                    }
+                    else
+                    {
+                        if (enableDebugLogs)
+                            Debug.Log($"   ⚠️ 스테이지 전용 키 없음: '{stageSpecificKey}'");
+                        Debug.Log($"   🔄 폴백: 공용 키 사용 '{requestedKey}'");
+                    }
+                }
             }
         }
         

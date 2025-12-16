@@ -74,6 +74,32 @@ namespace CueSystem
         }
         
         /// <summary>
+        /// 특정 도메인에서 키 존재 여부 확인
+        /// </summary>
+        public bool HasKey(string domain, string eventKey)
+        {
+            if (string.IsNullOrEmpty(domain) || string.IsNullOrEmpty(eventKey))
+                return false;
+            
+            // 1. 도메인 프로필 조회
+            if (!_profileRegistry.TryGetValue(domain, out CueProfile profile))
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning($"⚠️ [CueRegistry] HasKey() - 도메인 '{domain}' 프로필 없음");
+                return false;
+            }
+            
+            // 2. 프로필에서 키 존재 확인
+            var slot = profile.Resolve(eventKey);
+            bool exists = slot != null && !slot.IsEmpty;
+            
+            if (showDebugLogs)
+                Debug.Log($"🔍 [CueRegistry] HasKey({domain}.{eventKey}) = {exists}");
+            
+            return exists;
+        }
+        
+        /// <summary>
         /// 이벤트 키 해석 (O(1) 캐시 조회)
         /// </summary>
         public CueSlot Resolve(string domain, string eventKey, CueContext context = default)

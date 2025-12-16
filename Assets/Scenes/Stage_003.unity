@@ -14733,7 +14733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ad02c038d1cb4b4fa3e63b9a70e8fd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmEventKey: bgm.stage.default
+  bgmEventKey: bgm.stage.STAGE_003
   stageId: 
   delay: 0.5
   enableDebugLogs: 1

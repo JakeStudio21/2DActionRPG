@@ -70,18 +70,15 @@ public class FSMStageController : Singleton<FSMStageController>
     }
 
     /// <summary>
-    /// ⭐ 수정: 승리 조건 자동 감지 + 씬 변경 감지
+    /// ⭐ 수정: 씬 변경 감지만 수행 (승리 조건은 StageManager가 처리)
     /// </summary>
     private void Update()
     {
-        // ⭐ 추가: 씬 변경 감지 (매우 가벼운 체크)
+        // ⭐ 씬 변경 감지 (매우 가벼운 체크)
         CheckSceneChange();
         
-        // 게임 플레이 중일 때만 승리 조건 체크
-        if (!victoryTriggered && (currentStage == StageState.Scene1 || currentStage == StageState.Scene2 || currentStage == StageState.Scene3))
-        {
-            CheckVictoryCondition();
-        }
+        // ✅ 승리 조건 체크 제거: StageManager.CompleteStage()에서 TriggerVictory()/TriggerDefeat() 호출됨
+        // FSMStageController는 StageManager의 판정 결과만 받아서 씬 전환 처리
     }
 
     /// <summary>
@@ -107,10 +104,17 @@ public class FSMStageController : Singleton<FSMStageController>
     }
 
     /// <summary>
-    /// ⭐ 추가: 승리 조건 확인 및 처리
+    /// ❌ DEPRECATED: 승리 조건 체크는 StageManager에서 처리
+    /// StageManager.CompleteStage()에서 TriggerVictory()/TriggerDefeat()를 호출하므로
+    /// 이 메서드는 더 이상 사용하지 않음 (중복 체크 방지)
     /// </summary>
+    [System.Obsolete("이 메서드는 더 이상 사용하지 않습니다. StageManager가 승리 조건을 처리합니다.", false)]
     private void CheckVictoryCondition()
     {
+        // ✅ 비활성화: StageManager가 승리 조건을 체크하고 TriggerVictory()/TriggerDefeat() 호출
+        // FSMStageController는 StageManager의 판정 결과만 받아서 씬 전환 처리
+        
+        /* 기존 로직 (사용 안함)
         var currentStageInfo = GetCurrentStageInfo();
         if (currentStageInfo != null && currentStageInfo.requiresBossDefeat)
         {
@@ -127,14 +131,19 @@ public class FSMStageController : Singleton<FSMStageController>
                 TriggerVictory();
             }
         }
+        */
     }
 
     /// <summary>
-    /// ⭐ 단순화: StageProgressManager 사용
+    /// ❌ DEPRECATED: StageManager가 승리 조건을 처리하므로 더 이상 사용 안함
     /// </summary>
+    [System.Obsolete("이 메서드는 더 이상 사용하지 않습니다. StageManager가 보스 체크를 처리합니다.", false)]
     private bool AreAllBossesDefeated()
     {
-        // 런타임에서 실제 보스 오브젝트들 확인
+        // ✅ 비활성화: StageManager.NotifyEnemyKilled()에서 보스 처치 추적
+        return false;
+        
+        /* 기존 로직 (사용 안함)
         EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
         
         int totalBossCount = 0;
@@ -154,7 +163,6 @@ public class FSMStageController : Singleton<FSMStageController>
             }
         }
         
-        // 보스가 없는 스테이지 처리
         if (totalBossCount == 0)
         {
             Debug.Log("[FSMStageController] 이 스테이지에는 보스가 없습니다.");
@@ -165,13 +173,19 @@ public class FSMStageController : Singleton<FSMStageController>
         Debug.Log($"[FSMStageController] 보스 처치 현황: {deadBossCount}/{totalBossCount}");
         
         return allDefeated;
+        */
     }
 
     /// <summary>
-    /// ⭐ 단순화: StageProgressManager 사용  
+    /// ❌ DEPRECATED: StageManager가 보스 체크를 처리하므로 더 이상 사용 안함
     /// </summary>
+    [System.Obsolete("이 메서드는 더 이상 사용하지 않습니다. StageManager가 보스 체크를 처리합니다.", false)]
     private bool HasAnyBoss()
     {
+        // ✅ 비활성화: StageManager.CheckIfWaveHasBoss()에서 보스 체크
+        return false;
+        
+        /* 기존 로직 (사용 안함)
         EnemyHealth[] allEnemies = FindObjectsOfType<EnemyHealth>();
         
         foreach (var enemy in allEnemies)
@@ -183,6 +197,7 @@ public class FSMStageController : Singleton<FSMStageController>
         }
         
         return false;
+        */
     }
 
     /// <summary>
