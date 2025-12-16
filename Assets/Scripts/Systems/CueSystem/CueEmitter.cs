@@ -22,8 +22,10 @@ namespace CueSystem
                 return false;
             }
             
-            // 🔍 GamePoolManager 로딩 상태 확인
-            if (GamePoolManager.Instance != null && GamePoolManager.Instance.IsLoadingPools)
+            // 🔍 GamePoolManager 로딩 상태 확인 (BGM/UI는 제외)
+            // BGM과 UI는 GamePoolManager와 무관하므로 체크 스킵
+            bool isBGMOrUI = domain == "BGM" || domain == "UI" || domain == "Cutscene";
+            if (!isBGMOrUI && GamePoolManager.Instance != null && GamePoolManager.Instance.IsLoadingPools)
             {
                 Debug.LogWarning($"⚠️ [CueEmitter] GamePoolManager가 아직 풀을 로딩 중입니다. 이벤트: {eventKey}");
                 return false;

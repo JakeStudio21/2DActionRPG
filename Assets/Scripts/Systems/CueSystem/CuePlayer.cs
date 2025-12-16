@@ -25,6 +25,10 @@ namespace CueSystem
         private List<AudioSource> _activeSFX = new List<AudioSource>();
         private List<string> _activeUI = new List<string>();
         
+        // BGM 추적 (루프 재생용)
+        private AudioSource _currentLoopBGM = null;
+        private GameObject _currentLoopBGMObject = null;
+        
         // 쿨다운 추적
         private Dictionary<string, float> _cooldowns = new Dictionary<string, float>();
         
@@ -208,6 +212,11 @@ namespace CueSystem
                 {
                     return Play3DSFX(sfxCue, context);
                 }
+                // BGM (Loop 필요)
+                else if (sfxCue.loop)
+                {
+                    return PlayLoopingSFX(sfxCue, context);
+                }
                 else
                 {
                     // 2D 사운드 (기존 SoundManager 사용)
@@ -233,6 +242,7 @@ namespace CueSystem
             audioSource.clip = sfxCue.audioClip;
             audioSource.volume = sfxCue.volume;
             audioSource.pitch = sfxCue.pitch;
+            audioSource.loop = sfxCue.loop; // ✅ BGM 루프 지원
             audioSource.spatialBlend = 1.0f; // 3D
             audioSource.maxDistance = sfxCue.maxDistance;
             audioSource.rolloffMode = AudioRolloffMode.Linear;
@@ -240,10 +250,134 @@ namespace CueSystem
             
             _activeSFX.Add(audioSource);
             
-            // 자동 정리
-            StartCoroutine(CleanupSFXAfterPlay(audioSource, tempObj));
+            // 자동 정리 (Loop가 아닐 때만)
+            if (!sfxCue.loop)
+            {
+                StartCoroutine(CleanupSFXAfterPlay(audioSource, tempObj));
+            }
             
             return true;
+        }
+        
+        /// <summary>
+        /// 🔊 루프 SFX 재생 처리 (BGM용)
+        /// </summary>
+        private bool PlayLoopingSFX(SFXCue sfxCue, CueContext context)
+        {
+            // ✅ 이전 BGM 정지 및 제거
+            if (_currentLoopBGM != null)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"🛑 [CuePlayer] 이전 BGM 정지: {_currentLoopBGMObject?.name}");
+                
+                _currentLoopBGM.Stop();
+                _activeSFX.Remove(_currentLoopBGM);
+                
+                if (_currentLoopBGMObject != null)
+                {
+                    Destroy(_currentLoopBGMObject);
+                }
+            }
+            
+            // 새 BGM 생성
+            var loopObj = new GameObject($"Loop_BGM_{sfxCue.sfxId}");
+            DontDestroyOnLoad(loopObj);
+            
+            var audioSource = loopObj.AddComponent<AudioSource>();
+            audioSource.clip = sfxCue.audioClip;
+            audioSource.volume = sfxCue.volume;
+            audioSource.pitch = sfxCue.pitch;
+            audioSource.loop = true; // ✅ 루프 활성화
+            audioSource.spatialBlend = 0f; // 2D
+            audioSource.playOnAwake = false; // 수동 재생
+            audioSource.Play();
+            
+            // ✅ 현재 BGM 추적
+            _currentLoopBGM = audioSource;
+            _currentLoopBGMObject = loopObj;
+            
+            _activeSFX.Add(audioSource);
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"🎵 [CuePlayer] 루프 BGM 시작: {sfxCue.sfxId} (Volume: {sfxCue.volume}, Clip: {sfxCue.audioClip?.name})");
+                
+                // ✅ 디버깅: AudioSource 상태 확인
+                StartCoroutine(CheckAudioSourceState(audioSource, sfxCue.sfxId));
+            }
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// 🛑 현재 BGM 정지 (외부 호출용)
+        /// </summary>
+        public void StopCurrentBGM()
+        {
+            if (_currentLoopBGM != null)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"🛑 [CuePlayer] BGM 정지 요청: {_currentLoopBGMObject?.name}");
+                
+                _currentLoopBGM.Stop();
+                _activeSFX.Remove(_currentLoopBGM);
+                
+                if (_currentLoopBGMObject != null)
+                {
+                    Destroy(_currentLoopBGMObject);
+                }
+                
+                _currentLoopBGM = null;
+                _currentLoopBGMObject = null;
+            }
+        }
+        
+        /// <summary>
+        /// 🔍 AudioSource 상태 확인 (디버깅용)
+        /// </summary>
+        private IEnumerator CheckAudioSourceState(AudioSource audioSource, string sfxId)
+        {
+            yield return new WaitForSeconds(0.1f); // 0.1초 대기 후 확인
+            
+            // AudioListener 확인
+            AudioListener listener = FindObjectOfType<AudioListener>();
+            if (listener == null)
+            {
+                Debug.LogError($"🔴 [CuePlayer] AudioListener를 찾을 수 없습니다! 씬에 AudioListener가 없으면 소리가 안 납니다!");
+            }
+            else
+            {
+                Debug.Log($"✅ [CuePlayer] AudioListener 발견: {listener.gameObject.name}");
+            }
+            
+            if (audioSource != null)
+            {
+                Debug.Log($"🔍 [CuePlayer] AudioSource 상태 체크 [{sfxId}]:\n" +
+                          $"  - Is Playing: {audioSource.isPlaying}\n" +
+                          $"  - Volume: {audioSource.volume}\n" +
+                          $"  - Clip: {audioSource.clip?.name}\n" +
+                          $"  - Clip Length: {audioSource.clip?.length}s\n" +
+                          $"  - Loop: {audioSource.loop}\n" +
+                          $"  - Mute: {audioSource.mute}\n" +
+                          $"  - Time: {audioSource.time}\n" +
+                          $"  - Spatial Blend: {audioSource.spatialBlend}\n" +
+                          $"  - Output: {(audioSource.outputAudioMixerGroup != null ? audioSource.outputAudioMixerGroup.name : "Default")}");
+                
+                if (!audioSource.isPlaying)
+                {
+                    Debug.LogWarning($"⚠️ [CuePlayer] AudioSource가 재생 중이 아닙니다! [{sfxId}]");
+                    Debug.LogWarning($"   → Play() 호출 후에도 재생이 시작되지 않았습니다. AudioClip이 비정상이거나 AudioSource 설정 문제일 수 있습니다.");
+                }
+                
+                if (audioSource.mute)
+                {
+                    Debug.LogWarning($"⚠️ [CuePlayer] AudioSource가 Mute 상태입니다! [{sfxId}]");
+                }
+            }
+            else
+            {
+                Debug.LogError($"🔴 [CuePlayer] AudioSource가 null입니다! [{sfxId}]");
+            }
         }
         
         /// <summary>

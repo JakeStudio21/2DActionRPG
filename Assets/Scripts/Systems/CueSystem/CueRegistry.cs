@@ -15,6 +15,7 @@ namespace CueSystem
         public CueProfile enemyProfile;
         public CueProfile stageProfile;
         public CueProfile uiProfile;
+        public CueProfile bgmProfile;      // BGM 전용 프로필
         public CueProfile globalDefaults;  // 글로벌 기본값
         
         [Header("🔧 디버그 설정")]
@@ -46,6 +47,7 @@ namespace CueSystem
             RegisterProfile("Enemy", enemyProfile);
             RegisterProfile("Stage", stageProfile);
             RegisterProfile("UI", uiProfile);
+            RegisterProfile("BGM", bgmProfile);
             RegisterProfile("Global", globalDefaults);
             
             if (showDebugLogs)

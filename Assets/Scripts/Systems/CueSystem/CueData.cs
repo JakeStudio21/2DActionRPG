@@ -42,6 +42,7 @@ namespace CueSystem
         public float volume = 1f;
         [Range(0.1f, 3f)]
         public float pitch = 1f;
+        public bool loop = false;         // 루프 재생 (BGM용)
         public bool is3D = false;         // 3D 사운드 여부
         public float maxDistance = 50f;   // 3D 최대 거리
         
