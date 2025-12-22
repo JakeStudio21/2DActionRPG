@@ -88,7 +88,7 @@ public class BGMController : Singleton<BGMController>
         if (enableDebugLogs)
             Debug.Log($"🔑 [BGMController] 키 해석 완료: '{bgmKey}' → '{resolvedKey}'");
         
-        AddState(BGMPriority.Default, resolvedKey);
+        AddStateInternal(BGMPriority.Default, resolvedKey);
     }
     
     /// <summary>
@@ -101,7 +101,7 @@ public class BGMController : Singleton<BGMController>
         
         string key = "bgm.stage.battle";
         string resolvedKey = ResolveKey(key, targetStageId);
-        AddState(BGMPriority.Battle, resolvedKey);
+        AddStateInternal(BGMPriority.Battle, resolvedKey);
     }
     
     /// <summary>
@@ -109,7 +109,7 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void OnBattleEnd()
     {
-        RemoveState(BGMPriority.Battle);
+        RemoveStateInternal(BGMPriority.Battle);
     }
     
     /// <summary>
@@ -122,7 +122,7 @@ public class BGMController : Singleton<BGMController>
         
         string key = "bgm.stage.boss";
         string resolvedKey = ResolveKey(key, targetStageId);
-        AddState(BGMPriority.Boss, resolvedKey);
+        AddStateInternal(BGMPriority.Boss, resolvedKey);
     }
     
     /// <summary>
@@ -130,7 +130,7 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void OnBossEnd()
     {
-        RemoveState(BGMPriority.Boss);
+        RemoveStateInternal(BGMPriority.Boss);
     }
     
     /// <summary>
@@ -151,14 +151,36 @@ public class BGMController : Singleton<BGMController>
             Debug.Log("[BGMController] BGM 정지");
     }
     
+    /// <summary>
+    /// 우선순위 상태 추가 (컷신 등에서 사용)
+    /// </summary>
+    public void AddState(BGMPriority priority, string bgmKey)
+    {
+        if (enableDebugLogs)
+            Debug.Log($"📌 [BGMController] AddState() (Public) - Priority: {priority}, Key: '{bgmKey}'");
+        
+        AddStateInternal(priority, bgmKey);
+    }
+    
+    /// <summary>
+    /// 우선순위 상태 제거 (컷신 등에서 사용)
+    /// </summary>
+    public void RemoveState(BGMPriority priority)
+    {
+        if (enableDebugLogs)
+            Debug.Log($"📌 [BGMController] RemoveState() (Public) - Priority: {priority}");
+        
+        RemoveStateInternal(priority);
+    }
+    
     #endregion
     
     #region 상태 관리
     
     /// <summary>
-    /// 상태 추가 (스택에 push)
+    /// 상태 추가 (스택에 push) - 내부 전용
     /// </summary>
-    private void AddState(BGMPriority priority, string bgmKey)
+    private void AddStateInternal(BGMPriority priority, string bgmKey)
     {
         if (enableDebugLogs)
             Debug.Log($"📌 [BGMController] AddState() 호출 - Priority: {priority}, Key: '{bgmKey}'");
@@ -178,9 +200,9 @@ public class BGMController : Singleton<BGMController>
     }
     
     /// <summary>
-    /// 상태 제거 (스택에서 pop)
+    /// 상태 제거 (스택에서 pop) - 내부 전용
     /// </summary>
-    private void RemoveState(BGMPriority priority)
+    private void RemoveStateInternal(BGMPriority priority)
     {
         if (activeStates.ContainsKey(priority))
         {

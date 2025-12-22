@@ -72,8 +72,6 @@ namespace CutsceneSystem
         /// </summary>
         public void ShowDialogue(string speakerName, string text, float typingSpeed = 0f)
         {
-            Debug.Log($"[DialoguePanel] ShowDialogue 호출됨! text null? {string.IsNullOrEmpty(text)}, speaker: {speakerName}, typingSpeed: {typingSpeed}");
-            
             if (string.IsNullOrEmpty(text))
             {
                 Debug.LogWarning("[DialoguePanel] 대사 텍스트가 비어있습니다!");

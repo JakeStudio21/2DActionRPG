@@ -79,7 +79,7 @@ MonoBehaviour:
     imageDuration: 0
     speakerName: "\uB098\uB808\uC774\uC158"
     dialogueText: "\uC774\uAC83\uC740 \uD14C\uC2A4\uD2B8 \uCEF7\uC2E0\uC785\uB2C8\uB2E4.\n"
-    typingSpeed: 20
+    typingSpeed: 5
     sfxEventKey: 
     sfxDomain: 
     callbackMethodName: 
@@ -112,7 +112,7 @@ MonoBehaviour:
     speakerName: "\uB098\uB808\uC774\uC158"
     dialogueText: "\uBAA8\uB4E0 \uAE30\uB2A5\uC774 \uC815\uC0C1\uC801\uC73C\uB85C
       \uC791\uB3D9\uD558\uB294\uC9C0 \uD655\uC778\uD569\uB2C8\uB2E4."
-    typingSpeed: 20
+    typingSpeed: 5
     sfxEventKey: 
     sfxDomain: 
     callbackMethodName: 

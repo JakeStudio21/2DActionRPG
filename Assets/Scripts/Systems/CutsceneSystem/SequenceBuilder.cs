@@ -11,9 +11,13 @@ namespace CutsceneSystem
     public static class SequenceBuilder
     {
         /// <summary>
-        /// CutsceneData로부터 Sequence 생성
+        /// CutsceneData로부터 Sequence 생성 (확장 버전)
         /// </summary>
-        public static Sequence BuildSequence(CutsceneData data, CutsceneContext context, GameObject linkTarget)
+        public static Sequence BuildSequence(
+            CutsceneData data, 
+            CutsceneContext context, 
+            GameObject linkTarget,
+            CutsceneStepExecutor executor)
         {
             if (data == null)
             {
@@ -27,22 +31,42 @@ namespace CutsceneSystem
                 return null;
             }
             
+            if (executor == null)
+            {
+                Debug.LogError("[SequenceBuilder] CutsceneStepExecutor가 null입니다!");
+                return null;
+            }
+            
             // Sequence 생성
             Sequence sequence = DOTween.Sequence();
             
             // Sequence 정책 설정
-            sequence.SetAutoKill(true);  // 끝나면 자동 정리
-            sequence.SetLink(linkTarget); // 오브젝트 파괴 시 자동 Kill
-            sequence.SetUpdate(true);     // Time.timeScale 무시 (컷신은 게임 일시정지와 무관하게 진행)
+            sequence.SetAutoKill(true);
+            sequence.SetLink(linkTarget);
+            sequence.SetUpdate(true);
             
             // 각 Step을 Sequence에 추가
+            int stepIndex = 0;
+            float accumulatedTime = 0f;
+            
             foreach (var step in data.steps)
             {
-                Tween stepTween = CutsceneStepExecutor.ExecuteStep(step, context);
+                Tween stepTween = executor.ExecuteStep(step, context);
                 
                 if (stepTween != null)
                 {
+                    // Step 종료 시간 계산
+                    float stepDuration = stepTween.Duration();
+                    accumulatedTime += stepDuration;
+                    float capturedEndTime = accumulatedTime;
+                    
+                    // OnPlay 콜백으로 endTime 설정
+                    stepTween.OnPlay(() => {
+                        context.currentStepEndTime = capturedEndTime;
+                    });
+                    
                     sequence.Append(stepTween);
+                    stepIndex++;
                 }
                 else
                 {
@@ -50,9 +74,7 @@ namespace CutsceneSystem
                 }
             }
             
-            // 완료 콜백은 CutsceneManager에서 처리
-            
-            Debug.Log($"[SequenceBuilder] Sequence 생성 완료: {data.cutsceneId} ({data.steps.Count}개 Step)");
+            Debug.Log($"[SequenceBuilder] ✅ Sequence 생성 완료: {data.cutsceneId} ({data.steps.Count}개 Step)");
             
             return sequence;
         }

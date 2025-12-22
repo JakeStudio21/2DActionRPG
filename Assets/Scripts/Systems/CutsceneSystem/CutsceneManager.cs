@@ -39,6 +39,10 @@ namespace CutsceneSystem
         private CutsceneImagePanel imagePanel;
         private DialoguePanel dialoguePanel;
         
+        // 확장 버전 - Executor 및 Context
+        private CutsceneStepExecutor stepExecutor;
+        private CutsceneContext currentContext;
+        
         // 스킵 상태
         private bool isWaitingForSecondClick = false;
         private float secondClickTimeout = 1f;
@@ -67,6 +71,9 @@ namespace CutsceneSystem
         {
             base.Awake();
             
+            // Executor 초기화
+            stepExecutor = new CutsceneStepExecutor();
+            
             // CueProfile 자동 등록
             if (autoRegisterCueProfile)
             {
@@ -74,7 +81,7 @@ namespace CutsceneSystem
             }
             
             if (enableDebugLogs)
-                Debug.Log("[CutsceneManager] 초기화 완료");
+                Debug.Log("[CutsceneManager] ✅ 초기화 완료 (확장 버전)");
         }
         
         /// <summary>
@@ -214,6 +221,22 @@ namespace CutsceneSystem
             if (enableDebugLogs)
                 Debug.Log($"[CutsceneManager] 컷신 재생 시작: {data.cutsceneId}");
             
+            // 🎵 컷신 전용 BGM 재생
+            if (!string.IsNullOrEmpty(data.bgmEventKey))
+            {
+                if (BGMController.Instance != null)
+                {
+                    BGMController.Instance.AddState(BGMController.BGMPriority.Cutscene, data.bgmEventKey);
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"🎵 [CutsceneManager] 컷신 BGM 재생: {data.bgmEventKey}");
+                }
+                else
+                {
+                    Debug.LogWarning("[CutsceneManager] BGMController가 없어 컷신 BGM을 재생할 수 없습니다.");
+                }
+            }
+            
             // 게임 일시정지 (설정에 따라)
             if (pauseGameOnCutscene && data.pauseGameOnStart)
             {
@@ -253,14 +276,14 @@ namespace CutsceneSystem
             BlockPlayerInput();
             
             // 컨텍스트 생성
-            CutsceneContext context = new CutsceneContext(
+            currentContext = new CutsceneContext(
                 imagePanel,
                 dialoguePanel,
                 OnStepCallback
             );
             
-            // Sequence 생성
-            currentSequence = SequenceBuilder.BuildSequence(data, context, gameObject);
+            // Sequence 생성 (Executor 전달)
+            currentSequence = SequenceBuilder.BuildSequence(data, currentContext, gameObject, stepExecutor);
             
             if (currentSequence == null)
             {
@@ -279,6 +302,9 @@ namespace CutsceneSystem
             
             // Sequence 재생
             currentSequence.Play();
+            
+            // 다음 프레임까지 대기 (첫 Tween의 OnStart 실행 대기)
+            yield return null;
         }
         
         /// <summary>
@@ -310,7 +336,7 @@ namespace CutsceneSystem
         }
         
         /// <summary>
-        /// 컷신 강제 종료
+        /// 컷신 강제 종료 (ESC 스킵)
         /// </summary>
         public void StopCutscene()
         {
@@ -318,7 +344,13 @@ namespace CutsceneSystem
                 return;
             
             if (enableDebugLogs)
-                Debug.Log("[CutsceneManager] 컷신 강제 종료");
+                Debug.Log("[CutsceneManager] ⏭️ 컷신 강제 종료 (ESC 스킵)");
+            
+            // Executor 스킵 처리
+            if (stepExecutor != null && currentContext != null)
+            {
+                stepExecutor.OnSkipAll(currentContext);
+            }
             
             // Sequence 정리
             if (currentSequence != null && currentSequence.IsActive())
@@ -351,7 +383,21 @@ namespace CutsceneSystem
             string cutsceneId = currentCutsceneData?.cutsceneId ?? "Unknown";
             
             if (enableDebugLogs)
-                Debug.Log($"[CutsceneManager] 컷신 완료: {cutsceneId}");
+                Debug.Log($"[CutsceneManager] ✅ 컷신 완료: {cutsceneId}");
+            
+            // 🎵 컷신 BGM 복귀 처리
+            if (currentCutsceneData != null && 
+                !string.IsNullOrEmpty(currentCutsceneData.bgmEventKey) && 
+                currentCutsceneData.resumePreviousBGM)
+            {
+                if (BGMController.Instance != null)
+                {
+                    BGMController.Instance.RemoveState(BGMController.BGMPriority.Cutscene);
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"🎵 [CutsceneManager] 컷신 BGM 종료, 이전 BGM으로 복귀");
+                }
+            }
             
             // 게임 재개
             if (Time.timeScale == 0f)
@@ -395,6 +441,9 @@ namespace CutsceneSystem
             currentCanvas = null;
             imagePanel = null;
             dialoguePanel = null;
+            
+            // Context 초기화
+            currentContext = null;
         }
         
         /// <summary>
@@ -469,7 +518,7 @@ namespace CutsceneSystem
             }
             
             // 2차 클릭 타임아웃 체크
-            if (isWaitingForSecondClick && Time.time - lastClickTime > secondClickTimeout)
+            if (isWaitingForSecondClick && Time.unscaledTime - lastClickTime > secondClickTimeout)
             {
                 isWaitingForSecondClick = false;
             }
@@ -480,51 +529,93 @@ namespace CutsceneSystem
         /// </summary>
         private void HandleClick()
         {
-            if (dialoguePanel == null)
+            // 쿨타임 체크 (연속 클릭 방지)
+            if (Time.unscaledTime - lastClickTime < 0.2f)
                 return;
             
-            // 1차 클릭: 타이핑 즉시 완료
-            if (dialoguePanel.IsTyping)
+            lastClickTime = Time.unscaledTime;
+            
+            // [특별 처리] Dialogue 타이핑 중 → 타이핑만 즉시 완료
+            if (dialoguePanel != null && dialoguePanel.IsTyping)
             {
                 dialoguePanel.CompleteTyping();
                 isWaitingForSecondClick = true;
-                lastClickTime = Time.time;
                 
                 if (enableDebugLogs)
                     Debug.Log("[CutsceneManager] 1차 클릭: 타이핑 즉시 완료");
+                
                 return;
             }
             
-            // 2차 클릭 또는 타이핑 완료 후 클릭: 다음 Step으로 이동
-            if (isWaitingForSecondClick || (dialoguePanel.IsActive && !dialoguePanel.IsTyping))
+            // [일반 처리] 다음 Step으로 이동
+            if (isWaitingForSecondClick)
             {
-                // Sequence의 현재 Step을 완료하고 다음으로 이동
-                // DOTween Sequence는 자동으로 다음 Step으로 진행하므로
-                // 현재 Step의 남은 시간을 건너뛰는 방식으로 처리
-                SkipCurrentStep();
-                isWaitingForSecondClick = false;
-                
+                // Dialogue 2차 클릭
                 if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 클릭: 다음 Step으로 이동");
+                    Debug.Log("[CutsceneManager] 2차 클릭: 다음 Step으로 이동");
+                
+                isWaitingForSecondClick = false;
             }
+            else
+            {
+                // 다른 Step들의 1차 클릭
+                if (enableDebugLogs)
+                    Debug.Log("[CutsceneManager] 1차 클릭: 다음 Step으로 이동");
+            }
+            
+            // 현재 Step이 아직 시작되지 않았으면 무시
+            if (currentContext == null || currentContext.currentStepTween == null)
+            {
+                if (enableDebugLogs)
+                    Debug.Log("[CutsceneManager] ⚠️ 현재 Step이 아직 시작되지 않음 - 클릭 무시");
+                return;
+            }
+            
+            // 현재 Step 건너뛰기
+            SkipCurrentStep();
         }
         
         /// <summary>
-        /// 현재 Step 건너뛰기
+        /// 현재 Step 건너뛰기 (Step 단위)
         /// </summary>
         private void SkipCurrentStep()
         {
             if (currentSequence == null || !currentSequence.IsActive())
                 return;
             
-            // Sequence의 현재 트윈을 완료시켜 다음으로 이동
-            // DOTween Sequence는 직접 제어가 어려우므로
-            // 현재 트윈의 남은 시간을 0으로 만드는 방식으로 처리
+            // 현재 Step의 종료 시간으로 Goto
+            if (currentContext != null && currentContext.currentStepEndTime > 0f)
+            {
+                float targetTime = currentContext.currentStepEndTime + 0.01f; // 약간의 여유
+                
+                if (targetTime < currentSequence.Duration())
+                {
+                    currentSequence.Goto(targetTime, true);
+                    return;
+                }
+                else
+                {
+                    // 마지막 Step
+                    currentSequence.Complete(false);
+                    return;
+                }
+            }
             
-            // 간단한 방법: Sequence의 현재 트윈을 Kill하고 다음으로 진행
-            // 하지만 이는 복잡하므로, MVP에서는 클릭 시 대기 시간을 단축하는 방식으로 처리
-            // 실제로는 Sequence가 자동으로 다음 Step으로 진행하므로
-            // 여기서는 아무것도 하지 않아도 됨 (클릭은 무시)
+            // Fallback: endTime이 없으면 시간 점프 방식 사용
+            float fallbackElapsed = currentSequence.Elapsed();
+            float skipAmount = 0.5f;
+            float fallbackTarget = fallbackElapsed + skipAmount;
+            float duration = currentSequence.Duration();
+            
+            if (fallbackTarget < duration)
+            {
+                currentSequence.Goto(fallbackTarget, true);
+            }
+            else
+            {
+                // 마지막 Step
+                currentSequence.Complete(false);
+            }
         }
         
         #endregion

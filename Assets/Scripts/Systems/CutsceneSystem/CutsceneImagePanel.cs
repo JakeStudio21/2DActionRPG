@@ -86,8 +86,6 @@ namespace CutsceneSystem
         /// <param name="isFade">Fade 레이어 사용 여부 (배경/초상 위에 표시)</param>
         public void ShowImage(Sprite sprite, bool isPortrait, bool fadeIn = true, Vector2 position = default, float scale = 1f, float duration = 2f, bool isFade = false)
         {
-            Debug.Log($"[CutsceneImagePanel] ShowImage 호출됨! sprite null? {sprite == null}, isPortrait: {isPortrait}, isFade: {isFade}, duration: {duration}");
-            
             if (sprite == null)
             {
                 Debug.LogWarning("[CutsceneImagePanel] 스프라이트가 null입니다!");

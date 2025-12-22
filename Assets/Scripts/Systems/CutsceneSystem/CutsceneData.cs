@@ -48,6 +48,13 @@ namespace CutsceneSystem
         [Tooltip("사용할 Canvas 프리팹 경로 (비어있으면 기본값 사용)")]
         public string canvasPrefabPath = "Prefabs/Cutscene/CutsceneCanvas";
         
+        [Header("=== BGM 설정 (선택사항) ===")]
+        [Tooltip("컷신 전용 BGM 이벤트 키 (비어있으면 BGM 변경 안함)\n예: bgm.cutscene.intro")]
+        public string bgmEventKey = "";
+        
+        [Tooltip("컷신 종료 시 이전 BGM으로 복귀 여부")]
+        public bool resumePreviousBGM = true;
+        
         [Header("=== 디버그 ===")]
         [Tooltip("컷신 설명 (기획 메모)")]
         [TextArea(3, 5)]
