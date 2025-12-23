@@ -289,6 +289,26 @@ public class PlayerEquipment : MonoBehaviour
             return PlayerClass.Warrior;
         }
         
+        // ⭐ Tutorial 모드 확인 (최우선)
+        if (TutorialManager.Instance != null)
+        {
+            PlayerType tutorialClass = TutorialManager.Instance.GetPlayerClass();
+            PlayerClass tutorialPlayerClass = tutorialClass switch
+            {
+                PlayerType.Warrior => PlayerClass.Warrior,
+                PlayerType.Assasin => PlayerClass.Assasin,
+                PlayerType.Wizard => PlayerClass.Wizard,
+                _ => PlayerClass.None
+            };
+            
+            if (tutorialPlayerClass != PlayerClass.None)
+            {
+                if (showDebugLogs)
+                    Debug.Log($"🎓 [PlayerEquipment] Tutorial 모드 - 클래스: {tutorialPlayerClass}");
+                return tutorialPlayerClass;
+            }
+        }
+        
         // ⭐ 추가: 게임 매니저에서 선택된 클래스 확인 (폴백)
         if (GameManager.Instance?.selectedPlayerData != null)
         {

@@ -98,6 +98,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b37c373214cc934d9c427c4c816c884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weakIntensity: 0.5
+  normalIntensity: 1
+  strongIntensity: 2
+  massiveIntensity: 4
 --- !u!1 &2952044546922807476
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,56 +195,8 @@ MonoBehaviour:
   selectedPlayerData: {fileID: 11400000, guid: 17b89b426e9cda44ebe63bcccaa41df1, type: 2}
   playerSlots: []
   currentSlotIndex: -1
+  lastSelectedSlotIndex: 0
   showDebugLogs: 1
---- !u!1 &4785675241861220386
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5053004692264109202}
-  - component: {fileID: 8152556149530321025}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5053004692264109202
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4785675241861220386}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7166106308255166314}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8152556149530321025
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4785675241861220386}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61434127094da8c488f873ddfff81709, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentGameState: 0
-  isGamePaused: 0
-  lobbySceneName: Lobby
-  loadingSceneName: Ingame_Loading
-  selectedPlayerData: {fileID: 11400000, guid: 17b89b426e9cda44ebe63bcccaa41df1, type: 2}
 --- !u!1 &7290968884572180690
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,7 +231,6 @@ Transform:
   - {fileID: 5721320510519839973}
   - {fileID: 707569810263958521}
   - {fileID: 1185670323770083567}
-  - {fileID: 5053004692264109202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4639642882801342193

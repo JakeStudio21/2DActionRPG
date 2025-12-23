@@ -74,6 +74,10 @@ public class LobbyUIController : MonoBehaviour
     public Button characterInfoButton;      //  기존 영웅 버튼 참조 (일관성)
     public Button quitGameButton;           // 🆕 게임 종료 버튼 추가
     
+    [Header("🎬 다시보기 버튼")]  // 🆕 Phase 7 추가
+    public Button replayIntroButton;        // 🆕 인트로 다시보기 버튼
+    public Button replayTutorialButton;     // 🆕 튜토리얼 다시보기 버튼
+    
     [Header("=== 스테이지 선택 UI ===")]
     public TMP_Text stageSelectTitleText;
     public Button stage1Button;
@@ -440,6 +444,27 @@ public class LobbyUIController : MonoBehaviour
                 OnQuitGameButtonClicked();
             });
             Debug.Log("✅ [LobbyUIController] 게임 종료 버튼 이벤트 연결");
+        }
+        
+        // 🆕 Phase 7: 다시보기 버튼 이벤트 연결
+        if (replayIntroButton != null)
+        {
+            replayIntroButton.onClick.AddListener(() => {
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                OnReplayIntroButtonClicked();
+            });
+            Debug.Log("✅ [LobbyUIController] 인트로 다시보기 버튼 이벤트 연결");
+        }
+        
+        if (replayTutorialButton != null)
+        {
+            replayTutorialButton.onClick.AddListener(() => {
+                var context = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.button.click", "UI", context);
+                OnReplayTutorialButtonClicked();
+            });
+            Debug.Log("✅ [LobbyUIController] 튜토리얼 다시보기 버튼 이벤트 연결");
         }
         
         // 기존 슬롯, 스테이지 관련 버튼들...
@@ -2213,4 +2238,54 @@ public class LobbyUIController : MonoBehaviour
             }
         }
     }
+    
+    #region 🎬 Phase 7: 다시보기 기능
+    
+    /// <summary>
+    /// 인트로 다시보기 버튼 클릭
+    /// </summary>
+    public void OnReplayIntroButtonClicked()
+    {
+        Debug.Log("[LobbyUIController] 인트로 다시보기 요청");
+        
+        // 현재 데이터 저장
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            PlayerDataManager.Instance.SaveCurrentSlot();
+        }
+        
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ReplayIntro();
+        }
+        else
+        {
+            Debug.LogError("[LobbyUIController] GameManager가 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 튜토리얼 다시보기 버튼 클릭
+    /// </summary>
+    public void OnReplayTutorialButtonClicked()
+    {
+        Debug.Log("[LobbyUIController] 튜토리얼 다시보기 요청");
+        
+        // 현재 데이터 저장
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            PlayerDataManager.Instance.SaveCurrentSlot();
+        }
+        
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ReplayTutorial();
+        }
+        else
+        {
+            Debug.LogError("[LobbyUIController] GameManager가 없습니다!");
+        }
+    }
+    
+    #endregion
 }

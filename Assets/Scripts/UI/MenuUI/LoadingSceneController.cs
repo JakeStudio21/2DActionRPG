@@ -53,17 +53,20 @@ public class LoadingSceneController : MonoBehaviour
             Debug.LogWarning("[LoadingSceneController] LobbyPreloadManager가 연결되지 않았습니다!");
         }
 
-        // 만약 nextSceneName이 비어있다면, Lobby로 설정 (최초 실행)
+        // 🆕 Phase 3: nextSceneName이 비어있다면, GameManager의 로그인 판정 사용
         if (string.IsNullOrEmpty(nextSceneName))
         {
-            nextSceneName = "Lobby";
-            Debug.Log("[LoadingSceneController] nextSceneName이 비어있어서 Lobby로 설정했습니다.");
+            Debug.Log("[LoadingSceneController] nextSceneName이 비어있음 - 로그인 씬으로 추정");
+            // nextSceneName을 설정하지 않음 (Tap to Start 버튼에서 처리)
+        }
+        else
+        {
+            Debug.Log($"[LoadingSceneController] 다음 로드할 씬: {nextSceneName}");
         }
 
-        Debug.Log($"[LoadingSceneController] 다음 로드할 씬: {nextSceneName}");
-
         // 'Tap to Start' 오브젝트가 연결되어 있고 활성화 되어야 할 때만 보여줌
-        if (tapToStartObj != null && nextSceneName == "Lobby")
+        // 🔧 수정: 최초 실행(nextSceneName 비어있음) 또는 로비 전환 시 버튼 활성화
+        if (tapToStartObj != null && (string.IsNullOrEmpty(nextSceneName) || nextSceneName == "Lobby"))
         {
             tapToStartObj.SetActive(true);
             if(loadingText != null) 
@@ -72,7 +75,7 @@ public class LoadingSceneController : MonoBehaviour
                 progressBar.value = 0f;
             Debug.Log("[LoadingSceneController] Tap to Start 모드로 초기화");
         }
-        else // 'Tap to Start'가 없거나, 게임 중 씬 전환일 경우
+        else // 'Tap to Start'가 없거나, 게임 중 씬 전환일 경우 (Stage → Loading → Stage)
         {
             if(tapToStartObj != null) 
                 tapToStartObj.SetActive(false);
@@ -101,6 +104,24 @@ public class LoadingSceneController : MonoBehaviour
             tapToStartObj.SetActive(false);
         if(loadingText != null) 
             loadingText.text = "Loading...";
+
+        // 🆕 Phase 3: nextSceneName이 비어있으면 GameManager의 로그인 판정 사용
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            Debug.Log("[LoadingSceneController] 로그인 완료 - GameManager로 플로우 판정");
+            
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnLoginComplete();
+                // GameManager가 씬 전환을 처리하므로 여기서는 종료
+                return;
+            }
+            else
+            {
+                Debug.LogError("[LoadingSceneController] GameManager가 없습니다! 기본 로비로 이동");
+                nextSceneName = "Lobby";
+            }
+        }
 
         StartCoroutine(LoadSceneProcess());
     }

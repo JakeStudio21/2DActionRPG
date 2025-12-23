@@ -44,9 +44,25 @@ public class GameManager : Singleton<GameManager>
     [Header("씬 관리")]
     [SerializeField] private string lobbySceneName = "Lobby";
     [SerializeField] private string loadingSceneName = "Ingame_Loading";  // "Loading"에서 "Ingame_Loading"으로 변경
+    [SerializeField] private string introSceneName = "Intro";              // 🆕 인트로 씬
+    [SerializeField] private string tutorialSceneName = "Tutorial";        // 🆕 튜토리얼 씬
     
     [Header("게임 데이터")]
     public SelectedPlayerData selectedPlayerData;
+    
+    // 🆕 최초 실행 플로우 관리
+    public enum FlowType
+    {
+        FirstTime,      // 최초 실행 플로우 (Login → Intro → Tutorial → Lobby)
+        ReturnFromGame, // 재실행 플로우 (Login → Lobby)
+        ReplayIntro,    // 인트로 다시보기 (Lobby → Intro → Lobby)
+        ReplayTutorial  // 튜토리얼 다시보기 (Lobby → Tutorial → Lobby)
+    }
+    
+    public FlowType currentFlow = FlowType.FirstTime;
+    
+    // 🆕 최초 실행 판정 키 (PlayerPrefs 기반)
+    private const string FIRST_LAUNCH_KEY = "HasLaunchedBefore";
     
     // 런타임 스테이지 선택 데이터 (DontDestroyOnLoad로 유지됨)
     [System.NonSerialized]
@@ -366,6 +382,130 @@ public class GameManager : Singleton<GameManager>
         Debug.Log($"⭐ [GameManager] 레벨 변경 감지: {newLevel}");
     }
 
+    #endregion
+
+    #region 🆕 Phase 2: 인트로/튜토리얼 플로우 관리
+    
+    /// <summary>
+    /// 앱 최초 실행 여부 확인 (PlayerPrefs 기반)
+    /// </summary>
+    public bool IsFirstLaunch()
+    {
+        // PlayerPrefs에 키가 없으면 최초 실행
+        bool hasLaunchedBefore = PlayerPrefs.HasKey(FIRST_LAUNCH_KEY);
+        
+        if (!hasLaunchedBefore)
+        {
+            Debug.Log("[GameManager] 🆕 최초 실행 감지");
+            return true;
+        }
+        
+        Debug.Log("[GameManager] 🔄 재실행 감지");
+        return false;
+    }
+    
+    /// <summary>
+    /// 최초 실행 플래그 저장
+    /// </summary>
+    public void MarkAsLaunched()
+    {
+        PlayerPrefs.SetInt(FIRST_LAUNCH_KEY, 1);
+        PlayerPrefs.Save();
+        Debug.Log("[GameManager] 최초 실행 플래그 저장 완료");
+    }
+    
+    /// <summary>
+    /// 로그인 완료 후 호출 (최초 실행 판정)
+    /// </summary>
+    public void OnLoginComplete()
+    {
+        if (IsFirstLaunch())
+        {
+            // 최초 실행 → 인트로부터 시작
+            Debug.Log("[GameManager] 최초 실행 플로우 시작 → 인트로 씬으로 이동");
+            currentFlow = FlowType.FirstTime;
+            MarkAsLaunched(); // PlayerPrefs 저장
+            LoadIntroScene();
+        }
+        else
+        {
+            // 재실행 → 바로 로비로
+            Debug.Log("[GameManager] 재실행 플로우 → 로비로 직접 이동");
+            currentFlow = FlowType.ReturnFromGame;
+            LoadLobbyScene();
+        }
+    }
+    
+    /// <summary>
+    /// 인트로 씬 로드
+    /// </summary>
+    public void LoadIntroScene()
+    {
+        Debug.Log($"[GameManager] 인트로 씬 로드 (플로우: {currentFlow})");
+        currentGameState = GameState.None;
+        SceneManager.LoadScene(introSceneName);
+    }
+    
+    /// <summary>
+    /// 튜토리얼 씬 로드
+    /// </summary>
+    public void LoadTutorialScene()
+    {
+        Debug.Log($"[GameManager] 튜토리얼 씬 로드 (플로우: {currentFlow})");
+        currentGameState = GameState.None;
+        SceneManager.LoadScene(tutorialSceneName);
+    }
+    
+    /// <summary>
+    /// 인트로 다시보기 (로비에서 호출)
+    /// </summary>
+    public void ReplayIntro()
+    {
+        Debug.Log("[GameManager] 인트로 다시보기 시작");
+        currentFlow = FlowType.ReplayIntro;
+        LoadIntroScene();
+    }
+    
+    /// <summary>
+    /// 튜토리얼 다시보기 (로비에서 호출)
+    /// </summary>
+    public void ReplayTutorial()
+    {
+        Debug.Log("[GameManager] 튜토리얼 다시보기 시작");
+        currentFlow = FlowType.ReplayTutorial;
+        LoadTutorialScene();
+    }
+    
+    /// <summary>
+    /// 현재 플로우에 따라 다음 씬 결정
+    /// </summary>
+    public void ProceedToNextScene()
+    {
+        Debug.Log($"[GameManager] ProceedToNextScene 호출 (현재 플로우: {currentFlow})");
+        
+        switch (currentFlow)
+        {
+            case FlowType.FirstTime:
+                // 최초 실행: 로비로 (튜토리얼 종료 후)
+                Debug.Log("[GameManager] 최초 실행 완료 → 로비로 이동");
+                LoadLobbyScene();
+                break;
+                
+            case FlowType.ReplayIntro:
+            case FlowType.ReplayTutorial:
+                // 다시보기: 로비로 복귀
+                Debug.Log("[GameManager] 다시보기 완료 → 로비로 복귀");
+                LoadLobbyScene();
+                break;
+                
+            case FlowType.ReturnFromGame:
+                // 스테이지에서 복귀 → 로비
+                Debug.Log("[GameManager] 게임 복귀 → 로비로 이동");
+                LoadLobbyScene();
+                break;
+        }
+    }
+    
     #endregion
 
     protected override void OnDestroy()

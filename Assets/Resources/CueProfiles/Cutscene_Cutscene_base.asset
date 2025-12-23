@@ -16,6 +16,78 @@ MonoBehaviour:
   domain: 
   baseProfile: {fileID: 0}
   vfxCatalog: []
-  sfxCatalog: []
-  entries: []
+  sfxCatalog:
+  - sfxId: bgm_intro
+    audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: image_appear
+    audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 50
+    cooldown: 0
+    note: 
+  - sfxId: dialogue_type
+    audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: scene_end
+    audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  entries:
+  - eventKey: bgm_intro
+    vfxIds: []
+    sfxIds:
+    - bgm_intro
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: "BGM \uC778\uD2B8\uB85C"
+  - eventKey: image_appear
+    vfxIds: []
+    sfxIds:
+    - image_appear
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: "BGM \uC778\uD2B8\uB85C"
+  - eventKey: dialogue_type
+    vfxIds: []
+    sfxIds:
+    - dialogue_type
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: "BGM \uC778\uD2B8\uB85C"
+  - eventKey: scene_end
+    vfxIds: []
+    sfxIds:
+    - scene_end
+    priority: 0
+    cameraShakePreset: 
+    timeStopMs: 0
+    note: "BGM \uC778\uD2B8\uB85C"
   description: 

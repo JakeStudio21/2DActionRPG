@@ -15287,55 +15287,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 522318244}
   m_CullTransparentMesh: 0
---- !u!1 &525432872
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 525432874}
-  - component: {fileID: 525432873}
-  m_Layer: 0
-  m_Name: CutsceneTrigger_Intro
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &525432873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 525432872}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a24ec5b75a11b6540b3e4c22d0239bf9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cutsceneId: Intro_001
-  cutsceneData: {fileID: 11400000, guid: 6348e74d43a415f42973a849c4ef8ed1, type: 2}
-  delay: 0.1
-  playOnce: 1
-  enableDebugLogs: 1
---- !u!4 &525432874
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 525432872}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &530443745
 GameObject:
   m_ObjectHideFlags: 0
@@ -15958,6 +15909,8 @@ MonoBehaviour:
   inventoryButton: {fileID: 0}
   characterInfoButton: {fileID: 0}
   quitGameButton: {fileID: 0}
+  replayIntroButton: {fileID: 0}
+  replayTutorialButton: {fileID: 0}
   stageSelectTitleText: {fileID: 71694578}
   stage1Button: {fileID: 1475487784}
   stage2Button: {fileID: 1796107249}
@@ -49165,55 +49118,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1754586220}
   m_CullTransparentMesh: 1
---- !u!1 &1766459182
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1766459184}
-  - component: {fileID: 1766459183}
-  m_Layer: 0
-  m_Name: CutsceneManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1766459183
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1766459182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31fc97bee603f8b4e9f2f1d66a1f5e00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cutsceneDataPath: CutsceneData
-  pauseGameOnCutscene: 1
-  cutsceneCueProfile: {fileID: 11400000, guid: 20f6268d6f220cc42bcbf2e3ecc39925, type: 2}
-  autoRegisterCueProfile: 1
-  enableDebugLogs: 1
---- !u!4 &1766459184
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1766459182}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 601.2657, y: 156.06602, z: 6.796423}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1768578045
 GameObject:
   m_ObjectHideFlags: 0
@@ -59747,37 +59651,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7455088776533783446
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8551553112252603749}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 75.79361, y: 10.388638, z: 41.510807}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7497496924399330339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8551553112252603749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7469abdefa8ce24488b752af97ea4c1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentSceneConfig: {fileID: 0}
-  enableDebugMode: 1
-  showPoolStats: 1
-  maxPoolsLoadPerFrame: 3
 --- !u!114 &7618823097614441490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59931,23 +59804,6 @@ MonoBehaviour:
   equipWarningText: {fileID: 1285935046}
   equipText: {fileID: 516260735}
   showDebugLogs: 1
---- !u!1 &8551553112252603749
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7455088776533783446}
-  - component: {fileID: 7497496924399330339}
-  m_Layer: 0
-  m_Name: GamePoolManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &8867337011596432906
 GameObject:
   m_ObjectHideFlags: 0
@@ -59998,9 +59854,6 @@ SceneRoots:
   - {fileID: 845364931}
   - {fileID: 678212492}
   - {fileID: 2065456707}
-  - {fileID: 7455088776533783446}
   - {fileID: 1641825771}
   - {fileID: 1446602894}
-  - {fileID: 1766459184}
-  - {fileID: 525432874}
   - {fileID: 2009786921}

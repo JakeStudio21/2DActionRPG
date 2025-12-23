@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d776b06ddd9c454abe7d7193af5b7cf, type: 3}
-  m_Name: Intro_001_CutsceneData
+  m_Name: Tutorial_End
   m_EditorClassIdentifier: 
-  cutsceneId: Intro_001
+  cutsceneId: Tutorial_End
   cutsceneName: "\uD14C\uC2A4\uD2B8 \uC778\uD2B8\uB85C \uCEF7\uC2E0"
   cutsceneType: 0
   steps:
@@ -30,6 +30,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 3
@@ -48,6 +51,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: bgm_intro
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 0
@@ -66,6 +72,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 1
@@ -82,6 +91,9 @@ MonoBehaviour:
     typingSpeed: 5
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
@@ -98,6 +110,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 1
@@ -115,6 +130,9 @@ MonoBehaviour:
     typingSpeed: 5
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 3
@@ -131,6 +149,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: image_appear
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
@@ -147,6 +168,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 0
@@ -163,6 +187,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 3
@@ -179,10 +206,15 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: scene_end
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   pauseGameOnStart: 1
   canSkip: 1
   playOnce: 0
   canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  bgmEventKey: 
+  resumePreviousBGM: 1
   description: 

@@ -127,13 +127,25 @@ public class PlayerRuntimeStats : MonoBehaviour
     /// </summary>
     private void InitializeReferences()
     {
-        // PlayerDataManager 참조
-        dataManager = PlayerDataManager.Instance;
-        if (dataManager != null)
+        // ⭐ Tutorial 모드 확인
+        if (TutorialManager.Instance != null)
         {
-            playerData = dataManager.selectedPlayerData;
-            // 🗑️ 제거: 존재하지 않는 이벤트 참조 삭제  
-            // playerData.OnRuntimeEquippedItemsChanged += OnEquipmentChanged;
+            if (showDebugLogs)
+                Debug.Log("🎓 [PlayerRuntimeStats] Tutorial 모드 감지 - 기본 스탯 사용");
+            
+            // Tutorial 모드에서는 dataManager, playerData를 null로 유지
+            // RecalculateAllStats()에서 자동으로 기본값 사용됨
+        }
+        else
+        {
+            // 일반 모드: PlayerDataManager 참조
+            dataManager = PlayerDataManager.Instance;
+            if (dataManager != null)
+            {
+                playerData = dataManager.selectedPlayerData;
+                // 🗑️ 제거: 존재하지 않는 이벤트 참조 삭제  
+                // playerData.OnRuntimeEquippedItemsChanged += OnEquipmentChanged;
+            }
         }
         
         // 현재 활성 클래스 찾기
@@ -147,6 +159,7 @@ public class PlayerRuntimeStats : MonoBehaviour
         if (showDebugLogs)
         {
             Debug.Log($"🔗 [PlayerRuntimeStats] 참조 초기화 완료");
+            Debug.Log($"   - Tutorial 모드: {(TutorialManager.Instance != null ? "✅" : "❌")}");
             Debug.Log($"   - DataManager: {(dataManager != null ? "✅" : "❌")}");
             Debug.Log($"   - PlayerData: {(playerData != null ? "✅" : "❌")}");
             Debug.Log($"   - CurrentClass: {(currentClass != null ? currentClass.GetType().Name : "❌")}");

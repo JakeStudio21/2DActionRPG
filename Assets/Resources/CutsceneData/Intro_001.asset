@@ -1,0 +1,220 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d776b06ddd9c454abe7d7193af5b7cf, type: 3}
+  m_Name: Intro_001
+  m_EditorClassIdentifier: 
+  cutsceneId: Intro_001
+  cutsceneName: "\uD14C\uC2A4\uD2B8 \uC778\uD2B8\uB85C \uCEF7\uC2E0"
+  cutsceneType: 0
+  steps:
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 77cc16bcd24ca964b8e1606e149de7f0, type: 3}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 3
+    duration: 0.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: bgm_intro
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 953aab5ddc0c5b34ea1d50e120d44a9f, type: 3}
+    isFade: 0
+    isPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -200, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uB098\uB808\uC774\uC158"
+    dialogueText: "\uC774\uAC83\uC740 \uD14C\uC2A4\uD2B8 \uCEF7\uC2E0\uC785\uB2C8\uB2E4.\n"
+    typingSpeed: 5
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uB098\uB808\uC774\uC158"
+    dialogueText: "\uBAA8\uB4E0 \uAE30\uB2A5\uC774 \uC815\uC0C1\uC801\uC73C\uB85C
+      \uC791\uB3D9\uD558\uB294\uC9C0 \uD655\uC778\uD569\uB2C8\uB2E4."
+    typingSpeed: 5
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 3
+    duration: 0.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: image_appear
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 0.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 7476d6135dfce2c47a3cc6b7d8d94fd6, type: 3}
+    isFade: 1
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 3
+    duration: 0.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: scene_end
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  pauseGameOnStart: 1
+  canSkip: 1
+  playOnce: 0
+  canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  bgmEventKey: 
+  resumePreviousBGM: 1
+  description: 
