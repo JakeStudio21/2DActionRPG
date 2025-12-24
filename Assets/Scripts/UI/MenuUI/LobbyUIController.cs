@@ -16,6 +16,7 @@ public class LobbyUIController : MonoBehaviour
     // 🔧 Step 2-2: 슬롯 시스템 추가
     [Header("=== 캐릭터 슬롯 시스템 ===")]
     public CharacterCreationController characterCreationController; // 캐릭터 생성 컨트롤러 참조
+    public ConfirmationPopup confirmationPopup; // 🆕 확인 팝업 컨트롤러 참조
     public Button[] characterSlotButtons = new Button[3]; // Slot 0, 1, 2 버튼 배열
     public GameObject[] slotPanels = new GameObject[3]; // 각 슬롯 패널
     
@@ -1454,10 +1455,49 @@ public class LobbyUIController : MonoBehaviour
         var slotData = PlayerDataManager.Instance.GetSlotData(slotIndex);
         if (slotData != null && slotData.isSlotUsed)
         {
-            // TODO: 삭제 확인 팝업 표시 (추후 구현)
-            // 현재는 바로 삭제
-            DeleteCharacterSlot(slotIndex, slotData);
+            // 🆕 확인 팝업 표시
+            ShowDeleteConfirmationPopup(slotIndex, slotData);
         }
+    }
+    
+    /// <summary>
+    /// 🆕 캐릭터 삭제 확인 팝업 표시
+    /// </summary>
+    private void ShowDeleteConfirmationPopup(int slotIndex, PlayerSlotData slotData)
+    {
+        Debug.Log($"[LobbyUIController] 캐릭터 삭제 확인 팝업 표시: 슬롯 {slotIndex}");
+        
+        // 🔍 디버그: ConfirmationPopup 참조 상태
+        if (confirmationPopup == null)
+        {
+            Debug.LogError("[LobbyUIController] ❌ ConfirmationPopup 참조가 null입니다! Inspector에서 연결해주세요.");
+            Debug.LogWarning("[LobbyUIController] ⚠️ 팝업 없이 바로 삭제합니다.");
+            
+            // Fallback: 바로 삭제
+            DeleteCharacterSlot(slotIndex, slotData);
+            return;
+        }
+        
+        // 팝업 메시지 구성
+        string title = "캐릭터 삭제";
+        string message = "정말 삭제하시겠습니까?";
+        string detail = $"{slotData.playerName} (Lv.{slotData.level}, {slotData.playerType})";
+        
+        // 확인 팝업 표시
+        confirmationPopup.Show(
+            title,
+            message,
+            detail,
+            onConfirm: () => {
+                Debug.Log($"[LobbyUIController] 사용자가 삭제를 확인했습니다.");
+                DeleteCharacterSlot(slotIndex, slotData);
+                ShowLobbyPanel();  // 🆕 삭제 후 로비로 복귀
+            },
+            onCancel: () => {
+                Debug.Log($"[LobbyUIController] 사용자가 삭제를 취소했습니다.");
+                ShowLobbyPanel();  // 🆕 취소 시 로비로 복귀
+            }
+        );
     }
     
     // 🔧 수정: 캐릭터 삭제 실행 (모든 UI 갱신 포함)
