@@ -1396,16 +1396,29 @@ public class LobbyUIController : MonoBehaviour
     // 🔧 Step 2-2: 캐릭터 생성 시작 (빈 슬롯)
     private void StartCharacterCreation(int slotIndex)
     {
-        Debug.Log($"[LobbyUIController] 캐릭터 생성 시작: 슬롯 {slotIndex}");
+        Debug.Log($"[LobbyUIController] 🎯 캐릭터 생성 시작: 슬롯 {slotIndex}");
         
-        if (characterCreationController != null)
+        // 🔍 디버그: CharacterCreationController 참조 상태
+        if (characterCreationController == null)
         {
-            characterCreationController.StartCharacterCreation(slotIndex);
+            Debug.LogError("[LobbyUIController] ❌ CharacterCreationController 참조가 null입니다!");
+            
+            // 자동 검색 시도
+            characterCreationController = FindObjectOfType<CharacterCreationController>();
+            if (characterCreationController != null)
+            {
+                Debug.LogWarning("[LobbyUIController] ⚠️ CharacterCreationController를 자동으로 찾았습니다. Inspector에서 연결해주세요.");
+            }
+            else
+            {
+                Debug.LogError("[LobbyUIController] ❌ CharacterCreationController를 찾을 수 없습니다!");
+                return;
+            }
         }
-        else
-        {
-            Debug.LogError("[LobbyUIController] CharacterCreationController 참조가 없습니다!");
-        }
+        
+        Debug.Log($"[LobbyUIController] ✅ CharacterCreationController 참조 정상, StartCharacterCreation() 호출 중...");
+        characterCreationController.StartCharacterCreation(slotIndex);
+        Debug.Log($"[LobbyUIController] ✅ CharacterCreationController.StartCharacterCreation() 호출 완료");
     }
     
     // 🔧 Step 2-2: 선택된 캐릭터 정보 업데이트
@@ -1858,8 +1871,28 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void StartCharacterCreationOnboarding()
     {
+        Debug.Log("[LobbyUI] 📝 캐릭터 생성 온보딩 시작: Slot 0");
+        
+        // 🔍 디버그: PlayerDataManager 상태 확인
+        if (PlayerDataManager.Instance == null)
+        {
+            Debug.LogError("[LobbyUI] ❌ PlayerDataManager.Instance가 null입니다!");
+            return;
+        }
+        
+        var slotData = PlayerDataManager.Instance.GetSlotData(0);
+        if (slotData == null)
+        {
+            Debug.LogError("[LobbyUI] ❌ 슬롯 0 데이터가 null입니다!");
+            return;
+        }
+        
+        Debug.Log($"[LobbyUI] 🔍 슬롯 0 상태: isSlotUsed={slotData.isSlotUsed}, playerName={slotData.playerName}");
+        
         // 첫 번째 빈 슬롯으로 캐릭터 생성 시작
+        Debug.Log("[LobbyUI] 🚀 StartCharacterCreation(0) 호출");
         StartCharacterCreation(0);
+        Debug.Log("[LobbyUI] ✅ StartCharacterCreation(0) 호출 완료");
     }
     
     /// <summary>

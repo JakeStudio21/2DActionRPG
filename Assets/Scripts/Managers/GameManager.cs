@@ -477,6 +477,22 @@ public class GameManager : Singleton<GameManager>
     }
     
     /// <summary>
+    /// Tutorial 완료 시 호출 (최초 실행 플래그 관리)
+    /// </summary>
+    public void OnTutorialCompleted()
+    {
+        Debug.Log("[GameManager] ⭐ Tutorial 완료 처리 시작");
+        
+        // 최초 실행 플래그 저장
+        MarkAsLaunched();
+        
+        // FlowType 전환 (다음 실행부터 Tutorial 스킵)
+        currentFlow = FlowType.ReturnFromGame;
+        
+        Debug.Log("[GameManager] ✅ Tutorial 완료 처리 완료 - 다음 실행부터 Lobby 직행");
+    }
+    
+    /// <summary>
     /// 현재 플로우에 따라 다음 씬 결정
     /// </summary>
     public void ProceedToNextScene()

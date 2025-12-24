@@ -122,8 +122,8 @@ public class TutorialSceneController : MonoBehaviour
     {
         if (stepController != null)
         {
-            stepController.StartTutorial();
-            stepController.OnTutorialCompleted += OnTutorialStepsCompleted;
+            // ⭐ 플레이어 스폰을 기다린 후 튜토리얼 시작
+            StartCoroutine(WaitForPlayerAndStartTutorial());
         }
         else
         {
@@ -131,6 +131,50 @@ public class TutorialSceneController : MonoBehaviour
             // 컨트롤러 없으면 바로 종료 컷신 재생
             OnTutorialStepsCompleted();
         }
+    }
+    
+    /// <summary>
+    /// 플레이어 스폰을 기다린 후 튜토리얼 시작
+    /// </summary>
+    private IEnumerator WaitForPlayerAndStartTutorial()
+    {
+        if (enableDebugLogs)
+            Debug.Log("[TutorialScene] ⏳ 플레이어 스폰 대기 중...");
+        
+        // PlayerController가 나타날 때까지 대기
+        int maxRetries = 50; // 최대 5초 대기 (0.1초 * 50)
+        int retryCount = 0;
+        
+        while (retryCount < maxRetries)
+        {
+            PlayerController player = FindObjectOfType<PlayerController>();
+            
+            if (player != null)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[TutorialScene] ✅ 플레이어 발견! (시도 {retryCount + 1}회, {(retryCount * 0.1f):F1}초 대기)");
+                
+                // 추가로 0.5초 대기 (컴포넌트 초기화 완료 보장)
+                yield return new WaitForSeconds(0.5f);
+                
+                // 튜토리얼 시작
+                stepController.StartTutorial();
+                stepController.OnTutorialCompleted += OnTutorialStepsCompleted;
+                
+                yield break;
+            }
+            
+            retryCount++;
+            yield return new WaitForSeconds(0.1f);
+        }
+        
+        // 타임아웃
+        Debug.LogError($"[TutorialScene] ❌ 플레이어를 찾을 수 없습니다! ({maxRetries * 0.1f}초 대기)");
+        Debug.LogError("[TutorialScene] TutorialPlayerSpawner가 제대로 작동하지 않는 것 같습니다!");
+        
+        // 그래도 튜토리얼 시작 시도
+        stepController.StartTutorial();
+        stepController.OnTutorialCompleted += OnTutorialStepsCompleted;
     }
     
     private void OnTutorialStepsCompleted()
@@ -166,7 +210,13 @@ public class TutorialSceneController : MonoBehaviour
             CutsceneManager.Instance.OnCutsceneEnd -= OnEndCutsceneEnd;
             
             if (enableDebugLogs)
-                Debug.Log("[TutorialScene] 종료 컷신 완료 → 로비로 전환");
+                Debug.Log("[TutorialScene] 종료 컷신 완료 → Tutorial 완료 처리");
+            
+            // ⭐ Tutorial 완료 알림 (최초 실행 플래그 저장)
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnTutorialCompleted();
+            }
             
             TransitionToNextScene();
         }

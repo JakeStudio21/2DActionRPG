@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -7,6 +8,10 @@ using System.Collections;
 /// </summary>
 public class PlayerAnimationController : MonoBehaviour
 {
+    // ⭐ 튜토리얼용 스킬 사용 이벤트
+    public event Action OnSkill1Used;
+    public event Action OnSkill2Used;
+    
     [Header("Animation Parameters")]
     [SerializeField] private bool showDebugLogs = false;
     
@@ -323,6 +328,9 @@ public class PlayerAnimationController : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"🔵 [PlayerAnimationController] TriggerSkill1 요청");
         
+        // ⭐ 튜토리얼용 스킬 사용 이벤트 발생
+        OnSkill1Used?.Invoke();
+        
         // 스킬1 가능 여부 확인 (BaseSkill의 CanUse로 대체)
         if (skillController != null)
         {
@@ -379,6 +387,9 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if (showDebugLogs)
             Debug.Log($"🔵 [PlayerAnimationController] TriggerSkill2 요청");
+        
+        // ⭐ 튜토리얼용 스킬 사용 이벤트 발생
+        OnSkill2Used?.Invoke();
         
         // 스킬2 가능 여부 확인 (BaseSkill의 CanUse로 대체)
         if (skillController != null)

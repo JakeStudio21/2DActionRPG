@@ -15,6 +15,9 @@ public class EnemyHealth : MonoBehaviour
     
     // ⭐ 이벤트 시스템 (WaveController 연동용)
     public System.Action OnEnemyDeath;
+    
+    // ⭐ 튜토리얼용 피격 이벤트
+    public System.Action OnTakeDamageEvent;
 
     // ❌ 삭제: fallback 필드들 제거
     // [SerializeField] private int fallbackMaxHealth = 100;
@@ -214,6 +217,9 @@ public class EnemyHealth : MonoBehaviour
         }
 
         currentHealth -= damage;
+        
+        // ⭐ 피격 이벤트 발생 (튜토리얼용)
+        OnTakeDamageEvent?.Invoke();
         
         // ⭐ 체력바 업데이트
         UpdateHealthBar();

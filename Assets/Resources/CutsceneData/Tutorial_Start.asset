@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutsceneId: Tutorial_Start
   cutsceneName: "\uD14C\uC2A4\uD2B8 \uC778\uD2B8\uB85C \uCEF7\uC2E0"
-  cutsceneType: 0
+  cutsceneType: 2
   steps:
   - stepType: 0
     duration: 0

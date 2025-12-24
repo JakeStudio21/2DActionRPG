@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,8 @@ public enum PlayerAttackType
 
 public class PlayerController : MonoBehaviour
 {
+    // ⭐ 튜토리얼용 대시 이벤트
+    public event Action OnDashPerformed;
     
     private bool _seenAnimLogger = false;
     public bool FacingLeft { get { return facingLeft; } }
@@ -611,6 +614,9 @@ public class PlayerController : MonoBehaviour
             
             if (showDebugLogs)
                 Debug.Log($"🏃 [Dash] 이펙트 발행 → {cueSuccess}, 방향: {dashDirection}, 각도: {angle:F1}°");
+            
+            // ⭐ 튜토리얼용 대시 이벤트 발생
+            OnDashPerformed?.Invoke();
             
             StartCoroutine(EndDashRoutine());
         }

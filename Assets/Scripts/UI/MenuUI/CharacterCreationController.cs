@@ -88,7 +88,7 @@ public class CharacterCreationController : MonoBehaviour
     
     private void InitializeUI()
     {
-        Debug.Log("[CharacterCreationController] 캐릭터 생성 UI 초기화");
+        Debug.Log("[CharacterCreationController] 🔧 캐릭터 생성 UI 초기화");
         
         // 🔧 개선 2: 직접 참조 검증
         if (lobbyUIController == null)
@@ -110,12 +110,24 @@ public class CharacterCreationController : MonoBehaviour
         if (nameCancelButton != null) nameCancelButton.onClick.AddListener(OnNameCancelled);
         if (backToLobbyButton != null) backToLobbyButton.onClick.AddListener(OnBackToLobby);
         
-        // 초기 상태 설정
-        HideAllPanels();
+        // 🆕 초기 상태 설정: 이미 활성화되어 있으면 숨기지 않음!
+        bool isAlreadyActive = characterCreationPanel != null && characterCreationPanel.activeSelf;
+        if (isAlreadyActive)
+        {
+            Debug.Log("[CharacterCreationController] ⚠️ 패널이 이미 활성화되어 있음 → HideAllPanels() 건너뜀");
+        }
+        else
+        {
+            Debug.Log("[CharacterCreationController] 📍 초기 상태로 모든 패널 숨김");
+            HideAllPanels();
+        }
+        
         ClearNameError(); // 🔧 개선 3: 오류 메시지 초기화
         
         // 기본 클래스 선택
         OnClassSelected(PlayerType.Warrior);
+        
+        Debug.Log("[CharacterCreationController] ✅ UI 초기화 완료");
     }
     
     /// <summary>
@@ -123,21 +135,31 @@ public class CharacterCreationController : MonoBehaviour
     /// </summary>
     public void StartCharacterCreation(int slotIndex)
     {
-        Debug.Log($"[CharacterCreationController] 슬롯 {slotIndex} 캐릭터 생성 시작");
+        Debug.Log($"[CharacterCreation] 🎬 캐릭터 생성 시작: Slot {slotIndex}");
         
+        // 🔍 디버그: 슬롯 유효성 검사
+        Debug.Log($"[CharacterCreation] 🔍 슬롯 유효성 검사 중... (슬롯 {slotIndex})");
         if (!IsValidSlotForCreation(slotIndex))
         {
+            Debug.LogError($"[CharacterCreation] ❌ 슬롯 {slotIndex} 유효성 검사 실패!");
             ShowErrorMessage($"슬롯 {slotIndex}는 이미 사용 중이거나 유효하지 않습니다.");
             return;
         }
+        Debug.Log($"[CharacterCreation] ✅ 슬롯 {slotIndex} 유효성 검사 통과");
         
         targetSlotIndex = slotIndex;
         
         // 🎯 1단계: 전체 캐릭터 생성 패널을 최상위로 (Z-Order)
+        Debug.Log($"[CharacterCreation] 📍 1단계: BringCharacterCreationToFront() 호출");
         BringCharacterCreationToFront();
+        Debug.Log($"[CharacterCreation] ✅ 1단계 완료");
         
         // 🎯 2단계: 내부 서브패널은 기존 방식 유지 (SetActive)
+        Debug.Log($"[CharacterCreation] 📍 2단계: ShowClassSelectionPanel() 호출");
         ShowClassSelectionPanel();
+        Debug.Log($"[CharacterCreation] ✅ 2단계 완료");
+        
+        Debug.Log($"[CharacterCreation] 🎉 캐릭터 생성 시작 완료: Slot {slotIndex}");
     }
     
     /// <summary>
@@ -145,16 +167,61 @@ public class CharacterCreationController : MonoBehaviour
     /// </summary>
     private void BringCharacterCreationToFront()
     {
-        if (characterCreationPanel != null)
+        Debug.Log("[CharacterCreation] 🔼 BringCharacterCreationToFront() 시작");
+        
+        // 🔍 디버그: characterCreationPanel null 체크
+        if (characterCreationPanel == null)
         {
-            // 전체 캐릭터 생성 패널 활성화
-            characterCreationPanel.SetActive(true);
-            
-            // 로비의 다른 패널들보다 앞으로
-            characterCreationPanel.transform.SetAsLastSibling();
-            
-            Debug.Log("🔝 [CharacterCreationController] 캐릭터 생성 패널을 최상위로 이동");
+            Debug.LogError("[CharacterCreation] ❌ characterCreationPanel이 null입니다! Inspector에서 연결해주세요.");
+            return;
         }
+        
+        Debug.Log($"[CharacterCreation] ✅ characterCreationPanel 참조 정상: {characterCreationPanel.name}");
+        
+        // 🔍 디버그: 부모 오브젝트 활성화 상태 확인
+        Transform parent = characterCreationPanel.transform.parent;
+        if (parent != null)
+        {
+            Debug.Log($"[CharacterCreation] 🔍 부모 오브젝트: {parent.name}, 활성화 상태: {parent.gameObject.activeInHierarchy}");
+            if (!parent.gameObject.activeInHierarchy)
+            {
+                Debug.LogWarning($"[CharacterCreation] ⚠️ 부모 오브젝트 '{parent.name}'가 비활성화되어 있습니다!");
+            }
+        }
+        else
+        {
+            Debug.Log("[CharacterCreation] 🔍 부모 오브젝트 없음 (Root에 있음)");
+        }
+        
+        // 🔍 디버그: SetActive 전 상태
+        bool beforeActive = characterCreationPanel.activeSelf;
+        bool beforeActiveInHierarchy = characterCreationPanel.activeInHierarchy;
+        Debug.Log($"[CharacterCreation] 🔍 SetActive 전 → activeSelf: {beforeActive}, activeInHierarchy: {beforeActiveInHierarchy}");
+        
+        // 전체 캐릭터 생성 패널 활성화
+        characterCreationPanel.SetActive(true);
+        
+        // 🔍 디버그: SetActive 후 상태
+        bool afterActive = characterCreationPanel.activeSelf;
+        bool afterActiveInHierarchy = characterCreationPanel.activeInHierarchy;
+        Debug.Log($"[CharacterCreation] 🔍 SetActive 후 → activeSelf: {afterActive}, activeInHierarchy: {afterActiveInHierarchy}");
+        
+        if (!afterActiveInHierarchy)
+        {
+            Debug.LogError("[CharacterCreation] ❌ SetActive(true) 호출했지만 activeInHierarchy가 false입니다! 부모가 비활성화되어 있을 가능성이 높습니다.");
+        }
+        else
+        {
+            Debug.Log("[CharacterCreation] ✅ characterCreationPanel 활성화 성공!");
+        }
+        
+        // 로비의 다른 패널들보다 앞으로
+        int siblingIndexBefore = characterCreationPanel.transform.GetSiblingIndex();
+        characterCreationPanel.transform.SetAsLastSibling();
+        int siblingIndexAfter = characterCreationPanel.transform.GetSiblingIndex();
+        
+        Debug.Log($"[CharacterCreation] 🔝 Z-Order 변경: {siblingIndexBefore} → {siblingIndexAfter} (최상단)");
+        Debug.Log("[CharacterCreation] ✅ BringCharacterCreationToFront() 완료");
     }
     
     /// <summary>
@@ -177,17 +244,44 @@ public class CharacterCreationController : MonoBehaviour
     /// </summary>
     private void ShowClassSelectionPanel()
     {
+        Debug.Log("[CharacterCreation] 📋 ShowClassSelectionPanel() 시작");
+        
         // 🎯 내부 서브패널들은 SetActive로 단계별 제어
         HideAllSubPanels();
         ClearNameError();
         
-        // 클래스 선택 서브패널만 활성화
-        if (classSelectionPanel != null) 
+        // 🔍 디버그: classSelectionPanel null 체크
+        if (classSelectionPanel == null)
         {
-            classSelectionPanel.SetActive(true);
+            Debug.LogError("[CharacterCreation] ❌ classSelectionPanel이 null입니다! Inspector에서 연결해주세요.");
+            return;
         }
         
-        Debug.Log("[CharacterCreationController] 클래스 선택 서브패널 활성화");
+        Debug.Log($"[CharacterCreation] ✅ classSelectionPanel 참조 정상: {classSelectionPanel.name}");
+        
+        // 🔍 디버그: SetActive 전 상태
+        bool beforeActive = classSelectionPanel.activeSelf;
+        bool beforeActiveInHierarchy = classSelectionPanel.activeInHierarchy;
+        Debug.Log($"[CharacterCreation] 🔍 classSelectionPanel SetActive 전 → activeSelf: {beforeActive}, activeInHierarchy: {beforeActiveInHierarchy}");
+        
+        // 클래스 선택 서브패널만 활성화
+        classSelectionPanel.SetActive(true);
+        
+        // 🔍 디버그: SetActive 후 상태
+        bool afterActive = classSelectionPanel.activeSelf;
+        bool afterActiveInHierarchy = classSelectionPanel.activeInHierarchy;
+        Debug.Log($"[CharacterCreation] 🔍 classSelectionPanel SetActive 후 → activeSelf: {afterActive}, activeInHierarchy: {afterActiveInHierarchy}");
+        
+        if (!afterActiveInHierarchy)
+        {
+            Debug.LogError("[CharacterCreation] ❌ classSelectionPanel SetActive(true) 호출했지만 activeInHierarchy가 false입니다! 부모(characterCreationPanel)가 비활성화되어 있을 가능성이 높습니다.");
+        }
+        else
+        {
+            Debug.Log("[CharacterCreation] ✅ classSelectionPanel 활성화 성공!");
+        }
+        
+        Debug.Log("[CharacterCreation] ✅ ShowClassSelectionPanel() 완료");
     }
     
     /// <summary>

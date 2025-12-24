@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513eac7d499f5b34fac3ea7eefef983f, type: 3}
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
-  selectedSlotIndex: 1
-  playerName: awdawawd
+  selectedSlotIndex: 0
+  playerName: ewfe
   selectedPlayerType: 2
   weaponName: Bow
   currentLevel: 1
@@ -40,7 +40,7 @@ MonoBehaviour:
   - backAttackBonus
   runtimeStatValues:
   - 0.15
-  - 0.1
+  - 0.05
   - 2
-  - 1.3
+  - 1.5
   stageProgresses: []
