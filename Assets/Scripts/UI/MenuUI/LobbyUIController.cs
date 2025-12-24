@@ -127,7 +127,7 @@ public class LobbyUIController : MonoBehaviour
     public Image companyLogoImage;          // 🆕 회사 로고 이미지 (알파값 0으로 시작)
     public float fadeInDuration = 1f;       // 🆕 페이드인 시간
     public float displayDuration = 2f;      // 🆕 로고 표시 시간
-    public float fadeOutDuration = 1f;      // 🆕 페이드아웃 시간
+    // public float fadeOutDuration = 1f;   // 🗑️ 더 이상 사용 안 함 (페이드아웃 제거)
     
     void Start()
     {
@@ -1655,10 +1655,17 @@ public class LobbyUIController : MonoBehaviour
         }
     }
     
-    // 🆕 회사 로고 페이드 효과 코루틴
+    // 🆕 회사 로고 페이드 효과 코루틴 (페이드아웃 제거 버전)
     private IEnumerator ShowCompanyLogoAndQuit()
     {
-        Debug.Log("[LobbyUIController] 회사 로고 페이드 효과 시작");
+        Debug.Log("[LobbyUIController] 회사 로고 표시 및 종료 시작");
+        
+        // 🎯 0단계: CompanyLogoImage를 최상위로 이동 (모든 UI 위에 표시)
+        if (companyLogoImage != null)
+        {
+            companyLogoImage.transform.SetAsLastSibling();
+            Debug.Log($"[LobbyUIController] 🔝 CompanyLogoImage를 최상위로 이동 (Sibling Index: {companyLogoImage.transform.GetSiblingIndex()})");
+        }
         
         // 초기 설정: 알파값 0으로 시작
         Color logoColor = companyLogoImage.color;
@@ -1685,24 +1692,10 @@ public class LobbyUIController : MonoBehaviour
         // 2단계: 로고 표시 유지 (2초)
         yield return new WaitForSeconds(displayDuration);
         
-        // 3단계: 페이드아웃 (1초)
-        Debug.Log("[LobbyUIController] 페이드아웃 시작");
-        elapsedTime = 0f;
-        while (elapsedTime < fadeOutDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / fadeOutDuration);
-            logoColor.a = alpha;
-            companyLogoImage.color = logoColor;
-            yield return null;
-        }
+        // 🎯 3단계: 페이드아웃 제거 - 로고가 보이는 상태에서 바로 종료!
+        Debug.Log("[LobbyUIController] 로고 표시 완료 - 게임 종료 (페이드아웃 없음)");
         
-        // 완전히 투명하게 설정
-        logoColor.a = 0f;
-        companyLogoImage.color = logoColor;
-        Debug.Log("[LobbyUIController] 페이드아웃 완료 - 게임 종료");
-        
-        // 4단계: 게임 종료
+        // 게임 종료
         QuitGameDirectly();
     }
     
