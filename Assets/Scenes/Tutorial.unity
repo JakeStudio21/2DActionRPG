@@ -157,12 +157,12 @@ MonoBehaviour:
   progressText: {fileID: 0}
   playerController: {fileID: 0}
   tutorialEnemy: {fileID: 0}
-  moveRequiredDistance: 3
+  moveRequiredDistance: 2
   tutorialSpotlight: {fileID: 0}
   enableDebugLogs: 1
   minTimePerStep: 2
   skill2SuccessConfirmDelay: 2
-  completionMessageReadDelay: 5
+  completionMessageReadDelay: 3
 --- !u!114 &28830904
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -114,8 +114,26 @@ public class TutorialSceneController : MonoBehaviour
             if (enableDebugLogs)
                 Debug.Log("[TutorialScene] 시작 컷신 종료 → 튜토리얼 단계 시작");
             
-            StartTutorialSteps();
+            // ⭐ 컷신 종료 후 페이드 인으로 튜토리얼 씬 표시
+            StartCoroutine(FadeInAndStartTutorial());
         }
+    }
+    
+    private IEnumerator FadeInAndStartTutorial()
+    {
+        // 페이드 인 (검은 화면 → 튜토리얼 씬)
+        if (SceneTransitionManager.Instance != null)
+        {
+            if (enableDebugLogs)
+                Debug.Log("[TutorialScene] 튜토리얼 씬 페이드 인 시작 ✅");
+            
+            SceneTransitionManager.Instance.StartFadeIn(0.5f);
+        }
+        
+        yield return new WaitForSeconds(0.5f);
+        
+        // 튜토리얼 단계 시작
+        StartTutorialSteps();
     }
     
     private void StartTutorialSteps()
@@ -218,7 +236,20 @@ public class TutorialSceneController : MonoBehaviour
                 GameManager.Instance.OnTutorialCompleted();
             }
             
-            TransitionToNextScene();
+            // ⭐ 즉시 검은 화면 + 씬 전환 (튜토리얼 씬이 전혀 보이지 않음)
+            if (SceneTransitionManager.Instance != null)
+            {
+                if (enableDebugLogs)
+                    Debug.Log("[TutorialScene] 즉시 페이드 아웃 + 로비 씬 전환 시작 ✅");
+                
+                SceneTransitionManager.Instance.FadeOutImmediateAndLoadScene("Lobby");
+                isTransitioning = true;
+            }
+            else
+            {
+                // Fallback: 기존 방식
+                TransitionToNextScene();
+            }
         }
     }
     

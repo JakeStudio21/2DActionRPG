@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513eac7d499f5b34fac3ea7eefef983f, type: 3}
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
-  selectedSlotIndex: 1
-  playerName: awawddwa
+  selectedSlotIndex: 0
+  playerName: wgewef
   selectedPlayerType: 2
   weaponName: Bow
   currentLevel: 1
