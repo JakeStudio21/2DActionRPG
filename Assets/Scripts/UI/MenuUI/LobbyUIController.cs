@@ -79,44 +79,12 @@ public class LobbyUIController : MonoBehaviour
     public Button replayIntroButton;        // 🆕 인트로 다시보기 버튼
     public Button replayTutorialButton;     // 🆕 튜토리얼 다시보기 버튼
     
-    [Header("=== 스테이지 선택 UI ===")]
-    public TMP_Text stageSelectTitleText;
-    public Button stage1Button;
-    public Button stage2Button;
-    public Button stage3Button;
-    public Button playButton;
-    public Button backToCharacterButton;
+    // 🗑️ [Phase 6-Pre 삭제] 스테이지 관련 필드들 - StageSelectPanelController로 이동
     
-    [Header("=== 스테이지 버튼 이미지 ===")]
-    public Image stage1Image;
-    public Image stage2Image;
-    public Image stage3Image;
-    
-    [Header("=== UI 스타일 설정 ===")]
-    // 🗑️ 삭제: 하드코딩된 색상들
-    // public Color selectedColor = Color.white;
-    // public Color normalColor = new Color(0.7f, 0.7f, 0.7f, 1f);
-    // public Color disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
-    // public Color completedColor = Color.green;
-    
-    [Header("=== 색상 참조 버튼 ===")]
-    public Button colorReferenceButton; // Stage_01 버튼을 참조용으로 사용
-    
-    // 🆕 StageProgressManager 연동을 위한 필드들
-    [Header("=== Stage Progress Integration ===")]
-    [SerializeField] private Button[] stageButtons; // 배열로 통합 관리
-    [SerializeField] private Image[] stageImages;   // 배열로 통합 관리
-    private string[] stageIds = {"STAGE_001", "STAGE_002", "STAGE_003"}; // StageID 매핑
-    
-    // 🆕 스테이지 정보 표시용 UI (선택사항)
-    [Header("=== Stage Information Display ===")]
-    public TMP_Text stageNameText;
-    public TMP_Text stageDescriptionText;
-    public TMP_Text bestTimeText;
-    public TMP_Text rewardPreviewText;
+    [Header("=== 🎯 스테이지 선택 패널 컨트롤러 ===")]
+    public StageSelectPanelController stageSelectPanelController; // Phase 6-Pre 추가
     
     // 내부 상태
-    private int selectedStageNumber = 0; // 0 = 선택안함, 1-3 = 스테이지 번호
     private int selectedSlotIndex = -1; // 현재 선택된 슬롯 (-1: 미선택)
     
     [Header("🎯 배경 오버레이")]
@@ -139,6 +107,16 @@ public class LobbyUIController : MonoBehaviour
         InitializeUI();
         InitializeSlotSystem(); // 🔧 슬롯 시스템 초기화
         
+        // 🎬 Phase 5: 챕터 종료 컷신 체크 (로비 진입 후)
+        StartCoroutine(CheckPendingChapterClearCutscene());
+        
+        // 🎯 Phase 6-Pre: StageSelectPanelController 이벤트 구독
+        if (stageSelectPanelController != null)
+        {
+            stageSelectPanelController.OnPlayButtonClicked += OnStagePlayButtonClicked;
+            stageSelectPanelController.OnBackButtonClicked += OnStageBackButtonClicked;
+        }
+        
         Debug.Log("✅ [LobbyUIController] Start() 완료");
         
         // 🆕 배경 오버레이 검증 (Start 메서드 끝부분에 추가)
@@ -148,15 +126,7 @@ public class LobbyUIController : MonoBehaviour
     // 🆕 이벤트 구독 (컴포넌트 활성화 시)
     private void OnEnable()
     {
-        // 스테이지 진행도 이벤트 구독
-        if (StageProgressManager.Instance != null)
-        {
-            StageProgressManager.Instance.OnStageUnlocked += OnStageUnlocked;
-            StageProgressManager.Instance.OnStageCompleted += OnStageCompleted;
-            
-            // 🆕 씬 전환 후 즉시 UI 상태 동기화
-            StartCoroutine(RefreshUIAfterSceneLoad());
-        }
+        // 🗑️ [Phase 6-Pre 삭제] 스테이지 진행도 이벤트 구독 - StageSelectPanelController에서 처리
         
         // 🆕 캐릭터 생성 이벤트 구독
         if (PlayerDataManager.Instance != null)
@@ -165,39 +135,24 @@ public class LobbyUIController : MonoBehaviour
         }
     }
 
-    // 🆕 씬 로드 후 UI 새로고침 (이벤트 소실 방지)
-    private System.Collections.IEnumerator RefreshUIAfterSceneLoad()
-    {
-        // 1프레임 대기 (모든 초기화 완료 후)
-        yield return null;
-        
-        // 강제 UI 업데이트
-        if (StageProgressManager.Instance != null)
-        {
-            Debug.Log("[LobbyUIController] 씬 로드 후 스테이지 UI 강제 새로고침");
-            UpdateStageProgressUI();
-            
-            if (selectedStageNumber > 0)
-            {
-                UpdateStageSelectionUI();
-            }
-        }
-    }
-
+    // 🗑️ [Phase 6-Pre 삭제] RefreshUIAfterSceneLoad() - StageSelectPanelController에서 처리
+    
     // 🆕 이벤트 구독 해제 (컴포넌트 비활성화 시)
     private void OnDisable()
     {
-        // 이벤트 구독 해제
-        if (StageProgressManager.Instance != null)
-        {
-            StageProgressManager.Instance.OnStageUnlocked -= OnStageUnlocked;
-            StageProgressManager.Instance.OnStageCompleted -= OnStageCompleted;
-        }
+        // 🗑️ [Phase 6-Pre 삭제] 스테이지 진행도 이벤트 구독 해제 - StageSelectPanelController에서 처리
         
         // 🆕 캐릭터 생성 이벤트 구독 해제
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnCharacterCreated -= OnCharacterCreationCompleted;
+        }
+        
+        // 🎯 Phase 6-Pre: StageSelectPanelController 이벤트 구독 해제
+        if (stageSelectPanelController != null)
+        {
+            stageSelectPanelController.OnPlayButtonClicked -= OnStagePlayButtonClicked;
+            stageSelectPanelController.OnBackButtonClicked -= OnStageBackButtonClicked;
         }
     }
     
@@ -205,8 +160,7 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log("[LobbyUIController] 통합 UI 초기화 시작");
         
-        // 🆕 스테이지 배열 초기화
-        InitializeStageArrays();
+        // 🗑️ [Phase 6-Pre 삭제] 스테이지 배열 초기화 - StageSelectPanelController에서 처리
         
         // UI 요소 유효성 검사
         ValidateUIElements();
@@ -214,8 +168,8 @@ public class LobbyUIController : MonoBehaviour
         // 버튼 이벤트 연결
         ConnectButtonEvents();
         
-        // 🆕 진행도 기반 UI 업데이트 추가
-        UpdateStageProgressUI();
+        // 🆕 Phase 6-Pre: StageSelectPanelController 초기화
+        stageSelectPanelController?.RefreshStageProgressUI();
         
         // 초기 상태 설정
         SetInitialState();
@@ -260,77 +214,18 @@ public class LobbyUIController : MonoBehaviour
         // 슬롯 UI 업데이트
         RefreshAllSlots();
         
-        // 🆕 스테이지 진행도 UI 업데이트 (StageProgressManager 초기화 후)
-        UpdateStageProgressUI();
+        // 🆕 Phase 6-Pre: StageSelectPanelController 초기화
+        stageSelectPanelController?.RefreshStageProgressUI();
         
         Debug.Log("[LobbyUIController] 슬롯 시스템 초기화 완료");
     }
     
     // 🆕 스테이지 배열 초기화
-    private void InitializeStageArrays()
-    {
-        if (stageButtons == null || stageButtons.Length == 0)
-        {
-            stageButtons = new Button[] { stage1Button, stage2Button, stage3Button };
-        }
-        
-        if (stageImages == null || stageImages.Length == 0)
-        {
-            stageImages = new Image[] { stage1Image, stage2Image, stage3Image };
-        }
-    }
+    // 🗑️ [Phase 6-Pre 삭제] InitializeStageArrays() - StageSelectPanelController로 이동
     
     // 🆕 진행도 기반 UI 업데이트
-    private void UpdateStageProgressUI()
-    {
-        if (StageProgressManager.Instance == null)
-        {
-            Debug.LogWarning("[LobbyUIController] StageProgressManager가 없습니다. 기본 UI로 표시합니다.");
-            return;
-        }
-        
-        // 🆕 progressCache 초기화 확인 추가
-        if (!StageProgressManager.Instance.IsInitialized)
-        {
-            Debug.LogWarning("[LobbyUIController] StageProgressManager가 아직 초기화되지 않았습니다. 나중에 다시 시도합니다.");
-            // 0.1초 후 다시 시도
-            StartCoroutine(RetryUpdateStageProgressUI());
-            return;
-        }
-        
-        for (int i = 0; i < stageButtons.Length && i < stageIds.Length; i++)
-        {
-            string stageId = stageIds[i];
-            bool isUnlocked = StageProgressManager.Instance.IsStageUnlocked(stageId);
-            bool isCompleted = StageProgressManager.Instance.IsStageCompleted(stageId);
-            
-            // 버튼 활성화/비활성화
-            if (stageButtons[i] != null)
-            {
-                stageButtons[i].interactable = isUnlocked;
-            }
-            
-            // 시각적 피드백 업데이트 (선택 상태는 별도 처리)
-            UpdateStageButtonVisual(stageImages[i], isUnlocked, isCompleted, false);
-            
-            Debug.Log($"[LobbyUIController] {stageId}: 해금={isUnlocked}, 완료={isCompleted}");
-        }
-    }
-
-    // 🆕 재시도 코루틴 추가
-    private System.Collections.IEnumerator RetryUpdateStageProgressUI()
-    {
-        yield return new WaitForSeconds(0.1f);
-        
-        if (StageProgressManager.Instance != null && StageProgressManager.Instance.IsInitialized)
-        {
-            UpdateStageProgressUI();
-        }
-        else
-        {
-            Debug.LogWarning("[LobbyUIController] StageProgressManager 초기화 재시도 실패. 기본 UI로 표시합니다.");
-        }
-    }
+    // 🗑️ [Phase 6-Pre 삭제] UpdateStageProgressUI() - StageSelectPanelController.RefreshStageProgressUI()로 대체
+    // 🗑️ [Phase 6-Pre 삭제] RetryUpdateStageProgressUI() - StageSelectPanelController로 이동
     
     private void ValidateUIElements()
     {
@@ -347,13 +242,9 @@ public class LobbyUIController : MonoBehaviour
         if (lobbyPanel == null) Debug.LogError("[LobbyUIController] lobbyPanel 누락!");
         // if (characterSelectPanel == null) Debug.LogError("[LobbyUIController] characterSelectPanel 누락!");  // 🗑️ 삭제
         
-        // 스테이지 선택 UI 검증
-        if (stageSelectTitleText == null) Debug.LogError("[LobbyUIController] stageSelectTitleText 누락!");
-        if (stage1Button == null) Debug.LogError("[LobbyUIController] stage1Button 누락!");
-        if (stage2Button == null) Debug.LogError("[LobbyUIController] stage2Button 누락!");
-        if (stage3Button == null) Debug.LogError("[LobbyUIController] stage3Button 누락!");
-        if (playButton == null) Debug.LogError("[LobbyUIController] playButton 누락!");
-        if (backToCharacterButton == null) Debug.LogError("[LobbyUIController] backToCharacterButton 누락!");
+        // 🗑️ [Phase 6-Pre 삭제] 스테이지 선택 UI 검증 - StageSelectPanelController에서 처리
+        // StageSelectPanelController 검증
+        if (stageSelectPanelController == null) Debug.LogError("[LobbyUIController] stageSelectPanelController 누락!");
 
         // 🔧 Step 2-2: 슬롯 버튼 배열 검증
         if (characterSlotButtons == null || characterSlotButtons.Length != 3) Debug.LogError("[LobbyUIController] characterSlotButtons 누락 또는 3개가 아닙니다!");
@@ -593,130 +484,21 @@ public class LobbyUIController : MonoBehaviour
     /// <summary>
     /// 🔧 수정: 스테이지 선택 처리 + 해금 상태 체크 추가
     /// </summary>
-    public void OnStageSelected(int stageNumber)
-    {
-        if (stageNumber < 1 || stageNumber > 3)
-        {
-            Debug.LogError($"[LobbyUIController] 잘못된 스테이지 번호: {stageNumber}");
-            return;
-        }
-        
-        // 🆕 해금 상태 체크
-        string stageId = stageIds[stageNumber - 1];
-        if (StageProgressManager.Instance != null && !StageProgressManager.Instance.IsStageUnlocked(stageId))
-        {
-            Debug.LogWarning($"[LobbyUIController] {stageId}는 아직 해금되지 않았습니다!");
-            return;
-        }
-        
-        selectedStageNumber = stageNumber;
-        UpdateStageSelectionUI();
-        
-        // 🆕 스테이지 상세 정보 표시
-        DisplayStageInfo(stageId);
-        
-        Debug.Log($"[LobbyUIController] 스테이지 {stageNumber} ({stageId}) 선택됨");
-    }
-    
-    // 🆕 스테이지 상세 정보 표시 (간단 버전)
-    private void DisplayStageInfo(string stageId)
-    {
-        var stageConfig = LoadStageConfig(stageId);
-        var progress = StageProgressManager.Instance?.GetStageProgress(stageId);
-        
-        if (stageConfig != null)
-        {
-            // 스테이지 이름 표시
-            if (stageNameText != null)
-            {
-                stageNameText.text = stageConfig.StageName;
-            }
-            
-            // 스테이지 설명 표시
-            if (stageDescriptionText != null)
-            {
-                stageDescriptionText.text = stageConfig.Description;
-            }
-            
-            // 최고 기록 표시
-            if (bestTimeText != null && progress != null)
-            {
-                if (progress.isCompleted && progress.bestClearTime > 0)
-                {
-                    bestTimeText.text = $"최고 기록: {progress.bestClearTime}초";
-                }
-                else
-                {
-                    bestTimeText.text = "미완료";
-                }
-            }
-            
-            // 보상 미리보기 표시
-            if (rewardPreviewText != null)
-            {
-                DisplayRewardPreview(stageConfig, progress);
-            }
-            
-            Debug.Log($"[LobbyUIController] {stageId} 정보 표시 완료");
-        }
-        else
-        {
-            Debug.LogError($"[LobbyUIController] {stageId} StageConfig 로드 실패");
-        }
-    }
-    
-    // 🆕 보상 미리보기 표시
-    private void DisplayRewardPreview(StageConfig stageConfig, StageProgress progress)
-    {
-        if (rewardPreviewText == null) return;
-        
-        string rewardText = "";
-        
-        // 첫 클리어 보상 vs 반복 보상 구분
-        bool canClaimFirstReward = progress != null && progress.CanClaimFirstClearReward();
-        
-        if (canClaimFirstReward)
-        {
-            // 첫 클리어 보상 표시
-            if (stageConfig.FirstClearDropTable != null)
-            {
-                rewardText = $"🎁 첫 클리어: 골드 {stageConfig.FirstClearDropTable.Gold}, EXP {stageConfig.FirstClearDropTable.Exp}";
-            }
-        }
-        else
-        {
-            // 반복 보상 표시
-            if (stageConfig.RepeatClearDropTable != null)
-            {
-                rewardText = $"💰 반복: 골드 {stageConfig.RepeatClearDropTable.Gold}, EXP {stageConfig.RepeatClearDropTable.Exp}";
-            }
-        }
-        
-        rewardPreviewText.text = rewardText;
-    }
-    
-    // 🆕 StageConfig 로드
-    private StageConfig LoadStageConfig(string stageId)
-    {
-        string path = $"Stages/Configs/{stageId}_Config";
-        StageConfig config = Resources.Load<StageConfig>(path);
-        
-        if (config == null)
-        {
-            Debug.LogError($"[LobbyUIController] StageConfig 로드 실패: {path}");
-        }
-        
-        return config;
-    }
+    // 🗑️ [Phase 6-Pre 삭제] OnStageSelected(), DisplayStageInfo(), DisplayRewardPreview(), LoadStageConfig() - StageSelectPanelController로 이동
     
     /// <summary>
     /// Play 버튼 클릭 처리 (게임 시작)
     /// </summary>
-    public void OnPlayButtonClicked()
+    // 🗑️ [Phase 6-Pre 삭제] 기존 OnPlayButtonClicked() - StageSelectPanelController 이벤트로 대체
+    
+    /// <summary>
+    /// 🎯 Phase 6-Pre: StageSelectPanelController의 Play 버튼 이벤트 핸들러
+    /// </summary>
+    private void OnStagePlayButtonClicked(string sceneName)
     {
-        if (selectedStageNumber <= 0)
+        if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogWarning("[LobbyUIController] 스테이지를 먼저 선택해주세요!");
+            Debug.LogError("[LobbyUIController] sceneName이 비어있습니다!");
             return;
         }
         
@@ -726,7 +508,7 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        // 플레이어 데이터 확인 (기존 방식 복구)
+        // 플레이어 데이터 확인
         var playerData = GameManager.Instance.selectedPlayerData;
         if (playerData == null || playerData.selectedPlayerType == PlayerType.None)
         {
@@ -735,41 +517,31 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        // 선택된 스테이지 정보 저장
-        string selectedSceneName = GetSceneNameFromStageNumber(selectedStageNumber);
-        GameManager.Instance.SetSelectedStage(selectedStageNumber, selectedSceneName);
+        Debug.Log($"[LobbyUIController] 게임 시작: {sceneName}");
+        Debug.Log($"[LobbyUIController] 플레이어 정보: {playerData.selectedPlayerType}");
         
-        Debug.Log($"[LobbyUIController] 스테이지 {selectedStageNumber} ({selectedSceneName})로 게임 시작");
-        Debug.Log($"[LobbyUIController] 플레이어 정보: {playerData.selectedPlayerType}, {playerData.weaponName}");
-        
-        // 게임 씬으로 직접 이동
-        GameManager.Instance.LoadGameScene(selectedSceneName);
+        // 게임 씬으로 이동
+        GameManager.Instance.LoadGameScene(sceneName);
     }
     
-    // 🔧 수정: 동적 StageConfig 기반 씬 이름 가져오기
-    private string GetSceneNameFromStageNumber(int stageNumber)
+    /// <summary>
+    /// 🎯 Phase 6-Pre: StageSelectPanelController의 Back 버튼 이벤트 핸들러
+    /// </summary>
+    private void OnStageBackButtonClicked()
     {
-        if (stageNumber < 1 || stageNumber > stageIds.Length)
+        Debug.Log("[LobbyUIController] 캐릭터 선택 화면으로 돌아갑니다.");
+        
+        // 로비 패널로 전환
+        BringPanelToFront(lobbyPanel);
+        
+        // StageSelectPanelController 숨기기
+        if (stageSelectPanelController != null)
         {
-            Debug.LogError($"[LobbyUIController] 잘못된 스테이지 번호: {stageNumber}");
-            return "Stage_001"; // 기본값
+            stageSelectPanelController.HidePanel();
         }
-        
-        // 🆕 하드코딩 제거 → StageConfig에서 SceneName 가져오기
-        string stageId = stageIds[stageNumber - 1];
-        var stageConfig = LoadStageConfig(stageId);
-        
-        if (stageConfig != null)
-        {
-            Debug.Log($"[LobbyUIController] {stageId} → {stageConfig.SceneName}");
-            return stageConfig.SceneName;
-        }
-        
-        // 폴백: 기본 씬 이름 생성
-        string fallbackScene = $"Stage_{stageId}";
-        Debug.LogWarning($"[LobbyUIController] StageConfig 없음, 폴백 사용: {fallbackScene}");
-        return fallbackScene;
     }
+    
+    // 🗑️ [Phase 6-Pre 삭제] GetSceneNameFromStageNumber() - StageSelectPanelController에서 처리
     
     /// <summary>
     /// 캐릭터 선택으로 돌아가기
@@ -827,19 +599,22 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return;
         
-        Debug.Log("🎯 [LobbyUIController] ShowStageSelectPanel 호출됨 (Z-Order 방식)");
+        Debug.Log("🎯 [LobbyUIController] ShowStageSelectPanel 호출됨 - StageSelectPanelController로 위임");
         
-        // 🎯 핵심 변경: Z-Order 방식
+        // 🎯 Phase 6-Pre: Z-Order 방식으로 패널을 최상위로 이동
         BringPanelToFront(stageSelectPanel);
         
-        // 스테이지 선택 UI 초기화
-        selectedStageNumber = 0;
-        
-        // 진행도 기반 UI 업데이트
-        UpdateStageProgressUI();
-        UpdateStageSelectionUI();
-        
-        Debug.Log("[LobbyUIController] 스테이지 선택 패널을 최상위로 이동 완료");
+        // 🎯 Phase 6-Pre: StageSelectPanelController로 위임
+        if (stageSelectPanelController != null)
+        {
+            // 선택된 캐릭터 슬롯 인덱스 전달
+            stageSelectPanelController.SetSelectedSlotIndex(selectedSlotIndex);
+            stageSelectPanelController.ShowPanel();
+        }
+        else
+        {
+            Debug.LogError("[LobbyUIController] stageSelectPanelController가 null입니다!");
+        }
     }
     
     /// <summary>
@@ -1030,9 +805,7 @@ public class LobbyUIController : MonoBehaviour
     // 🗑️ [삭제됨] public void OnCharacterImageClick(string characterName)
     
     // Unity Editor에서 직접 연결 가능한 스테이지 선택 메서드
-    public void OnStage1Button() => OnStageSelected(1);
-    public void OnStage2Button() => OnStageSelected(2);
-    public void OnStage3Button() => OnStageSelected(3);
+    // 🗑️ [Phase 6-Pre 삭제] OnStage1Button(), OnStage2Button(), OnStage3Button() - StageSelectPanelController로 이동
     
     // 🗑️ [삭제됨] 기존 클래스 선택 메서드들
     // public void OnWarriorButtonClick() { ... }
@@ -1388,8 +1161,8 @@ public class LobbyUIController : MonoBehaviour
             Debug.Log($"🔄 [LobbyUIController] 캐릭터 전환: 슬롯 {slotIndex} StageProgressManager 업데이트");
         }
         
-        // 🔧 스테이지 진행도 UI 즉시 업데이트 (로비에서 필요)
-        UpdateStageProgressUI();
+        // 🆕 Phase 6-Pre: StageSelectPanelController 초기화
+        stageSelectPanelController?.RefreshStageProgressUI();
         
         Debug.Log($"[LobbyUIController] 캐릭터 선택 완료 (지연 갱신 모드) - 패널 진입 시 완전 로드됨");
     }
@@ -1431,11 +1204,7 @@ public class LobbyUIController : MonoBehaviour
             selectedPlayerNameText.text = $"{slotData.playerName} ({slotData.playerType})";
         }
         
-        // ✅ 유지: 스테이지 선택 제목 업데이트 (미리 준비)
-        if (stageSelectTitleText != null)
-        {
-            stageSelectTitleText.text = $"{slotData.playerName}의 모험";
-        }
+        // 🗑️ [Phase 6-Pre 삭제] stageSelectTitleText 업데이트는 StageSelectPanelController에서 처리
         
         // ✅ 유지: LobbyPlayerInfoUI 업데이트
         var lobbyPlayerInfoUI = FindObjectOfType<LobbyPlayerInfoUI>();
@@ -1579,14 +1348,7 @@ public class LobbyUIController : MonoBehaviour
         {
             startGameButton.interactable = enable;
             
-            // 🔧 개선: ColorBlock 기반으로 변경
-            if (colorReferenceButton != null)
-            {
-                var referenceColors = colorReferenceButton.colors;
-                var colors = startGameButton.colors;
-                colors.normalColor = enable ? referenceColors.normalColor : referenceColors.disabledColor;
-                startGameButton.colors = colors;
-            }
+            // 🗑️ [Phase 6-Pre 삭제] colorReferenceButton 사용 제거 - interactable로 충분
         }
     }
     
@@ -1719,103 +1481,7 @@ public class LobbyUIController : MonoBehaviour
     }
 
     // 🆕 스테이지 해금 이벤트 처리
-    private void OnStageUnlocked(string stageId)
-    {
-        Debug.Log($"[LobbyUIController] 스테이지 해금됨: {stageId}");
-        UpdateStageProgressUI(); // UI 갱신
-        
-        // 현재 선택된 스테이지 정보도 갱신
-        if (selectedStageNumber > 0)
-        {
-            UpdateStageSelectionUI();
-        }
-    }
-
-    // 🆕 스테이지 완료 이벤트 처리
-    private void OnStageCompleted(string stageId, bool isFirstClear)
-    {
-        Debug.Log($"[LobbyUIController] 스테이지 완료됨: {stageId} (첫클리어: {isFirstClear})");
-        UpdateStageProgressUI(); // UI 갱신
-        
-        // 현재 선택된 스테이지가 완료된 스테이지라면 정보 갱신
-        if (selectedStageNumber > 0 && stageIds[selectedStageNumber - 1] == stageId)
-        {
-            DisplayStageInfo(stageId);
-        }
-    }
-    
-    // 🔧 수정: 진행도 반영하여 UI 업데이트
-    private void UpdateStageSelectionUI()
-    {
-        // 타이틀 텍스트 업데이트
-        if (stageSelectTitleText != null)
-        {
-            string characterInfo = "캐릭터 선택";
-            if (selectedSlotIndex != -1)
-            {
-                characterInfo = PlayerDataManager.Instance.GetSlotData(selectedSlotIndex).playerName;
-            }
-            
-            if (selectedStageNumber > 0)
-            {
-                string stageId = stageIds[selectedStageNumber - 1];
-                stageSelectTitleText.text = $"{characterInfo} | Selected: {stageId}";
-            }
-            else
-                stageSelectTitleText.text = $"{characterInfo} | Select Stage";
-        }
-        
-        // 🔧 수정: 스테이지 버튼 색상 업데이트 (진행도 반영)
-        for (int i = 0; i < stageImages.Length && i < stageIds.Length; i++)
-        {
-            string stageId = stageIds[i];
-            bool isSelected = (selectedStageNumber == i + 1);
-            bool isUnlocked = StageProgressManager.Instance?.IsStageUnlocked(stageId) ?? true;
-            bool isCompleted = StageProgressManager.Instance?.IsStageCompleted(stageId) ?? false;
-            
-            UpdateStageButtonVisual(stageImages[i], isUnlocked, isCompleted, isSelected);
-        }
-        
-        // Play 버튼 활성화/비활성화 (해금 상태 체크 추가)
-        if (playButton != null)
-        {
-            bool canPlay = selectedStageNumber > 0;
-            if (canPlay && StageProgressManager.Instance != null)
-            {
-                string selectedStageId = stageIds[selectedStageNumber - 1];
-                canPlay = StageProgressManager.Instance.IsStageUnlocked(selectedStageId);
-            }
-            
-            playButton.interactable = canPlay;
-        }
-    }
-    
-    /// <summary>
-    /// 스테이지 버튼 시각적 상태 업데이트 (Button ColorBlock 기반)
-    /// </summary>
-    private void UpdateStageButtonVisual(Image buttonImage, bool isUnlocked, bool isCompleted, bool isSelected)
-    {
-        if (buttonImage == null || colorReferenceButton == null) return;
-        
-        // Button의 ColorBlock에서 색상 가져오기
-        ColorBlock colors = colorReferenceButton.colors;
-        
-        Color targetColor;
-        
-        if (isSelected)
-            targetColor = colors.selectedColor;      // 선택된 상태
-        else if (!isUnlocked)
-            targetColor = colors.disabledColor;      // 잠긴 상태
-        else if (isCompleted)
-            targetColor = colors.highlightedColor;   // 완료된 상태 (하이라이트 색상 사용)
-        else
-            targetColor = colors.normalColor;        // 해금된 상태
-            
-        buttonImage.color = targetColor;
-    }
-    
-    // 🔧 수정: 기존 UpdateStageButtonColor 메서드는 제거하고 위 메서드로 대체
-    // private void UpdateStageButtonColor(Image buttonImage, bool isSelected) // 🗑️ 삭제
+    // 🗑️ [Phase 6-Pre 삭제] OnStageUnlocked(), OnStageCompleted(), UpdateStageSelectionUI(), UpdateStageButtonVisual() - StageSelectPanelController로 이동
     
     #region 🎯 로비 자동 선택 시스템
     
@@ -1992,8 +1658,8 @@ public class LobbyUIController : MonoBehaviour
             StageProgressManager.Instance.InitializeFor(slotIndex);
         }
         
-        // 🆕 StageProgressManager UI 즉시 업데이트
-        UpdateStageProgressUI();
+        // 🆕 Phase 6-Pre: StageSelectPanelController 초기화
+        stageSelectPanelController?.RefreshStageProgressUI();
         
         Debug.Log($"[LobbyUIController] 신규 캐릭터 {slotIndex} 완전 설정 완료");
     }
@@ -2304,6 +1970,106 @@ public class LobbyUIController : MonoBehaviour
             }
         }
     }
+    
+    #region 🎬 Phase 5: 챕터 종료 처리
+    
+    /// <summary>
+    /// 🎬 Phase 5: 챕터 종료 컷신 체크 (로비 진입 후)
+    /// </summary>
+    private IEnumerator CheckPendingChapterClearCutscene()
+    {
+        // 로비 UI 초기화 대기
+        yield return new WaitForSeconds(0.5f);
+        
+        if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
+        {
+            Debug.Log("[LobbyUIController] 슬롯이 선택되지 않음 - 챕터 종료 컷신 체크 스킵");
+            yield break;
+        }
+        
+        // 🎬 Phase 5: SelectedPlayerData에서 pendingCutsceneId 확인
+        var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+        if (selectedData == null)
+        {
+            Debug.LogWarning("[LobbyUIController] SelectedPlayerData가 없음 - 챕터 종료 컷신 체크 스킵");
+            yield break;
+        }
+        
+        // pendingCutsceneId 확인
+        if (string.IsNullOrEmpty(selectedData.pendingCutsceneId))
+        {
+            Debug.Log("[LobbyUIController] 예약된 챕터 종료 컷신 없음");
+            yield break;
+        }
+        
+        string cutsceneId = selectedData.pendingCutsceneId;
+        int chapterId = selectedData.pendingChapterId;
+        
+        Debug.Log($"🎬 [LobbyUIController] 챕터 {chapterId} 종료 컷신 발견: {cutsceneId} (SelectedPlayerData)");
+        
+        // pendingCutsceneId 정리 (재생 전에 먼저 제거)
+        selectedData.pendingCutsceneId = null;
+        selectedData.pendingChapterId = 0;
+        PlayerDataManager.Instance.SaveCurrentSlot();
+        
+        // CutsceneManager 확인
+        if (CutsceneSystem.CutsceneManager.Instance == null)
+        {
+            Debug.LogError("[LobbyUIController] CutsceneManager가 없습니다!");
+            yield break;
+        }
+        
+        // 챕터 종료 컷신 재생 (오버레이 모드)
+        Debug.Log($"🎬 [LobbyUIController] 챕터 종료 컷신 재생: {cutsceneId}");
+        CutsceneSystem.CutsceneManager.Instance.PlayCutscene(cutsceneId);
+        
+        // 컷신 종료 대기
+        yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
+        
+        Debug.Log($"🎬 [LobbyUIController] 챕터 종료 컷신 재생 완료");
+        
+        // 컷신 종료 후 처리
+        OnChapterClearCutsceneEnd(chapterId);
+    }
+    
+    /// <summary>
+    /// 🎬 Phase 5: 챕터 종료 컷신 종료 후 처리
+    /// </summary>
+    private void OnChapterClearCutsceneEnd(int completedChapterId)
+    {
+        Debug.Log($"🎉 [LobbyUIController] 챕터 {completedChapterId} 완료!");
+        
+        // 다음 챕터 오픈 확인
+        int nextChapterId = completedChapterId + 1;
+        
+        if (nextChapterId <= 5) // 최대 Chapter 5
+        {
+            // ChapterManager 확인
+            if (StageSystem.ChapterManager.Instance != null)
+            {
+                var nextChapterData = StageSystem.ChapterManager.Instance.GetChapterData(nextChapterId);
+                if (nextChapterData != null)
+                {
+                    Debug.Log($"🔓 [LobbyUIController] 챕터 {nextChapterId} 오픈: {nextChapterData.chapterTitle}");
+                    
+                    // 다음 챕터 오픈 축하 메시지 (TODO: 나중에 UI 추가 가능)
+                    // ShowChapterUnlockNotification(nextChapterId, nextChapterData.chapterTitle);
+                }
+            }
+            
+            // 🆕 Phase 6-Pre: StageSelectPanelController 초기화
+            stageSelectPanelController?.RefreshStageProgressUI();
+        }
+        else
+        {
+            Debug.Log($"🏆 [LobbyUIController] 모든 챕터 완료! 축하합니다!");
+            
+            // 전체 완료 축하 메시지 (TODO: 나중에 UI 추가 가능)
+            // ShowAllChaptersCompletedNotification();
+        }
+    }
+    
+    #endregion
     
     #region 🎬 Phase 7: 다시보기 기능
     

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 153144396f289ac4eb89594c7dbaef9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StageID: CH05_ST02
+  StageName: Chapter 5 - Stage 2
+  SceneName: CH05_ST02
+  BackgroundType: 0
+  IsDungeon: 0
+  chapterId: 5
+  stageIndexInChapter: 2
+  enterCutsceneId: 
+  clearCutsceneId: 
+  isReplaySkipCutscene: 1
+  RequiredLevel: 25
+  UnlockCondition: Clear:CH05_ST01
+  unlockData:
+    IsAlwaysUnlocked: 0
+    RequiredStageId: 
+  WaveCount: 3
+  TimeLimitSec: 300
+  Victory: 0
+  FirstClearDropGroupId: DROP_CH05_ST02_FIRST
+  RepeatClearDropGroupId: DROP_CH05_ST02_REPEAT
+  BGMPath: Prefab/BGM/SCENE_CH05
+  Description: "Chapter 5 - Stage 2 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
+    \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH05_ST01"
+  WaveConfigs: []
+  FirstClearDropTable: {fileID: 0}
+  RepeatClearDropTable: {fileID: 0}

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 600e913759319e64686b44ad9d53a6a1, type: 3}
+  m_Name: CH05_Data
+  m_EditorClassIdentifier: 
+  chapterId: 5
+  chapterTitle: "Chapter 5: \uCD5C\uC885 \uACB0\uC804"
+  stageCount: 10
+  chapterStartCutsceneId: CH05_START
+  chapterClearCutsceneId: CH05_CLEAR
+  unlockCondition: "\uCC55\uD130 4 \uD074\uB9AC\uC5B4"
+  chapterIcon: {fileID: 0}
+  chapterBackground: {fileID: 0}
+  bgmKey: BGM_Chapter5
+  description: "\uBAA8\uB4E0 \uC5EC\uC815\uC758 \uB05D, \uCD5C\uD6C4\uC758 \uC801\uACFC
+    \uACB0\uC804\uC744 \uBC8C\uC774\uC138\uC694."
+  recommendedLevel: 20
+  difficultyLevel: 5

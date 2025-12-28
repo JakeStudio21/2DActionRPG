@@ -142,8 +142,8 @@ namespace StageSystem
                 {
                     var newProgress = new StageProgress(config.StageID);
                     
-                    // STAGE_001은 기본 해금
-                    if (config.StageID == "STAGE_001")
+                    // ✅ Phase 6: CH01_ST01 기본 해금 (레거시 STAGE_001 제거)
+                    if (config.StageID == "CH01_ST01")
                     {
                         newProgress.isUnlocked = true;
                     }
@@ -172,6 +172,24 @@ namespace StageSystem
                     Debug.Log($"[StageProgressManager] 스테이지 완료: {stageId}");
                 
                 CheckAutoUnlocks();
+                
+                // ✅ Phase 1: 챕터 완료 체크 (Stage 10 클리어 시)
+                if (StageIdValidator.IsValidChapterStageId(stageId))
+                {
+                    int stageIndex = StageIdValidator.ExtractStageIndex(stageId);
+                    if (stageIndex == 10)
+                    {
+                        int chapterId = StageIdValidator.ExtractChapterId(stageId);
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"🎉 [StageProgressManager] 챕터 {chapterId} 최종 스테이지 클리어!");
+                        
+                        // 챕터 완료는 Phase 5에서 처리 (로비 복귀 후 컷신 재생)
+                        // 여기서는 다음 챕터 해금만 체크
+                        CheckChapterUnlocks();
+                    }
+                }
+                
                 SaveProgressesToPlayerData();
             }
         }
@@ -233,7 +251,8 @@ namespace StageSystem
         {
             if (!isInitialized || progressCache == null)
             {
-                return stageId == "STAGE_001";
+                // ✅ Phase 6: CH01_ST01 기본 해금 (레거시 STAGE_001 제거)
+                return stageId == "CH01_ST01";
             }
             
             if (progressCache.ContainsKey(stageId))
@@ -241,7 +260,8 @@ namespace StageSystem
                 return progressCache[stageId].isUnlocked;
             }
             
-            return stageId == "STAGE_001";
+            // ✅ Phase 6: CH01_ST01 기본 해금 (레거시 STAGE_001 제거)
+            return stageId == "CH01_ST01";
         }
         
         /// <summary>
@@ -327,6 +347,174 @@ namespace StageSystem
                 
                 OnStageUnlocked?.Invoke(stageId);
                 SaveProgressesToPlayerData();
+            }
+        }
+        
+        // ========================================
+        // ✅ Phase 1: 챕터 진행도 관리
+        // ========================================
+        
+        /// <summary>
+        /// 챕터 해금 여부 확인
+        /// </summary>
+        public bool IsChapterUnlocked(int chapterId)
+        {
+            if (chapterId <= 0 || chapterId > 5)
+            {
+                Debug.LogWarning($"[StageProgressManager] 잘못된 챕터 ID: {chapterId}");
+                return false;
+            }
+            
+            // Chapter 1은 기본 해금
+            if (chapterId == 1)
+                return true;
+            
+            // Chapter N은 Chapter N-1 클리어 시 해금
+            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+            {
+                var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
+                if (slotData != null)
+                {
+                    return slotData.IsChapterCleared(chapterId - 1);
+                }
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// 챕터 클리어 여부 확인
+        /// </summary>
+        public bool IsChapterCleared(int chapterId)
+        {
+            if (chapterId <= 0 || chapterId > 5)
+            {
+                Debug.LogWarning($"[StageProgressManager] 잘못된 챕터 ID: {chapterId}");
+                return false;
+            }
+            
+            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+            {
+                var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
+                if (slotData != null)
+                {
+                    return slotData.IsChapterCleared(chapterId);
+                }
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// 챕터 완료 처리 (명시적 호출용, 테스트/치트 전용)
+        /// </summary>
+        public void CompleteChapter(int chapterId)
+        {
+            if (chapterId <= 0 || chapterId > 5)
+            {
+                Debug.LogWarning($"[StageProgressManager] 잘못된 챕터 ID: {chapterId}");
+                return;
+            }
+            
+            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+            {
+                var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
+                if (slotData != null)
+                {
+                    // ✅ 수정: 이미 클리어된 챕터는 다시 기록하지 않음
+                    if (slotData.IsChapterCleared(chapterId))
+                    {
+                        if (enableDebugLogs)
+                            Debug.Log($"⚠️ [StageProgressManager] 챕터 {chapterId}는 이미 클리어됨");
+                        return;
+                    }
+                    
+                    slotData.MarkChapterAsCleared(chapterId);
+                    PlayerDataManager.Instance.SaveCurrentSlot();
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"✅ [StageProgressManager] 챕터 {chapterId} 완료 기록!");
+                    
+                    // ✅ 수정: CheckChapterUnlocks() 호출 제거 (무한 재귀 방지)
+                    // CompleteChapter()는 명시적 호출이므로 자동 해금은 하지 않음
+                    // 자동 해금은 CompleteStage()의 CheckChapterUnlocks()에서만 처리
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 클리어한 챕터 목록 가져오기
+        /// </summary>
+        public List<int> GetClearedChapters()
+        {
+            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+            {
+                var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
+                if (slotData != null)
+                {
+                    return new List<int>(slotData.clearedChapters);
+                }
+            }
+            
+            return new List<int>();
+        }
+        
+        /// <summary>
+        /// 챕터 해금 규칙 체크
+        /// </summary>
+        private void CheckChapterUnlocks()
+        {
+            // Chapter 1은 항상 해금
+            // Chapter N은 Chapter N-1의 Stage 10 클리어 시 자동 해금
+            
+            if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
+            {
+                if (enableDebugLogs)
+                    Debug.LogWarning("[StageProgressManager] CheckChapterUnlocks - 슬롯이 선택되지 않음");
+                return;
+            }
+            
+            var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
+            if (slotData == null)
+            {
+                if (enableDebugLogs)
+                    Debug.LogWarning("[StageProgressManager] CheckChapterUnlocks - slotData가 null");
+                return;
+            }
+            
+            for (int chapter = 2; chapter <= 5; chapter++)
+            {
+                // ✅ 수정: 이미 해금된 챕터는 스킵 (무한 루프 방지)
+                if (IsChapterUnlocked(chapter))
+                    continue;
+                
+                // 이전 챕터의 Stage 10 (마지막 스테이지) 확인
+                string prevChapterLastStage = $"CH{(chapter-1):D2}_ST10";
+                
+                if (IsStageCompleted(prevChapterLastStage))
+                {
+                    // ✅ 수정: CompleteChapter() 호출 제거 (무한 재귀 방지)
+                    // 직접 PlayerSlotData에 기록
+                    int prevChapter = chapter - 1;
+                    
+                    if (!slotData.IsChapterCleared(prevChapter))
+                    {
+                        slotData.MarkChapterAsCleared(prevChapter);
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"✅ [StageProgressManager] 챕터 {prevChapter} 자동 완료 기록 (Stage 10 클리어)");
+                    }
+                    
+                    // 현재 챕터의 첫 스테이지 해금
+                    string currentChapterFirstStage = $"CH{chapter:D2}_ST01";
+                    AutoUnlockStage(currentChapterFirstStage);
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"🎉 [StageProgressManager] 챕터 {chapter} 해금! (챕터 {prevChapter} 완료)");
+                    
+                    // ✅ 추가: 변경사항 저장
+                    PlayerDataManager.Instance.SaveCurrentSlot();
+                }
             }
         }
     }

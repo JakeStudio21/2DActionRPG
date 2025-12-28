@@ -26,6 +26,30 @@ public class PlayerSlotData
     [Header("🎯 스테이지 진행도")]
     public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
     
+    [Header("✅ Phase 0: 챕터 진행도")]
+    [Tooltip("클리어한 챕터 목록 (1~5)")]
+    public List<int> clearedChapters = new List<int>();
+    
+    [Header("🎬 컷신 시청 여부")]
+    [Tooltip("챕터 시작 컷신 시청 목록 (예: CH01_START)")]
+    public List<string> seenChapterStart = new List<string>();
+    
+    [Tooltip("챕터 종료 컷신 시청 목록 (예: CH01_CLEAR)")]
+    public List<string> seenChapterClear = new List<string>();
+    
+    [Tooltip("스테이지 입장 컷신 시청 목록 (예: CH01_ST01_ENTER)")]
+    public List<string> seenStageEnter = new List<string>();
+    
+    [Tooltip("스테이지 클리어 컷신 시청 목록 (예: CH01_ST01_CLEAR)")]
+    public List<string> seenStageClear = new List<string>();
+    
+    [Header("🎬 예약된 컷신 (로비 복귀 후 재생)")]
+    [Tooltip("로비 진입 후 재생할 컷신 ID")]
+    public string pendingCutsceneId = "";
+    
+    [Tooltip("예약된 컷신의 챕터 번호")]
+    public int pendingChapterId = 0;
+    
     [Header("🎒 인벤토리 & 장비")]
     public List<string> inventoryItemNames = new List<string>();
     // Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 기존 삭제
@@ -216,6 +240,100 @@ public class PlayerSlotData
         }
         
         SyncExtraStats();
+    }
+    
+    // ========================================
+    // ✅ Phase 0: 챕터 진행도 Helper 메서드
+    // ========================================
+    
+    /// <summary>
+    /// 챕터 클리어 여부 확인
+    /// </summary>
+    public bool IsChapterCleared(int chapterId)
+    {
+        return clearedChapters.Contains(chapterId);
+    }
+    
+    /// <summary>
+    /// 챕터 클리어 기록
+    /// </summary>
+    public void MarkChapterAsCleared(int chapterId)
+    {
+        if (!clearedChapters.Contains(chapterId))
+        {
+            clearedChapters.Add(chapterId);
+            Debug.Log($"✅ [PlayerSlotData] 챕터 {chapterId} 클리어 기록");
+        }
+    }
+    
+    /// <summary>
+    /// 컷신 시청 여부 확인
+    /// </summary>
+    /// <param name="cutsceneId">컷신 ID (예: CH01_START)</param>
+    /// <param name="category">카테고리 (CHAPTER_START, CHAPTER_CLEAR, STAGE_ENTER, STAGE_CLEAR)</param>
+    public bool HasSeenCutscene(string cutsceneId, string category)
+    {
+        switch (category)
+        {
+            case "CHAPTER_START": 
+                return seenChapterStart.Contains(cutsceneId);
+            case "CHAPTER_CLEAR": 
+                return seenChapterClear.Contains(cutsceneId);
+            case "STAGE_ENTER": 
+                return seenStageEnter.Contains(cutsceneId);
+            case "STAGE_CLEAR": 
+                return seenStageClear.Contains(cutsceneId);
+            default: 
+                Debug.LogWarning($"[PlayerSlotData] 알 수 없는 컷신 카테고리: {category}");
+                return false;
+        }
+    }
+    
+    /// <summary>
+    /// 컷신 시청 기록
+    /// </summary>
+    /// <param name="cutsceneId">컷신 ID (예: CH01_START)</param>
+    /// <param name="category">카테고리 (CHAPTER_START, CHAPTER_CLEAR, STAGE_ENTER, STAGE_CLEAR)</param>
+    public void MarkCutsceneAsSeen(string cutsceneId, string category)
+    {
+        switch (category)
+        {
+            case "CHAPTER_START":
+                if (!seenChapterStart.Contains(cutsceneId))
+                {
+                    seenChapterStart.Add(cutsceneId);
+                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (챕터 시작)");
+                }
+                break;
+                
+            case "CHAPTER_CLEAR":
+                if (!seenChapterClear.Contains(cutsceneId))
+                {
+                    seenChapterClear.Add(cutsceneId);
+                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (챕터 종료)");
+                }
+                break;
+                
+            case "STAGE_ENTER":
+                if (!seenStageEnter.Contains(cutsceneId))
+                {
+                    seenStageEnter.Add(cutsceneId);
+                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (스테이지 입장)");
+                }
+                break;
+                
+            case "STAGE_CLEAR":
+                if (!seenStageClear.Contains(cutsceneId))
+                {
+                    seenStageClear.Add(cutsceneId);
+                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (스테이지 클리어)");
+                }
+                break;
+                
+            default:
+                Debug.LogWarning($"[PlayerSlotData] 알 수 없는 컷신 카테고리: {category}");
+                break;
+        }
     }
     
     /// <summary>

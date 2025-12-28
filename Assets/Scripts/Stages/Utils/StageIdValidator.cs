@@ -26,11 +26,12 @@ namespace StageSystem
     /// </summary>
     public static class StageIdValidator
     {
-        // ID 패턴 정규식
-        private static readonly Regex stageIdPattern = new Regex(@"^STAGE_\d{3}$");
-        private static readonly Regex waveIdPattern = new Regex(@"^STAGE_\d{3}_WAVE_\d{2}$");
-        private static readonly Regex groupIdPattern = new Regex(@"^STAGE_\d{3}_G\d{2}$");
-        private static readonly Regex dropIdPattern = new Regex(@"^DROP_STG\d{3}_");
+    // ID 패턴 정규식
+    // ✅ Phase 0: 챕터 스테이지 패턴 추가 (CH01_ST01 ~ CH05_ST10)
+    private static readonly Regex stageIdPattern = new Regex(@"^(STAGE_\d{3}|CH\d{2}_ST\d{2})$");
+    private static readonly Regex waveIdPattern = new Regex(@"^STAGE_\d{3}_WAVE_\d{2}$");
+    private static readonly Regex groupIdPattern = new Regex(@"^STAGE_\d{3}_G\d{2}$");
+    private static readonly Regex dropIdPattern = new Regex(@"^DROP_STG\d{3}_");
         
         /// <summary>
         /// 스테이지 ID 유효성 검사 (STAGE_001)
@@ -84,6 +85,45 @@ namespace StageSystem
             
             int groupIndex = groupId.IndexOf("_G");
             return groupIndex > 0 ? groupId.Substring(0, groupIndex) : null;
+        }
+        
+        /// <summary>
+        /// ✅ Phase 0: 챕터 스테이지 ID 유효성 검사 (CH01_ST01)
+        /// </summary>
+        public static bool IsValidChapterStageId(string stageId)
+        {
+            return !string.IsNullOrEmpty(stageId) && 
+                   Regex.IsMatch(stageId, @"^CH\d{2}_ST\d{2}$");
+        }
+        
+        /// <summary>
+        /// ✅ Phase 0: 챕터 ID 추출 (CH01_ST05 → 1)
+        /// </summary>
+        public static int ExtractChapterId(string stageId)
+        {
+            if (!IsValidChapterStageId(stageId)) return -1;
+            
+            string chapterPart = stageId.Substring(2, 2); // "CH01" → "01"
+            if (int.TryParse(chapterPart, out int chapterId))
+            {
+                return chapterId;
+            }
+            return -1;
+        }
+        
+        /// <summary>
+        /// ✅ Phase 0: 스테이지 번호 추출 (CH01_ST05 → 5)
+        /// </summary>
+        public static int ExtractStageIndex(string stageId)
+        {
+            if (!IsValidChapterStageId(stageId)) return -1;
+            
+            string stagePart = stageId.Substring(7, 2); // "CH01_ST05" → "05"
+            if (int.TryParse(stagePart, out int stageIndex))
+            {
+                return stageIndex;
+            }
+            return -1;
         }
         
         /// <summary>

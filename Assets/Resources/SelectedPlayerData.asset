@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
   selectedSlotIndex: 0
-  playerName: wgewef
+  playerName: asdwd
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 1
+  currentLevel: 2
   currentExp: 0
-  expToNextLevel: 100
-  currentGold: 0
+  expToNextLevel: 150
+  currentGold: 350
   runtimeInventoryItems: []
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
@@ -40,7 +40,28 @@ MonoBehaviour:
   - backAttackBonus
   runtimeStatValues:
   - 0.15
-  - 0.05
+  - 0.1
   - 2
-  - 1.5
-  stageProgresses: []
+  - 1.3
+  stageProgresses:
+  - stageId: CH01_ST01
+    isUnlocked: 1
+    isCompleted: 1
+    isFirstClearRewarded: 0
+    bestClearTime: 60
+    clearCount: 1
+    lastPlayedTime: 2025-12-27T14:16:38.3485851+09:00
+  - stageId: STAGE_002
+    isUnlocked: 0
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
+  - stageId: STAGE_003
+    isUnlocked: 0
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000

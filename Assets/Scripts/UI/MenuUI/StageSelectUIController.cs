@@ -418,12 +418,54 @@ public class StageSelectUIController : MonoBehaviour
         
         // 선택된 스테이지 정보 저장
         string selectedSceneName = GetSceneNameFromStageNumber(selectedStageNumber);
+        string stageKey = stageIds[selectedStageNumber - 1];
+        var stageConfig = LoadStageConfig(stageKey);
+        
+        if (stageConfig == null)
+        {
+            Debug.LogError($"[StageSelectUIController] StageConfig를 찾을 수 없습니다: {stageKey}");
+            return;
+        }
+        
         GameManager.Instance.SetSelectedStage(selectedStageNumber, selectedSceneName);
         
         Debug.Log($"[StageSelectUIController] 스테이지 {selectedStageNumber} ({selectedSceneName})로 게임 시작");
         Debug.Log($"[StageSelectUIController] 플레이어 정보: {playerData.selectedPlayerType}, {playerData.weaponName}");
         
-        // ⭐ 수정: GameManager를 통한 씬 전환
+        // 🎬 Phase 4: 챕터 시작 컷신 체크 (Stage 1 첫 진입 시)
+        if (stageConfig.stageIndexInChapter == 1)
+        {
+            var chapterData = StageSystem.ChapterManager.Instance?.GetChapterData(stageConfig.chapterId);
+            
+            if (chapterData != null && !string.IsNullOrEmpty(chapterData.chapterStartCutsceneId))
+            {
+                bool hasSeen = CutsceneSystem.CutsceneManager.Instance != null && 
+                               CutsceneSystem.CutsceneManager.Instance.HasSeenCutscene(chapterData.chapterStartCutsceneId);
+                
+                if (!hasSeen)
+                {
+                    Debug.Log($"🎬 [StageSelectUIController] 챕터 시작 컷신 재생: {chapterData.chapterStartCutsceneId}");
+                    
+                    // 챕터 시작 컷신 재생
+                    if (CutsceneSystem.CutsceneManager.Instance != null)
+                    {
+                        CutsceneSystem.CutsceneManager.Instance.PlayCutscene(chapterData.chapterStartCutsceneId);
+                        
+                        // 컷신 종료 후 스테이지 로드
+                        CutsceneSystem.CutsceneManager.Instance.OnCutsceneEnd += (cutsceneId) => {
+                            if (cutsceneId == chapterData.chapterStartCutsceneId)
+                            {
+                                // 컷신 종료 후 씬 전환
+                                GameManager.Instance.LoadGameScene(selectedSceneName);
+                            }
+                        };
+                        return; // 컷신 재생 중이므로 바로 씬 전환하지 않음
+                    }
+                }
+            }
+        }
+        
+        // 컷신 없으면 바로 스테이지 로드
         GameManager.Instance.LoadGameScene(selectedSceneName);
     }
     

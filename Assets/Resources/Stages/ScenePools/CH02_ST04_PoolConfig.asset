@@ -1,0 +1,960 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d5c2c97dcdef204bb74147c1a125ee8, type: 3}
+  m_Name: CH02_ST04_PoolConfig
+  m_EditorClassIdentifier: 
+  sceneName: CH02_ST04
+  requiredPools:
+  - tag: Arrow
+    prefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Arrow_Big
+    prefab: {fileID: 4149642069968341746, guid: afcf4578eaaa23e48b54dbcc836f4560, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Arrow_B
+    prefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Arrow_B_Arc
+    prefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Barrel VFX
+    prefab: {fileID: 724470073289127030, guid: 7b418587ca1a19745ba312bce0b1ceb8, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Bush VFX
+    prefab: {fileID: 724470073289127030, guid: be762be0fae4e8b4098aa1bd8fb6bff6, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: crate VFX
+    prefab: {fileID: 724470073289127030, guid: c2237eec9357dc74aa3d045a9db6c914, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Projectile VFX
+    prefab: {fileID: 3742472245823238563, guid: 399c4555d2e052343a8712f884448115, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Slime Death VFX
+    prefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Death VFX
+    prefab: {fileID: 724470073289127030, guid: 624ea55b45189ef449d76ba59b4a1f6c, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: ITEM_HEALTH_POTION
+    prefab: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: ITEM_GOLD_COIN
+    prefab: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: Slash Prefab
+    prefab: {fileID: 3545761778305609661, guid: 00b45e0be5d17ac4d889550dc353cdd3, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: WarriorSkill1_Slash
+    prefab: {fileID: 3545761778305609661, guid: 6c60555a3ba6f744fae88de6b498b262, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: WarriorSkill2_Slash
+    prefab: {fileID: 3545761778305609661, guid: dd65a54c66fcfdc4f85560388d3569c1, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_A
+    prefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_B
+    prefab: {fileID: 4316638647348942652, guid: e07cd3a729c1bc8468b038ab0d53890c, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_C
+    prefab: {fileID: 4316638647348942652, guid: d6276d4601209d64b8a138b81aab459e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Sword_S
+    prefab: {fileID: 4316638647348942652, guid: 29d74b6c195b90644969c3a88f2e2036, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Equipment
+    prefab: {fileID: 6665777931767919178, guid: 1cbd4e362601ccd45b5c957b209c2756, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 30
+  - tag: ITEM_SWORD_A
+    prefab: {fileID: 6665777931767919178, guid: c8a7de5bbe195e242991a93c3761effb, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 30
+  - tag: ITEM_SWORD_B
+    prefab: {fileID: 6665777931767919178, guid: e47d95d373b93864a86503ec70e1edab, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 30
+  - tag: ITEM_SWORD_C
+    prefab: {fileID: 6665777931767919178, guid: 636766fc98a4d9c4ba0d40c7d67ecbe4, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 30
+  - tag: ITEM_SWORD_S
+    prefab: {fileID: 6665777931767919178, guid: 911ac3fa4206dcf47ba7fb5848e0c9f6, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 30
+  - tag: Bow_A
+    prefab: {fileID: 4551001115370886643, guid: f02902a9371db2a4caf031af45e012f4, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Bow_B
+    prefab: {fileID: 4551001115370886643, guid: 92aa0eea7f9748d449116a8d6586a468, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Bow_C
+    prefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Bow_S
+    prefab: {fileID: 4551001115370886643, guid: b5338b20cfe041c4b9d7452896159b9f, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: ITEM_BOW_A
+    prefab: {fileID: 6665777931767919178, guid: 8370014d38a4fe34b92d565345da30c4, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOW_B
+    prefab: {fileID: 6665777931767919178, guid: e93c652a78cfdc44b99b9b5f46ac017b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOW_C
+    prefab: {fileID: 6665777931767919178, guid: 32b89b04beed3804f8dfddf213bf6b72, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOW_S
+    prefab: {fileID: 6665777931767919178, guid: a812b7a391081a644a5aa416249f4c9d, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: SlashEffect
+    prefab: {fileID: 3545761778305609661, guid: 8f79038b45bbaec469d4b4ee0c7ba8aa, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: DashEffect
+    prefab: {fileID: 3545761778305609661, guid: b177eed87aca50546ae2acaacf75739b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ChargeEffect
+    prefab: {fileID: 3545761778305609661, guid: e25643507514c2941a3cc384df1df3ad, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: GroundCrackEffect
+    prefab: {fileID: 3545761778305609661, guid: 34a9b5f4dc5d2a14084d86962bcc1bfc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Dodge Effect
+    prefab: {fileID: 3545761778305609661, guid: b79f22b37cd2ecd4b906fce02937fb36, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_A
+    prefab: {fileID: 6665777931767919178, guid: 9da8dd8d96b24d54589a60b0cf327145, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_B
+    prefab: {fileID: 6665777931767919178, guid: a36a35e36de7916418aad41f5e27a89c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_C
+    prefab: {fileID: 6665777931767919178, guid: 9eb193f96cb831243aa261049082fd70, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_S
+    prefab: {fileID: 6665777931767919178, guid: 540828fde063bb3428ce378189bc3381, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_A
+    prefab: {fileID: 6665777931767919178, guid: 335a7751374060b42806629aacee13d1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_B
+    prefab: {fileID: 6665777931767919178, guid: 9931166d155d2bd43898966b6b6dff6b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_C
+    prefab: {fileID: 6665777931767919178, guid: 7146e191d8d41ee478668c47cd07d0fc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_S
+    prefab: {fileID: 6665777931767919178, guid: 556a7a2a6828cf748952429a46937f8f, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_A
+    prefab: {fileID: 6665777931767919178, guid: b6a8ac855297f1341a761231ce28f6ff, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_B
+    prefab: {fileID: 6665777931767919178, guid: b5b2159d8f3b6974882fb52733f0662a, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_C
+    prefab: {fileID: 6665777931767919178, guid: e90830465f8a1744f9ffaf0bae5ae438, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WIZARD_S
+    prefab: {fileID: 6665777931767919178, guid: b0183e2dd067813468f112a126ad3dcb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_A
+    prefab: {fileID: 6665777931767919178, guid: d0843fd1132da67418897d75c3cd7701, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_B
+    prefab: {fileID: 6665777931767919178, guid: d5cbfc12477bacc4f9a4d0b2d4a32365, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_C
+    prefab: {fileID: 6665777931767919178, guid: 811adbdb76c3b0240a38c062dc061746, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_ASSASIN_S
+    prefab: {fileID: 6665777931767919178, guid: e57a5240f84ae664b9ff772c89acbca9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_A
+    prefab: {fileID: 6665777931767919178, guid: 431434ec2b6ae67448e4f0c19c9ec436, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_B
+    prefab: {fileID: 6665777931767919178, guid: a820700f0941abd44ab88726301eae52, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_C
+    prefab: {fileID: 6665777931767919178, guid: 197f2effa614f1940a22f0561b5db6b1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WARRIOR_S
+    prefab: {fileID: 6665777931767919178, guid: e4499d252cd6d594784ad5fbf6fc6959, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_A
+    prefab: {fileID: 6665777931767919178, guid: 2977f812dc7bcc14bb6b1c8afd7f64af, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_B
+    prefab: {fileID: 6665777931767919178, guid: 6afb5b0e63e33ab4ea32e267ca974a66, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_C
+    prefab: {fileID: 6665777931767919178, guid: b7b367d06c9895243a62908a276e39fb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_BOOTS_WIZARD_S
+    prefab: {fileID: 6665777931767919178, guid: 706e95184f2098e4586c4f2e691f562e, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: MON_BLUESLIME_001
+    prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GRAPE_001
+    prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GHOST_001
+    prefab: {fileID: 237821646944878469, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Ghost Death VFX
+    prefab: {fileID: 3742472245823238563, guid: 47788c52bf7a36447914397de7f72960, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Grape Projectile
+    prefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Grape_Shadow
+    prefab: {fileID: 4040728627607984930, guid: 214664c51c2bac94f986e6a2cd0a0972, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Grape Projectile Splatter
+    prefab: {fileID: 8241566449722613216, guid: 6fc13cc823337b94899a25bb84387e60, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SpawnEffect
+    prefab: {fileID: 724470073289127030, guid: 4605714506884dd4d8f20672de54c700, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BossSpawnEffect
+    prefab: {fileID: 724470073289127030, guid: cff0f228f75f2a642abe874b8796cee0, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: StageEnterEffect
+    prefab: {fileID: 724470073289127030, guid: f020da90c5c9fa74bbc41887117f268f, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: StageCompleteEffect
+    prefab: {fileID: 724470073289127030, guid: 5700e9b3deb31cc4398ccc2a86d6436b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WaveStartEffect
+    prefab: {fileID: 724470073289127030, guid: e67aa1ceb48abe644a3e0a70637c4465, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitEffect
+    prefab: {fileID: 724470073289127030, guid: 23f16ea1766725f40b87d56785b4afaf, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: CritHitEffect
+    prefab: {fileID: 724470073289127030, guid: 9852b01d4a068ba4b91058c7ba374ffc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: DeathEffect
+    prefab: {fileID: 724470073289127030, guid: 26a16b9c5d4f1184ab73e0c03f8ee34f, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HealEffect
+    prefab: {fileID: 724470073289127030, guid: 6f2d87195da799a46a8458ff0b2319de, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash
+    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: PlayerHitEffect
+    prefab: {fileID: 3545761778305609661, guid: 3f1b585e66ca3bf46a98fec72e39b2c1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitSpark
+    prefab: {fileID: 3545761778305609661, guid: 86c9419ae60e9894fa4f2a4528fe83bb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: CriticalHit
+    prefab: {fileID: 724470073289127030, guid: b43d24e1c88d9b34380f1e8fe3da5090, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: PlayerDeathEffect
+    prefab: {fileID: 724470073289127030, guid: a25a5f535effee349b421e1853f063b6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ButtonClickVFX
+    prefab: {fileID: 724470073289127030, guid: 8d5a74abab342ac4daa100220e87326c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: InventoryFullVFX
+    prefab: {fileID: 724470073289127030, guid: 0bd8d5fe2de529a468151dac2f8b5c84, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ItemEquipVFX
+    prefab: {fileID: 724470073289127030, guid: 28ae48be1505abd46a3c6106784fa2f3, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ItemPickupVFX
+    prefab: {fileID: 724470073289127030, guid: 8bd365a3f555f914c983310ef2517ecd, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: PanelCloseVFX
+    prefab: {fileID: 724470073289127030, guid: 3fa96f72f0bd4614bb56718a4616600b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: PanelOpenVFX
+    prefab: {fileID: 724470073289127030, guid: 672b5b3855235554a996568801e96c60, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ShopBuyVFX
+    prefab: {fileID: 724470073289127030, guid: 43ce5f0d9c21bac40a03b99e2449f401, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WaveCompleteEffect
+    prefab: {fileID: 724470073289127030, guid: b427819ddc3c8274987e52fcfa62c856, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BLUESLIME_001_BOSS
+    prefab: {fileID: 3235174918318939483, guid: a9fbdc940f1d7eb44bb72781fc12ad9d, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BossDeathEffect
+    prefab: {fileID: 724470073289127030, guid: 5c35a82fa0916d645a041f947752162f, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_2D_Charge_02
+    prefab: {fileID: 9048577567042440302, guid: ed5eed06736be60468b94bc1180c59a5, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_STONEGOLEM_001
+    prefab: {fileID: 3235174918318939483, guid: b8b2ec0d6ca9ba44b90e35c5c3cfa764, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Golem Projectile
+    prefab: {fileID: 6830296691463287077, guid: 61357f20c7386224bb4654399e49ddd5, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_CrystalGolem_Attack
+    prefab: {fileID: 7883441628179305771, guid: 12cfa14e89836e84c88056d5c7a5bf83, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_CRYSTALGOLEM_001
+    prefab: {fileID: 8853189013130719682, guid: ee591e99639a5a94a98c58950da4cbeb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_WATERGOLEM_001
+    prefab: {fileID: 8853189013130719682, guid: e82380e75f0bab14c9cdf5e9dfba3d73, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_WaterGolem_Attack
+    prefab: {fileID: 7883441628179305771, guid: 062eaafe138967442bc236948eda3f23, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_Stone_Hit_01
+    prefab: {fileID: 1758473627833946668, guid: c1f15932686dbe448aeff133b4bdfb51, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BEAR_001
+    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SPIDER_001
+    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: FX_PF_Electricity_Slash_01
+    prefab: {fileID: 7502250425806291784, guid: 07baebcac6175074f9b2b86ab3fd8bbf, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_S_Effect
+    prefab: {fileID: 7502250425806291784, guid: 871be6227cccd0f419775463b85f4d00, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_A_Effect
+    prefab: {fileID: 7502250425806291784, guid: 787d7864554ead14082ad0f028da6b38, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_B_Effect
+    prefab: {fileID: 7502250425806291784, guid: e60ef66583c25e54f8985d9eda7f2efd, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_C_Effect
+    prefab: {fileID: 7502250425806291784, guid: 12e330c74502aea48b17b19156dec2a1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Slash_D_Effect
+    prefab: {fileID: 7502250425806291784, guid: a15e655533f99384d9f4f84e9ed51559, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_S
+    prefab: {fileID: 1625881847255917415, guid: 13b7993b92e2829418f13883adc11c1b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_A
+    prefab: {fileID: 1625881847255917415, guid: a570ff5c164385c44970fb95ddcbc2ae, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_B
+    prefab: {fileID: 1625881847255917415, guid: 001deb3a5ba65144ca405d025176afd4, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_C
+    prefab: {fileID: 1625881847255917415, guid: 29f50b9dfdc1356418ffb92dec9be2a6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitImpact_D
+    prefab: {fileID: 1625881847255917415, guid: cc6c02def7ddcb241a1a7b1fcc402e60, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_S
+    prefab: {fileID: 4186470608034871016, guid: 3b50e1877bbe6864aa902408559cf11e, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_A
+    prefab: {fileID: 4186470608034871016, guid: f6461b1af7b35c44cbedbd8f7d8e35ad, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_B
+    prefab: {fileID: 4186470608034871016, guid: 6ff1d7a2afd8c5a44a97d456f023b4d1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_C
+    prefab: {fileID: 4186470608034871016, guid: 3dd2aebcc29f67d48bbb81c299a4aa05, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MuzzleFlash_D
+    prefab: {fileID: 4186470608034871016, guid: a42f46903f50b4d49be4ff5b6f1a91bc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_S
+    prefab: {fileID: 4186470608034871016, guid: 5e108dd8d0b9d294e8dba70f2f281465, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_A
+    prefab: {fileID: 4186470608034871016, guid: 8a88e8bf65d663042b25e0fbeecd7639, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_B
+    prefab: {fileID: 4186470608034871016, guid: 70ebca9d5fa456e4b969be91f82cdcfa, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_C
+    prefab: {fileID: 4186470608034871016, guid: 36d844b35f9844745b1889ba7574d132, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowImpact_D
+    prefab: {fileID: 4186470608034871016, guid: 068113f0c3ce66b41b93c81004f978d6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WarriorImpactEffect
+    prefab: {fileID: 8683933021285538514, guid: 506cd49043a8618429e82330f09a61eb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WarriorSlashAreaEffect
+    prefab: {fileID: 3156866507962234106, guid: c37d9a12995e3d5458ca015d30db56df, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: WarriorDashEffect
+    prefab: {fileID: 9103632281160831739, guid: 51b1d0e0936800c41a01cb19f101f953, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Shockwave_Slash_Effect
+    prefab: {fileID: 7502250425806291784, guid: 1b916a9e567ce4b49b97f2b89339abad, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Shockwave_AOE_Effect
+    prefab: {fileID: 3156866507962234106, guid: 96377ab1dae0e12459be8e08167871f4, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitSpark_Dust_Effect
+    prefab: {fileID: 8683933021285538514, guid: f37d2194aeb700c4a8288499b0ce1a49, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ArrowCone_AOE_Effect
+    prefab: {fileID: 1610135258165438031, guid: 108071442001d8147aae018ae9986bcb, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ExplosionCircle_AOE_Effect
+    prefab: {fileID: 6046721123087866165, guid: da90519ad97a2064c996c9d5cc29bfd6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fire_Projectile_Effect
+    prefab: {fileID: 1597112295188672555, guid: 285ee1c9be918c44a8139755b67d3918, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: PlayerDashEffect
+    prefab: {fileID: 9103632281160831739, guid: a85f8dc19fc1a7a44bc0cb00de3b4470, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SCORPION_RED_001
+    prefab: {fileID: 3235174918318939483, guid: be8860c454d0ccc468d53716f9eefe81, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SCORPION_BROWN_001
+    prefab: {fileID: 3235174918318939483, guid: 3ec4d020a30a0cc4ba964b0677e69e40, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SCORPION_BLUE_001
+    prefab: {fileID: 3235174918318939483, guid: 9eb32a6f579ac464cb06276365518316, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_COBRA_001
+    prefab: {fileID: 3235174918318939483, guid: 87f130fa60505c942904cf5470968768, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_ANUBIS_001
+    prefab: {fileID: 3235174918318939483, guid: b8414791dabac184cbd3d716a7691d13, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SPHINX_001
+    prefab: {fileID: 3235174918318939483, guid: 30e980b315e8f8b4da844a43c74677fe, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: FX_PF_Fire_ImpactBurst_01
+    prefab: {fileID: 1625881847255917415, guid: 19d3abea3b1935240a430eeec13fb739, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BEETLE_001
+    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_LADYBUG_001
+    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_MIMIC_001
+    prefab: {fileID: 3235174918318939483, guid: db9c56b0c203f0c488dd705a2aa6ada3, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_PLANTS_001
+    prefab: {fileID: 3235174918318939483, guid: c40cffd48c2084e458aa480204ffdcda, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ELITEMON_SANDGOLEM_001
+    prefab: {fileID: 3235174918318939483, guid: d5876ef400ab1ef488957fc8a6249bf9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteAOECircleEffect
+    prefab: {fileID: 5337051426634250077, guid: e1c16c77737a19a41a0deb2f38e2d8cc, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteHitEffect
+    prefab: {fileID: 8683933021285538514, guid: ee4dcd56239c78b40bc8725875ddd6e6, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteCastEffect
+    prefab: {fileID: 6079819295311992884, guid: 9d6f4245a3816de458b2d83ca5c4a2cf, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteTelegraphCircle
+    prefab: {fileID: 614329605402219767, guid: d7b751e350300e84e81746897bcaef64, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteTelegraphFan
+    prefab: {fileID: 981163553440734840, guid: e063efb2ffe71844c8e3a5f1dce5bb64, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteTelegraphRectangle
+    prefab: {fileID: 4861058780197955906, guid: c64a504b69ad9ce4693f5f5353d7018e, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: StraightProjectile
+    prefab: {fileID: 6830296691463287077, guid: 83ae11102c63fd94594904bd0df3e079, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteAOECircleEffect_B
+    prefab: {fileID: 2825740286487543389, guid: 1609060f2208d5144bb8e8a5df54c76a, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitSpark_C
+    prefab: {fileID: 8683933021285538514, guid: eefb12de009088042ba04b97a4721af3, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BOSSMON_SANDELEMENTAL_001
+    prefab: {fileID: 3235174918318939483, guid: 6512646250efc2742a7ab424a84ea442, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BossProjectile
+    prefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SandRec_AOE_Effect
+    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  optionalPools: []
+  enableDebugLogs: 0

@@ -33,6 +33,10 @@ public class SelectedPlayerData : ScriptableObject
     [SerializeField] private List<string> runtimeStatKeys = new List<string>();
     [SerializeField] private List<float> runtimeStatValues = new List<float>();
     
+    [Header("🎬 챕터 시스템 (Phase 5)")]
+    public string pendingCutsceneId = null;
+    public int pendingChapterId = 0;
+    
     // Dictionary로 변환하여 사용
     private Dictionary<EquipmentSlot, EquipmentData> _runtimeEquippedItems = null;
     public Dictionary<EquipmentSlot, EquipmentData> RuntimeEquippedItems
@@ -114,16 +118,6 @@ public class SelectedPlayerData : ScriptableObject
             }
         }
         
-        // 🆕 장비 로드 디버깅
-        Debug.Log($"🔍 [LoadFromSlotData] 로드할 장비 개수: {slotData.equippedItemNames?.Count ?? 0}");
-        if (slotData.equippedItemNames != null)
-        {
-            foreach (var kvp in slotData.equippedItemNames)
-            {
-                Debug.Log($"🔍 [LoadFromSlotData] 파일에서 읽은 장비: {kvp.Key} = {kvp.Value}");
-            }
-        }
-        
         // 장비 복사
         RuntimeEquippedItems.Clear();
         foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
@@ -141,7 +135,6 @@ public class SelectedPlayerData : ScriptableObject
                     if (item != null) 
                     {
                         RuntimeEquippedItems[slot] = item;
-                        Debug.Log($"📥 [LoadFromSlotData] 장비 로드 성공: {slot} = {item.name}");
                     }
                     else
                     {
@@ -150,8 +143,6 @@ public class SelectedPlayerData : ScriptableObject
                 }
             }
         }
-        
-        Debug.Log($"🔍 [LoadFromSlotData] 로드된 장비 개수: {RuntimeEquippedItems.Values.Count(x => x != null)}");
         
         // 특성 복사
         RuntimeExtraStats.Clear();
@@ -162,6 +153,10 @@ public class SelectedPlayerData : ScriptableObject
         
         // 스테이지 진행도 로드
         stageProgresses = slotData.stageProgresses ?? new List<StageSystem.StageProgress>();
+        
+        // 🎬 Phase 5: 예약된 컷신 로드
+        pendingCutsceneId = slotData.pendingCutsceneId;
+        pendingChapterId = slotData.pendingChapterId;
         
         SyncDictionaries();
         
@@ -198,13 +193,6 @@ public class SelectedPlayerData : ScriptableObject
             if (item != null) slotData.inventoryItemNames.Add(item.name);
         }
         
-        // 🆕 장비 저장 디버깅
-        Debug.Log($"🔍 [SaveToSlotData] 저장 전 RuntimeEquippedItems 개수: {RuntimeEquippedItems.Count}");
-        foreach (var kvp in RuntimeEquippedItems)
-        {
-            Debug.Log($"🔍 [SaveToSlotData] 장비: {kvp.Key} = {(kvp.Value != null ? kvp.Value.name : "null")}");
-        }
-        
         // 장비 저장
         slotData.equippedItemNames.Clear();
         foreach (var kvp in RuntimeEquippedItems)
@@ -212,11 +200,8 @@ public class SelectedPlayerData : ScriptableObject
             if (kvp.Value != null)
             {
                 slotData.SetEquippedItem(kvp.Key.ToString(), kvp.Value.name);
-                Debug.Log($"💾 [SaveToSlotData] 장비 저장: {kvp.Key} = {kvp.Value.name}");
             }
         }
-        
-        Debug.Log($"🔍 [SaveToSlotData] 저장된 장비 개수: {slotData.equippedItemNames.Count}");
         
         // 특성 저장
         foreach (var kvp in RuntimeExtraStats)
@@ -226,6 +211,10 @@ public class SelectedPlayerData : ScriptableObject
         
         // 스테이지 진행도 저장
         slotData.stageProgresses = new List<StageSystem.StageProgress>(stageProgresses);
+        
+        // 🎬 Phase 5: 예약된 컷신 저장
+        slotData.pendingCutsceneId = pendingCutsceneId;
+        slotData.pendingChapterId = pendingChapterId;
         
         Debug.Log($"📤 [SelectedPlayerData] 슬롯 {selectedSlotIndex} 데이터 저장 준비 완료: {slotData}");
         return slotData;

@@ -399,6 +399,12 @@ namespace CutsceneSystem
                 }
             }
             
+            // ✅ Phase 3: 컷신 시청 여부 저장
+            if (currentCutsceneData != null && !string.IsNullOrEmpty(currentCutsceneData.cutsceneId))
+            {
+                MarkCutsceneAsSeen(currentCutsceneData.cutsceneId);
+            }
+            
             // 게임 재개
             if (Time.timeScale == 0f)
             {
@@ -616,6 +622,90 @@ namespace CutsceneSystem
                 // 마지막 Step
                 currentSequence.Complete(false);
             }
+        }
+        
+        #endregion
+        
+        #region Phase 3: 컷신 시청 여부 추적
+        
+        /// <summary>
+        /// 컷신을 본 적이 있는지 확인
+        /// </summary>
+        /// <param name="cutsceneId">컷신 ID</param>
+        /// <returns>시청 여부</returns>
+        public bool HasSeenCutscene(string cutsceneId)
+        {
+            return CutsceneProgressTracker.HasSeen(cutsceneId);
+        }
+        
+        /// <summary>
+        /// 컷신 시청 여부 저장
+        /// </summary>
+        /// <param name="cutsceneId">컷신 ID</param>
+        public void MarkCutsceneAsSeen(string cutsceneId)
+        {
+            CutsceneProgressTracker.MarkAsSeen(cutsceneId);
+        }
+        
+        /// <summary>
+        /// 컷신 재생 여부 판단 (재입장 체크)
+        /// </summary>
+        /// <param name="cutsceneId">컷신 ID</param>
+        /// <param name="isReplay">재입장 여부 (예: 스테이지 재도전)</param>
+        /// <param name="isReplaySkipCutscene">재입장 시 자동 스킵 설정</param>
+        /// <returns>재생 필요 여부</returns>
+        public bool ShouldPlayCutscene(string cutsceneId, bool isReplay, bool isReplaySkipCutscene)
+        {
+            // 1. 컷신 ID가 비어있으면 재생 안 함
+            if (string.IsNullOrEmpty(cutsceneId))
+            {
+                if (enableDebugLogs)
+                    Debug.Log("[CutsceneManager] 컷신 ID가 비어있어 재생하지 않습니다.");
+                return false;
+            }
+            
+            // 2. 재입장이고 자동 스킵 설정이면 재생 안 함
+            if (isReplay && isReplaySkipCutscene)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[CutsceneManager] 재입장 자동 스킵: {cutsceneId}");
+                return false;
+            }
+            
+            // 3. 이미 본 컷신이면 재생 안 함
+            if (HasSeenCutscene(cutsceneId))
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[CutsceneManager] 이미 시청한 컷신: {cutsceneId}");
+                return false;
+            }
+            
+            // 4. 위 조건을 모두 통과하면 재생
+            if (enableDebugLogs)
+                Debug.Log($"[CutsceneManager] 컷신 재생 예정: {cutsceneId}");
+            return true;
+        }
+        
+        /// <summary>
+        /// 컷신 재생 여부 판단 (간소화 버전 - CutsceneData 기반)
+        /// </summary>
+        /// <param name="cutsceneData">컷신 데이터</param>
+        /// <param name="isReplay">재입장 여부</param>
+        /// <returns>재생 필요 여부</returns>
+        public bool ShouldPlayCutscene(CutsceneData cutsceneData, bool isReplay = false)
+        {
+            if (cutsceneData == null)
+                return false;
+            
+            // playOnce 옵션이 true면 이미 본 컷신은 스킵
+            if (cutsceneData.playOnce && HasSeenCutscene(cutsceneData.cutsceneId))
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[CutsceneManager] playOnce=true, 이미 시청한 컷신: {cutsceneData.cutsceneId}");
+                return false;
+            }
+            
+            return true;
         }
         
         #endregion

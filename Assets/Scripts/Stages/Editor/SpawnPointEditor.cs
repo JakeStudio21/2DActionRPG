@@ -9,7 +9,7 @@ namespace StageSystem
     /// Inspector 기능 확장 및 씬 편집 도구
     /// </summary>
     [CustomEditor(typeof(SpawnPoint))]
-    public class SpawnPointEditor : Editor
+    public class SpawnPointEditor : UnityEditor.Editor
     {
         private SpawnPoint spawnPoint;
         

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 600e913759319e64686b44ad9d53a6a1, type: 3}
+  m_Name: CH03_Data
+  m_EditorClassIdentifier: 
+  chapterId: 3
+  chapterTitle: "Chapter 3: \uB358\uC804 \uD0D0\uD5D8"
+  stageCount: 10
+  chapterStartCutsceneId: CH03_START
+  chapterClearCutsceneId: CH03_CLEAR
+  unlockCondition: "\uCC55\uD130 2 \uD074\uB9AC\uC5B4"
+  chapterIcon: {fileID: 0}
+  chapterBackground: {fileID: 0}
+  bgmKey: BGM_Chapter3
+  description: "\uC5B4\uB450\uC6B4 \uB358\uC804 \uAE4A\uC219\uC774 \uC228\uACA8\uC9C4
+    \uBCF4\uBB3C\uACFC \uC704\uD5D8\uC774 \uAE30\uB2E4\uB9AC\uACE0 \uC788\uC2B5\uB2C8\uB2E4."
+  recommendedLevel: 10
+  difficultyLevel: 3

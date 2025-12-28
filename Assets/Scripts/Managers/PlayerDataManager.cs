@@ -432,6 +432,27 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (!IsSlotSelected) return false;
         
         var slotData = selectedPlayerData.SaveToSlotData();
+        
+        // ✅ Phase 1 수정: 기존 playerSlots의 챕터 진행도 보존
+        if (currentSlotIndex >= 0 && currentSlotIndex < playerSlots.Count)
+        {
+            var existingSlot = playerSlots[currentSlotIndex];
+            if (existingSlot != null)
+            {
+                // 챕터 진행도 복사
+                slotData.clearedChapters = new List<int>(existingSlot.clearedChapters);
+                
+                // 컷신 시청 여부 복사
+                slotData.seenChapterStart = new List<string>(existingSlot.seenChapterStart);
+                slotData.seenChapterClear = new List<string>(existingSlot.seenChapterClear);
+                slotData.seenStageEnter = new List<string>(existingSlot.seenStageEnter);
+                slotData.seenStageClear = new List<string>(existingSlot.seenStageClear);
+                
+                // 🎬 Phase 5: pendingCutsceneId는 SelectedPlayerData에서 이미 복사됨 (덮어쓰지 않음!)
+                // 런타임에만 설정되므로 existingSlot에서 복사하지 않음
+            }
+        }
+        
         return SaveSlotData(slotData);
     }
     
@@ -1600,6 +1621,21 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         var slotData = GetSlotData(slotIndex);
         return slotData != null && slotData.isSlotUsed;
+    }
+    
+    /// <summary>
+    /// ✅ Phase 1: 현재 선택된 슬롯 데이터 가져오기 (편의 메서드)
+    /// </summary>
+    public PlayerSlotData GetCurrentSlotData()
+    {
+        if (currentSlotIndex < 0)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("[PlayerDataManager] 선택된 슬롯이 없습니다.");
+            return null;
+        }
+        
+        return GetSlotData(currentSlotIndex);
     }
     
     /// <summary>

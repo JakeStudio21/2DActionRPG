@@ -18,6 +18,23 @@ namespace StageSystem
         public BackgroundType BackgroundType;
         public bool IsDungeon;
         
+        [Header("✅ Phase 0: 챕터 시스템")]
+        [Tooltip("챕터 번호 (1~5), 0은 레거시 스테이지")]
+        public int chapterId = 0;
+        
+        [Tooltip("챕터 내 스테이지 번호 (1~10)")]
+        public int stageIndexInChapter = 0;
+        
+        [Header("🎬 컷신 설정")]
+        [Tooltip("스테이지 입장 시 재생할 컷신 ID (예: CH01_ST01_ENTER)")]
+        public string enterCutsceneId = "";
+        
+        [Tooltip("스테이지 클리어 시 재생할 컷신 ID (예: CH01_ST01_CLEAR)")]
+        public string clearCutsceneId = "";
+        
+        [Tooltip("재입장 시 컷신 자동 스킵 여부 (기본: true)")]
+        public bool isReplaySkipCutscene = true;
+        
         [Header("진행 조건")]
         public int RequiredLevel;
         public string UnlockCondition;
@@ -127,6 +144,15 @@ namespace StageSystem
                 if (WaveConfigs.Count != WaveCount)
                 {
                     LoadWaveConfigs();
+                }
+                
+                // ✅ Phase 0: 챕터 스테이지 ID 자동 파싱
+                if (StageIdValidator.IsValidChapterStageId(StageID))
+                {
+                    chapterId = StageIdValidator.ExtractChapterId(StageID);
+                    stageIndexInChapter = StageIdValidator.ExtractStageIndex(StageID);
+                    
+                    Debug.Log($"✅ [StageConfig] {StageID} → Chapter {chapterId}, Stage {stageIndexInChapter}");
                 }
             }
 #endif

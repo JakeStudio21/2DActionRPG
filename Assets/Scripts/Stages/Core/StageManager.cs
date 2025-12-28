@@ -64,9 +64,32 @@ public class StageManager : MonoBehaviour
         
         private void Start()
         {
-            if (autoStartStage && stageConfig != null)
+            // 자동 시작 모드일 때
+            if (autoStartStage)
             {
-                StartStage(stageConfig);
+                // StageConfig가 직접 할당되어 있으면 그것 사용
+                if (stageConfig != null)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"[StageManager] Inspector에 할당된 StageConfig 사용: {stageConfig.StageID}");
+                    StartStage(stageConfig);
+                }
+                // StageConfig가 비어있으면 현재 씬 이름으로 자동 로드
+                else
+                {
+                    string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"[StageManager] 현재 씬 이름으로 StageConfig 자동 로드 시도: {currentSceneName}");
+                    
+                    // 씬 이름 = StageID로 가정 (예: CH01_ST01)
+                    StartStage(currentSceneName);
+                }
+            }
+            else
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[StageManager] Auto Start가 비활성화되어 있습니다. 수동으로 StartStage()를 호출하세요.");
             }
         }
         
@@ -170,6 +193,34 @@ public class StageManager : MonoBehaviour
             
             // ✅ 풀 로딩 완료 후 스테이지 입장 이펙트 발행
             EmitStageEnterCues();
+            
+            // 🎬 Phase 4: 스테이지 입장 컷신 체크
+            if (!string.IsNullOrEmpty(stageConfig.enterCutsceneId))
+            {
+                bool isReplay = StageProgressManager.Instance != null && 
+                                StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
+                
+                if (CutsceneSystem.CutsceneManager.Instance != null)
+                {
+                    bool shouldPlay = CutsceneSystem.CutsceneManager.Instance.ShouldPlayCutscene(
+                        stageConfig.enterCutsceneId, 
+                        isReplay, 
+                        stageConfig.isReplaySkipCutscene
+                    );
+                    
+                    if (shouldPlay)
+                    {
+                        if (enableDebugLogs)
+                            Debug.Log($"🎬 [StageManager] 스테이지 입장 컷신 재생: {stageConfig.enterCutsceneId}");
+                        
+                        // 컷신 재생
+                        CutsceneSystem.CutsceneManager.Instance.PlayCutscene(stageConfig.enterCutsceneId);
+                        
+                        // 컷신 종료 대기
+                        yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
+                    }
+                }
+            }
             
             // 2단계: 스테이지 데이터 로드
             yield return StartCoroutine(LoadStageData());
@@ -518,6 +569,66 @@ public class StageManager : MonoBehaviour
                 ProcessStageRewards(clearTime);
                 SaveStageProgress(clearTime);
                 
+                // 🎯 Phase 5: Stage 10 클리어 시 챕터 종료 처리
+                if (stageConfig.stageIndexInChapter == 10)
+                {
+                    // 최초 클리어 여부 확인
+                    bool isFirstClear = false;
+                    if (StageProgressManager.Instance != null)
+                    {
+                        isFirstClear = !StageProgressManager.Instance.IsChapterCleared(stageConfig.chapterId);
+                    }
+                    
+                    if (isFirstClear)
+                    {
+                        // 챕터 완료 기록
+                        if (StageProgressManager.Instance != null)
+                        {
+                            StageProgressManager.Instance.CompleteChapter(stageConfig.chapterId);
+                        }
+                        
+                        // 🎬 Phase 5: 챕터 종료 컷신 예약 (SelectedPlayerData에 저장)
+                        string chapterClearCutsceneId = $"CH{stageConfig.chapterId:D2}_CLEAR";
+                        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.selectedPlayerData != null)
+                        {
+                            PlayerDataManager.Instance.selectedPlayerData.pendingCutsceneId = chapterClearCutsceneId;
+                            PlayerDataManager.Instance.selectedPlayerData.pendingChapterId = stageConfig.chapterId;
+                            
+                            // 즉시 저장
+                            PlayerDataManager.Instance.SaveCurrentSlot();
+                            
+                            if (enableDebugLogs)
+                                Debug.Log($"🎬 [StageManager] 챕터 {stageConfig.chapterId} 종료 컷신 예약: {chapterClearCutsceneId} (SelectedPlayerData)");
+                        }
+                    }
+                }
+                
+                // 🎬 Phase 4: 스테이지 클리어 컷신 체크
+                if (!string.IsNullOrEmpty(stageConfig.clearCutsceneId))
+                {
+                    bool isReplay = StageProgressManager.Instance != null && 
+                                    StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
+                    
+                    if (CutsceneSystem.CutsceneManager.Instance != null)
+                    {
+                        bool shouldPlay = CutsceneSystem.CutsceneManager.Instance.ShouldPlayCutscene(
+                            stageConfig.clearCutsceneId, 
+                            isReplay, 
+                            stageConfig.isReplaySkipCutscene
+                        );
+                        
+                        if (shouldPlay)
+                        {
+                            if (enableDebugLogs)
+                                Debug.Log($"🎬 [StageManager] 스테이지 클리어 컷신 재생 예약: {stageConfig.clearCutsceneId}");
+                            
+                            // 클리어 컷신은 ResultPopup 표시 전에 재생
+                            StartCoroutine(PlayClearCutsceneAndShowResult());
+                            return; // FSMStageController 호출은 컷신 종료 후 처리
+                        }
+                    }
+                }
+                
                 // FSMStageController에 승리 알림
                 if (FSMStageController.Instance != null)
                 {
@@ -531,6 +642,30 @@ public class StageManager : MonoBehaviour
                 {
                     FSMStageController.Instance.TriggerDefeat();
                 }
+            }
+        }
+        
+        /// <summary>
+        /// 🎬 Phase 4: 클리어 컷신 재생 후 결과 표시
+        /// </summary>
+        private IEnumerator PlayClearCutsceneAndShowResult()
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🎬 [StageManager] 클리어 컷신 재생 시작: {stageConfig.clearCutsceneId}");
+            
+            // 컷신 재생
+            CutsceneSystem.CutsceneManager.Instance.PlayCutscene(stageConfig.clearCutsceneId);
+            
+            // 컷신 종료 대기
+            yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
+            
+            if (enableDebugLogs)
+                Debug.Log($"🎬 [StageManager] 클리어 컷신 종료, 결과 화면 표시");
+            
+            // 컷신 종료 후 FSMStageController에 승리 알림
+            if (FSMStageController.Instance != null)
+            {
+                FSMStageController.Instance.TriggerVictory();
             }
         }
         
@@ -584,12 +719,27 @@ public class StageManager : MonoBehaviour
         /// </summary>
         private StageConfig LoadStageConfig(string stageId)
         {
-            string path = $"Stages/Configs/{stageId}_Config";
-            StageConfig config = Resources.Load<StageConfig>(path);
+            StageConfig config = null;
             
-            if (config == null)
+            // ✅ Phase 6: 챕터 기반 경로만 사용 (CH01_ST01, CH02_ST05 등)
+            if (StageSystem.StageIdValidator.IsValidChapterStageId(stageId))
             {
-                Debug.LogError($"[StageManager] StageConfig 로드 실패: {path}");
+                string path = $"Stages/Configs/Chapters/{stageId}_Config";
+                config = Resources.Load<StageConfig>(path);
+                
+                if (config == null)
+                {
+                    Debug.LogError($"[StageManager] StageConfig 로드 실패: {path}");
+                }
+                else if (enableDebugLogs)
+                {
+                    Debug.Log($"[StageManager] StageConfig 로드 성공: {path} -> {config.StageName}");
+                }
+            }
+            else
+            {
+                Debug.LogError($"[StageManager] 잘못된 StageID 형식: {stageId}");
+                Debug.LogError($"[StageManager] CH##_ST## 형식만 지원됩니다 (예: CH01_ST01)");
             }
             
             return config;

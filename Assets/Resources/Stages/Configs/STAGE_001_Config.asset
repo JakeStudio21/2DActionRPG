@@ -12,11 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 153144396f289ac4eb89594c7dbaef9e, type: 3}
   m_Name: STAGE_001_Config
   m_EditorClassIdentifier: 
-  StageID: STAGE_001
+  StageID: CH01_ST01
   StageName: STAGE_FIELD_001
   SceneName: Stage_001
   BackgroundType: 0
   IsDungeon: 0
+  chapterId: 1
+  stageIndexInChapter: 1
+  enterCutsceneId: 
+  clearCutsceneId: 
+  isReplaySkipCutscene: 1
   RequiredLevel: 1
   UnlockCondition: AlwaysUnlocked
   unlockData:
