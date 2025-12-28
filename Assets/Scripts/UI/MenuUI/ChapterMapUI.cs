@@ -111,6 +111,11 @@ public class ChapterMapUI : MonoBehaviour
         currentChapterId = newChapterId;
         RefreshChapterUI();
         
+        // ========================================
+        // 📌 Phase 6: 챕터 전환 시 currentChapterId 업데이트
+        // ========================================
+        UpdateCurrentChapterId(currentChapterId);
+        
         // 이벤트 발생
         OnChapterChanged?.Invoke(currentChapterId);
     }
@@ -142,6 +147,11 @@ public class ChapterMapUI : MonoBehaviour
         
         currentChapterId = newChapterId;
         RefreshChapterUI();
+        
+        // ========================================
+        // 📌 Phase 6: 챕터 전환 시 currentChapterId 업데이트
+        // ========================================
+        UpdateCurrentChapterId(currentChapterId);
         
         // 이벤트 발생
         OnChapterChanged?.Invoke(currentChapterId);
@@ -303,6 +313,21 @@ public class ChapterMapUI : MonoBehaviour
     public int GetCurrentChapterId()
     {
         return currentChapterId;
+    }
+    
+    /// <summary>
+    /// 📌 Phase 6: 챕터 전환 시 SelectedPlayerData 업데이트
+    /// </summary>
+    private void UpdateCurrentChapterId(int chapterId)
+    {
+        if (PlayerDataManager.Instance != null && 
+            PlayerDataManager.Instance.selectedPlayerData != null)
+        {
+            PlayerDataManager.Instance.selectedPlayerData.currentChapterId = chapterId;
+            
+            if (enableDebugLogs)
+                Debug.Log($"📍 [ChapterMapUI] 현재 챕터 ID 업데이트: {chapterId}");
+        }
     }
     
     /// <summary>

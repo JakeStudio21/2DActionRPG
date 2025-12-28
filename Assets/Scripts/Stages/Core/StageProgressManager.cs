@@ -173,6 +173,27 @@ namespace StageSystem
                 
                 CheckAutoUnlocks();
                 
+                // ========================================
+                // 📌 Phase 6: SelectedPlayerData 업데이트
+                // ========================================
+                if (PlayerDataManager.Instance != null)
+                {
+                    var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+                    if (selectedData != null && StageIdValidator.IsValidChapterStageId(stageId))
+                    {
+                        int chapterId = StageIdValidator.ExtractChapterId(stageId);
+                        if (chapterId > 0)
+                        {
+                            // 마지막 플레이 위치 업데이트
+                            selectedData.currentChapterId = chapterId;
+                            selectedData.lastPlayedStageId = stageId;
+                            
+                            if (enableDebugLogs)
+                                Debug.Log($"📍 [StageProgressManager] 마지막 플레이 위치 업데이트: Chapter {chapterId}, Stage {stageId}");
+                        }
+                    }
+                }
+                
                 // ✅ Phase 1: 챕터 완료 체크 (Stage 10 클리어 시)
                 if (StageIdValidator.IsValidChapterStageId(stageId))
                 {
@@ -430,6 +451,19 @@ namespace StageSystem
                     }
                     
                     slotData.MarkChapterAsCleared(chapterId);
+                    
+                    // ========================================
+                    // 📌 Phase 6: SelectedPlayerData 업데이트
+                    // ========================================
+                    var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+                    if (selectedData != null && !selectedData.clearedChapters.Contains(chapterId))
+                    {
+                        selectedData.clearedChapters.Add(chapterId);
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"📊 [StageProgressManager] SelectedPlayerData.clearedChapters 업데이트: {chapterId} 추가");
+                    }
+                    
                     PlayerDataManager.Instance.SaveCurrentSlot();
                     
                     if (enableDebugLogs)

@@ -50,6 +50,13 @@ public class PlayerSlotData
     [Tooltip("예약된 컷신의 챕터 번호")]
     public int pendingChapterId = 0;
     
+    [Header("🎯 마지막 플레이 위치 (Phase 6)")]
+    [Tooltip("마지막으로 플레이한 챕터 (UI 표시용)")]
+    public int lastPlayedChapterId = 1;
+    
+    [Tooltip("마지막으로 플레이한 스테이지 ID (예: CH03_ST05)")]
+    public string lastPlayedStageId = "";
+    
     [Header("🎒 인벤토리 & 장비")]
     public List<string> inventoryItemNames = new List<string>();
     // Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 기존 삭제

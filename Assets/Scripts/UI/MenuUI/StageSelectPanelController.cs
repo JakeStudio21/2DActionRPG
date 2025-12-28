@@ -139,14 +139,19 @@ public class StageSelectPanelController : MonoBehaviour
             Debug.LogError("[StageSelectPanelController] stageSelectPanel이 null입니다! Inspector에서 할당해주세요.");
         }
         
+        // ========================================
+        // 📌 Phase 6: 마지막 플레이 챕터 로드
+        // ========================================
+        int targetChapterId = GetLastPlayedChapterId();
+        
         // Phase 6: 챕터 맵 UI 표시
         if (chapterMapUI != null)
         {
-            chapterMapUI.ShowChapter(currentChapterId);
+            chapterMapUI.ShowChapter(targetChapterId);
         }
         
         // Phase 6: 동적 스테이지 버튼 생성
-        CreateStageButtons(currentChapterId);
+        CreateStageButtons(targetChapterId);
         
         // 선택 초기화
         selectedStageId = "";
@@ -566,6 +571,30 @@ public class StageSelectPanelController : MonoBehaviour
         {
             DisplayStageInfo(stageId);
         }
+    }
+    
+    /// <summary>
+    /// 📌 Phase 6: 마지막 플레이 챕터 ID 가져오기
+    /// </summary>
+    private int GetLastPlayedChapterId()
+    {
+        // PlayerDataManager에서 마지막 플레이 챕터 가져오기
+        if (PlayerDataManager.Instance != null && 
+            PlayerDataManager.Instance.selectedPlayerData != null)
+        {
+            int lastChapter = PlayerDataManager.Instance.selectedPlayerData.currentChapterId;
+            
+            // 유효성 검사 (1~5 범위)
+            if (lastChapter >= 1 && lastChapter <= 5)
+            {
+                Debug.Log($"📍 [StageSelectPanelController] 마지막 플레이 챕터 로드: Chapter {lastChapter}");
+                return lastChapter;
+            }
+        }
+        
+        // 기본값: 챕터 1
+        Debug.Log($"📍 [StageSelectPanelController] 기본 챕터1 사용");
+        return 1;
     }
 }
 

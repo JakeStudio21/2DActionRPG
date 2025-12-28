@@ -37,6 +37,33 @@ public class SelectedPlayerData : ScriptableObject
     public string pendingCutsceneId = null;
     public int pendingChapterId = 0;
     
+    [Header("📊 챕터 진행도 (Phase 1 근본 해결)")]
+    [Tooltip("클리어한 챕터 목록 (1~5)")]
+    public List<int> clearedChapters = new List<int>();
+    
+    [Header("🎬 컷신 시청 여부 (Phase 7 준비)")]
+    [Tooltip("챕터 시작 컷신 시청 목록 (예: CH01_START)")]
+    public List<string> seenChapterStart = new List<string>();
+    
+    [Tooltip("챕터 종료 컷신 시청 목록 (예: CH01_CLEAR)")]
+    public List<string> seenChapterClear = new List<string>();
+    
+    [Tooltip("스테이지 입장 컷신 시청 목록 (예: CH01_ST01_ENTER)")]
+    public List<string> seenStageEnter = new List<string>();
+    
+    [Tooltip("스테이지 클리어 컷신 시청 목록 (예: CH01_ST01_CLEAR)")]
+    public List<string> seenStageClear = new List<string>();
+    
+    [Header("🎯 마지막 플레이 위치 (Phase 6)")]
+    [Tooltip("마지막으로 플레이한 챕터 (UI 표시용)")]
+    public int currentChapterId = 1;
+    
+    [Tooltip("마지막으로 플레이한 스테이지 ID (예: CH03_ST05)")]
+    public string lastPlayedStageId = "";
+    
+    [Header("🎯 스테이지 진행도")]
+    public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
+    
     // Dictionary로 변환하여 사용
     private Dictionary<EquipmentSlot, EquipmentData> _runtimeEquippedItems = null;
     public Dictionary<EquipmentSlot, EquipmentData> RuntimeEquippedItems
@@ -79,9 +106,6 @@ public class SelectedPlayerData : ScriptableObject
             return _runtimeExtraStats;
         }
     }
-    
-    [Header("🎯 스테이지 진행도")]
-    public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
     
     /// <summary>
     /// PlayerSlotData에서 런타임 데이터로 복사
@@ -151,20 +175,82 @@ public class SelectedPlayerData : ScriptableObject
             RuntimeExtraStats[kvp.Key] = kvp.Value;
         }
         
-        // 스테이지 진행도 로드
-        stageProgresses = slotData.stageProgresses ?? new List<StageSystem.StageProgress>();
+        // ========================================
+        // 📌 스테이지 진행도
+        // ========================================
+        stageProgresses = slotData.stageProgresses != null
+            ? new List<StageSystem.StageProgress>(slotData.stageProgresses)
+            : new List<StageSystem.StageProgress>();
         
-        // 🎬 Phase 5: 예약된 컷신 로드
+        // ========================================
+        // 📌 챕터 진행도 (Phase 1 근본 해결)
+        // ========================================
+        clearedChapters = slotData.clearedChapters != null
+            ? new List<int>(slotData.clearedChapters)
+            : new List<int>();
+        
+        // ========================================
+        // 📌 컷신 시청 여부 (Phase 7 준비)
+        // ========================================
+        seenChapterStart = slotData.seenChapterStart != null
+            ? new List<string>(slotData.seenChapterStart)
+            : new List<string>();
+            
+        seenChapterClear = slotData.seenChapterClear != null
+            ? new List<string>(slotData.seenChapterClear)
+            : new List<string>();
+            
+        seenStageEnter = slotData.seenStageEnter != null
+            ? new List<string>(slotData.seenStageEnter)
+            : new List<string>();
+            
+        seenStageClear = slotData.seenStageClear != null
+            ? new List<string>(slotData.seenStageClear)
+            : new List<string>();
+        
+        // ========================================
+        // 📌 예약된 컷신 (Phase 5)
+        // ========================================
         pendingCutsceneId = slotData.pendingCutsceneId;
         pendingChapterId = slotData.pendingChapterId;
         
+        // ========================================
+        // 📌 마지막 플레이 위치 (Phase 6)
+        // ========================================
+        currentChapterId = slotData.lastPlayedChapterId > 0 
+            ? slotData.lastPlayedChapterId 
+            : CalculateLastPlayedChapter(slotData.stageProgresses);
+        
+        lastPlayedStageId = slotData.lastPlayedStageId ?? "";
+        
         SyncDictionaries();
         
-        Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 로드 완료: {slotData}");
+        Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 완전 로드 완료");
     }
     
     /// <summary>
-    /// 런타임 데이터를 PlayerSlotData로 저장
+    /// stageProgresses에서 마지막 플레이 챕터 계산 (fallback)
+    /// </summary>
+    private int CalculateLastPlayedChapter(List<StageSystem.StageProgress> progresses)
+    {
+        if (progresses == null || progresses.Count == 0) return 1;
+        
+        int maxChapter = 1;
+        foreach (var progress in progresses)
+        {
+            if (StageSystem.StageIdValidator.IsValidChapterStageId(progress.stageId))
+            {
+                int chapterId = StageSystem.StageIdValidator.ExtractChapterId(progress.stageId);
+                if (chapterId > maxChapter)
+                    maxChapter = chapterId;
+            }
+        }
+        return maxChapter;
+    }
+    
+    /// <summary>
+    /// ⭐ SelectedPlayerData를 PlayerSlotData로 완전 복제 (Full Dump)
+    /// 이 메서드는 PlayerSlotData의 모든 필드를 채워야 한다!
     /// </summary>
     public PlayerSlotData SaveToSlotData()
     {
@@ -209,14 +295,52 @@ public class SelectedPlayerData : ScriptableObject
             slotData.SetExtraStat(kvp.Key, kvp.Value);
         }
         
-        // 스테이지 진행도 저장
-        slotData.stageProgresses = new List<StageSystem.StageProgress>(stageProgresses);
+        // ========================================
+        // 📌 스테이지 진행도 (Full Dump)
+        // ========================================
+        slotData.stageProgresses = this.stageProgresses != null
+            ? new List<StageSystem.StageProgress>(this.stageProgresses)
+            : new List<StageSystem.StageProgress>();
         
-        // 🎬 Phase 5: 예약된 컷신 저장
-        slotData.pendingCutsceneId = pendingCutsceneId;
-        slotData.pendingChapterId = pendingChapterId;
+        // ========================================
+        // 📌 챕터 진행도 (Phase 1 근본 해결)
+        // ========================================
+        slotData.clearedChapters = this.clearedChapters != null
+            ? new List<int>(this.clearedChapters)
+            : new List<int>();
         
-        Debug.Log($"📤 [SelectedPlayerData] 슬롯 {selectedSlotIndex} 데이터 저장 준비 완료: {slotData}");
+        // ========================================
+        // 📌 컷신 시청 여부 (Phase 7 준비)
+        // ========================================
+        slotData.seenChapterStart = this.seenChapterStart != null
+            ? new List<string>(this.seenChapterStart)
+            : new List<string>();
+            
+        slotData.seenChapterClear = this.seenChapterClear != null
+            ? new List<string>(this.seenChapterClear)
+            : new List<string>();
+            
+        slotData.seenStageEnter = this.seenStageEnter != null
+            ? new List<string>(this.seenStageEnter)
+            : new List<string>();
+            
+        slotData.seenStageClear = this.seenStageClear != null
+            ? new List<string>(this.seenStageClear)
+            : new List<string>();
+        
+        // ========================================
+        // 📌 예약된 컷신 (Phase 5)
+        // ========================================
+        slotData.pendingCutsceneId = this.pendingCutsceneId ?? "";
+        slotData.pendingChapterId = this.pendingChapterId;
+        
+        // ========================================
+        // 📌 마지막 플레이 위치 (Phase 6)
+        // ========================================
+        slotData.lastPlayedChapterId = this.currentChapterId;
+        slotData.lastPlayedStageId = this.lastPlayedStageId ?? "";
+        
+        Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
         return slotData;
     }
     

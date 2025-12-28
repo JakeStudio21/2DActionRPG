@@ -427,31 +427,20 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 현재 선택된 슬롯 저장
     /// </summary>
+    /// <summary>
+    /// ⭐ 현재 슬롯 저장 (Phase 1 근본 해결 완료)
+    /// SaveToSlotData()가 Full Dump이므로 추가 작업 불필요!
+    /// </summary>
     public bool SaveCurrentSlot()
     {
         if (!IsSlotSelected) return false;
         
+        // ✅ SaveToSlotData()가 모든 필드를 완전 복제하므로 그대로 사용
         var slotData = selectedPlayerData.SaveToSlotData();
         
-        // ✅ Phase 1 수정: 기존 playerSlots의 챕터 진행도 보존
-        if (currentSlotIndex >= 0 && currentSlotIndex < playerSlots.Count)
-        {
-            var existingSlot = playerSlots[currentSlotIndex];
-            if (existingSlot != null)
-            {
-                // 챕터 진행도 복사
-                slotData.clearedChapters = new List<int>(existingSlot.clearedChapters);
-                
-                // 컷신 시청 여부 복사
-                slotData.seenChapterStart = new List<string>(existingSlot.seenChapterStart);
-                slotData.seenChapterClear = new List<string>(existingSlot.seenChapterClear);
-                slotData.seenStageEnter = new List<string>(existingSlot.seenStageEnter);
-                slotData.seenStageClear = new List<string>(existingSlot.seenStageClear);
-                
-                // 🎬 Phase 5: pendingCutsceneId는 SelectedPlayerData에서 이미 복사됨 (덮어쓰지 않음!)
-                // 런타임에만 설정되므로 existingSlot에서 복사하지 않음
-            }
-        }
+        // ❌ Phase 1 임시 패치 완전 제거!
+        // 기존: 수동으로 챕터 필드 복사 (19줄) → 삭제 완료!
+        // SaveToSlotData()에서 이미 모든 필드를 복사하므로 불필요함
         
         return SaveSlotData(slotData);
     }
