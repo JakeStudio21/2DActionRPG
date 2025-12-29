@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c4ada57f186b8c4cb4422257d3cb493, type: 3}
   m_Name: EliteSkill_GroundSlam
   m_EditorClassIdentifier: 
+  skillType: 0
   skillName: "\"\uB300\uC9C0 \uAC15\uD0C0\""
   skillId: ELITESKILL_GROUNDSLAM_001
   description: "\"\uB545\uC744 \uB0B4\uB9AC\uCCD0 \uCDA9\uACA9\uD30C \uC0DD\uC131\""
@@ -22,12 +23,14 @@ MonoBehaviour:
   canCritical: 1
   criticalChanceBonus: 0.05
   aoeShape: 0
-  aoeRadius: 3
-  aoeSize: {x: 4, y: 6}
-  aoeAngle: 90
+  aoeRadius: 6
+  aoeSize: {x: 12, y: 4}
+  aoeAngle: 0
   aoeOffset: {x: 0, y: 0}
+  aoeCenterMode: 1
+  aoeCenterOffset: 4
   telegraphPrefab: {fileID: 614329605402219767, guid: d7b751e350300e84e81746897bcaef64, type: 3}
-  telegraphDuration: 1.5
+  telegraphDuration: 1.2
   telegraphColor: {r: 0, g: 0.2463131, b: 1, a: 0.5}
   castEffect: {fileID: 6079819295311992884, guid: 9d6f4245a3816de458b2d83ca5c4a2cf, type: 3}
   aoeEffect: {fileID: 2825740286487543389, guid: 1609060f2208d5144bb8e8a5df54c76a, type: 3}
@@ -39,3 +42,8 @@ MonoBehaviour:
   minRange: 0
   maxRange: 10
   stopMovingWhileCasting: 1
+  vfxMode: 1
+  vfxTime: 0.5
+  damageMode: 1
+  damageTime: 0.5
+  damageWindow: 0

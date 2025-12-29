@@ -226,47 +226,17 @@ public class BossSkillController : MonoBehaviour
     }
     
     /// <summary>
-    /// VFX만 실행 (BossSkillActionStateBehaviour에서 호출)
+    /// ⚠️ [DEPRECATED - Phase 4] VFX만 실행
+    /// Phase 4부터 VFX는 각 스킬의 ExecuteDamageOnly()에서 자동으로 생성됨
     /// </summary>
+    [System.Obsolete("Phase 4: VFX는 ExecuteSkillDamage()에서 자동으로 생성됨. ExecuteSkillDamage() 단독 사용 권장")]
     public void ExecuteSkillVFX()
     {
         if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
         
-        string skillName = currentSkillEntry.skillData.SkillName;
+        Debug.LogWarning("[BossSkillController] ExecuteSkillVFX()는 Deprecated! VFX는 자동으로 생성됩니다.");
         
-        switch (skillName)
-        {
-            case "Boss_CircleAOE":
-            case "Boss_FanAOE":
-                if (aoeSkill != null)
-                {
-                    aoeSkill.ExecuteVFXOnly(currentSkillEntry, cachedTargetDirection);
-                }
-                else
-                {
-                    Debug.LogError($"[BossSkillController] BossAOESkill 컴포넌트가 없습니다!");
-                }
-                break;
-            
-            case "Boss_Dash":
-                if (dashSkill != null)
-                {
-                    dashSkill.ExecuteVFXOnly(currentSkillEntry, cachedTargetDirection);
-                }
-                else
-                {
-                    Debug.LogError($"[BossSkillController] BossDashSkill 컴포넌트가 없습니다!");
-                }
-                break;
-            
-            case "Boss_SpiralFire":
-                // 멀티샷은 VFX 없음 (프로젝타일 자체가 이펙트)
-                break;
-            
-            default:
-                Debug.LogWarning($"[BossSkillController] 알 수 없는 스킬: {skillName}");
-                break;
-        }
+        // Phase 4: VFX는 각 스킬의 SpawnDamageArea()에서 자동 생성되므로 여기서는 아무것도 하지 않음
     }
     
     /// <summary>
@@ -601,8 +571,8 @@ public class BossSkillController : MonoBehaviour
                 return Quaternion.Euler(0, 0, angle);
             
             case "Boss_CircleAOE":
-                // 원형: 회전 불필요 (원은 모든 방향 동일)
-                return Quaternion.identity;
+                // ⭐ 원형도 플레이어 방향 적용 (메테오 등 방향성 이펙트 지원)
+                return Quaternion.Euler(0, 0, angle);
             
             case "Boss_FanAOE":
                 // 부채꼴: 진행 방향

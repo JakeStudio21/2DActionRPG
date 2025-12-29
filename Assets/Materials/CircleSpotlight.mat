@@ -47,6 +47,6 @@ Material:
     m_Colors:
     - _Color: {r: 0, g: 0, b: 0, a: 0.7}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _HoleCenter: {r: 0.9558004, g: 0.26310018, b: 0, a: 0}
+    - _HoleCenter: {r: 0.9218073, g: 0.113989994, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

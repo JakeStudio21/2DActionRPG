@@ -21,7 +21,7 @@ MonoBehaviour:
   attackCooldown: 1
   animationDuration: 1
   animationTrigger: Attack
-  attackRange: 5
+  attackRange: 4
   attackAngle: 360
   stopMovingWhileAttacking: 1
   projectilePrefab: {fileID: 0}

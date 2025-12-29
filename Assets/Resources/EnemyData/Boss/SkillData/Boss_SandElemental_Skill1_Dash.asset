@@ -29,7 +29,7 @@ MonoBehaviour:
   aoeAngle: 0
   aoeOffset: {x: 0, y: 0}
   aoeCenterMode: 1
-  aoeCenterOffset: 0
+  aoeCenterOffset: 6
   telegraphPrefab: {fileID: 4861058780197955906, guid: c64a504b69ad9ce4693f5f5353d7018e, type: 3}
   telegraphDuration: 2
   telegraphColor: {r: 0, g: 0.2463131, b: 1, a: 0.5}

@@ -24,6 +24,11 @@ public class EliteSkillController : MonoBehaviour
     [Header("📍 텔레그래프")]
     private GameObject activeTelegraph;
     
+    [Header("🎯 스킬 타겟 정보 (Phase 2)")]
+    private Vector3 cachedOrigin;           // Cast 시작 시점의 Origin (엘리트 중심 위치)
+    private Vector3 cachedTargetDirection;  // Cast 시작 시점의 플레이어 방향 (싱크 맞춤용)
+    private Vector3 cachedTargetPosition;   // Cast 시작 시점의 플레이어 위치
+    
     [Header("📐 위치 조정")]
     [Tooltip("AOE 중심점 오프셋 (Y값 음수로 발쪽 이동)")]
     [SerializeField] private Vector3 aoeOffset = new Vector3(0, -0.5f, 0);
@@ -190,9 +195,47 @@ public class EliteSkillController : MonoBehaviour
     {
         if (currentSkill == null) return;
         
+        // ⭐ Phase 2: Cast 시작 시점의 Origin과 Forward 저장 (Telegraph와 DamageArea 싱크 맞춤)
+        // ⭐ 수정: 보스와 동일하게 피봇 중심점 사용 (aoeOffset 제거)
+        cachedOrigin = transform.position;  // 엘리트 피봇 중심점
+        
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            cachedTargetPosition = player.transform.position;
+            Vector3 elitePos = transform.position;
+            Vector3 toPlayer = cachedTargetPosition - elitePos;
+            cachedTargetDirection = toPlayer.normalized;
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🎯 [EliteSkillController] Forward 방향 계산:");
+                Debug.Log($"   - Elite 위치: {elitePos}");
+                Debug.Log($"   - Player 위치: {cachedTargetPosition}");
+                Debug.Log($"   - 방향 벡터 (정규화 전): {toPlayer}");
+                Debug.Log($"   - 방향 벡터 (정규화 후): {cachedTargetDirection}");
+                
+                // 2D 각도 계산 (X-Y 평면 기준)
+                float angle2D = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
+                Debug.Log($"   - 2D 각도: {angle2D}° (0°=우측, 90°=상단, 180°=좌측, -90°=하단)");
+            }
+        }
+        else
+        {
+            cachedTargetDirection = Vector3.down; // fallback
+            cachedTargetPosition = transform.position + Vector3.down * 5f;
+            
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"⚠️ [EliteSkillController] Player를 찾을 수 없음! Fallback: Vector3.down");
+            }
+        }
+        
         if (enableDebugLogs)
         {
             Debug.Log($"✨ [EliteSkillController] {gameObject.name}: Cast 이펙트 + Telegraph 생성");
+            Debug.Log($"   - Cached Origin: {cachedOrigin}");
+            Debug.Log($"   - Cached Forward: {cachedTargetDirection}");
         }
         
         // Cast 이펙트 생성
@@ -228,9 +271,26 @@ public class EliteSkillController : MonoBehaviour
     }
 
     /// <summary>
-    /// 스킬 액션 실행 (StateMachineBehaviour 콜백 - 데미지 판정)
+    /// ⚠️ [DEPRECATED - Phase 4] VFX만 실행
+    /// Phase 4부터 VFX는 SpawnDamageArea()에서 자동으로 생성됨
     /// </summary>
-    public void ExecuteSkillAction()
+    [System.Obsolete("Phase 4: VFX는 SpawnDamageArea()에서 자동으로 생성됨. ExecuteSkillDamageOnly() 단독 사용 권장")]
+    public void ExecuteSkillVFXOnly()
+    {
+        if (currentSkill == null) return;
+        
+        if (enableDebugLogs)
+        {
+            Debug.LogWarning($"⚠️ [EliteSkillController] ExecuteSkillVFXOnly()는 Deprecated! VFX는 자동으로 생성됩니다.");
+        }
+        
+        // Phase 4: VFX는 SpawnDamageArea()에서 자동 생성되므로 여기서는 아무것도 하지 않음
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 2: Damage만 실행 (EliteSkillActionStateBehaviour에서 호출)
+    /// </summary>
+    public void ExecuteSkillDamageOnly()
     {
         if (currentSkill == null) return;
         
@@ -242,11 +302,24 @@ public class EliteSkillController : MonoBehaviour
         // ⭐ Telegraph 제거 (데미지 판정 직전)
         RemoveTelegraph();
         
-        // AOE 이펙트 생성
-        SpawnAOEEffect();
+        // ⭐ Phase 2: DamageArea를 사용한 데미지 판정
+        SpawnDamageArea();
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 4: 스킬 액션 실행 (VFX는 자동 생성)
+    /// </summary>
+    public void ExecuteSkillAction()
+    {
+        if (currentSkill == null) return;
         
-        // AOE 데미지 판정
-        PerformAOEDamage();
+        if (enableDebugLogs)
+        {
+            Debug.Log($"💥 [EliteSkillController] {gameObject.name}: {currentSkill.SkillName} 액션 실행");
+        }
+        
+        // ⭐ Phase 4: Damage만 호출 (VFX는 SpawnDamageArea()에서 자동 생성)
+        ExecuteSkillDamageOnly();
     }
 
     /// <summary>
@@ -320,31 +393,45 @@ public class EliteSkillController : MonoBehaviour
     }
 
     /// <summary>
-    /// Telegraph 생성
+    /// ⭐ Phase 3: Telegraph 생성 (보스 방식 적용 - Origin 기준 + Center Mode 조정)
     /// </summary>
     private void SpawnTelegraph()
     {
         if (currentSkill == null || currentSkill.TelegraphPrefab == null) return;
         
-        Vector3 spawnPosition = CalculateAOECenter();
+        // ⭐ Phase 3: Origin 위치에 생성 (보스 방식과 동일)
+        Vector3 spawnPosition = cachedOrigin;
         
-        // Telegraph 생성
-        activeTelegraph = Instantiate(currentSkill.TelegraphPrefab, spawnPosition, Quaternion.identity);
+        // ⭐ Phase 6: 회전 적용 (보스와 동일하게 cachedTargetDirection 기반)
+        Quaternion rotation = CalculateTelegraphRotation();
+        
+        // Telegraph 생성 (위치 + 회전 적용)
+        activeTelegraph = Instantiate(currentSkill.TelegraphPrefab, spawnPosition, rotation);
         
         if (enableDebugLogs)
         {
-            Debug.Log($"[EliteSkillController] Telegraph 생성: {activeTelegraph.name} at {spawnPosition}");
+            Debug.Log($"📍 [EliteSkillController] Telegraph 생성: {activeTelegraph.name}");
+            Debug.Log($"   - Origin: {cachedOrigin}");
+            Debug.Log($"   - Rotation: {rotation.eulerAngles}");
+            Debug.Log($"   - Center Mode: {currentSkill.AoeCenterMode}");
+            Debug.Log($"   - Center Offset: {currentSkill.AoeCenterOffset}");
         }
         
         // Telegraph 설정 (두 가지 타입 지원)
+        float scaleMultiplier = 1.0f; // 엘리트는 기본값 1.0
+        
         // 1. SpriteRenderer 기반 (TelegraphIndicator)
         var indicator = activeTelegraph.GetComponent<TelegraphIndicator>();
         if (indicator != null)
         {
-            indicator.Initialize(currentSkill, currentSkill.TelegraphDuration);
+            indicator.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
+            
+            // ⭐ Phase 3: Center Mode에 따라 Telegraph 위치 조정 (DamageArea와 동일)
+            AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
+            
             if (enableDebugLogs)
             {
-                Debug.Log($"[EliteSkillController] TelegraphIndicator 초기화 완료");
+                Debug.Log($"✅ [EliteSkillController] TelegraphIndicator 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
             }
         }
         else
@@ -353,17 +440,77 @@ public class EliteSkillController : MonoBehaviour
             var indicatorMesh = activeTelegraph.GetComponent<TelegraphIndicatorMesh>();
             if (indicatorMesh != null)
             {
-                indicatorMesh.Initialize(currentSkill, currentSkill.TelegraphDuration);
+                indicatorMesh.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
+                
+                // ⭐ Phase 3: Center Mode에 따라 Telegraph 위치 조정 (DamageArea와 동일)
+                AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
+                
                 if (enableDebugLogs)
                 {
-                    Debug.Log($"[EliteSkillController] TelegraphIndicatorMesh 초기화 완료");
+                    Debug.Log($"✅ [EliteSkillController] TelegraphIndicatorMesh 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
                 }
             }
             else
             {
-                Debug.LogWarning($"[EliteSkillController] Telegraph에 TelegraphIndicator 또는 TelegraphIndicatorMesh 컴포넌트가 없습니다!");
+                Debug.LogWarning($"⚠️ [EliteSkillController] Telegraph에 TelegraphIndicator 또는 TelegraphIndicatorMesh 컴포넌트가 없습니다!");
             }
         }
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 3: Center Mode에 따라 Telegraph 위치 조정 (보스 방식과 동일)
+    /// DamageArea.CalculateCenter()와 동일한 로직 적용
+    /// </summary>
+    private void AdjustTelegraphPositionForCenterMode(GameObject telegraph, float scaleMultiplier)
+    {
+        if (telegraph == null || currentSkill == null) return;
+        
+        // ForwardAnchored 모드일 때만 위치 조정
+        if (currentSkill.AoeCenterMode == AOECenterMode.ForwardAnchored)
+        {
+            // Center Offset 계산 (DamageArea와 동일한 로직)
+            float centerOffset = currentSkill.AoeCenterOffset;
+            
+            // Fallback: AoeOffset 사용 (호환성 유지)
+            if (centerOffset <= 0f)
+            {
+                Vector2 aoeOffset = currentSkill.AoeOffset;
+                centerOffset = aoeOffset.magnitude;
+            }
+            
+            // 오프셋이 여전히 0이면 경고 후 종료
+            if (centerOffset <= 0f)
+            {
+                if (enableDebugLogs)
+                {
+                    Debug.LogWarning($"⚠️ [EliteSkillController] ForwardAnchored 모드인데 Center Offset이 0입니다! SkillData에서 AoeCenterOffset을 설정해주세요.");
+                }
+                return;
+            }
+            
+            // 스케일 적용된 오프셋 (DamageArea와 동일)
+            float finalOffset = centerOffset * scaleMultiplier;
+            
+            // Forward 방향으로 위치 이동
+            Vector3 forward = cachedTargetDirection.normalized;
+            
+            // Origin 위치를 기준으로 오프셋 적용
+            Vector3 newPosition = cachedOrigin + forward * finalOffset;
+            
+            telegraph.transform.position = newPosition;
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🎯 [EliteSkillController] ForwardAnchored 모드 - Telegraph 위치 조정:");
+                Debug.Log($"   - Origin: {cachedOrigin}");
+                Debug.Log($"   - Center Offset: {centerOffset}");
+                Debug.Log($"   - Scale Multiplier: {scaleMultiplier}");
+                Debug.Log($"   - Final Offset: {finalOffset}");
+                Debug.Log($"   - Forward: {forward}");
+                Debug.Log($"   - New Position: {newPosition}");
+            }
+        }
+        // Centered 모드일 때는 Origin 위치 그대로 유지 (조정 불필요)
     }
 
     /// <summary>
@@ -379,14 +526,43 @@ public class EliteSkillController : MonoBehaviour
     }
 
     /// <summary>
-    /// AOE 이펙트 생성
+    /// ⭐ Phase 4: AOE 이펙트 생성 (DamageArea Center 기준)
     /// </summary>
+    private void SpawnAOEEffectAtCenter(Vector3 center)
+    {
+        if (currentSkill == null || currentSkill.AoeEffect == null) return;
+        
+        // ⭐ 저장된 cachedTargetDirection 사용 (Telegraph와 동일한 방향)
+        Quaternion rotation = CalculateTelegraphRotation();
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"🎨 [EliteSkillController] AOE 이펙트 생성: {currentSkill.AoeEffect.name}");
+            Debug.Log($"   - Center: {center}");
+            Debug.Log($"   - Rotation: {rotation.eulerAngles}");
+        }
+        
+        GameObject effect = Instantiate(currentSkill.AoeEffect, center, rotation);
+        Destroy(effect, 2f);
+    }
+    
+    /// <summary>
+    /// ⚠️ [DEPRECATED - Phase 4] AOE 이펙트 생성 (Origin 기준)
+    /// SpawnAOEEffectAtCenter() 사용 권장
+    /// </summary>
+    [System.Obsolete("Phase 4: SpawnAOEEffectAtCenter(Vector3) 사용 권장. DamageArea.GetCalculatedCenter()와 동기화 필요")]
     private void SpawnAOEEffect()
     {
         if (currentSkill == null || currentSkill.AoeEffect == null) return;
         
-        Vector3 spawnPosition = CalculateAOECenter();
+        // ⭐ Phase 2: 저장된 Origin 사용 (CalculateAOECenter 제거)
+        Vector3 spawnPosition = cachedOrigin;
         Quaternion rotation = CalculateAOERotation();
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"🎨 [EliteSkillController] AOE 이펙트 생성 (Obsolete): {currentSkill.AoeEffect.name} at {spawnPosition}");
+        }
         
         GameObject effect = Instantiate(currentSkill.AoeEffect, spawnPosition, rotation);
         Destroy(effect, 2f);
@@ -394,11 +570,80 @@ public class EliteSkillController : MonoBehaviour
 
     #endregion
 
-    #region AOE 데미지 판정
-
+    #region AOE 데미지 판정 (Phase 2: DamageArea 사용)
+    
     /// <summary>
-    /// AOE 데미지 판정
+    /// ⭐ Phase 2: DamageArea를 사용한 데미지 판정
     /// </summary>
+    private void SpawnDamageArea()
+    {
+        if (currentSkill == null)
+        {
+            Debug.LogError("[EliteSkillController] currentSkill이 null!");
+            return;
+        }
+        
+        // DamageArea 프리팹 로드
+        GameObject damageAreaPrefab = Resources.Load<GameObject>("Prefabs/VFX/DamageArea");
+        if (damageAreaPrefab == null)
+        {
+            Debug.LogError("[EliteSkillController] DamageArea 프리팹을 찾을 수 없습니다! 경로: Prefabs/VFX/DamageArea");
+            return;
+        }
+        
+        // DamageArea 인스턴스 생성
+        GameObject damageAreaGO = Instantiate(damageAreaPrefab);
+        DamageArea damageArea = damageAreaGO.GetComponent<DamageArea>();
+        
+        if (damageArea == null)
+        {
+            Debug.LogError("[EliteSkillController] DamageArea 컴포넌트가 없습니다!");
+            Destroy(damageAreaGO);
+            return;
+        }
+        
+        // ⭐ Phase 2: 엘리트용 Initialize 호출 (저장된 Origin과 Forward 사용)
+        damageArea.Initialize(
+            currentSkill,                   // SkillData
+            cachedOrigin,                   // Origin (Cast 시작 시점 저장됨)
+            cachedTargetDirection,          // Forward (Cast 시작 시점 저장됨)
+            baseEnemy,                      // BaseEnemy
+            1.0f                            // scaleMultiplier (엘리트는 기본 1.0)
+        );
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"✅ [EliteSkillController] DamageArea 생성 완료:");
+            Debug.Log($"   - Skill: {currentSkill.SkillName}");
+            Debug.Log($"   - Origin: {cachedOrigin}");
+            Debug.Log($"   - Forward: {cachedTargetDirection}");
+        }
+        
+        // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성
+        Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
+        SpawnAOEEffectAtCenter(effectPosition);
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"🎨 [EliteSkillController] VFX 이펙트 생성 완료:");
+            Debug.Log($"   - Position: {effectPosition}");
+            Debug.Log($"   - DamageArea와 VFX 위치 동기화 완료! (Left Pivot 보정 적용)");
+        }
+        
+        // 데미지 판정 실행
+        damageArea.PerformDamage();
+        
+        // ⭐ 1초 후 제거 (Gizmos 확인용)
+        Destroy(damageAreaGO, 1.0f);
+    }
+    
+    #region ⚠️ Phase 2: 아래 메서드들은 제거 예정 (DamageArea로 대체됨)
+    
+    /// <summary>
+    /// ⚠️ [DEPRECATED - Phase 2] AOE 데미지 판정 (DamageArea로 대체됨)
+    /// 하위 호환성을 위해 유지되지만 사용하지 않음
+    /// </summary>
+    [System.Obsolete("Phase 2: DamageArea로 대체됨. SpawnDamageArea() 사용 권장")]
     private void PerformAOEDamage()
     {
         if (currentSkill == null) return;
@@ -444,8 +689,9 @@ public class EliteSkillController : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어에게 데미지 적용
+    /// ⚠️ [DEPRECATED - Phase 2] 플레이어에게 데미지 적용 (DamageArea로 대체됨)
     /// </summary>
+    [System.Obsolete("Phase 2: DamageArea로 대체됨")]
     private void ApplyDamageToPlayer(GameObject player)
     {
         if (player == null) return;
@@ -505,8 +751,9 @@ public class EliteSkillController : MonoBehaviour
     }
 
     /// <summary>
-    /// 부채꼴 범위 충돌 감지
+    /// ⚠️ [DEPRECATED - Phase 2] 부채꼴 범위 충돌 감지 (DamageArea로 대체됨)
     /// </summary>
+    [System.Obsolete("Phase 2: DamageArea로 대체됨")]
     private Collider2D[] GetFanHits(Vector3 center, Vector3 direction, float radius, float angle)
     {
         Collider2D[] allHits = Physics2D.OverlapCircleAll(center, radius, LayerMask.GetMask("Player"));
@@ -539,52 +786,39 @@ public class EliteSkillController : MonoBehaviour
     }
 
     #endregion
+    
+    #endregion
 
     #region 유틸리티
 
     /// <summary>
-    /// AOE 중심점 계산 (SpawnPoint 방식 + 아이소메트릭 거리 보정)
+    /// ⭐ Phase 2: 스킬 Origin 위치 계산 (간소화)
+    /// Center 계산은 DamageArea에 위임
     /// </summary>
-    private Vector3 CalculateAOECenter()
+    [System.Obsolete("Phase 2: cachedOrigin 사용 권장")]
+    private Vector3 GetSkillOrigin()
     {
-        Vector3 basePosition = transform.position;
-        
-        // ⭐ 몬스터별 기본 오프셋 적용 (고정 오프셋 - 회전 안 함)
-        basePosition += aoeOffset;
-        
-        // ✅ SpawnPoint 방식 (PlantsMonster + 아이소메트릭 보정)
-        if (skillSpawnPoint != null)
-        {
-            Vector3 direction = GetDirectionToPlayer();
-            
-            // SpawnPoint의 로컬 위치를 거리로 사용
-            Vector3 localPos = skillSpawnPoint.localPosition;
-            float distance = new Vector2(localPos.x, localPos.y).magnitude;
-            
-            // 🎯 아이소메트릭 뷰 거리 보정 (방향별 시각적 거리 조정)
-            float correctedDistance = GetIsometricDistanceCorrection(direction, distance);
-            
-            // 몬스터 중심 + (공격 방향 * 보정된 거리)
-            basePosition = transform.position + (direction * correctedDistance);
-            
-            if (enableDebugLogs)
-            {
-                Debug.Log($"✅ [EliteSkillController] SpawnPoint + 아이소메트릭 보정:");
-                Debug.Log($"  - 몬스터 위치: {transform.position}");
-                Debug.Log($"  - 공격 방향: {direction}");
-                Debug.Log($"  - SpawnPoint 로컬 위치: {localPos}");
-                Debug.Log($"  - 기본 거리: {distance:F2}");
-                Debug.Log($"  - 보정된 거리: {correctedDistance:F2}");
-                Debug.Log($"  - 최종 위치: {basePosition}");
-            }
-        }
-        
-        return basePosition;
+        // ⭐ 수정: 보스와 동일하게 피봇 중심점 반환 (aoeOffset 제거)
+        return transform.position;
     }
     
     /// <summary>
-    /// 아이소메트릭 뷰 거리 보정 계산
+    /// ⚠️ [DEPRECATED - Phase 2] AOE 중심점 계산 (DamageArea로 대체됨)
+    /// Telegraph 생성에서만 사용 (호환성 유지)
     /// </summary>
+    [System.Obsolete("Phase 2: GetSkillOrigin() 사용 권장. Center 계산은 DamageArea에 위임")]
+    private Vector3 CalculateAOECenter()
+    {
+        // ⭐ Phase 2: 간소화된 로직 (Origin만 반환)
+        // Center 계산은 DamageArea가 SkillData 기반으로 처리
+        return GetSkillOrigin();
+    }
+    
+    /// <summary>
+    /// ⚠️ [DEPRECATED - Phase 2] 아이소메트릭 뷰 거리 보정 계산 (제거 예정)
+    /// DamageArea가 내부적으로 처리하므로 더 이상 필요 없음
+    /// </summary>
+    [System.Obsolete("Phase 2: DamageArea가 내부적으로 처리")]
     private float GetIsometricDistanceCorrection(Vector3 direction, float baseDistance)
     {
         // 방향을 각도로 변환 (0° = E, 90° = N, 180° = W, 270° = S)
@@ -671,6 +905,33 @@ public class EliteSkillController : MonoBehaviour
         Vector3 direction = GetDirectionToPlayer();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         return Quaternion.Euler(0, 0, angle - 90f);
+    }
+    
+    /// <summary>
+    /// ⭐ Telegraph 회전 계산 (플레이어 방향) - 보스와 동일
+    /// Cast 시작 시점에 저장한 cachedTargetDirection 사용
+    /// </summary>
+    private Quaternion CalculateTelegraphRotation()
+    {
+        // Cast 시작 시점에 저장한 방향 사용 (Telegraph와 실제 스킬 싱크 맞춤)
+        Vector3 direction = cachedTargetDirection;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
+        // AOE 형태별 회전 처리
+        switch (currentSkill.AoeShape)
+        {
+            case AOEShapeType.Circle:
+                // ⭐ 원형도 플레이어 방향 적용 (메테오 등 방향성 이펙트 지원)
+                return Quaternion.Euler(0, 0, angle);
+            
+            case AOEShapeType.Triangle:
+            case AOEShapeType.Rectangle:
+                // 삼각형(Fan)/직사각형: 플레이어 방향
+                return Quaternion.Euler(0, 0, angle);
+            
+            default:
+                return Quaternion.Euler(0, 0, angle);
+        }
     }
 
     /// <summary>

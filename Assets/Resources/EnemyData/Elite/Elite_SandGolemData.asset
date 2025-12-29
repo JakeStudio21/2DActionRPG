@@ -19,10 +19,10 @@ MonoBehaviour:
   baseHealth: 75
   baseDefense: 3
   baseMoveSpeed: 2
-  detectionRange: 5
-  chaseRange: 8
-  patrolRadius: 8
-  knockBackThrust: 5
+  detectionRange: 10
+  chaseRange: 12
+  patrolRadius: 5
+  knockBackThrust: 2
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: d5876ef400ab1ef488957fc8a6249bf9, type: 3}
   deathVFXPrefab: {fileID: 0}

@@ -130,7 +130,7 @@ public class PlayerManager : Singleton<PlayerManager>
         }
         else
         {
-            Debug.LogWarning($"[PlayerManager] 골드 부족! 필요: {amount}, 보유: {currentGold}");
+            Debug.LogWarning($"[PlayerManager] Gold shortage! (Required: {amount}, 보유: {currentGold}");
             return false;
         }
     }

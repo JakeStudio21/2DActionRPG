@@ -62,44 +62,70 @@ public class DamageArea : MonoBehaviour
             return;
         }
         
+        // ⭐ 공통 초기화 로직 호출 (scaleMultiplier는 BossSkillEntry에서 추출)
+        InitializeCommon(skillData, origin, forward, enemy, skillEntry.skillScaleMultiplier);
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 1: DamageArea 초기화 (엘리트용 - scaleMultiplier 직접 지정)
+    /// </summary>
+    /// <param name="skillData">스킬 데이터</param>
+    /// <param name="origin">Origin 위치 (엘리트 중심 위치)</param>
+    /// <param name="forward">Forward 방향 (정규화된 벡터)</param>
+    /// <param name="enemy">BaseEnemy 참조 (데미지 계산용)</param>
+    /// <param name="scaleMultiplier">스케일 배율 (기본값 1.0)</param>
+    public void Initialize(SkillData skillData, Vector3 origin, Vector3 forward, BaseEnemy enemy, float scaleMultiplier = 1.0f)
+    {
+        if (skillData == null)
+        {
+            Debug.LogError("[DamageArea] SkillData가 null!");
+            return;
+        }
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"✅ [DamageArea] 엘리트용 초기화 시작 - {skillData.SkillName}, Scale: {scaleMultiplier}");
+        }
+        
+        // ⭐ 공통 초기화 로직 호출
+        InitializeCommon(skillData, origin, forward, enemy, scaleMultiplier);
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 1: 공통 초기화 로직 (코드 중복 제거)
+    /// </summary>
+    private void InitializeCommon(SkillData skillData, Vector3 origin, Vector3 forward, BaseEnemy enemy, float scaleMultiplier)
+    {
+        // 데이터 저장
         this.skillData = skillData;
         this.origin = origin;
         this.forward = forward.normalized;
         this.baseEnemy = enemy;
+        this.scaleMultiplier = scaleMultiplier;
         
-        // AOE 형태 설정
+        // SkillData에서 AOE 설정 가져오기
         aoeShape = skillData.AoeShape;
-        
-        // Center 모드 결정: SkillData의 AoeCenterMode 사용 (우선순위), 없으면 AoeOffset 기반 (호환성 유지)
         centerMode = skillData.AoeCenterMode;
         
-        // Center 오프셋 결정
-        if (skillData.AoeCenterOffset > 0f)
-        {
-            // SkillData에 명시적으로 설정된 경우
-            centerOffset = skillData.AoeCenterOffset;
-        }
-        else
-        {
-            // Fallback: AoeOffset 기반 (호환성 유지)
-            Vector2 aoeOffset = skillData.AoeOffset;
-            if (aoeOffset.magnitude > 0.001f)
-            {
-                centerOffset = aoeOffset.magnitude;
-                // AoeOffset이 있으면 ForwardAnchored로 설정
-                if (centerMode == AOECenterMode.Centered)
-                {
-                    centerMode = AOECenterMode.ForwardAnchored;
-                }
-            }
-            else
-            {
-                centerOffset = 0f;
-            }
-        }
+        // 기준 크기 설정
+        baseRadius = skillData.AoeRadius;
+        baseSize = skillData.AoeSize;
+        baseAngle = skillData.AoeAngle;
         
-        // 스케일 배율 설정
-        scaleMultiplier = skillEntry.skillScaleMultiplier;
+        // Center Offset 설정
+        centerOffset = skillData.AoeCenterOffset;
+        
+        // Fallback: AoeOffset 사용 (호환성 유지)
+        if (centerOffset <= 0f && centerMode == AOECenterMode.ForwardAnchored)
+        {
+            Vector2 aoeOffset = skillData.AoeOffset;
+            centerOffset = aoeOffset.magnitude;
+            
+            if (enableDebugLogs && centerOffset > 0f)
+            {
+                Debug.Log($"[DamageArea] AoeCenterOffset이 0이므로 AoeOffset.magnitude({centerOffset}) 사용");
+            }
+        }
         
         // 데미지 배율 설정
         damageMultiplier = skillData.DamageMultiplier;
@@ -125,6 +151,19 @@ public class DamageArea : MonoBehaviour
         
         // 생성 시간 기록 (Gizmos 표시 시간 제어용)
         spawnTime = Time.time;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"✅ [DamageArea] 초기화 완료:");
+            Debug.Log($"   - Skill: {skillData.SkillName}");
+            Debug.Log($"   - Origin: {origin}");
+            Debug.Log($"   - Forward: {forward}");
+            Debug.Log($"   - Shape: {aoeShape}, Center Mode: {centerMode}");
+            Debug.Log($"   - Base Size: Radius={baseRadius}, Size={baseSize}, Angle={baseAngle}");
+            Debug.Log($"   - Scale: {scaleMultiplier}x");
+            Debug.Log($"   - Center Offset: {centerOffset}");
+            Debug.Log($"   - Damage: Base={baseDamage}, Multiplier={damageMultiplier}x");
+        }
     }
     
     /// <summary>
@@ -160,20 +199,133 @@ public class DamageArea : MonoBehaviour
             case AOEShapeType.Rectangle:
                 hits = OverlapRectangle(calculatedCenter, forward);
                 break;
+                
+            default:
+                Debug.LogWarning($"[DamageArea] 지원하지 않는 AOE 형태: {aoeShape}");
+                return;
         }
         
-        // 플레이어에게 데미지 적용
-        if (hits != null && hits.Length > 0)
+        if (hits == null || hits.Length == 0)
         {
-            foreach (var hit in hits)
+            if (enableDebugLogs)
             {
-                if (hit.CompareTag("Player"))
+                Debug.Log($"[DamageArea] 데미지 판정: 히트 없음");
+            }
+            return;
+        }
+        
+        // 피격 대상에게 데미지 적용
+        if (enableDebugLogs)
+        {
+            Debug.Log($"💥 [DamageArea] 데미지 판정 실행:");
+            Debug.Log($"   - 히트 수: {hits.Length}");
+            Debug.Log($"   - Center: {calculatedCenter}");
+            Debug.Log($"   - Shape: {aoeShape}");
+        }
+        
+        HashSet<GameObject> processedTargets = new HashSet<GameObject>();
+        
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null) continue;
+            
+            GameObject target = hit.gameObject;
+            
+            // 중복 처리 방지
+            if (processedTargets.Contains(target))
+                continue;
+            
+            processedTargets.Add(target);
+            
+            // PlayerHealth 컴포넌트 획득
+            PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                // 최종 데미지 계산
+                int finalDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
+                
+                if (enableDebugLogs)
                 {
-                    ApplyDamageToPlayer(hit.gameObject);
-                    break; // 플레이어는 한 번만
+                    Debug.Log($"   → {target.name}: {finalDamage} 데미지 (Base: {baseDamage}, Multiplier: {damageMultiplier}x)");
+                }
+                
+                // 데미지 적용
+                playerHealth.TakeDamage(finalDamage, baseEnemy != null ? baseEnemy.transform : transform);
+                
+                // 히트 이펙트 생성
+                if (hitEffect != null)
+                {
+                    GameObject effect = Instantiate(hitEffect, target.transform.position, Quaternion.identity);
+                    Destroy(effect, 2f);
                 }
             }
         }
+        
+        // 스크린 셰이크 (한 번만)
+        if (shakeIntensity > 0f && processedTargets.Count > 0)
+        {
+            // TODO: 스크린 셰이크 구현
+            if (enableDebugLogs)
+            {
+                Debug.Log($"   - 스크린 셰이크: {shakeIntensity}");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 계산된 Center 위치 반환 (Phase 4: VFX 생성 위치 동기화용)
+    /// PerformDamage() 호출 전에도 사용 가능하도록 즉시 계산
+    /// </summary>
+    public Vector3 GetCalculatedCenter()
+    {
+        return CalculateCenter();
+    }
+    
+    /// <summary>
+    /// ⭐ 이펙트 생성 위치 계산 (파티클 Left Pivot 전용)
+    /// 
+    /// DamageArea의 Center에서 Width/2만큼 왼쪽으로 이동한 위치 반환.
+    /// 파티클 이펙트는 피봇 변경이 어려워 Left Pivot을 사용하므로,
+    /// Center 피봇인 DamageArea/Telegraph와 정렬하기 위해 보정 필요.
+    /// 
+    /// 계산 흐름:
+    /// 1. CalculateCenter() = Origin + forward * centerOffset
+    /// 2. Left Pivot 보정 = Center - forward * (width/2)
+    /// 
+    /// ⚠️ 주의: centerOffset과 width/2는 다른 값!
+    /// 
+    /// ✅ Center Pivot 이펙트는 GetCalculatedCenter() 사용!
+    /// </summary>
+    public Vector3 GetEffectSpawnPositionForLeftPivot()
+    {
+        Vector3 center = CalculateCenter(); // DamageArea의 진짜 Center
+        
+        // Rectangle만 보정 (Left Pivot → Center 맞춤)
+        if (aoeShape == AOEShapeType.Rectangle)
+        {
+            // ⭐ Width/2만큼 왼쪽으로 이동
+            float halfWidth = baseSize.x * scaleMultiplier * 0.5f;
+            Vector3 correctedPosition = center - forward * halfWidth;
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🎨 [DamageArea] Left Pivot 이펙트 위치 보정:");
+                Debug.Log($"   - Center: {center}");
+                Debug.Log($"   - Width: {baseSize.x * scaleMultiplier}, Half: {halfWidth}");
+                Debug.Log($"   - Corrected Position: {correctedPosition}");
+                Debug.Log($"   - Offset: {halfWidth} (왼쪽으로 이동)");
+            }
+            
+            return correctedPosition;
+        }
+        
+        // Circle/Triangle은 Center Pivot 가정 (보정 불필요)
+        if (enableDebugLogs && (aoeShape == AOEShapeType.Circle || aoeShape == AOEShapeType.Triangle))
+        {
+            Debug.Log($"🎨 [DamageArea] {aoeShape} - Center Pivot 이펙트, 보정 불필요");
+        }
+        
+        return center;
     }
     
     /// <summary>
@@ -197,8 +349,13 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     private Collider2D[] OverlapCircle(Vector3 center)
     {
-        // 최종 반경 = 기준 반경 × SkillData.AoeRadius × 스케일 배율
-        float finalRadius = baseRadius * skillData.AoeRadius * scaleMultiplier;
+        // ⭐ 수정: baseRadius는 이미 skillData.AoeRadius 값임
+        float finalRadius = baseRadius * scaleMultiplier;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[DamageArea] Circle Overlap: Center={center}, Radius={finalRadius}");
+        }
         
         return Physics2D.OverlapCircleAll(center, finalRadius, targetLayerMask);
     }
@@ -208,11 +365,11 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     private Collider2D[] OverlapFan(Vector3 center, Vector3 forward)
     {
-        // 최종 반경 = 기준 반경 × SkillData.AoeRadius × 스케일 배율
-        float finalRadius = baseRadius * skillData.AoeRadius * scaleMultiplier;
+        // ⭐ 수정: baseRadius는 이미 skillData.AoeRadius 값임
+        float finalRadius = baseRadius * scaleMultiplier;
         
-        // 각도: SkillData.AoeAngle 사용 (기본값 60도는 DamageArea 내부 기준값)
-        float finalAngle = skillData.AoeAngle;
+        // ⭐ 수정: baseAngle은 이미 skillData.AoeAngle 값임
+        float finalAngle = baseAngle;
         
         // 1단계: 원형으로 먼저 필터링
         Collider2D[] allHits = Physics2D.OverlapCircleAll(center, finalRadius, targetLayerMask);
@@ -242,13 +399,16 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     private Collider2D[] OverlapRectangle(Vector3 center, Vector3 forward)
     {
-        // 최종 크기 = 기준 크기 × SkillData.AoeSize × 스케일 배율
-        Vector2 finalSize = baseSize;
-        finalSize.x *= skillData.AoeSize.x * scaleMultiplier;
-        finalSize.y *= skillData.AoeSize.y * scaleMultiplier;
+        // ⭐ 수정: baseSize는 이미 skillData.AoeSize 값임
+        Vector2 finalSize = baseSize * scaleMultiplier;
         
         // forward 방향을 각도로 변환
         float angle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[DamageArea] Rectangle Overlap: Center={center}, Size={finalSize}, Angle={angle}°");
+        }
         
         return Physics2D.OverlapBoxAll(center, finalSize, angle, targetLayerMask);
     }
@@ -383,14 +543,15 @@ public class DamageArea : MonoBehaviour
         switch (aoeShape)
         {
             case AOEShapeType.Circle:
-                float circleRadius = baseRadius * skillData.AoeRadius * scaleMultiplier;
+                // ⭐ 수정: baseRadius는 이미 skillData.AoeRadius 값임 (InitializeCommon에서 할당)
+                float circleRadius = baseRadius * scaleMultiplier;
                 DrawCircle(center, circleRadius);
                 break;
                 
             case AOEShapeType.Triangle: // Fan (부채꼴)
-                // ⭐ 최종 반경 계산: 기준 반경 × SkillData.AoeRadius × 스케일 배율
-                float fanRadius = baseRadius * skillData.AoeRadius * scaleMultiplier;
-                float fanAngle = skillData.AoeAngle;
+                // ⭐ 수정: baseRadius는 이미 skillData.AoeRadius 값임
+                float fanRadius = baseRadius * scaleMultiplier;
+                float fanAngle = baseAngle;  // ⭐ 수정: skillData.AoeAngle → baseAngle
                 
                 // Forward 방향이 없으면 기본값 사용
                 Vector3 fanForward = forward;
@@ -403,9 +564,8 @@ public class DamageArea : MonoBehaviour
                 break;
                 
             case AOEShapeType.Rectangle:
-                Vector2 rectSize = baseSize;
-                rectSize.x *= skillData.AoeSize.x * scaleMultiplier;
-                rectSize.y *= skillData.AoeSize.y * scaleMultiplier;
+                // ⭐ 수정: baseSize는 이미 skillData.AoeSize 값임 (InitializeCommon에서 할당)
+                Vector2 rectSize = baseSize * scaleMultiplier;
                 DrawRotatedRectangle(center, forward, rectSize);
                 break;
         }

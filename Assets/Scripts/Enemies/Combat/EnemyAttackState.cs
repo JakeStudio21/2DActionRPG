@@ -25,10 +25,27 @@ public class EnemyAttackState : IEnemyState
         {
             float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
             
-            // 공격 범위 밖이면 추격 상태로 전환
-            if (dist > enemy.AttackRange * 1.2f)
+            // ⭐ 엘리트/보스는 실제 공격 범위로 엄격하게 체크 (빈 공격 방지)
+            bool isEliteOrBoss = false;
+            float rangeThreshold = enemy.AttackRange * 1.2f; // 기본: 1.2배 여유
+            
+            if (enemy is BaseEnemy baseEnemyEnter)
             {
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 시작 시 거리 밖 감지! Chase 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
+                var eliteAttack = baseEnemyEnter.GetComponent<EliteAttackBehaviour>();
+                var bossAttack = baseEnemyEnter.GetComponent<BossAttackBehaviour>();
+                
+                if (eliteAttack != null || bossAttack != null)
+                {
+                    isEliteOrBoss = true;
+                    rangeThreshold = enemy.AttackRange; // 엘리트/보스: 실제 범위로 엄격하게
+                }
+            }
+            
+            // 공격 범위 밖이면 추격 상태로 전환
+            if (dist > rangeThreshold)
+            {
+                string monsterType = isEliteOrBoss ? "(ELITE/BOSS)" : "";
+                Debug.Log($"[EnemyAttackState] {enemy.transform.name} {monsterType} - 공격 시작 시 거리 밖 감지! Chase 상태로 전환 (거리: {dist:F2}, 범위: {rangeThreshold:F2})");
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
             }
@@ -67,6 +84,13 @@ public class EnemyAttackState : IEnemyState
         if (!hasCheckedAfterAnimation && attackTimer >= attackDuration)
         {
             hasCheckedAfterAnimation = true;
+            
+            // ⭐ 스킬 시전 중이면 거리 체크 스킵 (엘리트/보스 전용)
+            if (enemy is BaseEnemy baseEnemyCheck && baseEnemyCheck.IsPerformingSkill)
+            {
+                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 스킬 시전 중! 거리 체크 스킵 (완료까지 대기)");
+                return; // 스킬 완료까지 대기
+            }
             
             // ⭐ 3번: 연속 미스 체크 (안전장치)
             if (CheckConsecutiveMiss())
@@ -113,6 +137,13 @@ public class EnemyAttackState : IEnemyState
         
         if (attackTimer >= totalAttackTime)
         {
+            // ⭐ 스킬 시전 중이면 상태 전환 스킵 (엘리트/보스 전용)
+            if (enemy is BaseEnemy baseEnemyCheck2 && baseEnemyCheck2.IsPerformingSkill)
+            {
+                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 스킬 시전 중! 상태 전환 스킵 (완료까지 대기)");
+                return; // 스킬 완료까지 대기
+            }
+            
             // 플레이어가 여전히 범위 내에 있는지 확인
             if (enemy.TargetPlayer != null)
             {
@@ -157,7 +188,20 @@ public class EnemyAttackState : IEnemyState
                     // ⭐ 공격 범위 안에 있으면 다시 Attack 상태로
                     if (dist <= enemy.AttackRange * 1.2f)
                     {
-                        // 공격 범위 안 - 다시 Attack 상태로 전환
+                        // ⭐ 엘리트 전용: 실제 공격 가능할 때만 Attack 전환 (빈 공격 방지)
+                        if (enemy is BaseEnemy baseEnemyElite)
+                        {
+                            var eliteAttack = baseEnemyElite.GetComponent<EliteAttackBehaviour>();
+                            if (eliteAttack != null && !eliteAttack.CanAttack())
+                            {
+                                // 공격 불가 (쿨다운 중) → Chase로 전환
+                                Debug.Log($"[EnemyAttackState] {enemy.transform.name} (ELITE) - 공격 범위 내지만 공격 불가 (쿨다운 중), Chase 전환 (거리: {dist:F2})");
+                                enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
+                                return;
+                            }
+                        }
+                        
+                        // 공격 가능 - 다시 Attack 상태로 전환
                         Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 범위 내, 재공격 대기 (거리: {dist:F2})");
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                     }

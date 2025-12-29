@@ -192,12 +192,22 @@ public class EnemyChaseState : IEnemyState
                 chaseStartTime = Time.time; // 추격 시작 시간 재설정
             }
             
-            // 원거리 스킬 범위 내 → Attack 상태 (스킬만 사용)
+            // 원거리 스킬 범위 내 → Attack 상태 (스킬 사용 가능할 때만)
             if (dist <= rangedSkillRange)
             {
-                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
-                enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
-                return;
+                // ⭐ 스킬 사용 가능할 때만 Attack 상태로 전환 (빈 공격 방지)
+                var bossAttack = boss.GetComponent<BossAttackBehaviour>();
+                if (bossAttack != null && bossAttack.CanAttack())
+                {
+                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
+                    enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                    return;
+                }
+                else
+                {
+                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 내지만 공격 불가 (쿨다운 중), 계속 접근 중... (거리: {dist:F2})");
+                    // Chase 상태 유지, 평타 범위까지 계속 접근
+                }
             }
         }
         

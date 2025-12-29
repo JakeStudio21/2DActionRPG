@@ -36,10 +36,12 @@ public class BossAOESkill : MonoBehaviour
     }
     
     /// <summary>
-    /// VFX만 실행 (BossSkillController에서 호출)
+    /// ⚠️ [DEPRECATED - Phase 4] VFX만 실행
+    /// Phase 4부터 VFX는 SpawnDamageArea()에서 자동으로 생성됨
     /// </summary>
     /// <param name="skillEntry">스킬 엔트리</param>
     /// <param name="targetDirection">타겟 방향</param>
+    [System.Obsolete("Phase 4: VFX는 SpawnDamageArea()에서 자동으로 생성됨. ExecuteDamageOnly() 단독 사용 권장")]
     public void ExecuteVFXOnly(BossSkillEntry skillEntry, Vector3? targetDirection = null)
     {
         if (skillEntry == null || skillEntry.skillData == null)
@@ -48,7 +50,8 @@ public class BossAOESkill : MonoBehaviour
             return;
         }
         
-        SpawnAOEEffect(skillEntry, targetDirection);
+        Debug.LogWarning("[BossAOESkill] ExecuteVFXOnly()는 Deprecated! VFX는 자동으로 생성됩니다.");
+        // Phase 4: VFX는 SpawnDamageArea()에서 자동 생성되므로 여기서는 아무것도 하지 않음
     }
     
     /// <summary>
@@ -107,6 +110,10 @@ public class BossAOESkill : MonoBehaviour
         // DamageArea 초기화 (SkillData의 AoeCenterMode 사용)
         damageArea.Initialize(skillEntry.skillData, skillEntry, origin, forward, baseEnemy);
         
+        // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성
+        Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
+        SpawnAOEEffectAtCenter(skillEntry, effectPosition, targetDirection);
+        
         // 데미지 판정 실행
         damageArea.PerformDamage();
         
@@ -123,8 +130,23 @@ public class BossAOESkill : MonoBehaviour
     }
     
     /// <summary>
-    /// AOE 이펙트 생성
+    /// ⭐ Phase 4: AOE 이펙트 생성 (DamageArea Center 기준)
     /// </summary>
+    private void SpawnAOEEffectAtCenter(BossSkillEntry skillEntry, Vector3 center, Vector3? targetDirection)
+    {
+        if (skillEntry?.skillData == null || skillEntry.skillData.AoeEffect == null) return;
+        
+        Quaternion rotation = CalculateAOERotation(targetDirection);
+        
+        GameObject effect = Instantiate(skillEntry.skillData.AoeEffect, center, rotation);
+        Destroy(effect, 2f);
+    }
+    
+    /// <summary>
+    /// ⚠️ [DEPRECATED - Phase 4] AOE 이펙트 생성 (Origin 기준)
+    /// SpawnAOEEffectAtCenter() 사용 권장
+    /// </summary>
+    [System.Obsolete("Phase 4: SpawnAOEEffectAtCenter(BossSkillEntry, Vector3, Vector3?) 사용 권장. DamageArea.GetCalculatedCenter()와 동기화 필요")]
     private void SpawnAOEEffect(BossSkillEntry skillEntry, Vector3? targetDirection)
     {
         if (skillEntry?.skillData == null || skillEntry.skillData.AoeEffect == null) return;

@@ -39,6 +39,29 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     // 공통 속성들
     public Vector2 SpawnPoint { get; private set; }
     public abstract float AttackRange { get; }
+    
+    /// <summary>
+    /// 스킬 시전 중 여부 (엘리트/보스 전용)
+    /// Cast 중이거나 Action 실행 중이면 true
+    /// FSM이 공격 중 이동/상태 전환을 막기 위해 사용
+    /// </summary>
+    public bool IsPerformingSkill
+    {
+        get
+        {
+            // 엘리트 스킬 체크
+            var eliteSkill = GetComponent<EliteSkillController>();
+            if (eliteSkill != null)
+                return eliteSkill.IsCasting || eliteSkill.IsActionExecuting;
+            
+            // 보스 스킬 체크
+            var bossSkill = GetComponent<BossSkillController>();
+            if (bossSkill != null)
+                return bossSkill.IsCasting || bossSkill.IsActionExecuting;
+            
+            return false;
+        }
+    }
 
     // 공통 컴포넌트들
     protected SpriteRenderer spriteRenderer;
