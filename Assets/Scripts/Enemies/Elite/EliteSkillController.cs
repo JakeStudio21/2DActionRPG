@@ -602,13 +602,14 @@ public class EliteSkillController : MonoBehaviour
             return;
         }
         
-        // ⭐ Phase 2: 엘리트용 Initialize 호출 (저장된 Origin과 Forward 사용)
+        // ⭐ Phase 4: 엘리트용 Initialize 호출 (정책 명시)
         damageArea.Initialize(
-            currentSkill,                   // SkillData
-            cachedOrigin,                   // Origin (Cast 시작 시점 저장됨)
-            cachedTargetDirection,          // Forward (Cast 시작 시점 저장됨)
-            baseEnemy,                      // BaseEnemy
-            1.0f                            // scaleMultiplier (엘리트는 기본 1.0)
+            skillData: currentSkill,                   // SkillData
+            origin: cachedOrigin,                      // Origin (Cast 시작 시점 저장됨)
+            forward: cachedTargetDirection,            // Forward (Cast 시작 시점 저장됨)
+            enemy: baseEnemy,                          // BaseEnemy
+            scaleMultiplier: 1.0f,                     // scaleMultiplier (엘리트는 기본 1.0)
+            policy: AOEDamagePolicy.Once               // ⭐ 명시적 정책 (Once/Window/Tick 선택 가능)
         );
         
         if (enableDebugLogs)
@@ -904,7 +905,8 @@ public class EliteSkillController : MonoBehaviour
     {
         Vector3 direction = GetDirectionToPlayer();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        return Quaternion.Euler(0, 0, angle - 90f);
+        // ⭐ 이펙트 프리팹이 정상 방향이므로 보정 제거
+        return Quaternion.Euler(0, 0, angle);
     }
     
     /// <summary>

@@ -107,8 +107,15 @@ public class BossAOESkill : MonoBehaviour
             return;
         }
         
-        // DamageArea 초기화 (SkillData의 AoeCenterMode 사용)
-        damageArea.Initialize(skillEntry.skillData, skillEntry, origin, forward, baseEnemy);
+        // ⭐ Phase 4: DamageArea 초기화 (정책 명시)
+        damageArea.Initialize(
+            skillData: skillEntry.skillData,
+            skillEntry: skillEntry,
+            origin: origin,
+            forward: forward,
+            enemy: baseEnemy,
+            policy: AOEDamagePolicy.Once  // ⭐ 명시적 정책 (Once/Window/Tick 선택 가능)
+        );
         
         // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성
         Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
@@ -166,7 +173,8 @@ public class BossAOESkill : MonoBehaviour
         // ⭐ 방향 결정: 저장된 방향 우선, 없으면 현재 플레이어 방향
         Vector3 direction = targetDirection.HasValue ? targetDirection.Value : GetDirectionToPlayer();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        return Quaternion.Euler(0, 0, angle - 90f);
+        // ⭐ 이펙트 프리팹이 정상 방향이므로 보정 제거
+        return Quaternion.Euler(0, 0, angle);
     }
     
     

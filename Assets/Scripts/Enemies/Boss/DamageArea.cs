@@ -1,5 +1,25 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// ⭐ AOE 시전자 타입 (CueSystem.ActorType과 구분)
+/// </summary>
+public enum AOECasterType
+{
+    Player,    // 플레이어 (Player → Enemy 데미지)
+    Enemy      // 적 (Enemy → Player 데미지)
+}
+
+/// <summary>
+/// ⭐ AOE 데미지 정책
+/// </summary>
+public enum AOEDamagePolicy
+{
+    Once,      // 즉시 1회 판정 (기존 방식, 기본값)
+    Window,    // 지속 시간 동안 1회만 (보스 AOE용)
+    Tick       // 일정 간격으로 반복 (DoT용)
+}
 
 /// <summary>
 /// AOE 데미지 판정 전용 컴포넌트
@@ -39,22 +59,37 @@ public class DamageArea : MonoBehaviour
     [SerializeField] private bool enableDebugGizmos = true;
     [SerializeField] private bool showGizmosInPlayMode = true;  // 플레이 모드에서도 Gizmos 표시
     
+    [Header("⚡ 데미지 정책 (Phase 1)")]
+    [Tooltip("Once: 즉시 1회 판정 (기본값), Window: 지속시간 1회, Tick: 반복 판정")]
+    [SerializeField] private AOEDamagePolicy damagePolicy = AOEDamagePolicy.Once;
+    
+    [Tooltip("AOE 시전자 (Player/Enemy, 자동 설정됨)")]
+    [SerializeField] private AOECasterType casterType = AOECasterType.Enemy;
+    
+    [Tooltip("Window 모드: 지속 시간 (초)")]
+    [SerializeField] private float windowDuration = 0.5f;
+    
+    [Tooltip("Tick 모드: 데미지 간격 (초)")]
+    [SerializeField] private float tickInterval = 0.2f;
+    
     // 내부 상태
     private SkillData skillData;
     private BaseEnemy baseEnemy;
     private Vector3 calculatedCenter;  // 계산된 Center 위치
     private float spawnTime;  // 생성 시간 (Gizmos 표시 시간 제어용)
+    private HashSet<Collider2D> hitTargets = new HashSet<Collider2D>(); // Once/Window용 중복 방지
     
     
     /// <summary>
-    /// DamageArea 초기화
+    /// ⭐ Phase 4: DamageArea 초기화 (보스용 - 정책 파라미터 추가)
     /// </summary>
     /// <param name="skillData">스킬 데이터</param>
     /// <param name="skillEntry">보스 스킬 엔트리 (페이즈 스케일 포함)</param>
     /// <param name="origin">Origin 위치 (보스 중심 위치)</param>
     /// <param name="forward">Forward 방향 (정규화된 벡터)</param>
     /// <param name="enemy">BaseEnemy 참조 (데미지 계산용)</param>
-    public void Initialize(SkillData skillData, BossSkillEntry skillEntry, Vector3 origin, Vector3 forward, BaseEnemy enemy)
+    /// <param name="policy">데미지 정책 (기본값: Once)</param>
+    public void Initialize(SkillData skillData, BossSkillEntry skillEntry, Vector3 origin, Vector3 forward, BaseEnemy enemy, AOEDamagePolicy policy = AOEDamagePolicy.Once)
     {
         if (skillData == null || skillEntry == null)
         {
@@ -62,19 +97,23 @@ public class DamageArea : MonoBehaviour
             return;
         }
         
+        // ⭐ 정책 설정 (InitializeCommon 호출 전에 설정)
+        damagePolicy = policy;
+        
         // ⭐ 공통 초기화 로직 호출 (scaleMultiplier는 BossSkillEntry에서 추출)
         InitializeCommon(skillData, origin, forward, enemy, skillEntry.skillScaleMultiplier);
     }
     
     /// <summary>
-    /// ⭐ Phase 1: DamageArea 초기화 (엘리트용 - scaleMultiplier 직접 지정)
+    /// ⭐ Phase 4: DamageArea 초기화 (엘리트용 - 정책 파라미터 추가)
     /// </summary>
     /// <param name="skillData">스킬 데이터</param>
     /// <param name="origin">Origin 위치 (엘리트 중심 위치)</param>
     /// <param name="forward">Forward 방향 (정규화된 벡터)</param>
     /// <param name="enemy">BaseEnemy 참조 (데미지 계산용)</param>
     /// <param name="scaleMultiplier">스케일 배율 (기본값 1.0)</param>
-    public void Initialize(SkillData skillData, Vector3 origin, Vector3 forward, BaseEnemy enemy, float scaleMultiplier = 1.0f)
+    /// <param name="policy">데미지 정책 (기본값: Once)</param>
+    public void Initialize(SkillData skillData, Vector3 origin, Vector3 forward, BaseEnemy enemy, float scaleMultiplier = 1.0f, AOEDamagePolicy policy = AOEDamagePolicy.Once)
     {
         if (skillData == null)
         {
@@ -84,8 +123,11 @@ public class DamageArea : MonoBehaviour
         
         if (enableDebugLogs)
         {
-            Debug.Log($"✅ [DamageArea] 엘리트용 초기화 시작 - {skillData.SkillName}, Scale: {scaleMultiplier}");
+            Debug.Log($"✅ [DamageArea] 엘리트용 초기화 시작 - {skillData.SkillName}, Scale: {scaleMultiplier}, Policy: {policy}");
         }
+        
+        // ⭐ 정책 설정 (InitializeCommon 호출 전에 설정)
+        damagePolicy = policy;
         
         // ⭐ 공통 초기화 로직 호출
         InitializeCommon(skillData, origin, forward, enemy, scaleMultiplier);
@@ -163,7 +205,15 @@ public class DamageArea : MonoBehaviour
             Debug.Log($"   - Scale: {scaleMultiplier}x");
             Debug.Log($"   - Center Offset: {centerOffset}");
             Debug.Log($"   - Damage: Base={baseDamage}, Multiplier={damageMultiplier}x");
+            Debug.Log($"   - Policy: {damagePolicy}"); // ⭐ Phase 4: 정책 로그 추가
         }
+        
+        // ⭐ Phase 4: damagePolicy는 Initialize()에서 이미 설정됨 (중복 설정 제거)
+        // casterType은 여기서 설정
+        casterType = AOECasterType.Enemy;
+        
+        // ⭐ 데미지 정책 실행
+        ExecuteDamagePolicy();
     }
     
     /// <summary>
@@ -171,11 +221,8 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     public void PerformDamage()
     {
-        if (skillData == null)
-        {
-            Debug.LogError("[DamageArea] SkillData가 null! Initialize() 먼저 호출 필요!");
-            return;
-        }
+        // ⭐ Phase C: skillData는 선택적 (오버로드된 InitializeForPlayer는 null 가능)
+        // baseDamage, aoeShape 등이 직접 설정되어 있으면 작동 가능
         
         // Center 계산 (Gizmos 표시를 위해 저장)
         calculatedCenter = CalculateCenter();
@@ -237,29 +284,10 @@ public class DamageArea : MonoBehaviour
             
             processedTargets.Add(target);
             
-            // PlayerHealth 컴포넌트 획득
-            PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
-            if (playerHealth != null)
-            {
-                // 최종 데미지 계산
-                int finalDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
-                
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"   → {target.name}: {finalDamage} 데미지 (Base: {baseDamage}, Multiplier: {damageMultiplier}x)");
-                }
-                
-                // 데미지 적용
-                playerHealth.TakeDamage(finalDamage, baseEnemy != null ? baseEnemy.transform : transform);
-                
-                // 히트 이펙트 생성
-                if (hitEffect != null)
-                {
-                    GameObject effect = Instantiate(hitEffect, target.transform.position, Quaternion.identity);
-                    Destroy(effect, 2f);
-                }
-            }
+            // ⭐ ApplyDamageToTarget 호출 (Player/Enemy 자동 판별)
+            ApplyDamageToTarget(hit);
         }
+        
         
         // 스크린 셰이크 (한 번만)
         if (shakeIntensity > 0f && processedTargets.Count > 0)
@@ -271,6 +299,319 @@ public class DamageArea : MonoBehaviour
             }
         }
     }
+    
+    #region ⭐ Phase 1: 플레이어 스킬 지원 + 정책 시스템
+    
+    /// <summary>
+    /// ⭐ Phase 1: 플레이어용 초기화 (새로 추가)
+    /// </summary>
+    public void InitializeForPlayer(SkillData skillData, Vector3 origin, Vector3 forward, int playerBaseDamage, float scaleMultiplier = 1.0f, AOEDamagePolicy policy = AOEDamagePolicy.Once)
+    {
+        if (skillData == null)
+        {
+            Debug.LogError("[DamageArea] SkillData가 null!");
+            return;
+        }
+        
+        // 기본 설정
+        this.skillData = skillData;
+        this.origin = origin;
+        this.forward = forward.normalized;
+        this.scaleMultiplier = scaleMultiplier;
+        this.baseDamage = playerBaseDamage;
+        
+        // SkillData 복사
+        aoeShape = skillData.AoeShape;
+        centerMode = skillData.AoeCenterMode;
+        baseRadius = skillData.AoeRadius;
+        baseSize = skillData.AoeSize;
+        baseAngle = skillData.AoeAngle;
+        centerOffset = skillData.AoeCenterOffset;
+        damageMultiplier = skillData.DamageMultiplier;
+        
+        // 이펙트 설정
+        hitEffect = skillData.HitEffect;
+        shakeIntensity = skillData.ShakeIntensity;
+        
+        // ⭐ 정책 설정
+        damagePolicy = policy;
+        casterType = AOECasterType.Player;
+        
+        // ⭐ 타겟 레이어: Enemy
+        int enemyLayer = LayerMask.GetMask("Enemy");
+        if (enemyLayer == 0)
+        {
+            Debug.LogError("[DamageArea] 'Enemy' Layer가 존재하지 않습니다!");
+            targetLayerMask = LayerMask.GetMask("Default");
+        }
+        else
+        {
+            targetLayerMask = enemyLayer;
+        }
+        
+        // 생성 시간 기록
+        spawnTime = Time.time;
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"✅ [DamageArea] 플레이어용 초기화 완료:");
+            Debug.Log($"   - Skill: {skillData.SkillName}");
+            Debug.Log($"   - Policy: {policy}");
+            Debug.Log($"   - Base Damage: {playerBaseDamage}");
+            Debug.Log($"   - Damage Multiplier: {damageMultiplier}x");
+        }
+        
+        // ⭐ 정책 실행
+        ExecuteDamagePolicy();
+    }
+    
+    /// <summary>
+    /// ⭐ Phase C-1: 플레이어용 초기화 (오버로드 - 개별 파라미터)
+    /// SkillData 타입 제약 없이 사용 가능 (AssasinSkillData, WarriorSkillData 등)
+    /// </summary>
+    public void InitializeForPlayer(
+        AOEShapeType shape,
+        Vector3 origin,
+        Vector3 forward,
+        float radius,
+        Vector2 size,
+        float angle,
+        int playerBaseDamage,
+        float damageMultiplier = 1.0f,
+        float scaleMultiplier = 1.0f,
+        AOEDamagePolicy policy = AOEDamagePolicy.Once,
+        GameObject hitEffectPrefab = null)
+    {
+        // 개별 파라미터로 직접 설정
+        this.aoeShape = shape;
+        this.origin = origin;
+        this.forward = forward.normalized;
+        this.baseRadius = radius;
+        this.baseSize = size;
+        this.baseAngle = angle;
+        this.baseDamage = playerBaseDamage;
+        this.damageMultiplier = damageMultiplier;
+        this.scaleMultiplier = scaleMultiplier;
+        this.hitEffect = hitEffectPrefab;
+        
+        // 기본값 설정
+        this.centerMode = AOECenterMode.Centered; // 기본: 중심 기준
+        this.centerOffset = 0f;
+        this.shakeIntensity = 0f;
+        this.skillData = null; // SkillData 없음
+        
+        // ⭐ 정책 설정
+        damagePolicy = policy;
+        casterType = AOECasterType.Player;
+        
+        // ⭐ 타겟 레이어: Enemy
+        int enemyLayer = LayerMask.GetMask("Enemy");
+        Debug.Log($"🔍 [DamageArea] Enemy Layer 마스크: {enemyLayer} (0이면 Layer 없음)");
+        
+        if (enemyLayer == 0)
+        {
+            Debug.LogError("[DamageArea] 'Enemy' Layer가 존재하지 않습니다!");
+            targetLayerMask = LayerMask.GetMask("Default");
+        }
+        else
+        {
+            targetLayerMask = enemyLayer;
+            Debug.Log($"🔍 [DamageArea] targetLayerMask 설정 완료: {targetLayerMask}");
+        }
+        
+        // 생성 시간 기록
+        spawnTime = Time.time;
+        
+        Debug.Log($"✅ [DamageArea] 플레이어용 초기화 완료 (오버로드):");
+        Debug.Log($"   - Shape: {shape}");
+        Debug.Log($"   - Policy: {policy}");
+        Debug.Log($"   - Base Damage: {playerBaseDamage}");
+        Debug.Log($"   - Base Radius: {radius}");
+        Debug.Log($"   - Scale Multiplier: {scaleMultiplier}x");
+        Debug.Log($"   - Caster Type: {casterType}");
+        Debug.Log($"   - Target LayerMask: {targetLayerMask}");
+        
+        // ⭐ 정책 실행
+        ExecuteDamagePolicy();
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 1: 데미지 정책 실행
+    /// </summary>
+    private void ExecuteDamagePolicy()
+    {
+        switch (damagePolicy)
+        {
+            case AOEDamagePolicy.Once:
+                PerformDamage(); // 기존 방식 그대로
+                if (enableDebugLogs)
+                    Debug.Log($"[DamageArea] Policy: Once - 즉시 1회 판정");
+                break;
+                
+            case AOEDamagePolicy.Window:
+                StartCoroutine(WindowDamageRoutine());
+                if (enableDebugLogs)
+                    Debug.Log($"[DamageArea] Policy: Window - {windowDuration}초 동안 1회만");
+                break;
+                
+            case AOEDamagePolicy.Tick:
+                StartCoroutine(TickDamageRoutine());
+                if (enableDebugLogs)
+                    Debug.Log($"[DamageArea] Policy: Tick - {tickInterval}초마다 반복");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ Window 정책: 지속시간 동안 1회만 판정
+    /// </summary>
+    private IEnumerator WindowDamageRoutine()
+    {
+        hitTargets.Clear();
+        float elapsed = 0f;
+        
+        if (enableDebugLogs)
+            Debug.Log($"[DamageArea] Window 시작 - {windowDuration}초");
+        
+        while (elapsed < windowDuration)
+        {
+            PerformWindowDamage();
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[DamageArea] Window 종료 - 총 타격: {hitTargets.Count}명");
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ Tick 정책: 일정 간격으로 반복 판정
+    /// </summary>
+    private IEnumerator TickDamageRoutine()
+    {
+        int tickCount = 0;
+        float elapsed = 0f;
+        
+        if (enableDebugLogs)
+            Debug.Log($"[DamageArea] Tick 시작 - {tickInterval}초마다, 총 {windowDuration}초");
+        
+        while (elapsed < windowDuration)
+        {
+            PerformDamage(); // 매 틱마다 판정
+            tickCount++;
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"[DamageArea] Tick #{tickCount} - {elapsed:F2}초");
+            }
+            
+            yield return new WaitForSeconds(tickInterval);
+            elapsed += tickInterval;
+        }
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[DamageArea] Tick 종료 - 총 {tickCount}회 판정");
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ Window 모드 전용 데미지 (1회만)
+    /// </summary>
+    private void PerformWindowDamage()
+    {
+        calculatedCenter = CalculateCenter();
+        Collider2D[] hits = DetectTargets();
+        
+        foreach (var hit in hits)
+        {
+            if (hit == null) continue;
+            if (hitTargets.Contains(hit)) continue; // 이미 맞은 적
+            
+            ApplyDamageToTarget(hit);
+            hitTargets.Add(hit);
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 타겟 감지 (형태별 Overlap)
+    /// </summary>
+    private Collider2D[] DetectTargets()
+    {
+        switch (aoeShape)
+        {
+            case AOEShapeType.Circle:
+                return OverlapCircle(calculatedCenter);
+                
+            case AOEShapeType.Triangle: // Fan
+                return OverlapFan(calculatedCenter, forward);
+                
+            case AOEShapeType.Rectangle:
+                return OverlapRectangle(calculatedCenter, forward);
+                
+            default:
+                Debug.LogWarning($"[DamageArea] 지원하지 않는 AOE 형태: {aoeShape}");
+                return new Collider2D[0];
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 타겟에게 데미지 적용 (Player/Enemy 자동 판별)
+    /// </summary>
+    private void ApplyDamageToTarget(Collider2D hit)
+    {
+        int finalDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
+        
+        Debug.LogWarning($"🔥 [DamageArea] ApplyDamageToTarget 호출: {hit.name}, CasterType={casterType}, Damage={finalDamage}");
+        
+        if (casterType == AOECasterType.Enemy)
+        {
+            // Enemy → Player
+            PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                Debug.LogWarning($"✅ [DamageArea] PlayerHealth 발견! 데미지 적용: {finalDamage}");
+                
+                playerHealth.TakeDamage(finalDamage, baseEnemy != null ? baseEnemy.transform : transform);
+                
+                if (hitEffect != null)
+                {
+                    GameObject effect = Instantiate(hitEffect, hit.transform.position, Quaternion.identity);
+                    Destroy(effect, 2f);
+                }
+            }
+            else
+            {
+                Debug.LogError($"❌ [DamageArea] PlayerHealth 없음! Target: {hit.name}");
+            }
+        }
+        else if (casterType == AOECasterType.Player)
+        {
+            // Player → Enemy
+            EnemyHealth enemyHealth = hit.GetComponent<EnemyHealth>();
+            if (enemyHealth != null)
+            {
+                Debug.LogWarning($"✅ [DamageArea] EnemyHealth 발견! 데미지 적용: {finalDamage}");
+                
+                // ⭐ EnemyHealth.TakeDamage는 1개 인자만 받음
+                enemyHealth.TakeDamage(finalDamage);
+                
+                if (hitEffect != null)
+                {
+                    GameObject effect = Instantiate(hitEffect, hit.transform.position, Quaternion.identity);
+                    Destroy(effect, 2f);
+                }
+            }
+            else
+            {
+                Debug.LogError($"❌ [DamageArea] EnemyHealth 없음! Target: {hit.name}");
+            }
+        }
+    }
+    
+    #endregion
     
     /// <summary>
     /// 계산된 Center 위치 반환 (Phase 4: VFX 생성 위치 동기화용)
@@ -352,12 +693,38 @@ public class DamageArea : MonoBehaviour
         // ⭐ 수정: baseRadius는 이미 skillData.AoeRadius 값임
         float finalRadius = baseRadius * scaleMultiplier;
         
-        if (enableDebugLogs)
+        // ⭐ 강제 로그: Overlap 전 상태 확인 (한 줄로 통합)
+        Debug.LogWarning($"🔍 [DamageArea] Circle Overlap: Center={center}, baseRadius={baseRadius}, scale={scaleMultiplier}, FinalRadius={finalRadius}, LayerMask={targetLayerMask.value}");
+        
+        // ⭐ 추가 진단: 모든 Layer를 대상으로 검사 (Layer 문제 확인용)
+        Collider2D[] allHits = Physics2D.OverlapCircleAll(center, finalRadius);
+        Debug.LogWarning($"🔍 [DamageArea] 모든 Layer 검사: 감지된 Collider 수 = {allHits.Length}");
+        if (allHits.Length > 0)
         {
-            Debug.Log($"[DamageArea] Circle Overlap: Center={center}, Radius={finalRadius}");
+            foreach (var hit in allHits)
+            {
+                string layerName = LayerMask.LayerToName(hit.gameObject.layer);
+                Debug.LogWarning($"   - 발견: {hit.name} (Layer: {layerName}, LayerIndex: {hit.gameObject.layer})");
+            }
         }
         
-        return Physics2D.OverlapCircleAll(center, finalRadius, targetLayerMask);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(center, finalRadius, targetLayerMask);
+        
+        Debug.LogWarning($"🔍 [DamageArea] Enemy Layer만 검사: 감지된 Collider 수 = {hits.Length}");
+        
+        if (hits.Length > 0)
+        {
+            foreach (var hit in hits)
+            {
+                Debug.Log($"   - 히트: {hit.name} (Layer: {LayerMask.LayerToName(hit.gameObject.layer)})");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [DamageArea] Overlap 결과 없음! 적이 범위 내에 없거나 Layer 불일치");
+        }
+        
+        return hits;
     }
     
     /// <summary>
@@ -483,19 +850,19 @@ public class DamageArea : MonoBehaviour
     {
         if (!enableDebugGizmos) return;
         
-        // 플레이 모드에서 1초 경과 후 Gizmos 숨김
+        // 플레이 모드에서 5초 경과 후 Gizmos 숨김 (디버그 시간 연장)
         if (Application.isPlaying)
         {
             if (!showGizmosInPlayMode) return;
             
-            // 생성 후 1초가 지나면 Gizmos 표시 안 함
-            if (spawnTime > 0f && Time.time - spawnTime > 1.0f)
+            // 생성 후 5초가 지나면 Gizmos 표시 안 함
+            if (spawnTime > 0f && Time.time - spawnTime > 5.0f)
             {
                 return;
             }
         }
         
-        // skillData가 없으면 에디터 모드에서 기본값으로 시각화
+        // ⭐ skillData가 없어도 (플레이어용) 시각화 가능
         if (skillData == null)
         {
             DrawGizmosWithoutSkillData();
@@ -506,25 +873,33 @@ public class DamageArea : MonoBehaviour
     }
     
     /// <summary>
-    /// SkillData 없이 기본 Gizmos 그리기 (에디터 모드용)
+    /// SkillData 없이 기본 Gizmos 그리기 (플레이어용 포함)
     /// </summary>
     private void DrawGizmosWithoutSkillData()
     {
-        Vector3 center = transform.position;
-        if (origin != Vector3.zero) center = origin;
+        // ⭐ Center 계산 (origin이 설정되어 있으면 사용)
+        Vector3 center = (origin != Vector3.zero) ? origin : transform.position;
         
-        Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
+        // ⭐ 플레이어/적 구분 색상
+        Gizmos.color = (casterType == AOECasterType.Player) 
+            ? new Color(0f, 0f, 1f, 0.4f)  // 파란색 (플레이어)
+            : new Color(1f, 0f, 0f, 0.4f); // 빨간색 (적)
+        
+        float finalRadius = baseRadius * scaleMultiplier;
         
         switch (aoeShape)
         {
             case AOEShapeType.Circle:
-                DrawCircle(center, baseRadius);
+                DrawCircle(center, finalRadius);
+                // ⭐ 중심점 표시
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(center, 0.5f);
                 break;
             case AOEShapeType.Triangle:
-                DrawFan(center, Vector3.right, baseRadius, baseAngle);
+                DrawFan(center, forward, finalRadius, baseAngle);
                 break;
             case AOEShapeType.Rectangle:
-                DrawRotatedRectangle(center, Vector3.right, baseSize);
+                DrawRotatedRectangle(center, forward, baseSize * scaleMultiplier);
                 break;
         }
     }

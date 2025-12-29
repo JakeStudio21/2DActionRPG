@@ -29,6 +29,9 @@ MonoBehaviour:
   backAttackMultiplier: 1.5
   dodgeChanceBonus: 0.05
   aoeShape: 0
+  aoeRadius: 3
   aoeSize: {x: 3, y: 3}
   aoeFanAngle: 0
-  aoeDuration: 0.5
+  aoeDuration: 0
+  telegraphPrefab: {fileID: 614329605402219767, guid: 951a222504bafe041abebbd9691d7928, type: 3}
+  telegraphDuration: 0

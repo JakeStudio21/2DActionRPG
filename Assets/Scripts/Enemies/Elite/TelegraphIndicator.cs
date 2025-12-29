@@ -15,6 +15,11 @@ public class TelegraphIndicator : MonoBehaviour
     [Header("설정")]
     private SkillData skillData;
     private float duration;
+    private float targetAlpha = 0.5f; // ⭐ Phase 3: skillData 없을 때 사용할 목표 알파값
+    
+    [Header("⭐ Phase 3: 시전자별 색상")]
+    [SerializeField] private Color enemyTelegraphColor = new Color(1f, 0f, 0f, 0.5f); // 빨강
+    [SerializeField] private Color playerTelegraphColor = new Color(0f, 0.5f, 1f, 0.5f); // 파랑
     
     [Header("페이드 설정")]
     [SerializeField] private float fadeInDuration = 0.2f;
@@ -35,12 +40,13 @@ public class TelegraphIndicator : MonoBehaviour
     }
 
     /// <summary>
-    /// Telegraph 초기화
+    /// Telegraph 초기화 (보스/엘리트용)
     /// </summary>
     /// <param name="skill">스킬 데이터</param>
     /// <param name="displayDuration">표시 시간</param>
     /// <param name="scaleMultiplier">Phase별 스케일 배율 (기본 1.0)</param>
-    public void Initialize(SkillData skill, float displayDuration, float scaleMultiplier = 1.0f)
+    /// <param name="casterType">시전자 타입 (기본: Enemy)</param>
+    public void Initialize(SkillData skill, float displayDuration, float scaleMultiplier = 1.0f, AOECasterType casterType = AOECasterType.Enemy)
     {
         if (skill == null)
         {
@@ -52,18 +58,22 @@ public class TelegraphIndicator : MonoBehaviour
         Debug.Log($"   스킬: {skill.SkillName}");
         Debug.Log($"   표시 시간: {displayDuration}초");
         Debug.Log($"   스케일 배율: {scaleMultiplier}x");
+        Debug.Log($"   시전자: {casterType}");
 
         skillData = skill;
         duration = displayDuration;
         isInitialized = true;
 
-        // 색상 설정
+        // ⭐ Phase 3: 시전자별 색상 설정
+        Color baseColor = (casterType == AOECasterType.Enemy) ? enemyTelegraphColor : playerTelegraphColor;
+        this.targetAlpha = skillData.TelegraphColor.a; // ⭐ 목표 알파값 저장
+        
         if (spriteRenderer != null)
         {
             spriteRenderer.color = new Color(
-                skillData.TelegraphColor.r,
-                skillData.TelegraphColor.g,
-                skillData.TelegraphColor.b,
+                baseColor.r,
+                baseColor.g,
+                baseColor.b,
                 0f // 초기 알파 0 (페이드 인 시작)
             );
         }
@@ -87,6 +97,68 @@ public class TelegraphIndicator : MonoBehaviour
         else
         {
             Debug.LogWarning($"   Collider: 없음!");
+        }
+
+        // 페이드 인 → 대기 → 페이드 아웃 → 파괴
+        StartFadeSequence();
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 3: Telegraph 초기화 (플레이어용 - 개별 파라미터)
+    /// SkillData 타입 제약 없이 사용 가능
+    /// </summary>
+    public void InitializeForPlayer(
+        AOEShapeType shape,
+        Vector3 position,
+        float radius,
+        Vector2 size,
+        float angle,
+        float displayDuration,
+        float scaleMultiplier = 1.0f,
+        AOECasterType casterType = AOECasterType.Player)
+    {
+        Debug.Log($"📍 [TelegraphIndicator] InitializeForPlayer() 호출:");
+        Debug.Log($"   Shape: {shape}");
+        Debug.Log($"   Position: {position}");
+        Debug.Log($"   표시 시간: {displayDuration}초");
+        Debug.Log($"   시전자: {casterType}");
+
+        // 기본 설정
+        this.skillData = null; // SkillData 없음
+        this.duration = displayDuration;
+        this.isInitialized = true;
+        
+        // 위치 설정
+        transform.position = position;
+        
+        // ⭐ 색상 설정
+        Color baseColor = (casterType == AOECasterType.Enemy) ? enemyTelegraphColor : playerTelegraphColor;
+        this.targetAlpha = baseColor.a; // ⭐ 목표 알파값 저장
+        
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = new Color(
+                baseColor.r,
+                baseColor.g,
+                baseColor.b,
+                0f // 초기 알파 0 (페이드 인 시작)
+            );
+        }
+
+        // ⭐ 크기 설정 (개별 파라미터 기반)
+        SetupSizeManual(shape, radius, size, angle, scaleMultiplier);
+        
+        // ⭐ Collider 강제 설정 (Trigger 활성화)
+        ForceColliderToTrigger();
+        
+        // Physics2D 즉시 동기화
+        Physics2D.SyncTransforms();
+        
+        // Collider 확인 (디버그)
+        var collider = GetComponent<Collider2D>();
+        if (collider != null)
+        {
+            Debug.Log($"   Collider: {collider.GetType().Name} (Is Trigger: {collider.isTrigger})");
         }
 
         // 페이드 인 → 대기 → 페이드 아웃 → 파괴
@@ -151,10 +223,10 @@ public class TelegraphIndicator : MonoBehaviour
         switch (skillData.AoeShape)
         {
             case AOEShapeType.Circle:
-                // 원형: 반경에 Phase 스케일 적용 (DamageArea와 일치)
-                float radius = skillData.AoeRadius * scaleMultiplier;
-                transform.localScale = new Vector3(radius, radius, 1f);
-                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={radius}, Scale={transform.localScale}");
+                // ⭐ 원형: 반경을 그대로 사용 (DamageArea와 일치)
+                float circleRadius = skillData.AoeRadius * scaleMultiplier;
+                transform.localScale = new Vector3(circleRadius, circleRadius, 1f);
+                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={circleRadius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Triangle: // Fan (부채꼴)
@@ -170,6 +242,39 @@ public class TelegraphIndicator : MonoBehaviour
                 float rectY = skillData.AoeSize.y * scaleMultiplier;
                 transform.localScale = new Vector3(rectX, rectY, 1f);
                 Debug.Log($"[TelegraphIndicator] Rectangle 크기 설정: 원본={skillData.AoeSize}, 배율={scaleMultiplier}x, 최종=({rectX}, {rectY}), Scale={transform.localScale}");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 3: AOE 형태에 따른 크기 설정 (개별 파라미터 버전)
+    /// </summary>
+    private void SetupSizeManual(AOEShapeType shape, float radius, Vector2 size, float angle, float scaleMultiplier)
+    {
+        Debug.Log($"[TelegraphIndicator] SetupSizeManual: 형태={shape}, 반경={radius}, 크기={size}, 스케일={scaleMultiplier}x");
+
+        switch (shape)
+        {
+            case AOEShapeType.Circle:
+                // ⭐ 원형: 반경을 그대로 사용 (DamageArea와 일치)
+                float finalRadius = radius * scaleMultiplier;
+                transform.localScale = new Vector3(finalRadius, finalRadius, 1f);
+                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={radius}, 배율={scaleMultiplier}x, 최종 반경={finalRadius}");
+                break;
+
+            case AOEShapeType.Triangle: // Fan (부채꼴)
+                // 부채꼴: 반경에 스케일 적용
+                float fanRadius = radius * scaleMultiplier;
+                transform.localScale = new Vector3(fanRadius, fanRadius, 1f);
+                Debug.Log($"[TelegraphIndicator] Fan 크기 설정: 반경={radius}, 배율={scaleMultiplier}x, 최종 반경={fanRadius}");
+                break;
+
+            case AOEShapeType.Rectangle:
+                // 직사각형: 크기 직접 사용 + 스케일 적용
+                float rectX = size.x * scaleMultiplier;
+                float rectY = size.y * scaleMultiplier;
+                transform.localScale = new Vector3(rectX, rectY, 1f);
+                Debug.Log($"[TelegraphIndicator] Rectangle 크기 설정: 원본={size}, 배율={scaleMultiplier}x, 최종=({rectX}, {rectY})");
                 break;
         }
     }
@@ -192,8 +297,11 @@ public class TelegraphIndicator : MonoBehaviour
     /// </summary>
     private IEnumerator FadeSequenceCoroutine()
     {
+        // ⭐ 목표 알파값 결정: skillData가 있으면 사용, 없으면 targetAlpha 사용
+        float fadeTargetAlpha = (skillData != null) ? skillData.TelegraphColor.a : targetAlpha;
+        
         // 1. 페이드 인
-        yield return StartCoroutine(FadeToAlpha(skillData.TelegraphColor.a, fadeInDuration));
+        yield return StartCoroutine(FadeToAlpha(fadeTargetAlpha, fadeInDuration));
 
         // 2. 대기 (표시 시간)
         // ⚠️ 주의: 실제로는 EliteSkillController가 RemoveTelegraph()로 수동 제거

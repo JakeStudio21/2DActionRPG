@@ -323,28 +323,110 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
     }
     
     /// <summary>
-    /// ⭐ 착탄 지점에 AOE 비주얼 생성
+    /// ⭐ 착탄 지점에 AOE 데미지 판정 (Phase 3: Telegraph + DamageArea 통합)
     /// </summary>
     private void SpawnSkillAOEAtPosition(Vector3 position, Vector2 direction)
     {
         if (!IsSkillDataValid) return;
         
-        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
-        SkillAOESpawner.SpawnAOE(
-            SkillData.aoeShape,
-            position,
-            direction,
-            SkillData.aoeSize,
-            SkillData.aoeFanAngle,
-            SkillData.damage,
-            SkillData.aoeDuration,
-            LayerMask.GetMask("Enemy"),
-            "skill.assasin.skill2.hit",  // ⭐ Hit Cue 이벤트 키
-            this
-        );
+        // SkillAOEShape → AOEShapeType 변환
+        AOEShapeType shapeType = ConvertToAOEShapeType(SkillData.aoeShape);
+        
+        // ⭐ Circle은 aoeRadius, Rectangle은 aoeSize 사용
+        float circleRadius = SkillData.aoeRadius;
+        Vector2 rectSize = SkillData.aoeSize;
         
         if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}, 위치: {position}");
+            Debug.Log($"🔍 [AssasinSkill2] AOE 크기 확인: aoeRadius={circleRadius}, aoeSize={rectSize}");
+        
+        // ⭐ Phase 3: Telegraph 선택적 생성 (프리팹이 있으면 사용)
+        float telegraphDelay = 0f;
+        
+        // ⭐ 강제 로그: Telegraph 프리팹 상태 확인
+        Debug.Log($"🔍 [AssasinSkill2] Telegraph 체크: prefab={(SkillData.telegraphPrefab != null ? "있음" : "없음")}");
+        
+        if (SkillData.telegraphPrefab != null)
+        {
+            telegraphDelay = SkillData.telegraphDuration;
+            
+            // 1. Telegraph 생성
+            GameObject telegraphObj = Instantiate(SkillData.telegraphPrefab, position, Quaternion.identity);
+            Debug.Log($"🔍 [AssasinSkill2] Telegraph GameObject 생성: {telegraphObj.name}");
+            
+            TelegraphIndicator telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
+            Debug.Log($"🔍 [AssasinSkill2] TelegraphIndicator 컴포넌트: {(telegraph != null ? "있음" : "없음")}");
+            
+            if (telegraph != null)
+            {
+                telegraph.InitializeForPlayer(
+                    shape: shapeType,
+                    position: position,          // ⭐ origin → position
+                    radius: circleRadius,        // ⭐ Circle: aoeRadius 사용
+                    size: rectSize,              // ⭐ Rectangle: aoeSize 사용
+                    angle: SkillData.aoeFanAngle,
+                    displayDuration: telegraphDelay,  // ⭐ duration → displayDuration
+                    scaleMultiplier: 1.0f,
+                    casterType: AOECasterType.Player
+                );
+                
+                Debug.Log($"📍 [AssasinSkill2] Telegraph 생성 완료: {telegraphDelay}초 경고 (반경: {circleRadius})");
+            }
+            else
+            {
+                Debug.LogError($"❌ [AssasinSkill2] TelegraphIndicator 컴포넌트를 찾을 수 없음!");
+            }
+        }
+        else
+        {
+            Debug.Log($"📍 [AssasinSkill2] Telegraph 프리팹 없음 - 즉시 DamageArea 실행");
+        }
+        
+        // ⭐ 2. DamageArea 실행 (Telegraph 지연 후 또는 즉시)
+        StartCoroutine(DelayedDamageArea(position, direction, shapeType, telegraphDelay));
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 3: 지연 후 DamageArea 실행
+    /// </summary>
+    private IEnumerator DelayedDamageArea(Vector3 position, Vector2 direction, AOEShapeType shapeType, float delay)
+    {
+        // Telegraph 대기 (0이면 즉시 실행)
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+        
+        // DamageArea GameObject 생성
+        GameObject damageAreaObj = new GameObject("AssasinSkill2_DamageArea");
+        damageAreaObj.transform.position = position;
+        
+        // DamageArea 컴포넌트 추가
+        DamageArea damageArea = damageAreaObj.AddComponent<DamageArea>();
+        
+        // ⭐ Circle은 aoeRadius, Rectangle은 aoeSize 사용
+        float circleRadius = SkillData.aoeRadius;
+        Vector2 rectSize = SkillData.aoeSize;
+        
+        // 오버로드된 InitializeForPlayer 호출 (개별 파라미터)
+        damageArea.InitializeForPlayer(
+            shape: shapeType,
+            origin: position,
+            forward: direction,
+            radius: circleRadius,               // ⭐ Circle: aoeRadius 사용
+            size: rectSize,                     // ⭐ Rectangle: aoeSize 사용
+            angle: SkillData.aoeFanAngle,       // 부채꼴 각도
+            playerBaseDamage: Mathf.RoundToInt(SkillData.damage),
+            damageMultiplier: 1.0f,
+            scaleMultiplier: 1.0f,
+            policy: AOEDamagePolicy.Once,       // ⭐ 즉시 1회 판정
+            hitEffectPrefab: null               // ⭐ Hit Cue는 별도 처리
+        );
+        
+        // DamageArea는 즉시 판정 후 제거
+        Destroy(damageAreaObj, 0.1f);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [AssasinSkill2] DamageArea 생성: {shapeType}, 반경: {circleRadius}, 위치: {position}, 데미지: {Mathf.RoundToInt(SkillData.damage)}");
     }
     
     #endregion
@@ -377,6 +459,27 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
         
         if (showDebugLogs)
             Debug.Log($"💥 [AssasinSkill2] Cast Cue 발행 (시전 이펙트, 각도: {angle:F1}°) → {cueSuccess}");
+    }
+    
+    /// <summary>
+    /// ⭐ Phase C-2: SkillAOEShape → AOEShapeType 변환 헬퍼
+    /// </summary>
+    private AOEShapeType ConvertToAOEShapeType(SkillAOEShape skillShape)
+    {
+        switch (skillShape)
+        {
+            case SkillAOEShape.Circle:
+                return AOEShapeType.Circle;
+            case SkillAOEShape.Rectangle:
+                return AOEShapeType.Rectangle;
+            case SkillAOEShape.Fan:
+                return AOEShapeType.Triangle; // Fan → Triangle
+            case SkillAOEShape.Line:
+                return AOEShapeType.Rectangle; // Line → Rectangle
+            default:
+                Debug.LogWarning($"[AssasinSkill2] 알 수 없는 SkillAOEShape: {skillShape}, Circle로 기본 설정");
+                return AOEShapeType.Circle;
+        }
     }
     
     /// <summary>

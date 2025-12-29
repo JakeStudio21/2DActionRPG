@@ -47,7 +47,10 @@ public class AssasinSkillData : BaseSkillData
     [Tooltip("AOE 형태 (Circle/Rectangle/Fan/Line)")]
     public SkillAOEShape aoeShape = SkillAOEShape.Fan;
     
-    [Tooltip("AOE 크기 (x=반지름 또는 가로, y=세로)")]
+    [Tooltip("⭐ Circle AOE 반경 (Circle일 때만 사용)")]
+    public float aoeRadius = 3f;
+    
+    [Tooltip("AOE 크기 (Rectangle: x=가로, y=세로 / Fan: x=반지름)")]
     public Vector2 aoeSize = new Vector2(3f, 2f);
     
     [Tooltip("부채꼴 각도 (Fan일 때만)")]
@@ -56,4 +59,10 @@ public class AssasinSkillData : BaseSkillData
     
     [Tooltip("AOE 지속시간 (초)")]
     public float aoeDuration = 0.5f;
+    
+    [Tooltip("⭐ Phase 3: Telegraph 프리팹 (선택 사항, null이면 미사용)")]
+    public GameObject telegraphPrefab;
+    
+    [Tooltip("⭐ Phase 3: Telegraph 표시 시간 (초)")]
+    public float telegraphDuration = 0.3f;
 }
