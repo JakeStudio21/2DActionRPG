@@ -95,7 +95,7 @@ SpriteRenderer:
   m_Size: {x: 4, y: 4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!70 &2593015259640542914
@@ -187,6 +187,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDead: 0
   bossSpawner: {fileID: 0}
+  eliteHealthBarPrefab: {fileID: 0}
+  healthBarOffsetY: 2.5
+  basicHealthBarPrefab: {fileID: 6935039637879996987, guid: 5a00e731311f6bb468729f7447fa1753, type: 3}
+  basicHealthBarAutoHideDelay: 1.5
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0

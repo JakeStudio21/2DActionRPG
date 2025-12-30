@@ -208,6 +208,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDead: 0
   bossSpawner: {fileID: 0}
+  eliteHealthBarPrefab: {fileID: 0}
+  healthBarOffsetY: 2.5
+  basicHealthBarPrefab: {fileID: 6935039637879996987, guid: 5a00e731311f6bb468729f7447fa1753, type: 3}
+  basicHealthBarAutoHideDelay: 1.5
 --- !u!114 &-8747367544597513822
 MonoBehaviour:
   m_ObjectHideFlags: 0
