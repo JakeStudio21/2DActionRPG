@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7030635708495568026}
   - component: {fileID: 4757947932115241271}
+  - component: {fileID: 1075405272880541920}
   m_Layer: 0
   m_Name: DamageArea
   m_TagString: Untagged
@@ -62,3 +63,26 @@ MonoBehaviour:
   shakeIntensity: 0
   enableDebugLogs: 1
   enableDebugGizmos: 1
+  showGizmosInPlayMode: 1
+  damagePolicy: 0
+  casterType: 1
+  windowDuration: 0.5
+  tickInterval: 0.2
+--- !u!114 &1075405272880541920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2595498371181696485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f900f912e45dc04cb967cf245078a55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}

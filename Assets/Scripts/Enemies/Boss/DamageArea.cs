@@ -55,9 +55,9 @@ public class DamageArea : MonoBehaviour
     [SerializeField] private float shakeIntensity = 0f;         // 스크린 셰이크 강도
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
+    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 기본값: false
     [SerializeField] private bool enableDebugGizmos = true;
-    [SerializeField] private bool showGizmosInPlayMode = true;  // 플레이 모드에서도 Gizmos 표시
+    [SerializeField] private bool showGizmosInPlayMode = false;  // ⭐ 기본값: false (필요시 Inspector에서 켜기)
     
     [Header("⚡ 데미지 정책 (Phase 1)")]
     [Tooltip("Once: 즉시 1회 판정 (기본값), Window: 지속시간 1회, Tick: 반복 판정")]
@@ -190,6 +190,11 @@ public class DamageArea : MonoBehaviour
         // 이펙트 설정
         hitEffect = skillData.HitEffect;
         shakeIntensity = skillData.ShakeIntensity;
+        
+        // ⭐ Phase 3: SkillData에서 Window/Tick 정책 정보 복사
+        // (damagePolicy는 Initialize()에서 이미 설정되었지만, duration/interval은 여기서 설정)
+        windowDuration = skillData.AoeDuration;
+        tickInterval = skillData.AoeTickInterval;
         
         // 생성 시간 기록 (Gizmos 표시 시간 제어용)
         spawnTime = Time.time;
@@ -394,9 +399,21 @@ public class DamageArea : MonoBehaviour
         this.scaleMultiplier = scaleMultiplier;
         this.hitEffect = hitEffectPrefab;
         
-        // 기본값 설정
-        this.centerMode = AOECenterMode.Centered; // 기본: 중심 기준
-        this.centerOffset = 0f;
+        // ⭐ Rectangle AOE 자동 처리: 플레이어 앞쪽으로 생성
+        if (shape == AOEShapeType.Rectangle)
+        {
+            this.centerMode = AOECenterMode.ForwardAnchored;
+            this.centerOffset = size.x / 2f; // 사각형 가로 길이의 절반
+            
+            if (enableDebugLogs)
+                Debug.Log($"🎯 [DamageArea] Rectangle 감지 → ForwardAnchored 모드 (Offset: {this.centerOffset})");
+        }
+        else
+        {
+            this.centerMode = AOECenterMode.Centered; // Circle/Triangle은 중심 기준
+            this.centerOffset = 0f;
+        }
+        
         this.shakeIntensity = 0f;
         this.skillData = null; // SkillData 없음
         
@@ -406,7 +423,6 @@ public class DamageArea : MonoBehaviour
         
         // ⭐ 타겟 레이어: Enemy
         int enemyLayer = LayerMask.GetMask("Enemy");
-        Debug.Log($"🔍 [DamageArea] Enemy Layer 마스크: {enemyLayer} (0이면 Layer 없음)");
         
         if (enemyLayer == 0)
         {
@@ -416,20 +432,15 @@ public class DamageArea : MonoBehaviour
         else
         {
             targetLayerMask = enemyLayer;
-            Debug.Log($"🔍 [DamageArea] targetLayerMask 설정 완료: {targetLayerMask}");
         }
         
         // 생성 시간 기록
         spawnTime = Time.time;
         
-        Debug.Log($"✅ [DamageArea] 플레이어용 초기화 완료 (오버로드):");
-        Debug.Log($"   - Shape: {shape}");
-        Debug.Log($"   - Policy: {policy}");
-        Debug.Log($"   - Base Damage: {playerBaseDamage}");
-        Debug.Log($"   - Base Radius: {radius}");
-        Debug.Log($"   - Scale Multiplier: {scaleMultiplier}x");
-        Debug.Log($"   - Caster Type: {casterType}");
-        Debug.Log($"   - Target LayerMask: {targetLayerMask}");
+        if (enableDebugLogs)
+        {
+            Debug.Log($"✅ [DamageArea] 플레이어 {shape} AOE 생성 (Policy: {policy}, Damage: {playerBaseDamage})");
+        }
         
         // ⭐ 정책 실행
         ExecuteDamagePolicy();
@@ -681,7 +692,12 @@ public class DamageArea : MonoBehaviour
         else // ForwardAnchored
         {
             float offset = centerOffset * scaleMultiplier;
-            return origin + forward * offset;
+            Vector3 calculatedCenter = origin + forward * offset;
+            
+            if (enableDebugLogs)
+                Debug.Log($"📍 [DamageArea] ForwardAnchored: Origin={origin}, Offset={offset}, Center={calculatedCenter}");
+            
+            return calculatedCenter;
         }
     }
     
@@ -690,38 +706,12 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     private Collider2D[] OverlapCircle(Vector3 center)
     {
-        // ⭐ 수정: baseRadius는 이미 skillData.AoeRadius 값임
         float finalRadius = baseRadius * scaleMultiplier;
-        
-        // ⭐ 강제 로그: Overlap 전 상태 확인 (한 줄로 통합)
-        Debug.LogWarning($"🔍 [DamageArea] Circle Overlap: Center={center}, baseRadius={baseRadius}, scale={scaleMultiplier}, FinalRadius={finalRadius}, LayerMask={targetLayerMask.value}");
-        
-        // ⭐ 추가 진단: 모든 Layer를 대상으로 검사 (Layer 문제 확인용)
-        Collider2D[] allHits = Physics2D.OverlapCircleAll(center, finalRadius);
-        Debug.LogWarning($"🔍 [DamageArea] 모든 Layer 검사: 감지된 Collider 수 = {allHits.Length}");
-        if (allHits.Length > 0)
-        {
-            foreach (var hit in allHits)
-            {
-                string layerName = LayerMask.LayerToName(hit.gameObject.layer);
-                Debug.LogWarning($"   - 발견: {hit.name} (Layer: {layerName}, LayerIndex: {hit.gameObject.layer})");
-            }
-        }
-        
         Collider2D[] hits = Physics2D.OverlapCircleAll(center, finalRadius, targetLayerMask);
         
-        Debug.LogWarning($"🔍 [DamageArea] Enemy Layer만 검사: 감지된 Collider 수 = {hits.Length}");
-        
-        if (hits.Length > 0)
+        if (enableDebugLogs)
         {
-            foreach (var hit in hits)
-            {
-                Debug.Log($"   - 히트: {hit.name} (Layer: {LayerMask.LayerToName(hit.gameObject.layer)})");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ [DamageArea] Overlap 결과 없음! 적이 범위 내에 없거나 Layer 불일치");
+            Debug.Log($"[DamageArea] Circle Overlap: Center={center}, Radius={finalRadius}, Hits={hits.Length}");
         }
         
         return hits;
@@ -877,30 +867,63 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     private void DrawGizmosWithoutSkillData()
     {
-        // ⭐ Center 계산 (origin이 설정되어 있으면 사용)
-        Vector3 center = (origin != Vector3.zero) ? origin : transform.position;
-        
-        // ⭐ 플레이어/적 구분 색상
-        Gizmos.color = (casterType == AOECasterType.Player) 
-            ? new Color(0f, 0f, 1f, 0.4f)  // 파란색 (플레이어)
-            : new Color(1f, 0f, 0f, 0.4f); // 빨간색 (적)
+        // ⭐ Center 계산 (ForwardAnchored 적용!)
+        Vector3 center = CalculateCenter();
         
         float finalRadius = baseRadius * scaleMultiplier;
         
         switch (aoeShape)
         {
             case AOEShapeType.Circle:
+                // ⭐ 플레이어/적 구분 색상
+                Gizmos.color = (casterType == AOECasterType.Player) 
+                    ? new Color(0f, 0f, 1f, 0.4f)  // 파란색 (플레이어)
+                    : new Color(1f, 0f, 0f, 0.4f); // 빨간색 (적)
                 DrawCircle(center, finalRadius);
                 // ⭐ 중심점 표시
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawSphere(center, 0.5f);
                 break;
             case AOEShapeType.Triangle:
+                // ⭐ 플레이어/적 구분 색상
+                Gizmos.color = (casterType == AOECasterType.Player) 
+                    ? new Color(0f, 0f, 1f, 0.4f)  // 파란색 (플레이어)
+                    : new Color(1f, 0f, 0f, 0.4f); // 빨간색 (적)
                 DrawFan(center, forward, finalRadius, baseAngle);
                 break;
             case AOEShapeType.Rectangle:
+                // ⭐ Rectangle은 항상 빨간색 (명확한 시각화)
+                Gizmos.color = new Color(1f, 0f, 0f, 0.4f); // 빨간색
                 DrawRotatedRectangle(center, forward, baseSize * scaleMultiplier);
                 break;
+        }
+        
+        // ⭐ Origin/Center/Forward 표시 (DrawGizmosWithSkillData()와 동일)
+        // Origin 표시 (파란색)
+        if (origin != Vector3.zero)
+        {
+            Gizmos.color = new Color(0f, 0.5f, 1f, 0.8f);  // 파란색
+            Gizmos.DrawWireSphere(origin, 0.25f);
+            Gizmos.DrawSphere(origin, 0.15f);
+        }
+        
+        // Center 표시 (초록색)
+        Gizmos.color = new Color(0f, 1f, 0f, 0.8f);  // 초록색
+        Gizmos.DrawWireSphere(center, 0.25f);
+        Gizmos.DrawSphere(center, 0.15f);
+        
+        // Forward 방향선 (노란색)
+        if (forward != Vector3.zero)
+        {
+            Gizmos.color = new Color(1f, 1f, 0f, 0.8f);  // 노란색
+            float arrowLength = 1.5f;
+            Vector3 arrowEnd = center + forward * arrowLength;
+            Gizmos.DrawLine(center, arrowEnd);
+            
+            // 화살표 끝 그리기
+            Vector3 right = new Vector3(-forward.y, forward.x, 0f) * 0.2f;
+            Gizmos.DrawLine(arrowEnd, arrowEnd - forward * 0.3f + right);
+            Gizmos.DrawLine(arrowEnd, arrowEnd - forward * 0.3f - right);
         }
     }
     
@@ -1078,10 +1101,10 @@ public class DamageArea : MonoBehaviour
         float forwardLength = Mathf.Max(size.x, size.y) * 0.6f;
         Gizmos.DrawLine(center, center + forward * forwardLength);
         
-        // 대각선 (중심을 통과)
-        Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
-        Gizmos.DrawLine(corners[0], corners[2]);
-        Gizmos.DrawLine(corners[1], corners[3]);
+        // ⭐ 대각선 제거: 면이 뒤집어진 것처럼 보이는 혼란 방지
+        // Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
+        // Gizmos.DrawLine(corners[0], corners[2]);
+        // Gizmos.DrawLine(corners[1], corners[3]);
     }
     
     /// <summary>

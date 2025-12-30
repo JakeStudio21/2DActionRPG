@@ -37,7 +37,7 @@ public class EliteSkillController : MonoBehaviour
     [SerializeField] private Transform skillSpawnPoint;
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
+    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 기본값: false (필요시 Inspector에서 켜기)
 
     // 프로퍼티
     public bool IsCasting => isCasting;
@@ -602,14 +602,14 @@ public class EliteSkillController : MonoBehaviour
             return;
         }
         
-        // ⭐ Phase 4: 엘리트용 Initialize 호출 (정책 명시)
+        // ⭐ Phase 3: SkillData에서 정책 읽어오기
         damageArea.Initialize(
             skillData: currentSkill,                   // SkillData
             origin: cachedOrigin,                      // Origin (Cast 시작 시점 저장됨)
             forward: cachedTargetDirection,            // Forward (Cast 시작 시점 저장됨)
             enemy: baseEnemy,                          // BaseEnemy
             scaleMultiplier: 1.0f,                     // scaleMultiplier (엘리트는 기본 1.0)
-            policy: AOEDamagePolicy.Once               // ⭐ 명시적 정책 (Once/Window/Tick 선택 가능)
+            policy: currentSkill.AoeDamagePolicy       // ⭐ SkillData에서 정책 읽어오기 (Once/Window/Tick)
         );
         
         if (enableDebugLogs)
@@ -634,8 +634,15 @@ public class EliteSkillController : MonoBehaviour
         // 데미지 판정 실행
         damageArea.PerformDamage();
         
-        // ⭐ 1초 후 제거 (Gizmos 확인용)
-        Destroy(damageAreaGO, 1.0f);
+        // ⭐ Phase 3: AOE 지속시간 후 제거 (Tick/Window 정책 대응)
+        // aoeDuration + 여유시간(0.5초)을 주어 정책이 완전히 실행되도록 보장
+        float destroyDelay = currentSkill.AoeDuration + 0.5f;
+        Destroy(damageAreaGO, destroyDelay);
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"⏱️ [EliteSkillController] DamageArea 제거 예약: {destroyDelay}초 후 (Policy: {currentSkill.AoeDamagePolicy})");
+        }
     }
     
     #region ⚠️ Phase 2: 아래 메서드들은 제거 예정 (DamageArea로 대체됨)

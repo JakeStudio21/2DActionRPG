@@ -15,6 +15,10 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
     private GameObject currentChargeEffect;
     private AudioSource audioSource;
     
+    [Header("⚔️ 공격 방향 관리")]
+    [SerializeField] private Vector2 lastAttackDirection = Vector2.right; // 마지막 공격 방향 기억
+    [SerializeField] private bool showDirectionDebug = false; // 방향 디버그 로그
+    
     #endregion
     
     #region BaseSkill<T> 구현
@@ -113,6 +117,70 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
     }
     
     #endregion
+    
+    /// <summary>
+    /// 현재 조이스틱 공격 방향 가져오기 (WarriorSkill1과 동일한 로직)
+    /// </summary>
+    private Vector2 GetCurrentAttackDirection()
+    {
+        if (showDebugLogs)
+            Debug.Log($"💥 [WarriorSkill2] GetCurrentAttackDirection 호출됨 - 시간: {Time.time:F3}");
+        
+        // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
+        {
+            Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();
+            
+            if (joystickDir.magnitude > 0.1f)
+            {
+                // ⭐ 마지막 방향 저장
+                lastAttackDirection = joystickDir.normalized;
+                
+                // 🔍 N/S 방향 특별 확인
+                bool isNorthSouth = Mathf.Abs(joystickDir.x) < 0.3f && Mathf.Abs(joystickDir.y) > 0.7f;
+                if (isNorthSouth)
+                {
+                    string directionName = joystickDir.y > 0 ? "NORTH" : "SOUTH";
+                    Debug.Log($"🧭 [WarriorSkill2] {directionName} 방향 스킬2 사용! 실시간 조이스틱: {joystickDir}");
+                }
+                
+                if (showDirectionDebug)
+                    Debug.Log($"🎮 [WarriorSkill2] 새로운 조이스틱 방향 저장: {lastAttackDirection}");
+                
+                return lastAttackDirection;
+            }
+        }
+        
+        // ⭐ 핵심: 조이스틱 입력이 없으면 마지막 방향 사용
+        if (showDirectionDebug)
+            Debug.Log($"🎮 [WarriorSkill2] 마지막 저장된 방향 사용: {lastAttackDirection}");
+        
+        return lastAttackDirection;
+    }
+    
+    /// <summary>
+    /// 백그라운드에서 마지막 공격 방향 지속적 업데이트 (WarriorSkill1과 동일)
+    /// </summary>
+    private IEnumerator UpdateLastAttackDirectionCoroutine()
+    {
+        while (true)
+        {
+            var activeWeapon = FindObjectOfType<ActiveWeapon>();
+            if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
+            {
+                Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();
+                
+                if (joystickDir.magnitude > 0.1f)
+                {
+                    lastAttackDirection = joystickDir.normalized;
+                }
+            }
+            
+            // 60FPS로 업데이트 (기본공격과 동일한 빈도)
+            yield return new WaitForSeconds(1f / 60f);
+        }
+    }
     
     #region 워리어 Ground Slam 전용 로직
     
@@ -226,31 +294,130 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
     }
     
     /// <summary>
-    /// ⭐ Phase 3: 스킬 AOE 생성 (원형)
+    /// ⭐ Phase 3: 스킬 AOE 생성 (원형) - DamageArea 시스템 사용
     /// </summary>
     private void SpawnSkillAOE()
     {
         if (!IsSkillDataValid) return;
         
-        // 방향은 상관없음 (원형이므로)
-        Vector2 direction = Vector2.right;
+        // ⭐ 실시간 조이스틱 방향 가져오기 (AssasinSkill2와 동일)
+        Vector2 direction = GetCurrentAttackDirection();
         
-        // AOE 생성 (PlayerSkillAOEDamage가 자동으로 데미지 + Hit Cue 처리)
-        SkillAOESpawner.SpawnAOE(
-            SkillData.aoeShape,
-            transform.position,
-            direction,
-            SkillData.aoeSize,
-            SkillData.aoeFanAngle,
-            SkillData.damage,
-            SkillData.aoeDuration,
-            LayerMask.GetMask("Enemy"),
-            "skill.warrior.skill2.hit",  // ⭐ Hit Cue 이벤트 키
-            this
-        );
+        // DamageArea 기반 AOE 생성
+        SpawnSkillAOEAtPosition(transform.position, direction);
         
         if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
+            Debug.Log($"💥 [WarriorSkill2] DamageArea 생성: Circle, 반경: {SkillData.aoeRadius}, 방향: {direction}, 위치: {transform.position}, 데미지: {BaseDamage}");
+    }
+    
+    /// <summary>
+    /// ⭐ DamageArea 기반 AOE 생성 (AssasinSkill2 방식)
+    /// </summary>
+    private void SpawnSkillAOEAtPosition(Vector3 impactPosition, Vector2 direction)
+    {
+        if (!IsSkillDataValid) return;
+        
+        // DamageArea GameObject 생성
+        GameObject damageAreaObj = new GameObject($"WarriorSkill2_DamageArea_{Time.time:F2}");
+        damageAreaObj.transform.position = impactPosition;
+        
+        // DamageArea 컴포넌트 추가
+        DamageArea damageArea = damageAreaObj.AddComponent<DamageArea>();
+        
+        // ⭐ 선택적 Telegraph 생성 (telegraphPrefab이 있을 때만)
+        if (SkillData.telegraphPrefab != null)
+        {
+            GameObject telegraphObj = Instantiate(
+                SkillData.telegraphPrefab,
+                impactPosition,
+                Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg)
+            );
+            
+            TelegraphIndicator telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
+            if (telegraph != null)
+            {
+                // ⭐ 디버그: 크기 값 확인
+                Debug.Log($"🔍 [WarriorSkill2] Telegraph 초기화 전: Shape={SkillData.aoeShape}, Radius={SkillData.aoeRadius}, Size={SkillData.aoeSize}");
+                
+                telegraph.InitializeForPlayer(
+                    shape: ConvertToAOEShapeType(SkillData.aoeShape),
+                    position: impactPosition,
+                    radius: SkillData.aoeRadius,
+                    size: SkillData.aoeSize,
+                    angle: SkillData.aoeFanAngle,
+                    displayDuration: SkillData.telegraphDuration,
+                    scaleMultiplier: 1.0f,
+                    casterType: AOECasterType.Player,
+                    forward: direction  // ⭐ 추가: Forward 방향 전달
+                );
+                
+                // Telegraph 생성 로그 제거 (DamageArea가 출력)
+            }
+            else
+            {
+                Debug.LogError($"❌ [WarriorSkill2] TelegraphIndicator 컴포넌트를 찾을 수 없음!");
+            }
+            
+            // Telegraph 표시 시간만큼 DamageArea 실행 지연
+            StartCoroutine(DelayedDamageArea(damageArea, impactPosition, direction, SkillData.telegraphDuration));
+        }
+        else
+        {
+            // Telegraph 없으면 즉시 실행
+            InitializeDamageArea(damageArea, impactPosition, direction);
+        }
+    }
+    
+    /// <summary>
+    /// Telegraph 표시 후 DamageArea 실행
+    /// </summary>
+    private IEnumerator DelayedDamageArea(DamageArea damageArea, Vector3 impactPosition, Vector2 direction, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        InitializeDamageArea(damageArea, impactPosition, direction);
+    }
+    
+    /// <summary>
+    /// DamageArea 초기화 및 실행
+    /// </summary>
+    private void InitializeDamageArea(DamageArea damageArea, Vector3 impactPosition, Vector2 direction)
+    {
+        damageArea.InitializeForPlayer(
+            shape: ConvertToAOEShapeType(SkillData.aoeShape),
+            origin: impactPosition,
+            forward: direction,
+            radius: SkillData.aoeRadius,
+            size: SkillData.aoeSize,
+            angle: SkillData.aoeFanAngle,
+            playerBaseDamage: Mathf.RoundToInt(BaseDamage),
+            damageMultiplier: 1.0f,
+            scaleMultiplier: 1.0f,
+            policy: AOEDamagePolicy.Once,
+            hitEffectPrefab: null
+        );
+        
+        // DamageArea GameObject는 0.5초 후 자동 삭제
+        Destroy(damageArea.gameObject, 0.5f);
+    }
+    
+    /// <summary>
+    /// SkillAOEShape → AOEShapeType 변환 헬퍼
+    /// </summary>
+    private AOEShapeType ConvertToAOEShapeType(SkillAOEShape skillShape)
+    {
+        switch (skillShape)
+        {
+            case SkillAOEShape.Circle:
+                return AOEShapeType.Circle;
+            case SkillAOEShape.Rectangle:
+                return AOEShapeType.Rectangle;
+            case SkillAOEShape.Fan:
+                return AOEShapeType.Triangle; // Fan은 Triangle로 매핑 (부채꼴)
+            case SkillAOEShape.Line:
+                return AOEShapeType.Rectangle; // Line은 Rectangle로 매핑
+            default:
+                return AOEShapeType.Circle;
+        }
     }
     
     /// <summary>
@@ -299,14 +466,18 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
     /// </summary>
     private void EmitSkillAOECue()
     {
+        // ⭐ 조이스틱 방향 가져오기 (이펙트 회전용)
+        Vector2 direction = GetCurrentAttackDirection();
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
         var context = new CueContext
         {
             position = transform.position,
-            rotation = Quaternion.identity, // 원형이므로 방향 없음
+            rotation = Quaternion.Euler(0, 0, angle), // ⭐ 조이스틱 방향 적용
             actorType = ActorType.Player,
             magnitude = 2.5f, // 매우 강력한 범위 이펙트
             surfaceType = SurfaceType.Stone,
-            facingDir = Vector2.zero,
+            facingDir = direction, // ⭐ 방향 정보 추가
             scale = 1.0f  // ⭐ 명시적 선언 (향후 GetSkillLevelScale()로 변경 가능)
         };
         
@@ -323,6 +494,9 @@ public class WarriorSkill2 : BaseSkill<WarriorSkillData>
     protected override void Start()
     {
         base.Start(); // BaseSkill<T>의 초기화 실행
+        
+        // ⭐ 마지막 방향 지속적 업데이트 시작
+        StartCoroutine(UpdateLastAttackDirectionCoroutine());
         
         // Ground Slam 스킬 전용 초기화
         if (IsSkillDataValid && showDebugLogs)

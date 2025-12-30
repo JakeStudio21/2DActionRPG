@@ -30,7 +30,10 @@ MonoBehaviour:
   slashEffectPrefab: {fileID: 0}
   dashEffectPoolName: DashEffect
   slashEffectPoolName: SlashEffect
-  aoeShape: 1
+  aoeShape: 2
   aoeSize: {x: 8, y: 5}
-  aoeFanAngle: 0
+  aoeRadius: 10
+  aoeFanAngle: 90
   aoeDuration: 0.5
+  telegraphPrefab: {fileID: 981163553440734840, guid: 5cced6f6412628e40afa83f4a1020eb2, type: 3}
+  telegraphDuration: 0

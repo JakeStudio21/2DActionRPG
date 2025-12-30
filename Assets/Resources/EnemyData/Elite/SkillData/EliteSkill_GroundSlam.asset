@@ -47,3 +47,6 @@ MonoBehaviour:
   damageMode: 1
   damageTime: 0.5
   damageWindow: 0
+  aoeDamagePolicy: 2
+  aoeDuration: 2.5
+  aoeTickInterval: 0.5

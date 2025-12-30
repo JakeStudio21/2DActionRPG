@@ -54,11 +54,7 @@ public class TelegraphIndicator : MonoBehaviour
             return;
         }
 
-        Debug.Log($"📍 [TelegraphIndicator] Initialize() 호출:");
-        Debug.Log($"   스킬: {skill.SkillName}");
-        Debug.Log($"   표시 시간: {displayDuration}초");
-        Debug.Log($"   스케일 배율: {scaleMultiplier}x");
-        Debug.Log($"   시전자: {casterType}");
+        // 초기화 로그 제거 (불필요)
 
         skillData = skill;
         duration = displayDuration;
@@ -91,12 +87,11 @@ public class TelegraphIndicator : MonoBehaviour
         var collider = GetComponent<Collider2D>();
         if (collider != null)
         {
-            Debug.Log($"   Collider: {collider.GetType().Name} (Is Trigger: {collider.isTrigger})");
-            Debug.Log($"   Collider Bounds (초기화 직후): Center={collider.bounds.center}, Extents={collider.bounds.extents}");
+            // Collider 정보 로그 제거
         }
         else
         {
-            Debug.LogWarning($"   Collider: 없음!");
+            // Collider 없음 경고 제거
         }
 
         // 페이드 인 → 대기 → 페이드 아웃 → 파괴
@@ -115,11 +110,10 @@ public class TelegraphIndicator : MonoBehaviour
         float angle,
         float displayDuration,
         float scaleMultiplier = 1.0f,
-        AOECasterType casterType = AOECasterType.Player)
+        AOECasterType casterType = AOECasterType.Player,
+        Vector3 forward = default)  // ⭐ 추가: Forward 방향
     {
-        Debug.Log($"📍 [TelegraphIndicator] InitializeForPlayer() 호출:");
-        Debug.Log($"   Shape: {shape}");
-        Debug.Log($"   Position: {position}");
+        // 플레이어용 초기화 로그 제거 (불필요)
         Debug.Log($"   표시 시간: {displayDuration}초");
         Debug.Log($"   시전자: {casterType}");
 
@@ -128,8 +122,19 @@ public class TelegraphIndicator : MonoBehaviour
         this.duration = displayDuration;
         this.isInitialized = true;
         
+        // ⭐ Rectangle AOE 자동 처리: 플레이어 앞쪽으로 생성 (DamageArea와 동일)
+        Vector3 adjustedPosition = position;
+        if (shape == AOEShapeType.Rectangle && forward != Vector3.zero)
+        {
+            float offset = size.x / 2f * scaleMultiplier;
+            adjustedPosition = position + forward.normalized * offset;
+            
+            Debug.Log($"🎯 [TelegraphIndicator] Rectangle 감지 → ForwardAnchored (Offset: {offset})");
+            Debug.Log($"   Origin: {position} → Center: {adjustedPosition}");
+        }
+        
         // 위치 설정
-        transform.position = position;
+        transform.position = adjustedPosition;
         
         // ⭐ 색상 설정
         Color baseColor = (casterType == AOECasterType.Enemy) ? enemyTelegraphColor : playerTelegraphColor;

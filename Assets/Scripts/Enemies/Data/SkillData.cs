@@ -150,6 +150,16 @@ public class SkillData : ScriptableObject
     [Tooltip("데미지 윈도우 지속시간 (초, 0이면 즉시 판정)")]
     [SerializeField] private float damageWindow = 0f;
 
+    [Header("⚡ 데미지 정책 (Phase 3: Window/Tick)")]
+    [Tooltip("Once: 즉시 1회 판정 (기본값, 플레이어 스킬)\nWindow: 지속시간 동안 1회만 (보스 지속 장판)\nTick: 주기적 반복 판정 (DoT 장판)")]
+    [SerializeField] private AOEDamagePolicy aoeDamagePolicy = AOEDamagePolicy.Once;
+    
+    [Tooltip("Window/Tick 모드: AOE 지속 시간 (초)")]
+    [SerializeField] private float aoeDuration = 1.0f;
+    
+    [Tooltip("Tick 모드: 데미지 반복 간격 (초)")]
+    [SerializeField] private float aoeTickInterval = 0.5f;
+
     // Public Properties (Read-Only)
     public SkillType SkillType => skillType;
     public string SkillName => skillName;
@@ -186,6 +196,11 @@ public class SkillData : ScriptableObject
     public SkillTimingMode DamageMode => damageMode;
     public float DamageTime => damageTime;
     public float DamageWindow => damageWindow;
+    
+    // ⭐ Phase 3: 데미지 정책 Properties
+    public AOEDamagePolicy AoeDamagePolicy => aoeDamagePolicy;
+    public float AoeDuration => aoeDuration;
+    public float AoeTickInterval => aoeTickInterval;
 
     /// <summary>
     /// 레벨과 기본 데미지를 적용한 실제 스킬 데미지 계산
@@ -230,6 +245,10 @@ public class SkillData : ScriptableObject
         
         // 스크린 셰이크 검증
         shakeIntensity = Mathf.Max(0f, shakeIntensity);
+        
+        // ⭐ Phase 3: 데미지 정책 검증
+        aoeDuration = Mathf.Max(0.1f, aoeDuration);
+        aoeTickInterval = Mathf.Max(0.1f, aoeTickInterval);
 
         // SkillId가 비어있으면 경고
         if (string.IsNullOrEmpty(skillId))
@@ -265,6 +284,20 @@ public class SkillData : ScriptableObject
         info += $"Range: {minRange}~{maxRange}\n";
         info += $"Telegraph: {telegraphDuration}s\n";
         info += $"Shake: {shakeIntensity}\n";
+        info += $"Policy: {aoeDamagePolicy}"; // ⭐ Phase 3: 정책 정보
+        
+        if (aoeDamagePolicy == AOEDamagePolicy.Window)
+        {
+            info += $" (Duration: {aoeDuration}s)\n";
+        }
+        else if (aoeDamagePolicy == AOEDamagePolicy.Tick)
+        {
+            info += $" (Duration: {aoeDuration}s, Interval: {aoeTickInterval}s)\n";
+        }
+        else
+        {
+            info += "\n";
+        }
         
         return info;
     }

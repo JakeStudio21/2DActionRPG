@@ -31,6 +31,9 @@ MonoBehaviour:
   dashEffectPoolName: DashEffect
   slashEffectPoolName: SlashEffect
   aoeShape: 1
-  aoeSize: {x: 4, y: 2}
+  aoeSize: {x: 12, y: 4}
+  aoeRadius: 10
   aoeFanAngle: 0
   aoeDuration: 0.5
+  telegraphPrefab: {fileID: 4861058780197955906, guid: 9726083a8bb374f4198a6bb4ccdbb766, type: 3}
+  telegraphDuration: 0

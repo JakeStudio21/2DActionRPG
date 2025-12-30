@@ -54,10 +54,20 @@ public class WarriorSkillData : BaseSkillData
     [Tooltip("AOE 크기 (x=반지름 또는 가로, y=세로)")]
     public Vector2 aoeSize = new Vector2(4f, 2f);
     
+    [Tooltip("⭐ Circle AOE 반경 (Circle일 때만 사용)")]
+    public float aoeRadius = 5f;
+    
     [Tooltip("부채꼴 각도 (Fan일 때만)")]
     [Range(0f, 360f)]
     public float aoeFanAngle = 90f;
     
     [Tooltip("AOE 지속시간 (초)")]
     public float aoeDuration = 0.5f;
+    
+    [Header("⭐ Phase 4: Telegraph 설정 (선택)")]
+    [Tooltip("경고 텔레그래프 프리팹 (null이면 텔레그래프 없이 즉시 데미지)")]
+    public GameObject telegraphPrefab;
+    
+    [Tooltip("텔레그래프 표시 시간 (초)")]
+    public float telegraphDuration = 0.3f;
 }

@@ -366,10 +366,11 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
                     angle: SkillData.aoeFanAngle,
                     displayDuration: telegraphDelay,  // ⭐ duration → displayDuration
                     scaleMultiplier: 1.0f,
-                    casterType: AOECasterType.Player
+                    casterType: AOECasterType.Player,
+                    forward: direction  // ⭐ 추가: Forward 방향 전달
                 );
                 
-                Debug.Log($"📍 [AssasinSkill2] Telegraph 생성 완료: {telegraphDelay}초 경고 (반경: {circleRadius})");
+                Debug.Log($"📍 [AssasinSkill2] Telegraph 생성 완료: {telegraphDelay}초 경고 (반경: {circleRadius}, 방향: {direction})");
             }
             else
             {
@@ -425,8 +426,7 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
         // DamageArea는 즉시 판정 후 제거
         Destroy(damageAreaObj, 0.1f);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] DamageArea 생성: {shapeType}, 반경: {circleRadius}, 위치: {position}, 데미지: {Mathf.RoundToInt(SkillData.damage)}");
+        // DamageArea 자체가 로그를 출력하므로 생략
     }
     
     #endregion
