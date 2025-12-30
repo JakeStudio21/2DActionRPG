@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // 🆕 추가: IPointerClickHandler 사용을 위해 필요
+// 🗑️ 제거: IPointerClickHandler 사용 안 함 (Button.onClick 사용)
+// using UnityEngine.EventSystems;
 using TMPro; // 🆕 추가
 
 
@@ -45,7 +46,7 @@ using TMPro; // 🆕 추가
 /// - ActiveInventory (인게임 UI)
 /// - ActiveWeapon (무기 교체)
 
-public class InventorySlot : MonoBehaviour, IPointerClickHandler
+public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHandler (Button.onClick 사용)
 {
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = false; // 🆕 추가: 디버그 로그 제어
@@ -99,16 +100,12 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
         UpdateSlotVisual();
     }
     
-    /// <summary>
-    /// 🖱️ IPointerClickHandler 구현 - Unity 이벤트 시스템 연동
-    /// </summary>
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        OnSlotClicked(); // 기존 로직 재사용
-    }
+    // 🗑️ 제거: OnPointerClick (Button.onClick이 처리)
+    // Button 컴포넌트가 있으므로 OnPointerClick은 불필요
+    // LobbyInventoryUI, ShopInventoryUI가 Button.onClick.AddListener()로 처리
     
     /// <summary>
-    /// 🖱️ 정리된 슬롯 클릭 이벤트 처리 (지연 갱신 최적화)
+    /// 🖱️ 슬롯 클릭 이벤트 처리 (Button.onClick에서 호출됨)
     /// </summary>
     public void OnSlotClicked()
     {
@@ -139,15 +136,13 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
             Debug.Log($"🖱️ [InventorySlot] {environment} 슬롯 클릭: {equipmentData.equipmentName} (인덱스: {slotIndex})");
         }
         
-        // PlayerDataManager 이벤트 발생
-        if (PlayerDataManager.Instance != null)
-        {
-            PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex);
-        }
-        else
-        {
-            Debug.LogError($"❌ [InventorySlot] PlayerDataManager.Instance가 null입니다!");
-        }
+        // 🎯 근본 해결: OnPointerClick 제거로 Button.onClick만 사용
+        // 각 UI에서 Button.onClick.AddListener()로 직접 처리
+        // - LobbyInventoryUI: 로컬 이벤트만 (OnSlotClicked 직접 호출)
+        // - ShopInventoryUI: 전역 이벤트 발생 (TriggerSlotClicked 호출)
+        
+        // ⚠️ 주의: 이 메서드는 Button.onClick에서만 호출되어야 함!
+        // OnPointerClick은 사용하지 않음 (이중 이벤트 방지)
     }
     
     /// <summary>

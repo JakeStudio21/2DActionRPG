@@ -84,7 +84,7 @@ public class ShopInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 이벤트 리스너 설정
+    /// 이벤트 리스너 설정 (근본 해결: OnSlotClicked 구독 제거)
     /// </summary>
     private void SetupEventListeners()
     {
@@ -92,7 +92,8 @@ public class ShopInventoryUI : MonoBehaviour
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
-            PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
+            // 🗑️ 제거: OnSlotClicked 구독 (Button.onClick으로 직접 처리)
+            // PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
         }
     }
     
@@ -128,8 +129,38 @@ public class ShopInventoryUI : MonoBehaviour
             }
         }
         
+        // 🆕 근본 해결: Button.onClick 이벤트 직접 등록
+        SetupShopSlotClickEvents();
+        
         if (showDebugLogs)
             Debug.Log($"🏪 [ShopInventoryUI] {shopInventorySlots.Count}개 슬롯 생성 완료");
+    }
+    
+    /// <summary>
+    /// 🆕 Shop 슬롯 클릭 이벤트 등록 (근본 해결)
+    /// </summary>
+    private void SetupShopSlotClickEvents()
+    {
+        for (int i = 0; i < shopInventorySlots.Count; i++)
+        {
+            if (shopInventorySlots[i] != null)
+            {
+                int slotIndex = i; // 클로저 문제 방지
+                
+                var button = shopInventorySlots[i].GetComponent<Button>();
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    button.onClick.AddListener(() => {
+                        var equipmentData = shopInventorySlots[slotIndex].GetEquipmentData();
+                        HandleSlotClicked(equipmentData, slotIndex);
+                    });
+                }
+            }
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🏪 [ShopInventoryUI] {shopInventorySlots.Count}개 슬롯 클릭 이벤트 등록 완료");
     }
     
     /// <summary>
@@ -159,11 +190,11 @@ public class ShopInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 슬롯 클릭 처리
+    /// 슬롯 클릭 처리 (근본 해결: Button.onClick에서 직접 호출)
     /// </summary>
     private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex)
     {
-        // 상점 환경에서만 처리
+        // Shop 환경에서만 처리 (이미 Button.onClick으로 호출되므로 활성화 상태 보장됨)
         if (equipmentData != null)
         {
             OnInventoryItemClicked?.Invoke(equipmentData, slotIndex);
@@ -202,7 +233,8 @@ public class ShopInventoryUI : MonoBehaviour
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
-            PlayerDataManager.Instance.OnSlotClicked -= HandleSlotClicked;
+            // 🗑️ 제거: OnSlotClicked 구독 해제 (더 이상 구독 안 함)
+            // PlayerDataManager.Instance.OnSlotClicked -= HandleSlotClicked;
             PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForShop;
         }
     }

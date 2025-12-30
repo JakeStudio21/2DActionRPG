@@ -301,7 +301,7 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔧 수정: 상점 열기 시 초기화 (UI 활성화 후 초기화)
+    /// 🔧 수정: 상점 열기 시 초기화 (UI 활성화 후 초기화 + P0 버그 수정)
     /// </summary>
     public void OnShopOpened()
     {
@@ -317,6 +317,12 @@ public class ShopUIController : MonoBehaviour
     
         if (shopUI != null)
         {
+            // 🆕 P0 수정: Shop 열 때 TradeCenterUI 완전 초기화
+            shopUI.ResetTradeCenter();
+            
+            if (showDebugLogs)
+                Debug.Log("🎯 [ShopUIController] Shop 오픈 시 TradeCenterUI 초기화 완료");
+            
             // 🎯 핵심: 상점 패널 먼저 활성화
             shopUI.SetShopPanelActive(true);
             

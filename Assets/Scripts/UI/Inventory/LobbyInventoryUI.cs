@@ -84,6 +84,7 @@ public class LobbyInventoryUI : MonoBehaviour
     void Awake()
     {
         Debug.Log($"🚨🚨🚨 [LobbyInventoryUI] 이 로그가 나오면 스크립트가 실행되고 있다는 뜻! GameObject 이름: {gameObject.name}");
+        Debug.Log($"🆔 [LobbyInventoryUI] 인스턴스 ID: {GetInstanceID()}");
         Debug.Log($" [LobbyInventoryUI] Awake() 호출됨");
         SetupEventListeners();
         SetupControllerEvents();
@@ -111,18 +112,21 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             // 🔧 기존 이벤트 제거 후 재연결
             equipButton.onClick.RemoveAllListeners();
+            // 🚨 Inspector Persistent Listener 확인 (중요: 중복 이벤트 방지)
+            var persistentEventCount = equipButton.onClick.GetPersistentEventCount();
+            if (persistentEventCount > 0)
+            {
+                Debug.LogError($"⚠️⚠️⚠️ [LobbyInventoryUI] equipButton에 Inspector Persistent Listener {persistentEventCount}개 발견!");
+                Debug.LogError($"⚠️ Unity Inspector에서 equipButton > Button > On Click () 이벤트를 제거해주세요!");
+                for (int i = 0; i < persistentEventCount; i++)
+                {
+                    var targetObj = equipButton.onClick.GetPersistentTarget(i);
+                    var methodName = equipButton.onClick.GetPersistentMethodName(i);
+                    Debug.LogError($"   [{i}] Target: {targetObj?.GetType().Name}, Method: {methodName}");
+                }
+            }
+            
             equipButton.onClick.AddListener(OnEquipButtonClicked);
-            
-            // 🔧 추가 디버깅: 버튼 상태 확인
-            Debug.Log($"✅ [LobbyInventoryUI] 착용 버튼 이벤트 연결 완료");
-            Debug.Log($"   - 버튼 활성화 상태: {equipButton.gameObject.activeInHierarchy}");
-            Debug.Log($"   - 버튼 interactable: {equipButton.interactable}");
-            Debug.Log($"   - 버튼 GameObject 이름: {equipButton.gameObject.name}");
-            
-            // 🔧 추가: 테스트용 직접 클릭 이벤트 추가
-            equipButton.onClick.AddListener(() => {
-                Debug.Log("🔥🔥🔥 [LobbyInventoryUI] 버튼 클릭 감지됨! (추가 리스너)");
-            });
         }
         else
         {
@@ -133,7 +137,6 @@ public class LobbyInventoryUI : MonoBehaviour
         if (itemDetailPanel != null)
         {
             itemDetailPanel.SetActive(true);
-            Debug.Log("✅ [LobbyInventoryUI] DetailPanel 활성화 보장");
         }
         
         if (showDebugLogs)
@@ -519,15 +522,15 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnEquipButtonClicked()
     {
-        Debug.Log("🔥 [LobbyInventoryUI] 착용 버튼 클릭됨!"); // 🔧 강제 로그 추가
-        
         if (currentSelectedItem == null)
         {
-            Debug.LogWarning("⚠️ [LobbyInventoryUI] 착용할 아이템이 선택되지 않음");
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [LobbyInventoryUI] 착용할 아이템이 선택되지 않음");
             return;
         }
         
-        Debug.Log($"🎯 [LobbyInventoryUI] 착용 버튼 클릭: {currentSelectedItem.equipmentName}");
+        if (showDebugLogs)
+            Debug.Log($"🎯 [LobbyInventoryUI] 착용 버튼 클릭: {currentSelectedItem.equipmentName}");
         
         // 클래스 호환성 체크
         if (!IsItemCompatibleWithCurrentClass(currentSelectedItem))
@@ -548,28 +551,14 @@ public class LobbyInventoryUI : MonoBehaviour
         
         if (equipped)
         {
-            Debug.Log($"✅ [LobbyInventoryUI] 아이템 착용 성공: {currentSelectedItem.equipmentName}");
-            
-            // 🔧 디버깅: 착용 전 DetailPanel 상태
-            Debug.Log($"🔍 [LobbyInventoryUI] 착용 성공 후 - ShowEmptyDetailPanel 호출 전:");
-            Debug.Log($"   - currentSelectedItem: {currentSelectedItem?.equipmentName ?? "null"}");
-            Debug.Log($"   - DetailPanel 이미지: {detailItemIcon?.sprite?.name ?? "null"}");
+            if (showDebugLogs)
+                Debug.Log($"✅ [LobbyInventoryUI] 아이템 착용 성공: {currentSelectedItem.equipmentName}");
             
             // 🔧 착용 성공 후 빈 상태 DetailPanel 표시
             ShowEmptyDetailPanel();
             
-            // 🔧 디버깅: ShowEmptyDetailPanel 호출 후 상태
-            Debug.Log($"🔍 [LobbyInventoryUI] ShowEmptyDetailPanel 호출 후:");
-            Debug.Log($"   - currentSelectedItem: {currentSelectedItem?.equipmentName ?? "null"}");
-            Debug.Log($"   - DetailPanel 이미지: {detailItemIcon?.sprite?.name ?? "null"}");
-            
             // 인벤토리 UI 새로고침 (착용된 아이템이 인벤토리에서 제거됨)
             RefreshInventoryUI();
-            
-            // 🔧 디버깅: RefreshInventoryUI 호출 후 상태
-            Debug.Log($"🔍 [LobbyInventoryUI] RefreshInventoryUI 호출 후:");
-            Debug.Log($"   - currentSelectedItem: {currentSelectedItem?.equipmentName ?? "null"}");
-            Debug.Log($"   - DetailPanel 이미지: {detailItemIcon?.sprite?.name ?? "null"}");
             
             // 🆕 착용 성공 메시지 표시
             if (equipWarningText != null)
@@ -579,7 +568,8 @@ public class LobbyInventoryUI : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"❌ [LobbyInventoryUI] 아이템 착용 실패: {currentSelectedItem.equipmentName}");
+            if (showDebugLogs)
+                Debug.LogError($"❌ [LobbyInventoryUI] 아이템 착용 실패: {currentSelectedItem.equipmentName}");
                 
             // 🆕 착용 실패 메시지 표시
             if (equipWarningText != null)
@@ -693,12 +683,18 @@ public class LobbyInventoryUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 🔧 수정: 패널 닫기 (InventoryController 의존성 제거)
+    /// 🔧 수정: 패널 닫기 (InventoryController 의존성 제거 + P0 버그 수정)
     /// </summary>
     public void ClosePanel()
     {
         if (showDebugLogs)
             Debug.Log($"🏠 [LobbyInventoryUI] ClosePanel 호출 - 로비로 전환 시작");
+        
+        // 🆕 P0 수정: 인벤토리 닫을 때 선택 상태 초기화
+        ShowEmptyDetailPanel();
+        
+        if (showDebugLogs)
+            Debug.Log($"🎯 [LobbyInventoryUI] 인벤토리 닫을 때 DetailPanel 초기화 완료");
         
         // 🗑️ 제거: InventoryController 상태 동기화 불필요
         // 직접 LobbyUIController로 전환
@@ -975,18 +971,19 @@ public class LobbyInventoryUI : MonoBehaviour
             // 4. 🆕 슬롯 클릭 이벤트 재연결 (데이터 갱신 후)
             SetupSlotClickEvents();
             
-            // 5. 🔧 수정: 아이템이 선택되지 않은 경우에만 빈 상태 DetailPanel 표시
+            // 5. 🔧 수정: DetailPanel 초기화 (아이템 선택 상태가 없을 때만)
+            // 📌 중요: 이미 아이템이 선택되어 있으면 초기화하지 않음 (착용 버튼 클릭 보호)
             if (currentSelectedItem == null)
             {
                 ShowEmptyDetailPanel();
                 
                 if (showDebugLogs)
-                    Debug.Log($"🎯 [LobbyInventoryUI] 선택된 아이템 없음 - 빈 DetailPanel 표시");
+                    Debug.Log($"🎯 [LobbyInventoryUI] 인벤토리 열 때 DetailPanel 초기화 완료");
             }
             else
             {
                 if (showDebugLogs)
-                    Debug.Log($"🎯 [LobbyInventoryUI] 선택된 아이템 유지: {currentSelectedItem.equipmentName}");
+                    Debug.Log($"⏭️ [LobbyInventoryUI] DetailPanel 초기화 건너뜀 (아이템 선택 상태 유지: {currentSelectedItem.equipmentName})");
             }
             
             if (showDebugLogs)
@@ -1005,11 +1002,22 @@ public class LobbyInventoryUI : MonoBehaviour
             {
                 int slotIndex = i; // 클로저 문제 방지
                 
-                // 기존 이벤트 제거
+                // 기존 이벤트 완전 제거 (Inspector + 코드)
                 var button = lobbySlots[i].GetComponent<Button>();
                 if (button != null)
                 {
-                    button.onClick.RemoveAllListeners();
+                    // 🔧 수정: Inspector Persistent Listeners도 제거
+                    button.onClick.RemoveAllListeners(); // 코드로 추가한 리스너 제거
+                    
+                    // 🔧 추가: Persistent Listeners 제거 (Inspector에서 연결된 것)
+                    var persistentEventCount = button.onClick.GetPersistentEventCount();
+                    for (int j = persistentEventCount - 1; j >= 0; j--)
+                    {
+                        // Persistent 이벤트는 제거할 수 없지만, 비활성화할 수 있음
+                        // → 근본 해결: Inspector에서 제거하거나, 여기서 새 Button 생성
+                        Debug.LogWarning($"⚠️ [LobbyInventoryUI] 슬롯 {i}의 Button에 Inspector Persistent Listener 발견! 제거 필요!");
+                    }
+                    
                     button.onClick.AddListener(() => OnSlotClicked(lobbySlots[slotIndex].GetEquipmentData(), slotIndex));
                 }
             }

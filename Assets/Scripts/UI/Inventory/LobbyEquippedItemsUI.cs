@@ -34,6 +34,9 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     [SerializeField] private Sprite assassinClassIcon; 
     [SerializeField] private Sprite wizardClassIcon;
     
+    [Header("🔒 읽기 전용 모드")]
+    [SerializeField] private bool isReadOnly = false; // true: 캐릭터 정보창 (읽기 전용), false: 인벤토리창 (읽기/쓰기)
+    
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
     
@@ -157,12 +160,41 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         var button = slot.GetComponent<UnityEngine.UI.Button>();
         if (button != null)
         {
-            // 기존 클릭 이벤트 제거 후 새로 추가
+            // 🚨 Inspector Persistent Listener 확인 (equipButton 버그와 동일한 문제일 수 있음)
+            var persistentEventCount = button.onClick.GetPersistentEventCount();
+            if (persistentEventCount > 0)
+            {
+                Debug.LogError($"⚠️⚠️⚠️ [LobbyEquippedItemsUI] {equipmentSlot} 슬롯에 Inspector Persistent Listener {persistentEventCount}개 발견!");
+                Debug.LogError($"⚠️ Unity Inspector에서 {slot.gameObject.name} > Button > On Click () 이벤트를 제거해주세요!");
+                for (int i = 0; i < persistentEventCount; i++)
+                {
+                    var targetObj = button.onClick.GetPersistentTarget(i);
+                    var methodName = button.onClick.GetPersistentMethodName(i);
+                    Debug.LogError($"   [{i}] Target: {targetObj?.GetType().Name}, Method: {methodName}");
+                }
+            }
+            
+            // 기존 클릭 이벤트 제거 (코드로 추가된 것만 제거됨)
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => OnEquippedSlotClicked(equipmentSlot));
+            
+        // 🔒 읽기 전용 모드일 때는 클릭 이벤트 연결 안 함
+        if (isReadOnly)
+        {
+            // 버튼 비활성화 (클릭 불가)
+            button.interactable = false;
             
             if (showDebugLogs)
-                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결");
+                Debug.Log($"🔒 [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 읽기 전용 (클릭 비활성화)");
+        }
+        else
+        {
+            // 인벤토리 모드: 클릭 이벤트 연결 (장비 해제 가능)
+            button.onClick.AddListener(() => OnEquippedSlotClicked(equipmentSlot));
+            button.interactable = true;
+            
+            if (showDebugLogs)
+                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결 (장비 해제 가능)");
+        }
         }
         else
         {
@@ -175,6 +207,13 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnEquippedSlotClicked(EquipmentSlot slot)
     {
+        // 🔒 읽기 전용 모드 체크 (안전장치)
+        if (isReadOnly)
+        {
+            Debug.LogWarning($"🔒 [LobbyEquippedItemsUI] 읽기 전용 모드에서 클릭 무시: {slot}");
+            return;
+        }
+        
         if (showDebugLogs)
             Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot} 슬롯 클릭됨");
         

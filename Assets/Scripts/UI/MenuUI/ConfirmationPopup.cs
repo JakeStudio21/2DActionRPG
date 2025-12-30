@@ -68,10 +68,20 @@ public class ConfirmationPopup : MonoBehaviour
             Debug.LogError("[ConfirmationPopup] ❌ cancelButton이 null입니다! Inspector에서 연결해주세요.");
         }
         
-        // 🎯 초기 상태: 그대로 유지 (Panel_Lobby 바로 뒤에 배치되어 있음)
-        // Hide() 호출 불필요 - Hierarchy에서 이미 올바른 위치에 배치됨
+        // 🎯 초기 상태: 팝업 숨김 (비활성화)
+        if (popupPanel != null)
+        {
+            popupPanel.SetActive(false);
+            Debug.Log("[ConfirmationPopup] 초기 상태: popupPanel 비활성화");
+        }
         
-        Debug.Log("[ConfirmationPopup] ✅ 초기화 완료 (현재 위치 유지)");
+        if (backgroundDim != null)
+        {
+            backgroundDim.SetActive(false);
+            Debug.Log("[ConfirmationPopup] 초기 상태: backgroundDim 비활성화");
+        }
+        
+        Debug.Log("[ConfirmationPopup] ✅ 초기화 완료 (팝업 숨김 상태)");
     }
     
     /// <summary>
@@ -111,16 +121,29 @@ public class ConfirmationPopup : MonoBehaviour
             }
         }
         
-        // 콜백 등록
-        onConfirmCallback = onConfirm;
-        onCancelCallback = onCancel;
-        
-        // 🎯 핵심 수정: ConfirmationPopup 자체를 최상위로! (ShopPanel 패턴)
-        // BackgroundDim, PopupPanel은 자식이므로 부모만 이동시키면 됨!
-        transform.SetAsLastSibling();
-        
-        Debug.Log($"[ConfirmationPopup] 🔝 ConfirmationPopup 전체를 최상위로 이동 (Sibling Index: {transform.GetSiblingIndex()})");
-        Debug.Log("[ConfirmationPopup] ✅ 팝업 표시 완료 (Z-Order 방식)");
+    // 콜백 등록
+    onConfirmCallback = onConfirm;
+    onCancelCallback = onCancel;
+    
+    // 🎯 핵심 수정 1: 팝업 UI 활성화 (SetActive)
+    if (backgroundDim != null)
+    {
+        backgroundDim.SetActive(true);
+        Debug.Log("[ConfirmationPopup] ✅ backgroundDim 활성화");
+    }
+    
+    if (popupPanel != null)
+    {
+        popupPanel.SetActive(true);
+        Debug.Log("[ConfirmationPopup] ✅ popupPanel 활성화");
+    }
+    
+    // 🎯 핵심 수정 2: ConfirmationPopup 자체를 최상위로! (Z-Order)
+    // BackgroundDim, PopupPanel은 자식이므로 부모만 이동시키면 됨!
+    transform.SetAsLastSibling();
+    
+    Debug.Log($"[ConfirmationPopup] 🔝 ConfirmationPopup 전체를 최상위로 이동 (Sibling Index: {transform.GetSiblingIndex()})");
+    Debug.Log("[ConfirmationPopup] ✅ 팝업 표시 완료 (SetActive + Z-Order)");
     }
     
     /// <summary>
@@ -132,18 +155,30 @@ public class ConfirmationPopup : MonoBehaviour
     }
     
     /// <summary>
-    /// 팝업 숨기기 (콜백 초기화만, Z-Order 이동 없음)
+    /// 팝업 숨기기 (UI 비활성화 + 콜백 초기화)
     /// </summary>
     public void Hide()
     {
         Debug.Log("[ConfirmationPopup] 팝업 숨기기");
         
-        // 🎯 콜백만 초기화 (Z-Order는 그대로 유지)
-        // ShowLobbyPanel() 등이 호출되면 자연스럽게 뒤로 밀림
+        // 🎯 팝업 UI 비활성화
+        if (popupPanel != null)
+        {
+            popupPanel.SetActive(false);
+            Debug.Log("[ConfirmationPopup] ✅ popupPanel 비활성화");
+        }
+        
+        if (backgroundDim != null)
+        {
+            backgroundDim.SetActive(false);
+            Debug.Log("[ConfirmationPopup] ✅ backgroundDim 비활성화");
+        }
+        
+        // 🎯 콜백 초기화
         onConfirmCallback = null;
         onCancelCallback = null;
         
-        Debug.Log("[ConfirmationPopup] ✅ 팝업 콜백 초기화 완료");
+        Debug.Log("[ConfirmationPopup] ✅ 팝업 숨김 완료");
     }
     
     /// <summary>
