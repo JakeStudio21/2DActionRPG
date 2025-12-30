@@ -115,15 +115,13 @@ public class Projectile : MonoBehaviour
                 // EnemyDamage 컴포넌트에서 데미지 값을 가져와서 적용
                 EnemyDamage enemyDamage = GetComponent<EnemyDamage>();
                 if (player && isEnemyProjectile && enemyDamage != null) {
+                    // 적 발사체 → 플레이어 피격
                     player.TakeDamage(enemyDamage.damageAmount, transform);
-                } else if (enemyHealth && !isEnemyProjectile) {
-                    // 플레이어가 쏘는 발사체의 데미지 로직 (필요 시 수정)
-                    int playerProjectileDamage = 1; // 예시 데미지
-                    enemyHealth.TakeDamage(playerProjectileDamage);
-                    
-                    // ⭐ Phase 1-2: 히트 이펙트 Cue 발행 (플레이어 발사체만)
-                    EmitHitEffectCue(transform.position);
                 }
+                // ✅ 플레이어 발사체는 DamageSource.cs가 데미지를 처리하므로 여기서는 Skip
+                // else if (enemyHealth && !isEnemyProjectile) {
+                //     // DamageSource.cs가 이미 데미지를 적용함
+                // }
 
                 // 🔑 VFX 생성 (Fallback)
                 if (particleOnHitPrefabVFX != null)

@@ -175,6 +175,17 @@ public class PlayerHealth : MonoBehaviour
         canTakeDamage = false;
         currentHealth -= damageAmount;
         
+        // ⭐ 데미지 넘버 표시 (Phase 1 + 앵커 시스템)
+        if (DamageNumberManager.Instance != null)
+        {
+            DamageNumberManager.Instance.ShowDamage(
+                transform.position, 
+                damageAmount, 
+                isPlayer: true, 
+                targetTransform: transform  // ⭐ 앵커 검색용
+            );
+        }
+        
         UpdateUI();
         
         StartCoroutine(DamageRecoveryRoutine());

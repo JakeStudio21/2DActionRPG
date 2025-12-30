@@ -102,6 +102,64 @@ MonoBehaviour:
   normalIntensity: 1
   strongIntensity: 2
   massiveIntensity: 4
+--- !u!1 &1149777301974655105
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6254031453678348483}
+  - component: {fileID: 7197134773006822052}
+  m_Layer: 0
+  m_Name: DamageNumberManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6254031453678348483
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149777301974655105}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.6240046, y: 1.8982166, z: -0.04361349}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7166106308255166314}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7197134773006822052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1149777301974655105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39bbe0619e58145478378921c9596201, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageNumberPrefab: {fileID: 4464225106398181091, guid: b7ef8f44a749c1f46b4ea63596249c28, type: 3}
+  playerDamageOffsetY: 1.2
+  enemyDamageOffsetY: 1.2
+  normalDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  playerHitDamageColor: {r: 1, g: 0, b: 0, a: 1}
+  criticalDamageColor: {r: 1, g: 0.6, b: 0, a: 1}
+  dotDamageColor: {r: 0.7, g: 0, b: 1, a: 1}
+  healColor: {r: 0, g: 1, b: 0, a: 1}
+  normalDamageScale: 1
+  playerHitDamageScale: 1
+  criticalDamageScale: 1.5
+  dotDamageScale: 0.8
+  healScale: 1.2
+  enableDebugLogs: 0
 --- !u!1 &2952044546922807476
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,6 +289,7 @@ Transform:
   - {fileID: 5721320510519839973}
   - {fileID: 707569810263958521}
   - {fileID: 1185670323770083567}
+  - {fileID: 6254031453678348483}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4639642882801342193

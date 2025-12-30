@@ -218,6 +218,17 @@ public class EnemyHealth : MonoBehaviour
 
         currentHealth -= damage;
         
+        // ⭐ 데미지 넘버 표시 (Phase 1 + 앵커 시스템)
+        if (DamageNumberManager.Instance != null)
+        {
+            DamageNumberManager.Instance.ShowDamage(
+                transform.position, 
+                damage, 
+                isPlayer: false, 
+                targetTransform: transform  // ⭐ 앵커 검색용
+            );
+        }
+        
         // ⭐ 피격 이벤트 발생 (튜토리얼용)
         OnTakeDamageEvent?.Invoke();
         
