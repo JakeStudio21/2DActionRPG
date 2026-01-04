@@ -176,6 +176,13 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
             outlineAnimator.speed = animator.speed;
             outlineAnimator.SetFloat("speed", animator.GetFloat("speed"));
             // 필요하면 다른 파라미터도 동기화
+            
+            // ★ 쉐이더 파라미터 실시간 업데이트 (Inspector 값 변경 반영)
+            if (outlineMaterial != null && outlineMaterial.HasProperty("_OutlineWidth"))
+            {
+                float shaderThickness = (outlineThickness - 1.0f) * 0.3f; // 1.03 → 0.009
+                outlineMaterial.SetFloat("_OutlineWidth", shaderThickness);
+            }
         }
     }
 
@@ -329,7 +336,8 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
         outlineInstance.transform.SetParent(captureRoot, false);
         outlineInstance.transform.localPosition = followTarget.position - captureRoot.position; // 월드 좌표 기준으로 초기 위치 설정
         outlineInstance.transform.localRotation = Quaternion.identity; // 캐릭터와 동일한 회전
-        outlineInstance.transform.localScale = Vector3.one * outlineThickness; // 아웃라인 두께만큼 크게
+        // ★ Scale은 원본과 동일하게 (쉐이더가 아웃라인 두께 처리)
+        outlineInstance.transform.localScale = Vector3.one;
         
         // 디버그: 아웃라인 부모 설정 확인
         Debug.Log($"[AnimationRenderer8Direction_Rotate] 아웃라인 부모 설정: {outlineInstance.transform.parent.name}");
@@ -358,9 +366,11 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
             outlineMaterial.SetColor("_OutlineColor", outlineColor);
             outlineMaterial.SetColor("_BaseColor", outlineColor); // Unlit fallback용
             
-            // Cull Front: 뒷면만 렌더링 (Inverted Hull 기법)
-            outlineMaterial.SetFloat("_Cull", 1); // Front
-            outlineMaterial.SetFloat("_ZWrite", 0); // 깊이 쓰기 끄기 (캐릭터에 가려지도록)
+            // ★ 쉐이더 기반 아웃라인 두께 설정 (균일한 아웃라인)
+            float shaderThickness = (outlineThickness - 1.0f) * 0.3f; // 1.03 → 0.009
+            outlineMaterial.SetFloat("_OutlineWidth", shaderThickness);
+            
+            // Render Queue 설정
             outlineMaterial.renderQueue = 2000; // 원본 캐릭터보다 먼저 렌더링
         }
 
