@@ -290,10 +290,11 @@ public class ShopUIController : MonoBehaviour
             shopUI.ResetTradeCenter();
         }
         
-        // 로비로 돌아가기
+        // ✅ 로비로 돌아가기 (저장 포함)
         if (lobbyUIController != null)
         {
-            lobbyUIController.ShowLobbyPanel();
+            // ✅ ShowLobbyPanel() 대신 OnBackToLobby() 호출 (저장 포함)
+            lobbyUIController.OnBackToLobby();
         }
         
         if (showDebugLogs)

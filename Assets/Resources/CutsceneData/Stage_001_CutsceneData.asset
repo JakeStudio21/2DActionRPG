@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cutsceneId: Ingame_001
   cutsceneName: "\uD14C\uC2A4\uD2B8 \uC778\uAC8C\uC784 \uCEF7\uC2E0"
-  cutsceneType: 0
+  cutsceneType: 1
   steps:
   - stepType: 1
     duration: 0
@@ -30,6 +30,9 @@ MonoBehaviour:
     typingSpeed: 10
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 3
@@ -46,6 +49,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: sfx.rain
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
@@ -62,6 +68,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 1
@@ -78,6 +87,9 @@ MonoBehaviour:
     typingSpeed: 10
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
@@ -94,6 +106,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 3
@@ -110,6 +125,9 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: sfx.rain
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 1
@@ -126,6 +144,9 @@ MonoBehaviour:
     typingSpeed: 10
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 0
@@ -142,10 +163,15 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
     callbackMethodName: 
     note: 
   pauseGameOnStart: 1
   canSkip: 1
   playOnce: 0
   canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  bgmEventKey: 
+  resumePreviousBGM: 1
   description: 

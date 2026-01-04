@@ -197,6 +197,12 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void ReturnToLobby()
     {
+        // 🔧 의미 있는 이벤트: 로비 복귀 → 저장
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("ReturnToLobby");
+        }
+        
         currentGameState = GameState.Lobby;
         
         // 로비 씬 로드 후 메인 패널 활성화

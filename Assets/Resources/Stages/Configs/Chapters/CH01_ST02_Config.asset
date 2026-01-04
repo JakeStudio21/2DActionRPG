@@ -19,8 +19,9 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 1
   stageIndexInChapter: 2
-  enterCutsceneId: 
-  clearCutsceneId: 
+  chapterStartCutsceneId: 
+  enterCutsceneId: CH01_ST02_START
+  clearCutsceneId: CH01_ST02_CLEAR
   isReplaySkipCutscene: 1
   RequiredLevel: 5
   UnlockCondition: Clear:CH01_ST01
@@ -28,7 +29,7 @@ MonoBehaviour:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
   WaveCount: 3
-  TimeLimitSec: 60
+  TimeLimitSec: 30
   Victory: 2
   FirstClearDropGroupId: DROP_CH01_ST02_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST02_REPEAT

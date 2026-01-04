@@ -12,28 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 513eac7d499f5b34fac3ea7eefef983f, type: 3}
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
-  selectedSlotIndex: 0
-  playerName: qwdqwdqw
+  selectedSlotIndex: 2
+  playerName: DA
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 9
-  currentExp: 100
-  expToNextLevel: 500
-  currentGold: 6224
-  runtimeInventoryItems:
-  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  currentLevel: 2
+  currentExp: 50
+  expToNextLevel: 150
+  currentGold: 450
+  lastPlayTime: 2026-01-03 22:44:27
+  runtimeInventoryItems: []
   equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
   equippedSlotValues:
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
   - {fileID: 0}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 345e49f53daab344da7a9e5256a00e77, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -47,232 +41,235 @@ MonoBehaviour:
   - backAttackBonus
   runtimeStatValues:
   - 0.15
-  - 0.1
+  - 0.05
   - 2
-  - 1.3
+  - 1.5
   pendingCutsceneId: 
   pendingChapterId: 0
-  clearedChapters: 010000000200000003000000
+  clearedChapters: 
   seenChapterStart:
   - CH01_START
-  seenChapterClear: []
+  - CH01_ST01_START
+  - CH01_ST02_START
+  seenChapterClear:
+  - CH01_ST01_CLEAR
   seenStageEnter: []
   seenStageClear: []
   currentChapterId: 1
-  lastPlayedStageId: CH01_ST01
+  lastPlayedStageId: CH01_ST02
   stageProgresses:
   - stageId: CH01_ST01
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 60
-    clearCount: 7
-    lastPlayedTime: 2025-12-30T15:03:32.6360357+09:00
-  - stageId: CH01_ST02
-    isUnlocked: 1
-    isCompleted: 1
-    isFirstClearRewarded: 0
-    bestClearTime: 60
+    bestClearTime: 30
     clearCount: 1
-    lastPlayedTime: 2025-12-28T17:37:56.0267170+09:00
-  - stageId: CH01_ST03
+    lastPlayedTime: 2026-01-03T22:41:34.7522711+09:00
+  - stageId: CH01_ST02
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
     bestClearTime: 30
     clearCount: 1
-    lastPlayedTime: 2025-12-28T17:38:38.9641891+09:00
-  - stageId: CH01_ST04
+    lastPlayedTime: 2026-01-03T22:42:54.0451113+09:00
+  - stageId: CH01_ST03
     isUnlocked: 1
-    isCompleted: 1
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
+  - stageId: CH01_ST04
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH01_ST05
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH01_ST06
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH01_ST07
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH01_ST08
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH01_ST09
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH01_ST10
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 120
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T18:57:36.7196781+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST01
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 2
-    lastPlayedTime: 2025-12-28T17:43:31.9126437+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST02
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 2
-    lastPlayedTime: 2025-12-28T19:05:23.5597875+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST03
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:40:19.4345656+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST04
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:40:29.9589259+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST05
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:40:55.3256803+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST06
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:41:05.3163927+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST07
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:41:29.1051276+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST08
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:41:39.8170719+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST09
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:41:49.7338294+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH02_ST10
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T17:42:09.9643748+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST01
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 3
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T18:48:16.2210184+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST02
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:05:00.6914018+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST03
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:05:43.2402732+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST04
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:08:37.4589825+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST05
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:09:47.4559823+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST06
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:12:25.1245947+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST07
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:12:34.2945880+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST08
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:12:42.3983805+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST09
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:12:54.1924225+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH03_ST10
-    isUnlocked: 1
-    isCompleted: 1
+    isUnlocked: 0
+    isCompleted: 0
     isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2025-12-28T19:13:02.9448599+09:00
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH04_ST01
-    isUnlocked: 1
+    isUnlocked: 0
     isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647

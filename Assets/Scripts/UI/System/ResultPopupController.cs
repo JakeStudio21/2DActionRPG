@@ -42,6 +42,12 @@ public class ResultPopupController : MonoBehaviour
     {
         Time.timeScale = 1f;
 
+        // 🔧 의미 있는 이벤트: 로비 복귀 → 저장
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("ResultPopup_ReturnToLobby");
+        }
+
         // ✅ Unity가 자동으로 오브젝트를 정리하므로 수동 파괴 제거
         // 씬 전환 시 모든 오브젝트는 자동으로 정리됨
         

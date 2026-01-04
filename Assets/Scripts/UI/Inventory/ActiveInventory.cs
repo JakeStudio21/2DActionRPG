@@ -416,9 +416,16 @@ public class ActiveInventory : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             Transform inventorySlot = transform.GetChild(i);
-            if (inventorySlot.childCount > 0)
+            
+            // 🔧 수정: GetChild(0) 대신 이름으로 Highlight 찾기 (UIButtonClickEffect 호환)
+            Transform highlight = inventorySlot.Find("Highlight");
+            if (highlight != null)
             {
-                inventorySlot.GetChild(0).gameObject.SetActive(i == activeSlotIndexNum);
+                highlight.gameObject.SetActive(i == activeSlotIndexNum);
+            }
+            else if (showDebugLogs)
+            {
+                Debug.Log($"🔍 [ActiveInventory] {inventorySlot.name}에 Highlight 없음 (정상 - 새 구조)");
             }
         }
     }
@@ -438,17 +445,37 @@ public class ActiveInventory : MonoBehaviour
         
         Debug.Log($"🔄 [ActiveInventory] 슬롯 {indexNum}번으로 변경 중...");
 
+        // 🔧 수정: GetChild(0) 대신 이름으로 Highlight 찾기 (UIButtonClickEffect 호환)
         foreach (Transform inventorySlot in this.transform)
         {
-            inventorySlot.GetChild(0).gameObject.SetActive(false);
+            Transform highlight = inventorySlot.Find("Highlight");
+            if (highlight != null)
+            {
+                highlight.gameObject.SetActive(false);
+            }
+            else if (showDebugLogs)
+            {
+                Debug.Log($"🔍 [ActiveInventory] {inventorySlot.name}에 Highlight 없음 (정상 - 새 구조)");
+            }
         }
 
         // 🔑 안전한 자식 접근
         Transform targetSlot = this.transform.GetChild(indexNum);
-        if (targetSlot != null && targetSlot.childCount > 0) {
-            targetSlot.GetChild(0).gameObject.SetActive(true);
-        } else {
-            Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {indexNum}에 하이라이트 자식이 없습니다");
+        if (targetSlot != null)
+        {
+            Transform targetHighlight = targetSlot.Find("Highlight");
+            if (targetHighlight != null)
+            {
+                targetHighlight.gameObject.SetActive(true);
+            }
+            else if (showDebugLogs)
+            {
+                Debug.Log($"🔍 [ActiveInventory] 슬롯 {indexNum}에 Highlight 없음 (정상 - 새 구조)");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {indexNum}을 찾을 수 없습니다");
         }
 
         // ChangeActiveWeapon(); // 🗑️ 제거: 새로운 이벤트 시스템에서 불필요

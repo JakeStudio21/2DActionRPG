@@ -19,8 +19,9 @@ MonoBehaviour:
   sfxCatalog:
   - sfxId: bgm_intro
     audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 0
@@ -28,8 +29,9 @@ MonoBehaviour:
     note: 
   - sfxId: image_appear
     audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -37,8 +39,9 @@ MonoBehaviour:
     note: 
   - sfxId: dialogue_type
     audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 0
@@ -46,8 +49,9 @@ MonoBehaviour:
     note: 
   - sfxId: scene_end
     audioClip: {fileID: 8300000, guid: 457b5dea20edd4e9d94f5ad4d9bc008c, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 0

@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d776b06ddd9c454abe7d7193af5b7cf, type: 3}
+  m_Name: CH01_ST02_CLEAR
+  m_EditorClassIdentifier: 
+  cutsceneId: CH01_ST02_CLEAR
+  cutsceneName: "\uCC55\uD1301\uC2A4\uD14C\uC774\uC9C0 2 \uD074\uB9AC\uC5B4"
+  cutsceneType: 1
+  steps:
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: 
+    dialogueText: "\uC774\uAC83\uC740 \uCC55\uD1301 \uC2A4\uD14C\uC774\uC9C02 \uD074\uB9AC\uC5B4
+      \uC2A4\uD14C\uC774\uC9C0 \uCEF7\uC2E0\uC785\uB2C8\uB2E4."
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: "\uAC00\uC774\uB4DC"
+    dialogueText: "\uC774\uAC83\uC740 \uCC55\uD1301 \uC2A4\uD14C\uC774\uC9C03\uB85C
+      \uB5A0\uB0A0 \uC900\uBE44\uAC00 \uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: "\uAC00\uC774\uB4DC"
+    dialogueText: "\uB354 \uAC15\uB825\uD55C \uC801\uB4E4\uC774 \uAE30\uB2E4\uB9AC\uACE0
+      \uC788\uC744 \uAC83\uC785\uB2C8\uB2E4. \uC870\uC2EC\uD558\uC138\uC694!"
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  pauseGameOnStart: 1
+  canSkip: 1
+  playOnce: 0
+  canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  bgmEventKey: 
+  resumePreviousBGM: 1
+  description: "\uCC55\uD130 1 (Stage 10) \uD074\uB9AC\uC5B4 \uD6C4 \uB85C\uBE44\uC5D0\uC11C
+    \uC7AC\uC0DD\uB418\uB294 \uC885\uB8CC \uCEF7\uC2E0\uC785\uB2C8\uB2E4."

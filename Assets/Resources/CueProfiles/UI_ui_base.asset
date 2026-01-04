@@ -79,11 +79,39 @@ MonoBehaviour:
     priority: 40
     cooldown: 0
     note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38 VFX"
+  - vfxId: ButtonNavigationVFX
+    poolKey: VFX_Click_02
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 20
+    cooldown: 0.1
+    note: "\uB124\uBE44\uAC8C\uC774\uC158 \uBC84\uD2BC VFX"
+  - vfxId: ButtonActionVFX
+    poolKey: VFX_Click_02
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 35
+    cooldown: 0.1
+    note: "\uC561\uC158 \uBC84\uD2BC VFX"
+  - vfxId: ButtonUtilityVFX
+    poolKey: VFX_Click_02
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 10
+    cooldown: 0.1
+    note: "\uC720\uD2F8\uB9AC\uD2F0 \uBC84\uD2BC VFX"
   sfxCatalog:
   - sfxId: ButtonClickSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.5
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 30
@@ -93,6 +121,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.6
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 40
@@ -102,6 +131,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.5
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 30
@@ -111,6 +141,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 50
@@ -120,6 +151,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.6
     pitch: 1.1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 45
@@ -129,6 +161,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 55
@@ -138,11 +171,42 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 40
     cooldown: 0
     note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38 \uC0AC\uC6B4\uB4DC"
+  - sfxId: ButtonNavigationSound
+    audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
+    volume: 2
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 20
+    cooldown: 0.1
+    note: "\uB124\uBE44\uAC8C\uC774\uC158\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
+  - sfxId: ButtonActionSound
+    audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
+    volume: 2
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 30
+    cooldown: 0.1
+    note: "\uC561\uC158\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
+  - sfxId: ButtonUtilitySound
+    audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
+    volume: 2
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 15
+    cooldown: 0.1
+    note: "\uC720\uD2F8\uB9AC\uD2F0\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
   entries:
   - eventKey: ui.button.click
     vfxIds:
@@ -225,4 +289,31 @@ MonoBehaviour:
     cameraShakePreset: None
     timeStopMs: 20
     note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38"
+  - eventKey: ui.button.navigation
+    vfxIds:
+    - ButtonNavigationVFX
+    sfxIds:
+    - ButtonNavigationSound
+    priority: 1
+    cameraShakePreset: None
+    timeStopMs: 5
+    note: "\uB124\uBE44\uAC8C\uC774\uC158 \uBC84\uD2BC \uD074\uB9AD"
+  - eventKey: ui.button.action
+    vfxIds:
+    - ButtonActionVFX
+    sfxIds:
+    - ButtonActionSound
+    priority: 1
+    cameraShakePreset: None
+    timeStopMs: 15
+    note: "\uC561\uC158 \uBC84\uD2BC \uD074\uB9AD"
+  - eventKey: ui.button.utility
+    vfxIds:
+    - ButtonUtilityVFX
+    sfxIds:
+    - ButtonUtilitySound
+    priority: 1
+    cameraShakePreset: None
+    timeStopMs: 3
+    note: "\uC720\uD2F8\uB9AC\uD2F0 \uBC84\uD2BC \uD074\uB9AD"
   description: "UI \uAE30\uBCF8 \uD504\uB85C\uD544"

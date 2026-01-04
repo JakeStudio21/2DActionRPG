@@ -149,6 +149,12 @@ public class TutorialManager : MonoBehaviour
             Debug.Log("[TutorialManager] Lobby로 복귀 중...");
         }
         
+        // 🔧 의미 있는 이벤트: 로비 복귀 → 저장
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("Tutorial_ReturnToLobby");
+        }
+        
         // 단순히 Lobby 씬 로드
         // TutorialManager는 씬 언로드 시 자동으로 파괴됨
         SceneManager.LoadScene("Lobby");

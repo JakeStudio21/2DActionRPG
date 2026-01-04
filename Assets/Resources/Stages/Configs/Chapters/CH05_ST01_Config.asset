@@ -19,7 +19,8 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 5
   stageIndexInChapter: 1
-  enterCutsceneId: CH05_START
+  chapterStartCutsceneId: CH05_START
+  enterCutsceneId: 
   clearCutsceneId: 
   isReplaySkipCutscene: 1
   RequiredLevel: 25

@@ -795,6 +795,9 @@ public class GamePoolManager : Singleton<GamePoolManager>
                 CreatePoolSetting("ShopBuyVFX", "ShopBuyVFX", 3),
                 CreatePoolSetting("InventoryFullVFX", "InventoryFullVFX", 3),
                 
+                // 🆕 버튼 클릭 VFX (Navigation, Action, Utility 버튼 공용)
+                CreatePoolSetting("VFX_Click_02", "VFX_Click_02", 10),
+                
                 // 기본 VFX (fallback용)
                 CreatePoolSetting("Death VFX", "Death VFX", 10),
                 CreatePoolSetting("Barrel VFX", "Barrel VFX", 5)

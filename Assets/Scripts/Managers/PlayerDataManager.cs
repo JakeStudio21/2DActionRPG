@@ -20,6 +20,9 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [SerializeField] private string saveDirectory = "PlayerSlots"; // 저장 폴더명
     
     [Header("🎯 런타임 데이터 캐시")]
+    [Tooltip("⭐ 런타임 데이터의 단일 소스 (Single Source of Truth)\n" +
+             "모든 런타임 데이터 접근은 이 객체를 통해 수행\n" +
+             "변경 후 반드시 MarkDirty() 호출 필수!")]
     public SelectedPlayerData selectedPlayerData; // ScriptableObject 참조 (public으로 변경)
     
     [Header("📊 슬롯 상태")]
@@ -33,6 +36,10 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
+    
+    [Header("🔧 Dirty Flag 시스템")]
+    [SerializeField] private bool isDirty = false;
+    [SerializeField] private bool isLoading = false; // 로딩 중 저장 방지
     
     // 이벤트 시스템 (기존 호환성 유지)
     public event Action<int> OnGoldChanged;
@@ -145,21 +152,31 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     // 🆕 앱 생명주기 이벤트 처리 (게임 종료 시 저장)
     private void OnApplicationPause(bool pauseStatus)
     {
+        #if UNITY_EDITOR
+        // Unity Editor에서는 Pause 이벤트 무시 (Editor UI 조작 시 불필요한 저장 방지)
+        if (showDebugLogs)
+            Debug.Log($"⏭️ [OnApplicationPause] Unity Editor에서는 무시");
+        return;
+        #endif
+        
         if (pauseStatus && IsSlotSelected)
         {
-            SaveCurrentSlot();
-            if (showDebugLogs)
-                Debug.Log("[PlayerDataManager] 앱 일시정지 시 데이터 저장");
+            SaveOnMeaningfulEvent("ApplicationPause");
         }
     }
     
     private void OnApplicationFocus(bool hasFocus)
     {
+        #if UNITY_EDITOR
+        // Unity Editor에서는 Focus 이벤트 무시 (Inspector/Hierarchy 클릭 시 불필요한 저장 방지)
+        if (showDebugLogs)
+            Debug.Log($"⏭️ [OnApplicationFocus] Unity Editor에서는 무시");
+        return;
+        #endif
+        
         if (!hasFocus && IsSlotSelected)
         {
-            SaveCurrentSlot();
-            if (showDebugLogs)
-                Debug.Log("[PlayerDataManager] 앱 포커스 해제 시 데이터 저장");
+            SaveOnMeaningfulEvent("ApplicationFocusLost");
         }
     }
     
@@ -167,10 +184,84 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         if (IsSlotSelected)
         {
-            SaveCurrentSlot();
-            if (showDebugLogs)
-                Debug.Log("[PlayerDataManager] 앱 종료 시 데이터 저장");
+            SaveOnMeaningfulEvent("ApplicationQuit");
         }
+    }
+    
+    // ============================================
+    // 🔧 Dirty Flag 시스템
+    // ============================================
+    
+    /// <summary>
+    /// 데이터가 변경되었음을 표시 (저장 필요)
+    /// </summary>
+    public void MarkDirty()
+    {
+        if (isLoading)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [Dirty Flag] 로딩 중에는 Dirty를 켜지 않음");
+            return;
+        }
+        
+        isDirty = true;
+        if (showDebugLogs)
+            Debug.Log($"🔧 [Dirty Flag] 슬롯 {currentSlotIndex} 데이터 변경됨");
+    }
+    
+    /// <summary>
+    /// 저장 완료 후 Dirty 플래그 초기화
+    /// </summary>
+    private void ClearDirty()
+    {
+        isDirty = false;
+        if (showDebugLogs)
+            Debug.Log($"✅ [Dirty Flag] 슬롯 {currentSlotIndex} 저장 완료 → Dirty 플래그 초기화");
+    }
+    
+    /// <summary>
+    /// lastPlayTime을 현재 시각으로 업데이트 (의미 있는 이벤트에서만 호출)
+    /// </summary>
+    private void UpdateLastPlayTime()
+    {
+        if (selectedPlayerData != null)
+        {
+            selectedPlayerData.lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            MarkDirty(); // lastPlayTime 갱신도 변경으로 간주
+            if (showDebugLogs)
+                Debug.Log($"⏰ [LastPlayTime] 갱신: {selectedPlayerData.lastPlayTime}");
+        }
+    }
+    
+    /// <summary>
+    /// 의미 있는 이벤트(스테이지 클리어, 앱 종료 등)에서 호출되는 저장 메서드
+    /// lastPlayTime을 갱신하고, Dirty가 true일 때만 실제 저장 수행
+    /// </summary>
+    /// <param name="eventName">이벤트 이름 (디버깅용)</param>
+    public void SaveOnMeaningfulEvent(string eventName)
+    {
+        if (showDebugLogs)
+            Debug.Log($"📌 [SaveOnMeaningfulEvent] 이벤트: {eventName}");
+        
+        // lastPlayTime 갱신 (의미 있는 플레이 종료 시점)
+        UpdateLastPlayTime();
+        
+        // Dirty 체크: 변경사항이 있을 때만 저장
+        if (!isDirty)
+        {
+            if (showDebugLogs)
+                Debug.Log($"⏭️ [SaveOnMeaningfulEvent] Dirty가 false → 저장 생략");
+            return;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"💾 [SaveOnMeaningfulEvent] SaveCurrentSlot() 호출 중...");
+        
+        // 통일된 저장 경로: SaveCurrentSlot() 호출
+        bool success = SaveCurrentSlot();
+        
+        if (showDebugLogs)
+            Debug.Log($"💾 [SaveOnMeaningfulEvent] SaveCurrentSlot() 완료 - 성공: {success}");
     }
     
     private void Start()
@@ -433,16 +524,57 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool SaveCurrentSlot()
     {
-        if (!IsSlotSelected) return false;
+        if (showDebugLogs)
+            Debug.Log($"💾 [SaveCurrentSlot] 시작 - IsSlotSelected: {IsSlotSelected}, isDirty: {isDirty}");
+        
+        if (!IsSlotSelected)
+        {
+            if (showDebugLogs)
+                Debug.LogError($"❌ [SaveCurrentSlot] 슬롯이 선택되지 않음");
+            return false;
+        }
+        
+        // 🔧 Dirty 체크: 변경사항이 없으면 저장 생략
+        if (!isDirty)
+        {
+            if (showDebugLogs)
+                Debug.Log("⏭️ [SaveCurrentSlot] Dirty가 false → 저장 생략");
+            return true; // 저장 불필요 = 성공으로 간주
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📦 [SaveCurrentSlot] SaveToSlotData() 호출 중...");
         
         // ✅ SaveToSlotData()가 모든 필드를 완전 복제하므로 그대로 사용
         var slotData = selectedPlayerData.SaveToSlotData();
         
-        // ❌ Phase 1 임시 패치 완전 제거!
-        // 기존: 수동으로 챕터 필드 복사 (19줄) → 삭제 완료!
-        // SaveToSlotData()에서 이미 모든 필드를 복사하므로 불필요함
+        if (showDebugLogs)
+        {
+            Debug.Log($"📦 [SaveCurrentSlot] SaveToSlotData() 완료 - 장착 아이템: {slotData.equippedItemNames.Count}개");
+            foreach (var equipped in slotData.equippedItemNames)
+            {
+                Debug.Log($"   ⚔️ 저장할 장착 아이템 [{equipped.Key}]: {equipped.Value}");
+            }
+        }
         
-        return SaveSlotData(slotData);
+        if (showDebugLogs)
+            Debug.Log($"💾 [SaveCurrentSlot] SaveSlotData() 호출 중...");
+        
+        // 저장 실행
+        bool success = SaveSlotData(slotData);
+        
+        if (showDebugLogs)
+            Debug.Log($"💾 [SaveCurrentSlot] SaveSlotData() 완료 - 성공: {success}");
+        
+        // 저장 성공 시 Dirty 플래그 초기화
+        if (success)
+        {
+            ClearDirty();
+            if (showDebugLogs)
+                Debug.Log($"✅ [SaveCurrentSlot] Dirty 플래그 초기화 완료");
+        }
+        
+        return success;
     }
     
     /// <summary>
@@ -482,15 +614,39 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool SelectSlot(int slotIndex)
     {
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        Debug.Log($"🔄 [SelectSlot] 슬롯 {slotIndex} 전환 시작");
+        Debug.Log($"   ⏰ 현재 선택된 슬롯: {currentSlotIndex}");
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        
         if (slotIndex < 0 || slotIndex >= maxSlots) return false;
         
         var slotData = GetSlotData(slotIndex);
         if (slotData == null || !slotData.isSlotUsed)
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [PlayerDataManager] 슬롯 {slotIndex}는 사용되지 않음");
+            Debug.LogError($"❌ [PlayerDataManager] 슬롯 {slotIndex}는 사용되지 않음");
             return false;
         }
+        
+        // 🆕 디버그: 로드할 슬롯 데이터 상태 확인
+        Debug.Log($"📊 [SelectSlot] 슬롯 {slotIndex} 데이터 확인:");
+        Debug.Log($"   - 캐릭터: {slotData.playerName} ({slotData.playerType})");
+        Debug.Log($"   - 레벨: {slotData.level}, 골드: {slotData.gold}");
+        Debug.Log($"   - 인벤토리 아이템: {slotData.inventoryItemNames.Count}개");
+        Debug.Log($"   - 장착 아이템: {slotData.equippedItemNames.Count}개");
+        
+        for (int i = 0; i < Mathf.Min(slotData.inventoryItemNames.Count, 5); i++)
+        {
+            Debug.Log($"     📦 인벤토리[{i}]: {slotData.inventoryItemNames[i]}");
+        }
+        
+        foreach (var equipped in slotData.equippedItemNames)
+        {
+            Debug.Log($"     ⚔️ 장착[{equipped.Key}]: {equipped.Value}");
+        }
+        
+        // 🔧 로딩 시작: Dirty 플래그 방지
+        isLoading = true;
         
         // 🎯 핵심: 기존의 완벽한 LoadFromSlotData 활용
         currentSlotIndex = slotIndex;
@@ -501,31 +657,65 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (selectedPlayerData != null)
         {
+            Debug.Log($"📥 [SelectSlot] SelectedPlayerData에 로드 시작...");
             selectedPlayerData.LoadFromSlotData(slotData);
-            Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 완전 전환: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
+            
+            // 🆕 디버그: 로드 후 SelectedPlayerData 상태 확인
+            Debug.Log($"✅ [SelectSlot] SelectedPlayerData 로드 완료:");
+            Debug.Log($"   - selectedSlotIndex: {selectedPlayerData.selectedSlotIndex}");
+            Debug.Log($"   - playerName: {selectedPlayerData.playerName}");
+            Debug.Log($"   - playerType: {selectedPlayerData.selectedPlayerType}");
+            Debug.Log($"   - level: {selectedPlayerData.currentLevel}");
+            Debug.Log($"   - gold: {selectedPlayerData.currentGold}");
+            Debug.Log($"   - 인벤토리 아이템: {selectedPlayerData.runtimeInventoryItems.Count}개");
+            Debug.Log($"   - 장착 아이템: {selectedPlayerData.RuntimeEquippedItems.Count}개");
+            
+            for (int i = 0; i < Mathf.Min(selectedPlayerData.runtimeInventoryItems.Count, 5); i++)
+            {
+                var item = selectedPlayerData.runtimeInventoryItems[i];
+                Debug.Log($"     📦 selectedPlayerData.inventory[{i}]: {item?.equipmentName ?? "null"}");
+            }
+            
+            foreach (var equipped in selectedPlayerData.RuntimeEquippedItems)
+            {
+                if (equipped.Value != null)
+                    Debug.Log($"     ⚔️ selectedPlayerData.equipped[{equipped.Key}]: {equipped.Value.equipmentName}");
+            }
             
             // ✅ 추가: GameManager와 완벽 동기화 (핵심 수정)
             if (GameManager.Instance?.selectedPlayerData != null)
             {
+                Debug.Log($"🔗 [SelectSlot] GameManager.selectedPlayerData 동기화 시작...");
                 GameManager.Instance.selectedPlayerData.LoadFromSlotData(slotData);
-                Debug.Log($"🔗 [PlayerDataManager] GameManager 동기화 완료: {slotData.playerType}");
+                Debug.Log($"✅ [SelectSlot] GameManager.selectedPlayerData 동기화 완료");
             }
             else
             {
-                Debug.LogWarning("⚠️ [PlayerDataManager] GameManager 동기화 실패 - GameManager 또는 selectedPlayerData가 null");
+                Debug.LogError($"❌ [PlayerDataManager] GameManager 동기화 실패 - GameManager 또는 selectedPlayerData가 null");
             }
         }
         
         // 이벤트 발생
+        Debug.Log($"📢 [SelectSlot] 이벤트 발생: OnSlotSelected({slotIndex})");
         OnSlotSelected?.Invoke(slotIndex);
         TriggerAllUIEvents();
+        
+        // 🔧 로딩 완료: Dirty 플래그 초기화
+        isLoading = false;
+        isDirty = false; // 로드 직후는 깨끗한 상태
+        
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        Debug.Log($"✅ [SelectSlot] 슬롯 {slotIndex} 전환 완료");
+        Debug.Log($"═══════════════════════════════════════════════════════");
         
         return true;
     }
 
     /// <summary>
     /// 🔧 지연 갱신: 슬롯 인덱스만 저장 (UI 갱신 없음)
+    /// ⚠️ 경고: 이 메서드는 데이터 손상 위험이 있습니다. SelectSlot()을 사용하세요.
     /// </summary>
+    [System.Obsolete("SetSelectedSlotIndex는 데이터 손상 위험이 있습니다. SelectSlot()을 사용하세요.", false)]
     public void SetSelectedSlotIndex(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= maxSlots)
@@ -547,6 +737,12 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         currentSlotIndex = slotIndex;
         lastSelectedSlotIndex = slotIndex;
         SaveLastSelectedSlotIndex();
+        
+        // 🔧 추가: selectedPlayerData.selectedSlotIndex도 동기화 (버그 수정)
+        if (selectedPlayerData != null)
+        {
+            selectedPlayerData.selectedSlotIndex = slotIndex;
+        }
         
         if (showDebugLogs)
             Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 선택 저장 (지연 모드) - {slotData.playerName}");
@@ -636,7 +832,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (!IsSlotSelected || amount <= 0) return;
         
         selectedPlayerData.currentGold += amount;
-        SaveCurrentSlot();
+        MarkDirty(); // 🔧 데이터 변경 표시
         
         // 🔧 수정: 직접 호출 대신 NotifyGoldChanged 사용
         NotifyGoldChanged(selectedPlayerData.currentGold);
@@ -655,7 +851,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (selectedPlayerData.currentGold >= amount)
         {
             selectedPlayerData.currentGold -= amount;
-            SaveCurrentSlot();
+            MarkDirty(); // 🔧 성공했을 때만 데이터 변경 표시
             OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
             
             if (showDebugLogs)
@@ -688,6 +884,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         int oldLevel = selectedPlayerData.currentLevel;
         
         selectedPlayerData.currentExp += amount;
+        MarkDirty(); // 🔧 경험치 추가 시 데이터 변경 표시
         
         // 레벨업 체크
         while (selectedPlayerData.currentExp >= selectedPlayerData.expToNextLevel)
@@ -701,7 +898,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 Debug.Log($"🆙 [PlayerDataManager] 레벨업! 새 레벨: {selectedPlayerData.currentLevel}");
         }
         
-        SaveCurrentSlot();
         OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
         
         if (showDebugLogs)
@@ -726,7 +922,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         selectedPlayerData.runtimeInventoryItems.Add(item);
-        SaveCurrentSlot();
+        MarkDirty(); // 🔧 인벤토리 추가 시 데이터 변경 표시
         OnItemAddedToInventory?.Invoke(item);
         OnInventoryChanged?.Invoke();
         
@@ -744,7 +940,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (selectedPlayerData.runtimeInventoryItems.Remove(item))
         {
-            SaveCurrentSlot();
+            MarkDirty(); // 🔧 성공했을 때만 데이터 변경 표시
             OnItemRemovedFromInventory?.Invoke(item);
             OnInventoryChanged?.Invoke();
             
@@ -854,7 +1050,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 Debug.LogWarning("⚠️ [PlayerDataManager] PlayerRuntimeStats를 찾을 수 없어 스탯 재계산 실패!");
             }
             
-            SaveCurrentSlot();
+            MarkDirty(); // 🔧 장비 착용 시 데이터 변경 표시
+            if (showDebugLogs)
+                Debug.Log($"🔧 [EquipItem] MarkDirty() 호출 완료 - isDirty: {isDirty}");
+            
+            SaveOnMeaningfulEvent("ItemEquipped"); // 🔧 즉시 저장 (슬롯 전환 시 유지)
+            if (showDebugLogs)
+                Debug.Log($"💾 [EquipItem] SaveOnMeaningfulEvent() 호출 완료");
+            
             OnItemEquipped?.Invoke(targetSlot, item);
             OnInventoryChanged?.Invoke();
             
@@ -919,7 +1122,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         Debug.Log($"   - 마지막 아이템: {selectedPlayerData.runtimeInventoryItems[selectedPlayerData.runtimeInventoryItems.Count - 1]?.equipmentName ?? "null"}");
         
         selectedPlayerData.SyncDictionaries();
-        SaveCurrentSlot();
+        MarkDirty(); // 🔧 장비 해제 시 데이터 변경 표시
+        if (showDebugLogs)
+            Debug.Log($"🔧 [UnequipItem] MarkDirty() 호출 완료 - isDirty: {isDirty}");
+        
+        SaveOnMeaningfulEvent("ItemUnequipped"); // 🔧 즉시 저장 (슬롯 전환 시 유지)
+        if (showDebugLogs)
+            Debug.Log($"💾 [UnequipItem] SaveOnMeaningfulEvent() 호출 완료");
+        
         OnItemUnequipped?.Invoke(slot, item);
         OnInventoryChanged?.Invoke();
         
@@ -1534,8 +1744,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             selectedPlayerData.stageProgresses = new List<StageSystem.StageProgress>(progresses);
         }
         
-        // 자동 저장
-        SaveCurrentSlot();
+        // 🔧 스테이지 진행도 변경 표시
+        MarkDirty();
         
         if (showDebugLogs)
             Debug.Log($"💾 [PlayerDataManager] 스테이지 진행도 업데이트: {progresses.Count}개");
@@ -1615,6 +1825,11 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// ✅ Phase 1: 현재 선택된 슬롯 데이터 가져오기 (편의 메서드)
     /// </summary>
+    /// <summary>
+    /// ⚠️ DEPRECATED: 런타임 데이터 접근 시 selectedPlayerData 사용 권장
+    /// 이 메서드는 playerSlots[] 배열을 직접 반환하므로 데이터 동기화 문제 발생 가능
+    /// </summary>
+    [System.Obsolete("런타임 데이터 접근은 selectedPlayerData를 사용하세요. 이 메서드는 UI 표시용으로만 사용됩니다.", false)]
     public PlayerSlotData GetCurrentSlotData()
     {
         if (currentSlotIndex < 0)

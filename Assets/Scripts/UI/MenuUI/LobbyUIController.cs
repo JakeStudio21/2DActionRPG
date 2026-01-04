@@ -558,6 +558,14 @@ public class LobbyUIController : MonoBehaviour
     public void OnBackToLobby()
     {
         Debug.Log("[LobbyUIController] 로비 메인으로 돌아갑니다");
+        
+        // ✅ 명확한 저장 시점: 로비로 돌아가기 = 인벤토리/상점 작업 완료
+        if (PlayerDataManager.Instance != null)
+        {
+            Debug.Log("💾 [LobbyUIController] 로비 복귀 - 데이터 저장");
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("ReturnToLobby");
+        }
+        
         ShowLobbyPanel();
         RefreshAllSlots(); // 🔧 슬롯 새로고침 추가
     }
@@ -622,9 +630,16 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void ShowInventoryPanel()
     {
-        if (!EnsureCharacterSelected()) return;
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        Debug.Log($"🎒 [LobbyUIController] ShowInventoryPanel() 호출");
+        Debug.Log($"   - 현재 selectedSlotIndex: {selectedSlotIndex}");
+        Debug.Log($"═══════════════════════════════════════════════════════");
         
-        Debug.Log("🎒 [LobbyUIController] ShowInventoryPanel 호출됨 (Z-Order 방식)");
+        if (!EnsureCharacterSelected()) 
+        {
+            Debug.LogError($"❌ [LobbyUIController] 캐릭터 선택 실패");
+            return;
+        }
         
         // Cue 이벤트 발행
         var context = new CueContext
@@ -637,6 +652,21 @@ public class LobbyUIController : MonoBehaviour
         
         // 🎯 핵심 변경: Z-Order 방식
         BringPanelToFront(inventoryPanel);
+        
+        // 🆕 디버그: PlayerDataManager 상태 확인
+        if (PlayerDataManager.Instance != null)
+        {
+            Debug.Log($"📊 [LobbyUIController] PlayerDataManager 상태 (인벤토리 진입 전):");
+            Debug.Log($"   - CurrentSlotIndex: {PlayerDataManager.Instance.CurrentSlotIndex}");
+            Debug.Log($"   - IsSlotSelected: {PlayerDataManager.Instance.IsSlotSelected}");
+            
+            if (PlayerDataManager.Instance.selectedPlayerData != null)
+            {
+                Debug.Log($"   - selectedPlayerData.selectedSlotIndex: {PlayerDataManager.Instance.selectedPlayerData.selectedSlotIndex}");
+                Debug.Log($"   - selectedPlayerData.playerName: {PlayerDataManager.Instance.selectedPlayerData.playerName}");
+                Debug.Log($"   - selectedPlayerData.runtimeInventoryItems.Count: {PlayerDataManager.Instance.selectedPlayerData.runtimeInventoryItems.Count}");
+            }
+        }
         
         // 🔧 수정: 다양한 방법으로 LobbyInventoryUI 컴포넌트 찾기
         var inventoryUI = inventoryPanel.GetComponent<LobbyInventoryUI>();
@@ -654,6 +684,7 @@ public class LobbyUIController : MonoBehaviour
         if (inventoryUI != null)
         {
             Debug.Log($"🔍 [LobbyUIController] LobbyInventoryUI 컴포넌트 발견: {inventoryUI.gameObject.name}");
+            Debug.Log($"🔄 [LobbyUIController] ForceRefreshWithLobbySelectedCharacter({selectedSlotIndex}) 호출 중...");
             inventoryUI.ForceRefreshWithLobbySelectedCharacter(selectedSlotIndex);
         }
         else
@@ -661,7 +692,9 @@ public class LobbyUIController : MonoBehaviour
             Debug.LogError("❌ [LobbyUIController] LobbyInventoryUI 컴포넌트를 찾을 수 없습니다!");
         }
         
-        Debug.Log($"[LobbyUIController] 인벤토리 패널을 최상위로 이동 완료 (슬롯 {selectedSlotIndex})");
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        Debug.Log($"✅ [LobbyUIController] 인벤토리 패널 표시 완료 (슬롯 {selectedSlotIndex})");
+        Debug.Log($"═══════════════════════════════════════════════════════");
     }
     
     /// <summary>
@@ -1143,12 +1176,16 @@ public class LobbyUIController : MonoBehaviour
     // 🔧 Step 2-4: 캐릭터 선택 시 스테이지 선택으로 바로 이동하지 않고 대기
     private void SelectCharacterSlot(int slotIndex, PlayerSlotData slotData)
     {
-        Debug.Log($"[LobbyUIController] 캐릭터 선택: 슬롯 {slotIndex}, {slotData.playerName} (Lv.{slotData.level}, {slotData.playerType})");
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        Debug.Log($"🎯 [LobbyUIController] SelectCharacterSlot({slotIndex}) 호출");
+        Debug.Log($"   - 캐릭터: {slotData.playerName} (Lv.{slotData.level}, {slotData.playerType})");
+        Debug.Log($"═══════════════════════════════════════════════════════");
         
         selectedSlotIndex = slotIndex;
         
-        // 🔧 지연 갱신: PlayerDataManager에 슬롯 ID만 저장 (UI 갱신 없음)
-        PlayerDataManager.Instance.SetSelectedSlotIndex(slotIndex);
+        // 🔧 수정: 완전 로드로 변경하여 데이터 손상 방지
+        Debug.Log($"🔄 [LobbyUIController] PlayerDataManager.SelectSlot({slotIndex}) 호출 중...");
+        PlayerDataManager.Instance.SelectSlot(slotIndex);
         
         // 🔧 최소 UI 업데이트 (로비에서 보이는 기본 정보만)
         UpdateSelectedCharacterInfo(slotData);
@@ -1164,7 +1201,9 @@ public class LobbyUIController : MonoBehaviour
         // 🆕 Phase 6-Pre: StageSelectPanelController 초기화
         stageSelectPanelController?.RefreshStageProgressUI();
         
-        Debug.Log($"[LobbyUIController] 캐릭터 선택 완료 (지연 갱신 모드) - 패널 진입 시 완전 로드됨");
+        Debug.Log($"═══════════════════════════════════════════════════════");
+        Debug.Log($"✅ [LobbyUIController] SelectCharacterSlot 완료 (지연 갱신 모드)");
+        Debug.Log($"═══════════════════════════════════════════════════════");
     }
     
     // 🔧 Step 2-2: 캐릭터 생성 시작 (빈 슬롯)
@@ -2010,6 +2049,7 @@ public class LobbyUIController : MonoBehaviour
         // pendingCutsceneId 정리 (재생 전에 먼저 제거)
         selectedData.pendingCutsceneId = null;
         selectedData.pendingChapterId = 0;
+        PlayerDataManager.Instance.MarkDirty(); // 🔧 데이터 변경 표시 (Dirty Flag 시스템 원칙 준수)
         PlayerDataManager.Instance.SaveCurrentSlot();
         
         // CutsceneManager 확인

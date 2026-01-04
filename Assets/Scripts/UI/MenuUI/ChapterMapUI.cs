@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using StageSystem;
+using System.Collections;
 
 /// <summary>
 /// 챕터 맵 UI 컨트롤러
@@ -145,16 +146,8 @@ public class ChapterMapUI : MonoBehaviour
         if (enableDebugLogs)
             Debug.Log($"[ChapterMapUI] 다음 챕터로 이동: {currentChapterId} → {newChapterId}");
         
-        currentChapterId = newChapterId;
-        RefreshChapterUI();
-        
-        // ========================================
-        // 📌 Phase 6: 챕터 전환 시 currentChapterId 업데이트
-        // ========================================
-        UpdateCurrentChapterId(currentChapterId);
-        
-        // 이벤트 발생
-        OnChapterChanged?.Invoke(currentChapterId);
+        // 🎬 챕터 시작 컷신 재생 후 챕터 전환
+        StartCoroutine(PlayChapterStartAndChangeChapter(newChapterId));
     }
     
     /// <summary>
@@ -336,6 +329,70 @@ public class ChapterMapUI : MonoBehaviour
     public void ForceRefresh()
     {
         RefreshChapterUI();
+    }
+    
+    // ========================================
+    // 🎬 챕터 시작 컷신 시스템
+    // ========================================
+    
+    /// <summary>
+    /// 챕터 시작 컷신 재생 후 챕터 전환
+    /// </summary>
+    private System.Collections.IEnumerator PlayChapterStartAndChangeChapter(int newChapterId)
+    {
+        // Stage 1 Config 로드
+        string stageId = $"CH{newChapterId:D2}_ST01";
+        string path = $"Stages/Configs/Chapters/{stageId}_Config";
+        StageSystem.StageConfig stageConfig = Resources.Load<StageSystem.StageConfig>(path);
+        
+        // 챕터 시작 컷신 재생
+        if (stageConfig != null && 
+            !string.IsNullOrEmpty(stageConfig.chapterStartCutsceneId) &&
+            CutsceneSystem.CutsceneManager.Instance != null)
+        {
+            bool shouldPlay = CutsceneSystem.CutsceneManager.Instance.ShouldPlayCutscene(
+                stageConfig.chapterStartCutsceneId, 
+                false, 
+                false
+            );
+            
+            if (shouldPlay)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 재생: {stageConfig.chapterStartCutsceneId}");
+                
+                CutsceneSystem.CutsceneManager.Instance.PlayCutscene(stageConfig.chapterStartCutsceneId);
+                
+                // 컷신 종료 대기
+                yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 완료");
+            }
+            else
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 스킵 (이미 시청)");
+            }
+        }
+        else
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 없음");
+        }
+        
+        // 챕터 전환
+        currentChapterId = newChapterId;
+        RefreshChapterUI();
+        
+        // 📌 Phase 6: 챕터 전환 시 currentChapterId 업데이트
+        UpdateCurrentChapterId(currentChapterId);
+        
+        // 이벤트 발생
+        OnChapterChanged?.Invoke(currentChapterId);
+        
+        if (enableDebugLogs)
+            Debug.Log($"[ChapterMapUI] 챕터 전환 완료: {newChapterId}");
     }
     
     #region Unity Editor Helper

@@ -549,10 +549,11 @@ public class CharacterCreationController : MonoBehaviour
         targetSlotIndex = -1;
         inputPlayerName = "";
         
-        // 🎯 3단계: 로비를 최상위로
+        // 🎯 3단계: 로비를 최상위로 (저장 포함)
         if (lobbyUIController != null)
         {
-            lobbyUIController.ShowLobbyPanel();
+            // ✅ ShowLobbyPanel() 대신 OnBackToLobby() 호출 (일관성)
+            lobbyUIController.OnBackToLobby();
         }
         
         Debug.Log("[CharacterCreationController] 로비로 복귀 완료");

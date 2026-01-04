@@ -313,6 +313,9 @@ namespace StageSystem
                 var progressList = new List<StageProgress>(progressCache.Values);
                 PlayerDataManager.Instance.UpdateStageProgresses(progressList);
                 
+                // 🔧 의미 있는 이벤트: 스테이지 진행도 변경 → 즉시 저장
+                PlayerDataManager.Instance.SaveOnMeaningfulEvent("StageProgressUpdated");
+                
                 if (enableDebugLogs)
                     Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex} 진행도 저장 완료");
             }

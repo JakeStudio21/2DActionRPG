@@ -30,10 +30,11 @@ namespace CutsceneSystem
                 return false;
             }
             
-            var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
-            if (slotData == null)
+            // ✅ SelectedPlayerData 직접 접근
+            var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+            if (selectedData == null)
             {
-                Debug.LogWarning("[CutsceneProgressTracker] PlayerSlotData를 가져올 수 없음");
+                Debug.LogWarning("[CutsceneProgressTracker] SelectedPlayerData를 가져올 수 없음");
                 return false;
             }
             
@@ -43,7 +44,25 @@ namespace CutsceneSystem
                 category = DetectCategory(cutsceneId);
             }
             
-            return slotData.HasSeenCutscene(cutsceneId, category);
+            // 🔧 SelectedPlayerData의 컷신 리스트에서 직접 확인
+            switch (category.ToUpper())
+            {
+                case "CHAPTER_START":
+                    return selectedData.seenChapterStart.Contains(cutsceneId);
+                
+                case "CHAPTER_CLEAR":
+                    return selectedData.seenChapterClear.Contains(cutsceneId);
+                
+                case "STAGE_ENTER":
+                    return selectedData.seenStageEnter.Contains(cutsceneId);
+                
+                case "STAGE_CLEAR":
+                    return selectedData.seenStageClear.Contains(cutsceneId);
+                
+                default:
+                    Debug.LogWarning($"[CutsceneProgressTracker] 알 수 없는 카테고리: {category}");
+                    return false;
+            }
         }
         
         /// <summary>
@@ -66,10 +85,11 @@ namespace CutsceneSystem
                 return;
             }
             
-            var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
-            if (slotData == null)
+            // ✅ SelectedPlayerData 직접 접근 (저장 소스)
+            var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+            if (selectedData == null)
             {
-                Debug.LogWarning("[CutsceneProgressTracker] PlayerSlotData를 가져올 수 없음");
+                Debug.LogWarning("[CutsceneProgressTracker] SelectedPlayerData를 가져올 수 없음");
                 return;
             }
             
@@ -79,19 +99,65 @@ namespace CutsceneSystem
                 category = DetectCategory(cutsceneId);
             }
             
-            // 이미 시청한 컷신이면 스킵
-            if (slotData.HasSeenCutscene(cutsceneId, category))
+            // 🔧 SelectedPlayerData의 컷신 리스트에 직접 추가
+            switch (category.ToUpper())
             {
-                return;
+                case "CHAPTER_START":
+                    if (!selectedData.seenChapterStart.Contains(cutsceneId))
+                    {
+                        selectedData.seenChapterStart.Add(cutsceneId);
+                    }
+                    else
+                    {
+                        return; // 이미 시청함
+                    }
+                    break;
+                
+                case "CHAPTER_CLEAR":
+                    if (!selectedData.seenChapterClear.Contains(cutsceneId))
+                    {
+                        selectedData.seenChapterClear.Add(cutsceneId);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                
+                case "STAGE_ENTER":
+                    if (!selectedData.seenStageEnter.Contains(cutsceneId))
+                    {
+                        selectedData.seenStageEnter.Add(cutsceneId);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                
+                case "STAGE_CLEAR":
+                    if (!selectedData.seenStageClear.Contains(cutsceneId))
+                    {
+                        selectedData.seenStageClear.Add(cutsceneId);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    break;
+                
+                default:
+                    Debug.LogWarning($"[CutsceneProgressTracker] 알 수 없는 카테고리: {category}");
+                    return;
             }
             
-            // 시청 기록 저장
-            slotData.MarkCutsceneAsSeen(cutsceneId, category);
+            // 🔧 Dirty Flag 설정 (저장 필수!)
+            PlayerDataManager.Instance.MarkDirty();
             
-            // PlayerDataManager에 저장
-            PlayerDataManager.Instance.SaveCurrentSlot();
+            // PlayerDataManager에 즉시 저장
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent($"Cutscene_{cutsceneId}");
             
-            Debug.Log($"✅ [CutsceneProgressTracker] 컷신 시청 기록: {cutsceneId} (카테고리: {category})");
+            Debug.Log($"✅ [CutsceneProgressTracker] 컷신 시청 기록 및 저장 완료: {cutsceneId} (카테고리: {category})");
         }
         
         /// <summary>
@@ -170,8 +236,9 @@ namespace CutsceneSystem
                 return new List<string>();
             }
             
-            var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
-            if (slotData == null)
+            // ✅ SelectedPlayerData 직접 접근
+            var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+            if (selectedData == null)
             {
                 return new List<string>();
             }
@@ -179,16 +246,16 @@ namespace CutsceneSystem
             switch (category.ToUpper())
             {
                 case "CHAPTER_START":
-                    return new List<string>(slotData.seenChapterStart);
+                    return new List<string>(selectedData.seenChapterStart);
                 
                 case "CHAPTER_CLEAR":
-                    return new List<string>(slotData.seenChapterClear);
+                    return new List<string>(selectedData.seenChapterClear);
                 
                 case "STAGE_ENTER":
-                    return new List<string>(slotData.seenStageEnter);
+                    return new List<string>(selectedData.seenStageEnter);
                 
                 case "STAGE_CLEAR":
-                    return new List<string>(slotData.seenStageClear);
+                    return new List<string>(selectedData.seenStageClear);
                 
                 default:
                     Debug.LogWarning($"[CutsceneProgressTracker] 알 수 없는 카테고리: {category}");
@@ -207,18 +274,20 @@ namespace CutsceneSystem
                 return;
             }
             
-            var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
-            if (slotData == null)
+            // ✅ SelectedPlayerData 직접 접근
+            var selectedData = PlayerDataManager.Instance.selectedPlayerData;
+            if (selectedData == null)
             {
-                Debug.LogWarning("[CutsceneProgressTracker] PlayerSlotData를 가져올 수 없음");
+                Debug.LogWarning("[CutsceneProgressTracker] SelectedPlayerData를 가져올 수 없음");
                 return;
             }
             
-            slotData.seenChapterStart.Clear();
-            slotData.seenChapterClear.Clear();
-            slotData.seenStageEnter.Clear();
-            slotData.seenStageClear.Clear();
+            selectedData.seenChapterStart.Clear();
+            selectedData.seenChapterClear.Clear();
+            selectedData.seenStageEnter.Clear();
+            selectedData.seenStageClear.Clear();
             
+            PlayerDataManager.Instance.MarkDirty();
             PlayerDataManager.Instance.SaveCurrentSlot();
             
             Debug.Log("🗑️ [CutsceneProgressTracker] 모든 컷신 시청 기록 초기화 완료");

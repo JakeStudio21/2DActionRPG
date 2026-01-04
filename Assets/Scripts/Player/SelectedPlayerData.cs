@@ -21,6 +21,10 @@ public class SelectedPlayerData : ScriptableObject
     public int expToNextLevel = 100;
     public int currentGold = 0;
     
+    [Header("⏰ 세션 정보")]
+    [Tooltip("마지막 플레이 시간 (의미 있는 이벤트에서만 갱신)")]
+    public string lastPlayTime = "";
+    
     [Header("🎒 런타임 인벤토리 & 장비")]
     public List<EquipmentData> runtimeInventoryItems = new List<EquipmentData>();
     [SerializeField] private List<EquipmentSlot> equippedSlotKeys = new List<EquipmentSlot>();
@@ -123,6 +127,8 @@ public class SelectedPlayerData : ScriptableObject
         currentExp = slotData.exp;
         expToNextLevel = slotData.expToNextLevel;
         currentGold = slotData.gold;
+        
+        lastPlayTime = slotData.lastPlayTime ?? ""; // 세션 정보
         
         classLevel = slotData.classLevel;
         maxInventorySize = slotData.maxInventorySize;
@@ -259,7 +265,7 @@ public class SelectedPlayerData : ScriptableObject
             slotIndex = selectedSlotIndex,
             playerName = playerName,
             playerType = selectedPlayerType,
-            lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            lastPlayTime = this.lastPlayTime, // 🔧 SelectedPlayerData의 값 사용 (의미있는 이벤트에서만 갱신)
             isSlotUsed = true,
             
             level = currentLevel,
@@ -407,6 +413,7 @@ public class SelectedPlayerData : ScriptableObject
         currentGold = 0;
         currentExp = 0;
         expToNextLevel = 100;
+        lastPlayTime = ""; // 세션 정보 초기화
         
         runtimeInventoryItems.Clear();
         RuntimeEquippedItems.Clear();

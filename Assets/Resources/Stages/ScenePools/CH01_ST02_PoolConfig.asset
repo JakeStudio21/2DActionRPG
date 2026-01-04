@@ -849,7 +849,7 @@ MonoBehaviour:
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
   - tag: FX_PF_Fire_ImpactBurst_01
-    prefab: {fileID: 1625881847255917415, guid: 098b836f3d9958f4685d2ee911be8fef, type: 3}
+    prefab: {fileID: 1625881847255917415, guid: 19d3abea3b1935240a430eeec13fb739, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
@@ -922,6 +922,42 @@ MonoBehaviour:
     maxInstancesPerFrame: 10
   - tag: StraightProjectile
     prefab: {fileID: 6830296691463287077, guid: 83ae11102c63fd94594904bd0df3e079, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: EliteAOECircleEffect_B
+    prefab: {fileID: 2825740286487543389, guid: 1609060f2208d5144bb8e8a5df54c76a, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: HitSpark_C
+    prefab: {fileID: 8683933021285538514, guid: eefb12de009088042ba04b97a4721af3, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BOSSMON_SANDELEMENTAL_001
+    prefab: {fileID: 3235174918318939483, guid: 6512646250efc2742a7ab424a84ea442, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: BossProjectile
+    prefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SandRec_AOE_Effect
+    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: VFX_Click_02
+    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0

@@ -144,6 +144,12 @@ public class StageSelectPanelController : MonoBehaviour
         // ========================================
         int targetChapterId = GetLastPlayedChapterId();
         
+        // 🎬 챕터1 시작 컷신 체크 (최초 진입 시)
+        if (targetChapterId == 1)
+        {
+            CheckAndPlayChapterStartCutscene(targetChapterId);
+        }
+        
         // Phase 6: 챕터 맵 UI 표시
         if (chapterMapUI != null)
         {
@@ -595,6 +601,70 @@ public class StageSelectPanelController : MonoBehaviour
         // 기본값: 챕터 1
         Debug.Log($"📍 [StageSelectPanelController] 기본 챕터1 사용");
         return 1;
+    }
+    
+    // ========================================
+    // 🎬 챕터 시작 컷신 시스템
+    // ========================================
+    
+    /// <summary>
+    /// 챕터 시작 컷신 재생 체크
+    /// </summary>
+    private void CheckAndPlayChapterStartCutscene(int chapterId)
+    {
+        // Stage 1 Config 로드
+        string stageId = $"CH{chapterId:D2}_ST01";
+        StageConfig stageConfig = LoadStageConfig(stageId);
+        
+        if (stageConfig == null)
+        {
+            Debug.LogWarning($"🎬 [StageSelectPanelController] StageConfig 로드 실패: {stageId}");
+            return;
+        }
+        
+        if (string.IsNullOrEmpty(stageConfig.chapterStartCutsceneId))
+        {
+            Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 없음");
+            return;
+        }
+        
+        // 컷신 재생 여부 확인
+        if (CutsceneSystem.CutsceneManager.Instance == null)
+        {
+            Debug.LogWarning("🎬 [StageSelectPanelController] CutsceneManager가 없습니다!");
+            return;
+        }
+        
+        bool shouldPlay = CutsceneSystem.CutsceneManager.Instance.ShouldPlayCutscene(
+            stageConfig.chapterStartCutsceneId, 
+            false, 
+            false
+        );
+        
+        if (shouldPlay)
+        {
+            Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 재생: {stageConfig.chapterStartCutsceneId}");
+            StartCoroutine(PlayChapterStartCutsceneCoroutine(stageConfig.chapterStartCutsceneId));
+        }
+        else
+        {
+            Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 스킵 (이미 시청)");
+        }
+    }
+    
+    /// <summary>
+    /// 챕터 시작 컷신 재생 코루틴
+    /// </summary>
+    private IEnumerator PlayChapterStartCutsceneCoroutine(string cutsceneId)
+    {
+        Debug.Log($"🎬 [StageSelectPanelController] 컷신 재생 시작: {cutsceneId}");
+        
+        CutsceneSystem.CutsceneManager.Instance.PlayCutscene(cutsceneId);
+        
+        // 컷신 종료 대기
+        yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
+        
+        Debug.Log($"🎬 [StageSelectPanelController] 컷신 재생 완료: {cutsceneId}");
     }
 }
 

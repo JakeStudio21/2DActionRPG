@@ -19,6 +19,7 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 1
   stageIndexInChapter: 8
+  chapterStartCutsceneId: 
   enterCutsceneId: 
   clearCutsceneId: 
   isReplaySkipCutscene: 1

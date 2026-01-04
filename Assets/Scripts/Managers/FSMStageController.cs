@@ -558,6 +558,12 @@ public class FSMStageController : Singleton<FSMStageController>
     /// </summary>
     public void ReturnToLobby()
     {
+        // 🔧 의미 있는 이벤트: 로비 복귀 → 저장
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+        {
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("ReturnToLobby");
+        }
+        
         TransitionToStage(StageState.Lobby);
     }
 

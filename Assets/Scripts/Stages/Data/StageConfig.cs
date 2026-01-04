@@ -26,7 +26,10 @@ namespace StageSystem
         public int stageIndexInChapter = 0;
         
         [Header("🎬 컷신 설정")]
-        [Tooltip("스테이지 입장 시 재생할 컷신 ID (예: CH01_ST01_ENTER)")]
+        [Tooltip("챕터 시작 컷신 ID (예: CH01_START) - 로비 Panel_Stage에서 재생, Stage 1 Config에만 설정")]
+        public string chapterStartCutsceneId = "";
+        
+        [Tooltip("스테이지 입장 시 재생할 컷신 ID (예: CH01_ST01_ENTER) - 인게임 씬에서 재생")]
         public string enterCutsceneId = "";
         
         [Tooltip("스테이지 클리어 시 재생할 컷신 ID (예: CH01_ST01_CLEAR)")]

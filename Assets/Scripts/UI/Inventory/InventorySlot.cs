@@ -76,11 +76,25 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 🔑 ItemIcon을 이름으로 정확히 찾기
         if (itemIconImage == null) 
         {
-            Transform itemIconTransform = transform.Find("ItemIcon");
+            // 1순위: EffectTarget/ItemIcon (UIButtonClickEffect 구조)
+            Transform itemIconTransform = transform.Find("EffectTarget/ItemIcon");
+            
+            // 2순위: ItemIcon (기존 구조 - fallback)
+            if (itemIconTransform == null)
+            {
+                itemIconTransform = transform.Find("ItemIcon");
+            }
+            
             if (itemIconTransform != null)
             {
                 itemIconImage = itemIconTransform.GetComponent<Image>();
-                Debug.Log($"✅ [InventorySlot] ItemIcon 찾음: {itemIconImage != null}");
+                
+                // 경로 정보 추가 (디버그용)
+                string path = itemIconTransform.parent != null && itemIconTransform.parent != transform 
+                    ? $"{itemIconTransform.parent.name}/{itemIconTransform.name}" 
+                    : itemIconTransform.name;
+                
+                Debug.Log($"✅ [InventorySlot] ItemIcon 찾음: {itemIconImage != null} (경로: {path})");
             }
             else
             {
@@ -136,13 +150,11 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             Debug.Log($"🖱️ [InventorySlot] {environment} 슬롯 클릭: {equipmentData.equipmentName} (인덱스: {slotIndex})");
         }
         
-        // 🎯 근본 해결: OnPointerClick 제거로 Button.onClick만 사용
-        // 각 UI에서 Button.onClick.AddListener()로 직접 처리
-        // - LobbyInventoryUI: 로컬 이벤트만 (OnSlotClicked 직접 호출)
-        // - ShopInventoryUI: 전역 이벤트 발생 (TriggerSlotClicked 호출)
-        
-        // ⚠️ 주의: 이 메서드는 Button.onClick에서만 호출되어야 함!
-        // OnPointerClick은 사용하지 않음 (이중 이벤트 방지)
+        // 🎯 PlayerDataManager 이벤트 발생 (모든 UI에서 구독 가능)
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex);
+        }
     }
     
     /// <summary>

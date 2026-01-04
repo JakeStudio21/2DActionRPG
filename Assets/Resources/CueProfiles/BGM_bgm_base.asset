@@ -19,7 +19,7 @@ MonoBehaviour:
   sfxCatalog:
   - sfxId: bgm_Login_001
     audioClip: {fileID: 8300000, guid: aa44eece47688bc4290a4212868495b6, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
     loop: 1
     is3D: 0
@@ -29,7 +29,7 @@ MonoBehaviour:
     note: 
   - sfxId: bgm_lobby_001
     audioClip: {fileID: 8300000, guid: 07d4e2ab0fb25834ebcb33ea9f14abfb, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
     loop: 1
     is3D: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
     note: 
   - sfxId: bgm_stage_default_001
     audioClip: {fileID: 8300000, guid: 4c1bf9a8c9ac5fb4695f6c9f3fbe7f3f, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
     loop: 1
     is3D: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
     note: 
   - sfxId: bgm_stage_003_001
     audioClip: {fileID: 8300000, guid: aa44eece47688bc4290a4212868495b6, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
     loop: 1
     is3D: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
     note: 
   - sfxId: bgm_stage_battle_001
     audioClip: {fileID: 8300000, guid: 2744e13c07991064c93eab4fc2ebbb06, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
     loop: 1
     is3D: 0
@@ -69,7 +69,7 @@ MonoBehaviour:
     note: 
   - sfxId: bgm_stage_boss_001
     audioClip: {fileID: 8300000, guid: e3b7c21565612ff49bc4b5e35d3d93eb, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
     loop: 1
     is3D: 0
