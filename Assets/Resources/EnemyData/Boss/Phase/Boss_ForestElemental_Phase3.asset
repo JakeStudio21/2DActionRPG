@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b378a960a5bf6fa4e91e98035953d744, type: 3}
+  m_Name: Boss_ForestElemental_Phase3
+  m_EditorClassIdentifier: 
+  phaseName: Phase 3
+  hpThresholdMin: 0
+  hpThresholdMax: 0.3
+  meleeAttackWeight: 30
+  availableSkills:
+  - skillData: {fileID: 11400000, guid: 277c5cde1c86f364a9949d054a1a6d5d, type: 2}
+    weight: 15
+    distanceType: 2
+    individualCooldown: 5
+    skillScaleMultiplier: 2
+    skillDescription: "\uC2A4\uD0AC"
+  - skillData: {fileID: 11400000, guid: 4b907c595b8cb704b91042bd264a6494, type: 2}
+    weight: 15
+    distanceType: 2
+    individualCooldown: 8
+    skillScaleMultiplier: 2
+    skillDescription: "\uC2A4\uD0AC2"
+  - skillData: {fileID: 11400000, guid: adeed1bbb6dccdb4dbbf3034e7f105b0, type: 2}
+    weight: 15
+    distanceType: 2
+    individualCooldown: 10
+    skillScaleMultiplier: 2
+    skillDescription: 
+  - skillData: {fileID: 11400000, guid: e9cb7f623a7b16e43bef072c4307fff6, type: 2}
+    weight: 25
+    distanceType: 2
+    individualCooldown: 5
+    skillScaleMultiplier: 1.5
+    skillDescription: 
+  hasTransitionAnimation: 1
+  transitionInvincibleTime: 1
+  resetCooldownsOnTransition: 1
+  transitionEffect: {fileID: 0}
+  transitionSound: {fileID: 0}
+  phaseDescription: "\uD398\uC774\uC988 \uC124\uBA85\uC744 \uC785\uB825\uD558\uC138\uC694."

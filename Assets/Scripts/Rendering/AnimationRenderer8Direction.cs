@@ -47,6 +47,10 @@ public class AnimationRenderer8Direction : MonoBehaviour
     public Color shadowColor = new Color(0f, 0f, 0f, 0.5f);   // 검은색 반투명
     [Tooltip("그림자 전용 머티리얼 (없으면 자동 생성)")]
     public Material shadowMaterial;
+    
+    [Header("Bip Bone Fix (Optional)")]
+    [Tooltip("Bip001 Pelvis 본을 사용하는 캐릭터의 Y축 튐 현상 방지 (Bip 방식 전용, 일반 캐릭터는 체크 해제)")]
+    public bool fixBipPelvisYAxis = false;
 
     [Header("Outline (Character Clone)")]
     public bool enableOutline = true;
@@ -67,6 +71,7 @@ public class AnimationRenderer8Direction : MonoBehaviour
     private Quaternion[] camRotations;
     private GameObject shadowInstance;  // 복제된 그림자 루트
     private Animator shadowAnimator;    // 그림자의 Animator (원본과 동기화용)
+    private Transform shadowPelvisBone; // ★ Shadow의 Bip001 Pelvis 본 (매 프레임 0,0,0으로 고정)
     private GameObject outlineInstance; // 복제된 아웃라인 루트
     private Animator outlineAnimator;   // 아웃라인의 Animator (원본과 동기화용)
 
@@ -194,6 +199,14 @@ public class AnimationRenderer8Direction : MonoBehaviour
                 shadowAnimator.SetFloat("speed", animator.GetFloat("speed"));
                 // 필요하면 다른 파라미터도 동기화
             }
+            
+            // ★ Bip001 Pelvis 본의 Y축만 0으로 강제 고정 (플래그가 켜져있을 때만)
+            if (fixBipPelvisYAxis && shadowPelvisBone != null)
+            {
+                Vector3 pos = shadowPelvisBone.localPosition;
+                pos.y = 0f;
+                shadowPelvisBone.localPosition = pos;
+            }
         }
 
         // ★ 아웃라인 위치/애니메이션 동기화
@@ -304,6 +317,20 @@ public class AnimationRenderer8Direction : MonoBehaviour
             shadowAnimator.applyRootMotion = false; // 그림자는 원본을 따라가기만 함
         }
 
+        // ★ Bip001 Pelvis 본 찾기 (플래그가 켜져있을 때만)
+        if (fixBipPelvisYAxis)
+        {
+            shadowPelvisBone = FindPelvisBone(shadowInstance.transform);
+            if (shadowPelvisBone != null)
+            {
+                Debug.Log($"[Shadow] Bip Pelvis 본 발견: {shadowPelvisBone.name}, 초기 localPosition: {shadowPelvisBone.localPosition}");
+            }
+            else
+            {
+                Debug.LogWarning("[Shadow] Bip Pelvis 본을 찾을 수 없습니다. fixBipPelvisYAxis를 해제하거나 본 구조를 확인하세요.");
+            }
+        }
+
         // 머티리얼 생성 (없으면 자동 생성)
         if (shadowMaterial == null)
         {
@@ -352,6 +379,47 @@ public class AnimationRenderer8Direction : MonoBehaviour
         }
 
         Debug.Log($"[AnimationRenderer8Direction] 그림자 생성: {renderers.Length}개 렌더러를 검은색으로 변경");
+    }
+
+    // ★ Bip001 Pelvis 본을 찾는 함수 (Bip 방식 전용)
+    Transform FindPelvisBone(Transform root)
+    {
+        // 일반적인 Bip 본 구조: root → Bip001 → Bip001 Pelvis
+        string[] rootBoneNames = { "Bip001", "Bip01", "root", "Root" };
+        string[] pelvisNames = { "Pelvis", "pelvis", "Bip001 Pelvis", "Bip01 Pelvis" };
+        
+        // 첫 번째 자식 본 찾기 (Bip001)
+        if (root.childCount > 0)
+        {
+            Transform firstChild = root.GetChild(0);
+            
+            // Bip001 확인
+            foreach (string boneName in rootBoneNames)
+            {
+                if (firstChild.name.Contains(boneName))
+                {
+                    // Bip001의 자식 중에서 Pelvis 찾기
+                    foreach (Transform child in firstChild)
+                    {
+                        foreach (string pelvisName in pelvisNames)
+                        {
+                            if (child.name.Contains(pelvisName))
+                            {
+                                return child; // Pelvis 본 반환
+                            }
+                        }
+                    }
+                    
+                    // Pelvis 못 찾으면 첫 번째 자식 반환
+                    if (firstChild.childCount > 0)
+                    {
+                        return firstChild.GetChild(0);
+                    }
+                }
+            }
+        }
+        
+        return null; // 못 찾음
     }
 
     void CreateCharacterOutline(Transform sourceRoot)

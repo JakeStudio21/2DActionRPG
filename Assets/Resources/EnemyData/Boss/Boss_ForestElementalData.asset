@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: Boss_ForestElementalData
+  m_EditorClassIdentifier: 
+  enemyId: BOSSMON_FORESTELEMENTAL_001
+  enemyName: Boss_ForestElemental
+  enemyType: 2
+  description: "\"\uAC15\uD654\uB41C \uC232\uC815\uB839\""
+  baseHealth: 100
+  baseDefense: 15
+  baseMoveSpeed: 1.5
+  detectionRange: 15
+  chaseRange: 20
+  patrolRadius: 5
+  knockBackThrust: 1.5
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: a1f93d743fcbe7f489e56de247837aa9, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  skillDataList:
+  - {fileID: 11400000, guid: 277c5cde1c86f364a9949d054a1a6d5d, type: 2}
+  - {fileID: 11400000, guid: 4b907c595b8cb704b91042bd264a6494, type: 2}
+  - {fileID: 11400000, guid: adeed1bbb6dccdb4dbbf3034e7f105b0, type: 2}
+  - {fileID: 11400000, guid: e9cb7f623a7b16e43bef072c4307fff6, type: 2}
+  meleeAttackProbability: 60
+  skillUseProbability: 40
+  skillProbabilities: 64000000320000002100000019000000
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 1
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 20
+  baseExpReward: 40
+  dropGroupId: DROP_BLUESLIME_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

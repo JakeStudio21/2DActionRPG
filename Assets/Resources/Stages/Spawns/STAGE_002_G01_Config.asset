@@ -28,3 +28,13 @@ MonoBehaviour:
     SpawnCount: 0
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
+  - MonsterID: ELITEMON_ORC_001
+    Count: 1
+    SpawnCount: 0
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_GOBLINCART_001
+    Count: 1
+    SpawnCount: 0
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}

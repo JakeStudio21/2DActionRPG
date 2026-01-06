@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: GoblinCartData
+  m_EditorClassIdentifier: 
+  enemyId: MON_GOBLINCART_001
+  enemyName: GoblinCart
+  enemyType: 0
+  description: "\"\uC6D0\uAC70\uB9AC \uCCA0\uAD11\uC11D\uD22C\uCC99 \uBAAC\uC2A4\uD130\""
+  baseHealth: 60
+  baseDefense: 40
+  baseMoveSpeed: 2
+  detectionRange: 7
+  chaseRange: 7
+  patrolRadius: 2
+  knockBackThrust: 5
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  skillDataList: []
+  meleeAttackProbability: 100
+  skillUseProbability: 0
+  skillProbabilities: 
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 15
+  baseExpReward: 35
+  dropGroupId: DROP_BLUESLIME_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

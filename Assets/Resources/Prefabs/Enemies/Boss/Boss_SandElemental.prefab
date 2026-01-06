@@ -195,6 +195,7 @@ MonoBehaviour:
   bossSpawner: {fileID: 0}
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 6
+  basicHealthBarPrefab: {fileID: 0}
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0

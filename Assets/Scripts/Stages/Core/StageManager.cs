@@ -1089,6 +1089,47 @@ public class StageManager : MonoBehaviour
                 else
                     return "SandGolemData";
             }
+            // ⭐ GOBLIN 시리즈는 ORC보다 먼저 체크해야 함! (GOBLINWARRIOR에 "ORC" 포함)
+            else if (monsterID.Contains("GOBLINWARRIOR") || monsterID.Contains("GOBLIN_WARRIOR"))
+            {
+                // ⭐ GoblinWarrior 매핑 추가
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_GoblinWarriorData";
+                else if (monsterID.Contains("BOSS"))
+                    return "GoblinWarrior_BossData";
+                else
+                    return "GoblinWarriorData";
+            }
+            else if (monsterID.Contains("GOBLINBOMB") || monsterID.Contains("GOBLIN_BOMB"))
+            {
+                // ⭐ GoblinBomb 매핑 추가
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_GoblinBombData";
+                else if (monsterID.Contains("BOSS"))
+                    return "GoblinBomb_BossData";
+                else
+                    return "GoblinBombData";
+            }
+            else if (monsterID.Contains("GOBLINCART") || monsterID.Contains("GOBLIN_CART"))
+            {
+                // ⭐ GoblinCart 매핑 추가
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_GoblinCartData";
+                else if (monsterID.Contains("BOSS"))
+                    return "GoblinCart_BossData";
+                else
+                    return "GoblinCartData";
+            }
+            else if (monsterID.Contains("ORC"))
+            {
+                // ⭐ Elite_Orc 매핑 (GOBLIN 체크 이후에 배치)
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_OrcData";
+                else if (monsterID.Contains("BOSS"))
+                    return "Orc_BossData";
+                else
+                    return "OrcData";
+            }
             else if (monsterID.Contains("SANDELEMENTAL"))
             {
                 // ⭐ Boss_SandElemental 매핑 추가
@@ -1098,6 +1139,26 @@ public class StageManager : MonoBehaviour
                     return "Elite_SandElementalData";
                 else
                     return "SandElementalData";
+            }
+            else if (monsterID.Contains("BOAR"))
+            {
+                // ⭐ Elite_Boar 매핑 추가
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_BoarData";
+                else if (monsterID.Contains("BOSS"))
+                    return "Boar_BossData";
+                else
+                    return "BoarData";
+            }
+            else if (monsterID.Contains("FORESTELEMENTAL"))
+            {
+                // ⭐ Boss_ForestElemental 매핑 추가
+                if (monsterID.Contains("BOSS"))
+                    return "Boss_ForestElementalData";
+                else if (monsterID.Contains("ELITE"))
+                    return "Elite_ForestElementalData";
+                else
+                    return "ForestElementalData";
             }
             
             return $"{monsterID}Data"; // 기본값
