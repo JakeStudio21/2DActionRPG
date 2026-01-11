@@ -22,13 +22,19 @@ MonoBehaviour:
   animationDuration: 1
   animationTrigger: Attack
   attackRange: 5
-  attackAngle: 60
+  attackAngle: 360
   stopMovingWhileAttacking: 1
   projectilePrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
+  trajectoryType: 0
+  arcHeight: 3
   projectileSpeed: 3
   projectileLifetime: 1
   projectileCount: 5
   multiShotAngle: 75
+  aoeEffectPrefab: {fileID: 0}
+  aoeDuration: 1
+  aoeShape: 0
+  aoeScale: 1
   onHitEffects: []
   effectChances: []
   attackStartEffect: {fileID: 0}
