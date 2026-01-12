@@ -4586,15 +4586,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID
-      value: STAGE_003_SP02
+      value: STAGE_006_SP02
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_003_G02
+      value: STAGE_006_G02
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
-      value: STAGE_003_SP02
+      value: STAGE_006_SP02
       objectReference: {fileID: 0}
     - target: {fileID: 2147881682910776647, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -22452,15 +22452,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID
-      value: STAGE_003_SP01
+      value: STAGE_006_SP01
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_003_G01
+      value: STAGE_006_G01
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
-      value: STAGE_003_SP01
+      value: STAGE_006_SP01
       objectReference: {fileID: 0}
     - target: {fileID: 2147881682910776647, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -25569,15 +25569,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID
-      value: STAGE_003_SP03
+      value: STAGE_006_SP03
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
-      value: STAGE_003_G03
+      value: STAGE_006_G03
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
-      value: STAGE_003_SP03
+      value: STAGE_006_SP03
       objectReference: {fileID: 0}
     - target: {fileID: 2147881682910776647, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_LocalPosition.x

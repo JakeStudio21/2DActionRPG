@@ -41,6 +41,9 @@ namespace CutsceneSystem
         [Tooltip("초상 이미지인가? (false = 배경 이미지) - isFade가 true면 무시됨")]
         public bool isPortrait = false;
         
+        [Tooltip("플레이어 클래스별 동적 포트레이트 사용 (isPortrait=true일 때만 작동)")]
+        public bool useDynamicPlayerPortrait = false;
+        
         [Tooltip("페이드 인 효과 적용")]
         public bool fadeIn = true;
         
@@ -98,7 +101,8 @@ namespace CutsceneSystem
             switch (stepType)
             {
                 case CutsceneStepType.Image:
-                    if (imageSprite == null)
+                    // 동적 플레이어 포트레이트 사용 시에는 imageSprite가 null이어도 유효
+                    if (imageSprite == null && !useDynamicPlayerPortrait)
                         return false;
                     if (imageDuration <= 0)
                         return false;
@@ -135,11 +139,15 @@ namespace CutsceneSystem
             {
                 case CutsceneStepType.Image:
                     string imageType = isFade ? "Fade" : (isPortrait ? "초상" : "배경");
-                    string imageName = imageSprite != null ? imageSprite.name : "없음";
+                    string imageName = useDynamicPlayerPortrait ? "(플레이어 동적)" 
+                                     : (imageSprite != null ? imageSprite.name : "없음");
                     return $"[이미지] {imageType}: {imageName}";
                 
                 case CutsceneStepType.Dialogue:
                     string speaker = !string.IsNullOrEmpty(speakerName) ? speakerName : "???";
+                    // 동적 키워드가 있으면 표시
+                    if (speaker.Contains("{PLAYER_NAME}") || speaker.Contains("{PLAYER_CLASS}") || speaker.Contains("{PLAYER}"))
+                        speaker = $"{speaker} (동적)";
                     string preview = dialogueText.Length > 20 
                         ? dialogueText.Substring(0, 20) + "..." 
                         : dialogueText;

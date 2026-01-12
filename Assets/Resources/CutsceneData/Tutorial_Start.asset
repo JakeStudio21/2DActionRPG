@@ -18,53 +18,13 @@ MonoBehaviour:
   steps:
   - stepType: 0
     duration: 0
-    imageSprite: {fileID: 21300000, guid: 77cc16bcd24ca964b8e1606e149de7f0, type: 3}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 1
-    imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 3
-    duration: 0.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: '
-
-'
-    typingSpeed: 0
-    sfxEventKey: bgm_intro
-    sfxDomain: Cutscene
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 0
-    duration: 0
-    imageSprite: {fileID: 21300000, guid: 953aab5ddc0c5b34ea1d50e120d44a9f, type: 3}
+    imageSprite: {fileID: 21300000, guid: b6b503d3f05b95d409040f5157124b8c, type: 3}
     isFade: 0
     isPortrait: 1
     fadeIn: 1
-    imagePosition: {x: -200, y: 0}
-    imageScale: 1
-    imageDuration: 2
+    imagePosition: {x: -540, y: -140}
+    imageScale: 4
+    imageDuration: 0.1
     speakerName: 
     dialogueText: '
 
@@ -86,9 +46,10 @@ MonoBehaviour:
     imagePosition: {x: 0, y: 0}
     imageScale: 0
     imageDuration: 0
-    speakerName: "\uB098\uB808\uC774\uC158"
-    dialogueText: "\uC774\uAC83\uC740 \uD14C\uC2A4\uD2B8 \uCEF7\uC2E0\uC785\uB2C8\uB2E4.\n"
-    typingSpeed: 5
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uC5EC\uAE34 \uD6C8\uB828\uC7A5\uC774\uB2E4.\u201D\n\u201C\uC774\uACF3\uC5D0\uC11C
+      \uC774\uB3D9\uACFC \uACF5\uACA9, \uC804\uD22C\uC758 \uAE30\uCD08\uB97C \uBC30\uC6B4\uB2E4.\u201D"
+    typingSpeed: 15
     sfxEventKey: 
     sfxDomain: 
     bgmEventKey: 
@@ -124,10 +85,10 @@ MonoBehaviour:
     imagePosition: {x: 0, y: 0}
     imageScale: 0
     imageDuration: 0
-    speakerName: "\uB098\uB808\uC774\uC158"
-    dialogueText: "\uBAA8\uB4E0 \uAE30\uB2A5\uC774 \uC815\uC0C1\uC801\uC73C\uB85C
-      \uC791\uB3D9\uD558\uB294\uC9C0 \uD655\uC778\uD569\uB2C8\uB2E4."
-    typingSpeed: 5
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uB0B4 \uB9D0 \uC798 \uB4E4\uC5B4\uB77C.\u201D\n\u201C\uC0B4\uC544\uB0A8\uACE0
+      \uC2F6\uB2E4\uBA74 \uB9D0\uC774\uC9C0.\u201D"
+    typingSpeed: 15
     sfxEventKey: 
     sfxDomain: 
     bgmEventKey: 
@@ -135,8 +96,8 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 3
-    duration: 0.5
+  - stepType: 2
+    duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
@@ -147,15 +108,35 @@ MonoBehaviour:
     speakerName: 
     dialogueText: 
     typingSpeed: 0
-    sfxEventKey: image_appear
-    sfxDomain: Cutscene
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uC790, \uBA3C\uC800 \uBAB8\uBD80\uD130 \uD480\uC5B4\uBCF4\uC790.\u201D\n\u201C\uB0B4
+      \uC9C0\uC2DC\uC5D0 \uB530\uB77C \uC6C0\uC9C1\uC5EC\uB77C.\u201D"
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
-    duration: 0.5
+    duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
@@ -187,25 +168,6 @@ MonoBehaviour:
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 3
-    duration: 0.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: scene_end
-    sfxDomain: Cutscene
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0

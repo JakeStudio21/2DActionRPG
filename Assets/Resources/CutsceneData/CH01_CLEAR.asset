@@ -16,21 +16,41 @@ MonoBehaviour:
   cutsceneName: "\uCC55\uD130 1 \uD074\uB9AC\uC5B4"
   cutsceneType: 1
   steps:
-  - stepType: 1
-    duration: 1
+  - stepType: 2
+    duration: 2
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 1
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
     imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
+    imageScale: 0
+    imageDuration: 0
     speakerName: 
-    dialogueText: "\uCD95\uD558\uD569\uB2C8\uB2E4! \uCD08\uC6D0 \uC9C0\uC5ED\uC744
-      \uC644\uB8CC\uD588\uC2B5\uB2C8\uB2E4!"
-    typingSpeed: 20
+    dialogueText: 
+    typingSpeed: 0
     sfxEventKey: 
-    sfxDomain: Cutscene
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 5ddf5859e9b61c746b927d727dff54d2, type: 3}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
@@ -41,13 +61,18 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uC774\uC81C \uC0AC\uB9C9 \uC9C0\uC5ED\uC73C\uB85C \uB5A0\uB0A0
-      \uC900\uBE44\uAC00 \uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: "\"\uC232\uC758 \uBE44\uBA85\uC740 \uBA48\uCDC4\uACE0, \uB300\uC9C0\uB294
+      \uB2E4\uC2DC \uC228\uC744 \uC26C\uAE30 \uC2DC\uC791\uD588\uB2E4.\"\n\n\"\uD5C8\uB098
+      \uBC14\uB78C\uC5D0 \uC2E4\uB824\uC628 \uAC83\uC740 \uAF43\uB0B4\uC74C\uC774
+      \uC544\uB2CC, \uBA54\uB9C8\uB978 \uBAA8\uB798\uC758 \uC5F4\uAE30.\"\n\n\"\uC545\uC758
+      \uADF8\uB9BC\uC790\uB294 \uC232\uC744 \uB118\uC5B4, \uC774\uBBF8 \uD669\uAE08\uBE5B
+      \uC720\uC801\uC744 \uC0BC\uD0A4\uACE0 \uC788\uC5C8\uB2E4.\"\n"
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
@@ -56,21 +81,21 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 1
-    duration: 1
+  - stepType: 2
+    duration: 2
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 1
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
     imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uB354 \uAC15\uB825\uD55C \uC801\uB4E4\uC774 \uAE30\uB2E4\uB9AC\uACE0
-      \uC788\uC744 \uAC83\uC785\uB2C8\uB2E4. \uC870\uC2EC\uD558\uC138\uC694!"
-    typingSpeed: 20
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
     sfxEventKey: 
-    sfxDomain: Cutscene
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
@@ -79,7 +104,7 @@ MonoBehaviour:
   pauseGameOnStart: 1
   canSkip: 1
   playOnce: 0
-  canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas_Chapter
   bgmEventKey: 
   resumePreviousBGM: 1
   description: "\uCC55\uD130 1 (Stage 10) \uD074\uB9AC\uC5B4 \uD6C4 \uB85C\uBE44\uC5D0\uC11C

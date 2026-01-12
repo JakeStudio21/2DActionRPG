@@ -1,0 +1,210 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d776b06ddd9c454abe7d7193af5b7cf, type: 3}
+  m_Name: CH01_ST06_START
+  m_EditorClassIdentifier: 
+  cutsceneId: CH01_ST06_START
+  cutsceneName: "\uCC55\uD1301\uC2A4\uD14C\uC774\uC9C0 6 \uC2DC\uC791"
+  cutsceneType: 1
+  steps:
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 31ed1f3c4f428f94ba4afdefad639ef9, type: 3}
+    isFade: 0
+    isPortrait: 1
+    useDynamicPlayerPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -660, y: -240}
+    imageScale: 3
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uC774\uACF3\uC774\uC5C8\uAD70. \uD3D0\uAD11\uC744 \uBD88\uBC95\uC73C\uB85C
+      \uC7AC\uAC00\uB3D9\uD574\uC11C \uC232\uC758 \uC9C0\uB9E5\uC744 \uAC74\uB4DC\uB9AC\uACE0
+      \uC788\uC5C8\uC5B4!\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 2
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 05a11577d58ec524fa392b5bce0efb30, type: 3}
+    isFade: 0
+    isPortrait: 1
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 600, y: -240}
+    imageScale: 3
+    imageDuration: 0.3
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uC624\uD06C\uB300\uC7A5"
+    dialogueText: "\"\uCE68\uC785\uC790\uB2E4!! \uD55C \uB188\uB3C4 \uC0B4\uB824
+      \uBCF4\uB0B4\uC9C0 \uB9C8\uB77C! \uBB3C\uAC74\uC744 \uC9C0\uCF1C!\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 31ed1f3c4f428f94ba4afdefad639ef9, type: 3}
+    isFade: 0
+    isPortrait: 1
+    useDynamicPlayerPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -660, y: -240}
+    imageScale: 3
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uBC1C\uAC01\uB410\uB2E4... \uC218\uC801\uC73C\uB85C \uBD88\uB9AC\uD574.
+      \uBC84\uD168\uB0B4\uBA74\uC11C \uB188\uB4E4\uC758 \uB300\uC7A5\uC744 \uCCD0\uC57C
+      \uD55C\uB2E4!\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 2
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  pauseGameOnStart: 1
+  canSkip: 1
+  playOnce: 0
+  canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  bgmEventKey: 
+  resumePreviousBGM: 1
+  description: 

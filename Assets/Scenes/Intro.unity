@@ -529,7 +529,7 @@ GameObject:
   - component: {fileID: 619878466}
   - component: {fileID: 619878465}
   m_Layer: 0
-  m_Name: BGMStarter_Login
+  m_Name: BGMStarter_Intro
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -794,7 +794,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1017258382}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -803,7 +803,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1017258384
 MonoBehaviour:
@@ -1312,6 +1312,7 @@ MonoBehaviour:
   introCutsceneIds:
   - Intro_001
   - Intro_002
+  - Intro_003
   enableDebugLogs: 1
   skipButton: {fileID: 458060023}
   skipButtonObj: {fileID: 455156247}

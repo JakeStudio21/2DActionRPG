@@ -1,0 +1,480 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d776b06ddd9c454abe7d7193af5b7cf, type: 3}
+  m_Name: Intro_003
+  m_EditorClassIdentifier: 
+  cutsceneId: Intro_002
+  cutsceneName: "\uD14C\uC2A4\uD2B8 \uC778\uD2B8\uB85C \uCEF7\uC2E0"
+  cutsceneType: 0
+  steps:
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: a43fd79f238d9564dbc1e2241e112394, type: 3}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 1
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 7d8bbabab62201d40be70c16daba9442, type: 3}
+    isFade: 0
+    isPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -540, y: -140}
+    imageScale: 4
+    imageDuration: 0.1
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uC0C1\uD669\uC774 \uC2EC\uC0C1\uCE58 \uC54A\uC544. \uC774\uBC88
+      \uC870\uC0AC\uB294 \uB2E8\uC21C\uD788 \uCE7C\uC744 \uC798 \uD718\uB450\uB978\uB2E4\uACE0
+      \uD574\uACB0\uB420 \uBB38\uC81C\uAC00 \uC544\uB2C8\uC57C. \uD3D0\uD558\uC758
+      \uC5C4\uBA85\uC744 \uC218\uD589\uD558\uB824\uBA74, \uB0C9\uCCA0\uD55C \uD310\uB2E8\uB825\uACFC
+      \uBD88\uAD74\uC758 \uC758\uC9C0\uB97C \uAC00\uC9C4 \uCD5C\uC815\uC608 \uC5D8\uB9AC\uD2B8\uAC00
+      \uD544\uC694\uD558\uB2E4.\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uADF8\uB798. \uB9DE\uC544. \uCD5C\uADFC \uB4E4\uC5B4\uC628
+      \uC2E0\uC785\uC774 \uC0C1\uB2F9\uD788 \uC720\uB2A5\uD558\uB2E4\uACE0 \uC18C\uBB38\uC774
+      \uC790\uC790\uD558\uB358\uB370..\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: b6b503d3f05b95d409040f5157124b8c, type: 3}
+    isFade: 0
+    isPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -540, y: -140}
+    imageScale: 4
+    imageDuration: 0.1
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uADF8\uB798, \uC790\uB124\uAC00 \uBC14\uB85C \uADF8 \uC18C\uBB38\uC758
+      \uC2E0\uC785\uC778\uAC00? \uAC00\uC7A5 \uC911\uC694\uD55C \uC784\uBB34\uB97C
+      \uB9E1\uAE38 \uB9CC\uD55C \uC7AC\uBAA9\uC778\uC9C0, \uB0B4 \uB208\uC73C\uB85C
+      \uC9C1\uC811 \uD655\uC778\uD574\uC57C\uACA0\uAD70.\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uC790, \uC2E0\uC785! \uAE34\uC7A5\uC744 \uB2A6\uCD94\uC9C0
+      \uB9C8\uB77C. \uC131\uBCBD \uBC16\uC740 \uC774\uBBF8 \uD63C\uB3C8 \uADF8 \uC790\uCCB4\uB2E4.
+      \uC815\uB839\uC758 \uAC00\uD638\uB97C \uC783\uC740 \uC9D0\uC2B9\uB4E4\uC774
+      \uC5BC\uB9C8\uB098 \uD749\uD3EC\uD558\uAC8C \uBCC0\uD588\uB294\uC9C0 \uC0C1\uC0C1\uB3C4
+      \uBABB \uD560 \uAC8C\uB2E4.\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 1b0a68cdeaa793e4cbf810c99f680930, type: 3}
+    isFade: 0
+    isPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: 400, y: -240}
+    imageScale: 3
+    imageDuration: 0.1
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uC800\uAE30 \uD6C8\uB828\uC6A9 \uD5C8\uC218\uC544\uBE44\uB97C
+      \uACF5\uACA9\uD558\uACE0 \uC788\uB294... \uC544\uB2C8, \uC7A0\uAE50. \uC800
+      \uB140\uC11D \uBA38\uB9AC\uB97C \uBD10\uB77C. \uB0C4\uBE44 \uB69C\uAED1? \uB188\uB4E4\uC740
+      \uB2E8\uC21C\uD788 \uBBF8\uCCD0 \uB0A0\uB6F0\uB294 \uAC8C \uC544\uB2C8\uAD70.\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uBCF8\uB2A5\uC801\uC73C\uB85C '\uCCA0'\uC744 \uC57D\uD0C8\uD558\uACE0
+      \uC788\uC5B4! \uC774 \uAE30\uC774\uD55C \uC5B4\uB460\uC758 \uC190\uAE38\uC774
+      \uBC8C\uC368 \uC655\uAD6D \uD131\uBC11\uAE4C\uC9C0 \uB4E4\uC774\uB2E5\uCCE4\uB2E4\uB294
+      \uC99D\uAC70\uB2E4. \uB354 \uC774\uC0C1 \uC9C0\uCCB4\uD560 \uC2DC\uAC04\uC774
+      \uC5C6\uB2E4.\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 7d8bbabab62201d40be70c16daba9442, type: 3}
+    isFade: 0
+    isPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -540, y: -140}
+    imageScale: 4
+    imageDuration: 0.1
+    speakerName: 
+    dialogueText: '
+
+'
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uC790, \uC2E0\uC785! \uC774\uC81C\uBD80\uD130\uAC00 \uC9C4\uC9DC
+      \uC2E4\uC804\uC774\uB2E4. \uB2F9\uC7A5 \uC6C0\uC9C1\uC5EC\uB77C!\" "
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\"\uC655\uAD6D \uACF3\uACF3\uC5D0 \uD37C\uC9C4 \uC774 \uAE30\uC774\uD55C
+      \uD604\uC0C1\uC758 \uC6D0\uC778\uC744 \uB0B1\uB0B1\uC774 \uD30C\uD5E4\uCE58\uACE0,
+      \uC6B0\uB9AC\uAC00 \uC783\uC5B4\uBC84\uB9B0 '\uD3C9\uD654'\uB97C \uBC18\uB4DC\uC2DC
+      \uB418\uCC3E\uC544 \uC624\uB3C4\uB85D! \uB124 \uAC80 \uB05D\uC5D0 \uAC08\uB77C\uB4DC\uC655\uAD6D\uC758
+      \uC6B4\uBA85\uC774 \uB2EC\uB824\uC788\uC74C\uC744 \uBA85\uC2EC\uD574\uB77C.
+      \uC774\uC0C1!\""
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 7476d6135dfce2c47a3cc6b7d8d94fd6, type: 3}
+    isFade: 1
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  pauseGameOnStart: 1
+  canSkip: 1
+  playOnce: 0
+  canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
+  bgmEventKey: 
+  resumePreviousBGM: 1
+  description: 

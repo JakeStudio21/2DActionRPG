@@ -179,7 +179,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Ingame_Loading.unity
     guid: 8dba45ed3c6f43348a5b40be468ed000
-  - enabled: 0
-    path: Assets/Scenes/StageSelect.unity
-    guid: ba27e52c54f3ae14d9a3bfbb77938c4c
   m_configObjects: {}

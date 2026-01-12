@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8815f4e37c1064b8ba4adc333291d9, type: 3}
+  m_Name: STAGE_006_G01_Config
+  m_EditorClassIdentifier: 
+  SpawnGroupID: STAGE_006_G01
+  WaveID: STAGE_006_WAVE_01
+  SpawnDelaySec: 0
+  RepeatCount: 1
+  RepeatIntervalSec: 0
+  Monsters:
+  - MonsterID: MON_BEETLE_001
+    Count: 2
+    SpawnCount: 0.3
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_LADYBUG_001
+    Count: 1
+    SpawnCount: 0
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}

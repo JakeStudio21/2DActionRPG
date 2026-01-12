@@ -19,22 +19,26 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 1
   stageIndexInChapter: 9
-  enterCutsceneId: 
+  chapterStartCutsceneId: 
+  enterCutsceneId: CH01_ST09_START
   clearCutsceneId: 
   isReplaySkipCutscene: 1
-  RequiredLevel: 5
+  RequiredLevel: 1
   UnlockCondition: Clear:CH01_ST08
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
   WaveCount: 3
-  TimeLimitSec: 300
-  Victory: 0
+  TimeLimitSec: 30
+  Victory: 2
   FirstClearDropGroupId: DROP_CH01_ST09_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST09_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 9 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST08"
-  WaveConfigs: []
+  WaveConfigs:
+  - {fileID: 11400000, guid: f131c0fed9bd50f45a080414327c5465, type: 2}
+  - {fileID: 11400000, guid: a5596e5db131bea4193dfcd45376b0c9, type: 2}
+  - {fileID: 11400000, guid: 9ce69b7d0a717814da2e0cc3175ae801, type: 2}
   FirstClearDropTable: {fileID: 0}
   RepeatClearDropTable: {fileID: 0}

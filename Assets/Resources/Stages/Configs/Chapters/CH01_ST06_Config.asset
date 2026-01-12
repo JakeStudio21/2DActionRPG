@@ -19,10 +19,11 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 1
   stageIndexInChapter: 6
-  enterCutsceneId: 
-  clearCutsceneId: 
+  chapterStartCutsceneId: 
+  enterCutsceneId: CH01_ST06_START
+  clearCutsceneId: CH01_ST06_CLEAR
   isReplaySkipCutscene: 1
-  RequiredLevel: 5
+  RequiredLevel: 1
   UnlockCondition: Clear:CH01_ST05
   unlockData:
     IsAlwaysUnlocked: 0
@@ -35,6 +36,9 @@ MonoBehaviour:
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 6 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uBCF4\uC2A4 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST05"
-  WaveConfigs: []
+  WaveConfigs:
+  - {fileID: 11400000, guid: 3ca514dc14d73d847bbfe6a93833bbbf, type: 2}
+  - {fileID: 11400000, guid: 53786f8c120bfcf45a87dcb89bbbbcff, type: 2}
+  - {fileID: 11400000, guid: bf7c997085485934baff60de12d37e2b, type: 2}
   FirstClearDropTable: {fileID: 0}
   RepeatClearDropTable: {fileID: 0}

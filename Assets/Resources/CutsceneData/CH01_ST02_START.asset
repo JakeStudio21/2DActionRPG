@@ -16,21 +16,63 @@ MonoBehaviour:
   cutsceneName: "\uCC55\uD1301\uC2A4\uD14C\uC774\uC9C0 2 \uC2DC\uC791"
   cutsceneType: 1
   steps:
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 31ed1f3c4f428f94ba4afdefad639ef9, type: 3}
+    isFade: 0
+    isPortrait: 1
+    useDynamicPlayerPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -660, y: -240}
+    imageScale: 3
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
   - stepType: 1
     duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: 0, y: 0}
     imageScale: 1
     imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uC774\uAC83\uC740 \uCC55\uD1301 \uC2A4\uD14C\uC774\uC9C02 \uC2DC\uC791
-      \uC2A4\uD14C\uC774\uC9C0 \uCEF7\uC2E0\uC785\uB2C8\uB2E4."
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uC2DD\uBB3C\uB4E4\uB9C8\uC800 \uBCC0\uC774\uD588\uC5B4. \uC232\uC758
+      \uAE4A\uC740 \uACF3\uC73C\uB85C \uAC08\uC218\uB85D \uC624\uC5FC \uB18D\uB3C4\uAC00
+      \uC9D9\uC5B4\uC9C0\uACE0 \uC788\uC5B4.\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 2
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
@@ -41,13 +83,14 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: 0, y: 0}
     imageScale: 1
     imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uCC55\uD1301 \uC2A4\uD14C\uC774\uC9C01\uC5D0\uC11C \uAE30\uBCF8\uC801\uC778
-      \uC804\uD22C\uC640 \uD0D0\uD5D8\uC744 \uBC30\uC6B8 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uB204\uAD70\uAC00 \uC232\uC758 \uC2EC\uC7A5\uC744 \uB178\uB9AC\uACE0
+      \uB4E4\uC5B4\uAC04 \uAC8C \uBD84\uBA85\uD574. \uAE38\uC744 \uB6AB\uC5B4\uC57C\uACA0\uC5B4.\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
@@ -56,20 +99,21 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 1
-    duration: 1
+  - stepType: 2
+    duration: 2
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 1
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
     imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uC900\uBE44\uB418\uC168\uB098\uC694? \uADF8\uB7FC \uC2DC\uC791\uD574\uBD05\uC2DC\uB2E4!"
-    typingSpeed: 20
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
     sfxEventKey: 
-    sfxDomain: Cutscene
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
@@ -81,5 +125,4 @@ MonoBehaviour:
   canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
   bgmEventKey: 
   resumePreviousBGM: 1
-  description: "\uCC55\uD130 1 \uCCAB \uC9C4\uC785 \uC2DC \uC7AC\uC0DD\uB418\uB294
-    \uC2DC\uC791 \uCEF7\uC2E0\uC785\uB2C8\uB2E4."
+  description: 

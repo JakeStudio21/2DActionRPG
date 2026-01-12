@@ -19,10 +19,11 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 1
   stageIndexInChapter: 3
-  enterCutsceneId: 
-  clearCutsceneId: 
+  chapterStartCutsceneId: 
+  enterCutsceneId: CH01_ST03_START
+  clearCutsceneId: CH01_ST03_CLEAR
   isReplaySkipCutscene: 1
-  RequiredLevel: 5
+  RequiredLevel: 1
   UnlockCondition: Clear:CH01_ST02
   unlockData:
     IsAlwaysUnlocked: 0

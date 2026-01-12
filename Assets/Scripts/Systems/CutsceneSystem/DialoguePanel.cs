@@ -56,8 +56,21 @@ namespace CutsceneSystem
                 canvasGroup = gameObject.AddComponent<CanvasGroup>();
             }
             
-            // 초기 상태: 숨김
-            HideDialogue();
+            // 초기 상태: 즉시 숨김 (애니메이션 없음)
+            // 컷신 시작 시 빈 Dialogue 박스가 잠깐 보이는 버그 방지
+            // GameObject는 활성 상태 유지 (GetComponentInChildren으로 찾을 수 있도록)
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.blocksRaycasts = false;
+                canvasGroup.interactable = false;
+            }
+            
+            if (dialogueText != null)
+                dialogueText.text = "";
+            
+            if (speakerNameText != null)
+                speakerNameText.text = "";
         }
         
         private void OnDestroy()
@@ -82,9 +95,6 @@ namespace CutsceneSystem
             StopTyping();
             KillAllTweens();
             
-            // 패널 활성화
-            dialoguePanel.SetActive(true);
-            
             // 화자 이름 설정
             if (speakerNameText != null)
             {
@@ -103,6 +113,13 @@ namespace CutsceneSystem
             // 타이핑 속도 설정 (0이면 기본값 사용)
             if (typingSpeed <= 0)
                 typingSpeed = defaultTypingSpeed;
+            
+            // CanvasGroup 활성화
+            if (canvasGroup != null)
+            {
+                canvasGroup.blocksRaycasts = false; // 컷신은 클릭으로 스킵하므로 차단하지 않음
+                canvasGroup.interactable = false; // Dialogue는 상호작용 안 함
+            }
             
             // 페이드 인
             canvasGroup.alpha = 0f;
@@ -142,11 +159,15 @@ namespace CutsceneSystem
             // 페이드 아웃
             if (canvasGroup != null)
             {
+                // 즉시 비활성화 (클릭 차단)
+                canvasGroup.blocksRaycasts = false;
+                canvasGroup.interactable = false;
+                
                 currentFadeTween = canvasGroup.DOFade(0f, fadeDuration)
                     .SetEase(Ease.InQuad)
                     .SetUpdate(true) // Time.timeScale 무시
                     .OnComplete(() => {
-                        dialoguePanel.SetActive(false);
+                        // GameObject는 활성 상태 유지 (GetComponentInChildren으로 찾을 수 있도록)
                         if (dialogueText != null)
                             dialogueText.text = "";
                         if (speakerNameText != null)
@@ -155,7 +176,11 @@ namespace CutsceneSystem
             }
             else
             {
-                dialoguePanel.SetActive(false);
+                // CanvasGroup이 없는 경우 (비정상 상황)
+                if (dialogueText != null)
+                    dialogueText.text = "";
+                if (speakerNameText != null)
+                    speakerNameText.text = "";
             }
             
             if (enableDebugLogs)
@@ -297,7 +322,8 @@ namespace CutsceneSystem
         
         /// <summary>
         /// 대사 패널이 활성화되어 있는지 확인
+        /// (GameObject가 아닌 CanvasGroup의 alpha 값으로 판단)
         /// </summary>
-        public bool IsActive => dialoguePanel != null && dialoguePanel.activeSelf;
+        public bool IsActive => canvasGroup != null && canvasGroup.alpha > 0f;
     }
 }

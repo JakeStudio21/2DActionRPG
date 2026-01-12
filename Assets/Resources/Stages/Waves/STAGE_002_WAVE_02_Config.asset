@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: STAGE_002_WAVE_02_Config
   m_EditorClassIdentifier: 
   WaveID: STAGE_002_WAVE_02
-  StageID: STAGE_002
+  StageID: CH01_ST02
   WaveIndex: 2
   StartCondition: 1
   WaveDelaySec: 3

@@ -998,5 +998,59 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  optionalPools: []
-  enableDebugLogs: 0
+  optionalPools:
+  - tag: Arrow
+    prefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Arrow_B_Arc
+    prefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Barrel VFX
+    prefab: {fileID: 724470073289127030, guid: 7b418587ca1a19745ba312bce0b1ceb8, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Bush VFX
+    prefab: {fileID: 724470073289127030, guid: be762be0fae4e8b4098aa1bd8fb6bff6, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: ITEM_ARMOR_ASSASIN_A
+    prefab: {fileID: 6665777931767919178, guid: 9da8dd8d96b24d54589a60b0cf327145, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_B
+    prefab: {fileID: 6665777931767919178, guid: a36a35e36de7916418aad41f5e27a89c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_C
+    prefab: {fileID: 6665777931767919178, guid: 9eb193f96cb831243aa261049082fd70, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_ASSASIN_S
+    prefab: {fileID: 6665777931767919178, guid: 540828fde063bb3428ce378189bc3381, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ITEM_ARMOR_WARRIOR_A
+    prefab: {fileID: 6665777931767919178, guid: 335a7751374060b42806629aacee13d1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  enableDebugLogs: 1

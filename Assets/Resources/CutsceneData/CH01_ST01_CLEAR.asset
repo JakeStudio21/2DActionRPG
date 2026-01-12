@@ -16,21 +16,83 @@ MonoBehaviour:
   cutsceneName: "\uCC55\uD1301\uC2A4\uD14C\uC774\uC9C0 1 \uD074\uB9AC\uC5B4"
   cutsceneType: 1
   steps:
-  - stepType: 1
-    duration: 1
+  - stepType: 2
+    duration: 1.5
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 1
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
     imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
+    imageScale: 0
+    imageDuration: 0
     speakerName: 
-    dialogueText: "\uC774\uAC83\uC740 \uCC55\uD1301 \uC2A4\uD14C\uC774\uC9C01 \uD074\uB9AC\uC5B4
-      \uC2A4\uD14C\uC774\uC9C0 \uCEF7\uC2E0\uC785\uB2C8\uB2E4."
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: 31ed1f3c4f428f94ba4afdefad639ef9, type: 3}
+    isFade: 0
+    isPortrait: 1
+    useDynamicPlayerPortrait: 1
+    fadeIn: 1
+    imagePosition: {x: -660, y: -240}
+    imageScale: 3
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 2
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uAC80\uC740 \uAE30\uC6B4\uC774 \uBE60\uC838\uB098\uAC00\uB2C8
+      \uB2E4\uC2DC \uC6D0\uB798\uB300\uB85C \uB3CC\uC544\uC654\uAD70. \uB2E4\uD589\uD788
+      \uC8FD\uC9C0\uB294 \uC54A\uC558\uC5B4.\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
@@ -41,13 +103,15 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: 0, y: 0}
     imageScale: 1
     imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uC774\uAC83\uC740 \uCC55\uD1301 \uC2A4\uD14C\uC774\uC9C02\uB85C
-      \uB5A0\uB0A0 \uC900\uBE44\uAC00 \uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uC774 \uBC1C\uC790\uAD6D\uB4E4... \uC9D0\uC2B9\uC758 \uAC83\uC774
+      \uC544\uB2C8\uC57C. \uB204\uAD70\uAC00 \uC232 \uC548\uCABD\uC73C\uB85C \uC774\uB4E4\uC744
+      \uBAB0\uACE0 \uAC14\uC5B4.\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
@@ -56,21 +120,21 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 1
-    duration: 1
+  - stepType: 2
+    duration: 1.5
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 1
+    useDynamicPlayerPortrait: 0
+    fadeIn: 0
     imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: "\uAC00\uC774\uB4DC"
-    dialogueText: "\uB354 \uAC15\uB825\uD55C \uC801\uB4E4\uC774 \uAE30\uB2E4\uB9AC\uACE0
-      \uC788\uC744 \uAC83\uC785\uB2C8\uB2E4. \uC870\uC2EC\uD558\uC138\uC694!"
-    typingSpeed: 20
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
     sfxEventKey: 
-    sfxDomain: Cutscene
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
@@ -82,5 +146,4 @@ MonoBehaviour:
   canvasPrefabPath: Prefabs/Cutscene/CutsceneCanvas
   bgmEventKey: 
   resumePreviousBGM: 1
-  description: "\uCC55\uD130 1 (Stage 10) \uD074\uB9AC\uC5B4 \uD6C4 \uB85C\uBE44\uC5D0\uC11C
-    \uC7AC\uC0DD\uB418\uB294 \uC885\uB8CC \uCEF7\uC2E0\uC785\uB2C8\uB2E4."
+  description: 

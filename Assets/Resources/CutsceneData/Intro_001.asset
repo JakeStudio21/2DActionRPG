@@ -16,25 +16,6 @@ MonoBehaviour:
   cutsceneName: "\uD14C\uC2A4\uD2B8 \uC778\uD2B8\uB85C \uCEF7\uC2E0"
   cutsceneType: 0
   steps:
-  - stepType: 0
-    duration: 0
-    imageSprite: {fileID: 21300000, guid: 77cc16bcd24ca964b8e1606e149de7f0, type: 3}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 1
-    imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
   - stepType: 3
     duration: 0.5
     imageSprite: {fileID: 0}
@@ -58,13 +39,156 @@ MonoBehaviour:
     note: 
   - stepType: 0
     duration: 0
-    imageSprite: {fileID: 21300000, guid: 953aab5ddc0c5b34ea1d50e120d44a9f, type: 3}
+    imageSprite: {fileID: 21300000, guid: a6643b65d7d02c94f9687e0ff8ac1afb, type: 3}
     isFade: 0
-    isPortrait: 1
+    isPortrait: 0
     fadeIn: 1
-    imagePosition: {x: -200, y: 0}
+    imagePosition: {x: 0, y: 0}
     imageScale: 1
-    imageDuration: 2
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uB098\uB808\uC774\uC158"
+    dialogueText: "\"\uD0DC\uCD08\uC758 \uC228\uACB0\uC774 \uBA38\uBB34\uB294 \uACF3,
+      \uC815\uB839\uB4E4\uC758 \uC740\uCD1D\uC774 \uB300\uC9C0\uC758 \uD54F\uC904\uB9C8\uB2E4
+      \uD750\uB974\uB294 \uCC2C\uC5F0\uD55C \uB099\uC6D0 [\uAC08\uB77C\uB4DC\uC655\uAD6D].
+      \""
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uB098\uB808\uC774\uC158"
+    dialogueText: "\"\uC774\uACF3\uC758 \uC0AC\uB78C\uB4E4\uC740 \uB9CC\uBB3C\uC5D0
+      \uAE43\uB4E0 \uC601\uD63C\uACFC \uC18D\uC0AD\uC774\uBA70 \uACF5\uC874\uD558\uB294
+      \uBC95\uC744 \uBC30\uC6E0\uACE0, \uADF8 \uAE4A\uC740 \uC720\uB300 \uC18D\uC5D0\uC11C
+      \uC655\uAD6D\uC740 \uC601\uC6D0\uD788 \uC9C0\uC9C0 \uC54A\uC744 \uAC83\uB9CC
+      \uAC19\uC740 \uD669\uAE08\uAE30\uB97C \uB204\uB824\uC654\uC2B5\uB2C8\uB2E4.\""
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uB098\uB808\uC774\uC158"
+    dialogueText: "\"\uC815\uB839\uC758 \uCD95\uBCF5\uC740 \uBC2D\uC758 \uACE1\uC2DD\uC744
+      \uC601\uAE00\uAC8C \uD588\uACE0, \uB300\uC7A5\uAC04\uC758 \uBD88\uAF43\uC744
+      \uAEBC\uC9C0\uC9C0 \uC54A\uAC8C \uD588\uC73C\uBA70, \uC6B0\uB9AC\uC758 \uC0B6\uC740
+      \uC548\uC628\uD55C \uD3C9\uD654\uC758 \uCC2C\uAC00\uB85C \uAC00\uB4DD\uD588\uC2B5\uB2C8\uB2E4.\""
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1.5
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
+    imageSprite: {fileID: 21300000, guid: d94b9cc5d61412f4ca8d9251e7f04746, type: 3}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 0.3
     speakerName: 
     dialogueText: '
 
@@ -87,8 +211,10 @@ MonoBehaviour:
     imageScale: 0
     imageDuration: 0
     speakerName: "\uB098\uB808\uC774\uC158"
-    dialogueText: "\uC774\uAC83\uC740 \uD14C\uC2A4\uD2B8 \uCEF7\uC2E0\uC785\uB2C8\uB2E4.\n"
-    typingSpeed: 5
+    dialogueText: "\"\uADF8\uB7EC\uB098 \uCE60\uD751 \uAC19\uC740 \uC5B4\uB460\uC774
+      \uD558\uB298\uC744 \uC9D1\uC5B4\uC0BC\uD0A4\uBA70 \uC608\uACE0 \uC5C6\uC774
+      \uADF8\uB9BC\uC790\uAC00 \uCC3E\uC544\uC654\uC2B5\uB2C8\uB2E4.\""
+    typingSpeed: 20
     sfxEventKey: 
     sfxDomain: 
     bgmEventKey: 
@@ -125,9 +251,12 @@ MonoBehaviour:
     imageScale: 0
     imageDuration: 0
     speakerName: "\uB098\uB808\uC774\uC158"
-    dialogueText: "\uBAA8\uB4E0 \uAE30\uB2A5\uC774 \uC815\uC0C1\uC801\uC73C\uB85C
-      \uC791\uB3D9\uD558\uB294\uC9C0 \uD655\uC778\uD569\uB2C8\uB2E4."
-    typingSpeed: 5
+    dialogueText: "\"\uC218\uD638\uC758 \uC0C1\uC9D5\uC778 '\uAC15\uCCA0'\uB4E4\uC774
+      \uBE44\uBA85 \uC5C6\uC774 \uC2EC\uC5F0\uC73C\uB85C \uC790\uCDE8\uB97C \uAC10\uCD94\uAE30
+      \uC2DC\uC791\uD588\uACE0, \uC628\uC21C\uD588\uB358 \uC0DD\uBA85\uCCB4\uB4E4\uC740
+      \uC54C \uC218 \uC5C6\uB294 \uAD11\uAE30\uC640 \uBD89\uC740 \uAC08\uC99D\uC5D0
+      \uC0AC\uB85C\uC7A1\uD614\uC2B5\uB2C8\uB2E4.\""
+    typingSpeed: 20
     sfxEventKey: 
     sfxDomain: 
     bgmEventKey: 
@@ -135,8 +264,8 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 3
-    duration: 0.5
+  - stepType: 2
+    duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
@@ -147,15 +276,37 @@ MonoBehaviour:
     speakerName: 
     dialogueText: 
     typingSpeed: 0
-    sfxEventKey: image_appear
-    sfxDomain: Cutscene
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uB098\uB808\uC774\uC158"
+    dialogueText: "\"\uC815\uB839\uC758 \uC18D\uC0AD\uC784\uC774 \uBE44\uBA85\uC73C\uB85C
+      \uBCC0\uD55C \uADF8\uB0A0, \uC655\uAD6D\uC758 \uC6B4\uBA85\uC740 \uC2DD\uC5B4\uAC00\uB294
+      \uD654\uB85C\uCC98\uB7FC \uC704\uD0DC\uB86D\uAC8C \uD754\uB4E4\uB9AC\uAE30
+      \uC2DC\uC791\uD588\uC2B5\uB2C8\uB2E4.\""
+    typingSpeed: 20
+    sfxEventKey: 
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
-    duration: 0.5
+    duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
@@ -181,31 +332,12 @@ MonoBehaviour:
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 1
-    imageDuration: 2
+    imageDuration: 1
     speakerName: 
     dialogueText: 
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 3
-    duration: 0.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: scene_end
-    sfxDomain: Cutscene
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0

@@ -18,53 +18,13 @@ MonoBehaviour:
   steps:
   - stepType: 0
     duration: 0
-    imageSprite: {fileID: 21300000, guid: 77cc16bcd24ca964b8e1606e149de7f0, type: 3}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 1
-    imagePosition: {x: 0, y: 0}
-    imageScale: 1
-    imageDuration: 2
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 3
-    duration: 0.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: '
-
-'
-    typingSpeed: 0
-    sfxEventKey: bgm_intro
-    sfxDomain: Cutscene
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 0
-    duration: 0
-    imageSprite: {fileID: 21300000, guid: 953aab5ddc0c5b34ea1d50e120d44a9f, type: 3}
+    imageSprite: {fileID: 21300000, guid: 7d8bbabab62201d40be70c16daba9442, type: 3}
     isFade: 0
     isPortrait: 1
     fadeIn: 1
-    imagePosition: {x: -200, y: 0}
-    imageScale: 1
-    imageDuration: 2
+    imagePosition: {x: -540, y: -140}
+    imageScale: 4
+    imageDuration: 0.1
     speakerName: 
     dialogueText: '
 
@@ -86,9 +46,9 @@ MonoBehaviour:
     imagePosition: {x: 0, y: 0}
     imageScale: 0
     imageDuration: 0
-    speakerName: "\uB098\uB808\uC774\uC158"
-    dialogueText: "\uC774\uAC83\uC740 \uD14C\uC2A4\uD2B8 \uCEF7\uC2E0\uC785\uB2C8\uB2E4.\n"
-    typingSpeed: 5
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uD760\u2026 \uC0DD\uAC01\uBCF4\uB2E4 \uAD1C\uCC2E\uAD70.\u201D"
+    typingSpeed: 15
     sfxEventKey: 
     sfxDomain: 
     bgmEventKey: 
@@ -124,10 +84,10 @@ MonoBehaviour:
     imagePosition: {x: 0, y: 0}
     imageScale: 0
     imageDuration: 0
-    speakerName: "\uB098\uB808\uC774\uC158"
-    dialogueText: "\uBAA8\uB4E0 \uAE30\uB2A5\uC774 \uC815\uC0C1\uC801\uC73C\uB85C
-      \uC791\uB3D9\uD558\uB294\uC9C0 \uD655\uC778\uD569\uB2C8\uB2E4."
-    typingSpeed: 5
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uAE30\uBCF8 \uB3D9\uC791\uC740 \uC775\uD614\uB2E4.\u201D\n\u201C\uD558\uC9C0\uB9CC
+      \uC804\uC7A5\uC740 \uD6C8\uB828\uC7A5\uACFC \uB2E4\uB974\uB2E4.\u201D"
+    typingSpeed: 15
     sfxEventKey: 
     sfxDomain: 
     bgmEventKey: 
@@ -135,8 +95,8 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 3
-    duration: 0.5
+  - stepType: 2
+    duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
@@ -147,15 +107,74 @@ MonoBehaviour:
     speakerName: 
     dialogueText: 
     typingSpeed: 0
-    sfxEventKey: image_appear
-    sfxDomain: Cutscene
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uBC29\uC2EC\uD558\uB294 \uC21C\uAC04, \uC8FD\uC74C\uC774\uB2E4.\u201D\n\u201C\uD56D\uC0C1
+      \uC8FC\uBCC0\uC744 \uC0B4\uD53C\uB3C4\uB85D \uD574\uB77C.\u201D"
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
   - stepType: 2
-    duration: 0.5
+    duration: 1
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 1
+    duration: 0
+    imageSprite: {fileID: 0}
+    isFade: 0
+    isPortrait: 0
+    fadeIn: 0
+    imagePosition: {x: 0, y: 0}
+    imageScale: 0
+    imageDuration: 0
+    speakerName: "\uCE5C\uC704\uB300\uC7A5"
+    dialogueText: "\u201C\uC774\uC81C \uC2E4\uC804\uC5D0 \uB098\uAC08 \uC900\uBE44\uB294
+      \uB410\uB2E4.\u201D\n\u201C\uD589\uC6B4\uC744 \uBE48\uB2E4, \uCE5C\uC704\uB300\uC5EC.\u201D"
+    typingSpeed: 15
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 1
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 2
+    duration: 1
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
@@ -181,31 +200,12 @@ MonoBehaviour:
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 1
-    imageDuration: 2
+    imageDuration: 1
     speakerName: 
     dialogueText: 
     typingSpeed: 0
     sfxEventKey: 
     sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 3
-    duration: 0.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: scene_end
-    sfxDomain: Cutscene
     bgmEventKey: 
     bgmFadeTime: 1
     bgmWaitTime: 0
