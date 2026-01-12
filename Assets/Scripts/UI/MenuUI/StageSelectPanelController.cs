@@ -635,21 +635,20 @@ public class StageSelectPanelController : MonoBehaviour
             return;
         }
         
-        bool shouldPlay = CutsceneSystem.CutsceneManager.Instance.ShouldPlayCutscene(
-            stageConfig.chapterStartCutsceneId, 
-            false, 
-            false
+        // ✅ 챕터 시작 컷신은 이미 본 적 있으면 스킵
+        bool hasSeen = CutsceneSystem.CutsceneManager.Instance.HasSeenCutscene(
+            stageConfig.chapterStartCutsceneId
         );
         
-        if (shouldPlay)
-        {
-            Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 재생: {stageConfig.chapterStartCutsceneId}");
-            StartCoroutine(PlayChapterStartCutsceneCoroutine(stageConfig.chapterStartCutsceneId));
-        }
-        else
+        if (hasSeen)
         {
             Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 스킵 (이미 시청)");
+            return;
         }
+        
+        // 최초 시청 - 컷신 재생
+        Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 재생: {stageConfig.chapterStartCutsceneId}");
+        StartCoroutine(PlayChapterStartCutsceneCoroutine(stageConfig.chapterStartCutsceneId));
     }
     
     /// <summary>

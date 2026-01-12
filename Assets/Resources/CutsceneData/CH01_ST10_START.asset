@@ -18,6 +18,26 @@ MonoBehaviour:
   steps:
   - stepType: 0
     duration: 0
+    imageSprite: {fileID: 21300000, guid: 9d1134491f2c8b9499b45dd84f6a23f0, type: 3}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 0.5
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
     imageSprite: {fileID: 21300000, guid: 31ed1f3c4f428f94ba4afdefad639ef9, type: 3}
     isFade: 0
     isPortrait: 1
@@ -47,8 +67,8 @@ MonoBehaviour:
     imageScale: 1
     imageDuration: 2
     speakerName: '{PLAYER_NAME}'
-    dialogueText: "\"\uC232\uC758 \uC218\uD638\uC790\uB2D8\uC774... \uB300\uCCB4
-      \uC800\uAC8C \uBB34\uC2A8..?\""
+    dialogueText: "\"\uC232\uC758 \uC815\uB839\uB2D8\uACFC \uC218\uD638\uD558\uB294
+      \uC81C\uB2E8\uC5D0 ... \uB300\uCCB4 \uC800\uAC8C \uBB34\uC2A8..?\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene

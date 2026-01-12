@@ -664,23 +664,17 @@ namespace CutsceneSystem
                 return false;
             }
             
-            // 2. 재입장이고 자동 스킵 설정이면 재생 안 함
-            if (isReplay && isReplaySkipCutscene)
+            // 2. 재입장이고 자동 스킵 설정이고 이미 본 컷신이면 재생 안 함
+            // ✅ 수정: isReplaySkipCutscene이 true일 때만 HasSeenCutscene 체크
+            if (isReplay && isReplaySkipCutscene && HasSeenCutscene(cutsceneId))
             {
                 if (enableDebugLogs)
-                    Debug.Log($"[CutsceneManager] 재입장 자동 스킵: {cutsceneId}");
+                    Debug.Log($"[CutsceneManager] 재입장 자동 스킵 (이미 시청): {cutsceneId}");
                 return false;
             }
             
-            // 3. 이미 본 컷신이면 재생 안 함
-            if (HasSeenCutscene(cutsceneId))
-            {
-                if (enableDebugLogs)
-                    Debug.Log($"[CutsceneManager] 이미 시청한 컷신: {cutsceneId}");
-                return false;
-            }
-            
-            // 4. 위 조건을 모두 통과하면 재생
+            // 3. 위 조건을 모두 통과하면 재생
+            // ✅ isReplaySkipCutscene = false이면 이미 본 컷신도 재생됨
             if (enableDebugLogs)
                 Debug.Log($"[CutsceneManager] 컷신 재생 예정: {cutsceneId}");
             return true;

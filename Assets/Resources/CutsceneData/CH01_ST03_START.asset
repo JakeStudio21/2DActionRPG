@@ -18,6 +18,26 @@ MonoBehaviour:
   steps:
   - stepType: 0
     duration: 0
+    imageSprite: {fileID: 21300000, guid: a7a1704bfc2aab744afd7a23805136f8, type: 3}
+    isFade: 0
+    isPortrait: 0
+    useDynamicPlayerPortrait: 0
+    fadeIn: 1
+    imagePosition: {x: 0, y: 0}
+    imageScale: 1
+    imageDuration: 0.3
+    speakerName: 
+    dialogueText: 
+    typingSpeed: 0
+    sfxEventKey: 
+    sfxDomain: 
+    bgmEventKey: 
+    bgmFadeTime: 0
+    bgmWaitTime: 0
+    callbackMethodName: 
+    note: 
+  - stepType: 0
+    duration: 0
     imageSprite: {fileID: 21300000, guid: 8cef54efee7f32e4a88bc58175afdbc6, type: 3}
     isFade: 0
     isPortrait: 1

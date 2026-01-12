@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 153144396f289ac4eb89594c7dbaef9e, type: 3}
-  m_Name: 
+  m_Name: CH03_ST03_Config
   m_EditorClassIdentifier: 
   StageID: CH03_ST03
   StageName: Chapter 3 - Stage 3
@@ -19,6 +19,7 @@ MonoBehaviour:
   IsDungeon: 0
   chapterId: 3
   stageIndexInChapter: 3
+  chapterStartCutsceneId: 
   enterCutsceneId: 
   clearCutsceneId: 
   isReplaySkipCutscene: 1

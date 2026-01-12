@@ -182,6 +182,7 @@ namespace CutsceneSystem
         
         /// <summary>
         /// 컷신 ID로 카테고리 자동 감지
+        /// ✅ 수정: if문 순서 변경 (구체적 조건 → 일반적 조건)
         /// </summary>
         /// <param name="cutsceneId">컷신 ID</param>
         /// <returns>감지된 카테고리</returns>
@@ -192,37 +193,61 @@ namespace CutsceneSystem
             
             string upperCutsceneId = cutsceneId.ToUpper();
             
-            // 챕터 시작 컷신 (예: CH01_START, CH02_START)
-            if (upperCutsceneId.Contains("_START"))
+            // ⭐ 우선순위 1: 스테이지 입장 컷신 (예: CH01_ST01_START, CH01_ST01_ENTER)
+            // _ST 뒤에 숫자 2개 오는 패턴 체크 (CH01_START와 구분하기 위함)
+            if (System.Text.RegularExpressions.Regex.IsMatch(upperCutsceneId, @"_ST\d{2}") && 
+                (upperCutsceneId.Contains("_START") || upperCutsceneId.Contains("_ENTER")))
             {
-                return "CHAPTER_START";
-            }
-            
-            // 챕터 클리어 컷신 (예: CH01_CLEAR, CH02_CLEAR)
-            if (upperCutsceneId.Contains("_CLEAR"))
-            {
-                return "CHAPTER_CLEAR";
-            }
-            
-            // 스테이지 입장 컷신 (예: CH01_ST01_ENTER)
-            if (upperCutsceneId.Contains("_ENTER"))
-            {
+                #if UNITY_EDITOR
+                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → STAGE_ENTER");
+                #endif
                 return "STAGE_ENTER";
             }
             
-            // 스테이지 클리어 컷신 (예: CH01_ST10_CLEAR)
-            if (upperCutsceneId.Contains("_ST") && upperCutsceneId.Contains("_CLEAR"))
+            // ⭐ 우선순위 2: 스테이지 클리어 컷신 (예: CH01_ST10_CLEAR)
+            // _ST 뒤에 숫자 2개 오는 패턴 체크
+            if (System.Text.RegularExpressions.Regex.IsMatch(upperCutsceneId, @"_ST\d{2}") && 
+                upperCutsceneId.Contains("_CLEAR"))
             {
+                #if UNITY_EDITOR
+                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → STAGE_CLEAR");
+                #endif
                 return "STAGE_CLEAR";
+            }
+            
+            // ⭐ 우선순위 3: 챕터 시작 컷신 (예: CH01_START, CH02_START)
+            // _ST가 없고 _START만 포함하면 챕터 시작
+            if (upperCutsceneId.Contains("_START"))
+            {
+                #if UNITY_EDITOR
+                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_START");
+                #endif
+                return "CHAPTER_START";
+            }
+            
+            // ⭐ 우선순위 4: 챕터 클리어 컷신 (예: CH01_CLEAR, CH02_CLEAR)
+            // _ST가 없고 _CLEAR만 포함하면 챕터 클리어
+            if (upperCutsceneId.Contains("_CLEAR"))
+            {
+                #if UNITY_EDITOR
+                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_CLEAR");
+                #endif
+                return "CHAPTER_CLEAR";
             }
             
             // 프롤로그/특수 컷신
             if (upperCutsceneId == "PROLOGUE" || upperCutsceneId.Contains("INTRO"))
             {
+                #if UNITY_EDITOR
+                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_START (프롤로그)");
+                #endif
                 return "CHAPTER_START"; // 프롤로그는 챕터 시작으로 분류
             }
             
             // 기본값: 챕터 시작으로 분류
+            #if UNITY_EDITOR
+            Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_START (기본값)");
+            #endif
             return "CHAPTER_START";
         }
         

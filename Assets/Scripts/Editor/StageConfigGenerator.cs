@@ -249,6 +249,8 @@ public class StageConfigGenerator : EditorWindow
                 else
                 {
                     // 새 에셋 생성
+                    // ✅ 오브젝트 이름을 파일 이름과 일치시킴 (Unity 경고 방지)
+                    config.name = Path.GetFileNameWithoutExtension(fileName); // "CH01_ST10_Config"
                     AssetDatabase.CreateAsset(config, fullPath);
                     totalCreated++;
                     Debug.Log($"✅ [Generator] 생성: {stageId}");

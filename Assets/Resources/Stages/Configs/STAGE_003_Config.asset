@@ -17,6 +17,12 @@ MonoBehaviour:
   SceneName: Stage_003
   BackgroundType: 0
   IsDungeon: 0
+  chapterId: 0
+  stageIndexInChapter: 0
+  chapterStartCutsceneId: 
+  enterCutsceneId: 
+  clearCutsceneId: 
+  isReplaySkipCutscene: 1
   RequiredLevel: 5
   UnlockCondition: Clear:STAGE_002
   unlockData:
