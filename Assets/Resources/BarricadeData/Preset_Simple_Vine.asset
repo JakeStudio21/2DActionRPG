@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23403ff9003021c4c96ba1db5d71d6ed, type: 3}
+  m_Name: Preset_Simple_Vine
+  m_EditorClassIdentifier: 
+  presetName: "\uAC04\uB2E8\uD55C \uB369\uCFE8"
+  description: "1\uD0C0\uB85C \uD30C\uAD34\uB418\uB294 \uBC18\uBCF5 \uBC30\uCE58\uC6A9
+    \uB369\uCFE8"
+  category: 0
+  breakMode: 0
+  hitsToBreak: 1
+  maxHP: 100
+  showDamageNumbers: 0
+  conditionType: 0
+  requiredItemID: SPECIAL_KEY
+  conditionMessage: "\uD2B9\uBCC4\uD55C \uC5F4\uC1E0\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4"
+  stageMode: 0
+  visualStages: []
+  presentationLevel: 1
+  hpBarMode: 2
+  showRemainingHits: 1
+  hitSound: {fileID: 0}
+  hitVFX: {fileID: 0}
+  hitShakeIntensity: 0.05
+  destroySound: {fileID: 0}
+  destroyVFX: {fileID: 0}
+  useBigDestroyFx: 0
+  destroyShakeIntensity: 0.15
+  cameraShakeCooldown: 0.5
+  bigFxCooldown: 2
+  limitConsecutivePlayback: 1
+  rewardMode: 1
+  rewardTable: {fileID: 0}
+  showMessageOnBreak: 0
+  breakMessage: "\uAE38\uC774 \uC5F4\uB838\uC2B5\uB2C8\uB2E4!"
+  messageDuration: 2
+  unlockAreaOnDestroy: 0
+  unlockAreaID: 
+  spawnDebris: 0
+  debrisCount: 5
+  debrisPrefab: {fileID: 0}

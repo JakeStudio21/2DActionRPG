@@ -962,38 +962,38 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: VFX_Click_02
-    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+  - tag: BOSSMON_FORESTELEMENTAL_001
+    prefab: {fileID: 3235174918318939483, guid: a1f93d743fcbe7f489e56de247837aa9, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: VFX_Click_02
-    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+  - tag: ELITEMON_BOAR_001
+    prefab: {fileID: 3235174918318939483, guid: 1bc540bb9eb14e54fa61ce093a3abb5b, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: VFX_Click_02
-    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+  - tag: ELITEMON_ORC_001
+    prefab: {fileID: 3235174918318939483, guid: 0806c881d4f5f174d83411b786a59268, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: VFX_Click_02
-    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+  - tag: MON_GOBLINBOMB_001
+    prefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: VFX_Click_02
-    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+  - tag: MON_GOBLINCART_001
+    prefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: VFX_Click_02
-    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+  - tag: MON_GOBLINWARRIOR_001
+    prefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
