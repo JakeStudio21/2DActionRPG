@@ -531,9 +531,9 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.044733845, y: -0.13466935}
-  m_Size: {x: 0.6237145, y: 0.55638814}
-  m_Direction: 1
+  m_Offset: {x: -0.0026088655, y: -0.35825574}
+  m_Size: {x: 0.6042722, y: 1.4726949}
+  m_Direction: 0
 --- !u!114 &-7290850128979531690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -699,6 +699,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillData: {fileID: 11400000, guid: 2c9714c9a13122a4caf8ebae5a3f65d4, type: 2}
   showDebugLogs: 1
+  lastAttackDirection: {x: 1, y: 0}
+  showDirectionDebug: 0
 --- !u!114 &5734504649737104247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -794,7 +796,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   footPosition: {fileID: 0}
-  footOffset: {x: 0, y: 0}
+  footOffset: {x: 0, y: -1}
   baseLayer: 1000
   heightOffset: 0
   useIsometricData: 1

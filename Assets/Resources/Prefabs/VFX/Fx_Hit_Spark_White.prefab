@@ -39117,7 +39117,7 @@ GameObject:
   - component: {fileID: 970962405891873419}
   - component: {fileID: -2876663118450146483}
   m_Layer: 0
-  m_Name: HitSpark_Dust_Effect
+  m_Name: Fx_Hit_Spark_White
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

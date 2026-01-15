@@ -998,5 +998,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: FX_Hit_Vine
+    prefab: {fileID: 9014708122764640312, guid: 20570172bb8366d4681b264f36cc0340, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fx_Hit_Spark_Vine
+    prefab: {fileID: 3243817668901764684, guid: 8a1f4f7105fffec4180ec046ffe03c11, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

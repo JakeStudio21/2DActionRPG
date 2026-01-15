@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6695097103070193627}
   - component: {fileID: 2700668601323177948}
   - component: {fileID: 3425788292021936728}
+  - component: {fileID: 3366228511810826702}
   m_Layer: 0
   m_Name: Twinkle
   m_TagString: Untagged
@@ -4839,3 +4840,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!210 &3366228511810826702
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4964807709104007490}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 0
+  m_SortAtRoot: 0

@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23403ff9003021c4c96ba1db5d71d6ed, type: 3}
-  m_Name: Preset_Normal_Wood
+  m_Name: Preset_CH01_ST01_VineN
   m_EditorClassIdentifier: 
-  presetName: "\uC77C\uBC18 \uB098\uBB34 \uBC14\uB9AC\uCF00\uC774\uB4DC"
-  description: "3\uD0C0\uB85C \uD30C\uAD34\uB418\uB294 \uAE30\uBCF8 \uBC14\uB9AC\uCF00\uC774\uB4DC"
-  category: 0
+  presetName: "\uAC04\uB2E8\uD55C \uB369\uCFE8"
+  description: "1\uD0C0\uB85C \uD30C\uAD34\uB418\uB294 \uBC18\uBCF5 \uBC30\uCE58\uC6A9
+    \uB369\uCFE8"
+  category: 1
   breakMode: 0
-  hitsToBreak: 3
+  hitsToBreak: 4
   maxHP: 100
   showDamageNumbers: 0
   conditionType: 0
@@ -25,25 +26,21 @@ MonoBehaviour:
   stageMode: 1
   visualStages:
   - hpThreshold: 0
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 0fa7a5313f10ca847b587f97659cbe92, type: 3}
     stageVFX: {fileID: 0}
     stageName: 
-  - hpThreshold: 0
-    sprite: {fileID: 0}
+  - hpThreshold: 0.5
+    sprite: {fileID: 21300000, guid: a0ed61e4ab08c204ca3a135533f97be8, type: 3}
     stageVFX: {fileID: 0}
     stageName: 
-  - hpThreshold: 0
-    sprite: {fileID: 0}
-    stageVFX: {fileID: 0}
-    stageName: 
-  presentationLevel: 1
-  hpBarMode: 0
+  presentationLevel: 2
+  hpBarMode: 3
   showRemainingHits: 1
   hitSound: {fileID: 0}
-  hitVFX: {fileID: 0}
-  hitShakeIntensity: 0.05
+  hitVFX: {fileID: 1625881847255917415, guid: b2d32b6366355ff479d315f6909c12a9, type: 3}
+  hitShakeIntensity: 0.1
   destroySound: {fileID: 0}
-  destroyVFX: {fileID: 0}
+  destroyVFX: {fileID: 1625881847255917415, guid: b2d32b6366355ff479d315f6909c12a9, type: 3}
   useBigDestroyFx: 0
   destroyShakeIntensity: 0.15
   cameraShakeCooldown: 0.5
@@ -51,8 +48,8 @@ MonoBehaviour:
   limitConsecutivePlayback: 1
   rewardMode: 1
   rewardTable: {fileID: 0}
-  showMessageOnBreak: 0
-  breakMessage: "\uAE38\uC774 \uC5F4\uB838\uC2B5\uB2C8\uB2E4!"
+  showMessageOnBreak: 1
+  breakMessage: "\"\uC911\uC694\uD55C \uC7A5\uC560\uBB3C\uC744 \uC81C\uAC70\uD588\uC2B5\uB2C8\uB2E4!\""
   messageDuration: 2
   unlockAreaOnDestroy: 0
   unlockAreaID: 

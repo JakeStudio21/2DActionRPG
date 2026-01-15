@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22779d5eaa3661a45b1256067b7795c6, type: 3}
   m_Name: AssasinData
   m_EditorClassIdentifier: 
-  baseMaxHealth: 2000
-  baseMoveSpeed: 3
+  baseMaxHealth: 200
+  baseMoveSpeed: 5
   baseDashSpeed: 6
   baseAttackDamage: 10
   baseDefense: 5

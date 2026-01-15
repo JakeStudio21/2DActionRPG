@@ -40,10 +40,10 @@ MonoBehaviour:
   hpBarMode: 3
   showRemainingHits: 1
   hitSound: {fileID: 0}
-  hitVFX: {fileID: 0}
+  hitVFX: {fileID: 3243817668901764684, guid: 8a1f4f7105fffec4180ec046ffe03c11, type: 3}
   hitShakeIntensity: 0.1
   destroySound: {fileID: 0}
-  destroyVFX: {fileID: 0}
+  destroyVFX: {fileID: 3243817668901764684, guid: 8a1f4f7105fffec4180ec046ffe03c11, type: 3}
   useBigDestroyFx: 0
   destroyShakeIntensity: 0.15
   cameraShakeCooldown: 0.5
