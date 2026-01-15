@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7201833231753217188}
   - component: {fileID: 8480841871561185572}
+  - component: {fileID: 5213886277909057738}
+  - component: {fileID: 7038003620980204133}
   m_Layer: 0
   m_Name: Forest_TreeA_SE
   m_TagString: Untagged
@@ -84,6 +86,85 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5213886277909057738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513050501121955754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footPosition: {fileID: 0}
+  footOffset: {x: 0, y: -0.2}
+  baseLayer: 1000
+  heightOffset: 0
+  useIsometricData: 1
+  enableDynamicHeight: 1
+  updatePolicy: 1
+  updateInterval: 0.1
+  moveThreshold: 0.01
+  showDebugGizmo: 0
+  showOrderInInspector: 0
+  enableDebugLogs: 0
+--- !u!60 &7038003620980204133
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513050501121955754}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.12, y: 5.12}
+    newSize: {x: 5.12, y: 5.12}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -1.495959, y: -0.6103129}
+      - {x: -1.3934478, y: -0.06386599}
+      - {x: -0.4184894, y: 0.104361296}
+      - {x: -0.41081116, y: 0.82400334}
+      - {x: 0.514505, y: 0.8297162}
+      - {x: 0.6328801, y: 0.3494869}
+      - {x: 1.647569, y: 0.14145732}
+      - {x: 1.984156, y: -0.6185923}
+      - {x: 1.4156191, y: -1.5931189}
+      - {x: -1.0422046, y: -1.6686773}
+  m_UseDelaunayMesh: 0
 --- !u!1 &4974182036160307092
 GameObject:
   m_ObjectHideFlags: 0
