@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI; // NavMeshAgent (Phase 3)
 
 public class EnemyAttackState : IEnemyState
 {
@@ -49,6 +50,12 @@ public class EnemyAttackState : IEnemyState
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
             }
+        }
+        
+        // ⭐⭐⭐ NavMeshAgent 정지 (Phase 3 - 공격 중 이동 방지)
+        if (enemy is BaseEnemy baseEnemyNav && baseEnemyNav.IsUsingNavMesh)
+        {
+            baseEnemyNav.Agent.isStopped = true;
         }
         
         // 🔑 공격 시도 (CanAttack 체크는 각 Attack 컴포넌트에서 처리)
@@ -230,6 +237,13 @@ public class EnemyAttackState : IEnemyState
     public void Exit() 
     {
         Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 상태 종료");
+        
+        // ⭐⭐⭐ NavMeshAgent 재개 (Phase 3)
+        if (enemy is BaseEnemy baseEnemyNav && baseEnemyNav.IsUsingNavMesh)
+        {
+            baseEnemyNav.Agent.isStopped = false;
+        }
+        
         // 상태 종료 시 미스 카운트는 유지 (다음 공격 상태 진입 시 연속성 유지)
     }
     

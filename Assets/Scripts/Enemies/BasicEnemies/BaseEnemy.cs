@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI; // NavMeshAgent (Phase 2)
 
 /// <summary>
 /// 모든 몬스터의 기본 클래스 - 공통 기능 템플릿화
@@ -39,6 +40,25 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     // 공통 속성들
     public Vector2 SpawnPoint { get; private set; }
     public abstract float AttackRange { get; }
+    
+    #region 🗺️ NavMeshAgent 시스템 (Phase 2)
+    
+    [Header("NavMesh 설정")]
+    [Tooltip("NavMesh 사용 여부 토글")]
+    [SerializeField] protected bool useNavMesh = false;
+    
+    /// <summary>
+    /// NavMeshAgent 컴포넌트 (Phase 2)
+    /// </summary>
+    public UnityEngine.AI.NavMeshAgent Agent { get; private set; }
+    
+    /// <summary>
+    /// NavMesh 사용 여부
+    /// ⚠️ Agent.enabled 체크 제거 (순환 논리 방지)
+    /// </summary>
+    public bool IsUsingNavMesh => useNavMesh && Agent != null;
+    
+    #endregion
     
     /// <summary>
     /// 스킬 시전 중 여부 (엘리트/보스 전용)
@@ -163,14 +183,34 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         audioSource = GetComponent<AudioSource>();
         enemyHealth = GetComponent<EnemyHealth>();
         
+        // ⭐⭐⭐ 추가 초기화 먼저 실행 (하위 클래스에서 MeleeAttack 등 초기화)
+        OnAwakeInitialize();
+        
+        // ⭐⭐⭐ NavMeshAgent 초기화 (Phase 2) - OnAwakeInitialize 이후 실행!
+        Agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        
+        // NavMesh 시스템 상태 확인 (디버그 로그 제거)
+        
+        if (useNavMesh && Agent != null)
+        {
+            // ⭐ NavMeshAgent 비활성화 (위치 설정 전까지)
+            Agent.enabled = false;
+            
+            InitializeNavMeshAgent();
+        }
+        else if (enableDebugLogs)
+        {
+            if (!useNavMesh)
+                Debug.LogWarning($"⚠️ [BaseEnemy] {gameObject.name}: useNavMesh = false! NavMesh 비활성화 상태!");
+            if (Agent == null)
+                Debug.LogWarning($"⚠️ [BaseEnemy] {gameObject.name}: NavMeshAgent 컴포넌트가 없습니다!");
+        }
+        
         // 스폰 지점 저장
         SpawnPoint = transform.position;
         
         // 🎨 렌더링 소팅 설정
         InitializeRenderingSorting();
-        
-        // 추가 초기화 (하위 클래스에서 구현)
-        OnAwakeInitialize();
     }
 
     protected virtual void Start()
@@ -178,23 +218,31 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         // ⭐ 데이터 검증 후 스탯 계산
         CalculateRuntimeStats();
         
+        // ⭐⭐⭐ HomePosition 초기화 (NavMesh 필수!)
+        if (homePosition == Vector3.zero)
+        {
+            SetHomePosition(transform.position, PatrolRadius);
+        }
+        
+        // ⭐⭐⭐ NavMeshAgent 활성화 (위치 설정 완료 후!)
+        if (IsUsingNavMesh)
+        {
+            // Z축을 0으로 보정
+            Vector3 correctedPosition = new Vector3(transform.position.x, transform.position.y, 0f);
+            transform.position = correctedPosition;
+            
+            // NavMeshAgent 활성화
+            Agent.enabled = true;
+            
+            // Warp로 현재 위치를 NavMesh 위로 인식시킴 (자동 이동 방지)
+            Agent.Warp(correctedPosition);
+        }
+        
         StartCoroutine(FindPlayerCoroutine());
         InitializeAttackSystem();
         
         // 추가 시작 로직 (하위 클래스에서 구현)
         OnStartInitialize();
-
-        // 임시 테스트 코드 (BaseEnemy의 Start()에 추가)
-        if (HasPatrolTuning)
-        {
-            Debug.Log($"[{gameObject.name}] PatrolTuning 로드 성공!");
-            Debug.Log($"  가속율: {PatrolTuning.Acceleration.accelerationRate}");
-            Debug.Log($"  패트롤 속도: {GetPatrolMoveSpeed():F1}");
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PatrolTuning 없음!");
-        }
     }
     
     /// <summary>
@@ -362,6 +410,76 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     }
     
     #endregion
+    
+    #region 🗺️ NavMeshAgent 초기화 및 관리 (Phase 2)
+    
+    /// <summary>
+    /// NavMeshAgent 초기화 - 2D 아이소메트릭 최적화 설정
+    /// </summary>
+    protected virtual void InitializeNavMeshAgent()
+    {
+        if (Agent == null) return;
+        
+        // ⭐ 2D 필수 설정 (Phase 2-1)
+        Agent.updateRotation = false;  // 2D 스프라이트 회전 방지
+        Agent.updateUpAxis = false;    // Z축 기울임 방지
+        
+        // ⭐ 속도 동기화 (데이터 기반)
+        Agent.speed = GetScaledMoveSpeed();
+        
+        // ⭐⭐⭐ 정지 거리 설정 (공격 범위보다 약간 작게)
+        // 안전장치: AttackRange 접근 시 에러 발생하면 기본값 사용
+        float attackRange = 2.0f; // 기본값
+        try
+        {
+            attackRange = AttackRange;
+        }
+        catch (System.Exception)
+        {
+            // AttackRange 접근 불가 시 기본값 사용 (나중에 Start()에서 재설정됨)
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning($"[BaseEnemy] {gameObject.name} AttackRange 접근 불가 (Awake 단계), 기본값 2.0f 사용");
+            }
+        }
+        Agent.stoppingDistance = Mathf.Max(0.1f, attackRange - 0.5f);
+        
+        // ⭐ Agent Radius 설정 (발바닥 크기 기준 70~80%)
+        // 기본값으로 0.3f 사용, 필요시 Inspector에서 조정
+        Agent.radius = 0.3f;
+        
+        // 높이 설정 (2D에서는 크게 중요하지 않음)
+        Agent.height = 1.0f;
+        
+        // ⭐ 자동 브레이킹 비활성화 (Chase 중 감속 방지)
+        Agent.autoBraking = false; // 추격 중에는 일정한 속도 유지
+        
+        // ⭐ 회전 속도 0 (회전은 코드로 제어)
+        Agent.angularSpeed = 0f;
+        
+        // ⭐ 장애물 회피 설정 (몬스터끼리 충돌 회피)
+        Agent.obstacleAvoidanceType = UnityEngine.AI.ObstacleAvoidanceType.LowQualityObstacleAvoidance; // 가볍게 회피
+        Agent.avoidancePriority = 50; // 우선순위 (0=최고, 99=최저)
+        
+        // NavMeshAgent 초기화 완료 (로그 제거)
+    }
+    
+    /// <summary>
+    /// ⭐⭐⭐ Z축 강제 고정 (Phase 2 - 가장 중요!)
+    /// NavMeshAgent가 미세하게 Z값을 틀어놓는 문제 해결
+    /// 아이소메트릭 정렬 보호를 위한 필수 코드
+    /// </summary>
+    protected virtual void LateUpdate()
+    {
+        // NavMesh 사용 중일 때만 Z축 고정
+        if (IsUsingNavMesh && Agent.enabled)
+        {
+            Vector3 pos = transform.position;
+            transform.position = new Vector3(pos.x, pos.y, 0f);
+        }
+    }
+    
+    #endregion
 
     // BaseEnemy 클래스에 추가할 필드들
     [Header("위치 정보")]
@@ -379,11 +497,10 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
             if (patrolRadius > 0) 
                 return patrolRadius;
             
-            // 🔑 데이터 기반 기본값 사용
+            // 🔑 데이터 기반 값 사용 (수정!)
             if (enemyData != null)
             {
-                // EnemyData에 PatrolRadius 프로퍼티가 있다면 사용
-                return 3f; // 임시 기본값
+                return enemyData.PatrolRadius;
             }
                 
             return 3f; // 최후 기본값
@@ -399,11 +516,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         homePosition = position;
         spawnPosition = position;
         patrolRadius = radius;
-        
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[{gameObject.name}] Home 설정: {homePosition}, Patrol: {patrolRadius}");
-        }
     }
 
     /// <summary>
@@ -482,7 +594,7 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
 
     // BaseEnemy 클래스에 추가할 필드들
     [Header("디버그")]
-    [SerializeField] protected bool enableDebugLogs = true; // 누락된 필드 추가
+    [SerializeField] protected bool enableDebugLogs = false; // NavMesh 통합 완료 후 비활성화
 
     // EnableDebugLogs 프로퍼티 추가 (IEnemy 인터페이스용)
     public bool EnableDebugLogs => enableDebugLogs;

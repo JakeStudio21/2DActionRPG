@@ -20,7 +20,7 @@ public class StageManager : MonoBehaviour
         [SerializeField] private StageConfig stageConfig;
         
         [Header("디버그")]
-        [SerializeField] private bool enableDebugLogs = true;
+        [SerializeField] private bool enableDebugLogs = false; // NavMesh 통합 완료 후 비활성화
         [SerializeField] private bool autoStartStage = false;
         
         // 컴포넌트 참조

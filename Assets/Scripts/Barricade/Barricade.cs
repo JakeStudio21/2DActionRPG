@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.AI; // NavMeshObstacle용
 
 /// <summary>
 /// 프리셋 기반 바리케이드 시스템
@@ -35,6 +36,7 @@ public class Barricade : MonoBehaviour
     private BarricadeHPDisplay hpDisplay;
     private PickUpSpawner pickupSpawner;
     private BoxCollider2D boxCollider;
+    private NavMeshObstacle navMeshObstacle; // ⭐ Phase 4: 동적 장애물
     
     // ========================================
     // 초기화
@@ -44,6 +46,7 @@ public class Barricade : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         pickupSpawner = GetComponent<PickUpSpawner>();
         hpDisplay = GetComponentInChildren<BarricadeHPDisplay>(); // ⭐ HP 바 참조 초기화
+        navMeshObstacle = GetComponent<NavMeshObstacle>(); // ⭐ Phase 4: NavMeshObstacle 참조
         
         if (preset == null)
         {
@@ -53,6 +56,7 @@ public class Barricade : MonoBehaviour
         }
         
         InitializeFromPreset();
+        InitializeNavMeshObstacle(); // ⭐ Phase 4: NavMesh 장애물 초기화
     }
     
     private void InitializeFromPreset()
@@ -91,6 +95,72 @@ public class Barricade : MonoBehaviour
             hpDisplay.Initialize(preset);
             UpdateHPDisplay();
         }
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 4: NavMeshObstacle 초기화
+    /// Carve를 활성화하여 NavMesh를 동적으로 차단
+    /// </summary>
+    private void InitializeNavMeshObstacle()
+    {
+        if (navMeshObstacle == null) return;
+        
+        // Carve 활성화 (NavMesh에 구멍 생성)
+        navMeshObstacle.carving = true;
+        
+        // 2D 환경에 맞게 설정
+        navMeshObstacle.carveOnlyStationary = true; // 정적 장애물로 설정
+        
+        // ⭐ Shape은 Inspector에서 설정한 대로 유지 (Box, Capsule 등)
+        // navMeshObstacle.shape는 건드리지 않음!
+        
+        // Collider 크기에 맞춰 자동 설정
+        AutoSizeNavMeshObstacle();
+    }
+    
+    /// <summary>
+    /// ⭐ Collider 크기에 맞춰 NavMeshObstacle 크기 자동 설정
+    /// </summary>
+    private void AutoSizeNavMeshObstacle()
+    {
+        if (navMeshObstacle == null) return;
+        
+        // BoxCollider2D 우선 시도
+        BoxCollider2D boxCol = GetComponent<BoxCollider2D>();
+        if (boxCol != null)
+        {
+            // 2D Collider 크기를 NavMeshObstacle 크기로 변환
+            navMeshObstacle.size = new Vector3(boxCol.size.x, 1f, boxCol.size.y);
+            navMeshObstacle.center = new Vector3(boxCol.offset.x, 0.5f, boxCol.offset.y);
+            return;
+        }
+        
+        // PolygonCollider2D 지원 (Bounds 기반)
+        PolygonCollider2D polyCol = GetComponent<PolygonCollider2D>();
+        if (polyCol != null)
+        {
+            // Polygon의 Bounds를 Box/Capsule로 근사
+            Bounds bounds = polyCol.bounds;
+            Vector3 localCenter = transform.InverseTransformPoint(bounds.center);
+            
+            navMeshObstacle.size = new Vector3(bounds.size.x, 1f, bounds.size.y);
+            navMeshObstacle.center = new Vector3(localCenter.x, 0.5f, localCenter.y);
+            return;
+        }
+        
+        // CircleCollider2D 지원
+        CircleCollider2D circleCol = GetComponent<CircleCollider2D>();
+        if (circleCol != null)
+        {
+            float diameter = circleCol.radius * 2f;
+            navMeshObstacle.size = new Vector3(diameter, 1f, diameter);
+            navMeshObstacle.center = new Vector3(circleCol.offset.x, 0.5f, circleCol.offset.y);
+            return;
+        }
+        
+        // Collider 없으면 기본 크기
+        navMeshObstacle.size = new Vector3(1f, 1f, 1f);
+        navMeshObstacle.center = new Vector3(0f, 0.5f, 0f);
     }
     
     // ========================================
@@ -659,6 +729,22 @@ public class Barricade : MonoBehaviour
         foreach (var col in colliders)
         {
             col.enabled = false;
+        }
+        
+        // ⭐ Phase 4: NavMeshObstacle 제거 (NavMesh 자동 복구)
+        if (navMeshObstacle != null)
+        {
+            navMeshObstacle.enabled = false; // 즉시 NavMesh에서 제거됨
+        }
+        
+        // ⭐ Phase 4: 자식 NavMeshObstacle도 모두 비활성화 (수동 Multiple Obstacles 지원)
+        NavMeshObstacle[] childObstacles = GetComponentsInChildren<NavMeshObstacle>();
+        foreach (var obstacle in childObstacles)
+        {
+            if (obstacle != null && obstacle != navMeshObstacle) // 부모 Obstacle 제외
+            {
+                obstacle.enabled = false;
+            }
         }
         
         // 즉시 시각적으로 숨기기: 모든 Renderer 비활성화

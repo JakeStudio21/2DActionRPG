@@ -14,22 +14,6 @@ public class Elite_SandGolem : BaseEnemy
 
     #region ⭐ BaseEnemy 추상 속성 구현 - 완전한 데이터 기반
 
-    public override float PatrolRadius 
-    { 
-        get 
-        {
-            // 스폰 시 설정된 값 우선 사용
-            if (patrolRadius > 0) 
-                return patrolRadius;
-            
-            // 데이터 기반 fallback (SandGolem은 중간 패트롤 범위)
-            if (enemyData != null)
-                return enemyData.PatrolRadius;
-            
-            return 3f; // 기본값 (영역 방어형)
-        } 
-    }
-    
     public override float AttackRange 
     { 
         get 

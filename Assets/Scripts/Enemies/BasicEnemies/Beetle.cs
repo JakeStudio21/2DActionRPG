@@ -11,22 +11,6 @@ public class Beetle : BaseEnemy
 
     #region ⭐ BaseEnemy 추상 속성 구현 - 완전한 데이터 기반
 
-    public override float PatrolRadius 
-    { 
-        get 
-        {
-            // 스폰 시 설정된 값 우선 사용
-            if (patrolRadius > 0) 
-                return patrolRadius;
-            
-            // 데이터 기반 fallback (Beetle는 좁은 패트롤 범위)
-            if (enemyData != null)
-                return enemyData.PatrolRadius;
-            
-            return 2.5f; // 기본값 (느리고 방어적인 순찰)
-        } 
-    }
-    
     public override float AttackRange 
     { 
         get 

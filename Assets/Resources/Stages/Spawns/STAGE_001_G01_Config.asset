@@ -23,11 +23,6 @@ MonoBehaviour:
     SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: ELITEMON_SANDGOLEM_001
-    Count: 1
-    SpawnCount: 0.1
-    IsBoss: 1
-    MonsterPrefab: {fileID: 0}
   - MonsterID: MON_MIMIC_001
     Count: 2
     SpawnCount: 0.1

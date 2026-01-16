@@ -11,22 +11,6 @@ public class Mimic : BaseEnemy
 
     #region ⭐ BaseEnemy 추상 속성 구현 - 완전한 데이터 기반
 
-    public override float PatrolRadius 
-    { 
-        get 
-        {
-            // 스폰 시 설정된 값 우선 사용
-            if (patrolRadius > 0) 
-                return patrolRadius;
-            
-            // 데이터 기반 fallback (Mimic은 매우 작은 패트롤 범위 - 숨어있다가 공격)
-            if (enemyData != null)
-                return enemyData.PatrolRadius;
-            
-            return 1.5f; // 기본값 (거의 움직이지 않음)
-        } 
-    }
-    
     public override float AttackRange 
     { 
         get 

@@ -12,7 +12,7 @@ namespace StageSystem
 public class WaveController : MonoBehaviour
 {
         [Header("웨이브 설정")]
-        public bool enableDebugLogs = true;
+        public bool enableDebugLogs = false; // NavMesh 통합 완료 후 비활성화
         public bool showSpawnGizmos = true;
         
         [Header("스폰 제어")]
@@ -184,12 +184,16 @@ public class WaveController : MonoBehaviour
                             BaseEnemy enemyComponent = enemy.GetComponent<BaseEnemy>();
                             if (enemyComponent != null)
                             {
-                                enemyComponent.SetHomePosition(spawnPosition, targetSpawnPoint.PatrolRadius);
+                                // ⭐⭐⭐ PatrolRadius 결정 (SpawnPoint vs EnemyData)
+                                float patrolRadius = targetSpawnPoint.PatrolRadius;
                                 
-                                if (enableDebugLogs)
+                                // SpawnPoint의 PatrolRadius가 0이거나 너무 작으면 EnemyData 사용
+                                if (patrolRadius <= 0.1f && enemyComponent.EnemyData != null)
                                 {
-                                    Debug.Log($"[WaveController] {enemy.name} 스폰: {spawnPosition}, Patrol: {targetSpawnPoint.PatrolRadius}");
+                                    patrolRadius = enemyComponent.EnemyData.PatrolRadius;
                                 }
+                                
+                                enemyComponent.SetHomePosition(spawnPosition, patrolRadius);
                             }
                             
                             currentWaveEnemies.Add(enemy);

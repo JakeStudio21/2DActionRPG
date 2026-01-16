@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -3420654551023502779}
   - component: {fileID: 8631982806037251194}
+  - component: {fileID: 8051601299530974262}
   m_Layer: 6
   m_Name: Mimic
   m_TagString: Enemy
@@ -39,7 +40,7 @@ Transform:
   m_GameObject: {fileID: 3235174918318939483}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.92, y: -1.73, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -129,8 +130,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.029999912, y: -0.10970509}
-  m_Size: {x: 0.9594804, y: 0.9594815}
+  m_Offset: {x: 0.008008003, y: -0.22274566}
+  m_Size: {x: 1.8406751, y: 2.2986102}
   m_Direction: 0
 --- !u!50 &2142061137914716384
 Rigidbody2D:
@@ -210,7 +211,6 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 2.5
   basicHealthBarPrefab: {fileID: 6935039637879996987, guid: 5a00e731311f6bb468729f7447fa1753, type: 3}
-  basicHealthBarAutoHideDelay: 1.5
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,23 +262,7 @@ MonoBehaviour:
   goldDropMaxAmount: 50
   canDropEquipment: 1
   equipmentDropChance: 50
-  possibleEquipmentDrops:
-  - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
-  - {fileID: 11400000, guid: aa47e37a4b3d4c741aa0706a695d2453, type: 2}
-  - {fileID: 11400000, guid: 6615953193a44624ab16e649a0a1981d, type: 2}
-  - {fileID: 11400000, guid: 1690877de893efb4282bde258a234785, type: 2}
-  - {fileID: 11400000, guid: 3861fd1a4afc8bb4aa596ffe3a04953c, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4ec60553ef04d3442878aba493cda7ce, type: 2}
-  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 334c3ae56d37e4c439c1c4f945337093, type: 2}
-  - {fileID: 11400000, guid: 756bec7225236f74ea50af48da929165, type: 2}
-  - {fileID: 11400000, guid: 345e49f53daab344da7a9e5256a00e77, type: 2}
-  - {fileID: 11400000, guid: 6511896ef9048244f810db57eaebb15f, type: 2}
-  - {fileID: 11400000, guid: f205e51deb54c8943ad414a1fe3db68f, type: 2}
-  - {fileID: 11400000, guid: 8811861985bcee04ea999287ef3087ea, type: 2}
+  possibleEquipmentDrops: []
 --- !u!114 &3746799392073795553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,8 +348,9 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 5be807a51255cfd42b196a1db7949565, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
-  patrolRadius: 3
+  patrolRadius: 10
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   meleeAttack: {fileID: 0}
@@ -397,3 +382,25 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     heightAmplitude: 0
+--- !u!195 &8051601299530974262
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1.43
+  m_BaseOffset: 1.5
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 0

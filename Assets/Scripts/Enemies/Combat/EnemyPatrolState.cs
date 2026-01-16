@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI; // NavMeshAgent (Phase 3)
 
 public class EnemyPatrolState : IEnemyState
 {
@@ -523,26 +524,75 @@ public class EnemyPatrolState : IEnemyState
             return;
         }
 
+        // ⭐⭐⭐ NavMesh 사용 여부 체크 (Phase 3)
+        bool usingNavMesh = baseEnemy != null && baseEnemy.IsUsingNavMesh;
+        
+        // 🔍 디버그: NavMesh 사용 여부 로그 (첫 실행 시에만)
+        if (baseEnemy != null && baseEnemy.EnableDebugLogs && patrolTimer < 0.1f && !isPausing)
+        {
+            Debug.Log($"🔍 [EnemyPatrolState] {enemy.name} NavMesh 사용: {usingNavMesh}");
+            if (!usingNavMesh)
+            {
+                Debug.LogWarning($"⚠️ [EnemyPatrolState] {enemy.name}: NavMesh 비활성화! 직선 이동 방식 사용 중!");
+            }
+        }
+        
         // 🔑 이동 로직 (노이즈 적용)
         if (returningToHome)
         {
-            // 홈으로 돌아가는 중 - 노이즈 약하게 적용
-            Vector2 baseDirection = (patrolTarget - (Vector2)enemy.transform.position).normalized;
-            Vector2 moveDirection = GetFinalMovementDirection(baseDirection);
-            
-            // 🔑 노이즈가 적용된 방향으로 이동
-            Vector2 velocity = moveDirection * currentSpeed;
-            enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
-            
-            // ⭐ 8방향 애니메이션 업데이트
-            if (baseEnemy != null)
+            // ⭐ NavMesh 사용 시 (Phase 3)
+            if (usingNavMesh)
             {
-                // 실제 속도 기반으로 speed/isMoving 반영
+                // NavMeshAgent로 홈 위치로 경로 탐색
+                baseEnemy.Agent.SetDestination(patrolTarget);
+                baseEnemy.Agent.speed = currentSpeed; // 속도 동기화
+                
+                // ⭐ 8방향 애니메이션 업데이트 (NavMeshAgent velocity 사용)
+                Vector2 velocity = new Vector2(baseEnemy.Agent.velocity.x, baseEnemy.Agent.velocity.y);
                 baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+                
+                // ⭐⭐⭐ 도착 체크 (안전한 방식 - pathPending 체크!)
+                float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
+                bool arrived = !baseEnemy.Agent.pathPending && baseEnemy.Agent.remainingDistance < 0.5f;
+                
+                if (distToHome <= 0.5f || arrived)
+                {
+                    returningToHome = false;
+                    GenerateNewPatrolTarget();
+                    patrolTimer = 0f;
+                    
+                    // 새로운 목표로의 방향 설정
+                    Vector2 newDirection = (patrolTarget - (Vector2)enemy.transform.position).normalized;
+                    targetDirection = newDirection;
+                    
+                    StartPause(true);
+                    
+                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
+                    {
+                        Debug.Log($"[EnemyPatrolState] {enemy.name} 홈 도착! 새 순찰 목표: {patrolTarget}");
+                    }
+                }
             }
+            // ⭐ 기존 직선 이동 방식 (NavMesh 없을 때)
+            else
+            {
+                // 홈으로 돌아가는 중 - 노이즈 약하게 적용
+                Vector2 baseDirection = (patrolTarget - (Vector2)enemy.transform.position).normalized;
+                Vector2 moveDirection = GetFinalMovementDirection(baseDirection);
+                
+                // 🔑 노이즈가 적용된 방향으로 이동
+                Vector2 velocity = moveDirection * currentSpeed;
+                enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+                
+                // ⭐ 8방향 애니메이션 업데이트
+                if (baseEnemy != null)
+                {
+                    // 실제 속도 기반으로 speed/isMoving 반영
+                    baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+                }
 
-            float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
-            if (distToHome <= 0.5f)
+                float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
+                if (distToHome <= 0.5f)
             {
                 returningToHome = false;
                 GenerateNewPatrolTarget();
@@ -559,27 +609,90 @@ public class EnemyPatrolState : IEnemyState
                     Debug.Log($"[EnemyPatrolState] {enemy.name} 홈 도착! 새 순찰 목표: {patrolTarget}");
                 }
             }
+                }
         }
         else
         {
-            // 정상 순찰 중 - 노이즈 정상 적용
-            Vector2 baseDirection = (patrolTarget - (Vector2)enemy.transform.position).normalized;
-            Vector2 moveDirection = GetFinalMovementDirection(baseDirection);
-            
-            // 🔑 노이즈가 적용된 방향으로 이동
-            Vector2 velocity = moveDirection * currentSpeed;
-            enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
-            
-            // ⭐ 8방향 애니메이션 업데이트
-            if (baseEnemy != null)
+            // ⭐ NavMesh 사용 시 (Phase 3)
+            if (usingNavMesh)
             {
-                // 실제 속도 기반으로 speed/isMoving 반영
+                // ⭐ NavMesh 위치 유효성 체크 (Phase 3)
+                NavMeshHit hit;
+                Vector3 validTarget = patrolTarget;
+                if (NavMesh.SamplePosition(patrolTarget, out hit, 2f, NavMesh.AllAreas))
+                {
+                    validTarget = hit.position;
+                }
+                
+                // NavMeshAgent로 순찰 목표로 경로 탐색
+                baseEnemy.Agent.SetDestination(validTarget);
+                baseEnemy.Agent.speed = currentSpeed; // 속도 동기화
+                
+                // ⭐ 8방향 애니메이션 업데이트 (NavMeshAgent velocity 사용)
+                Vector2 velocity = new Vector2(baseEnemy.Agent.velocity.x, baseEnemy.Agent.velocity.y);
                 baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
-            }
 
-            // 목표 도달 또는 시간 초과 체크
-            float distToTarget = Vector2.Distance(enemy.transform.position, patrolTarget);
-            if (distToTarget < 0.5f || patrolTimer > maxPatrolTime)
+                // ⭐⭐⭐ 목표 도달 체크 (안전한 방식 - pathPending 체크!)
+                float distToTarget = Vector2.Distance(enemy.transform.position, patrolTarget);
+                bool arrived = !baseEnemy.Agent.pathPending && baseEnemy.Agent.remainingDistance < 0.5f;
+                
+                if ((distToTarget < 0.5f || arrived) || patrolTimer > maxPatrolTime)
+                {
+                    GenerateNewPatrolTarget();
+                    patrolTimer = 0f;
+                    
+                    // 새로운 목표로의 방향 설정
+                    Vector2 newDirection = (patrolTarget - (Vector2)enemy.transform.position).normalized;
+                    targetDirection = newDirection;
+                    
+                    StartPause(true);
+                    
+                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
+                    {
+                        Debug.Log($"[EnemyPatrolState] {enemy.name} 새 순찰 목표: {patrolTarget}, 속도: {currentSpeed:F1}");
+                    }
+                }
+
+                // 순찰 범위 체크
+                float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
+                if (distToHome > patrolRadius * 1.5f)
+                {
+                    returningToHome = true;
+                    patrolTarget = homePosition;
+                    
+                    // 홈으로의 방향 설정
+                    Vector2 homeDirection = (homePosition - (Vector2)enemy.transform.position).normalized;
+                    targetDirection = homeDirection;
+                    
+                    UpdateTargetSpeed();
+                    
+                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
+                    {
+                        Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 범위 이탈! 홈으로 복귀");
+                    }
+                }
+            }
+            // ⭐ 기존 직선 이동 방식 (NavMesh 없을 때)
+            else
+            {
+                // 정상 순찰 중 - 노이즈 정상 적용
+                Vector2 baseDirection = (patrolTarget - (Vector2)enemy.transform.position).normalized;
+                Vector2 moveDirection = GetFinalMovementDirection(baseDirection);
+                
+                // 🔑 노이즈가 적용된 방향으로 이동
+                Vector2 velocity = moveDirection * currentSpeed;
+                enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+                
+                // ⭐ 8방향 애니메이션 업데이트
+                if (baseEnemy != null)
+                {
+                    // 실제 속도 기반으로 speed/isMoving 반영
+                    baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+                }
+
+                // 목표 도달 또는 시간 초과 체크
+                float distToTarget = Vector2.Distance(enemy.transform.position, patrolTarget);
+                if (distToTarget < 0.5f || patrolTimer > maxPatrolTime)
             {
                 GenerateNewPatrolTarget();
                 patrolTimer = 0f;
@@ -596,22 +709,23 @@ public class EnemyPatrolState : IEnemyState
                 }
             }
 
-            // 순찰 범위 체크
-            float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
-            if (distToHome > patrolRadius * 1.5f)
-            {
-                returningToHome = true;
-                patrolTarget = homePosition;
-                
-                // 홈으로의 방향 설정
-                Vector2 homeDirection = (homePosition - (Vector2)enemy.transform.position).normalized;
-                targetDirection = homeDirection;
-                
-                UpdateTargetSpeed();
-                
-                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
+                // 순찰 범위 체크
+                float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
+                if (distToHome > patrolRadius * 1.5f)
                 {
-                    Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 범위 이탈! 홈으로 복귀");
+                    returningToHome = true;
+                    patrolTarget = homePosition;
+                    
+                    // 홈으로의 방향 설정
+                    Vector2 homeDirection = (homePosition - (Vector2)enemy.transform.position).normalized;
+                    targetDirection = homeDirection;
+                    
+                    UpdateTargetSpeed();
+                    
+                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
+                    {
+                        Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 범위 이탈! 홈으로 복귀");
+                    }
                 }
             }
         }

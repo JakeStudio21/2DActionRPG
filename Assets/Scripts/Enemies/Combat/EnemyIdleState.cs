@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI; // NavMeshAgent (Phase 3)
 
 public class EnemyIdleState : IEnemyState
 {
@@ -22,6 +23,13 @@ public class EnemyIdleState : IEnemyState
         if (enemy is BaseEnemy baseEnemy)
         {
             baseEnemy.AnimationController?.ForceIdle();
+            
+            // ⭐⭐⭐ NavMeshAgent 정지 (Phase 3)
+            if (baseEnemy.IsUsingNavMesh)
+            {
+                baseEnemy.Agent.isStopped = true;
+                baseEnemy.Agent.ResetPath();
+            }
         }
     }
 
@@ -55,5 +63,12 @@ public class EnemyIdleState : IEnemyState
         }
     }
 
-    public void Exit() { }
+    public void Exit() 
+    {
+        // ⭐⭐⭐ NavMeshAgent 재개 (Phase 3)
+        if (enemy is BaseEnemy baseEnemy && baseEnemy.IsUsingNavMesh)
+        {
+            baseEnemy.Agent.isStopped = false;
+        }
+    }
 } 

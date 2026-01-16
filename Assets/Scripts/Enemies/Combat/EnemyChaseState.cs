@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI; // NavMeshAgent (Phase 3)
 
 public class EnemyChaseState : IEnemyState
 {
@@ -108,6 +109,18 @@ public class EnemyChaseState : IEnemyState
         // ❌ 제거: enemy.AnimationController?.PlayWalk();
         // ✅ Walking이 기본 상태이므로 별도 애니메이션 호출 불필요
         
+        // ⭐⭐⭐ NavMeshAgent 활성화 (Phase 3 - 핵심 수정!)
+        BaseEnemy baseEnemy = enemy as BaseEnemy;
+        if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+        {
+            baseEnemy.Agent.isStopped = false; // Agent 이동 허용!
+            
+            if (baseEnemy.EnableDebugLogs)
+            {
+                Debug.Log($"✅ [EnemyChaseState] {enemy.transform.name} NavMeshAgent 활성화 (isStopped = false)");
+            }
+        }
+        
         // ⭐ 보스 전용: 추격 시작 시간 기록
         if (enemy is Boss_SandElemental)
         {
@@ -126,6 +139,16 @@ public class EnemyChaseState : IEnemyState
             return;
         }
         
+        // ⭐ NavMesh 사용 여부 체크 (Phase 3)
+        BaseEnemy baseEnemy = enemy as BaseEnemy;
+        bool usingNavMesh = baseEnemy != null && baseEnemy.IsUsingNavMesh;
+        
+        // 🔍 디버그: NavMesh 사용 여부 로그 (첫 실행 시에만)
+        if (baseEnemy != null && baseEnemy.EnableDebugLogs && Time.frameCount % 300 == 0)
+        {
+            Debug.Log($"🔍 [EnemyChaseState] {enemy.transform.name} NavMesh 사용: {usingNavMesh}");
+        }
+        
         // ⭐ 보스 전용: 리드 타겟팅 (플레이어 앞쪽 오프셋 지점으로 이동)
         Vector2 targetPosition = enemy.TargetPlayer.transform.position;
         if (enemy is Boss_SandElemental)
@@ -135,24 +158,46 @@ public class EnemyChaseState : IEnemyState
             targetPosition = targetPosition + playerDirection * leadOffset; // 플레이어 앞쪽 지점
         }
         
-        Vector2 toTarget = targetPosition - (Vector2)enemy.transform.position;
-        Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.zero;
-        
-        // ⭐ 보스 전용: 속도 증가 체크 및 적용
-        if (enemy is Boss_SandElemental)
+        // ⭐⭐⭐ NavMesh 사용 시 (Phase 3 - 핵심 변경!)
+        if (usingNavMesh)
         {
-            UpdateBossChaseSpeed();
-        }
-        
-        Vector2 velocity = dir * moveSpeed;
-        enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
-        
-        // ⭐ 8방향 애니메이션 업데이트 (실제 속도 기반)
-        if (enemy is BaseEnemy baseEnemy)
-        {
+            // NavMeshAgent로 경로 탐색
+            baseEnemy.Agent.SetDestination(targetPosition);
+            
+            // ⭐ 보스 전용: 속도 증가 체크 및 적용
+            if (enemy is Boss_SandElemental)
+            {
+                UpdateBossChaseSpeed();
+                baseEnemy.Agent.speed = moveSpeed; // NavMeshAgent 속도 동기화
+            }
+            
+            // ⭐ 8방향 애니메이션 업데이트 (NavMeshAgent velocity 사용)
+            Vector2 velocity = new Vector2(baseEnemy.Agent.velocity.x, baseEnemy.Agent.velocity.y);
             baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
         }
+        // ⭐ 기존 직선 이동 방식 (NavMesh 없을 때)
+        else
+        {
+            Vector2 toTarget = targetPosition - (Vector2)enemy.transform.position;
+            Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.zero;
+            
+            // ⭐ 보스 전용: 속도 증가 체크 및 적용
+            if (enemy is Boss_SandElemental)
+            {
+                UpdateBossChaseSpeed();
+            }
+            
+            Vector2 velocity = dir * moveSpeed;
+            enemy.transform.position += (Vector3)(velocity * Time.deltaTime);
+            
+            // ⭐ 8방향 애니메이션 업데이트 (실제 속도 기반)
+            if (baseEnemy != null)
+            {
+                baseEnemy.AnimationController?.UpdateMovementByVelocity(velocity);
+            }
+        }
         
+        // ⭐⭐⭐ 거리 체크 (Phase 3 - Vector2.Distance 직접 계산!)
         float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
         
         // ⭐ 보스 전용: 히스테리시스 적용 공격 범위 체크
@@ -264,6 +309,13 @@ public class EnemyChaseState : IEnemyState
 
     public void Exit() 
     {
+        // ⭐⭐⭐ NavMeshAgent 정지 (Phase 3)
+        BaseEnemy baseEnemy = enemy as BaseEnemy;
+        if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+        {
+            baseEnemy.Agent.isStopped = true; // Agent 정지
+        }
+        
         // ⭐ 보스 전용: 추격 종료 시 상태 초기화
         if (enemy is Boss_SandElemental)
         {
