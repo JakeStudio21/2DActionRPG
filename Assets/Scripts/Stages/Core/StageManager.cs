@@ -1080,6 +1080,10 @@ public class StageManager : MonoBehaviour
             {
                 return monsterID.Contains("BOSS") ? "PlantsMonster_BossData" : "PlantsMonsterData";
             }
+            else if (monsterID.Contains("TOWER"))
+            {
+                return monsterID.Contains("BOSS") ? "TowerMonster_BossData" : "TowerMonsterData";
+            }
             else if (monsterID.Contains("SANDGOLEM"))
             {
                 if (monsterID.Contains("ELITE"))

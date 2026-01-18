@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 5163159788831012889}
   - component: {fileID: 3946378279310165621}
   - component: {fileID: 8088862488218517100}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Desert_EgyptWallA_N
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -186,9 +186,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7730442062032277398}
   - component: {fileID: 7050986341140140323}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Desert_EgyptWallA_Shadow_N
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -269,9 +269,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6536311099274858005}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Desert_EgyptWallA_N
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

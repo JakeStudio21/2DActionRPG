@@ -11,7 +11,11 @@ using CueSystem; // ⭐ Phase 1-1: 히트 이펙트 Cue 시스템
 public class DamageSource : MonoBehaviour
 {
     [Header("🔗 컴포넌트 참조")]
-    [SerializeField] private bool showDebugLogs = true;
+    [SerializeField] private bool showDebugLogs = true; // ⭐ 벽 차단 테스트를 위해 true로 설정
+    
+    [Header("🧱 벽 충돌 설정")]
+    [SerializeField] private bool checkWallBlocking = true;
+    [SerializeField] private LayerMask wallLayer; // Inspector에서 Wall 선택
     
     // 핵심 참조
     private PlayerRuntimeStats playerRuntimeStats;
@@ -57,6 +61,14 @@ public class DamageSource : MonoBehaviour
     {
         EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
         if (enemyHealth == null) return;
+        
+        // 🧱 벽 차단 체크
+        if (checkWallBlocking && IsBlockedByWall(other.transform))
+        {
+            if (showDebugLogs)
+                Debug.Log($"🚫 [DamageSource] {other.name} - 벽에 막혀서 공격 실패");
+            return;
+        }
         
         // 🎯 PlayerRuntimeStats에서 실시간 최종 데미지 가져오기
         float baseDamage = GetCurrentBaseDamage();
@@ -311,6 +323,52 @@ public class DamageSource : MonoBehaviour
             case ItemGrade.C: return 1.0f;  // C등급: 기본
             case ItemGrade.D: return 0.7f;  // D등급: 0.7배
             default: return 1.0f;
+        }
+    }
+    
+    #endregion
+    
+    #region 🧱 벽 충돌 시스템
+    
+    /// <summary>
+    /// 벽이 중간에 있는지 Raycast로 체크
+    /// </summary>
+    private bool IsBlockedByWall(Transform target)
+    {
+        if (wallLayer == 0)
+        {
+            Debug.LogWarning("🚨 [DamageSource] wallLayer가 설정되지 않았습니다!");
+            return false;
+        }
+        
+        Vector2 origin = transform.position;
+        Vector2 direction = (target.position - transform.position).normalized;
+        float distance = Vector2.Distance(transform.position, target.position);
+        
+        // 🔍 디버그: Raycast 정보
+        if (showDebugLogs)
+        {
+            Debug.Log($"🔍 [DamageSource] Raycast 체크:");
+            Debug.Log($"   - Origin: {origin}");
+            Debug.Log($"   - Target: {target.position} ({target.name})");
+            Debug.Log($"   - Direction: {direction}");
+            Debug.Log($"   - Distance: {distance:F2}");
+            Debug.Log($"   - wallLayer: {wallLayer.value}");
+        }
+        
+        // Raycast로 벽 감지
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, wallLayer);
+        
+        if (hit.collider != null)
+        {
+            Debug.Log($"🧱 [DamageSource] 벽 감지! {hit.collider.name} (거리: {hit.distance:F2}, Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)})");
+            return true;
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.Log($"✅ [DamageSource] 벽 없음 - 공격 가능");
+            return false;
         }
     }
     

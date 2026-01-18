@@ -205,15 +205,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  knockBackThrust: 15
-  deathVFXPrefab: {fileID: 3742472245823238563, guid: bd70ee4f74ce51541b06f36a76ab47fd, type: 3}
-  experienceGiven: 50
-  isBoss: 0
-  bossId: 
-  isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
+  eliteHealthBarPrefab: {fileID: 0}
+  healthBarOffsetY: 2.5
+  basicHealthBarPrefab: {fileID: 0}
 --- !u!114 &3746799392073795553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,7 +222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0.1
 --- !u!114 &8403660534966338527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,7 +235,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
-  restoreDefaultMatTime: 0.2
 --- !u!114 &-752092573500323026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,6 +254,9 @@ MonoBehaviour:
   goldDropChance: 50
   goldDropMinAmount: 1
   goldDropMaxAmount: 3
+  canDropEquipment: 1
+  equipmentDropChance: 20
+  possibleEquipmentDrops: []
 --- !u!114 &8998232531007038718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,6 +287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackData: {fileID: 0}
   attackCooldown: 1.5
   detectionRange: 5
   chaseRange: 7
@@ -300,6 +298,13 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  attackAngle: 90
+  attackOriginOffset: {x: 0, y: 0}
+  criticalHitEffect: {fileID: 0}
+  showAttackGizmos: 1
 --- !u!114 &4542210252753390916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -313,6 +318,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1996716122504307104}
+  spriteRenderer: {fileID: 0}
+  useIsometricData: 1
+  showDebugLogs: 0
+  startMoveThreshold: 0.12
+  stopMoveThreshold: 0.06
 --- !u!114 &-6921047091469587769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -337,3 +347,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyData: {fileID: 0}
+  growthProfile: {fileID: 0}
+  currentLevel: 1
+  useNavMesh: 1
+  homePosition: {x: 0, y: 0, z: 0}
+  patrolRadius: 3
+  spawnPosition: {x: 0, y: 0, z: 0}
+  enableDebugLogs: 0
+  meleeAttack: {fileID: 0}
+  isometricData:
+    directionPreset: 0
+    footOffset: {x: 0, y: 0}
+    heightCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heightAmplitude: 0

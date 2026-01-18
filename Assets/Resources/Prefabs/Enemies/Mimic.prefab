@@ -329,6 +329,9 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   attackAngle: 90
   attackOriginOffset: {x: 0, y: 0}
   criticalHitEffect: {fileID: 0}

@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: -2326526364721462929}
   - component: {fileID: 507309305805102008}
   - component: {fileID: 5211488974049482479}
+  - component: {fileID: -3864960503602886782}
   m_Layer: 6
   m_Name: Tutorial_SandGolem
   m_TagString: Enemy
@@ -241,6 +242,7 @@ MonoBehaviour:
   bossSpawner: {fileID: 0}
   eliteHealthBarPrefab: {fileID: 6935039637879996987, guid: 30280503994122d4fb0a396f9d9db5de, type: 3}
   healthBarOffsetY: 6
+  basicHealthBarPrefab: {fileID: 0}
 --- !u!114 &3746799392073795553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,6 +309,9 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   attackAngle: 90
   attackOriginOffset: {x: 0, y: 0}
   criticalHitEffect: {fileID: 0}
@@ -326,6 +331,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 0463628152ba53843830e0c7f8f95f1a, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
@@ -404,6 +410,28 @@ MonoBehaviour:
   globalAttackCooldown: 1.5
   enableDebugLogs: 1
   trackStatistics: 1
+--- !u!195 &-3864960503602886782
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.7
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1.4
+  m_BaseOffset: 1.44
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 0
 --- !u!1 &5935677080312344865
 GameObject:
   m_ObjectHideFlags: 0

@@ -298,6 +298,9 @@ MonoBehaviour:
   arrowEffectPrefabs:
   - {fileID: 4839014159920536022, guid: 26bee6af42a0e9f44b2aa8742e6bbbbd, type: 3}
   showDebugLogs: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   trajectoryType: 0
   arcHeight: 2
   trajectoryCurve:
@@ -337,6 +340,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLogs: 1
+  checkWallBlocking: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &-72455256398735164
 MonoBehaviour:
   m_ObjectHideFlags: 0

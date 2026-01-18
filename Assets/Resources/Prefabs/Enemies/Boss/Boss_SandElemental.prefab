@@ -29,6 +29,7 @@ GameObject:
   - component: {fileID: 3412258947461422548}
   - component: {fileID: -6743165854896849057}
   - component: {fileID: -7579856380117773579}
+  - component: {fileID: -207883506805998640}
   m_Layer: 6
   m_Name: Boss_SandElemental
   m_TagString: Enemy
@@ -335,6 +336,9 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   attackAngle: 90
   attackOriginOffset: {x: 0, y: 0}
   criticalHitEffect: {fileID: 0}
@@ -401,6 +405,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 47f1c635cc2b91b43abab5cd8581f492, type: 2}
   growthProfile: {fileID: 11400000, guid: 73e684708e02e3b49ae3d3894e85378a, type: 2}
   currentLevel: 1
+  useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
@@ -515,6 +520,28 @@ MonoBehaviour:
   projectileSpeed: 8
   projectileLifetime: 5
   enableDebugLogs: 1
+--- !u!195 &-207883506805998640
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.7
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1.4
+  m_BaseOffset: 1.44
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 0
 --- !u!1 &3912020419606282628
 GameObject:
   m_ObjectHideFlags: 0

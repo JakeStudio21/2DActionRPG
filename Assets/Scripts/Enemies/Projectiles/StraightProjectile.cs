@@ -153,6 +153,19 @@ public class StraightProjectile : MonoBehaviour
     {
         if (isReturningToPool) return;
         
+        // 🧱 벽 충돌 감지 (최우선 - Wall Layer 기반)
+        int wallLayerIndex = LayerMask.NameToLayer("Wall");
+        
+        if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
+        {
+            if (showDebugLogs)
+                Debug.Log($"🧱 [StraightProjectile] 벽 충돌! {gameObject.name} → {other.name}");
+            
+            PlayHitEffect();
+            ReturnToPool();
+            return;
+        }
+        
         // 플레이어 충돌
         if ((playerLayerMask.value & (1 << other.gameObject.layer)) > 0)
         {
@@ -169,12 +182,12 @@ public class StraightProjectile : MonoBehaviour
             }
         }
         
-        // 벽/장애물 충돌
+        // 벽/장애물 충돌 (Indestructible 기반 - 하위 호환성)
         Indestructible indestructible = other.GetComponent<Indestructible>();
         if (!other.isTrigger && indestructible)
         {
             if (showDebugLogs)
-                Debug.Log($"🧱 [StraightProjectile] 장애물 충돌: {other.gameObject.name}");
+                Debug.Log($"🧱 [StraightProjectile] Indestructible 장애물 충돌: {other.gameObject.name}");
             
             PlayHitEffect();
             ReturnToPool();

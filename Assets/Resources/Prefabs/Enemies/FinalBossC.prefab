@@ -219,15 +219,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 30
-  knockBackThrust: 15
-  deathVFXPrefab: {fileID: 3742472245823238563, guid: 47788c52bf7a36447914397de7f72960, type: 3}
-  experienceGiven: 10
-  isBoss: 0
-  bossId: 
-  isMiniBoss: 0
   isDead: 0
   bossSpawner: {fileID: 0}
+  eliteHealthBarPrefab: {fileID: 0}
+  healthBarOffsetY: 2.5
+  basicHealthBarPrefab: {fileID: 0}
 --- !u!114 &7371678229891212631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,20 +236,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e2aae89a37bd5f4d885bdfcfe1411cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackData: {fileID: 0}
   attackCooldown: 2
   detectionRange: 7
   chaseRange: 10
   stopMovingWhileAttacking: 1
   attackSound: {fileID: 0}
-  bulletPrefab: {fileID: 6830296691463287077, guid: eec2ceea973362146b0ec4b249634a33, type: 3}
-  burstCount: 1
-  projectilesPerBurst: 12
-  angleSpread: 180
+  projectilePrefab: {fileID: 0}
+  projectileSpawnPoint: {fileID: 0}
+  fallbackProjectileCount: 3
+  fallbackAngleSpread: 30
+  fallbackProjectileSpeed: 10
+  fallbackProjectileLifetime: 5
   startingDistance: 0.3
-  timeBetweenBursts: 1
-  restTime: 2
-  stagger: 1
-  oscillate: 1
+  showDebugGizmos: 1
 --- !u!114 &3858285607564868417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,6 +262,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1735c0492d8c1ba47ac4ab0be9c72b67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyData: {fileID: 0}
+  growthProfile: {fileID: 0}
+  currentLevel: 1
+  useNavMesh: 1
+  homePosition: {x: 0, y: 0, z: 0}
+  patrolRadius: 3
+  spawnPosition: {x: 0, y: 0, z: 0}
+  enableDebugLogs: 1
+  multiShotAttack: {fileID: 0}
+  isometricData:
+    directionPreset: 0
+    footOffset: {x: 0, y: 0}
+    heightCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    heightAmplitude: 0
 --- !u!114 &-6266606232288718989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,6 +312,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 7421774030207711173}
+  spriteRenderer: {fileID: 0}
+  useIsometricData: 1
+  showDebugLogs: 0
+  startMoveThreshold: 0.12
+  stopMoveThreshold: 0.06
 --- !u!114 &5491745061798970782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,6 +348,9 @@ MonoBehaviour:
   goldDropChance: 50
   goldDropMinAmount: 1
   goldDropMaxAmount: 3
+  canDropEquipment: 1
+  equipmentDropChance: 20
+  possibleEquipmentDrops: []
 --- !u!114 &4488842488211035026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,7 +363,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  knockBackTime: 0.1
 --- !u!114 &6406295324804413922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,7 +376,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
-  restoreDefaultMatTime: 0.2
 --- !u!114 &2120048153462600689
 MonoBehaviour:
   m_ObjectHideFlags: 0

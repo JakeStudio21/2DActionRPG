@@ -299,6 +299,9 @@ MonoBehaviour:
   projectileRange: 10
   arrowEffectPrefabs: []
   showDebugLogs: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   trajectoryType: 1
   arcHeight: 4
   trajectoryCurve:
@@ -338,6 +341,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLogs: 1
+  checkWallBlocking: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &-72455256398735164
 MonoBehaviour:
   m_ObjectHideFlags: 0

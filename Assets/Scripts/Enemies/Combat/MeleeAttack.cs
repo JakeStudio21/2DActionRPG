@@ -15,6 +15,9 @@ public class MeleeAttack : BaseAttackBehaviour
     [SerializeField] private float attackRange = 1f;
     [SerializeField] private LayerMask playerLayerMask = 1 << 3;
     
+    [Header("🧱 벽 충돌 설정")]
+    [SerializeField] private LayerMask wallLayer; // Inspector에서 Wall 선택
+    
     #endregion
 
     #region ⭐ 새 시스템: 근접 공격 전용 설정
@@ -92,6 +95,13 @@ public class MeleeAttack : BaseAttackBehaviour
     public void AttackHit()
     {
         Debug.Log($"[MeleeAttack] {gameObject.name} - Animation Event 데미지 적용!");
+        
+        // 🧱 벽 차단 체크
+        if (IsPlayerBlockedByWall())
+        {
+            Debug.Log($"🚫 [MeleeAttack] {gameObject.name} - 벽에 막혀서 공격 실패");
+            return;
+        }
         
         // ⭐ 새 시스템: 데이터 기반 공격 범위 및 데미지 사용
         float currentRange = GetScaledRange();
@@ -371,6 +381,37 @@ public class MeleeAttack : BaseAttackBehaviour
         }
         
         return transform.right;
+    }
+    
+    #endregion
+    
+    #region 🧱 벽 충돌 시스템
+    
+    /// <summary>
+    /// 플레이어가 벽 뒤에 있는지 체크
+    /// </summary>
+    private bool IsPlayerBlockedByWall()
+    {
+        if (wallLayer == 0) return false; // Wall Layer 미설정 시 체크 안 함
+        
+        // 플레이어 찾기
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null) return false;
+        
+        Vector2 origin = transform.position;
+        Vector2 targetPos = player.transform.position;
+        Vector2 direction = (targetPos - origin).normalized;
+        float distance = Vector2.Distance(origin, targetPos);
+        
+        // Raycast로 벽 감지
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, wallLayer);
+        
+        if (hit.collider != null)
+        {
+            Debug.Log($"🧱 [MeleeAttack] {gameObject.name} - 벽 감지: {hit.collider.name}");
+        }
+        
+        return hit.collider != null;
     }
     
     #endregion

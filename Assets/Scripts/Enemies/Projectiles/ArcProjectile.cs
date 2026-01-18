@@ -240,6 +240,20 @@ public class ArcProjectile : MonoBehaviour
     {
         if (isReturningToPool) return;
         
+        // 🧱 벽 충돌 감지 (최우선 - Wall Layer 기반)
+        int wallLayerIndex = LayerMask.NameToLayer("Wall");
+        
+        if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
+        {
+            if (showDebugLogs)
+                Debug.Log($"🧱 [ArcProjectile] 벽 충돌! {gameObject.name} → {other.name}");
+            
+            // 즉시 착지 처리 (벽 앞에서 폭발)
+            targetPosition = transform.position;
+            OnProjectileLand();
+            return;
+        }
+        
         // 플레이어와 충돌 시 즉시 착지
         if ((playerLayerMask.value & (1 << other.gameObject.layer)) > 0)
         {

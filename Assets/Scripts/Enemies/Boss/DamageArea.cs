@@ -50,12 +50,16 @@ public class DamageArea : MonoBehaviour
     [Header("🎯 타겟 설정")]
     [SerializeField] private LayerMask targetLayerMask;         // 데미지 대상 레이어
     
+    [Header("🧱 벽 충돌 설정")]
+    [SerializeField] private bool checkWallBlocking = true;     // AOE도 벽 차단 체크
+    [SerializeField] private LayerMask wallLayer;               // Wall Layer (런타임 자동 설정)
+    
     [Header("🎨 이펙트")]
     [SerializeField] private GameObject hitEffect;              // 피격 이펙트
     [SerializeField] private float shakeIntensity = 0f;         // 스크린 셰이크 강도
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 기본값: false
+    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 릴리즈용: false (테스트 시 true로 변경)
     [SerializeField] private bool enableDebugGizmos = true;
     [SerializeField] private bool showGizmosInPlayMode = false;  // ⭐ 기본값: false (필요시 Inspector에서 켜기)
     
@@ -78,6 +82,28 @@ public class DamageArea : MonoBehaviour
     private Vector3 calculatedCenter;  // 계산된 Center 위치
     private float spawnTime;  // 생성 시간 (Gizmos 표시 시간 제어용)
     private HashSet<Collider2D> hitTargets = new HashSet<Collider2D>(); // Once/Window용 중복 방지
+    
+    /// <summary>
+    /// 🧱 Awake: wallLayer 자동 초기화
+    /// </summary>
+    private void Awake()
+    {
+        // wallLayer가 설정되지 않았으면 자동으로 Wall Layer 찾기
+        if (wallLayer == 0)
+        {
+            int wallLayerIndex = LayerMask.NameToLayer("Wall");
+            if (wallLayerIndex != -1)
+            {
+                wallLayer = 1 << wallLayerIndex; // LayerMask 값으로 변환
+                if (enableDebugLogs)
+                    Debug.Log($"✅ [DamageArea] wallLayer 자동 설정: Wall (Layer {wallLayerIndex})");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [DamageArea] 'Wall' Layer가 존재하지 않습니다! 벽 차단 기능이 작동하지 않습니다.");
+            }
+        }
+    }
     
     
     /// <summary>
@@ -276,6 +302,8 @@ public class DamageArea : MonoBehaviour
         }
         
         HashSet<GameObject> processedTargets = new HashSet<GameObject>();
+        int blockedCount = 0; // 🧱 벽에 막힌 타겟 수
+        int hitCount = 0;     // ✅ 실제 타격 수
         
         foreach (Collider2D hit in hits)
         {
@@ -289,8 +317,24 @@ public class DamageArea : MonoBehaviour
             
             processedTargets.Add(target);
             
+            // 🧱 벽 차단 체크
+            if (checkWallBlocking && IsBlockedByWall(hit.transform))
+            {
+                blockedCount++;
+                if (enableDebugLogs)
+                    Debug.Log($"🚫 [DamageArea] {hit.name} - 벽에 막힘");
+                continue; // 이 타겟은 스킵
+            }
+            
             // ⭐ ApplyDamageToTarget 호출 (Player/Enemy 자동 판별)
             ApplyDamageToTarget(hit);
+            hitCount++;
+        }
+        
+        // 🧱 벽 차단 통계 로그
+        if (enableDebugLogs && (blockedCount > 0 || hitCount > 0))
+        {
+            Debug.Log($"📊 [DamageArea] 결과: {hitCount}개 타격, {blockedCount}개 벽에 막힘");
         }
         
         
@@ -1115,4 +1159,37 @@ public class DamageArea : MonoBehaviour
         float angleRadians = angleDegrees * Mathf.Deg2Rad;
         return new Vector3(Mathf.Cos(angleRadians), Mathf.Sin(angleRadians), 0f);
     }
+    
+    #region 🧱 벽 충돌 시스템
+    
+    /// <summary>
+    /// 벽이 중간에 있는지 Raycast로 체크
+    /// </summary>
+    private bool IsBlockedByWall(Transform target)
+    {
+        if (wallLayer == 0)
+        {
+            if (enableDebugLogs)
+                Debug.LogWarning("🚨 [DamageArea] wallLayer가 설정되지 않았습니다! checkWallBlocking은 true인데 Layer가 없음!");
+            return false;
+        }
+        
+        Vector2 rayOrigin = this.origin; // AOE Origin (Cast Point)
+        Vector2 direction = (target.position - (Vector3)rayOrigin).normalized;
+        float distance = Vector2.Distance(rayOrigin, target.position);
+        
+        // Raycast로 벽 감지
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, direction, distance, wallLayer);
+        
+        if (hit.collider != null)
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🧱 [DamageArea] 벽 차단: {target.name} ← {hit.collider.name} (거리: {hit.distance:F2})");
+            return true;
+        }
+        
+        return false;
+    }
+    
+    #endregion
 }

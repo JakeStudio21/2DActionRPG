@@ -16,6 +16,9 @@ public class Projectile : MonoBehaviour
     
     [Header("디버그")]
     [SerializeField] private bool showDebugLogs = false;
+    
+    [Header("🧱 벽 충돌 설정")]
+    [SerializeField] private LayerMask wallLayer; // Inspector에서 Wall 선택
 
     private Vector3 startPosition;
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
@@ -92,6 +95,15 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
+        
+        // 🧱 벽 충돌 감지 (모든 투사체)
+        int wallLayerIndex = LayerMask.NameToLayer("Wall");
+        
+        if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
+        {
+            OnHitWall(other);
+            return;
+        }
         
         // 🚨 N/S 방향에서 충돌 로그
         float angle = transform.rotation.eulerAngles.z;
@@ -477,13 +489,39 @@ public class Projectile : MonoBehaviour
     }
     
     #endregion
+    
+    #region 🧱 벽 충돌 시스템
+    
+    /// <summary>
+    /// 벽 충돌 처리
+    /// </summary>
+    private void OnHitWall(Collider2D wall)
+    {
+        // 벽 충돌 이펙트 (VFX가 있으면 재생)
+        if (particleOnHitPrefabVFX != null)
+        {
+            GamePoolManager.Instance.SpawnFromPool(
+                particleOnHitPrefabVFX.name, 
+                transform.position, 
+                transform.rotation
+            );
+        }
+        
+        // 투사체 반환
+        ReturnProjectileToPool();
+        
+        if (showDebugLogs)
+            Debug.Log($"🧱 [Projectile] 벽 충돌로 파괴됨: {gameObject.name}");
+    }
+    
+    #endregion
+}
 
 /// <summary>
 /// 발사체 궤도 타입
 /// </summary>
-    public enum TrajectoryType
-    {
-        Straight,   // 직선
-        Arc         // 포물선
-    }
+public enum TrajectoryType
+{
+    Straight,   // 직선
+    Arc         // 포물선
 }

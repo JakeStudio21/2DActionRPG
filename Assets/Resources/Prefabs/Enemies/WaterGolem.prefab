@@ -54,6 +54,7 @@ GameObject:
   - component: {fileID: 9183738283701349947}
   - component: {fileID: 9204212491328607842}
   - component: {fileID: 5697817518092821939}
+  - component: {fileID: -8742065585495537718}
   m_Layer: 6
   m_Name: WaterGolem
   m_TagString: Enemy
@@ -242,7 +243,6 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 2.5
   basicHealthBarPrefab: {fileID: 6935039637879996987, guid: 5a00e731311f6bb468729f7447fa1753, type: 3}
-  basicHealthBarAutoHideDelay: 1.5
 --- !u!114 &-8747367544597513822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -395,6 +395,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 53d096ff0fd0ea940bfbb15681748764, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
@@ -428,3 +429,25 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     heightAmplitude: 0
+--- !u!195 &-8742065585495537718
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.7
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1.4
+  m_BaseOffset: 1.44
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 0

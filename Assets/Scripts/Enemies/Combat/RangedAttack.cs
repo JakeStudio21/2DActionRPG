@@ -234,6 +234,13 @@ public class RangedAttack : BaseAttackBehaviour
             Debug.Log($"[RangedAttack] 프리팹을 직접 생성했습니다: {prefab.name}");
         }
         
+        // 🧱 모든 투사체를 Projectile Layer로 설정
+        if (proj != null)
+        {
+            int projectileLayer = LayerMask.NameToLayer("Projectile");
+            proj.layer = projectileLayer;
+        }
+        
         return proj;
     }
     

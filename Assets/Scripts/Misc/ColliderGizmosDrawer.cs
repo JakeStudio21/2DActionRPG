@@ -940,6 +940,49 @@ public class ColliderGizmosDrawer : MonoBehaviour
 #endif
         }
         
+        // TowerMonster 범위들 (Ranged - Tower) ⭐ 고층 타워 전용
+        var towerMonster = GetComponent<TowerMonster>();
+        if (towerMonster != null)
+        {
+            Vector2 spawnPoint = towerMonster.SpawnPosition;
+            float patrolRadius = towerMonster.PatrolRadius;
+            float attackRange = towerMonster.AttackRange;
+            float detectionRange = towerMonster.DetectionRange;
+            float chaseRange = towerMonster.ChaseRange;
+            
+            // ✅ 스폰 지점 중심 로밍 범위 (보라색) - 고정형이므로 0
+            Gizmos.color = roamingRangeColor;
+            Gizmos.DrawWireSphere(spawnPoint, patrolRadius);
+            
+            // ✅ 공격 범위 표시 (빨간색) - 긴 사거리
+            Gizmos.color = attackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, attackRange);
+            
+            // 🟡 감지 범위 (노란색) - 매우 넓은 감지 범위
+            Gizmos.color = detectionRangeColor;
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
+            
+            // 🟠 추격 범위 (주황색) - 넓은 추격 범위
+            Gizmos.color = chaseRangeColor;
+            Gizmos.DrawWireSphere(transform.position, chaseRange);
+            
+            // ⭐ 타워 전용: 스폰 지점 마커 (하늘색 큐브 - 고층 타워 강조)
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawCube(spawnPoint, Vector3.one * 0.7f);
+            
+            // ⭐ 스폰 지점 테두리 (파란색 - 특수 몬스터)
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireCube(spawnPoint, Vector3.one * 0.7f);
+            
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                UnityEditor.Handles.Label(transform.position + Vector3.up * 2, 
+                    $"🗼 TowerMonster (고층 타워)\n공격: {attackRange:F1} | 감지: {detectionRange:F1}\n추격: {chaseRange:F1} | 고정형\n⭐ 벽 무시 공격");
+            }
+#endif
+        }
+        
         // Elite_SandGolem 범위들 (Elite Melee)
         var eliteSandGolem = GetComponent<Elite_SandGolem>();
         if (eliteSandGolem != null)

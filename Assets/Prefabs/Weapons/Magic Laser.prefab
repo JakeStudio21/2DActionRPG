@@ -164,6 +164,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0c26e755b753dc4c9c0bba5b5ceabc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugLogs: 1
+  checkWallBlocking: 1
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!114 &2322045281235893831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -190,6 +195,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &2239424440755985618
 MonoBehaviour:
   m_ObjectHideFlags: 0

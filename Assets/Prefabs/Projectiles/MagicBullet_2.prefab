@@ -167,6 +167,36 @@ MonoBehaviour:
   isEnemyProjectile: 1
   projectileRange: 10
   arrowEffectPrefabs: []
+  showDebugLogs: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  trajectoryType: 0
+  arcHeight: 2
+  trajectoryCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &-1754987645752490569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,3 +210,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0, g: 1, b: 0, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}

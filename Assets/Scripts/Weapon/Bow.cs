@@ -42,6 +42,13 @@ public class Bow : MonoBehaviour, IWeapon
             lastAttackRotation
         );
         
+        // 🧱 모든 투사체를 Projectile Layer로 설정
+        if (newProjectile != null)
+        {
+            int projectileLayer = LayerMask.NameToLayer("Projectile");
+            newProjectile.layer = projectileLayer;
+        }
+        
         if (newProjectile != null && newProjectile.TryGetComponent(out Projectile projectile))
         {
             projectile.UpdateProjectileRange(equipmentData.WeaponRange);

@@ -16,7 +16,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   cooldown: 2
   damage: 10
-  range: 5
+  range: 15
   effectPrefab: {fileID: 0}
   projectilePrefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
   projectileSpeed: 20
@@ -29,7 +29,7 @@ MonoBehaviour:
   backAttackMultiplier: 1.5
   dodgeChanceBonus: 0.05
   aoeShape: 0
-  aoeRadius: 3
+  aoeRadius: 8
   aoeSize: {x: 3, y: 3}
   aoeFanAngle: 0
   aoeDuration: 0
