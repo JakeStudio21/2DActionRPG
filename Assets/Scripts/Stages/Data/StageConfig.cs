@@ -45,8 +45,17 @@ namespace StageSystem
         
         [Header("게임플레이")]
         public int WaveCount;
-        public int TimeLimitSec;
         public VictoryCondition Victory;
+        
+        [Header("⏱️ 타임리미트 설정")]
+        [Tooltip("타임리미트 활성화 여부 (KillAll/BossKill과 조합 가능)")]
+        public bool hasTimeLimit = false;
+        
+        [Tooltip("제한시간 (초)\n" +
+                 "- Survival: 목표 시간 (도달 시 승리)\n" +
+                 "- KillAll/BossKill + hasTimeLimit=true: 실패 시간 (초과 시 패배)\n" +
+                 "- KillAll/BossKill + hasTimeLimit=false: 무시됨 (시간 제한 없음)")]
+        public int TimeLimitSec;
         
         [Header("보상 연결")]
         public string FirstClearDropGroupId;

@@ -396,6 +396,21 @@ public class StageManager : MonoBehaviour
                 case VictoryCondition.KillAll:
                     // 모든 웨이브 완료 시에만 승리 체크
                     shouldCheckVictory = (currentWaveIndex >= stageConfig.WaveConfigs.Count);
+                    
+                    // ✅ 타임리미트가 있는 경우 시간 체크 포함
+                    if (shouldCheckVictory && stageConfig.hasTimeLimit)
+                    {
+                        float elapsedTime = Time.time - stageStartTime;
+                        if (elapsedTime > stageConfig.TimeLimitSec)
+                        {
+                            if (enableDebugLogs)
+                                Debug.Log($"⏱️ [StageManager] KillAll 완료했지만 이미 시간 초과");
+                            
+                            CompleteStage(false); // 시간 초과로 패배
+                            return;
+                        }
+                    }
+                    
                     if (enableDebugLogs && shouldCheckVictory)
                         Debug.Log($"📋 [StageManager] KillAll - 모든 웨이브 완료, 승리 체크");
                     break;
@@ -464,19 +479,56 @@ public class StageManager : MonoBehaviour
         /// </summary>
         private bool CheckVictoryCondition()
         {
+            float elapsedTime = Time.time - stageStartTime;
+            
             switch (stageConfig.Victory)
             {
                 case VictoryCondition.KillAll:
-                    // 모든 웨이브 완료 시 승리
-                    return currentWaveIndex >= stageConfig.WaveConfigs.Count;
+                    // 모든 웨이브 완료 체크
+                    bool allWavesCleared = currentWaveIndex >= stageConfig.WaveConfigs.Count;
+                    
+                    // ✅ 타임리미트가 있는 경우 시간 체크
+                    if (stageConfig.hasTimeLimit && allWavesCleared)
+                    {
+                        bool inTime = elapsedTime <= stageConfig.TimeLimitSec;
+                        
+                        if (enableDebugLogs)
+                        {
+                            if (inTime)
+                                Debug.Log($"🏆 [StageManager] KillAll + 시간 안에 클리어! {elapsedTime:F1}초");
+                            else
+                                Debug.Log($"⏱️ [StageManager] KillAll 완료했지만 시간 초과: {elapsedTime:F1}초");
+                        }
+                        
+                        return inTime;
+                    }
+                    
+                    return allWavesCleared;
                     
                 case VictoryCondition.BossKill:
-                    // ✅ 보스 처치 확인 구현
-                    return isBossKilled;
+                    // 보스 처치 체크
+                    bool bossKilled = isBossKilled;
+                    
+                    // ✅ 타임리미트가 있는 경우 시간 체크
+                    if (stageConfig.hasTimeLimit && bossKilled)
+                    {
+                        bool inTime = elapsedTime <= stageConfig.TimeLimitSec;
+                        
+                        if (enableDebugLogs)
+                        {
+                            if (inTime)
+                                Debug.Log($"🏆 [StageManager] BossKill + 시간 안에 클리어! {elapsedTime:F1}초");
+                            else
+                                Debug.Log($"⏱️ [StageManager] 보스 처치했지만 시간 초과: {elapsedTime:F1}초");
+                        }
+                        
+                        return inTime;
+                    }
+                    
+                    return bossKilled;
                     
                 case VictoryCondition.Survival:
                     // 제한시간 생존 확인
-                    float elapsedTime = Time.time - stageStartTime;
                     return elapsedTime >= stageConfig.TimeLimitSec;
                     
                 case VictoryCondition.ObjectiveComplete:
@@ -772,16 +824,20 @@ public class StageManager : MonoBehaviour
                 return; // PlayerHealth가 없으면 체크 안함
             }
             
-            // ✅ Survival 조건 승리 체크
+            // ========================================
+            // ⏱️ 타임리미트 체크 (조건별 다른 처리)
+            // ========================================
+            float elapsedTime = Time.time - stageStartTime;
+            
+            // ✅ Case 1: Survival - 제한시간 도달 시 승리
             if (stageConfig.Victory == VictoryCondition.Survival)
             {
-                float elapsedTime = Time.time - stageStartTime;
                 if (elapsedTime >= stageConfig.TimeLimitSec)
                 {
                     if (enableDebugLogs)
-                        Debug.Log($"🏆 [StageManager] Survival 승리! 제한시간 달성: {elapsedTime:F1}초");
+                        Debug.Log($"🏆 [StageManager] Survival 승리! {elapsedTime:F1}초 생존");
                     
-                    // ✅ 승리 전에 모든 전투/보스 BGM 상태 정리
+                    // BGM 정리
                     if (BGMController.Instance != null)
                     {
                         BGMController.Instance.OnBossEnd();
@@ -792,11 +848,26 @@ public class StageManager : MonoBehaviour
                     }
                     
                     CompleteStage(true);
-                    return; // 승리 처리 후 패배 체크 스킵
+                    return;
                 }
             }
             
-            // 패배 조건 체크
+            // ✅ Case 2: KillAll/BossKill + hasTimeLimit=true - 시간 초과 시 패배
+            if (stageConfig.hasTimeLimit && 
+                (stageConfig.Victory == VictoryCondition.KillAll || 
+                 stageConfig.Victory == VictoryCondition.BossKill))
+            {
+                if (elapsedTime >= stageConfig.TimeLimitSec)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"⏱️ [StageManager] 타임오버! {elapsedTime:F1}초 초과 - 패배");
+                    
+                    CompleteStage(false); // 시간 초과 패배!
+                    return;
+                }
+            }
+            
+            // 패배 조건 체크 (플레이어 사망 등)
             if (CheckDefeatCondition())
             {
                 CompleteStage(false);
@@ -1197,15 +1268,39 @@ public class StageManager : MonoBehaviour
                 if (enableDebugLogs)
                     Debug.Log($"🐲 [StageManager] 보스 처치됨: {enemy.name} (Victory 조건: {stageConfig.Victory})");
                 
-                // ✅ Victory 조건이 BossKill일 때만 즉시 승리 체크
+                // ✅ Victory 조건이 BossKill일 때 승리 체크
                 if (stageConfig.Victory == VictoryCondition.BossKill)
                 {
-                    if (enableDebugLogs)
-                        Debug.Log($"🏆 [StageManager] 승리 조건 달성! (BossKill) - 즉시 승리 처리");
-                    
-                    if (CheckVictoryCondition())
+                    // ✅ 타임리미트가 있는 경우 시간 체크
+                    if (stageConfig.hasTimeLimit)
                     {
-                        CompleteStage(true);
+                        float elapsedTime = Time.time - stageStartTime;
+                        
+                        if (elapsedTime <= stageConfig.TimeLimitSec)
+                        {
+                            if (enableDebugLogs)
+                                Debug.Log($"🏆 [StageManager] BossKill + 시간 안에 승리! {elapsedTime:F1}초");
+                            
+                            CompleteStage(true);
+                        }
+                        else
+                        {
+                            if (enableDebugLogs)
+                                Debug.Log($"⏱️ [StageManager] 보스 처치했지만 시간 초과: {elapsedTime:F1}초");
+                            
+                            CompleteStage(false); // 시간 초과로 패배
+                        }
+                    }
+                    else
+                    {
+                        // 시간 제한 없음 - 즉시 승리 체크
+                        if (enableDebugLogs)
+                            Debug.Log($"🏆 [StageManager] 승리 조건 달성! (BossKill) - 즉시 승리 처리");
+                        
+                        if (CheckVictoryCondition())
+                        {
+                            CompleteStage(true);
+                        }
                     }
                 }
                 else

@@ -129,24 +129,46 @@ namespace StageSystem
         {
             currentStage = stageConfig;
             
-            Debug.Log($"📱 [StageUI] 스테이지 UI 활성화: {stageConfig.StageID}");
-            Debug.Log($"📱 [StageUI] TimeLimitSec: {stageConfig.TimeLimitSec}");
-            Debug.Log($"📱 [StageUI] Victory: {stageConfig.Victory}");
+            if (enableDebugLogs)
+            {
+                Debug.Log($"📱 [StageUI] 스테이지 UI 활성화: {stageConfig.StageID}");
+                Debug.Log($"📱 [StageUI] Victory: {stageConfig.Victory}, hasTimeLimit: {stageConfig.hasTimeLimit}");
+                Debug.Log($"📱 [StageUI] TimeLimitSec: {stageConfig.TimeLimitSec}");
+            }
             
             // 승리 조건별 UI 설정
             SetupUIForVictoryCondition(stageConfig.Victory);
             
-            // 제한시간이 있는 경우 타이머 활성화
-            if (stageConfig.TimeLimitSec > 0)
+            // ✅ 타이머 UI 활성화 조건 개선
+            bool shouldShowTimer = false;
+            bool isCountdown = false;
+            
+            if (stageConfig.Victory == VictoryCondition.Survival)
             {
-                Debug.Log($"📱 [StageUI] 타이머 활성화: {stageConfig.TimeLimitSec}초");
+                // Survival: 항상 타이머 표시 (카운트다운)
+                shouldShowTimer = true;
+                isCountdown = true; // Survival도 카운트다운 방식
+            }
+            else if (stageConfig.hasTimeLimit && stageConfig.TimeLimitSec > 0)
+            {
+                // KillAll/BossKill + TimeLimit: 카운트다운 타이머
+                shouldShowTimer = true;
+                isCountdown = true;
+            }
+            
+            if (shouldShowTimer)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"📱 [StageUI] 타이머 활성화: {stageConfig.TimeLimitSec}초 (카운트다운: {isCountdown})");
+                
                 ActivateTimerUI(stageConfig.TimeLimitSec);
             }
             
             // 처치 목표가 있는 경우 킬 카운트 활성화
             if (stageConfig.Victory == VictoryCondition.KillAll)
             {
-                Debug.Log("📱 [StageUI] 킬 카운트 UI 활성화");
+                if (enableDebugLogs)
+                    Debug.Log("📱 [StageUI] 킬 카운트 UI 활성화");
                 ActivateKillCountUI();
             }
         }
@@ -160,14 +182,38 @@ namespace StageSystem
             {
                 victoryConditionPanel.SetActive(true);
                 
-                string conditionText = condition switch
+                string conditionText = "";
+                
+                // ✅ 타임리미트 조합 처리
+                if (currentStage.hasTimeLimit)
                 {
-                    VictoryCondition.KillAll => "목표: 모든 적 처치",
-                    VictoryCondition.BossKill => "목표: 보스 처치",
-                    VictoryCondition.Survival => "목표: 제한시간 생존",
-                    VictoryCondition.ObjectiveComplete => "목표: 특수 미션 완료",
-                    _ => "목표: 스테이지 클리어"
-                };
+                    int minutes = currentStage.TimeLimitSec / 60;
+                    int seconds = currentStage.TimeLimitSec % 60;
+                    string timeText = minutes > 0 
+                        ? $"{minutes}분 {seconds}초" 
+                        : $"{seconds}초";
+                    
+                    conditionText = condition switch
+                    {
+                        VictoryCondition.KillAll => $"목표: {timeText} 안에 모든 적 처치 ⏱️",
+                        VictoryCondition.BossKill => $"목표: {timeText} 안에 보스 처치 ⏱️",
+                        VictoryCondition.Survival => $"목표: {timeText} 생존",
+                        VictoryCondition.ObjectiveComplete => $"목표: {timeText} 안에 미션 완료 ⏱️",
+                        _ => "목표: 스테이지 클리어"
+                    };
+                }
+                else
+                {
+                    // 타임리미트 없음
+                    conditionText = condition switch
+                    {
+                        VictoryCondition.KillAll => "목표: 모든 적 처치",
+                        VictoryCondition.BossKill => "목표: 보스 처치",
+                        VictoryCondition.Survival => "목표: 제한시간 생존",
+                        VictoryCondition.ObjectiveComplete => "목표: 특수 미션 완료",
+                        _ => "목표: 스테이지 클리어"
+                    };
+                }
                 
                 if (victoryConditionText != null)
                     victoryConditionText.text = conditionText;
