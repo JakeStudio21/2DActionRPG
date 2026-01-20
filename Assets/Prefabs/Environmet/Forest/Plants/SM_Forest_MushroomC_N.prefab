@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 25957362376493617}
   - component: {fileID: 7189887489166221256}
+  - component: {fileID: 4219990539956339514}
   m_Layer: 0
   m_Name: SM_Forest_MushroomC_N
   m_TagString: Untagged
@@ -168,6 +169,61 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!60 &4219990539956339514
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396798157883720233}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 1
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 5.12, y: 5.12}
+    newSize: {x: 5.12, y: 5.12}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.59768623, y: -1.880295}
+      - {x: 0.8971964, y: -1.9603823}
+      - {x: 1.6786625, y: -1.7274607}
+      - {x: 1.8739517, y: -1.2452717}
+      - {x: 1.462951, y: -0.0076270252}
+      - {x: 1.2071372, y: 0.17037264}
+      - {x: 0.13621849, y: 0.28792578}
+      - {x: -0.6013755, y: 0.061672717}
+      - {x: -1.4032376, y: -0.37842956}
+      - {x: -1.4904281, y: -0.66299176}
+  m_UseDelaunayMesh: 0
 --- !u!1 &2469483396329604653
 GameObject:
   m_ObjectHideFlags: 0

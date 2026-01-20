@@ -237,7 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad6bf7d3ca5fe774a87b166bc6ad35d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  preset: {fileID: 11400000, guid: 1f6c394c4d9b5e944bd91272629fb5aa, type: 2}
+  preset: {fileID: 11400000, guid: 3366b5ffbed5f2f40aea3f9137278b80, type: 2}
   currentHits: 0
   currentHP: 0
   isBroken: 0

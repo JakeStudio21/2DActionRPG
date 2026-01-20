@@ -258,7 +258,7 @@ PolygonCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_UsedByComposite: 1
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -271,12 +271,12 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -1.2688195, y: -0.363897}
+    - - {x: -1.1327957, y: -0.1525977}
+      - {x: -1.2688195, y: -0.363897}
       - {x: -1.2033377, y: -1.4236109}
       - {x: -0.8688103, y: -1.5968363}
       - {x: 0.37947142, y: -1.3455057}
-      - {x: 0.7624004, y: -0.8382093}
-      - {x: 0.7784362, y: 0.14963955}
-      - {x: 0.14373326, y: 0.025484353}
-      - {x: -0.28667754, y: 0.17839646}
+      - {x: 0.75453377, y: -0.7595436}
+      - {x: 0.73598826, y: 0.12841564}
+      - {x: 0.603021, y: 0.23315224}
   m_UseDelaunayMesh: 0
