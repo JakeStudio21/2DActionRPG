@@ -200,8 +200,8 @@ public class StageConfigGenerator : EditorWindow
                 // ========================================
                 // 보상 (더미)
                 // ========================================
-                config.FirstClearDropGroupId = $"DROP_{stageId}_FIRST";
-                config.RepeatClearDropGroupId = $"DROP_{stageId}_REPEAT";
+                config.FirstClearDropGroupId = $"DROP_{stageId}_CLEAR_FIRST";
+                config.RepeatClearDropGroupId = $"DROP_{stageId}_CLEAR_REPEAT";
                 
                 // ========================================
                 // BGM

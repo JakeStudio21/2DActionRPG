@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 365ff0eb4e0d17a4ebc5abc9d5bd3e1a, type: 3}
+  m_Name: CH01_ST02_WAVE_03_Config
+  m_EditorClassIdentifier: 
+  WaveID: CH01_ST02_WAVE_03
+  StageID: CH01_ST02
+  WaveIndex: 1
+  StartCondition: 0
+  WaveDelaySec: 2
+  TriggerId: 0
+  EnablesBossGate: 0
+  BossGateTag: BossGate
+  TriggerToActivate: 1
+  SpawnGroups:
+  - {fileID: 11400000, guid: f90aff3a647bc4f4993f2bfb5e97ad3c, type: 2}
+  - {fileID: 11400000, guid: a8da10d799641504e98399a2cb9426d3, type: 2}
+  - {fileID: 11400000, guid: d55db618615fcc94bbcac3fbe018ce8b, type: 2}

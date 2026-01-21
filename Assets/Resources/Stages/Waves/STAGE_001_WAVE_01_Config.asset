@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 365ff0eb4e0d17a4ebc5abc9d5bd3e1a, type: 3}
   m_Name: STAGE_001_WAVE_01_Config
   m_EditorClassIdentifier: 
-  WaveID: STAGE_001_WAVE_01
+  WaveID: CH01_ST01_WAVE_01
   StageID: CH01_ST01
   WaveIndex: 1
   StartCondition: 0

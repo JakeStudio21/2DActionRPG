@@ -120,6 +120,18 @@ public class WaveController : MonoBehaviour
                 yield return new WaitForSeconds(delaySec);
             }
             
+            // SpawnGroups 검증
+            if (currentWave.SpawnGroups.Count == 0)
+            {
+                Debug.LogError($"❌ [WaveController] {currentWave.WaveID}에 SpawnGroup이 없습니다! WaveConfig asset 파일의 SpawnGroups 리스트를 확인하세요.");
+                yield break;
+            }
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🔍 [WaveController] WaveID: {currentWave.WaveID}, SpawnGroups: {currentWave.SpawnGroups.Count}개");
+            }
+            
             // 각 그룹별 스폰 실행
             foreach (var group in currentWave.SpawnGroups)
             {

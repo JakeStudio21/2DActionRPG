@@ -18,15 +18,19 @@ MonoBehaviour:
   description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2AC\uB77C\uC784\n"
   baseHealth: 100
   baseDefense: 50
-  baseMoveSpeed: 2.5
-  detectionRange: 5
-  chaseRange: 10
-  patrolRadius: 8
+  baseMoveSpeed: 3.5
+  detectionRange: 8
+  chaseRange: 12
+  patrolRadius: 18
   knockBackThrust: 5
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 0
+  skillDataList: []
+  meleeAttackProbability: 100
+  skillUseProbability: 0
+  skillProbabilities: 
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000
@@ -37,4 +41,4 @@ MonoBehaviour:
   baseExpReward: 30
   dropGroupId: DROP_BLUESLIME_001
   dropRolls: 1
-  patrolTuning: {fileID: 11400000, guid: 323de1f544bbba4458f5afed984714e8, type: 2}
+  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

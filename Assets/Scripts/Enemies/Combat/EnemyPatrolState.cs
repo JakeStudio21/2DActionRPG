@@ -437,6 +437,13 @@ public class EnemyPatrolState : IEnemyState
 
     public void Enter()
     {
+        // ⭐⭐⭐ NavMeshAgent 재개 (Phase 3 - 홈 복귀 활성화)
+        BaseEnemy baseEnemy = enemy as BaseEnemy;
+        if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+        {
+            baseEnemy.Agent.isStopped = false; // ✅ Agent 재개 (Chase에서 정지됨)
+        }
+        
         // 홈 위치에서 멀리 떨어져 있으면 먼저 홈으로 돌아가기
         float distToHome = Vector2.Distance(enemy.transform.position, homePosition);
         
@@ -445,7 +452,7 @@ public class EnemyPatrolState : IEnemyState
             returningToHome = true;
             patrolTarget = homePosition;
             
-            if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+            if (baseEnemy != null && baseEnemy.EnableDebugLogs)
             {
                 Debug.Log($"[EnemyPatrolState] {enemy.name} 홈으로 복귀 중... 거리: {distToHome:F1}");
             }
@@ -455,7 +462,7 @@ public class EnemyPatrolState : IEnemyState
             returningToHome = false;
             GenerateNewPatrolTarget();
             
-            if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
+            if (baseEnemy != null && baseEnemy.EnableDebugLogs)
             {
                 Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 시작: {patrolTarget}");
             }

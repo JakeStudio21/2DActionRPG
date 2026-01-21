@@ -130,9 +130,9 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.029999912, y: -0.10970509}
-  m_Size: {x: 0.9594804, y: 0.9594815}
-  m_Direction: 0
+  m_Offset: {x: 0.075861685, y: -0.13263735}
+  m_Size: {x: 2.0785635, y: 1.4272972}
+  m_Direction: 1
 --- !u!50 &2142061137914716384
 Rigidbody2D:
   serializedVersion: 4
@@ -353,7 +353,7 @@ MonoBehaviour:
   currentLevel: 1
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
-  patrolRadius: 3
+  patrolRadius: 10
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   meleeAttack: {fileID: 0}

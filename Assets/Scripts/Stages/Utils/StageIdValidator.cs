@@ -29,9 +29,9 @@ namespace StageSystem
     // ID 패턴 정규식
     // ✅ Phase 0: 챕터 스테이지 패턴 추가 (CH01_ST01 ~ CH05_ST10)
     private static readonly Regex stageIdPattern = new Regex(@"^(STAGE_\d{3}|CH\d{2}_ST\d{2})$");
-    private static readonly Regex waveIdPattern = new Regex(@"^STAGE_\d{3}_WAVE_\d{2}$");
-    private static readonly Regex groupIdPattern = new Regex(@"^STAGE_\d{3}_G\d{2}$");
-    private static readonly Regex dropIdPattern = new Regex(@"^DROP_STG\d{3}_");
+    private static readonly Regex waveIdPattern = new Regex(@"^(STAGE_\d{3}_WAVE_\d{2}|CH\d{2}_ST\d{2}_WAVE_\d{2})$");
+    private static readonly Regex groupIdPattern = new Regex(@"^(STAGE_\d{3}_G\d{2}|CH\d{2}_ST\d{2}_G\d{2})$");
+    private static readonly Regex dropIdPattern = new Regex(@"^DROP_(STG\d{3}|CH\d{2}_ST\d{2})_CLEAR_");
         
         /// <summary>
         /// 스테이지 ID 유효성 검사 (STAGE_001)
@@ -122,6 +122,38 @@ namespace StageSystem
             if (int.TryParse(stagePart, out int stageIndex))
             {
                 return stageIndex;
+            }
+            return -1;
+        }
+        
+        /// <summary>
+        /// ✅ Phase 0: WaveID에서 챕터 ID 추출 (CH01_ST01_WAVE_01 → 1)
+        /// </summary>
+        public static int ExtractChapterIdFromWaveId(string waveId)
+        {
+            if (string.IsNullOrEmpty(waveId)) return -1;
+            
+            // CH01_ST01_WAVE_01 형식인지 확인
+            if (waveId.StartsWith("CH") && waveId.Contains("_ST"))
+            {
+                string stageId = ExtractStageIdFromWave(waveId); // CH01_ST01
+                return ExtractChapterId(stageId); // 1
+            }
+            return -1;
+        }
+        
+        /// <summary>
+        /// ✅ Phase 0: GroupID에서 챕터 ID 추출 (CH01_ST01_G01 → 1)
+        /// </summary>
+        public static int ExtractChapterIdFromGroupId(string groupId)
+        {
+            if (string.IsNullOrEmpty(groupId)) return -1;
+            
+            // CH01_ST01_G01 형식인지 확인
+            if (groupId.StartsWith("CH") && groupId.Contains("_ST"))
+            {
+                string stageId = ExtractStageIdFromGroup(groupId); // CH01_ST01
+                return ExtractChapterId(stageId); // 1
             }
             return -1;
         }

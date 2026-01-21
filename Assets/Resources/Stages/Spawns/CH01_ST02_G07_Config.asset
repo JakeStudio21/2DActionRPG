@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c8815f4e37c1064b8ba4adc333291d9, type: 3}
+  m_Name: CH01_ST02_G07_Config
+  m_EditorClassIdentifier: 
+  SpawnGroupID: CH01_ST02_G07
+  WaveID: CH01_ST02_WAVE_03
+  SpawnDelaySec: 0
+  RepeatCount: 1
+  RepeatIntervalSec: 0
+  Monsters:
+  - MonsterID: MON_SPIDER_001
+    Count: 3
+    SpawnCount: 0.1
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_BEAR_001
+    Count: 3
+    SpawnCount: 0.1
+    IsBoss: 0
+    MonsterPrefab: {fileID: 0}

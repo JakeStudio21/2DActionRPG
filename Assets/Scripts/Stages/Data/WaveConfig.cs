@@ -29,6 +29,59 @@ namespace StageSystem
         public List<SpawnGroup> SpawnGroups = new List<SpawnGroup>();
         
         /// <summary>
+        /// ⭐ 런타임에서 SpawnGroup 자동 로드 (비어있을 경우)
+        /// </summary>
+        public void LoadSpawnGroupsIfEmpty()
+        {
+            if (SpawnGroups != null && SpawnGroups.Count > 0)
+            {
+                // 이미 연결되어 있으면 스킵
+                return;
+            }
+            
+            if (string.IsNullOrEmpty(WaveID))
+            {
+                Debug.LogWarning($"[WaveConfig] WaveID가 비어있어 SpawnGroup을 로드할 수 없습니다.");
+                return;
+            }
+            
+            SpawnGroups = new List<SpawnGroup>();
+            
+            // Resources/Stages/Spawns/ 폴더에서 이 WaveID에 해당하는 SpawnGroup 찾기
+            // 예: CH01_ST01_WAVE_01 → CH01_ST01_G01, CH01_ST01_G02, ...
+            for (int i = 1; i <= 10; i++) // 최대 10개 그룹 시도
+            {
+                string groupId = WaveID.Replace("_WAVE_", "_G") + i.ToString("D2");
+                // CH01_ST01_WAVE_01 → CH01_ST01_G01
+                
+                // WAVE_XX 부분 제거
+                if (groupId.Contains("_WAVE_"))
+                {
+                    int waveIndex = groupId.LastIndexOf("_WAVE_");
+                    groupId = groupId.Substring(0, waveIndex) + "_G" + i.ToString("D2");
+                }
+                
+                string groupPath = $"Stages/Spawns/{groupId}_Config";
+                SpawnGroup group = Resources.Load<SpawnGroup>(groupPath);
+                
+                if (group != null && group.WaveID == WaveID)
+                {
+                    SpawnGroups.Add(group);
+                    Debug.Log($"✅ [WaveConfig] SpawnGroup 자동 로드: {groupId}");
+                }
+            }
+            
+            if (SpawnGroups.Count > 0)
+            {
+                Debug.Log($"🔗 [WaveConfig] {WaveID}: {SpawnGroups.Count}개 SpawnGroup 자동 연결 완료");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [WaveConfig] {WaveID}에 해당하는 SpawnGroup을 찾을 수 없습니다. 경로: Resources/Stages/Spawns/");
+            }
+        }
+        
+        /// <summary>
         /// CSV 데이터로부터 생성
         /// </summary>
         public void InitializeFromCsv(Dictionary<string, string> csvData)

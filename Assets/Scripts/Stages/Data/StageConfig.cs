@@ -132,15 +132,24 @@ namespace StageSystem
                 if (waveConfig != null)
                 {
                     WaveConfigs.Add(waveConfig);
-                    Debug.Log($"✅ [StageConfig] WaveConfig 로드 성공: {waveConfigPath}");
+                    
+                    // SpawnGroups가 비어있으면 자동 로드 시도
+                    if (waveConfig.SpawnGroups == null || waveConfig.SpawnGroups.Count == 0)
+                    {
+                        Debug.LogWarning($"[StageConfig] {waveConfigPath}: SpawnGroups가 비어있습니다. 자동 로드 시도...");
+                        waveConfig.LoadSpawnGroupsIfEmpty();
+                        
+                        if (waveConfig.SpawnGroups.Count == 0)
+                        {
+                            Debug.LogError($"[StageConfig] {waveConfigPath}: SpawnGroups 자동 로드 실패! asset 파일의 SpawnGroups 리스트를 수동으로 연결하세요.");
+                        }
+                    }
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ [StageConfig] WaveConfig를 찾을 수 없습니다: {waveConfigPath}");
+                    Debug.LogWarning($"[StageConfig] WaveConfig를 찾을 수 없습니다: {waveConfigPath}");
                 }
             }
-            
-            Debug.Log($"🌊 [StageConfig] {StageID}: {WaveConfigs.Count}/{WaveCount} 웨이브 로드 완료");
         }
         
         /// <summary>

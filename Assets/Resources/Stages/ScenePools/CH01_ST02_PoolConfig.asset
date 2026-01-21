@@ -933,7 +933,7 @@ MonoBehaviour:
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
   - tag: HitSpark_C
-    prefab: {fileID: 8683933021285538514, guid: eefb12de009088042ba04b97a4721af3, type: 3}
+    prefab: {fileID: 8683933021285538514, guid: acecb0f352fbbf04fa46545b1cbab16f, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
@@ -995,18 +995,6 @@ MonoBehaviour:
   - tag: MON_GOBLINWARRIOR_001
     prefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}
     size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: FX_Hit_Vine
-    prefab: {fileID: 9014708122764640312, guid: 20570172bb8366d4681b264f36cc0340, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: Fx_Hit_Spark_Vine
-    prefab: {fileID: 3243817668901764684, guid: 8a1f4f7105fffec4180ec046ffe03c11, type: 3}
-    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10

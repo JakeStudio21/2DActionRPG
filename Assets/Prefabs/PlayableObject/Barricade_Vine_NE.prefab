@@ -432,7 +432,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad6bf7d3ca5fe774a87b166bc6ad35d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  preset: {fileID: 11400000, guid: 1f6c394c4d9b5e944bd91272629fb5aa, type: 2}
+  preset: {fileID: 11400000, guid: 11c3fdb90dd071b4385f9d61207e4b9e, type: 2}
   currentHits: 0
   currentHP: 0
   isBroken: 0

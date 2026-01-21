@@ -23,22 +23,23 @@ MonoBehaviour:
   enterCutsceneId: CH01_ST02_START
   clearCutsceneId: 
   isReplaySkipCutscene: 1
-  RequiredLevel: 5
+  RequiredLevel: 2
   UnlockCondition: Clear:CH01_ST01
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
   WaveCount: 3
-  TimeLimitSec: 60
-  Victory: 2
+  Victory: 0
+  hasTimeLimit: 1
+  TimeLimitSec: 180
   FirstClearDropGroupId: DROP_CH01_ST02_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST02_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 2 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST01"
   WaveConfigs:
-  - {fileID: 11400000, guid: bd64ee6f42b08e54dbf633772c1cada0, type: 2}
-  - {fileID: 11400000, guid: db20017296adebc4aa663e7a82de1cf9, type: 2}
-  - {fileID: 11400000, guid: 582ebea4d03eb2f43b402b32d94ccc9a, type: 2}
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  - {fileID: 11400000, guid: b76f313119adcbe4b986d5289685d97c, type: 2}
+  - {fileID: 11400000, guid: 25f0e74c7176dc5489062c31bbcd04b1, type: 2}
+  - {fileID: 11400000, guid: 84de543233d0f964e9d5520db29e5c82, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: f871b22fa10e4044fb81f1479b78c08f, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: b767eaaafa62c784db2193a4152edcbf, type: 2}
