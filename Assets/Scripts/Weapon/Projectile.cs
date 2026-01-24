@@ -497,8 +497,28 @@ public class Projectile : MonoBehaviour
     /// </summary>
     private void OnHitWall(Collider2D wall)
     {
-        // 벽 충돌 이펙트 (VFX가 있으면 재생)
-        if (particleOnHitPrefabVFX != null)
+        // 🎵 CueSystem: 벽 충돌 이펙트 + 사운드 재생
+        Vector3 hitPosition = transform.position;
+        Vector3 hitNormal = (hitPosition - wall.transform.position).normalized;
+        
+        var context = new CueSystem.CueContext
+        {
+            position = hitPosition,
+            rotation = transform.rotation,
+            normal = hitNormal,
+            facingDir = transform.right,
+            follow = null,
+            actorType = CueSystem.ActorType.Player,
+            surfaceType = CueSystem.SurfaceType.Stone,
+            magnitude = 1.0f,
+            isCritical = false,
+            scale = 1.0f
+        };
+        
+        CueSystem.CueEmitter.Emit("projectile.hit.wall", "Player", context);
+        
+        // ⚠️ Fallback: CueSystem 실패 시 기존 VFX 사용
+        if (particleOnHitPrefabVFX != null && CueSystem.CuePlayer.Instance == null)
         {
             GamePoolManager.Instance.SpawnFromPool(
                 particleOnHitPrefabVFX.name, 

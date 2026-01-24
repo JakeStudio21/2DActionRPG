@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caebb815a80113343a9fcac2e9ae1631, type: 3}
   m_Name: DROP_CH01_ST02_CLEAR_FIRST_Config
   m_EditorClassIdentifier: 
-  DropGroupID: DROP_STG001_CLEAR_FIRST
-  StageID: STAGE_001
+  DropGroupID: DROP_CH01_ST02_CLEAR_FIRST
+  StageID: CH01_ST02
   GroupType: 0
   Gold: 350
   Exp: 100

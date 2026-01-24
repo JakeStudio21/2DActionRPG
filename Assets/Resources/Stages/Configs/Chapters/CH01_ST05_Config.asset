@@ -29,16 +29,17 @@ MonoBehaviour:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
   WaveCount: 3
-  TimeLimitSec: 10
-  Victory: 2
+  Victory: 0
+  hasTimeLimit: 1
+  TimeLimitSec: 180
   FirstClearDropGroupId: DROP_CH01_ST05_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST05_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 5 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST04"
   WaveConfigs:
-  - {fileID: 11400000, guid: 94725e5e82b851b4598110465a45f37e, type: 2}
-  - {fileID: 11400000, guid: 9815a5e1bba3f924e89f59a3e73a48e8, type: 2}
-  - {fileID: 11400000, guid: 414aefc56a5cfa944ba94f1c9a12e837, type: 2}
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  - {fileID: 11400000, guid: b129526e678e3b9489ec1c89e072a778, type: 2}
+  - {fileID: 11400000, guid: fe6b7a3363bb81548877ba4ec7ee1db3, type: 2}
+  - {fileID: 11400000, guid: fb8e867158cc1e94aae3845712fc268b, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: 2bb757a5a430e2a489ed4fb2c3bb20f7, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: 2e6ea1ed31098d04c92f53941dc681fb, type: 2}

@@ -422,12 +422,23 @@ MonoBehaviour:
     followTarget: 1
     priority: 50
     cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC774\uD399\uD2B8 (\uCE90\uB9AD\uD130 \uCD94\uC801)"
+    note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC774\uD399\uD2B8 (\uCE90\uB9AD\uD130
+      \uCD94\uC801)"
+  - vfxId: WallHitEffect
+    poolKey: Fx_WallDust
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
   sfxCatalog:
   - sfxId: PlayerSFX
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -437,6 +448,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 50
@@ -446,6 +458,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 50
@@ -455,6 +468,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.9
     pitch: 1.2
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 60
@@ -464,6 +478,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 55
@@ -473,6 +488,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.9
     pitch: 1.1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 60
@@ -482,6 +498,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 50
@@ -491,6 +508,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1.3
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 60
@@ -500,6 +518,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 1
     pitch: 0.9
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 80
@@ -509,6 +528,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 70
@@ -518,6 +538,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.6
     pitch: 1.2
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 50
@@ -920,4 +941,13 @@ MonoBehaviour:
     cameraShakePreset: None
     timeStopMs: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC2DC\uC791 \uC774\uD399\uD2B8"
+  - eventKey: projectile.hit.wall
+    vfxIds:
+    - WallHitEffect
+    sfxIds:
+    - PlayerHitSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
   description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uD504\uB85C\uD544"

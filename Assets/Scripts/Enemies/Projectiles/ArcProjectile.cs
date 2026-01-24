@@ -248,6 +248,26 @@ public class ArcProjectile : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"🧱 [ArcProjectile] 벽 충돌! {gameObject.name} → {other.name}");
             
+            // 🎵 CueSystem: 벽 충돌 이펙트 + 사운드 재생
+            Vector3 hitPosition = transform.position;
+            Vector3 hitNormal = (hitPosition - other.transform.position).normalized;
+            
+            var context = new CueSystem.CueContext
+            {
+                position = hitPosition,
+                rotation = transform.rotation,
+                normal = hitNormal,
+                facingDir = transform.right,
+                follow = null,
+                actorType = CueSystem.ActorType.Enemy,
+                surfaceType = CueSystem.SurfaceType.Stone,
+                magnitude = 1.0f,
+                isCritical = false,
+                scale = 1.0f
+            };
+            
+            CueSystem.CueEmitter.Emit("projectile.hit.wall", "Enemy", context);
+            
             // 즉시 착지 처리 (벽 앞에서 폭발)
             targetPosition = transform.position;
             OnProjectileLand();

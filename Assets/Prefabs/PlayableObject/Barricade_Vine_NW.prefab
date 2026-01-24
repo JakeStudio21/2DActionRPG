@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1714305866086120647}
   - component: {fileID: 4247371043965458581}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Obstacle_Center
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57,7 +57,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 421888093870651293}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HPDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5469723702390951823}
   - component: {fileID: 2029081304311958945}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Obstacle_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,7 +137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4095756374867114182}
   - component: {fileID: 846582886382964450}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Obstacle_Center2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,7 +185,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6101089957357803412}
   - component: {fileID: 5147162270207782794}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Obstacle_Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -238,7 +238,7 @@ GameObject:
   - component: {fileID: 1560686160041477823}
   - component: {fileID: 9021089914784124626}
   - component: {fileID: 123569544394047151}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Barricade_Vine_NW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -490,6 +490,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2400180322989661557}
     m_Modifications:
+    - target: {fileID: 205900101583044309, guid: 8305cd9236359c4428dfa7d79a61e14a, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 234131187670560976, guid: 8305cd9236359c4428dfa7d79a61e14a, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -573,6 +577,18 @@ PrefabInstance:
     - target: {fileID: 1818617267067752661, guid: 8305cd9236359c4428dfa7d79a61e14a, type: 3}
       propertyPath: m_Name
       value: BarricadeHPDisplay
+      objectReference: {fileID: 0}
+    - target: {fileID: 1818617267067752661, guid: 8305cd9236359c4428dfa7d79a61e14a, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5916480087892821922, guid: 8305cd9236359c4428dfa7d79a61e14a, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6438536269833048724, guid: 8305cd9236359c4428dfa7d79a61e14a, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
