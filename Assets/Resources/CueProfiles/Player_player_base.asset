@@ -44,7 +44,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9 VFX"
   - vfxId: PlayerCritVFX
-    poolKey: CriticalHit
+    poolKey: Fx_CritHit_ImpactDust_Red
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.5, y: 1.5, z: 1.5}
@@ -71,7 +71,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2 VFX"
   - vfxId: PlayerHitVFX
-    poolKey: PlayerHitEffect
+    poolKey: Fx_PlayerHit_Spark_White
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -80,7 +80,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 VFX"
   - vfxId: PlayerCritHitVFX
-    poolKey: PlayerCritHitEffect
+    poolKey: Fx_CritHit_ImpactDust_Red
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.3, y: 1.3, z: 1.3}
@@ -89,7 +89,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9 VFX"
   - vfxId: PlayerDeathVFX
-    poolKey: PlayerDeathEffect
+    poolKey: Fx_PlayerDeath
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 2, y: 2, z: 2}
@@ -97,17 +97,8 @@ MonoBehaviour:
     priority: 80
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD VFX"
-  - vfxId: PlayerReviveVFX
-    poolKey: PlayerReviveEffect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 70
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C VFX"
   - vfxId: PlayerHealVFX
-    poolKey: HealEffect
+    poolKey: Fx_PlayerHeal
     duration: -1
     offset: {x: 0, y: 0.5, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -115,44 +106,8 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 VFX"
-  - vfxId: PlayerHealVFX
-    poolKey: HitSpark_C
-    duration: -1
-    offset: {x: 0, y: 0.5, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 1
-    priority: 50
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2AC\uB798\uC2DC"
-  - vfxId: SwordSlash_S
-    poolKey: Slash_S_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 60
-    cooldown: 0
-    note: "S\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
-  - vfxId: SwordSlash_A
-    poolKey: Slash_A_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 55
-    cooldown: 0
-    note: "A\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
-  - vfxId: SwordSlash_B
-    poolKey: Slash_B_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.2, y: 1.2, z: 1.2}
-    followTarget: 0
-    priority: 52
-    cooldown: 0
-    note: "B\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
-  - vfxId: SwordSlash_C
-    poolKey: Slash_C_Effect
+  - vfxId: SwordSlash
+    poolKey: Slash_Effect
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -160,17 +115,8 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "C\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
-  - vfxId: SwordSlash_D
-    poolKey: Slash_D_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0.8, y: 0.8, z: 0.8}
-    followTarget: 0
-    priority: 45
-    cooldown: 0
-    note: "D\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8(\uAE30\uBCF8)"
-  - vfxId: MeleeHit_S
-    poolKey: HitImpact_S
+  - vfxId: MeleeHit
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 2, y: 2, z: 2}
@@ -178,71 +124,8 @@ MonoBehaviour:
     priority: 65
     cooldown: 0
     note: "S\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: MeleeHit_A
-    poolKey: HitImpact_A
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 58
-    cooldown: 0
-    note: "A\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: MeleeHit_B
-    poolKey: HitImpact_B
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.2, y: 1.2, z: 1.2}
-    followTarget: 0
-    priority: 53
-    cooldown: 0
-    note: "B\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: MeleeHit_C
-    poolKey: HitImpact_C
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "C\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: MeleeHit_D
-    poolKey: HitImpact_D
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0.8, y: 0.8, z: 0.8}
-    followTarget: 0
-    priority: 45
-    cooldown: 0
-    note: "D\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: BowMuzzle_S
-    poolKey: MuzzleFlash_S
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 60
-    cooldown: 0
-    note: "S \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
-  - vfxId: BowMuzzle_A
-    poolKey: MuzzleFlash_A
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 55
-    cooldown: 0
-    note: "A \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
-  - vfxId: BowMuzzle_B
-    poolKey: MuzzleFlash_B
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.2, y: 1.2, z: 1.2}
-    followTarget: 0
-    priority: 52
-    cooldown: 0
-    note: "B \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
-  - vfxId: BowMuzzle_C
-    poolKey: MuzzleFlash_C
+  - vfxId: BowMuzzle
+    poolKey: MuzzleFlash
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -250,44 +133,8 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "C \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
-  - vfxId: BowMuzzle_D
-    poolKey: MuzzleFlash_D
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0.8, y: 0.8, z: 0.8}
-    followTarget: 0
-    priority: 45
-    cooldown: 0
-    note: "D \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
-  - vfxId: ArrowHit_S
-    poolKey: ArrowImpact_S
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "S \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: ArrowHit_A
-    poolKey: ArrowImpact_A
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 58
-    cooldown: 0
-    note: "A \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: ArrowHit_B
-    poolKey: ArrowImpact_B
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.2, y: 1.2, z: 1.2}
-    followTarget: 0
-    priority: 53
-    cooldown: 0
-    note: "B \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: ArrowHit_C
-    poolKey: ArrowImpact_C
+  - vfxId: ArrowHit
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -295,15 +142,6 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "C \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: ArrowHit_D
-    poolKey: ArrowImpact_D
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 0.8, y: 0.8, z: 0.8}
-    followTarget: 0
-    priority: 45
-    cooldown: 0
-    note: "D \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
   - vfxId: WarriorSkill1Cast
     poolKey: WarriorDashEffect
     duration: -1
@@ -325,7 +163,7 @@ MonoBehaviour:
     note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uC9C1\uC0AC\uAC01\uD615 \uBC94\uC704
       \uACF5\uACA9"
   - vfxId: WarriorSkill1Hit
-    poolKey: WarriorImpactEffect
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.3, y: 1.3, z: 1.3}
@@ -352,7 +190,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uCDA9\uACA9\uD30C \uD655\uC0B0"
   - vfxId: WarriorSkill2Hit
-    poolKey: HitSpark_Dust_Effect
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.5, y: 1.5, z: 1.5}
@@ -370,7 +208,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uC774\uD399\uD2B8 \uC2DC\uC804"
   - vfxId: AssasinSkill1Hit
-    poolKey: HitSpark_Dust_Effect
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.5, y: 1.5, z: 1.5}
@@ -397,7 +235,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2  \uC774\uD399\uD2B8 \uC2DC\uC804"
   - vfxId: AssasinSkill2Hit
-    poolKey: HitSpark_Dust_Effect
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.5, y: 1.5, z: 1.5}
@@ -415,7 +253,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2 \uC6D0\uD615\uD0C0\uACA9\uBC94\uC704"
   - vfxId: PlayerDashEffect
-    poolKey: PlayerDashEffect
+    poolKey: Fx_PlayerDash
     duration: 0.3
     offset: {x: 0, y: -0.3, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -524,16 +362,6 @@ MonoBehaviour:
     priority: 80
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD \uC0AC\uC6B4\uB4DC"
-  - sfxId: PlayerReviveSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
-    pitch: 1
-    loop: 0
-    is3D: 0
-    maxDistance: 50
-    priority: 70
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C \uC0AC\uC6B4\uB4DC"
   - sfxId: PlayerHealSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.6
@@ -626,15 +454,6 @@ MonoBehaviour:
     cameraShakePreset: Heavy
     timeStopMs: 150
     note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD"
-  - eventKey: revive.player
-    vfxIds:
-    - PlayerReviveVFX
-    sfxIds:
-    - PlayerReviveSound
-    priority: 3
-    cameraShakePreset: Medium
-    timeStopMs: 100
-    note: "\uD50C\uB808\uC774\uC5B4 \uBD80\uD65C"
   - eventKey: heal.player
     vfxIds:
     - PlayerHealVFX
@@ -644,186 +463,42 @@ MonoBehaviour:
     cameraShakePreset: Light
     timeStopMs: 30
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5"
-  - eventKey: attack.player.melee.sword_s
+  - eventKey: attack.player.melee.sword
     vfxIds:
-    - SwordSlash_S
+    - SwordSlash
     sfxIds:
     - PlayerHealSound
     priority: 3
     cameraShakePreset: Heavy
     timeStopMs: 50
     note: "\"S\uB4F1\uAE09 \uAC80 \uACF5\uACA9\""
-  - eventKey: attack.player.melee.sword_a
+  - eventKey: hit.player.melee
     vfxIds:
-    - SwordSlash_A
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Medium
-    timeStopMs: 40
-    note: "\"A\uB4F1\uAE09 \uAC80 \uACF5\uACA9\""
-  - eventKey: attack.player.melee.sword_b
-    vfxIds:
-    - SwordSlash_B
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Medium
-    timeStopMs: 35
-    note: "\"B\uB4F1\uAE09 \uAC80 \uACF5\uACA9\""
-  - eventKey: attack.player.melee.sword_c
-    vfxIds:
-    - SwordSlash_C
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Medium
-    timeStopMs: 30
-    note: "\"C\uB4F1\uAE09 \uAC80 \uACF5\uACA9\""
-  - eventKey: attack.player.melee.sword_d
-    vfxIds:
-    - SwordSlash_D
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Light
-    timeStopMs: 25
-    note: "\"D\uB4F1\uAE09 \uAC80 \uACF5\uACA9\""
-  - eventKey: hit.player.melee_s
-    vfxIds:
-    - MeleeHit_S
+    - MeleeHit
     sfxIds:
     - PlayerHealSound
     priority: 3
     cameraShakePreset: Heavy
     timeStopMs: 60
     note: "\"S\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8\""
-  - eventKey: hit.player.melee_a
+  - eventKey: attack.player.ranged.bow
     vfxIds:
-    - MeleeHit_A
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Medium
-    timeStopMs: 50
-    note: "\"A\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8\""
-  - eventKey: hit.player.melee_b
-    vfxIds:
-    - MeleeHit_B
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Medium
-    timeStopMs: 45
-    note: "\"B\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8\""
-  - eventKey: hit.player.melee_c
-    vfxIds:
-    - MeleeHit_C
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Light
-    timeStopMs: 40
-    note: "\"C\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8\""
-  - eventKey: hit.player.melee_d
-    vfxIds:
-    - MeleeHit_D
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Light
-    timeStopMs: 35
-    note: "\"D\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8\""
-  - eventKey: attack.player.ranged.bow_s
-    vfxIds:
-    - BowMuzzle_S
+    - BowMuzzle
     sfxIds:
     - PlayerHealSound
     priority: 3
     cameraShakePreset: Medium
     timeStopMs: 35
     note: "\"S\uB4F1\uAE09 \uD65C \uBC1C\uC0AC\""
-  - eventKey: attack.player.ranged.bow_a
+  - eventKey: hit.player.arrow
     vfxIds:
-    - BowMuzzle_A
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Light
-    timeStopMs: 30
-    note: "\"A\uB4F1\uAE09 \uD65C \uBC1C\uC0AC\""
-  - eventKey: attack.player.ranged.bow_b
-    vfxIds:
-    - BowMuzzle_B
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Light
-    timeStopMs: 25
-    note: "\"B\uB4F1\uAE09 \uD65C \uBC1C\uC0AC\""
-  - eventKey: attack.player.ranged.bow_c
-    vfxIds:
-    - BowMuzzle_C
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Light
-    timeStopMs: 20
-    note: "\"C\uB4F1\uAE09 \uD65C \uBC1C\uC0AC\""
-  - eventKey: attack.player.ranged.bow_d
-    vfxIds:
-    - BowMuzzle_D
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Light
-    timeStopMs: 15
-    note: "\"D\uB4F1\uAE09 \uD65C \uBC1C\uC0AC\""
-  - eventKey: hit.player.arrow_s
-    vfxIds:
-    - ArrowHit_S
+    - ArrowHit
     sfxIds:
     - PlayerHealSound
     priority: 3
     cameraShakePreset: Heavy
     timeStopMs: 60
     note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
-  - eventKey: hit.player.arrow_a
-    vfxIds:
-    - ArrowHit_A
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Medium
-    timeStopMs: 50
-    note: "\"A\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
-  - eventKey: hit.player.arrow_b
-    vfxIds:
-    - ArrowHit_B
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Medium
-    timeStopMs: 45
-    note: "\"B\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
-  - eventKey: hit.player.arrow_c
-    vfxIds:
-    - ArrowHit_C
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Light
-    timeStopMs: 40
-    note: "\"C\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
-  - eventKey: hit.player.arrow_d
-    vfxIds:
-    - ArrowHit_D
-    sfxIds:
-    - PlayerHealSound
-    priority: 2
-    cameraShakePreset: Light
-    timeStopMs: 35
-    note: "\"D\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
   - eventKey: skill.warrior.skill1.cast
     vfxIds:
     - WarriorSkill1Cast

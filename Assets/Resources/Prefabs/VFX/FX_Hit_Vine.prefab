@@ -53761,7 +53761,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poolTag: 
+  poolTag: FX_Hit_Vine
 --- !u!1 &9173618223762716620
 GameObject:
   m_ObjectHideFlags: 0

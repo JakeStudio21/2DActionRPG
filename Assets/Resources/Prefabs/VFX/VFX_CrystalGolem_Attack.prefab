@@ -98,7 +98,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   aoeShape: 2
-  aoeRange: 5
   damageOnce: 1
   damageInterval: 0.5
   showDebugGizmos: 1
@@ -128,7 +127,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7883441628179305771}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0.891837, w: 0.45235693}
   m_LocalPosition: {x: -108.9, y: -6.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -136,7 +135,7 @@ Transform:
   - {fileID: 8336489126317502523}
   - {fileID: 7013879694008065420}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 126.21}
 --- !u!1001 &3815862932234429281
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -191,19 +190,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7801005321576631662, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
       propertyPath: m_BoundingSphereOverride.w
-      value: NaN
+      value: -1.2370593e+36
       objectReference: {fileID: 0}
     - target: {fileID: 7801005321576631662, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
       propertyPath: m_BoundingSphereOverride.x
-      value: NaN
+      value: 3.932284e-27
       objectReference: {fileID: 0}
     - target: {fileID: 7801005321576631662, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
       propertyPath: m_BoundingSphereOverride.y
-      value: 0
+      value: -2.0115137e+35
       objectReference: {fileID: 0}
     - target: {fileID: 7801005321576631662, guid: 1116336e9bd7fec418cf1b8ce4a84b9d, type: 3}
       propertyPath: m_BoundingSphereOverride.z
-      value: 0
+      value: 28077162
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

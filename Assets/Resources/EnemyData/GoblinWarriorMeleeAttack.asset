@@ -40,6 +40,6 @@ MonoBehaviour:
   effectChances:
   - 1
   attackStartEffect: {fileID: 0}
-  hitEffect: {fileID: 1758473627833946668, guid: c1f15932686dbe448aeff133b4bdfb51, type: 3}
+  hitEffect: {fileID: 0}
   attackSound: {fileID: 0}
   hitSound: {fileID: 0}

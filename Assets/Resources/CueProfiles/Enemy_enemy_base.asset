@@ -17,7 +17,7 @@ MonoBehaviour:
   baseProfile: {fileID: 0}
   vfxCatalog:
   - vfxId: HitSpark
-    poolKey: HitSpark
+    poolKey: Fx_EnemyHit_Slash
     duration: 2
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -25,17 +25,8 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uADFC\uC811 \uACF5\uACA9 \uD788\uD2B8"
-  - vfxId: CriticalHit
-    poolKey: CriticalHit
-    duration: 2
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "\uD06C\uB9AC\uD2F0\uCEEC \uADFC\uC811 \uACF5\uACA9"
   - vfxId: MuzzleFlash
-    poolKey: MuzzleFlash
+    poolKey: Fx_MuzzleFlash
     duration: 2
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -53,7 +44,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
   - vfxId: DeathEffect
-    poolKey: DeathEffect
+    poolKey: Fx_EnemyDeath
     duration: 1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -62,7 +53,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC77C\uBC18 \uC801 \uC0AC\uB9DD"
   - vfxId: BossDeathEffect
-    poolKey: BossDeathEffect
+    poolKey: Fx_EnemyDeath
     duration: 1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -71,7 +62,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uBCF4\uC2A4 \uC0AC\uB9DD"
   - vfxId: HitEffect
-    poolKey: HitEffect
+    poolKey: Fx_Hit_ImpactDust_Fire
     duration: 2
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -80,7 +71,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC77C\uBC18 \uD53C\uACA9"
   - vfxId: CritHitEffect
-    poolKey: CritHitEffect
+    poolKey: Fx_CritHit_ImpactDust_Red
     duration: 2
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -89,7 +80,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
   - vfxId: WallHitEffect
-    poolKey: HitSpark
+    poolKey: Fx_WallDust
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 0.8, y: 0.8, z: 0.8}
@@ -102,6 +93,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -111,6 +103,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -120,6 +113,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -129,6 +123,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -138,6 +133,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -147,6 +143,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -156,6 +153,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -165,6 +163,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50

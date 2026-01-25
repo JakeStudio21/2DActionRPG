@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: 9e877730115d52d498fd36b5eda184a8, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.08627451, g: 0.08627451, b: 0.08627451, a: 0.5882353}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -94,6 +94,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2804274564915175236}
   - component: {fileID: 2900950288439754492}
+  - component: {fileID: 678261701491170036}
+  - component: {fileID: 4233242319579167922}
   m_Layer: 0
   m_Name: SM_MineCave_Entrance_SW
   m_TagString: Untagged
@@ -168,55 +170,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &6676539218261038451
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3431010907062462413}
-  - component: {fileID: 1714403986764438529}
-  - component: {fileID: 5272997908016373616}
-  m_Layer: 0
-  m_Name: SM_MineCave_Entrance_SW
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3431010907062462413
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6676539218261038451}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2804274564915175236}
-  - {fileID: 1070443538062366400}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1714403986764438529
+--- !u!114 &678261701491170036
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6676539218261038451}
+  m_GameObject: {fileID: 4440407075117524536}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   footPosition: {fileID: 0}
-  footOffset: {x: 0, y: 0}
+  footOffset: {x: -0.3, y: -0.7}
   baseLayer: 1000
   heightOffset: 0
   useIsometricData: 1
@@ -227,13 +194,13 @@ MonoBehaviour:
   showDebugGizmo: 0
   showOrderInInspector: 0
   enableDebugLogs: 0
---- !u!60 &5272997908016373616
+--- !u!60 &4233242319579167922
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6676539218261038451}
+  m_GameObject: {fileID: 4440407075117524536}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -271,19 +238,47 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -1.1218044, y: -0.31617376}
-      - {x: -1.0413489, y: -0.18053666}
-      - {x: -0.5225159, y: 0.043303207}
-      - {x: -0.30740175, y: 0.35399085}
-      - {x: -0.2980144, y: 0.61780673}
-      - {x: -0.23649716, y: 0.7621784}
-      - {x: 0.26878428, y: 0.77694964}
-      - {x: 0.37473947, y: 0.70465934}
-      - {x: 0.43194634, y: 0.4893179}
-      - {x: 0.57006156, y: 0.20905009}
-      - {x: 1.823018, y: -0.6274663}
-      - {x: 1.7908994, y: -0.82971597}
-      - {x: 0.39203236, y: -1.7167115}
-      - {x: 0.16578364, y: -1.7352872}
-      - {x: -0.7197322, y: -1.0609337}
+    - - {x: -1.6372631, y: 0.49542555}
+      - {x: -0.66511095, y: 0.60795915}
+      - {x: -0.3723768, y: 0.44672644}
+      - {x: 0.24516732, y: -0.2755867}
+      - {x: 0.6056385, y: -0.039988637}
+      - {x: 1.3872002, y: -0.29837945}
+      - {x: 1.1860911, y: -1.2655337}
+      - {x: 0.76559055, y: -1.770077}
+      - {x: -1.0883043, y: -1.6819217}
+      - {x: -1.964926, y: -0.9275201}
   m_UseDelaunayMesh: 0
+--- !u!1 &6676539218261038451
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3431010907062462413}
+  m_Layer: 0
+  m_Name: SM_MineCave_Entrance_SW
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3431010907062462413
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6676539218261038451}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2804274564915175236}
+  - {fileID: 1070443538062366400}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

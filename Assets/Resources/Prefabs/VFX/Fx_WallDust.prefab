@@ -19568,4 +19568,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poolTag: HitSpark_Dust_Effect
+  poolTag: Fx_WallDust

@@ -14695,7 +14695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poolTag: FX_PF_Fire_ImpactBurst_01
+  poolTag: Fx_Hit_Spark_Vine
 --- !u!1 &4641968496595298792
 GameObject:
   m_ObjectHideFlags: 0

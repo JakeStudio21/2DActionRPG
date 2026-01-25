@@ -240,6 +240,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Par_OrangeShoot_Trails
       objectReference: {fileID: 0}
+    - target: {fileID: 7019824402234052870, guid: 69d409d4fe97f6446a48676aa3ed3b24, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8717028863718106812, guid: 69d409d4fe97f6446a48676aa3ed3b24, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -281,7 +285,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 7019824402234052870, guid: 69d409d4fe97f6446a48676aa3ed3b24, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 69d409d4fe97f6446a48676aa3ed3b24, type: 3}
@@ -298,13 +303,41 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5939386751460457192}
     m_Modifications:
+    - target: {fileID: 1597112294476295789, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112294497042656, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112294497042669, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1597112294592981397, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
       propertyPath: startDelay.scalar
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 1597112294592981397, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 1597112294633404746, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
       propertyPath: startDelay.scalar
-      value: 0.2
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112294633404746, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112294633404746, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: EmissionModule.rateOverTime.minScalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112294900417434, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1597112295188672552, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
       propertyPath: m_LocalPosition.x
@@ -346,13 +379,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1597112295188672553, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1597112295188672555, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
       propertyPath: m_Name
       value: FX_PF_Fire_Projectile
       objectReference: {fileID: 0}
+    - target: {fileID: 1597112295346317498, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112295354403853, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112296324134118, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1597112296324134118, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
       propertyPath: startDelay.scalar
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112296324134118, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1597112296324134118, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: EmissionModule.rateOverTime.minScalar
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 3943099767956220137, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5188325954260206261, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
       propertyPath: startDelay.scalar
@@ -418,8 +479,18 @@ PrefabInstance:
       propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[0].outWeight
       value: 0.25793436
       objectReference: {fileID: 0}
+    - target: {fileID: 7419301826471593568, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8712695458952772175, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+      propertyPath: lengthInSec
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1597112296324134137, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+    - {fileID: 1597112294592981352, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
