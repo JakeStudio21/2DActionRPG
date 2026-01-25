@@ -21,35 +21,23 @@ public class EnemyAttackState : IEnemyState
     {
         Debug.Log($"🗡️ [EnemyAttackState] {enemy.transform.name} - 공격 상태 진입!");
         
-        // ⭐ 1번: 공격 시작 전 거리 체크
+        // ⭐ 1번: 공격 시작 전 거리 체크 (엄격한 범위 체크로 허공 공격 방지)
         if (enemy.TargetPlayer != null)
         {
             float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
             
-            // ⭐ 엘리트/보스는 실제 공격 범위로 엄격하게 체크 (빈 공격 방지)
-            bool isEliteOrBoss = false;
-            float rangeThreshold = enemy.AttackRange * 1.2f; // 기본: 1.2배 여유
-            
-            if (enemy is BaseEnemy baseEnemyEnter)
-            {
-                var eliteAttack = baseEnemyEnter.GetComponent<EliteAttackBehaviour>();
-                var bossAttack = baseEnemyEnter.GetComponent<BossAttackBehaviour>();
-                
-                if (eliteAttack != null || bossAttack != null)
-                {
-                    isEliteOrBoss = true;
-                    rangeThreshold = enemy.AttackRange; // 엘리트/보스: 실제 범위로 엄격하게
-                }
-            }
+            // ⭐⭐⭐ 모든 몬스터 실제 공격 범위로 엄격하게 체크 (플레이어 넉백 고려)
+            float rangeThreshold = enemy.AttackRange; // 1.0배 (엄격)
             
             // 공격 범위 밖이면 추격 상태로 전환
             if (dist > rangeThreshold)
             {
-                string monsterType = isEliteOrBoss ? "(ELITE/BOSS)" : "";
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} {monsterType} - 공격 시작 시 거리 밖 감지! Chase 상태로 전환 (거리: {dist:F2}, 범위: {rangeThreshold:F2})");
+                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 시작 시 거리 밖 감지! Chase 상태로 전환 (거리: {dist:F2}, 범위: {rangeThreshold:F2})");
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
             }
+            
+            Debug.Log($"✅ [EnemyAttackState] {enemy.transform.name} - 범위 내 확인! 공격 실행 (거리: {dist:F2}, 범위: {rangeThreshold:F2})");
         }
         
         // ⭐⭐⭐ NavMeshAgent 정지 (Phase 3 - 공격 중 이동 방지)
@@ -108,12 +96,12 @@ public class EnemyAttackState : IEnemyState
                 return;
             }
             
-            // 거리 체크
+            // 거리 체크 (애니메이션 완료 시점)
             if (enemy.TargetPlayer != null)
             {
                 float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
                 
-                // 공격 범위 밖이면 즉시 추격 상태로 전환 (postAttackDelay 대기 안 함)
+                // ⭐⭐⭐ 공격 범위 밖이면 즉시 추격 상태로 전환 (엄격한 체크)
                 if (enemy is Boss_SandElemental)
                 {
                     float attackRange = enemy.AttackRange;
@@ -129,7 +117,8 @@ public class EnemyAttackState : IEnemyState
                 }
                 else
                 {
-                    if (dist > enemy.AttackRange * 1.2f)
+                    // ⭐ 일반 몬스터: 실제 공격 범위로 엄격하게 체크 (1.0배)
+                    if (dist > enemy.AttackRange)
                     {
                         Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 완료 후 거리 밖! Chase 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
@@ -189,11 +178,11 @@ public class EnemyAttackState : IEnemyState
                         enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
                     }
                 }
-                // 일반 몬스터는 기존 로직
+                // 일반 몬스터는 엄격한 범위 체크 적용
                 else
                 {
-                    // ⭐ 공격 범위 안에 있으면 다시 Attack 상태로
-                    if (dist <= enemy.AttackRange * 1.2f)
+                    // ⭐⭐⭐ 실제 공격 범위로 엄격하게 체크 (플레이어 넉백 고려)
+                    if (dist <= enemy.AttackRange * 0.95f) // 0.95배로 약간 여유 (넉백 반영)
                     {
                         // ⭐ 엘리트 전용: 실제 공격 가능할 때만 Attack 전환 (빈 공격 방지)
                         if (enemy is BaseEnemy baseEnemyElite)
@@ -209,13 +198,13 @@ public class EnemyAttackState : IEnemyState
                         }
                         
                         // 공격 가능 - 다시 Attack 상태로 전환
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 범위 내, 재공격 대기 (거리: {dist:F2})");
+                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 범위 내, 재공격 대기 (거리: {dist:F2}, 범위: {(enemy.AttackRange * 0.95f):F2})");
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                     }
-                    else if (dist < enemy.AttackRange * 3f)
+                    else if (dist < enemy.AttackRange * 2f) // 2배 이내면 추격
                     {
                         // 중간 거리 - 추적 계속
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 중간 거리, Chase 상태로 전환 (거리: {dist:F2})");
+                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 범위 밖, Chase 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                     }
                     else

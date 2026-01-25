@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PatrolTuning_LadyBug
   m_EditorClassIdentifier: 
   acceleration:
-    accelerationRate: 3
+    accelerationRate: 1.5
     decelerationRate: 3
     maxSpeedMultiplier: 1.5
     minSpeedMultiplier: 0.3

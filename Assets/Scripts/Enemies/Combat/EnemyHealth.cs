@@ -316,12 +316,13 @@ public class EnemyHealth : MonoBehaviour
             Debug.Log($"[EnemyHealth] {gameObject.name} 물리 효과 중지 (Kinematic)");
         }
         
-        // ⭐ 이동 시스템 중지 (EnemyPathfinding)
-        EnemyPathfinding pathfinding = GetComponent<EnemyPathfinding>();
-        if (pathfinding != null)
+        // ⭐ 이동 시스템 중지 (NavMeshAgent)
+        BaseEnemy baseEnemy = GetComponent<BaseEnemy>();
+        if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
         {
-            pathfinding.StopMoving();
-            Debug.Log($"[EnemyHealth] {gameObject.name} 이동 시스템 중지");
+            baseEnemy.Agent.isStopped = true;
+            baseEnemy.Agent.ResetPath();
+            Debug.Log($"[EnemyHealth] {gameObject.name} NavMeshAgent 정지");
         }
 
         // ⭐ 사망 애니메이션 재생

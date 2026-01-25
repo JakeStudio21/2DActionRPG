@@ -338,6 +338,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
+  - tag: MuzzleFlash_C
+    prefab: {fileID: 4186470608034871016, guid: 3dd2aebcc29f67d48bbb81c299a4aa05, type: 3}
+    size: 2
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
   - tag: VFX_Stone_Hit_01
     prefab: {fileID: 1758473627833946668, guid: c1f15932686dbe448aeff133b4bdfb51, type: 3}
     size: 2
@@ -347,12 +353,6 @@ MonoBehaviour:
   - tag: Fx_PlayerSlash_Blue
     prefab: {fileID: 7502250425806291784, guid: a0c67b43222a939479be620b2a1b3750, type: 3}
     size: 3
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: MuzzleFlash_C
-    prefab: {fileID: 4186470608034871016, guid: 3dd2aebcc29f67d48bbb81c299a4aa05, type: 3}
-    size: 2
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5

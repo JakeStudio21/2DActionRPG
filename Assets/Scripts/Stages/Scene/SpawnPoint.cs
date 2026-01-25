@@ -38,7 +38,7 @@ namespace StageSystem
         // 기존 SpawnPoint 클래스에 추가할 필드들
         [Header("몬스터 배치 설정")]
         [SerializeField] private float spawnSpread = 2f; // 스폰 분산 범위
-        [SerializeField] private float patrolRadius = 3f; // 순찰 반경
+        [SerializeField] private float patrolRadius = 0f; // 순찰 반경 (0 = EnemyData 사용)
         [SerializeField] private int maxMonstersPerPoint = 10; // 포인트당 최대 몬스터 수
         [SerializeField] private SpawnPattern spawnPattern = SpawnPattern.Random; // 배치 패턴
 

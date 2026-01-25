@@ -65885,6 +65885,10 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: patrolRadius
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID
       value: CH01_ST01_SP02
       objectReference: {fileID: 0}
@@ -71488,6 +71492,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: patrolRadius
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID
       value: CH01_ST01_SP03
       objectReference: {fileID: 0}
@@ -72685,7 +72693,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: patrolRadius
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPattern
@@ -74430,6 +74438,10 @@ PrefabInstance:
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnSpread
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: patrolRadius
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID

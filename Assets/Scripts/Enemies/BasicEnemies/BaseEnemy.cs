@@ -420,6 +420,22 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     {
         if (Agent == null) return;
         
+        // ⭐⭐⭐ NavMesh 사용 시 Rigidbody2D를 Kinematic으로 전환 (필수!)
+        // NavMeshAgent는 Transform을 직접 제어하므로 물리 시뮬레이션과 충돌 방지
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            if (rb.bodyType != RigidbodyType2D.Kinematic)
+            {
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                Debug.Log($"✅ [BaseEnemy] {gameObject.name}: NavMesh 사용 - Rigidbody2D를 Kinematic으로 전환 (넉백 비활성화)");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [BaseEnemy] {gameObject.name}: Rigidbody2D 컴포넌트가 없습니다!");
+        }
+        
         // ⭐ 2D 필수 설정 (Phase 2-1)
         Agent.updateRotation = false;  // 2D 스프라이트 회전 방지
         Agent.updateUpAxis = false;    // Z축 기울임 방지
@@ -484,7 +500,7 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     // BaseEnemy 클래스에 추가할 필드들
     [Header("위치 정보")]
     [SerializeField] protected Vector3 homePosition; // 집 위치
-    [SerializeField] protected float patrolRadius = 3f; // 순찰 반경
+    [SerializeField] protected float patrolRadius = 0f; // 순찰 반경 (0 = EnemyData 사용)
     [SerializeField] protected Vector3 spawnPosition; // 스폰된 위치
 
     // 프로퍼티 추가
@@ -493,17 +509,23 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
     { 
         get 
         {
-            // 🔑 스폰 시 설정된 값 우선 (SpawnPoint에서 설정)
-            if (patrolRadius > 0) 
-                return patrolRadius;
+            // ⭐⭐⭐ 우선순위: EnemyData → 스폰 설정 → 기본값
             
-            // 🔑 데이터 기반 값 사용 (수정!)
-            if (enemyData != null)
+            // 1순위: EnemyData (ScriptableObject)
+            if (enemyData != null && enemyData.PatrolRadius > 0)
             {
                 return enemyData.PatrolRadius;
             }
+            
+            // 2순위: 스폰 시 설정된 값 (SetHomePosition으로 설정)
+            // SpawnSystem에서 0이 아닌 값으로 설정한 경우
+            if (patrolRadius > 0) 
+            {
+                return patrolRadius;
+            }
                 
-            return 3f; // 최후 기본값
+            // 3순위: 최후 기본값
+            return 3f;
         } 
     }
     public Vector3 SpawnPosition => spawnPosition;
@@ -728,5 +750,68 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         enableDebugLogsField?.SetValue(footSorter, false); // 배포 시 false
     }
 
+    #endregion
+    
+    #region 🎯 연출 넉백 시스템 (NavMesh 호환)
+    
+    /// <summary>
+    /// NavMesh 몬스터용 연출 넉백 (물리 없이 Transform 이동)
+    /// ⭐ EnemyHitState에서 호출됨
+    /// ⚠️ isStopped 관리는 HitState에서 담당! (멈칫거림 방지)
+    /// </summary>
+    public IEnumerator PerformKnockbackEffect(Vector2 damageSourcePosition)
+    {
+        // NavMesh 미사용 몬스터는 기존 Knockback.cs가 처리하므로 스킵
+        if (!IsUsingNavMesh)
+        {
+            Debug.Log($"[BaseEnemy] {gameObject.name}: NavMesh 미사용 몬스터 → 기존 Knockback.cs 사용");
+            yield break;
+        }
+        
+        // ⚙️ 연출 넉백 설정값
+        float retreatDistance = 0.8f;  // 후퇴 거리 (0.8 유닛)
+        float retreatDuration = 0.25f; // 후퇴 시간 (0.25초)
+        float elapsed = 0f;
+        
+        // 후퇴 방향 계산 (데미지 받은 반대쪽)
+        Vector2 knockbackDirection = ((Vector2)transform.position - damageSourcePosition).normalized;
+        
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = startPos + (Vector3)knockbackDirection * retreatDistance;
+        
+        Debug.Log($"🎯 [BaseEnemy] {gameObject.name} 연출 넉백 시작: {retreatDistance}m, {retreatDuration}초");
+        
+        // 부드러운 후퇴 애니메이션
+        while (elapsed < retreatDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / retreatDuration;
+            
+            // EaseOut 곡선 (빠르게 시작 → 부드럽게 감속)
+            float smoothT = 1f - Mathf.Pow(1f - t, 3f);
+            
+            // Z축 고정하면서 위치 이동
+            Vector3 newPos = Vector3.Lerp(startPos, targetPos, smoothT);
+            newPos.z = 0f;
+            transform.position = newPos;
+            
+            yield return null;
+        }
+        
+        // 최종 위치 설정
+        Vector3 finalPos = targetPos;
+        finalPos.z = 0f;
+        transform.position = finalPos;
+        
+        // ⭐ NavMeshAgent 위치 동기화 (중요!)
+        // isStopped는 HitState에서 관리하므로 여기서는 위치만 동기화
+        if (Agent.enabled && Agent.isOnNavMesh)
+        {
+            Agent.Warp(finalPos);
+        }
+        
+        Debug.Log($"✅ [BaseEnemy] {gameObject.name} 연출 넉백 완료 (위치 동기화됨)");
+    }
+    
     #endregion
 } 

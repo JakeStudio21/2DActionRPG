@@ -42,15 +42,12 @@ public class EnemyDieState : IEnemyState
         // 예: 사운드 재생, 특수 이펙트 등
         
         // 모든 AI 행동 중단
-        MonoBehaviour enemyMono = enemy as MonoBehaviour;
-        if (enemyMono != null)
+        if (enemy is BaseEnemy baseEnemy && baseEnemy.IsUsingNavMesh)
         {
-            // EnemyPathfinding 정지
-            EnemyPathfinding pathfinding = enemyMono.GetComponent<EnemyPathfinding>();
-            if (pathfinding != null)
-            {
-                pathfinding.StopMoving();
-            }
+            // NavMeshAgent 정지
+            baseEnemy.Agent.isStopped = true;
+            baseEnemy.Agent.ResetPath();
+            Debug.Log($"[EnemyDieState] {enemy.transform.name} NavMeshAgent 정지");
         }
     }
 }
