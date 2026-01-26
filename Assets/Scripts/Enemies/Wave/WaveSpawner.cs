@@ -1,0 +1,471 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+/// <summary>
+/// SimpleMob 웨이브 스폰 관리자
+/// - WaveData 기반 스폰
+/// - 패턴 스폰 지원
+/// - 클리어 조건 체크
+/// </summary>
+public class WaveSpawner : MonoBehaviour
+{
+    [Header("Wave Configuration")]
+    [SerializeField] private WaveData currentWaveData;
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private Transform customSpawnCenter; // 커스텀 스폰 중심 (옵션)
+    
+    [Header("Spawn Settings")]
+    [SerializeField] private bool autoStartWave = true;
+    [SerializeField] private float waveStartDelay = 1f;
+    
+    [Header("Debug")]
+    [SerializeField] private bool enableDebugLogs = false;
+    [SerializeField] private bool showSpawnGizmos = false;
+    
+    // 웨이브 상태
+    private bool isSpawning = false;
+    private int currentWaveNumber = 0;
+    private int totalSpawnedCount = 0;
+    private int totalKilledCount = 0;
+    private List<GameObject> spawnedMobs = new List<GameObject>();
+    
+    // 코루틴
+    private Coroutine spawnCoroutine;
+    
+    // 이벤트
+    public System.Action<int> OnWaveStart;
+    public System.Action<int> OnWaveComplete;
+    public System.Action<int, int> OnMobKilled; // (killedCount, totalCount)
+    
+    private void Start()
+    {
+        // 플레이어 자동 찾기
+        if (playerTransform == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                playerTransform = player.transform;
+            }
+        }
+        
+        // 자동 시작
+        if (autoStartWave && currentWaveData != null)
+        {
+            Invoke(nameof(StartAutoWave), waveStartDelay);
+        }
+    }
+    
+    private void StartAutoWave()
+    {
+        StartWave(currentWaveData);
+    }
+    
+    /// <summary>
+    /// 웨이브 시작
+    /// </summary>
+    public void StartWave(WaveData waveData)
+    {
+        if (isSpawning)
+        {
+            Debug.LogWarning("[WaveSpawner] 이미 웨이브가 진행 중입니다!");
+            return;
+        }
+        
+        if (waveData == null)
+        {
+            Debug.LogError("[WaveSpawner] WaveData가 null입니다!");
+            return;
+        }
+        
+        currentWaveData = waveData;
+        currentWaveNumber = waveData.waveNumber;
+        totalSpawnedCount = 0;
+        totalKilledCount = 0;
+        spawnedMobs.Clear();
+        
+        if (enableDebugLogs)
+            Debug.Log($"🌊 [WaveSpawner] Wave {currentWaveNumber} 시작!");
+        
+        OnWaveStart?.Invoke(currentWaveNumber);
+        
+        spawnCoroutine = StartCoroutine(SpawnWaveCoroutine());
+    }
+    
+    /// <summary>
+    /// 외부에서 호출하는 웨이브 시작 (WaveConfig 통합용)
+    /// </summary>
+    public void StartWaveExternal(WaveData waveData)
+    {
+        if (enableDebugLogs)
+            Debug.Log($"📞 [WaveSpawner] StartWaveExternal() 호출됨 - WaveData: {waveData?.name ?? "null"}");
+        
+        StartWave(waveData);
+    }
+    
+    /// <summary>
+    /// 스폰 중심점 설정 (외부 호출용)
+    /// </summary>
+    public void SetSpawnCenter(Transform spawnCenter)
+    {
+        customSpawnCenter = spawnCenter;
+        
+        if (enableDebugLogs)
+            Debug.Log($"📍 [WaveSpawner] 커스텀 스폰 중심 설정: {spawnCenter.name}");
+    }
+    
+    /// <summary>
+    /// 웨이브 스폰 코루틴
+    /// </summary>
+    private IEnumerator SpawnWaveCoroutine()
+    {
+        isSpawning = true;
+        
+        // 각 SpawnConfig 순차 실행
+        foreach (SpawnConfig config in currentWaveData.spawnConfigs)
+        {
+            if (config.mobPrefab == null)
+            {
+                Debug.LogWarning("[WaveSpawner] mobPrefab이 null입니다!");
+                continue;
+            }
+            
+            // SpawnConfig 스폰
+            for (int i = 0; i < config.spawnCount; i++)
+            {
+                SpawnMob(config, i);
+                totalSpawnedCount++;
+                
+                yield return new WaitForSeconds(config.spawnInterval);
+            }
+        }
+        
+        if (enableDebugLogs)
+            Debug.Log($"✅ [WaveSpawner] 스폰 완료: {totalSpawnedCount}마리");
+        
+        // 클리어 조건 체크 시작
+        StartCoroutine(CheckClearConditionCoroutine());
+    }
+    
+    /// <summary>
+    /// 몬스터 스폰
+    /// </summary>
+    private void SpawnMob(SpawnConfig config, int index)
+    {
+        Vector3 spawnPosition = CalculateSpawnPosition(config, index);
+        
+        // 풀에서 가져오기
+        GameObject mob = null;
+        
+        if (GamePoolManager.Instance != null && !string.IsNullOrEmpty(config.mobPrefab.tag))
+        {
+            mob = GamePoolManager.Instance.SpawnFromPool(config.mobPrefab.tag, spawnPosition, Quaternion.identity);
+        }
+        
+        // 풀에 없으면 인스턴스화
+        if (mob == null)
+        {
+            mob = Instantiate(config.mobPrefab, spawnPosition, Quaternion.identity);
+        }
+        
+        if (mob != null)
+        {
+            spawnedMobs.Add(mob);
+            
+            // SimpleMob 컴포넌트 체크 및 설정
+            SimpleMob simpleMob = mob.GetComponent<SimpleMob>();
+            if (simpleMob == null)
+            {
+                Debug.LogWarning($"[WaveSpawner] {mob.name}에 SimpleMob 컴포넌트가 없습니다!");
+            }
+            else
+            {
+                // 이동 속도 설정 (config.moveSpeed > 0이면 적용)
+                if (config.moveSpeed > 0f)
+                {
+                    simpleMob.SetMoveSpeed(config.moveSpeed);
+                }
+            }
+            
+            if (enableDebugLogs)
+                Debug.Log($"📍 [WaveSpawner] 스폰: {mob.name} at {spawnPosition}");
+        }
+    }
+    
+    /// <summary>
+    /// 스폰 위치 계산
+    /// </summary>
+    private Vector3 CalculateSpawnPosition(SpawnConfig config, int index)
+    {
+        // 스폰 중심점 결정: customSpawnCenter > playerTransform > WaveSpawner 위치
+        Vector3 spawnCenterPos;
+        
+        if (customSpawnCenter != null)
+        {
+            spawnCenterPos = customSpawnCenter.position;
+        }
+        else if (playerTransform != null)
+        {
+            spawnCenterPos = playerTransform.position;
+        }
+        else
+        {
+            spawnCenterPos = transform.position;
+        }
+        
+        Vector3 playerPos = spawnCenterPos;
+        
+        // 패턴별 위치 계산
+        switch (config.spawnPattern)
+        {
+            case SpawnPattern.Circle:
+                return CalculateCirclePosition(playerPos, config.spawnRadius, index, config.spawnCount);
+            
+            case SpawnPattern.Random:
+                return CalculateRandomPosition(playerPos, config.spawnRadius);
+            
+            case SpawnPattern.Line:
+                return CalculateLinePosition(playerPos, config.lineStart, config.lineEnd, index, config.spawnCount);
+            
+            case SpawnPattern.Grid:
+                return CalculateGridPosition(playerPos, config.gridRows, config.gridColumns, config.gridSpacing, index);
+            
+            default:
+                return playerPos + (Vector3)Random.insideUnitCircle * config.spawnRadius;
+        }
+    }
+    
+    /// <summary>
+    /// Circle 패턴 위치 계산
+    /// </summary>
+    private Vector3 CalculateCirclePosition(Vector3 center, float radius, int index, int totalCount)
+    {
+        float angle = (360f / totalCount) * index * Mathf.Deg2Rad;
+        float x = center.x + radius * Mathf.Cos(angle);
+        float y = center.y + radius * Mathf.Sin(angle);
+        
+        // 랜덤 오프셋 추가 (겹침 방지)
+        Vector2 randomOffset = Random.insideUnitCircle * 0.5f;
+        
+        return new Vector3(x + randomOffset.x, y + randomOffset.y, 0f);
+    }
+    
+    /// <summary>
+    /// Random 패턴 위치 계산
+    /// </summary>
+    private Vector3 CalculateRandomPosition(Vector3 center, float radius)
+    {
+        Vector2 randomPoint = Random.insideUnitCircle * radius;
+        return center + new Vector3(randomPoint.x, randomPoint.y, 0f);
+    }
+    
+    /// <summary>
+    /// Line 패턴 위치 계산
+    /// </summary>
+    private Vector3 CalculateLinePosition(Vector3 center, Vector2 start, Vector2 end, int index, int totalCount)
+    {
+        float t = totalCount > 1 ? (float)index / (totalCount - 1) : 0.5f;
+        Vector2 position = Vector2.Lerp(start, end, t);
+        return center + new Vector3(position.x, position.y, 0f);
+    }
+    
+    /// <summary>
+    /// Grid 패턴 위치 계산
+    /// </summary>
+    private Vector3 CalculateGridPosition(Vector3 center, int rows, int columns, float spacing, int index)
+    {
+        int row = index / columns;
+        int col = index % columns;
+        
+        float x = col * spacing - (columns - 1) * spacing / 2f;
+        float y = row * spacing - (rows - 1) * spacing / 2f;
+        
+        return center + new Vector3(x, y, 0f);
+    }
+    
+    /// <summary>
+    /// 클리어 조건 체크 코루틴
+    /// </summary>
+    private IEnumerator CheckClearConditionCoroutine()
+    {
+        float startTime = Time.time;
+        
+        if (enableDebugLogs)
+            Debug.Log($"🔄 [WaveSpawner] 클리어 조건 체크 시작 - 조건: {currentWaveData.clearCondition}, 총 스폰: {totalSpawnedCount}마리");
+        
+        while (true)
+        {
+            yield return new WaitForSeconds(0.5f); // 0.5초마다 체크
+            
+            // 클리어 조건 체크
+            bool isCleared = false;
+            
+            switch (currentWaveData.clearCondition)
+            {
+                case WaveClearCondition.KillAll:
+                    isCleared = CheckKillAllCondition();
+                    break;
+                
+                case WaveClearCondition.TimeLimit:
+                    isCleared = Time.time - startTime >= currentWaveData.timeLimitSeconds;
+                    if (enableDebugLogs)
+                        Debug.Log($"⏱️ [WaveSpawner] 시간 체크: {Time.time - startTime:F1}/{currentWaveData.timeLimitSeconds}초");
+                    break;
+                
+                case WaveClearCondition.KillCount:
+                    // 구현 가능 (특정 수 처치)
+                    break;
+            }
+            
+            if (isCleared)
+            {
+                CompleteWave();
+                yield break;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// KillAll 조건 체크
+    /// </summary>
+    private bool CheckKillAllCondition()
+    {
+        // null과 비활성 오브젝트 제거
+        int beforeCount = spawnedMobs.Count;
+        spawnedMobs.RemoveAll(mob => mob == null || !mob.activeInHierarchy);
+        int afterCount = spawnedMobs.Count;
+        
+        // SimpleMob 중 살아있는 것만 카운트
+        int aliveCount = 0;
+        foreach (GameObject mob in spawnedMobs)
+        {
+            SimpleMob simpleMob = mob.GetComponent<SimpleMob>();
+            if (simpleMob != null && !simpleMob.IsDead)
+            {
+                aliveCount++;
+            }
+        }
+        
+        if (enableDebugLogs && (beforeCount != afterCount || aliveCount > 0))
+        {
+            Debug.Log($"🔍 [WaveSpawner] 클리어 체크 - 스폰된 몬스터: {beforeCount}→{afterCount}, 살아있는 몬스터: {aliveCount}");
+        }
+        
+        bool isCleared = aliveCount == 0 && afterCount == 0;
+        
+        if (isCleared && enableDebugLogs)
+        {
+            Debug.Log($"✅ [WaveSpawner] 모든 몬스터 처치 완료! 웨이브 클리어!");
+        }
+        
+        return isCleared;
+    }
+    
+    /// <summary>
+    /// 웨이브 완료
+    /// </summary>
+    private void CompleteWave()
+    {
+        isSpawning = false;
+        
+        if (enableDebugLogs)
+            Debug.Log($"🏆 [WaveSpawner] Wave {currentWaveNumber} 완료!");
+        
+        // 보상 지급
+        GiveRewards();
+        
+        // 이벤트 발동
+        if (enableDebugLogs)
+        {
+            int listenerCount = OnWaveComplete?.GetInvocationList()?.Length ?? 0;
+            Debug.Log($"📣 [WaveSpawner] OnWaveComplete 이벤트 발동 - 구독자 {listenerCount}명");
+        }
+        
+        OnWaveComplete?.Invoke(currentWaveNumber);
+        
+        if (enableDebugLogs)
+            Debug.Log($"✅ [WaveSpawner] 웨이브 완료 처리 끝!");
+    }
+    
+    /// <summary>
+    /// 보상 지급
+    /// </summary>
+    private void GiveRewards()
+    {
+        if (currentWaveData.rewardGold > 0)
+        {
+            PlayerDataManager.Instance.AddGold(currentWaveData.rewardGold);
+            
+            if (enableDebugLogs)
+                Debug.Log($"💰 [WaveSpawner] 골드 획득: {currentWaveData.rewardGold}");
+        }
+        
+        if (currentWaveData.rewardExp > 0)
+        {
+            PlayerDataManager.Instance.AddExp(currentWaveData.rewardExp);
+            
+            if (enableDebugLogs)
+                Debug.Log($"⭐ [WaveSpawner] 경험치 획득: {currentWaveData.rewardExp}");
+        }
+    }
+    
+    /// <summary>
+    /// 웨이브 중지
+    /// </summary>
+    public void StopWave()
+    {
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+        
+        StopAllCoroutines();
+        
+        // 모든 스폰된 몬스터 제거
+        foreach (GameObject mob in spawnedMobs)
+        {
+            if (mob != null && GamePoolManager.Instance != null)
+            {
+                GamePoolManager.Instance.ReturnToPool(mob.tag, mob);
+            }
+        }
+        
+        spawnedMobs.Clear();
+        isSpawning = false;
+        
+        if (enableDebugLogs)
+            Debug.Log("[WaveSpawner] 웨이브 강제 중지");
+    }
+    
+    private void OnDrawGizmos()
+    {
+        if (!showSpawnGizmos || currentWaveData == null) return;
+        
+        Vector3 center = customSpawnCenter != null ? customSpawnCenter.position :
+                         playerTransform != null ? playerTransform.position :
+                         transform.position;
+        
+        // 스폰 패턴 시각화
+        foreach (SpawnConfig config in currentWaveData.spawnConfigs)
+        {
+            Gizmos.color = Color.cyan;
+            
+            switch (config.spawnPattern)
+            {
+                case SpawnPattern.Circle:
+                case SpawnPattern.Random:
+                    Gizmos.DrawWireSphere(center, config.spawnRadius);
+                    break;
+                
+                case SpawnPattern.Line:
+                    Vector3 start = center + new Vector3(config.lineStart.x, config.lineStart.y, 0f);
+                    Vector3 end = center + new Vector3(config.lineEnd.x, config.lineEnd.y, 0f);
+                    Gizmos.DrawLine(start, end);
+                    break;
+            }
+        }
+    }
+}
+

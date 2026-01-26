@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6847a89159fb0b0469ed630e7bad5f76, type: 3}
+  m_Name: CH01_ST06_SimpleMob_Config
+  m_EditorClassIdentifier: 
+  waveNumber: 1
+  totalWaves: 2
+  spawnConfigs:
+  - mobPrefab: {fileID: 6075384399065925802, guid: 06ef510050a5e584999bed5a75e5b893, type: 3}
+    spawnCount: 20
+    spawnInterval: 0.1
+    moveSpeed: 2.2
+    spawnPattern: 0
+    spawnRadius: 10
+    lineStart: {x: -5, y: 0}
+    lineEnd: {x: 5, y: 0}
+    gridRows: 3
+    gridColumns: 0
+    gridSpacing: 2
+  - mobPrefab: {fileID: 6075384399065925802, guid: 06ef510050a5e584999bed5a75e5b893, type: 3}
+    spawnCount: 20
+    spawnInterval: 0.1
+    moveSpeed: 2.2
+    spawnPattern: 0
+    spawnRadius: 10
+    lineStart: {x: -5, y: 0}
+    lineEnd: {x: 5, y: 0}
+    gridRows: 3
+    gridColumns: 0
+    gridSpacing: 2
+  clearCondition: 0
+  timeLimitSeconds: 60
+  rewardGold: 100
+  rewardExp: 50

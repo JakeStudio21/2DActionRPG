@@ -21,7 +21,7 @@ MonoBehaviour:
   baseMoveSpeed: 3.5
   detectionRange: 8
   chaseRange: 12
-  patrolRadius: 18
+  patrolRadius: 8
   knockBackThrust: 5
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}

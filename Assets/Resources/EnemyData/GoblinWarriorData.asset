@@ -18,10 +18,10 @@ MonoBehaviour:
   description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uACE0\uBE14\uB9B0\uB9E8\uC190\uACF5\uACA9\n"
   baseHealth: 100
   baseDefense: 50
-  baseMoveSpeed: 3
-  detectionRange: 5
-  chaseRange: 8
-  patrolRadius: 8
+  baseMoveSpeed: 2.5
+  detectionRange: 8
+  chaseRange: 10
+  patrolRadius: 6
   knockBackThrust: 5
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}

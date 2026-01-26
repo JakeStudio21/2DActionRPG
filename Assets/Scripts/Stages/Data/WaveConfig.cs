@@ -25,6 +25,16 @@ namespace StageSystem
         public string BossGateTag = "BossGate";     // 활성화할 Boss Gate 태그
         public WaveTriggerId TriggerToActivate = WaveTriggerId.BossGateOpened; // 활성화할 트리거 ID
         
+        [Header("🌊 SimpleMob 웨이브 설정 (선택)")]
+        [Tooltip("이 웨이브에서 SimpleMob을 사용할지 여부")]
+        public bool UseSimpleMobWave = false;
+        
+        [Tooltip("SimpleMob 웨이브 데이터 (UseSimpleMobWave = true일 때)")]
+        public WaveData SimpleMobWaveData;
+        
+        [Tooltip("SimpleMob 스폰 위치 기준 (없으면 플레이어 위치)")]
+        public Transform SimpleMobSpawnCenter;
+        
         [Header("런타임 참조")]
         public List<SpawnGroup> SpawnGroups = new List<SpawnGroup>();
         

@@ -956,45 +956,63 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: VFX_Click_02
+    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: BOSSMON_FORESTELEMENTAL_001
+    prefab: {fileID: 3235174918318939483, guid: a1f93d743fcbe7f489e56de247837aa9, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: ELITEMON_BOAR_001
+    prefab: {fileID: 3235174918318939483, guid: 1bc540bb9eb14e54fa61ce093a3abb5b, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: ELITEMON_ORC_001
+    prefab: {fileID: 3235174918318939483, guid: 0806c881d4f5f174d83411b786a59268, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: MON_GOBLINBOMB_001
+    prefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: MON_GOBLINCART_001
+    prefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
+  - tag: MON_GOBLINWARRIOR_001
+    prefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}
     size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fx_WallDust
+    prefab: {fileID: 8683933021285538514, guid: 2d80af1147b5d974ea651b08f087647b, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fx_Hit_ImpactDust_Fire
+    prefab: {fileID: 1625881847255917415, guid: b2d32b6366355ff479d315f6909c12a9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fx_Heal
+    prefab: {fileID: 7111470932628664318, guid: 10c88a62520a34e45b45efdc347e5813, type: 3}
+    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10

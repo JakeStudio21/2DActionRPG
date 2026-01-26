@@ -1016,5 +1016,23 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  optionalPools: []
+  - tag: SimpleMob
+    prefab: {fileID: 6075384399065925802, guid: 06ef510050a5e584999bed5a75e5b893, type: 3}
+    size: 50
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 20
+  optionalPools:
+  - tag: SimpleMobHit
+    prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}
+    size: 0
+    preloadOnSceneStart: 0
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 0
+  - tag: SimpleMobDeath
+    prefab: {fileID: 724470073289127030, guid: 168752663e8d8fb40a0efa48d70d3671, type: 3}
+    size: 0
+    preloadOnSceneStart: 0
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 0
   enableDebugLogs: 0

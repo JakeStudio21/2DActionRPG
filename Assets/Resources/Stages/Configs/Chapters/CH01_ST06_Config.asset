@@ -28,7 +28,7 @@ MonoBehaviour:
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
-  WaveCount: 3
+  WaveCount: 4
   Victory: 1
   hasTimeLimit: 0
   TimeLimitSec: 180

@@ -120,7 +120,53 @@ public class WaveController : MonoBehaviour
                 yield return new WaitForSeconds(delaySec);
             }
             
-            // SpawnGroups 검증
+            // 🌊 SimpleMob 웨이브 체크 (우선순위)
+            if (currentWave.UseSimpleMobWave)
+            {
+                if (currentWave.SimpleMobWaveData != null)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"🌊 [WaveController] SimpleMob 웨이브 시작: {currentWave.WaveID}");
+                    
+                    // WaveSpawner 찾기 또는 생성
+                    WaveSpawner waveSpawner = FindObjectOfType<WaveSpawner>();
+                    if (waveSpawner == null)
+                    {
+                        Debug.LogWarning($"⚠️ [WaveController] WaveSpawner를 찾을 수 없습니다. SimpleMob 웨이브를 스폰하려면 씬에 WaveSpawner가 필요합니다.");
+                    }
+                    else
+                    {
+                        // SimpleMob 스폰 위치 설정
+                        if (currentWave.SimpleMobSpawnCenter != null)
+                        {
+                            waveSpawner.SetSpawnCenter(currentWave.SimpleMobSpawnCenter);
+                            if (enableDebugLogs)
+                                Debug.Log($"📍 [WaveController] 커스텀 스폰 위치 설정: {currentWave.SimpleMobSpawnCenter.name}");
+                        }
+                        
+                        // WaveSpawner의 OnWaveComplete 이벤트 구독
+                        waveSpawner.OnWaveComplete += OnSimpleMobWaveComplete;
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"🔗 [WaveController] WaveSpawner 이벤트 구독 완료");
+                        
+                        // SimpleMob 웨이브 시작
+                        waveSpawner.StartWaveExternal(currentWave.SimpleMobWaveData);
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"🚀 [WaveController] SimpleMob 웨이브 스폰 시작 명령 전송!");
+                    }
+                    
+                    yield break; // SimpleMob 웨이브는 여기서 종료
+                }
+                else
+                {
+                    Debug.LogError($"❌ [WaveController] UseSimpleMobWave가 true지만 SimpleMobWaveData가 null입니다: {currentWave.WaveID}");
+                    yield break;
+                }
+            }
+            
+            // SpawnGroups 검증 (기존 몬스터 시스템)
             if (currentWave.SpawnGroups.Count == 0)
             {
                 Debug.LogError($"❌ [WaveController] {currentWave.WaveID}에 SpawnGroup이 없습니다! WaveConfig asset 파일의 SpawnGroups 리스트를 확인하세요.");
@@ -626,6 +672,40 @@ public class WaveController : MonoBehaviour
             }
             
             return objectName;
+        }
+        
+        /// <summary>
+        /// SimpleMob 웨이브 완료 콜백
+        /// </summary>
+        private void OnSimpleMobWaveComplete(int waveNumber)
+        {
+            if (enableDebugLogs)
+            {
+                Debug.Log($"🏆 [WaveController] SimpleMob 웨이브 완료 콜백 받음: {currentWave.WaveID} (Wave {waveNumber})");
+            }
+            
+            // WaveSpawner 이벤트 구독 해제
+            WaveSpawner waveSpawner = FindObjectOfType<WaveSpawner>();
+            if (waveSpawner != null)
+            {
+                waveSpawner.OnWaveComplete -= OnSimpleMobWaveComplete;
+                if (enableDebugLogs)
+                    Debug.Log($"✅ [WaveController] WaveSpawner 이벤트 구독 해제 완료");
+            }
+            
+            // 웨이브 완료 처리
+            isWaveActive = false;
+            
+            if (enableDebugLogs)
+            {
+                int listenerCount = OnWaveCompleted?.GetInvocationList()?.Length ?? 0;
+                Debug.Log($"📣 [WaveController] OnWaveCompleted 이벤트 발동 - 구독자 {listenerCount}명 (StageManager 등)");
+            }
+            
+            OnWaveCompleted?.Invoke(currentWave);
+            
+            if (enableDebugLogs)
+                Debug.Log($"✅ [WaveController] SimpleMob 웨이브 완료 처리 끝!");
         }
         
         /// <summary>

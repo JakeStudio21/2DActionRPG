@@ -113,13 +113,18 @@ public class Projectile : MonoBehaviour
             Debug.LogWarning($"🚨🚨🚨 [N/S COLLISION] {other.gameObject.name}와 충돌! 위치: {transform.position}");
         }
         
+        // 🆕 SimpleMob 체크
+        SimpleMob simpleMob = other.gameObject.GetComponent<SimpleMob>();
+        
         EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
         Indestructible indestructible = other.gameObject.GetComponent<Indestructible>();
         PlayerHealth player = other.gameObject.GetComponent<PlayerHealth>();
 
-        if (!other.isTrigger && (enemyHealth || indestructible || player)) {
+        if (!other.isTrigger && (simpleMob || enemyHealth || indestructible || player)) {
 
-            if ((player && isEnemyProjectile) || (enemyHealth && !isEnemyProjectile))
+            if ((player && isEnemyProjectile) || 
+                (enemyHealth && !isEnemyProjectile) ||
+                (simpleMob && !isEnemyProjectile)) // 🆕
             {
                 // 데미지를 입히는 로직을 PlayerHealth와 EnemyHealth의 OnCollision/OnTrigger가 담당하도록 변경합니다.
                 // Projectile은 시각 효과와 소멸만 처리합니다.

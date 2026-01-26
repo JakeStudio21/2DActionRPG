@@ -59,6 +59,15 @@ public class DamageSource : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other) 
     {
+        // 🆕 SimpleMob 체크 (최우선)
+        SimpleMob simpleMob = other.gameObject.GetComponent<SimpleMob>();
+        if (simpleMob != null && !simpleMob.IsDead)
+        {
+            DealDamageToSimpleMob(simpleMob, other);
+            return;
+        }
+        
+        // 기존 몬스터 (EnemyHealth)
         EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
         if (enemyHealth == null) return;
         
@@ -89,6 +98,34 @@ public class DamageSource : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"💥 [DamageSource] 최종 데미지: {roundedDamage} → {other.name}");
+    }
+    
+    /// <summary>
+    /// 🆕 SimpleMob에 데미지 처리
+    /// </summary>
+    private void DealDamageToSimpleMob(SimpleMob simpleMob, Collider2D other)
+    {
+        // 🧱 벽 차단 체크
+        if (checkWallBlocking && IsBlockedByWall(other.transform))
+        {
+            if (showDebugLogs)
+                Debug.Log($"🚫 [DamageSource] {other.name} - 벽에 막혀서 공격 실패");
+            return;
+        }
+        
+        // 🎯 데미지 계산 (PlayerRuntimeStats 기반)
+        float baseDamage = GetCurrentBaseDamage();
+        float finalDamage = ApplyClassSpecialEffects(baseDamage, baseDamage, other);
+        
+        // SimpleMob에 데미지 적용
+        int roundedDamage = Mathf.RoundToInt(finalDamage);
+        simpleMob.TakeDamage(roundedDamage);
+        
+        // 히트 이펙트
+        EmitHitEffectCue(other.transform.position);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [DamageSource] SimpleMob 데미지: {roundedDamage} → {other.name}");
     }
     
     /// <summary>
