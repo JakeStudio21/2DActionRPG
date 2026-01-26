@@ -49,7 +49,6 @@ GameObject:
   - component: {fileID: 4792411720221729903}
   - component: {fileID: -8070876538002613510}
   - component: {fileID: -752092573500323026}
-  - component: {fileID: 3746799392073795553}
   - component: {fileID: 8403660534966338527}
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -959638007286054655}
@@ -295,18 +294,6 @@ MonoBehaviour:
   canDropEquipment: 1
   equipmentDropChance: 50
   possibleEquipmentDrops: []
---- !u!114 &3746799392073795553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8403660534966338527
 MonoBehaviour:
   m_ObjectHideFlags: 0

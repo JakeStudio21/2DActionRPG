@@ -339,7 +339,7 @@ MonoBehaviour:
   currentLevel: 1
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
-  patrolRadius: 10
+  patrolRadius: 0
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   meleeAttack: {fileID: 0}

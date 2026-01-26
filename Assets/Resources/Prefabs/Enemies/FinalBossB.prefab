@@ -12,10 +12,8 @@ GameObject:
   - component: {fileID: 3756076609133803169}
   - component: {fileID: 5508828587273164219}
   - component: {fileID: 8531858471125227392}
-  - component: {fileID: 5184943769860111882}
   - component: {fileID: 2311374816801478367}
   - component: {fileID: 3556957486775231346}
-  - component: {fileID: 2733928855307480320}
   - component: {fileID: 4795855821891295909}
   - component: {fileID: 4822367794375699013}
   - component: {fileID: 3483880470552431240}
@@ -161,19 +159,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &5184943769860111882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 2
 --- !u!95 &2311374816801478367
 Animator:
   serializedVersion: 5
@@ -212,18 +197,6 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 2.5
   basicHealthBarPrefab: {fileID: 0}
---- !u!114 &2733928855307480320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &4795855821891295909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -366,7 +339,7 @@ MonoBehaviour:
   currentLevel: 1
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
-  patrolRadius: 3
+  patrolRadius: 0
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   rangedAttack: {fileID: 0}

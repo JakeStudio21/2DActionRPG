@@ -14,12 +14,10 @@ GameObject:
   - component: {fileID: 6744486112832775261}
   - component: {fileID: 2261159668939287023}
   - component: {fileID: 7421774030207711173}
-  - component: {fileID: 4806062633314010792}
   - component: {fileID: 2672591166014962016}
   - component: {fileID: -6266606232288718989}
   - component: {fileID: 5491745061798970782}
   - component: {fileID: -7864033259713871080}
-  - component: {fileID: 4488842488211035026}
   - component: {fileID: 6406295324804413922}
   - component: {fileID: 2120048153462600689}
   - component: {fileID: 7371678229891212631}
@@ -195,19 +193,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4806062633314010792
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 2
 --- !u!114 &2672591166014962016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,18 +279,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f205e51deb54c8943ad414a1fe3db68f, type: 2}
   - {fileID: 11400000, guid: 8811861985bcee04ea999287ef3087ea, type: 2}
   - {fileID: 11400000, guid: 8811861985bcee04ea999287ef3087ea, type: 2}
---- !u!114 &4488842488211035026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 237821646944878469}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &6406295324804413922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,7 +353,7 @@ MonoBehaviour:
   currentLevel: 1
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
-  patrolRadius: 3
+  patrolRadius: 0
   spawnPosition: {x: 0, y: 0, z: 0}
   enableDebugLogs: 1
   multiShotAttack: {fileID: 0}

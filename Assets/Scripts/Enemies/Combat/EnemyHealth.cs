@@ -276,9 +276,29 @@ public class EnemyHealth : MonoBehaviour
         else
         {
             // ⭐ 살아있을 때만 넉백 및 Hit 상태 전환
-            float knockBackThrust = CalculateKnockBackThrust();
-            knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
             StartCoroutine(flash.FlashRoutine());
+            
+            // ⭐⭐⭐ 넉백 분기 처리 (NavMesh vs 물리 넉백)
+            if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+            {
+                // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행
+                // Knockback 컴포넌트 불필요!
+                Debug.Log($"[EnemyHealth] {gameObject.name} NavMesh 몬스터 - 연출 넉백 사용 (Knockback 컴포넌트 불필요)");
+            }
+            else
+            {
+                // 비-NavMesh 몬스터: 기존 물리 넉백 사용
+                if (knockback != null)
+                {
+                    float knockBackThrust = CalculateKnockBackThrust();
+                    knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
+                    Debug.Log($"[EnemyHealth] {gameObject.name} 물리 넉백 실행 (Knockback 컴포넌트 사용)");
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name} 비-NavMesh 몬스터인데 Knockback 컴포넌트가 없습니다!");
+                }
+            }
             
             // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
             var bossSkillController = GetComponent<BossSkillController>();
