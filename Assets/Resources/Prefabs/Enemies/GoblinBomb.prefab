@@ -48,7 +48,6 @@ GameObject:
   - component: {fileID: 5752732880782816917}
   - component: {fileID: 4792411720221729903}
   - component: {fileID: -8070876538002613510}
-  - component: {fileID: -752092573500323026}
   - component: {fileID: 8403660534966338527}
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -959638007286054655}
@@ -161,8 +160,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.029999912, y: -0.10970509}
-  m_Size: {x: 0.9594804, y: 0.9594815}
+  m_Offset: {x: -0.028411806, y: 0.4233017}
+  m_Size: {x: 1.5143918, y: 2.025495}
   m_Direction: 0
 --- !u!50 &2142061137914716384
 Rigidbody2D:
@@ -272,28 +271,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-752092573500323026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 30
-  goldDropMaxAmount: 50
-  canDropEquipment: 1
-  equipmentDropChance: 50
-  possibleEquipmentDrops: []
 --- !u!114 &8403660534966338527
 MonoBehaviour:
   m_ObjectHideFlags: 0

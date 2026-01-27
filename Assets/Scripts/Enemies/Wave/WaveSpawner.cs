@@ -1,12 +1,14 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AI; // NavMesh 검증용
 
 /// <summary>
 /// SimpleMob 웨이브 스폰 관리자
 /// - WaveData 기반 스폰
 /// - 패턴 스폰 지원
 /// - 클리어 조건 체크
+/// - NavMesh 검증 시스템 (스폰 위치 보정)
 /// </summary>
 public class WaveSpawner : MonoBehaviour
 {
@@ -149,11 +151,14 @@ public class WaveSpawner : MonoBehaviour
     }
     
     /// <summary>
-    /// 몬스터 스폰
+    /// 몬스터 스폰 (NavMesh 검증 포함)
     /// </summary>
     private void SpawnMob(SpawnConfig config, int index)
     {
         Vector3 spawnPosition = CalculateSpawnPosition(config, index);
+        
+        // ⭐⭐⭐ NavMesh 위치 검증 및 보정 (핵심 수정!)
+        spawnPosition = GetValidNavMeshPosition(spawnPosition);
         
         // 풀에서 가져오기
         GameObject mob = null;
@@ -282,6 +287,118 @@ public class WaveSpawner : MonoBehaviour
         float y = row * spacing - (rows - 1) * spacing / 2f;
         
         return center + new Vector3(x, y, 0f);
+    }
+    
+    /// <summary>
+    /// ⭐⭐⭐ NavMesh 위의 유효한 위치 찾기 (모바일 최적화 버전)
+    /// </summary>
+    private Vector3 GetValidNavMeshPosition(Vector3 targetPosition, int maxAttempts = 5)
+    {
+        // 1차 시도: 원하는 위치 근처의 NavMesh 위치 찾기
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(targetPosition, out hit, 5f, NavMesh.AllAreas))
+        {
+            // ⭐ 경계에서 안쪽으로 이격 (1.5m 최소 거리 보장)
+            Vector3 safePosition = EnsureDistanceFromEdge(hit.position, 1.5f);
+            
+            if (enableDebugLogs)
+                Debug.Log($"✅ [WaveSpawner] NavMesh 안전 위치: {targetPosition} → {safePosition}");
+            
+            return safePosition;
+        }
+        
+        // 2차 시도: 범위를 넓혀서 재시도 (5f → 10f → 15f)
+        float[] searchRadii = { 10f, 15f };
+        
+        foreach (float searchRadius in searchRadii)
+        {
+            if (NavMesh.SamplePosition(targetPosition, out hit, searchRadius, NavMesh.AllAreas))
+            {
+                Vector3 safePosition = EnsureDistanceFromEdge(hit.position, 1.5f);
+                
+                if (enableDebugLogs)
+                    Debug.Log($"⚠️ [WaveSpawner] NavMesh 위치 (범위 {searchRadius}f): {safePosition}");
+                
+                return safePosition;
+            }
+        }
+        
+        // 3차 시도: 다중 후보 중 경계에서 가장 먼 위치 선택 (모바일 최적화: 5개만)
+        Vector3 spawnCenterPos = customSpawnCenter != null ? customSpawnCenter.position :
+                                 playerTransform != null ? playerTransform.position :
+                                 transform.position;
+        
+        Vector3 bestPosition = spawnCenterPos;
+        float maxEdgeDistance = 0f;
+        
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            // 중심점 기준 랜덤 위치 생성
+            Vector2 randomOffset = Random.insideUnitCircle * 8f;
+            Vector3 randomPos = spawnCenterPos + new Vector3(randomOffset.x, randomOffset.y, 0f);
+            
+            if (NavMesh.SamplePosition(randomPos, out hit, 5f, NavMesh.AllAreas))
+            {
+                // 경계까지 거리 측정
+                NavMeshHit edgeHit;
+                if (NavMesh.FindClosestEdge(hit.position, out edgeHit, NavMesh.AllAreas))
+                {
+                    // 경계에서 가장 먼 위치 선택
+                    if (edgeHit.distance > maxEdgeDistance)
+                    {
+                        maxEdgeDistance = edgeHit.distance;
+                        bestPosition = hit.position;
+                    }
+                }
+            }
+        }
+        
+        if (maxEdgeDistance > 0f)
+        {
+            if (enableDebugLogs)
+                Debug.Log($"⚠️ [WaveSpawner] 최적 위치 선택 (경계 거리: {maxEdgeDistance:F1}m): {bestPosition}");
+            
+            return bestPosition;
+        }
+        
+        // 최종 fallback: 스폰 중심점 사용 (최악의 경우)
+        Debug.LogWarning($"❌ [WaveSpawner] NavMesh 위치를 찾지 못함! 중심점 사용: {spawnCenterPos}");
+        return spawnCenterPos;
+    }
+    
+    /// <summary>
+    /// ⭐ NavMesh 경계에서 안쪽으로 이격 보장 (모바일 최적화)
+    /// </summary>
+    private Vector3 EnsureDistanceFromEdge(Vector3 position, float minDistanceFromEdge)
+    {
+        NavMeshHit edgeHit;
+        if (!NavMesh.FindClosestEdge(position, out edgeHit, NavMesh.AllAreas))
+        {
+            return position; // 경계를 찾지 못하면 원래 위치 유지
+        }
+        
+        // 경계에 충분히 멀면 그대로 사용
+        if (edgeHit.distance >= minDistanceFromEdge)
+        {
+            return position;
+        }
+        
+        // 경계에 너무 가까움 → 안쪽으로 밀기
+        float pushDistance = minDistanceFromEdge - edgeHit.distance + 0.3f; // 여유분 0.3m
+        Vector3 safePosition = position + edgeHit.normal * pushDistance;
+        
+        // 이동된 위치가 NavMesh 위인지 검증 (빠른 fallback)
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(safePosition, out hit, 2f, NavMesh.AllAreas))
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🔧 [WaveSpawner] 경계 이격 보정: {edgeHit.distance:F2}m → {minDistanceFromEdge}m");
+            
+            return hit.position;
+        }
+        
+        // 보정 실패 시 원래 위치 유지 (안전)
+        return position;
     }
     
     /// <summary>

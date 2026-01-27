@@ -20,6 +20,6 @@ MonoBehaviour:
   Monsters:
   - MonsterID: MON_LADYBUG_001
     Count: 2
-    SpawnCount: 0.1
+    SpawnCount: 0.3
     IsBoss: 1
     MonsterPrefab: {fileID: 0}

@@ -20,6 +20,6 @@ MonoBehaviour:
   Monsters:
   - MonsterID: MON_PLANTS_001
     Count: 2
-    SpawnCount: 0.1
+    SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}

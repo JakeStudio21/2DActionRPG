@@ -358,7 +358,7 @@ MonoBehaviour:
     maxInstancesPerFrame: 10
   - tag: VFX_Click_02
     prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
-    size: 10
+    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
@@ -418,33 +418,33 @@ MonoBehaviour:
     maxInstancesPerFrame: 5
   - tag: Fx_WallDust
     prefab: {fileID: 8683933021285538514, guid: 2d80af1147b5d974ea651b08f087647b, type: 3}
-    size: 10
+    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
   - tag: GoblinMini
-    prefab: {fileID: 3235174918318939483, guid: 678a16db1c3698845adbbad2984993b8, type: 3}
+    prefab: {fileID: 6075384399065925802, guid: 3a57c2a6b8607a1408b46aa9066d2db3, type: 3}
     size: 30
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
-    maxInstancesPerFrame: 50
+    maxInstancesPerFrame: 30
   - tag: MON_MUSHROOM_001
     prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
-    size: 30
+    size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
-    maxInstancesPerFrame: 50
+    maxInstancesPerFrame: 10
   - tag: Fx_Attack_Spore_Poison
     prefab: {fileID: 4912645067155827441, guid: 54beec8f69623fe42ba4b6be69924631, type: 3}
-    size: 30
+    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
-    maxInstancesPerFrame: 50
+    maxInstancesPerFrame: 10
   - tag: Fx_Hit_Spark_Vine
     prefab: {fileID: 3243817668901764684, guid: 8a1f4f7105fffec4180ec046ffe03c11, type: 3}
-    size: 30
+    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
-    maxInstancesPerFrame: 50
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 1

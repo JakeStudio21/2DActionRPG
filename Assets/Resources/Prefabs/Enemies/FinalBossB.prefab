@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 2311374816801478367}
   - component: {fileID: 3556957486775231346}
   - component: {fileID: 4795855821891295909}
-  - component: {fileID: 4822367794375699013}
   - component: {fileID: 3483880470552431240}
   - component: {fileID: 9183738283701349947}
   - component: {fileID: -1072290682469978877}
@@ -210,28 +209,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
---- !u!114 &4822367794375699013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8853189013130719682}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 1
-  goldDropMaxAmount: 3
-  canDropEquipment: 1
-  equipmentDropChance: 20
-  possibleEquipmentDrops: []
 --- !u!114 &3483880470552431240
 MonoBehaviour:
   m_ObjectHideFlags: 0

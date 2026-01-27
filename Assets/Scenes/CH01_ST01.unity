@@ -65896,6 +65896,10 @@ PrefabInstance:
       propertyPath: assignedSpawnGroupID
       value: CH01_ST01_G02
       objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: minDistanceFromOtherEnemies
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
       value: CH01_ST01_SP02
@@ -71503,6 +71507,10 @@ PrefabInstance:
       propertyPath: assignedSpawnGroupID
       value: CH01_ST01_G03
       objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: minDistanceFromOtherEnemies
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
       value: CH01_ST01_SP03
@@ -72666,6 +72674,10 @@ PrefabInstance:
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
       value: CH01_ST01_G01
+      objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: minDistanceFromOtherEnemies
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name
@@ -74406,6 +74418,10 @@ PrefabInstance:
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: assignedSpawnGroupID
       value: CH01_ST01_G04
+      objectReference: {fileID: 0}
+    - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
+      propertyPath: minDistanceFromOtherEnemies
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2010230129431071548, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: m_Name

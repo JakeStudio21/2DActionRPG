@@ -25,6 +25,6 @@ MonoBehaviour:
     MonsterPrefab: {fileID: 0}
   - MonsterID: MON_SPIDER_001
     Count: 2
-    SpawnCount: 0.1
+    SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}

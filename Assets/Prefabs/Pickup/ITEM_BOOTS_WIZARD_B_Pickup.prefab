@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 1e1551b768d16ee4aa619cfecc2b86e1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -186,7 +186,7 @@ MonoBehaviour:
   pickUpType: 3
   pickUpDistance: 4
   accelartionRate: 0.4
-  moveSpeed: 2
+  moveSpeed: 6
   animCurve:
     serializedVersion: 2
     m_Curve:
@@ -211,8 +211,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  heightY: 1.5
-  popDuration: 0.5
+  heightY: 2.5
+  popDuration: 0.4
   itemData: {fileID: 0}
   equipmentData: {fileID: 11400000, guid: de30973e8b29f514a95e596f5c971f24, type: 2}
   enableDebugLogs: 1
