@@ -1235,6 +1235,16 @@ public class StageManager : MonoBehaviour
                 else
                     return "ForestElementalData";
             }
+            else if (monsterID.Contains("MUSHROOM"))
+            {
+                // 🍄 Mushroom 매핑 추가
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_MushroomData";
+                else if (monsterID.Contains("BOSS"))
+                    return "Mushroom_BossData";
+                else
+                    return "MushroomData";
+            }
             
             return $"{monsterID}Data"; // 기본값
         }

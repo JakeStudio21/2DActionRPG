@@ -16,12 +16,12 @@ MonoBehaviour:
   enemyName: Elite_SandGolem
   enemyType: 1
   description: "\"\uAC15\uD654\uB41C \uC0CC\uB4DC\uACE8\uB818\""
-  baseHealth: 75
+  baseHealth: 200
   baseDefense: 3
   baseMoveSpeed: 2
-  detectionRange: 10
-  chaseRange: 12
-  patrolRadius: 5
+  detectionRange: 12
+  chaseRange: 16
+  patrolRadius: 8
   knockBackThrust: 2
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: d5876ef400ab1ef488957fc8a6249bf9, type: 3}

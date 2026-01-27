@@ -20,7 +20,7 @@ MonoBehaviour:
   baseDefense: 50
   baseMoveSpeed: 2.5
   detectionRange: 8
-  chaseRange: 10
+  chaseRange: 12
   patrolRadius: 6
   knockBackThrust: 5
   deathVFXPrefabPath: 

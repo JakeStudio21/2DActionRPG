@@ -38,66 +38,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
-  - tag: WarriorSkill1_Slash
-    prefab: {fileID: 3545761778305609661, guid: 6c60555a3ba6f744fae88de6b498b262, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 10
-  - tag: WarriorSkill2_Slash
-    prefab: {fileID: 3545761778305609661, guid: dd65a54c66fcfdc4f85560388d3569c1, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 10
-  - tag: Sword_A
-    prefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: Sword_B
-    prefab: {fileID: 4316638647348942652, guid: e07cd3a729c1bc8468b038ab0d53890c, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: Sword_C
-    prefab: {fileID: 4316638647348942652, guid: d6276d4601209d64b8a138b81aab459e, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: Sword_S
-    prefab: {fileID: 4316638647348942652, guid: 29d74b6c195b90644969c3a88f2e2036, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_SWORD_A
-    prefab: {fileID: 6665777931767919178, guid: c8a7de5bbe195e242991a93c3761effb, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_SWORD_B
-    prefab: {fileID: 6665777931767919178, guid: e47d95d373b93864a86503ec70e1edab, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_SWORD_C
-    prefab: {fileID: 6665777931767919178, guid: 636766fc98a4d9c4ba0d40c7d67ecbe4, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_SWORD_S
-    prefab: {fileID: 6665777931767919178, guid: 911ac3fa4206dcf47ba7fb5848e0c9f6, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
   - tag: Bow_A
     prefab: {fileID: 4551001115370886643, guid: f02902a9371db2a4caf031af45e012f4, type: 3}
     size: 1
@@ -356,24 +296,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
-  - tag: WarriorImpactEffect
-    prefab: {fileID: 8683933021285538514, guid: 506cd49043a8618429e82330f09a61eb, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: WarriorSlashAreaEffect
-    prefab: {fileID: 3156866507962234106, guid: c37d9a12995e3d5458ca015d30db56df, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: WarriorDashEffect
-    prefab: {fileID: 9103632281160831739, guid: 51b1d0e0936800c41a01cb19f101f953, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
   - tag: Shockwave_Slash_Effect
     prefab: {fileID: 7502250425806291784, guid: 1b916a9e567ce4b49b97f2b89339abad, type: 3}
     size: 2
@@ -500,5 +422,29 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: GoblinMini
+    prefab: {fileID: 3235174918318939483, guid: 678a16db1c3698845adbbad2984993b8, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: MON_MUSHROOM_001
+    prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Fx_Attack_Spore_Poison
+    prefab: {fileID: 4912645067155827441, guid: 54beec8f69623fe42ba4b6be69924631, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
+  - tag: Fx_Hit_Spark_Vine
+    prefab: {fileID: 3243817668901764684, guid: 8a1f4f7105fffec4180ec046ffe03c11, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 50
   optionalPools: []
   enableDebugLogs: 0

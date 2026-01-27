@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
+  m_Name: MushroomData
+  m_EditorClassIdentifier: 
+  enemyId: MON_MUSHROOM_001
+  enemyName: Mushroom
+  enemyType: 0
+  description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uBC84\uC12F\uBAAC\uC2A4\uD130\n"
+  baseHealth: 100
+  baseDefense: 50
+  baseMoveSpeed: 3
+  detectionRange: 8
+  chaseRange: 12
+  patrolRadius: 10
+  knockBackThrust: 5
+  deathVFXPrefabPath: 
+  enemyPrefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
+  deathVFXPrefab: {fileID: 0}
+  primaryAttackType: 0
+  skillDataList: []
+  meleeAttackProbability: 100
+  skillUseProbability: 0
+  skillProbabilities: 
+  hasSkills: 0
+  skillIds: []
+  immuneEffects: 00000000
+  isBoss: 0
+  isMiniBoss: 0
+  bossId: 
+  baseGoldReward: 12
+  baseExpReward: 30
+  dropGroupId: DROP_BLUESLIME_001
+  dropRolls: 1
+  patrolTuning: {fileID: 11400000, guid: 2679d36f3e9045b488c0992c693a6b68, type: 2}

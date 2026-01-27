@@ -19,14 +19,18 @@ MonoBehaviour:
   baseHealth: 50
   baseDefense: 50
   baseMoveSpeed: 1.5
-  detectionRange: 5
-  chaseRange: 8
+  detectionRange: 8
+  chaseRange: 12
   patrolRadius: 8
   knockBackThrust: 5
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 0
+  skillDataList: []
+  meleeAttackProbability: 100
+  skillUseProbability: 0
+  skillProbabilities: 
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000

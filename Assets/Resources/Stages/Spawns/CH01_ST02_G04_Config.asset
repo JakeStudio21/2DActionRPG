@@ -19,12 +19,12 @@ MonoBehaviour:
   RepeatIntervalSec: 0
   Monsters:
   - MonsterID: MON_BEETLE_001
-    Count: 1
+    Count: 2
     SpawnCount: 0.3
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_SPIDER_001
-    Count: 2
-    SpawnCount: 0.1
+  - MonsterID: MON_MUSHROOM_001
+    Count: 3
+    SpawnCount: 0.2
     IsBoss: 0
     MonsterPrefab: {fileID: 0}
