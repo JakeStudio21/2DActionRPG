@@ -12,15 +12,18 @@ public enum DropPolicy
 }
 
 /// <summary>
-/// 아이템 희귀도
+/// 아이템 희귀도 (8등급 체계)
 /// </summary>
 public enum ItemRarity
 {
-    Common,     // 일반
-    Uncommon,   // 고급
-    Rare,       // 희귀
-    Epic,       // 영웅
-    Legendary   // 전설
+    Common,         // D - 일반
+    Uncommon,       // C - 고급
+    Rare,           // B - 희귀
+    Epic,           // A - 영웅
+    Legendary,      // S - 전설
+    Mythic,         // SS - 신화
+    Ancient,        // EX - 고대
+    Transcendent    // TR - 초월
 }
 
 /// <summary>

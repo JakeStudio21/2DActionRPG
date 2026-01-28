@@ -8,16 +8,29 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private GameObject pauseMenuPanel;
     [SerializeField] private Button returnToLobbyButton;
     [SerializeField] private Button continueButton;
-
+    
     private void Start()
     {
-        Debug.Log("TimeScale at Start: " + Time.timeScale);
         // 처음에는 팝업을 숨겨둡니다.
-        pauseMenuPanel.SetActive(false);
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("[PauseMenuController] pauseMenuPanel이 null입니다!");
+        }
 
         // 각 버튼에 함수를 연결합니다.
-        returnToLobbyButton.onClick.AddListener(ReturnToLobby);
-        continueButton.onClick.AddListener(ContinuePlaying);
+        if (returnToLobbyButton != null)
+            returnToLobbyButton.onClick.AddListener(ReturnToLobby);
+        else
+            Debug.LogWarning("[PauseMenuController] returnToLobbyButton이 null입니다!");
+            
+        if (continueButton != null)
+            continueButton.onClick.AddListener(ContinuePlaying);
+        else
+            Debug.LogWarning("[PauseMenuController] continueButton이 null입니다!");
     }
 
     // 이 함수는 인게임 UI의 '나가기' 버튼에 연결됩니다.

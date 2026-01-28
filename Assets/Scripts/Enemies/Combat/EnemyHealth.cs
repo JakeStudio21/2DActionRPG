@@ -610,20 +610,24 @@ public class EnemyHealth : MonoBehaviour
         // 드롭 결과 로그
         Debug.Log(DropResolver.GetDropResultsDebugInfo(allDropResults));
 
-        // 실제 아이템 스폰
-        SpawnDroppedItems(allDropResults);
+        // 실제 아이템 스폰 (순차적 드롭)
+        StartCoroutine(SpawnDroppedItemsCoroutine(allDropResults));
     }
 
     /// <summary>
-    /// 드롭된 아이템들을 실제로 스폰
+    /// 드롭된 아이템들을 실제로 스폰 (순차적 드롭)
     /// </summary>
-    private void SpawnDroppedItems(List<DropResult> dropResults)
+    private IEnumerator SpawnDroppedItemsCoroutine(List<DropResult> dropResults)
     {
         foreach (var result in dropResults)
         {
             for (int i = 0; i < result.quantity; i++)
             {
                 SpawnSingleItem(result.itemId, result.rarity);
+                
+                // ⭐ 순차적 드롭: 0.3~0.5초 랜덤 지연
+                float delay = Random.Range(0.3f, 0.5f);
+                yield return new WaitForSeconds(delay);
             }
         }
     }
@@ -631,118 +635,112 @@ public class EnemyHealth : MonoBehaviour
     /// <summary>
     /// 개별 아이템 스폰 (아이템 타입별 캐시 분기)
     /// </summary>
+    /// <summary>
+    /// ✨ 신규 드롭 시스템: 범용 프리팹 + 데이터 주입 방식
+    /// </summary>
     private void SpawnSingleItem(string itemId, ItemRarity rarity)
     {
-        GameObject prefabToSpawn = null;
-        string itemName = "";
+        // ⭐ 스폰은 몬스터 위치에서, 드롭 애니메이션으로 퍼짐
+        Vector3 spawnPosition = transform.position;
         
-        // 1단계: 아이템 타입별로 적절한 캐시에서 조회
+        // 재화 아이템 (골드/하트)
         if (itemId.StartsWith("ITEM_GOLD") || itemId.StartsWith("ITEM_HEALTH"))
         {
-            // Gold, Health 아이템: PickupDataCache 사용
-            var pickupDataCache = FindObjectOfType<PickupDataCache>();
-            if (pickupDataCache == null)
-            {
-                Debug.LogError("[EnemyHealth] PickupDataCache를 찾을 수 없습니다!");
-                return;
-            }
-            
-            BaseItemData pickupData = pickupDataCache.GetPickupItemData(itemId);
-            if (pickupData == null)
-            {
-                Debug.LogError($"[EnemyHealth] PickupItemData를 찾을 수 없습니다: {itemId}");
-                return;
-            }
-            
-            if (pickupData.pickupPrefab == null)
-            {
-                Debug.LogError($"[EnemyHealth] {itemId}의 pickupPrefab이 null입니다!");
-                return;
-            }
-            
-            prefabToSpawn = pickupData.pickupPrefab;
-            itemName = pickupData.itemName;
+            SpawnCurrencyItem(itemId, spawnPosition);
+        }
+        // 장비 아이템 (무기/방어구)
+        else
+        {
+            SpawnEquipmentItem(itemId, rarity, spawnPosition);
+        }
+    }
+    
+    /// <summary>
+    /// 재화 아이템 스폰 (Drop_Currency 프리팹 사용)
+    /// </summary>
+    private void SpawnCurrencyItem(string itemId, Vector3 spawnPosition)
+    {
+        // 1. 기존 데이터 가져오기
+        var pickupDataCache = FindObjectOfType<PickupDataCache>();
+        if (pickupDataCache == null)
+        {
+            Debug.LogError("[EnemyHealth] PickupDataCache를 찾을 수 없습니다!");
+            return;
+        }
+        
+        ItemSystem.BaseItemData itemData = pickupDataCache.GetPickupItemData(itemId);
+        if (itemData == null)
+        {
+            Debug.LogError($"[EnemyHealth] PickupItemData를 찾을 수 없습니다: {itemId}");
+            return;
+        }
+        
+        // 2. Drop_Currency 프리팹 스폰 (범용 프리팹) ⭐
+        GameObject dropObj = GamePoolManager.Instance.SpawnFromPool("Drop_Currency", spawnPosition, Quaternion.identity);
+        
+        if (dropObj == null)
+        {
+            Debug.LogError($"[EnemyHealth] 'Drop_Currency' 풀에서 오브젝트를 스폰할 수 없습니다!");
+            return;
+        }
+        
+        // 3. 데이터 주입 ⭐
+        CurrencyPickup pickup = dropObj.GetComponent<CurrencyPickup>();
+        if (pickup != null)
+        {
+            pickup.Initialize(itemData);
+            Debug.Log($"💰 [EnemyHealth] 재화 드롭 성공: {itemData.itemName}");
         }
         else
         {
-            // 장비 아이템: EquipmentDataCache 사용
-            var equipmentDataCache = FindObjectOfType<EquipmentDataCache>();
-            if (equipmentDataCache == null)
-            {
-                Debug.LogError("[EnemyHealth] EquipmentDataCache를 찾을 수 없습니다!");
-                return;
-            }
-            
-            EquipmentData equipmentData = equipmentDataCache.GetEquipmentData(itemId);
-            if (equipmentData == null)
-            {
-                Debug.LogError($"[EnemyHealth] EquipmentData를 찾을 수 없습니다: {itemId}");
-                return;
-            }
-            
-            if (equipmentData.PickupPrefab == null)
-            {
-                Debug.LogError($"[EnemyHealth] {itemId}의 pickupPrefab이 null입니다!");
-                return;
-            }
-            
-            prefabToSpawn = equipmentData.PickupPrefab;
-            itemName = equipmentData.equipmentName;
+            Debug.LogError("[EnemyHealth] Drop_Currency 프리팹에 CurrencyPickup 컴포넌트가 없습니다!");
+            dropObj.SetActive(false);
         }
-        
-        // 2단계: itemID로 풀링 시도 (풀 키 = itemID로 통일)
-        GameObject spawnedItem = null;
-        
-        try
-        {
-            if (GamePoolManager.Instance != null)
-            {
-                spawnedItem = GamePoolManager.Instance.SpawnFromPool(itemId, transform.position, Quaternion.identity);
-                Debug.Log($"[EnemyHealth] 풀에서 아이템 스폰 성공: {itemId} ({rarity}) - {itemName}");
-            }
-            else
-            {
-                Debug.LogError("[EnemyHealth] GamePoolManager.Instance가 null입니다!");
-                return;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[EnemyHealth] 풀 스폰 실패: {itemId}, 에러: {e.Message}");
-            return;
-        }
-        
-        // 3단계: 풀링 실패 시 즉시 에러 (fallback 제거)
-        if (spawnedItem == null)
-        {
-            Debug.LogError($"[EnemyHealth] 풀에서 아이템 스폰 실패: {itemId}");
-            Debug.LogError($"   - 풀 키: {itemId}");
-            Debug.LogError($"   - ItemName: {itemName}");
-            Debug.LogError($"   - PrefabToSpawn: {prefabToSpawn?.name}");
-            return;
-        }
-        
-        // 4단계: 희귀도별 특수 효과 적용
-        ApplyRarityEffects(spawnedItem, rarity);
     }
-
+    
     /// <summary>
-    /// 희귀도별 특수 효과 적용
+    /// 장비 아이템 스폰 (Drop_Equipment 프리팹 사용)
     /// </summary>
-    private void ApplyRarityEffects(GameObject item, ItemRarity rarity)
+    private void SpawnEquipmentItem(string itemId, ItemRarity rarity, Vector3 spawnPosition)
     {
-        // 희귀도별 파티클 효과, 사운드 등 적용 가능
-        switch (rarity)
+        // 1. 기존 데이터 가져오기
+        var equipmentDataCache = FindObjectOfType<EquipmentDataCache>();
+        if (equipmentDataCache == null)
         {
-            case ItemRarity.Rare:
-                Debug.Log($"[EnemyHealth] 희귀 아이템 드롭: {item.name}");
-                break;
-            case ItemRarity.Epic:
-                Debug.Log($"[EnemyHealth] 영웅 아이템 드롭: {item.name}");
-                break;
-            case ItemRarity.Legendary:
-                Debug.Log($"[EnemyHealth] 전설 아이템 드롭: {item.name}");
-                break;
+            Debug.LogError("[EnemyHealth] EquipmentDataCache를 찾을 수 없습니다!");
+            return;
+        }
+        
+        EquipmentData equipData = equipmentDataCache.GetEquipmentData(itemId);
+        if (equipData == null)
+        {
+            Debug.LogError($"[EnemyHealth] EquipmentData를 찾을 수 없습니다: {itemId}");
+            return;
+        }
+        
+        // 🔍 디버그: ItemRarity 확인
+        Debug.Log($"🔍 [DEBUG] SpawnEquipmentItem 호출: itemId={itemId}, rarity={rarity}");
+        
+        // 2. Drop_Equipment 프리팹 스폰 (범용 프리팹) ⭐
+        GameObject dropObj = GamePoolManager.Instance.SpawnFromPool("Drop_Equipment", spawnPosition, Quaternion.identity);
+        
+        if (dropObj == null)
+        {
+            Debug.LogError($"[EnemyHealth] 'Drop_Equipment' 풀에서 오브젝트를 스폰할 수 없습니다!");
+            return;
+        }
+        
+        // 3. 데이터 주입 ⭐
+        EquipmentPickup pickup = dropObj.GetComponent<EquipmentPickup>();
+        if (pickup != null)
+        {
+            pickup.Initialize(equipData, rarity);
+            Debug.Log($"🎒 [EnemyHealth] 장비 드롭 성공: {equipData.equipmentName} (ItemRarity: {rarity})");
+        }
+        else
+        {
+            Debug.LogError("[EnemyHealth] Drop_Equipment 프리팹에 EquipmentPickup 컴포넌트가 없습니다!");
+            dropObj.SetActive(false);
         }
     }
 

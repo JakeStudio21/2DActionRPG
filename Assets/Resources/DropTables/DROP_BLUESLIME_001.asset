@@ -17,8 +17,48 @@ MonoBehaviour:
   pickCount: 1
   description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
   dropEntries:
-  - itemId: ITEM_ARMOR_ASSASIN_C
-    rarity: 0
+  - itemId: ITEM_ARMOR_ASSASIN_A
+    rarity: 1
+    weight: 1
+    chance: 0.5
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_ARMOR_ASSASIN_A
+    rarity: 3
+    weight: 1
+    chance: 0.5
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_ARMOR_WARRIOR_C
+    rarity: 1
+    weight: 1
+    chance: 0.5
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_ARMOR_WARRIOR_A
+    rarity: 3
+    weight: 1
+    chance: 0.5
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_ARMOR_ASSASIN_A
+    rarity: 2
     weight: 1
     chance: 0.3
     minQuantity: 1
@@ -27,18 +67,8 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_ASSASIN_B
-    rarity: 0
-    weight: 1
-    chance: 0.2
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_ARMOR_WARRIOR_C
-    rarity: 0
+  - itemId: ITEM_ARMOR_ASSASIN_A
+    rarity: 4
     weight: 1
     chance: 0.3
     minQuantity: 1
@@ -48,7 +78,7 @@ MonoBehaviour:
     isGuaranteed: 0
     conditions: []
   - itemId: ITEM_ARMOR_WARRIOR_B
-    rarity: 0
+    rarity: 2
     weight: 1
     chance: 0.2
     minQuantity: 1
@@ -57,25 +87,5 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_GOLD_COIN
-    rarity: 0
-    weight: 10
-    chance: 1
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_HEALTH_POTION
-    rarity: 0
-    weight: 10
-    chance: 1
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  totalWeight: 24
-  totalChance: 3
+  totalWeight: 7
+  totalChance: 2.8

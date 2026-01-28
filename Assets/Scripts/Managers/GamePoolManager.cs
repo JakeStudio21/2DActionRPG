@@ -637,6 +637,13 @@ public class GamePoolManager : Singleton<GamePoolManager>
         objectToSpawn.transform.rotation = rotation;
         objectToSpawn.transform.SetParent(null); // 씬 루트로 이동
         
+        // ⭐ IPoolableObject 인터페이스 확인 및 초기화 콜백 호출
+        IPoolableObject poolable = objectToSpawn.GetComponent<IPoolableObject>();
+        if (poolable != null)
+        {
+            poolable.OnSpawnFromPool();
+        }
+        
         // 활성 풀에 등록
         if (!activePools.ContainsKey(objectToSpawn.GetInstanceID().ToString()))
         {
@@ -669,6 +676,13 @@ public class GamePoolManager : Singleton<GamePoolManager>
             
             Destroy(obj);
             return;
+        }
+        
+        // ⭐ IPoolableObject 인터페이스 확인 및 정리 콜백 호출
+        IPoolableObject poolable = obj.GetComponent<IPoolableObject>();
+        if (poolable != null)
+        {
+            poolable.OnReturnToPool();
         }
         
         // 오브젝트 비활성화 및 정리

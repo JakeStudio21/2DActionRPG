@@ -26,18 +26,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: ITEM_HEALTH_POTION
-    prefab: {fileID: 6665777931767919178, guid: aacbdfe33f02b224a903be18011e1ff4, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 10
-  - tag: ITEM_GOLD_COIN
-    prefab: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 10
   - tag: Bow_A
     prefab: {fileID: 4551001115370886643, guid: f02902a9371db2a4caf031af45e012f4, type: 3}
     size: 1
@@ -59,126 +47,6 @@ MonoBehaviour:
   - tag: Bow_S
     prefab: {fileID: 4551001115370886643, guid: b5338b20cfe041c4b9d7452896159b9f, type: 3}
     size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOW_A
-    prefab: {fileID: 6665777931767919178, guid: 8370014d38a4fe34b92d565345da30c4, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOW_B
-    prefab: {fileID: 6665777931767919178, guid: e93c652a78cfdc44b99b9b5f46ac017b, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOW_C
-    prefab: {fileID: 6665777931767919178, guid: 32b89b04beed3804f8dfddf213bf6b72, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOW_S
-    prefab: {fileID: 6665777931767919178, guid: a812b7a391081a644a5aa416249f4c9d, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_ASSASIN_A
-    prefab: {fileID: 6665777931767919178, guid: 9da8dd8d96b24d54589a60b0cf327145, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_ASSASIN_B
-    prefab: {fileID: 6665777931767919178, guid: a36a35e36de7916418aad41f5e27a89c, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_ASSASIN_C
-    prefab: {fileID: 6665777931767919178, guid: 9eb193f96cb831243aa261049082fd70, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_ASSASIN_S
-    prefab: {fileID: 6665777931767919178, guid: 540828fde063bb3428ce378189bc3381, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_WARRIOR_A
-    prefab: {fileID: 6665777931767919178, guid: 335a7751374060b42806629aacee13d1, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_WARRIOR_B
-    prefab: {fileID: 6665777931767919178, guid: 9931166d155d2bd43898966b6b6dff6b, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_WARRIOR_C
-    prefab: {fileID: 6665777931767919178, guid: 7146e191d8d41ee478668c47cd07d0fc, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_ARMOR_WARRIOR_S
-    prefab: {fileID: 6665777931767919178, guid: 556a7a2a6828cf748952429a46937f8f, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_ASSASIN_A
-    prefab: {fileID: 6665777931767919178, guid: d0843fd1132da67418897d75c3cd7701, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_ASSASIN_B
-    prefab: {fileID: 6665777931767919178, guid: d5cbfc12477bacc4f9a4d0b2d4a32365, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_ASSASIN_C
-    prefab: {fileID: 6665777931767919178, guid: 811adbdb76c3b0240a38c062dc061746, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_ASSASIN_S
-    prefab: {fileID: 6665777931767919178, guid: e57a5240f84ae664b9ff772c89acbca9, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_WARRIOR_A
-    prefab: {fileID: 6665777931767919178, guid: 431434ec2b6ae67448e4f0c19c9ec436, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_WARRIOR_B
-    prefab: {fileID: 6665777931767919178, guid: a820700f0941abd44ab88726301eae52, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_WARRIOR_C
-    prefab: {fileID: 6665777931767919178, guid: 197f2effa614f1940a22f0561b5db6b1, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: ITEM_BOOTS_WARRIOR_S
-    prefab: {fileID: 6665777931767919178, guid: e4499d252cd6d594784ad5fbf6fc6959, type: 3}
-    size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
@@ -445,6 +313,54 @@ MonoBehaviour:
     size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Drop_Currency
+    prefab: {fileID: 1576404571005045479, guid: 7fe62c09751caef408fd9673cc872e47, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Drop_Equipment
+    prefab: {fileID: 1576404571005045479, guid: 93fcc5ad64f219e47b6846d01f81121a, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: FX_Currency
+    prefab: {fileID: 7111470932628664318, guid: 4a5db5af568233446bd1cf6ddc960721, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_A
+    prefab: {fileID: 7111470932628664318, guid: 2e27c637500de234b864d9c4b99e9401, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_B
+    prefab: {fileID: 7111470932628664318, guid: c886a6b9aa81f3045bc7284e7c859e14, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Fx_Equipment_C
+    prefab: {fileID: 7111470932628664318, guid: 86a1eb4ebecbb0343954d3f087baf396, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Fx_Equipment_S
+    prefab: {fileID: 7111470932628664318, guid: dc95a01b0936bb84d8f08fd033967a0c, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_D
+    prefab: {fileID: 7111470932628664318, guid: 3185b37acd08aa748b0a046287d16ce9, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
     maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 1
