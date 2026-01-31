@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
+  m_Name: ITEM_BOOTS_WARRIOR_TR_Equipment
+  m_EditorClassIdentifier: 
+  equipmentName: Warrior_Boots_TR
+  itemID: ITEM_BOOTS_WARRIOR_TR
+  equipmentType: 1
+  itemGrade: 7
+  usableClass: 1
+  isTradable: 1
+  requiredLevel: 100
+  resourceID: RES_BOOTS_WARRIOR_TR
+  description: "\uCD08\uC6D4 \uB4F1\uAE09\uC758 Warrior \uC804\uC6A9 \uC2E0\uBC1C\uC785\uB2C8\uB2E4."
+  icon: {fileID: 0}
+  equipmentPrefab: {fileID: 0}
+  weaponType: 0
+  weaponCooldown: 1
+  weaponRange: 5
+  armorType: 4
+  attackDamage: 0
+  attackSpeed: 1
+  attackRange: 1
+  attackShape: 1
+  criticalChance: 0
+  criticalDamage: 1
+  projectileId: 
+  defenseBonus: 0
+  speedBonus: 5
+  healthBonus: 0
+  buyPrice: 1000000
+  sellPrice: 500000
+  isLimited: 0
+  quantityLimit: 0
+  pickupPrefab: {fileID: 0}

@@ -20,8 +20,8 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 1
   resourceID: RES_WEAPON_BOW_C
-  description: "\uCD08\uBCF4\uC790\uC6A9 \uD65C"
-  icon: {fileID: 21300000, guid: f13798441e2141647b5485d0658c5a3e, type: 3}
+  description: "\uACE0\uAE09 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uBB34\uAE30\uC785\uB2C8\uB2E4.\n"
+  icon: {fileID: -1573921395, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
   weaponType: 2
   weaponCooldown: 0.5

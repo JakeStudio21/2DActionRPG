@@ -312,29 +312,66 @@ public class PlayerRuntimeStats : MonoBehaviour
             
             if (equipment == null) continue;
             
-            // 무기 스탯 적용
-            if (slot == EquipmentSlot.MainWeapon && equipment.equipmentType == EquipmentType.Weapon)
+            // ⭐ 슬롯별 세분화된 스탯 적용
+            switch (slot)
             {
-                finalAttackDamage += equipment.attackDamage;
-                finalAttackSpeed *= equipment.attackSpeed;
-                finalCriticalChance += equipment.criticalChance;
-                finalCriticalDamage += (equipment.criticalDamage - 1f); // 1.5 + (2.0 - 1.0) = 2.5
+                case EquipmentSlot.MainWeapon:
+                    // 무기 → 공격력, 공격속도, 크리티컬
+                    if (equipment.equipmentType == EquipmentType.Weapon)
+                    {
+                        finalAttackDamage += equipment.attackDamage;
+                        finalAttackSpeed *= equipment.attackSpeed;
+                        finalCriticalChance += equipment.criticalChance;
+                        finalCriticalDamage += (equipment.criticalDamage - 1f);
+                        
+                        if (showDebugLogs)
+                            Debug.Log($"⚔️ [PlayerRuntimeStats] 무기: {equipment.equipmentName} (+{equipment.attackDamage} 공격력)");
+                    }
+                    break;
                 
-                if (showDebugLogs)
-                    Debug.Log($"⚔️ [PlayerRuntimeStats] 무기 적용: {equipment.equipmentName} (+{equipment.attackDamage} 공격력)");
-            }
-            
-            // 방어구 스탯 적용  
-            if (equipment.equipmentType == EquipmentType.Armor)
-            {
-                finalDefense += equipment.defenseBonus;
+                case EquipmentSlot.Helmet:
+                case EquipmentSlot.Armor:
+                    // 투구, 상의 → 방어력
+                    finalDefense += equipment.defenseBonus;
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"🛡️ [PlayerRuntimeStats] {slot}: {equipment.equipmentName} (+{equipment.defenseBonus} 방어력)");
+                    break;
                 
-                // 🆕 추가: speedBonus와 healthBonus 처리
-                finalMoveSpeed += equipment.speedBonus;
-                finalMaxHealth += equipment.healthBonus;
+                case EquipmentSlot.Gloves:
+                    // 장갑 → 공격력
+                    finalAttackDamage += equipment.attackDamage;
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"🧤 [PlayerRuntimeStats] 장갑: {equipment.equipmentName} (+{equipment.attackDamage} 공격력)");
+                    break;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🛡️ [PlayerRuntimeStats] 방어구 적용: {equipment.equipmentName} (+{equipment.defenseBonus} 방어력, +{equipment.speedBonus} 이속, +{equipment.healthBonus} 체력)");
+                case EquipmentSlot.Boots:
+                    // 신발 → 이동속도
+                    finalMoveSpeed += equipment.speedBonus;
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"👢 [PlayerRuntimeStats] 신발: {equipment.equipmentName} (+{equipment.speedBonus} 이동속도)");
+                    break;
+                
+                case EquipmentSlot.Ring1:
+                case EquipmentSlot.Ring2:
+                    // 반지 → 공격력 or 체력
+                    finalAttackDamage += equipment.attackDamage;
+                    finalMaxHealth += equipment.healthBonus;
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"💍 [PlayerRuntimeStats] {slot}: {equipment.equipmentName} (+{equipment.attackDamage} 공격력, +{equipment.healthBonus} 체력)");
+                    break;
+                
+                case EquipmentSlot.Necklace:
+                case EquipmentSlot.Belt:
+                    // 목걸이, 허리띠 → 체력
+                    finalMaxHealth += equipment.healthBonus;
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"📿 [PlayerRuntimeStats] {slot}: {equipment.equipmentName} (+{equipment.healthBonus} 체력)");
+                    break;
             }
         }
     }

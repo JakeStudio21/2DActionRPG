@@ -1339,6 +1339,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
 
     /// <summary>
     /// 장비 데이터로부터 적절한 장비 슬롯 결정
+    /// ⭐ ArmorType을 우선 확인하여 정확한 슬롯 결정
     /// </summary>
     private EquipmentSlot DetermineEquipmentSlot(EquipmentData item)
     {
@@ -1348,25 +1349,62 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 return EquipmentSlot.MainWeapon;
             
             case EquipmentType.Armor:
-                // 방어구의 경우 아이템 이름이나 다른 조건으로 세부 슬롯 결정
+                // ⭐ ArmorType 우선 확인 (정확한 방법)
+                switch (item.ArmorType)
+                {
+                    case ArmorType.Helmet:
+                        return EquipmentSlot.Helmet;
+                    case ArmorType.Armor:
+                        return EquipmentSlot.Armor;
+                    case ArmorType.Gloves:
+                        return EquipmentSlot.Gloves;
+                    case ArmorType.Boots:
+                        return EquipmentSlot.Boots;
+                    case ArmorType.Belt:
+                        return EquipmentSlot.Belt;
+                    default:
+                        break;
+                }
+                
+                // Fallback: 아이템 이름으로 판단
                 string itemName = item.equipmentName.ToLower();
-                if (itemName.Contains("helmet") || itemName.Contains("헬멧"))
+                if (itemName.Contains("helmet") || itemName.Contains("헬멧") || itemName.Contains("투구"))
                     return EquipmentSlot.Helmet;
+                else if (itemName.Contains("gloves") || itemName.Contains("장갑"))
+                    return EquipmentSlot.Gloves;
                 else if (itemName.Contains("boots") || itemName.Contains("신발") || itemName.Contains("부츠"))
                     return EquipmentSlot.Boots;
-                else if (itemName.Contains("shield") || itemName.Contains("방패"))
-                    return EquipmentSlot.Shield;
+                else if (itemName.Contains("belt") || itemName.Contains("허리띠") || itemName.Contains("벨트"))
+                    return EquipmentSlot.Belt;
                 else
-                    return EquipmentSlot.Armor; // 기본값: 갑옷
+                    return EquipmentSlot.Armor; // 기본값: 상의
                 
             case EquipmentType.Accessory:
-                // Ring1이 비어있으면 Ring1, 아니면 Ring2, 둘 다 차있으면 Necklace
-                if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring1] == null)
-                    return EquipmentSlot.Ring1;
-                else if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring2] == null)
-                    return EquipmentSlot.Ring2;
-                else
+                // 아이템 이름으로 악세서리 타입 판단
+                string accessoryName = item.equipmentName.ToLower();
+                
+                if (accessoryName.Contains("ring") || accessoryName.Contains("반지"))
+                {
+                    // Ring1이 비어있으면 Ring1, 아니면 Ring2
+                    if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring1] == null)
+                        return EquipmentSlot.Ring1;
+                    else
+                        return EquipmentSlot.Ring2;
+                }
+                else if (accessoryName.Contains("necklace") || accessoryName.Contains("목걸이"))
+                {
                     return EquipmentSlot.Necklace;
+                }
+                else
+                {
+                    // 기본값: Ring1 우선
+                    if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring1] == null)
+                        return EquipmentSlot.Ring1;
+                    else if (selectedPlayerData.RuntimeEquippedItems[EquipmentSlot.Ring2] == null)
+                        return EquipmentSlot.Ring2;
+                    else
+                        return EquipmentSlot.Necklace;
+                }
                 
             default:
                 return EquipmentSlot.MainWeapon; // 기본값

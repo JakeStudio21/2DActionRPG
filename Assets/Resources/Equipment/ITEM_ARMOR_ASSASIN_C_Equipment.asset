@@ -18,27 +18,27 @@ MonoBehaviour:
   itemGrade: 3
   usableClass: 2
   isTradable: 1
-  requiredLevel: 1
+  requiredLevel: 20
   resourceID: RES_ARMOR_ASSASIN_C
-  description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
-  icon: {fileID: 21300000, guid: 6d5ee0633a9b52d46ab84273754e5cc9, type: 3}
-  equipmentPrefab: {fileID: 3046353505542979003, guid: 47b2a3b72fe968f41b2d379295764139, type: 3}
+  description: "\uACE0\uAE09 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uAC11\uC637\uC785\uB2C8\uB2E4."
+  icon: {fileID: 475791399, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 0
-  weaponCooldown: 0
-  weaponRange: 0
+  weaponCooldown: 1
+  weaponRange: 5
   armorType: 2
   attackDamage: 0
-  attackSpeed: 0
-  attackRange: 0
-  attackShape: 0
+  attackSpeed: 1
+  attackRange: 1
+  attackShape: 1
   criticalChance: 0
-  criticalDamage: 0
+  criticalDamage: 1
   projectileId: 
-  defenseBonus: 10
+  defenseBonus: 25
   speedBonus: 0
-  healthBonus: 20
-  buyPrice: 100
-  sellPrice: 50
+  healthBonus: 0
+  buyPrice: 1000
+  sellPrice: 500
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: 9eb193f96cb831243aa261049082fd70, type: 3}
+  pickupPrefab: {fileID: 0}

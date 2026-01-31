@@ -79,8 +79,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   equipmentData: {fileID: 11400000, guid: 51953b3ee5c5cb741a013a36ebde54b5, type: 2}
-  arrowPrefab: {fileID: 4149642069968341746, guid: 162cd50a8adb0b14bbb2bf0a06f78a99, type: 3}
+  arrowPrefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
   arrowSpawnPoint: {fileID: 9058863527741275429}
+  showDebugLogs: 0
 --- !u!212 &675973176811939425
 SpriteRenderer:
   m_ObjectHideFlags: 0

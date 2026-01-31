@@ -13,13 +13,14 @@ public class LobbyEquippedItemsUI : MonoBehaviour
 {
     [Header("🎒 착용 장비 슬롯들")]
     [SerializeField] private InventorySlot weaponSlot;      // 무기 슬롯
-    [SerializeField] private InventorySlot armorSlot;       // 갑옷 슬롯  
+    [SerializeField] private InventorySlot helmetSlot;      // 투구 슬롯
+    [SerializeField] private InventorySlot armorSlot;       // 상의 슬롯  
+    [SerializeField] private InventorySlot glovesSlot;      // 장갑 슬롯 (신규)
     [SerializeField] private InventorySlot bootsSlot;       // 신발 슬롯
-    [SerializeField] private InventorySlot helmetSlot;      // 헬멧 슬롯 (향후 확장)
-    [SerializeField] private InventorySlot shieldSlot;      // 방패 슬롯 (향후 확장)
-    [SerializeField] private InventorySlot ring1Slot;       // 반지1 슬롯 (향후 확장)
-    [SerializeField] private InventorySlot ring2Slot;       // 반지2 슬롯 (향후 확장)
-    [SerializeField] private InventorySlot necklaceSlot;    // 목걸이 슬롯 (향후 확장)
+    [SerializeField] private InventorySlot beltSlot;        // 허리띠 슬롯 (신규, Shield→Belt 변경)
+    [SerializeField] private InventorySlot ring1Slot;       // 반지1 슬롯
+    [SerializeField] private InventorySlot ring2Slot;       // 반지2 슬롯
+    [SerializeField] private InventorySlot necklaceSlot;    // 목걸이 슬롯
     
     [Header("🎮 플레이어 정보 표시")]
     [SerializeField] private TMP_Text playerNameText;           // 캐릭터명
@@ -135,18 +136,19 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void SetupSlotClickEvents()
     {
-        // 각 슬롯에 클릭 이벤트 연결
+        // 각 슬롯에 클릭 이벤트 연결 (9개 슬롯)
         SetupSlotClickEvent(weaponSlot, EquipmentSlot.MainWeapon);
-        SetupSlotClickEvent(armorSlot, EquipmentSlot.Armor);
-        SetupSlotClickEvent(bootsSlot, EquipmentSlot.Boots);
         SetupSlotClickEvent(helmetSlot, EquipmentSlot.Helmet);
-        SetupSlotClickEvent(shieldSlot, EquipmentSlot.Shield);
+        SetupSlotClickEvent(armorSlot, EquipmentSlot.Armor);
+        SetupSlotClickEvent(glovesSlot, EquipmentSlot.Gloves);
+        SetupSlotClickEvent(bootsSlot, EquipmentSlot.Boots);
+        SetupSlotClickEvent(beltSlot, EquipmentSlot.Belt);
         SetupSlotClickEvent(ring1Slot, EquipmentSlot.Ring1);
         SetupSlotClickEvent(ring2Slot, EquipmentSlot.Ring2);
         SetupSlotClickEvent(necklaceSlot, EquipmentSlot.Necklace);
         
         if (showDebugLogs)
-            Debug.Log("🖱️ [LobbyEquippedItemsUI] 모든 슬롯 클릭 이벤트 설정 완료");
+            Debug.Log("🖱️ [LobbyEquippedItemsUI] 9개 슬롯 클릭 이벤트 설정 완료");
     }
     
     /// <summary>
@@ -328,7 +330,7 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🎮 모든 착용 장비 슬롯 새로고침
+    /// 🎮 모든 착용 장비 슬롯 새로고침 (9개 슬롯)
     /// </summary>
     private void RefreshAllEquippedItems()
     {
@@ -336,18 +338,19 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         
         var equippedItems = PlayerDataManager.Instance.EquippedItems;
         
-        // 각 슬롯 업데이트
+        // 각 슬롯 업데이트 (9개)
         UpdateSlot(weaponSlot, EquipmentSlot.MainWeapon, equippedItems);
-        UpdateSlot(armorSlot, EquipmentSlot.Armor, equippedItems);
-        UpdateSlot(bootsSlot, EquipmentSlot.Boots, equippedItems);
         UpdateSlot(helmetSlot, EquipmentSlot.Helmet, equippedItems);
-        UpdateSlot(shieldSlot, EquipmentSlot.Shield, equippedItems);
+        UpdateSlot(armorSlot, EquipmentSlot.Armor, equippedItems);
+        UpdateSlot(glovesSlot, EquipmentSlot.Gloves, equippedItems);
+        UpdateSlot(bootsSlot, EquipmentSlot.Boots, equippedItems);
+        UpdateSlot(beltSlot, EquipmentSlot.Belt, equippedItems);
         UpdateSlot(ring1Slot, EquipmentSlot.Ring1, equippedItems);
         UpdateSlot(ring2Slot, EquipmentSlot.Ring2, equippedItems);
         UpdateSlot(necklaceSlot, EquipmentSlot.Necklace, equippedItems);
         
         if (showDebugLogs)
-            Debug.Log($"🎮 [LobbyEquippedItemsUI] 모든 착용 장비 슬롯 새로고침 완료");
+            Debug.Log($"🎮 [LobbyEquippedItemsUI] 9개 착용 장비 슬롯 새로고침 완료");
     }
     
     /// <summary>
@@ -553,19 +556,20 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 🆕 빈 슬롯 상태 표시 (모든 장비 슬롯 비우기)
+    /// 🆕 빈 슬롯 상태 표시 (모든 장비 슬롯 비우기) - 9개 슬롯
     /// </summary>
     public void ShowEmptySlotState()
     {
         if (showDebugLogs)
-            Debug.Log("🔄 [LobbyEquippedItemsUI] 빈 슬롯 상태로 전환");
+            Debug.Log("🔄 [LobbyEquippedItemsUI] 빈 슬롯 상태로 전환 (9개)");
         
-        // 모든 장비 슬롯을 빈 상태로 설정
+        // 모든 장비 슬롯을 빈 상태로 설정 (9개)
         ClearSlot(weaponSlot);
-        ClearSlot(armorSlot);
-        ClearSlot(bootsSlot);
         ClearSlot(helmetSlot);
-        ClearSlot(shieldSlot);
+        ClearSlot(armorSlot);
+        ClearSlot(glovesSlot);
+        ClearSlot(bootsSlot);
+        ClearSlot(beltSlot);
         ClearSlot(ring1Slot);
         ClearSlot(ring2Slot);
         ClearSlot(necklaceSlot);

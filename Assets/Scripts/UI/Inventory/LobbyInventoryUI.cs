@@ -359,8 +359,10 @@ public class LobbyInventoryUI : MonoBehaviour
                     return EquipmentSlot.Boots;
                 else if (equipment.equipmentName.Contains("Helmet"))
                     return EquipmentSlot.Helmet;
-                else if (equipment.equipmentName.Contains("Shield"))
-                    return EquipmentSlot.Shield;
+                else if (equipment.equipmentName.Contains("Gloves"))
+                    return EquipmentSlot.Gloves;
+                else if (equipment.equipmentName.Contains("Belt"))
+                    return EquipmentSlot.Belt;
                 else if (equipment.equipmentName.Contains("Ring"))
                     return GetAvailableRingSlot();
                 else if (equipment.equipmentName.Contains("Necklace"))

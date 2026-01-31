@@ -27,7 +27,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_ASSASIN_A
+  - itemId: ITEM_RING_NONE_B
     rarity: 3
     weight: 1
     chance: 0.5
@@ -37,7 +37,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_WARRIOR_C
+  - itemId: ITEM_NECKLACE_NONE_A
     rarity: 1
     weight: 1
     chance: 0.5
@@ -47,7 +47,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_WARRIOR_A
+  - itemId: ITEM_BELT_ASSASIN_C
     rarity: 3
     weight: 1
     chance: 0.5
@@ -57,7 +57,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_ASSASIN_A
+  - itemId: ITEM_BOOTS_ASSASIN_TR
     rarity: 2
     weight: 1
     chance: 0.3
@@ -67,7 +67,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_ASSASIN_A
+  - itemId: ITEM_GLOVES_ASSASIN_EX
     rarity: 4
     weight: 1
     chance: 0.3
@@ -77,7 +77,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_ARMOR_WARRIOR_B
+  - itemId: ITEM_HELMET_ASSASIN_D
     rarity: 2
     weight: 1
     chance: 0.2
@@ -87,5 +87,15 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  totalWeight: 7
-  totalChance: 2.8
+  - itemId: ITEM_BOW_EX
+    rarity: 2
+    weight: 1
+    chance: 0.2
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  totalWeight: 8
+  totalChance: 3

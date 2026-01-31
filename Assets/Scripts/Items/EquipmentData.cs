@@ -205,10 +205,11 @@ public enum WeaponType
 public enum ArmorType
 {
     None,    // 방어구가 아닌 경우
-    Helmet,  // 헬멧
-    Armor,   // 갑옷
+    Helmet,  // 투구
+    Armor,   // 상의 (갑옷)
+    Gloves,  // 장갑
     Boots,   // 신발
-    Shield   // 방패
+    Belt     // 허리띠
 }
 
 /// <summary>
@@ -217,20 +218,19 @@ public enum ArmorType
 public enum EquipmentSlot
 {
     // 무기 슬롯
-    MainWeapon,    // 주무기
+    MainWeapon,    // 주무기 (공격력)
     
     // 방어구 슬롯  
-    Helmet,        // 헬멧
-    Armor,         // 갑옷
-    Boots,         // 신발
+    Helmet,        // 투구 (방어력)
+    Armor,         // 상의 (방어력)
+    Gloves,        // 장갑 (공격력)
+    Boots,         // 신발 (이동속도)
+    Belt,          // 허리띠 (체력)
     
     // 악세서리 슬롯
-    Ring1,         // 반지 1
-    Ring2,         // 반지 2
-    Necklace,      // 목걸이
-    
-    // 특수 슬롯
-    Shield         // 방패 (Warrior 전용)
+    Ring1,         // 반지 1 (공격력 or 체력)
+    Ring2,         // 반지 2 (공격력 or 체력)
+    Necklace       // 목걸이 (체력)
 }
 
 /// <summary>

@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_ARMOR_WIZARD_B
   description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
   icon: {fileID: 21300000, guid: 70cc446c5fc00b0418bcbe3d61a795c0, type: 3}
-  equipmentPrefab: {fileID: 3046353505542979003, guid: 99e30b56a26afb4429b39c210c5807a9, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 0
   weaponCooldown: 0
   weaponRange: 0
@@ -41,4 +41,4 @@ MonoBehaviour:
   sellPrice: 75
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: b5b2159d8f3b6974882fb52733f0662a, type: 3}
+  pickupPrefab: {fileID: 0}

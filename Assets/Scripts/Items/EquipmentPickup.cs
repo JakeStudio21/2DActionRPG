@@ -17,6 +17,7 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     [SerializeField] private Transform fxAttachPoint; // FX 부착 위치
     [SerializeField] private CircleCollider2D itemCollider;
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private SpriteRenderer shadowSpriteRenderer; // ⭐ 그림자 스프라이트
     
     [Header("이동 설정")]
     [SerializeField] private float pickUpDistance = 5f;
@@ -24,9 +25,9 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     [SerializeField] private float moveSpeed = 3f;
     
     [Header("스폰 애니메이션")]
-    [SerializeField] private AnimationCurve popAnimationCurve;
-    [SerializeField] private float popHeightY = 1.5f;
-    [SerializeField] private float popDuration = 1f;
+    [SerializeField] private AnimationCurve popAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // ⭐ GrapeProjectile 방식
+    [SerializeField] private float popHeightY = 3.5f; // ⭐ GrapeProjectile 참고 (5.5 → 3.5로 적당히 조정)
+    [SerializeField] private float popDuration = 0.8f; // ⭐ GrapeProjectile과 동일 (0.8초)
     
     [Header("아웃라인 설정")]
     [SerializeField] private string outlineColorProperty = "_OutlineColor";
@@ -75,6 +76,25 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             fxAttachPoint = fxPoint.transform;
         }
         
+        // ⭐ Shadow_Circle 찾기 및 초기화
+        if (shadowSpriteRenderer == null)
+        {
+            Transform shadowTransform = transform.Find("Shadow_Circle");
+            if (shadowTransform != null)
+            {
+                shadowSpriteRenderer = shadowTransform.GetComponent<SpriteRenderer>();
+                if (shadowSpriteRenderer != null)
+                {
+                    // 초기 상태: 그림자 숨김
+                    shadowSpriteRenderer.enabled = false;
+                }
+                else
+                {
+                    Debug.LogWarning("[EquipmentPickup] Shadow_Circle에 SpriteRenderer가 없습니다!");
+                }
+            }
+        }
+        
         // Rigidbody2D 설정
         if (rb != null)
         {
@@ -110,6 +130,9 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         {
             moveDirection = (player.position - transform.position).normalized;
             currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, moveSpeed, accelerationRate);
+            
+            // ⭐ 플레이어 추적 시작 → 그림자 숨김
+            HideShadow();
         }
         else
         {
@@ -118,6 +141,9 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             moveDirection = Vector3.zero;
             if (rb != null)
                 rb.velocity = Vector2.zero;
+            
+            // ⭐ 정지 상태 → 그림자 표시
+            ShowShadow();
         }
     }
     
@@ -322,11 +348,14 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     }
     
     /// <summary>
-    /// 스폰 애니메이션 (튀어오르면서 퍼지기)
+    /// ⭐ 스폰 애니메이션 (GrapeProjectile 방식 포물선)
     /// </summary>
     private IEnumerator PopAnimationRoutine()
     {
         isPopping = true;
+        
+        // ⭐ Pop 애니메이션 중에는 그림자 숨김
+        HideShadow();
         
         Vector3 startPos = transform.position;
         
@@ -339,28 +368,27 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         while (elapsedTime < popDuration)
         {
             elapsedTime += Time.deltaTime;
-            float progress = elapsedTime / popDuration;
+            float linearT = elapsedTime / popDuration; // 0 ~ 1 선형 진행
             
-            // 애니메이션 커브 적용
-            float curveValue = popAnimationCurve != null ? 
-                popAnimationCurve.Evaluate(progress) : 
-                Mathf.Sin(progress * Mathf.PI);
+            // ⭐ GrapeProjectile 방식: AnimationCurve로 높이 계산
+            float heightT = popAnimationCurve.Evaluate(linearT);
+            float currentHeight = Mathf.Lerp(0f, popHeightY, heightT);
             
-            // Y축 오프셋 (튀어오르기)
-            float heightOffset = curveValue * popHeightY;
+            // ⭐ 수평 이동: Linear (일정한 속도)
+            Vector3 horizontalPos = Vector3.Lerp(startPos, endPos, linearT);
             
-            // startPos → endPos로 이동하면서 튀어오르기
-            Vector3 currentPos = Vector3.Lerp(startPos, endPos, progress);
-            currentPos.y += heightOffset;
-            
-            transform.position = currentPos;
+            // 최종 위치 = 수평 위치 + 높이 오프셋
+            transform.position = horizontalPos + Vector3.up * currentHeight;
             
             yield return null;
         }
         
-        // 최종 위치로 정확히 이동
+        // ⭐ 최종 위치로 정확히 이동 (착지)
         transform.position = endPos;
         isPopping = false;
+        
+        // ⭐ Pop 애니메이션 완료 → 착지 상태 → 그림자 표시
+        ShowShadow();
     }
     
     /// <summary>
@@ -368,6 +396,9 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     /// </summary>
     private IEnumerator DecelerateAndStop(float decelerationTime = 0.5f)
     {
+        // ⭐ 감속 시작 시 그림자 숨김 (플레이어가 당기던 중)
+        HideShadow();
+        
         float startSpeed = currentMoveSpeed;
         float elapsed = 0f;
         
@@ -390,6 +421,9 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         
         if (enableDebugLogs)
             Debug.Log($"🛑 [EquipmentPickup] 감속 정지 완료: {currentItemId}");
+        
+        // ⭐ 완전 정지 → 그림자 다시 표시
+        ShowShadow();
         
         // Update() 비활성화 (선택)
         enabled = false;
@@ -473,6 +507,9 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         // ⭐ 아웃라인 리셋
         ResetOutline();
         
+        // ⭐ 그림자 숨김
+        HideShadow();
+        
         // 데이터 초기화
         currentItemId = null;
         currentRank = EquipmentRank.D;
@@ -512,6 +549,34 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         {
             Debug.LogError("[EquipmentPickup] GamePoolManager.Instance가 null입니다!");
             Destroy(gameObject);
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 그림자 표시 (착지 상태, 정지 상태)
+    /// </summary>
+    private void ShowShadow()
+    {
+        if (shadowSpriteRenderer != null)
+        {
+            shadowSpriteRenderer.enabled = true;
+            
+            if (enableDebugLogs)
+                Debug.Log($"🌑 [EquipmentPickup] 그림자 표시: {currentItemId}");
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ 그림자 숨김 (Pop 애니메이션 중, 플레이어 추적 중, 풀 반환 시)
+    /// </summary>
+    private void HideShadow()
+    {
+        if (shadowSpriteRenderer != null)
+        {
+            shadowSpriteRenderer.enabled = false;
+            
+            if (enableDebugLogs)
+                Debug.Log($"☀️ [EquipmentPickup] 그림자 숨김: {currentItemId}");
         }
     }
 }

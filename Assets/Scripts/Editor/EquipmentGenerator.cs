@@ -1,0 +1,1181 @@
+using UnityEngine;
+using UnityEditor;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+/// <summary>
+/// 🎒 Equipment Generator - 장비 자동 생성 에디터 툴
+/// 클래스, 등급, 장비 타입을 선택하여 원하는 EquipmentData를 자동 생성
+/// </summary>
+public class EquipmentGenerator : EditorWindow
+{
+    /// <summary>
+    /// 스프라이트 시트 카테고리 (클래스별/공용별)
+    /// </summary>
+    public enum SpriteSheetCategory
+    {
+        Warrior,      // Warrior_Equipment.png
+        Assasin,      // Assasin_Equipment.png
+        Wizard,       // Wizard_Equipment.png
+        Accessory,    // Accessory_Equipment.png (공용)
+    }
+    
+    /// <summary>
+    /// 스프라이트 할당 모드
+    /// </summary>
+    public enum SpriteAssignMode
+    {
+        SingleFile,      // 개별 PNG 파일
+        MultipleSprite   // 스프라이트 시트
+    }
+    // === UI 상태 ===
+    private PlayerClass selectedClass = PlayerClass.None;
+    
+    // 등급 선택
+    private bool gradeTR = false;  // 초월
+    private bool gradeEX = false;  // 고대
+    private bool gradeSS = false;  // 신화
+    private bool gradeS = false;   // 전설
+    private bool gradeA = false;   // 영웅
+    private bool gradeB = false;   // 희귀
+    private bool gradeC = false;   // 고급
+    private bool gradeD = false;   // 일반
+    
+    // 장비 타입 선택
+    private bool typeWeapon = false;
+    private bool typeHelmet = false;
+    private bool typeArmor = false;
+    private bool typeGloves = false;
+    private bool typeBoots = false;
+    private bool typeBelt = false;
+    private bool typeRing = false;
+    private bool typeNecklace = false;
+    
+    // 저장 경로
+    private string savePath = "Assets/Resources/Data/Equipment/";
+    
+    // 스프라이트 자동 할당
+    private bool autoAssignIcon = true;  // 기본값: 활성화
+    private SpriteAssignMode spriteMode = SpriteAssignMode.SingleFile;  // 기본값: 단일 파일
+    
+    // Single File Mode 설정
+    private string spriteFolderPath = "Assets/Sprites/UI";
+    
+    // Multiple Sprite Mode 설정
+    private Dictionary<SpriteSheetCategory, Texture2D> spriteSheetMap = new Dictionary<SpriteSheetCategory, Texture2D>()
+    {
+        { SpriteSheetCategory.Warrior, null },
+        { SpriteSheetCategory.Assasin, null },
+        { SpriteSheetCategory.Wizard, null },
+        { SpriteSheetCategory.Accessory, null },
+    };
+    
+    // === MenuItem ===
+    [MenuItem("Tools/Equipment Manager/Equipment Generator")]
+    public static void ShowWindow()
+    {
+        var window = GetWindow<EquipmentGenerator>("Equipment Generator");
+        window.minSize = new Vector2(400, 600);
+        window.Show();
+    }
+    
+    private void OnGUI()
+    {
+        GUILayout.Label("🎒 Equipment Generator", EditorStyles.boldLabel);
+        EditorGUILayout.Space(10);
+        
+        DrawClassFilter();
+        EditorGUILayout.Space(10);
+        
+        DrawGradeSelection();
+        EditorGUILayout.Space(10);
+        
+        DrawEquipmentTypeSelection();
+        EditorGUILayout.Space(10);
+        
+        DrawSavePath();
+        EditorGUILayout.Space(10);
+        
+        DrawIconSettings();
+        EditorGUILayout.Space(10);
+        
+        DrawPreview();
+        EditorGUILayout.Space(10);
+        
+        DrawGenerateButton();
+    }
+    
+    /// <summary>
+    /// 👤 클래스 선택 (필수)
+    /// </summary>
+    private void DrawClassFilter()
+    {
+        EditorGUILayout.LabelField("👤 Class Selection (Required)", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            selectedClass = (PlayerClass)EditorGUILayout.EnumPopup("Usable Class", selectedClass);
+            
+            if (selectedClass == PlayerClass.None)
+            {
+                EditorGUILayout.HelpBox("⚠️ 클래스 선택은 필수입니다!\n모든 장비는 특정 클래스 전용입니다.", MessageType.Warning);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox($"✅ {selectedClass} 전용 장비로 생성됩니다.", MessageType.Info);
+            }
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// ⭐ 등급 선택
+    /// </summary>
+    private void DrawGradeSelection()
+    {
+        EditorGUILayout.LabelField("⭐ Grade Selection", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            // 1열: 최고 등급 (TR, EX, SS)
+            EditorGUILayout.BeginHorizontal();
+            {
+                gradeTR = EditorGUILayout.ToggleLeft("TR (초월)", gradeTR, GUILayout.Width(90));
+                gradeEX = EditorGUILayout.ToggleLeft("EX (고대)", gradeEX, GUILayout.Width(90));
+                gradeSS = EditorGUILayout.ToggleLeft("SS (신화)", gradeSS, GUILayout.Width(90));
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            // 2열: 일반 등급 (S, A, B, C, D)
+            EditorGUILayout.BeginHorizontal();
+            {
+                gradeS = EditorGUILayout.ToggleLeft("S (전설)", gradeS, GUILayout.Width(80));
+                gradeA = EditorGUILayout.ToggleLeft("A (영웅)", gradeA, GUILayout.Width(80));
+                gradeB = EditorGUILayout.ToggleLeft("B (희귀)", gradeB, GUILayout.Width(80));
+                gradeC = EditorGUILayout.ToggleLeft("C (고급)", gradeC, GUILayout.Width(80));
+                gradeD = EditorGUILayout.ToggleLeft("D (일반)", gradeD, GUILayout.Width(80));
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            {
+                if (GUILayout.Button("Select All"))
+                {
+                    gradeTR = gradeEX = gradeSS = gradeS = gradeA = gradeB = gradeC = gradeD = true;
+                }
+                if (GUILayout.Button("Deselect All"))
+                {
+                    gradeTR = gradeEX = gradeSS = gradeS = gradeA = gradeB = gradeC = gradeD = false;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 🎒 장비 타입 선택
+    /// </summary>
+    private void DrawEquipmentTypeSelection()
+    {
+        EditorGUILayout.LabelField("🎒 Equipment Type Selection", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            // 3x3 그리드
+            EditorGUILayout.BeginHorizontal();
+            {
+                typeWeapon = EditorGUILayout.ToggleLeft("Weapon", typeWeapon, GUILayout.Width(120));
+                typeHelmet = EditorGUILayout.ToggleLeft("Helmet", typeHelmet, GUILayout.Width(120));
+                typeArmor = EditorGUILayout.ToggleLeft("Armor", typeArmor, GUILayout.Width(120));
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            {
+                typeGloves = EditorGUILayout.ToggleLeft("Gloves", typeGloves, GUILayout.Width(120));
+                typeBoots = EditorGUILayout.ToggleLeft("Boots", typeBoots, GUILayout.Width(120));
+                typeBelt = EditorGUILayout.ToggleLeft("Belt", typeBelt, GUILayout.Width(120));
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            {
+                typeRing = EditorGUILayout.ToggleLeft("Ring", typeRing, GUILayout.Width(120));
+                typeNecklace = EditorGUILayout.ToggleLeft("Necklace", typeNecklace, GUILayout.Width(120));
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            {
+                if (GUILayout.Button("Select All"))
+                {
+                    typeWeapon = typeHelmet = typeArmor = typeGloves = true;
+                    typeBoots = typeBelt = typeRing = typeNecklace = true;
+                }
+                if (GUILayout.Button("Deselect All"))
+                {
+                    typeWeapon = typeHelmet = typeArmor = typeGloves = false;
+                    typeBoots = typeBelt = typeRing = typeNecklace = false;
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 📁 저장 경로
+    /// </summary>
+    private void DrawSavePath()
+    {
+        EditorGUILayout.LabelField("📁 Save Path", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            EditorGUILayout.BeginHorizontal();
+            {
+                savePath = EditorGUILayout.TextField("Path", savePath);
+                if (GUILayout.Button("Browse", GUILayout.Width(80)))
+                {
+                    string selectedPath = EditorUtility.OpenFolderPanel("Select Save Folder", "Assets/Resources/Data", "");
+                    if (!string.IsNullOrEmpty(selectedPath))
+                    {
+                        savePath = "Assets" + selectedPath.Substring(Application.dataPath.Length) + "/";
+                    }
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 🖼️ 아이콘 스프라이트 설정
+    /// </summary>
+    private void DrawIconSettings()
+    {
+        EditorGUILayout.LabelField("🖼️ Icon Sprite Settings", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            autoAssignIcon = EditorGUILayout.Toggle("Auto Assign Icon", autoAssignIcon);
+            
+            if (autoAssignIcon)
+            {
+                EditorGUILayout.Space(5);
+                
+                // 스프라이트 모드 선택
+                spriteMode = (SpriteAssignMode)EditorGUILayout.EnumPopup("Sprite Mode", spriteMode);
+                
+                EditorGUILayout.Space(5);
+                
+                // 모드별 설정 UI
+                if (spriteMode == SpriteAssignMode.SingleFile)
+                {
+                    DrawSingleFileSettings();
+                }
+                else if (spriteMode == SpriteAssignMode.MultipleSprite)
+                {
+                    DrawMultipleSpriteSettings();
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("❌ 스프라이트 자동 할당 비활성화\n\nicon 필드는 null로 유지되며, Inspector에서 수동 할당이 필요합니다.", MessageType.Warning);
+            }
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// Single File Mode 설정 UI
+    /// </summary>
+    private void DrawSingleFileSettings()
+    {
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            EditorGUILayout.LabelField("📁 Single File Mode", EditorStyles.boldLabel);
+            
+            EditorGUILayout.BeginHorizontal();
+            {
+                GUI.enabled = false;  // 읽기 전용
+                EditorGUILayout.TextField("Sprite Folder", spriteFolderPath);
+                GUI.enabled = true;
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.HelpBox(
+                "✅ 개별 PNG 파일 방식\n\n" +
+                "파일명 규칙: ICON_{EquipmentType}_{Class}_{Grade}_Pickup.png\n" +
+                "예시: ICON_ARMOR_ASSASIN_A_Pickup.png\n\n" +
+                "⚠️ 스프라이트가 없으면 null로 유지됩니다.",
+                MessageType.Info
+            );
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// Multiple Sprite Mode 설정 UI
+    /// </summary>
+    private void DrawMultipleSpriteSettings()
+    {
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            EditorGUILayout.LabelField("📋 Multiple Sprite Mode", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+            
+            EditorGUILayout.LabelField("Sprite Sheet Mapping:", EditorStyles.miniBoldLabel);
+            
+            // 카테고리별 스프라이트 시트 할당
+            var categories = new List<SpriteSheetCategory>(spriteSheetMap.Keys);
+            foreach (var category in categories)
+            {
+                EditorGUILayout.BeginHorizontal();
+                {
+                    EditorGUILayout.LabelField(category.ToString() + ":", GUILayout.Width(80));
+                    spriteSheetMap[category] = (Texture2D)EditorGUILayout.ObjectField(
+                        spriteSheetMap[category], 
+                        typeof(Texture2D), 
+                        false
+                    );
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+            
+            EditorGUILayout.Space(5);
+            
+            EditorGUILayout.HelpBox(
+                "✅ 카테고리별 스프라이트 시트 방식\n\n" +
+                "파일 구조:\n" +
+                "- Warrior_Equipment.png (Warrior 클래스 전용)\n" +
+                "- Assasin_Equipment.png (Assasin 클래스 전용)\n" +
+                "- Wizard_Equipment.png (Wizard 클래스 전용)\n" +
+                "- Accessory_Equipment.png (Ring, Necklace 공용)\n\n" +
+                "스프라이트 이름 규칙:\n" +
+                "- 클래스별: {Type}_{Grade} (예: ARMOR_A)\n" +
+                "- 악세서리: {Type}_{Grade} (예: RING_A)\n\n" +
+                "⚠️ Sprite Mode를 'Multiple'로 설정 필수!",
+                MessageType.Info
+            );
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 📊 프리뷰
+    /// </summary>
+    private void DrawPreview()
+    {
+        int count = CalculateGenerationCount();
+        
+        EditorGUILayout.LabelField("📊 Preview", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        {
+            if (count == 0)
+            {
+                EditorGUILayout.HelpBox("❌ No items will be generated. Please select at least one grade and equipment type.", MessageType.Warning);
+            }
+            else
+            {
+                EditorGUILayout.HelpBox($"✅ {count} items will be generated.", MessageType.Info);
+            }
+        }
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 🎨 생성 버튼
+    /// </summary>
+    private void DrawGenerateButton()
+    {
+        GUI.backgroundColor = Color.green;
+        if (GUILayout.Button("🎨 Generate Equipment", GUILayout.Height(40)))
+        {
+            GenerateEquipment();
+        }
+        GUI.backgroundColor = Color.white;
+    }
+    
+    /// <summary>
+    /// 생성 개수 계산
+    /// </summary>
+    private int CalculateGenerationCount()
+    {
+        int gradeCount = 0;
+        if (gradeTR) gradeCount++;
+        if (gradeEX) gradeCount++;
+        if (gradeSS) gradeCount++;
+        if (gradeS) gradeCount++;
+        if (gradeA) gradeCount++;
+        if (gradeB) gradeCount++;
+        if (gradeC) gradeCount++;
+        if (gradeD) gradeCount++;
+        
+        int typeCount = 0;
+        if (typeWeapon) typeCount++;
+        if (typeHelmet) typeCount++;
+        if (typeArmor) typeCount++;
+        if (typeGloves) typeCount++;
+        if (typeBoots) typeCount++;
+        if (typeBelt) typeCount++;
+        if (typeRing) typeCount++;
+        if (typeNecklace) typeCount++;
+        
+        return gradeCount * typeCount;
+    }
+    
+    /// <summary>
+    /// 🎨 장비 생성 실행
+    /// </summary>
+    private void GenerateEquipment()
+    {
+        // 클래스 선택 검증
+        if (selectedClass == PlayerClass.None)
+        {
+            EditorUtility.DisplayDialog("Error", "⚠️ 클래스를 선택해주세요!\n\n모든 장비는 특정 클래스 전용입니다.", "OK");
+            return;
+        }
+        
+        int count = CalculateGenerationCount();
+        
+        if (count == 0)
+        {
+            EditorUtility.DisplayDialog("Error", "등급과 장비 타입을 최소 1개씩 선택해주세요.", "OK");
+            return;
+        }
+        
+        bool confirm = EditorUtility.DisplayDialog(
+            "Confirm Generation",
+            $"{count}개의 {selectedClass} 전용 장비를 생성하시겠습니까?\n\n경로: {savePath}",
+            "Generate",
+            "Cancel"
+        );
+        
+        if (!confirm) return;
+        
+        // 폴더 생성
+        if (!Directory.Exists(savePath))
+        {
+            Directory.CreateDirectory(savePath);
+        }
+        
+        List<ItemGrade> grades = GetSelectedGrades();
+        List<EquipmentTypeInfo> types = GetSelectedTypes();
+        
+        int successCount = 0;
+        
+        foreach (var grade in grades)
+        {
+            foreach (var typeInfo in types)
+            {
+                if (CreateEquipmentAsset(typeInfo, grade))
+                {
+                    successCount++;
+                }
+            }
+        }
+        
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        
+        EditorUtility.DisplayDialog(
+            "Complete",
+            $"✅ {successCount}/{count}개의 장비가 생성되었습니다!\n\n경로: {savePath}",
+            "OK"
+        );
+    }
+    
+    /// <summary>
+    /// 선택된 등급 리스트 (높은 등급부터)
+    /// </summary>
+    private List<ItemGrade> GetSelectedGrades()
+    {
+        var grades = new List<ItemGrade>();
+        if (gradeTR) grades.Add(ItemGrade.TR);
+        if (gradeEX) grades.Add(ItemGrade.EX);
+        if (gradeSS) grades.Add(ItemGrade.SS);
+        if (gradeS) grades.Add(ItemGrade.S);
+        if (gradeA) grades.Add(ItemGrade.A);
+        if (gradeB) grades.Add(ItemGrade.B);
+        if (gradeC) grades.Add(ItemGrade.C);
+        if (gradeD) grades.Add(ItemGrade.D);
+        return grades;
+    }
+    
+    /// <summary>
+    /// 선택된 장비 타입 리스트
+    /// </summary>
+    private List<EquipmentTypeInfo> GetSelectedTypes()
+    {
+        var types = new List<EquipmentTypeInfo>();
+        
+        if (typeWeapon) types.Add(new EquipmentTypeInfo { name = "Weapon", equipType = EquipmentType.Weapon });
+        if (typeHelmet) types.Add(new EquipmentTypeInfo { name = "Helmet", equipType = EquipmentType.Armor, armorType = ArmorType.Helmet });
+        if (typeArmor) types.Add(new EquipmentTypeInfo { name = "Armor", equipType = EquipmentType.Armor, armorType = ArmorType.Armor });
+        if (typeGloves) types.Add(new EquipmentTypeInfo { name = "Gloves", equipType = EquipmentType.Armor, armorType = ArmorType.Gloves });
+        if (typeBoots) types.Add(new EquipmentTypeInfo { name = "Boots", equipType = EquipmentType.Armor, armorType = ArmorType.Boots });
+        if (typeBelt) types.Add(new EquipmentTypeInfo { name = "Belt", equipType = EquipmentType.Armor, armorType = ArmorType.Belt });
+        if (typeRing) types.Add(new EquipmentTypeInfo { name = "Ring", equipType = EquipmentType.Accessory });
+        if (typeNecklace) types.Add(new EquipmentTypeInfo { name = "Necklace", equipType = EquipmentType.Accessory });
+        
+        return types;
+    }
+    
+    /// <summary>
+    /// EquipmentData Asset 생성
+    /// </summary>
+    private bool CreateEquipmentAsset(EquipmentTypeInfo typeInfo, ItemGrade grade)
+    {
+        // 네이밍 규칙에 따른 파일명 생성
+        string equipTypeUpper = GetEquipmentTypeUpperCase(typeInfo.name);
+        string classUpper = GetClassUpperCase(selectedClass);
+        string className = GetClassName(selectedClass);
+        string equipTypeName = GetEquipmentTypeName(typeInfo.name);
+        
+        // 파일명: ITEM_EquipmentType_Class_Grade_Equipment.asset
+        string fileName = $"ITEM_{equipTypeUpper}_{classUpper}_{grade}_Equipment.asset";
+        string fullPath = Path.Combine(savePath, fileName);
+        
+        // 이미 존재하면 스킵
+        if (File.Exists(fullPath))
+        {
+            Debug.LogWarning($"⚠️ [EquipmentGenerator] 이미 존재: {fileName}");
+            return false;
+        }
+        
+        // ScriptableObject 생성
+        EquipmentData equipment = ScriptableObject.CreateInstance<EquipmentData>();
+        
+        // 기본 정보
+        // Equipment Name: Class_EquipmentType_Grade (예: Warrior_Armor_S)
+        equipment.equipmentName = $"{className}_{equipTypeName}_{grade}";
+        
+        // Item ID: ITEM_EquipmentType_Class_Grade (예: ITEM_ARMOR_WARRIOR_S)
+        equipment.itemID = $"ITEM_{equipTypeUpper}_{classUpper}_{grade}";
+        
+        // Resource ID: RES_EquipmentType_Class_Grade (예: RES_ARMOR_WARRIOR_S)
+        equipment.resourceID = $"RES_{equipTypeUpper}_{classUpper}_{grade}";
+        
+        equipment.equipmentType = typeInfo.equipType;
+        equipment.itemGrade = grade;
+        
+        // 🆕 악세서리(Ring, Necklace)는 모든 클래스 공용 (PlayerClass.Any)
+        if (typeInfo.equipType == EquipmentType.Accessory)
+        {
+            equipment.usableClass = PlayerClass.Any;
+        }
+        else
+        {
+            equipment.usableClass = selectedClass;
+        }
+        
+        equipment.isTradable = true;
+        equipment.requiredLevel = GetRequiredLevel(grade);
+        
+        // 🆕 악세서리는 "전용" 대신 "공용"으로 표시
+        if (typeInfo.equipType == EquipmentType.Accessory)
+        {
+            equipment.description = $"{GetGradePrefix(grade)} 등급의 공용 {GetKoreanName(typeInfo.name)}입니다.";
+        }
+        else
+        {
+            equipment.description = $"{GetGradePrefix(grade)} 등급의 {className} 전용 {GetKoreanName(typeInfo.name)}입니다.";
+        }
+        
+        // ArmorType 설정
+        if (typeInfo.equipType == EquipmentType.Armor)
+        {
+            SetPrivateField(equipment, "armorType", typeInfo.armorType);
+        }
+        
+        // 등급별 스탯 적용
+        ApplyStatsByGradeAndType(equipment, typeInfo, grade);
+        
+        // 가격 설정
+        equipment.buyPrice = GetBuyPrice(grade, typeInfo.equipType);
+        equipment.sellPrice = equipment.buyPrice / 2;
+        
+        // 스프라이트 자동 할당 (활성화 시)
+        TryAssignIcon(equipment, typeInfo, equipTypeUpper, classUpper, grade, selectedClass);
+        
+        // Asset 생성
+        AssetDatabase.CreateAsset(equipment, fullPath);
+        
+        Debug.Log($"✅ [EquipmentGenerator] 생성 완료: {fileName}");
+        return true;
+    }
+    
+    /// <summary>
+    /// 등급별/타입별 스탯 적용
+    /// </summary>
+    private void ApplyStatsByGradeAndType(EquipmentData equipment, EquipmentTypeInfo typeInfo, ItemGrade grade)
+    {
+        // 무기
+        if (typeInfo.equipType == EquipmentType.Weapon)
+        {
+            equipment.attackDamage = GetWeaponDamage(grade);
+            equipment.attackSpeed = 1.0f;
+            equipment.criticalChance = GetCriticalChance(grade);
+            equipment.criticalDamage = GetCriticalDamage(grade);
+            return;
+        }
+        
+        // 방어구
+        if (typeInfo.equipType == EquipmentType.Armor)
+        {
+            switch (typeInfo.armorType)
+            {
+                case ArmorType.Helmet:
+                    equipment.defenseBonus = GetHelmetDefense(grade);
+                    break;
+                
+                case ArmorType.Armor:
+                    equipment.defenseBonus = GetArmorDefense(grade);
+                    break;
+                
+                case ArmorType.Gloves:
+                    equipment.attackDamage = GetGlovesDamage(grade);
+                    break;
+                
+                case ArmorType.Boots:
+                    equipment.speedBonus = GetBootsSpeed(grade);
+                    break;
+                
+                case ArmorType.Belt:
+                    equipment.healthBonus = GetBeltHealth(grade);
+                    break;
+            }
+            return;
+        }
+        
+        // 악세서리
+        if (typeInfo.equipType == EquipmentType.Accessory)
+        {
+            if (typeInfo.name == "Ring")
+            {
+                // 반지: 공격력 + 체력
+                equipment.attackDamage = GetRingDamage(grade);
+                equipment.healthBonus = GetRingHealth(grade);
+            }
+            else if (typeInfo.name == "Necklace")
+            {
+                // 목걸이: 체력
+                equipment.healthBonus = GetNecklaceHealth(grade);
+            }
+        }
+    }
+    
+    // === 스탯 템플릿 (등급별) ===
+    
+    private int GetWeaponDamage(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 250;  // 초월
+            case ItemGrade.EX: return 200;  // 고대
+            case ItemGrade.SS: return 150;  // 신화
+            case ItemGrade.S: return 100;   // 전설
+            case ItemGrade.A: return 80;
+            case ItemGrade.B: return 60;
+            case ItemGrade.C: return 40;
+            case ItemGrade.D: return 20;
+            default: return 10;
+        }
+    }
+    
+    private float GetCriticalChance(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 0.50f;  // 초월
+            case ItemGrade.EX: return 0.40f;  // 고대
+            case ItemGrade.SS: return 0.30f;  // 신화
+            case ItemGrade.S: return 0.25f;   // 전설
+            case ItemGrade.A: return 0.20f;
+            case ItemGrade.B: return 0.15f;
+            case ItemGrade.C: return 0.10f;
+            case ItemGrade.D: return 0.05f;
+            default: return 0.0f;
+        }
+    }
+    
+    private float GetCriticalDamage(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 3.5f;  // 초월
+            case ItemGrade.EX: return 3.2f;  // 고대
+            case ItemGrade.SS: return 2.8f;  // 신화
+            case ItemGrade.S: return 2.5f;   // 전설
+            case ItemGrade.A: return 2.3f;
+            case ItemGrade.B: return 2.1f;
+            case ItemGrade.C: return 1.9f;
+            case ItemGrade.D: return 1.7f;
+            default: return 1.5f;
+        }
+    }
+    
+    private int GetHelmetDefense(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 150;  // 초월
+            case ItemGrade.EX: return 120;  // 고대
+            case ItemGrade.SS: return 80;   // 신화
+            case ItemGrade.S: return 50;    // 전설
+            case ItemGrade.A: return 40;
+            case ItemGrade.B: return 30;
+            case ItemGrade.C: return 20;
+            case ItemGrade.D: return 10;
+            default: return 5;
+        }
+    }
+    
+    private int GetArmorDefense(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 250;  // 초월
+            case ItemGrade.EX: return 200;  // 고대
+            case ItemGrade.SS: return 150;  // 신화
+            case ItemGrade.S: return 80;    // 전설
+            case ItemGrade.A: return 60;
+            case ItemGrade.B: return 40;
+            case ItemGrade.C: return 25;
+            case ItemGrade.D: return 15;
+            default: return 10;
+        }
+    }
+    
+    private int GetGlovesDamage(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 150;  // 초월
+            case ItemGrade.EX: return 120;  // 고대
+            case ItemGrade.SS: return 80;   // 신화
+            case ItemGrade.S: return 50;    // 전설
+            case ItemGrade.A: return 40;
+            case ItemGrade.B: return 30;
+            case ItemGrade.C: return 20;
+            case ItemGrade.D: return 10;
+            default: return 5;
+        }
+    }
+    
+    private float GetBootsSpeed(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 5.0f;   // 초월
+            case ItemGrade.EX: return 4.0f;   // 고대
+            case ItemGrade.SS: return 3.0f;   // 신화
+            case ItemGrade.S: return 2.0f;    // 전설
+            case ItemGrade.A: return 1.5f;
+            case ItemGrade.B: return 1.0f;
+            case ItemGrade.C: return 0.5f;
+            case ItemGrade.D: return 0.25f;
+            default: return 0.1f;
+        }
+    }
+    
+    private int GetBeltHealth(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 600;   // 초월
+            case ItemGrade.EX: return 500;   // 고대
+            case ItemGrade.SS: return 350;   // 신화
+            case ItemGrade.S: return 200;    // 전설
+            case ItemGrade.A: return 150;
+            case ItemGrade.B: return 100;
+            case ItemGrade.C: return 50;
+            case ItemGrade.D: return 25;
+            default: return 10;
+        }
+    }
+    
+    private int GetRingDamage(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 100;   // 초월
+            case ItemGrade.EX: return 80;    // 고대
+            case ItemGrade.SS: return 50;    // 신화
+            case ItemGrade.S: return 30;     // 전설
+            case ItemGrade.A: return 25;
+            case ItemGrade.B: return 20;
+            case ItemGrade.C: return 15;
+            case ItemGrade.D: return 10;
+            default: return 5;
+        }
+    }
+    
+    private int GetRingHealth(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 300;   // 초월
+            case ItemGrade.EX: return 250;   // 고대
+            case ItemGrade.SS: return 180;   // 신화
+            case ItemGrade.S: return 100;    // 전설
+            case ItemGrade.A: return 80;
+            case ItemGrade.B: return 60;
+            case ItemGrade.C: return 40;
+            case ItemGrade.D: return 20;
+            default: return 10;
+        }
+    }
+    
+    private int GetNecklaceHealth(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 500;   // 초월
+            case ItemGrade.EX: return 400;   // 고대
+            case ItemGrade.SS: return 250;   // 신화
+            case ItemGrade.S: return 150;    // 전설
+            case ItemGrade.A: return 120;
+            case ItemGrade.B: return 80;
+            case ItemGrade.C: return 50;
+            case ItemGrade.D: return 25;
+            default: return 10;
+        }
+    }
+    
+    // === 헬퍼 메서드 ===
+    
+    /// <summary>
+    /// 🖼️ 스프라이트 아이콘 자동 할당 시도 (통합)
+    /// </summary>
+    private void TryAssignIcon(EquipmentData equipment, EquipmentTypeInfo typeInfo, string equipTypeUpper, string classUpper, ItemGrade grade, PlayerClass playerClass)
+    {
+        if (!autoAssignIcon) return;
+        
+        Sprite sprite = null;
+        
+        switch (spriteMode)
+        {
+            case SpriteAssignMode.SingleFile:
+                sprite = TryAssignIcon_SingleFile(equipTypeUpper, classUpper, grade);
+                break;
+            
+            case SpriteAssignMode.MultipleSprite:
+                SpriteSheetCategory category = DetermineSpriteCategory(typeInfo, playerClass);
+                sprite = TryAssignIcon_MultipleSprite(equipTypeUpper, grade, category, typeInfo);
+                break;
+        }
+        
+        if (sprite != null)
+        {
+            equipment.icon = sprite;
+        }
+    }
+    
+    /// <summary>
+    /// 카테고리 자동 결정 (클래스별/공용별)
+    /// </summary>
+    private SpriteSheetCategory DetermineSpriteCategory(EquipmentTypeInfo typeInfo, PlayerClass playerClass)
+    {
+        // 악세서리는 공용
+        if (typeInfo.equipType == EquipmentType.Accessory)
+        {
+            return SpriteSheetCategory.Accessory;
+        }
+        
+        // 클래스별
+        switch (playerClass)
+        {
+            case PlayerClass.Warrior:
+                return SpriteSheetCategory.Warrior;
+            case PlayerClass.Assasin:
+                return SpriteSheetCategory.Assasin;
+            case PlayerClass.Wizard:
+                return SpriteSheetCategory.Wizard;
+            default:
+                return SpriteSheetCategory.Warrior; // fallback
+        }
+    }
+    
+    /// <summary>
+    /// Single File Mode - 개별 PNG 파일 로드
+    /// </summary>
+    private Sprite TryAssignIcon_SingleFile(string equipTypeUpper, string classUpper, ItemGrade grade)
+    {
+        // 파일명 구성: ICON_ARMOR_ASSASIN_A_Pickup.png
+        string spriteFileName = $"ICON_{equipTypeUpper}_{classUpper}_{grade}_Pickup.png";
+        string spritePath = $"{spriteFolderPath}/{spriteFileName}";
+        
+        // 스프라이트 로드 시도
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+        
+        if (sprite != null)
+        {
+            Debug.Log($"✅ [SingleFile] 스프라이트 할당 성공: {spriteFileName}");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [SingleFile] 스프라이트 없음: {spritePath}");
+        }
+        
+        return sprite;
+    }
+    
+    /// <summary>
+    /// 스프라이트 인덱스 계산 (장비 타입 + 등급 → 인덱스 번호)
+    /// </summary>
+    private int CalculateSpriteIndex(EquipmentTypeInfo typeInfo, ItemGrade grade)
+    {
+        // 등급별 오프셋 (D=0, C=1, B=2, A=3, S=4, SS=5, EX=6, TR=7)
+        int gradeOffset = grade switch
+        {
+            ItemGrade.D => 0,
+            ItemGrade.C => 1,
+            ItemGrade.B => 2,
+            ItemGrade.A => 3,
+            ItemGrade.S => 4,
+            ItemGrade.SS => 5,
+            ItemGrade.EX => 6,
+            ItemGrade.TR => 7,
+            _ => 0
+        };
+        
+        // 장비 타입별 시작 인덱스 (각 타입당 8개 등급)
+        int baseIndex = 0;
+        
+        if (typeInfo.name == "Weapon")
+        {
+            // 무기: 0~7
+            baseIndex = 0;
+        }
+        else if (typeInfo.name == "Armor")
+        {
+            // 갑옷: 8~15
+            baseIndex = 8;
+        }
+        else if (typeInfo.name == "Helmet")
+        {
+            // 투구: 16~23
+            baseIndex = 16;
+        }
+        else if (typeInfo.name == "Gloves")
+        {
+            // 장갑: 24~31
+            baseIndex = 24;
+        }
+        else if (typeInfo.name == "Boots")
+        {
+            // 신발: 32~39
+            baseIndex = 32;
+        }
+        else if (typeInfo.name == "Belt")
+        {
+            // 허리띠: 40~47
+            baseIndex = 40;
+        }
+        else if (typeInfo.name == "Ring")
+        {
+            // 반지: 48~55
+            baseIndex = 48;
+        }
+        else if (typeInfo.name == "Necklace")
+        {
+            // 목걸이: 56~63
+            baseIndex = 56;
+        }
+        
+        return baseIndex + gradeOffset;
+    }
+    
+    /// <summary>
+    /// Multiple Sprite Mode - 스프라이트 시트에서 로드
+    /// </summary>
+    private Sprite TryAssignIcon_MultipleSprite(string equipTypeUpper, ItemGrade grade, SpriteSheetCategory category, EquipmentTypeInfo typeInfo)
+    {
+        // 해당 카테고리의 스프라이트 시트 가져오기
+        if (!spriteSheetMap.TryGetValue(category, out Texture2D sheet) || sheet == null)
+        {
+            Debug.LogWarning($"⚠️ [{category}] 스프라이트 시트가 설정되지 않았습니다.");
+            return null;
+        }
+        
+        // 스프라이트 시트에서 모든 서브 스프라이트 로드
+        string path = AssetDatabase.GetAssetPath(sheet);
+        Sprite[] sprites = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().ToArray();
+        
+        if (sprites.Length == 0)
+        {
+            Debug.LogWarning($"⚠️ [{category}] 스프라이트 시트에 서브 스프라이트가 없습니다. Sprite Mode를 'Multiple'로 설정했는지 확인하세요.");
+            return null;
+        }
+        
+        // 🆕 두 가지 방식 지원: 이름 패턴 우선, 인덱스 패턴 fallback
+        
+        // 1순위: 이름 패턴 검색 (사용자가 Sprite Editor에서 이름 변경한 경우)
+        // 예: ARMOR_A, BOW_S
+        string namePattern = $"{equipTypeUpper}_{grade}";
+        Sprite result = sprites.FirstOrDefault(s => s.name == namePattern);
+        
+        if (result != null)
+        {
+            Debug.Log($"✅ [{category}] 스프라이트 할당 성공 (이름 패턴): {namePattern}");
+            return result;
+        }
+        
+        // 2순위: 인덱스 패턴 검색 (Unity 자동 슬라이싱 이름 그대로 사용한 경우)
+        int index = CalculateSpriteIndex(typeInfo, grade);
+        string indexPattern = $"{sheet.name}_{index}";
+        result = sprites.FirstOrDefault(s => s.name == indexPattern);
+        
+        if (result != null)
+        {
+            Debug.Log($"✅ [{category}] 스프라이트 할당 성공 (인덱스 패턴): {indexPattern} (인덱스 {index})");
+            return result;
+        }
+        
+        // 둘 다 실패
+        Debug.LogWarning($"⚠️ [{category}] 스프라이트를 찾을 수 없습니다.\n" +
+                       $"검색한 패턴:\n" +
+                       $"  1) 이름: '{namePattern}' (권장)\n" +
+                       $"  2) 인덱스: '{indexPattern}' (인덱스 {index}, 장비: {typeInfo.name}, 등급: {grade})\n" +
+                       $"사용 가능한 스프라이트: {string.Join(", ", sprites.Select(s => s.name).Take(10))}...");
+        
+        return result;
+    }
+    
+    private string GetGradePrefix(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return "초월";  // 최고 등급
+            case ItemGrade.EX: return "고대";
+            case ItemGrade.SS: return "신화";
+            case ItemGrade.S: return "전설";
+            case ItemGrade.A: return "영웅";
+            case ItemGrade.B: return "희귀";
+            case ItemGrade.C: return "고급";
+            case ItemGrade.D: return "일반";
+            default: return "기본";
+        }
+    }
+    
+    private string GetKoreanName(string englishName)
+    {
+        switch (englishName)
+        {
+            case "Weapon": return "무기";
+            case "Helmet": return "투구";
+            case "Armor": return "갑옷";
+            case "Gloves": return "장갑";
+            case "Boots": return "신발";
+            case "Belt": return "허리띠";
+            case "Ring": return "반지";
+            case "Necklace": return "목걸이";
+            default: return englishName;
+        }
+    }
+    
+    /// <summary>
+    /// Equipment Type 대문자 변환 (예: Gloves → GLOVES)
+    /// </summary>
+    private string GetEquipmentTypeUpperCase(string typeName)
+    {
+        return typeName.ToUpper();
+    }
+    
+    /// <summary>
+    /// Equipment Type 이름 (첫글자만 대문자, 예: Gloves)
+    /// </summary>
+    private string GetEquipmentTypeName(string typeName)
+    {
+        return typeName; // 이미 첫글자만 대문자
+    }
+    
+    /// <summary>
+    /// Class 대문자 변환 (예: Warrior → WARRIOR)
+    /// </summary>
+    private string GetClassUpperCase(PlayerClass playerClass)
+    {
+        switch (playerClass)
+        {
+            case PlayerClass.Warrior: return "WARRIOR";
+            case PlayerClass.Assasin: return "ASSASIN";
+            case PlayerClass.Wizard: return "WIZARD";
+            default: return "NONE";
+        }
+    }
+    
+    /// <summary>
+    /// Class 이름 (첫글자만 대문자, 예: Warrior)
+    /// </summary>
+    private string GetClassName(PlayerClass playerClass)
+    {
+        switch (playerClass)
+        {
+            case PlayerClass.Warrior: return "Warrior";
+            case PlayerClass.Assasin: return "Assasin";
+            case PlayerClass.Wizard: return "Wizard";
+            default: return "None";
+        }
+    }
+    
+    private int GetRequiredLevel(ItemGrade grade)
+    {
+        switch (grade)
+        {
+            case ItemGrade.TR: return 100;   // 초월
+            case ItemGrade.EX: return 80;    // 고대
+            case ItemGrade.SS: return 60;    // 신화
+            case ItemGrade.S: return 50;     // 전설
+            case ItemGrade.A: return 40;
+            case ItemGrade.B: return 30;
+            case ItemGrade.C: return 20;
+            case ItemGrade.D: return 10;
+            default: return 1;
+        }
+    }
+    
+    private int GetBuyPrice(ItemGrade grade, EquipmentType type)
+    {
+        int basePrice = 100;
+        
+        switch (grade)
+        {
+            case ItemGrade.TR: basePrice = 1000000; break;  // 초월
+            case ItemGrade.EX: basePrice = 500000; break;   // 고대
+            case ItemGrade.SS: basePrice = 100000; break;   // 신화
+            case ItemGrade.S: basePrice = 10000; break;     // 전설
+            case ItemGrade.A: basePrice = 5000; break;
+            case ItemGrade.B: basePrice = 2000; break;
+            case ItemGrade.C: basePrice = 1000; break;
+            case ItemGrade.D: basePrice = 500; break;
+        }
+        
+        // 무기는 2배
+        if (type == EquipmentType.Weapon)
+            basePrice *= 2;
+        
+        return basePrice;
+    }
+    
+    /// <summary>
+    /// Reflection으로 private 필드 설정
+    /// </summary>
+    private void SetPrivateField(object obj, string fieldName, object value)
+    {
+        var field = obj.GetType().GetField(fieldName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (field != null)
+        {
+            field.SetValue(obj, value);
+        }
+    }
+    
+    /// <summary>
+    /// 장비 타입 정보
+    /// </summary>
+    private class EquipmentTypeInfo
+    {
+        public string name;
+        public EquipmentType equipType;
+        public ArmorType armorType = ArmorType.None;
+    }
+}
+

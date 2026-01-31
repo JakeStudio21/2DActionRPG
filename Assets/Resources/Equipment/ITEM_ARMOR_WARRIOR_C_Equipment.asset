@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_ARMOR_WARRIOR_C
   description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
   icon: {fileID: 21300000, guid: 57286b93ef2951c43b63277852d4147e, type: 3}
-  equipmentPrefab: {fileID: 3046353505542979003, guid: 6c77ee0bf2518f64eae9b883f89c9e1f, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 0
   weaponCooldown: 0
   weaponRange: 0
@@ -41,4 +41,4 @@ MonoBehaviour:
   sellPrice: 50
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: 7146e191d8d41ee478668c47cd07d0fc, type: 3}
+  pickupPrefab: {fileID: 0}

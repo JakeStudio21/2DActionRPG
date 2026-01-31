@@ -20,9 +20,9 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 1
   resourceID: RES_BOOTS_ASSASIN_B
-  description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
-  icon: {fileID: 21300000, guid: 1bc98bcbe33fffe44b1a24a5b2d59974, type: 3}
-  equipmentPrefab: {fileID: 3046353505542979003, guid: ecd7db53dd4ec2e43b55991d1236ab26, type: 3}
+  description: "\uD76C\uADC0 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uC2E0\uBC1C\uC785\uB2C8\uB2E4."
+  icon: {fileID: 1506094038, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 0
   weaponCooldown: 0
   weaponRange: 0
@@ -41,4 +41,4 @@ MonoBehaviour:
   sellPrice: 75
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: d5cbfc12477bacc4f9a4d0b2d4a32365, type: 3}
+  pickupPrefab: {fileID: 0}

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
+  m_Name: ITEM_BOW_D_Equipment
+  m_EditorClassIdentifier: 
+  equipmentName: Bow_D
+  itemID: ITEM_BOW_D
+  equipmentType: 0
+  itemGrade: 0
+  usableClass: 2
+  isTradable: 1
+  requiredLevel: 10
+  resourceID: RES_WEAPON_BOW_D
+  description: "\uC77C\uBC18 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uD65C\uC785\uB2C8\uB2E4."
+  icon: {fileID: -1163354591, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
+  equipmentPrefab: {fileID: 4551001115370886643, guid: b5338b20cfe041c4b9d7452896159b9f, type: 3}
+  weaponType: 2
+  weaponCooldown: 0.5
+  weaponRange: 5
+  armorType: 0
+  attackDamage: 20
+  attackSpeed: 1
+  attackRange: 1
+  attackShape: 1
+  criticalChance: 0.05
+  criticalDamage: 1.7
+  projectileId: Arrow
+  defenseBonus: 0
+  speedBonus: 0
+  healthBonus: 0
+  buyPrice: 1000
+  sellPrice: 500
+  isLimited: 0
+  quantityLimit: 0
+  pickupPrefab: {fileID: 6665777931767919178, guid: a812b7a391081a644a5aa416249f4c9d, type: 3}
