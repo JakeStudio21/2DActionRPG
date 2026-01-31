@@ -21,7 +21,7 @@ MonoBehaviour:
   requiredLevel: 10
   resourceID: RES_ARMOR_WARRIOR_D
   description: "\uC77C\uBC18 \uB4F1\uAE09\uC758 Warrior \uC804\uC6A9 \uAC11\uC637\uC785\uB2C8\uB2E4."
-  icon: {fileID: 0}
+  icon: {fileID: -1662885856, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0
   weaponCooldown: 1

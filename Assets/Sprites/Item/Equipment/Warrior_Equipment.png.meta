@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Assasin_Equipment_0
+      name: SWORD_D
       rect:
         serializedVersion: 2
         x: 0
@@ -131,7 +131,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_1
+      name: SWORD_C
       rect:
         serializedVersion: 2
         x: 128
@@ -152,7 +152,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_2
+      name: SWORD_B
       rect:
         serializedVersion: 2
         x: 256
@@ -173,7 +173,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_3
+      name: SWORD_A
       rect:
         serializedVersion: 2
         x: 384
@@ -194,7 +194,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_4
+      name: SWORD_S
       rect:
         serializedVersion: 2
         x: 512
@@ -215,7 +215,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_5
+      name: SWORD_SS
       rect:
         serializedVersion: 2
         x: 640
@@ -236,7 +236,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_6
+      name: SWORD_EX
       rect:
         serializedVersion: 2
         x: 768
@@ -257,7 +257,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_7
+      name: SWORD_TR
       rect:
         serializedVersion: 2
         x: 896
@@ -278,7 +278,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_8
+      name: ARMOR_D
       rect:
         serializedVersion: 2
         x: 0
@@ -299,7 +299,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_9
+      name: ARMOR_C
       rect:
         serializedVersion: 2
         x: 128
@@ -320,7 +320,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_10
+      name: ARMOR_B
       rect:
         serializedVersion: 2
         x: 256
@@ -341,7 +341,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_11
+      name: ARMOR_A
       rect:
         serializedVersion: 2
         x: 384
@@ -362,7 +362,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_12
+      name: ARMOR_S
       rect:
         serializedVersion: 2
         x: 512
@@ -383,7 +383,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_13
+      name: ARMOR_SS
       rect:
         serializedVersion: 2
         x: 640
@@ -404,7 +404,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_14
+      name: ARMOR_EX
       rect:
         serializedVersion: 2
         x: 768
@@ -425,7 +425,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_15
+      name: ARMOR_TR
       rect:
         serializedVersion: 2
         x: 896
@@ -782,11 +782,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_32
+      name: BOOTS_D
       rect:
         serializedVersion: 2
         x: 0
-        y: 384
+        y: 386
         width: 128
         height: 128
       alignment: 0
@@ -803,7 +803,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_33
+      name: BOOTS_C
       rect:
         serializedVersion: 2
         x: 128
@@ -824,7 +824,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_34
+      name: BOOTS_B
       rect:
         serializedVersion: 2
         x: 256
@@ -845,7 +845,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_35
+      name: BOOTS_A
       rect:
         serializedVersion: 2
         x: 384
@@ -866,7 +866,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_36
+      name: BOOTS_S
       rect:
         serializedVersion: 2
         x: 512
@@ -887,7 +887,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_37
+      name: BOOTS_SS
       rect:
         serializedVersion: 2
         x: 640
@@ -908,7 +908,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_38
+      name: BOOTS_EX
       rect:
         serializedVersion: 2
         x: 768
@@ -929,7 +929,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Assasin_Equipment_39
+      name: BOOTS_TR
       rect:
         serializedVersion: 2
         x: 896
@@ -1128,30 +1128,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Assasin_Equipment_0: -1163354591
-      Assasin_Equipment_1: -1573921395
-      Assasin_Equipment_10: 1313480459
-      Assasin_Equipment_11: 861937437
-      Assasin_Equipment_12: 414130146
-      Assasin_Equipment_13: 1071272378
-      Assasin_Equipment_14: 1806499598
-      Assasin_Equipment_15: 512138946
-      Assasin_Equipment_2: -1500047283
-      Assasin_Equipment_3: 654507440
-      Assasin_Equipment_32: -2128213392
-      Assasin_Equipment_33: 504503824
-      Assasin_Equipment_34: 1506094038
-      Assasin_Equipment_35: -229324408
-      Assasin_Equipment_36: -2065368772
-      Assasin_Equipment_37: 749530132
-      Assasin_Equipment_38: -1531413789
-      Assasin_Equipment_39: -98732060
-      Assasin_Equipment_4: -1586527361
-      Assasin_Equipment_5: -447706147
-      Assasin_Equipment_6: -785598635
-      Assasin_Equipment_7: 906681301
-      Assasin_Equipment_8: -1662885856
-      Assasin_Equipment_9: 475791399
+      ARMOR_A: 861937437
+      ARMOR_B: 1313480459
+      ARMOR_C: 475791399
+      ARMOR_D: -1662885856
+      ARMOR_EX: 1806499598
+      ARMOR_S: 414130146
+      ARMOR_SS: 1071272378
+      ARMOR_TR: 512138946
       BELT_A: 718872277
       BELT_B: -1562289159
       BELT_C: -806792355
@@ -1160,6 +1144,14 @@ TextureImporter:
       BELT_S: -1792422336
       BELT_SS: 1868074813
       BELT_TR: 743913013
+      BOOTS_A: -229324408
+      BOOTS_B: 1506094038
+      BOOTS_C: 504503824
+      BOOTS_D: -2128213392
+      BOOTS_EX: -1531413789
+      BOOTS_S: -2065368772
+      BOOTS_SS: 749530132
+      BOOTS_TR: -98732060
       GLOVES_A: 1908829015
       GLOVES_B: -1741247087
       GLOVES_C: -2071370077
@@ -1176,6 +1168,14 @@ TextureImporter:
       HELMET_S: -22128411
       HELMET_SS: 488217725
       HELMET_TR: 1264080810
+      SWORD_A: 654507440
+      SWORD_B: -1500047283
+      SWORD_C: -1573921395
+      SWORD_D: -1163354591
+      SWORD_EX: -785598635
+      SWORD_S: -1586527361
+      SWORD_SS: -447706147
+      SWORD_TR: 906681301
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

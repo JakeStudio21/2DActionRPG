@@ -21,7 +21,7 @@ MonoBehaviour:
   requiredLevel: 8
   resourceID: RES_WEAPON_SWORD_A
   description: "\uBC31\uC740 \uC7A5\uAC80"
-  icon: {fileID: 21300000, guid: 9681fc92a762a4c4d8f0a187b2184e64, type: 3}
+  icon: {fileID: 654507440, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
   weaponType: 1
   weaponCooldown: 1

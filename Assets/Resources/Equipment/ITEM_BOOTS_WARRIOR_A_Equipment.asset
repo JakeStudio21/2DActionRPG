@@ -21,8 +21,8 @@ MonoBehaviour:
   requiredLevel: 1
   resourceID: RES_BOOTS_WARRIOR_A
   description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
-  icon: {fileID: 21300000, guid: 4d7208a3fd7917c409ef9cdcae8ebb98, type: 3}
-  equipmentPrefab: {fileID: 3046353505542979003, guid: e1cd914a5cb709641907654a375b9c21, type: 3}
+  icon: {fileID: -229324408, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 0
   weaponCooldown: 0
   weaponRange: 0
@@ -41,4 +41,4 @@ MonoBehaviour:
   sellPrice: 100
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: 431434ec2b6ae67448e4f0c19c9ec436, type: 3}
+  pickupPrefab: {fileID: 0}

@@ -21,7 +21,7 @@ MonoBehaviour:
   requiredLevel: 80
   resourceID: RES_BOOTS_WARRIOR_EX
   description: "\uACE0\uB300 \uB4F1\uAE09\uC758 Warrior \uC804\uC6A9 \uC2E0\uBC1C\uC785\uB2C8\uB2E4."
-  icon: {fileID: 0}
+  icon: {fileID: -1531413789, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0
   weaponCooldown: 1
