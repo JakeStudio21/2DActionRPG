@@ -13,41 +13,38 @@ MonoBehaviour:
   m_Name: SelectedPlayerData
   m_EditorClassIdentifier: 
   selectedSlotIndex: 0
-  playerName: qwd
+  playerName: awdwq
   selectedPlayerType: 2
   weaponName: Bow
-  currentLevel: 7
-  currentExp: 390
-  expToNextLevel: 400
-  currentGold: 4085
-  lastPlayTime: 2026-01-07 23:07:42
+  currentLevel: 21
+  currentExp: 350
+  expToNextLevel: 1100
+  currentGold: 7959113
+  lastPlayTime: 2026-02-02 16:55:28
   runtimeInventoryItems:
-  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
-  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 4386ff47d407c4641b8c5243d504b759, type: 2}
-  - {fileID: 11400000, guid: 607aebe179c928141977a85000b6a0cd, type: 2}
-  equippedSlotKeys: 0000000001000000020000000300000004000000050000000600000007000000
+  - {fileID: 11400000, guid: aa47e37a4b3d4c741aa0706a695d2453, type: 2}
+  - {fileID: 11400000, guid: 51953b3ee5c5cb741a013a36ebde54b5, type: 2}
+  - {fileID: 11400000, guid: 9c619432dddef1c44882bdb5ffc2c45d, type: 2}
+  - {fileID: 11400000, guid: 9180a793c38f1bf48aca4079a7c33749, type: 2}
+  - {fileID: 11400000, guid: 3ad89d5ec1d3f34439f4025dcb807206, type: 2}
+  - {fileID: 11400000, guid: ec0d43d5b2df62d418ea0580d7f4ca75, type: 2}
+  - {fileID: 11400000, guid: 65e25924f83ddc842913d8534dc4923c, type: 2}
+  - {fileID: 11400000, guid: 3ad89d5ec1d3f34439f4025dcb807206, type: 2}
+  - {fileID: 11400000, guid: 13279fda30ae65d49a8b5009b115c37d, type: 2}
+  - {fileID: 11400000, guid: da385417b5cf68d46917f2c584837d1b, type: 2}
+  - {fileID: 11400000, guid: 334c3ae56d37e4c439c1c4f945337093, type: 2}
+  - {fileID: 11400000, guid: f233afb921e91444ba555c073c6c389a, type: 2}
+  equippedSlotKeys: 000000000100000002000000030000000400000005000000060000000700000008000000
   equippedSlotValues:
   - {fileID: 11400000, guid: 46a9d8b5c0829984ea7edbcf5e7f8206, type: 2}
-  - {fileID: 0}
-  - {fileID: 11400000, guid: 4e118a680c16526429a48fc8b3684628, type: 2}
+  - {fileID: 11400000, guid: 3ad89d5ec1d3f34439f4025dcb807206, type: 2}
+  - {fileID: 11400000, guid: 741ad2be91ce1914fa54e630b5b24c78, type: 2}
+  - {fileID: 11400000, guid: e0205ab7e68751543a1921ff46a2ca8a, type: 2}
   - {fileID: 11400000, guid: 345e49f53daab344da7a9e5256a00e77, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: ec0d43d5b2df62d418ea0580d7f4ca75, type: 2}
+  - {fileID: 11400000, guid: 9180a793c38f1bf48aca4079a7c33749, type: 2}
+  - {fileID: 11400000, guid: 9180a793c38f1bf48aca4079a7c33749, type: 2}
+  - {fileID: 11400000, guid: 0b002a13304723441a710346b7963299, type: 2}
   maxInventorySize: 16
   classLevel: 1
   runtimeStatKeys:
@@ -65,14 +62,24 @@ MonoBehaviour:
   clearedChapters: 01000000
   seenChapterStart:
   - CH01_START
+  seenChapterClear:
+  - CH01_CLEAR
+  seenStageEnter:
   - CH01_ST01_START
   - CH01_ST02_START
-  - CH02_START
-  seenChapterClear:
+  - CH01_ST03_START
+  - CH01_ST04_START
+  - CH01_ST05_START
+  - CH01_ST06_START
+  - CH01_ST07_START
+  - CH01_ST08_START
+  - CH01_ST09_START
+  - CH01_ST10_START
+  seenStageClear:
   - CH01_ST01_CLEAR
-  - CH01_CLEAR
-  seenStageEnter: []
-  seenStageClear: []
+  - CH01_ST03_CLEAR
+  - CH01_ST06_CLEAR
+  - CH01_ST10_CLEAR
   currentChapterId: 1
   lastPlayedStageId: CH01_ST01
   stageProgresses:
@@ -80,81 +87,81 @@ MonoBehaviour:
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 30
-    clearCount: 5
-    lastPlayedTime: 2026-01-07T17:54:15.5936890+09:00
+    bestClearTime: 5
+    clearCount: 40
+    lastPlayedTime: 2026-01-27T20:33:19.5555496+09:00
   - stageId: CH01_ST02
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 30
-    clearCount: 15
-    lastPlayedTime: 2026-01-07T10:46:00.8806156+09:00
+    bestClearTime: 6
+    clearCount: 48
+    lastPlayedTime: 2026-01-27T16:44:59.6476995+09:00
   - stageId: CH01_ST03
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 30
-    clearCount: 1
-    lastPlayedTime: 2026-01-04T11:26:10.6414150+09:00
+    bestClearTime: 10
+    clearCount: 8
+    lastPlayedTime: 2026-01-26T17:47:08.6499873+09:00
   - stageId: CH01_ST04
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2147483647
-    clearCount: 0
-    lastPlayedTime: 0001-01-01T00:00:00.0000000
+    bestClearTime: 2
+    clearCount: 13
+    lastPlayedTime: 2026-01-24T15:36:21.1511314+09:00
   - stageId: CH01_ST05
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2147483647
-    clearCount: 0
-    lastPlayedTime: 0001-01-01T00:00:00.0000000
+    bestClearTime: 10
+    clearCount: 3
+    lastPlayedTime: 2026-01-26T17:51:01.8071597+09:00
   - stageId: CH01_ST06
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2147483647
-    clearCount: 0
-    lastPlayedTime: 0001-01-01T00:00:00.0000000
+    bestClearTime: 9
+    clearCount: 8
+    lastPlayedTime: 2026-01-26T16:30:03.8223254+09:00
   - stageId: CH01_ST07
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2147483647
-    clearCount: 0
-    lastPlayedTime: 0001-01-01T00:00:00.0000000
+    bestClearTime: 10
+    clearCount: 1
+    lastPlayedTime: 2026-01-12T23:01:14.8241316+09:00
   - stageId: CH01_ST08
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2147483647
-    clearCount: 0
-    lastPlayedTime: 0001-01-01T00:00:00.0000000
+    bestClearTime: 10
+    clearCount: 1
+    lastPlayedTime: 2026-01-12T23:01:42.9794021+09:00
   - stageId: CH01_ST09
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
-    bestClearTime: 2147483647
-    clearCount: 0
-    lastPlayedTime: 0001-01-01T00:00:00.0000000
+    bestClearTime: 10
+    clearCount: 1
+    lastPlayedTime: 2026-01-12T23:02:15.6476732+09:00
   - stageId: CH01_ST10
     isUnlocked: 1
     isCompleted: 1
     isFirstClearRewarded: 0
+    bestClearTime: 10
+    clearCount: 1
+    lastPlayedTime: 2026-01-12T23:02:58.5994166+09:00
+  - stageId: CH02_ST01
+    isUnlocked: 1
+    isCompleted: 0
+    isFirstClearRewarded: 0
     bestClearTime: 2147483647
     clearCount: 0
     lastPlayedTime: 0001-01-01T00:00:00.0000000
-  - stageId: CH02_ST01
-    isUnlocked: 1
-    isCompleted: 1
-    isFirstClearRewarded: 0
-    bestClearTime: 2
-    clearCount: 1
-    lastPlayedTime: 2026-01-04T11:27:28.8295652+09:00
   - stageId: CH02_ST02
-    isUnlocked: 1
+    isUnlocked: 0
     isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
@@ -421,6 +428,13 @@ MonoBehaviour:
     lastPlayedTime: 0001-01-01T00:00:00.0000000
   - stageId: CH05_ST10
     isUnlocked: 0
+    isCompleted: 0
+    isFirstClearRewarded: 0
+    bestClearTime: 2147483647
+    clearCount: 0
+    lastPlayedTime: 0001-01-01T00:00:00.0000000
+  - stageId: Stage_001
+    isUnlocked: 1
     isCompleted: 0
     isFirstClearRewarded: 0
     bestClearTime: 2147483647
