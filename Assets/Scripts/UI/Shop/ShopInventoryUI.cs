@@ -63,8 +63,8 @@ public class ShopInventoryUI : MonoBehaviour
     // 내부 상태
     private List<InventorySlot> shopInventorySlots = new List<InventorySlot>();
     
-    // 🔧 수정: 상점 전용 이벤트 (판매용)
-    public event Action<EquipmentData, int> OnInventoryItemClicked;
+    // 🔧 수정: 상점 전용 이벤트 (판매용) - 🆕 V2: ItemInstanceId 추가
+    public event Action<EquipmentData, int, ItemInstanceId> OnInventoryItemClicked;
     
     // 🗑️ 제거: 착용, 상세 정보 등 로비 전용 기능 제거
     // (상점에서는 단순히 판매할 아이템 선택만)
@@ -81,6 +81,21 @@ public class ShopInventoryUI : MonoBehaviour
     {
         InitializeShopInventorySlots();
         RefreshInventoryUI();
+    }
+    
+    /// <summary>
+    /// 🆕 V2: 패널 활성화 시 자동 갱신
+    /// </summary>
+    void OnEnable()
+    {
+        if (showDebugLogs)
+            Debug.Log($"🏪 [ShopInventoryUI] OnEnable() - 상점 패널 활성화");
+        
+        // 슬롯이 초기화된 경우에만 갱신 (Start() 전에 호출 방지)
+        if (shopInventorySlots != null && shopInventorySlots.Count > 0)
+        {
+            RefreshInventoryUI();
+        }
     }
     
     /// <summary>
@@ -153,7 +168,8 @@ public class ShopInventoryUI : MonoBehaviour
                     button.onClick.RemoveAllListeners();
                     button.onClick.AddListener(() => {
                         var equipmentData = shopInventorySlots[slotIndex].GetEquipmentData();
-                        HandleSlotClicked(equipmentData, slotIndex);
+                        var instanceId = shopInventorySlots[slotIndex].GetItemInstanceId();  // 🆕 V2: ID 가져오기
+                        HandleSlotClicked(equipmentData, slotIndex, instanceId);
                     });
                 }
             }
@@ -164,43 +180,109 @@ public class ShopInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 인벤토리 UI 새로고침
+    /// 🆕 V2: 인벤토리 UI 새로고침 (계정 공유 창고 표시)
     /// </summary>
     public void RefreshInventoryUI()
     {
-        if (PlayerDataManager.Instance == null) return;
+        if (showDebugLogs)
+            Debug.Log($"═══════════════════════════════════════════════════════");
+            
+        if (showDebugLogs)
+            Debug.Log($"🏪 [ShopInventoryUI] RefreshInventoryUI() 호출 (V2: 계정 공유 창고)");
         
-        var inventoryItems = PlayerDataManager.Instance.InventoryItems;
+        // 🆕 V2: AccountDataManager 확인
+        if (AccountDataManager.Instance == null)
+        {
+            Debug.LogError("❌ [ShopInventoryUI] AccountDataManager.Instance가 null입니다");
+            return;
+        }
         
-        // 모든 슬롯 초기화
+        // 🆕 V2: 계정 공유 창고 데이터 가져오기 (로비 보관창고와 동일)
+        var accountData = AccountDataManager.Instance.GetAccountData();
+        var sharedInventoryIds = accountData?.sharedInventoryIds;
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"📦 [ShopInventoryUI] 계정 공유 창고 데이터 확인:");
+            Debug.Log($"   - 공유 창고 아이템 수: {sharedInventoryIds?.Count ?? 0}");
+            Debug.Log($"   - 슬롯 수: {shopInventorySlots?.Count ?? 0}");
+        }
+        
+        // 🆕 V2: ItemInstanceId → EquipmentData 변환 (ID도 함께 저장)
+        List<(EquipmentData equipment, ItemInstanceId instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceId)>();
+        
+        if (sharedInventoryIds != null)
+        {
+            for (int i = 0; i < sharedInventoryIds.Count; i++)
+            {
+                var instanceId = sharedInventoryIds[i];
+                var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
+                
+                if (instanceData != null)
+                {
+                    var template = ItemTemplateResolver.Load(instanceData.templateName);
+                    if (template != null)
+                    {
+                        inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
+                        
+                        if (i < 5 && showDebugLogs) // 처음 5개만 로그
+                        {
+                            Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+                        }
+                    }
+                    else
+                    {
+                        if (showDebugLogs)
+                            Debug.LogWarning($"⚠️ [ShopInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
+                    }
+                }
+                else
+                {
+                    if (showDebugLogs)
+                        Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
+                }
+            }
+        }
+
+        // 슬롯 데이터 설정 (🆕 ItemInstanceId도 함께 전달)
         for (int i = 0; i < shopInventorySlots.Count; i++)
         {
             if (i < inventoryItems.Count)
             {
-                shopInventorySlots[i].SetEquipmentData(inventoryItems[i]);
+                shopInventorySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);  // 🆕 ID 전달
+                
+                if (inventoryItems[i].equipment != null && showDebugLogs)
+                    Debug.Log($"   ✅ 상점 슬롯 {i}에 설정: {inventoryItems[i].equipment.equipmentName}");
             }
             else
             {
-                shopInventorySlots[i].SetEquipmentData(null);
+                shopInventorySlots[i].SetEquipmentData(null);  // ID는 default
             }
         }
         
         if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 새로고침: {inventoryItems.Count}/{maxDisplaySlots}");
+        {
+            Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 새로고침 완료: {inventoryItems.Count}/{maxDisplaySlots}");
+            Debug.Log($"═══════════════════════════════════════════════════════");
+        }
     }
     
     /// <summary>
-    /// 슬롯 클릭 처리 (근본 해결: Button.onClick에서 직접 호출)
+    /// 🆕 V2: 슬롯 클릭 처리 (ItemInstanceId 포함)
     /// </summary>
-    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex)
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId)
     {
         // Shop 환경에서만 처리 (이미 Button.onClick으로 호출되므로 활성화 상태 보장됨)
-        if (equipmentData != null)
+        if (equipmentData != null && instanceId.IsValid())
         {
-            OnInventoryItemClicked?.Invoke(equipmentData, slotIndex);
+            OnInventoryItemClicked?.Invoke(equipmentData, slotIndex, instanceId);  // 🆕 V2: ID 전달
             
             if (showDebugLogs)
-                Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 아이템 클릭: {equipmentData.equipmentName}");
+                Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 아이템 클릭: {equipmentData.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+        }
+        else if (showDebugLogs)
+        {
+            Debug.LogWarning($"⚠️ [ShopInventoryUI] 빈 슬롯 클릭 또는 잘못된 ID (슬롯: {slotIndex})");
         }
     }
     

@@ -155,11 +155,19 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         }
     }
     
-    private void OnTriggerStay2D(Collider2D collision)
+    /// <summary>
+    /// 충돌 시작 시 픽업 (Stay2D 대신 Enter2D 사용)
+    /// Stay2D는 매 프레임 호출되어 중복 픽업 문제 발생
+    /// </summary>
+    private void OnTriggerEnter2D(Collider2D collision)
     {
+        // ⭐ 디버깅: OnTriggerEnter2D 호출 확인
+        Debug.Log($"🔍 [DEBUG] OnTriggerEnter2D 호출 - GameObject: {gameObject.name} (InstanceID: {gameObject.GetInstanceID()}), ItemData: {currentEquipmentData?.equipmentName ?? "NULL"}");
+        
         // 플레이어와 충돌 시 픽업
         if (collision.CompareTag("Player"))
         {
+            Debug.Log($"🔍 [DEBUG] Player 태그 확인 완료 - OnPickup() 호출 예정");
             OnPickup();
         }
     }
@@ -306,10 +314,18 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     }
     
     /// <summary>
-    /// 픽업 처리
+    /// 픽업 처리 (V2 시스템 사용)
     /// </summary>
     private void OnPickup()
     {
+        // ⭐ 디버깅: OnPickup 호출 확인
+        Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Debug.Log($"🔍 [DEBUG] OnPickup() 호출됨!");
+        Debug.Log($"  GameObject: {gameObject.name} (InstanceID: {gameObject.GetInstanceID()})");
+        Debug.Log($"  ItemData: {currentEquipmentData?.equipmentName ?? "NULL"}");
+        Debug.Log($"  Active: {gameObject.activeSelf}");
+        Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        
         if (currentEquipmentData == null)
         {
             Debug.LogWarning("[EquipmentPickup] 픽업할 데이터가 없습니다!");
@@ -318,12 +334,19 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         
         if (PlayerDataManager.Instance != null)
         {
-            bool success = PlayerDataManager.Instance.AddToInventory(currentEquipmentData);
+            // ✅ V2 시스템 사용: AddItemV2()
+            // templateName = EquipmentData의 이름 (예: "Sword_A_Equipment")
+            string templateName = currentEquipmentData.name;
             
-            if (success)
+            Debug.Log($"🔍 [DEBUG] AddItemV2 호출 직전 - templateName: {templateName}");
+            
+            // V2 아이템 추가 (가방 가득 차면 우편함 처리)
+            ItemInstanceId newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
+            
+            if (newItemId.IsValid())
             {
                 if (enableDebugLogs)
-                    Debug.Log($"🎒 [EquipmentPickup] 장비 획득: {currentEquipmentData.equipmentName} (등급: {currentRank.GetRankName()})");
+                    Debug.Log($"🎒 [EquipmentPickup] 장비 획득 (V2): {currentEquipmentData.equipmentName} (등급: {currentRank.GetRankName()}, ID: {newItemId.id})");
                 
                 // TODO: 사운드 재생 (추후 추가)
                 
@@ -332,8 +355,8 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             }
             else
             {
-                // ⭐ 인벤토리 가득 참 → 추적 중단 후 자연스럽게 감속
-                Debug.LogWarning($"💼 [EquipmentPickup] 인벤토리 가득 참! {currentEquipmentData.equipmentName} 획득 실패");
+                // ⭐ 획득 실패 (allowMailboxOnFull=false인 경우만 발생)
+                Debug.LogWarning($"💼 [EquipmentPickup] 아이템 획득 실패: {currentEquipmentData.equipmentName}");
                 
                 // 알림 메시지 표시
                 if (NotificationManager.Instance != null)

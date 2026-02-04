@@ -15,14 +15,14 @@ MonoBehaviour:
   equipmentName: Sword_C
   itemID: ITEM_SWORD_C
   equipmentType: 0
-  itemGrade: 3
+  itemGrade: 1
   usableClass: 1
   isTradable: 1
   requiredLevel: 2
   resourceID: RES_WEAPON_SWORD_C
   description: "\uCCA0\uC81C \uC7A5\uAC80"
   icon: {fileID: -1573921395, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
-  equipmentPrefab: {fileID: 4316638647348942652, guid: d6276d4601209d64b8a138b81aab459e, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 1
   weaponCooldown: 0.5
   weaponRange: 5
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 0
   speedBonus: 0
   healthBonus: 0
-  buyPrice: 100
-  sellPrice: 50
+  buyPrice: 2000
+  sellPrice: 1000
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: 636766fc98a4d9c4ba0d40c7d67ecbe4, type: 3}
+  pickupPrefab: {fileID: 0}

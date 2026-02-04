@@ -15,7 +15,7 @@ MonoBehaviour:
   equipmentName: Wizard_Boots_S
   itemID: ITEM_BOOTS_WIZARD_S
   equipmentType: 1
-  itemGrade: 0
+  itemGrade: 4
   usableClass: 3
   isTradable: 1
   requiredLevel: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
   weaponType: 0
   weaponCooldown: 0
   weaponRange: 0
-  armorType: 3
+  armorType: 4
   attackDamage: 0
   attackSpeed: 0
   attackRange: 0
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 0
   speedBonus: 5
   healthBonus: 25
-  buyPrice: 300
-  sellPrice: 150
+  buyPrice: 10000
+  sellPrice: 5000
   isLimited: 0
   quantityLimit: 0
   pickupPrefab: {fileID: 0}

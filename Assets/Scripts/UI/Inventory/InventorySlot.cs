@@ -53,11 +53,13 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     
     [Header("🛡️ 장비 데이터 (신규 시스템)")]
     [SerializeField] private EquipmentData equipmentData;
+    private ItemInstanceId itemInstanceId;  // 🆕 V2: 아이템 인스턴스 ID
     
     [Header("🎨 UI 컴포넌트")]
     [SerializeField] private Image slotImage;      // 슬롯 배경
     [SerializeField] private Image itemIconImage;  // 아이템 아이콘
     [SerializeField] private Button slotButton;    // 클릭 버튼
+    [SerializeField] private Image bindIcon;       // 🆕 귀속 아이콘
 
     [Header("🎨 UI 메시지")]
     [SerializeField] private GameObject messagePanel; // 메시지 패널 (생성될 예정)
@@ -66,6 +68,9 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     // 슬롯 상태
     public bool isEmpty => equipmentData == null;
     public bool isSelected = false;
+    
+    // 🆕 V2: 귀속 상태 (나중에 ItemInstanceData에서 가져올 예정)
+    private bool isBound = false;
 
     void Awake()
     {
@@ -99,6 +104,37 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             else
             {
                 Debug.LogError($"🔴 [InventorySlot] ItemIcon을 찾을 수 없습니다! {gameObject.name}");
+            }
+        }
+        
+        // 🆕 BindIcon을 이름으로 정확히 찾기
+        if (bindIcon == null)
+        {
+            // 1순위: EffectTarget/BindIcon (UIButtonClickEffect 구조)
+            Transform bindIconTransform = transform.Find("EffectTarget/BindIcon");
+            
+            // 2순위: BindIcon (기존 구조 - fallback)
+            if (bindIconTransform == null)
+            {
+                bindIconTransform = transform.Find("BindIcon");
+            }
+            
+            if (bindIconTransform != null)
+            {
+                bindIcon = bindIconTransform.GetComponent<Image>();
+                
+                if (showDebugLogs)
+                {
+                    string path = bindIconTransform.parent != null && bindIconTransform.parent != transform 
+                        ? $"{bindIconTransform.parent.name}/{bindIconTransform.name}" 
+                        : bindIconTransform.name;
+                    Debug.Log($"✅ [InventorySlot] BindIcon 찾음: {bindIcon != null} (경로: {path})");
+                }
+            }
+            else
+            {
+                if (showDebugLogs)
+                    Debug.LogWarning($"⚠️ [InventorySlot] BindIcon이 없습니다 (선택적 요소). {gameObject.name}");
             }
         }
         
@@ -212,13 +248,52 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                     }
                 }
             }
+            
+            // 🆕 귀속 아이콘 표시
+            UpdateBindIcon();
         }
         else
         {
             // 아이콘 없음 (빈 슬롯)
             itemIconImage.color = Color.clear;
             itemIconImage.sprite = null;
+            
+            // 🆕 귀속 아이콘 숨김
+            if (bindIcon != null)
+            {
+                bindIcon.gameObject.SetActive(false);
+            }
         }
+    }
+    
+    /// <summary>
+    /// 🆕 귀속 아이콘 업데이트
+    /// </summary>
+    private void UpdateBindIcon()
+    {
+        if (bindIcon == null) return;
+        
+        // 귀속 상태에 따라 아이콘 표시/숨김
+        if (isBound)
+        {
+            bindIcon.gameObject.SetActive(true);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔒 [InventorySlot] 귀속 아이콘 표시: {equipmentData?.equipmentName}");
+        }
+        else
+        {
+            bindIcon.gameObject.SetActive(false);
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 귀속 상태 설정 (외부에서 호출)
+    /// </summary>
+    public void SetBindingStatus(bool bound)
+    {
+        isBound = bound;
+        UpdateBindIcon();
     }
     
     /// <summary>
@@ -396,10 +471,19 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// <summary>
     /// 장비 데이터 설정 (외부에서 호출)
     /// </summary>
-    public void SetEquipmentData(EquipmentData data)
+    public void SetEquipmentData(EquipmentData data, ItemInstanceId instanceId = default)
     {
         equipmentData = data;
+        itemInstanceId = instanceId;  // 🆕 V2: 인스턴스 ID 저장
         UpdateSlotVisual();
+    }
+    
+    /// <summary>
+    /// 🆕 V2: 아이템 인스턴스 ID 가져오기
+    /// </summary>
+    public ItemInstanceId GetItemInstanceId()
+    {
+        return itemInstanceId;
     }
 
     /// <summary>

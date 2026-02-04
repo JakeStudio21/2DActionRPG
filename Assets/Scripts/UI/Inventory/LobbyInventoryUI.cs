@@ -94,6 +94,18 @@ public class LobbyInventoryUI : MonoBehaviour
         Debug.Log($"✅ [LobbyInventoryUI] Awake() 완료");
     }
 
+    void OnEnable()
+    {
+        Debug.Log($"🔄 [LobbyInventoryUI] OnEnable() 호출됨 - 인벤토리 새로고침 예약");
+        
+        // 패널이 활성화될 때마다 인벤토리 새로고침
+        // (다음 프레임에 실행하여 초기화 완료 보장)
+        if (AccountDataManager.IsInitialized())
+        {
+            Invoke(nameof(RefreshInventoryUI), 0.1f);
+        }
+    }
+
     void Start()
     {
         Debug.Log($"🏠 [LobbyInventoryUI] Start() 호출됨 - 패널 활성화 상태 유지");
@@ -290,39 +302,37 @@ public class LobbyInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔧 수정: 아이템 착용 시도 (디버그 로그 정리)
+    /// 🔧 V2: 보관창고에서 직접 장비 착용 (ItemInstanceId 기반)
     /// </summary>
     private bool TryEquipItem(EquipmentData equipment, int uiSlotIndex)
     {
         if (PlayerDataManager.Instance == null) return false;
         
-        // 🔧 수정: 간소화된 로그
         if (showDebugLogs)
-            Debug.Log($"🎯 [LobbyInventoryUI] 아이템 착용 시도: {equipment.equipmentName}");
+            Debug.Log($"🎯 [LobbyInventoryUI] 보관창고에서 착용 시도: {equipment.equipmentName} (슬롯 인덱스: {uiSlotIndex})");
         
-        // 장비 타입에 따른 슬롯 결정
-        EquipmentSlot targetSlot = GetTargetSlot(equipment);
-        if ((int)targetSlot == -1)
+        // 🆕 V2: UI 슬롯에서 ItemInstanceId 가져오기
+        if (uiSlotIndex < 0 || uiSlotIndex >= lobbySlots.Count)
         {
-            if (showDebugLogs)
-                Debug.Log($"⚠️ [LobbyInventoryUI] {equipment.equipmentName}는 착용할 수 없는 아이템입니다");
+            Debug.LogError($"🔴 [LobbyInventoryUI] 잘못된 슬롯 인덱스: {uiSlotIndex}");
             return false;
         }
         
-        // 플레이어 클래스 호환성 검사
-        PlayerClass playerClass = ConvertToPlayerClass(GameManager.Instance?.selectedPlayerData?.selectedPlayerType ?? PlayerType.None);
-        if (!equipment.IsCompatibleWith(playerClass))
+        ItemInstanceId itemId = lobbySlots[uiSlotIndex].GetItemInstanceId();
+        if (!itemId.IsValid())
         {
-            if (showDebugLogs)
-                Debug.Log($"⚠️ [LobbyInventoryUI] {equipment.equipmentName}는 현재 클래스와 호환되지 않습니다");
+            Debug.LogError($"🔴 [LobbyInventoryUI] 슬롯 {uiSlotIndex}에 유효한 ItemInstanceId 없음");
             return false;
         }
         
-        // 아이템 착용 실행
-        bool success = PlayerDataManager.Instance.EquipItemFromSlot(equipment, uiSlotIndex);
+        Debug.Log($"   - ItemInstanceId: {itemId.id.Substring(0, 8)}...");
+        
+        // ⭐ V2: 클래스 호환성 체크는 EquipItemFromSharedStorage()에서 처리
+        // 보관창고 → 직접 장착 (단일 소스: PlayerDataManager.Instance.selectedPlayerData)
+        bool success = PlayerDataManager.Instance.EquipItemFromSharedStorage(itemId);  // 🆕 ID 전달
         
         if (showDebugLogs)
-            Debug.Log($"{(success ? "✅" : "❌")} [LobbyInventoryUI] 아이템 착용 {(success ? "성공" : "실패")}: {equipment.equipmentName}");
+            Debug.Log($"{(success ? "✅" : "❌")} [LobbyInventoryUI] 보관창고 착용 {(success ? "성공" : "실패")}: {equipment.equipmentName}");
         
         return success;
     }
@@ -740,46 +750,19 @@ public class LobbyInventoryUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 🔄 인벤토리 UI 새로고침 (지연 로드 지원)
+    /// 🔄 인벤토리 UI 새로고침 (V2: 계정 공유 창고)
     /// </summary>
     public void RefreshInventoryUI()
     {
         Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"🔄 [LobbyInventoryUI] RefreshInventoryUI() 호출");
+        Debug.Log($"🔄 [LobbyInventoryUI] RefreshInventoryUI() 호출 (V2: 계정 공유 창고)");
         Debug.Log($"═══════════════════════════════════════════════════════");
         
-        // 🔧 지연 갱신: 데이터 로드 상태 확인
-        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
+        // 🆕 V2: AccountDataManager 확인
+        if (AccountDataManager.Instance == null)
         {
-            Debug.Log("🔄 [LobbyInventoryUI] 지연 로드 필요 - UI 갱신 지연");
-            
-            // 인벤토리 패널이 활성화된 상태에서만 지연 로드 수행
-            if (inventoryPanel != null && inventoryPanel.activeInHierarchy)
-            {
-                StartCoroutine(RefreshInventoryUIWithLazyLoad());
-            }
+            Debug.LogError("❌ [LobbyInventoryUI] AccountDataManager.Instance가 null입니다");
             return;
-        }
-        
-        // 기존 RefreshInventoryUI 로직 실행...
-        if (PlayerDataManager.Instance == null)
-        {
-            Debug.LogError("❌ [LobbyInventoryUI] PlayerDataManager.Instance가 null입니다");
-            return;
-        }
-        
-        // 🆕 디버그: PlayerDataManager 상태 확인
-        Debug.Log($"📊 [LobbyInventoryUI] PlayerDataManager 상태:");
-        Debug.Log($"   - IsSlotSelected: {PlayerDataManager.Instance.IsSlotSelected}");
-        Debug.Log($"   - CurrentSlotIndex: {PlayerDataManager.Instance.CurrentSlotIndex}");
-        Debug.Log($"   - selectedPlayerData != null: {PlayerDataManager.Instance.selectedPlayerData != null}");
-        
-        if (PlayerDataManager.Instance.selectedPlayerData != null)
-        {
-            Debug.Log($"   - selectedPlayerData.selectedSlotIndex: {PlayerDataManager.Instance.selectedPlayerData.selectedSlotIndex}");
-            Debug.Log($"   - selectedPlayerData.playerName: {PlayerDataManager.Instance.selectedPlayerData.playerName}");
-            Debug.Log($"   - selectedPlayerData.playerType: {PlayerDataManager.Instance.selectedPlayerData.selectedPlayerType}");
-            Debug.Log($"   - selectedPlayerData.runtimeInventoryItems.Count: {PlayerDataManager.Instance.selectedPlayerData.runtimeInventoryItems.Count}");
         }
         
         // 🆕 슬롯이 생성되지 않았으면 생성 후 재시도
@@ -797,39 +780,66 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
         
-        // 🆕 디버그: 인벤토리 데이터 상태 확인
-        var inventoryItems = PlayerDataManager.Instance.InventoryItems;
+        // 🆕 V2: 계정 공유 창고 데이터 가져오기
+        var accountData = AccountDataManager.Instance.GetAccountData();
+        var sharedInventoryIds = accountData?.sharedInventoryIds;
         
-        Debug.Log($"📦 [LobbyInventoryUI] 인벤토리 데이터 확인:");
-        Debug.Log($"   - 인벤토리 아이템 수: {inventoryItems?.Count ?? 0}");
+        Debug.Log($"📦 [LobbyInventoryUI] 계정 공유 창고 데이터 확인:");
+        Debug.Log($"   - 공유 창고 아이템 수: {sharedInventoryIds?.Count ?? 0}");
         Debug.Log($"   - 슬롯 수: {lobbySlots?.Count ?? 0}");
-        Debug.Log($"   - 선택된 슬롯: {PlayerDataManager.Instance.GetSelectedSlotIndex()}");
         
-        // 🆕 디버그: 첫 5개 아이템 상태 확인
-        for (int i = 0; i < Mathf.Min(inventoryItems.Count, 5); i++)
+        // 🆕 V2: ItemInstanceId → EquipmentData 변환 (ID도 함께 저장)
+        List<(EquipmentData equipment, ItemInstanceId instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceId)>();
+        
+        if (sharedInventoryIds != null)
         {
-            var item = inventoryItems[i];
-            Debug.Log($"   📦 inventoryItems[{i}]: {item?.equipmentName ?? "null"}");
+            for (int i = 0; i < sharedInventoryIds.Count; i++)
+            {
+                var instanceId = sharedInventoryIds[i];
+                var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
+                
+                if (instanceData != null)
+                {
+                    var template = ItemTemplateResolver.Load(instanceData.templateName);
+                    if (template != null)
+                    {
+                        inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
+                        
+                        if (i < 5) // 처음 5개만 로그
+                        {
+                            Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚠️ [LobbyInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [LobbyInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
+                }
+            }
         }
 
-        // 슬롯 데이터 설정
+        // 슬롯 데이터 설정 (🆕 ItemInstanceId도 함께 전달)
         for (int i = 0; i < lobbySlots.Count; i++)
         {
             if (i < inventoryItems.Count)
             {
-                lobbySlots[i].SetEquipmentData(inventoryItems[i]);
+                lobbySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);  // 🆕 ID 전달
                 
-                if (inventoryItems[i] != null)
-                    Debug.Log($"   ✅ UI 슬롯 {i}에 설정: {inventoryItems[i].equipmentName}");
+                if (inventoryItems[i].equipment != null && showDebugLogs)
+                    Debug.Log($"   ✅ UI 슬롯 {i}에 설정: {inventoryItems[i].equipment.equipmentName}");
             }
             else
             {
-                lobbySlots[i].SetEquipmentData(null);
+                lobbySlots[i].SetEquipmentData(null);  // ID는 default
             }
         }
 
         Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"✅ [LobbyInventoryUI] 인벤토리 새로고침 완료: {inventoryItems.Count}/{maxDisplaySlots}");
+        Debug.Log($"✅ [LobbyInventoryUI] 계정 공유 창고 새로고침 완료: {inventoryItems.Count}/{maxDisplaySlots}");
         Debug.Log($"═══════════════════════════════════════════════════════");
     }
 

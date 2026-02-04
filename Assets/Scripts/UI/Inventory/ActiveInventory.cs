@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using System.Linq;
 
 public class ActiveInventory : MonoBehaviour
@@ -13,6 +15,16 @@ public class ActiveInventory : MonoBehaviour
     [Header("🎒 인벤토리 연동")]
     [SerializeField] private bool useDynamicInventory = true; // 동적 인벤토리 사용 여부
     [SerializeField] private int maxDisplaySlots = 16; // 표시할 최대 슬롯 수
+    
+    [Header("🎯 인게임 상세 패널 UI (정보만)")]
+    [SerializeField] private GameObject inGameDetailPanel; // 🆕 인게임 상세 패널
+    [SerializeField] private Image detailItemIcon;
+    [SerializeField] private TMP_Text itemNameText;
+    [SerializeField] private TMP_Text itemGradeText;
+    [SerializeField] private TMP_Text stat1Text;
+    [SerializeField] private TMP_Text stat2Text;
+    [SerializeField] private TMP_Text stat3Text;
+    [SerializeField] private Button closeDetailButton; // 🆕 닫기 버튼
 
     [Header("📊 디버그")]
     [SerializeField] 
@@ -97,6 +109,21 @@ public class ActiveInventory : MonoBehaviour
             Debug.Log("✅ [ActiveInventory] PlayerDataManager 이벤트 구독 완료 (지연 갱신 지원)");
         }
         
+        // 🆕 인게임 상세 패널 닫기 버튼 이벤트 연결
+        if (closeDetailButton != null)
+        {
+            closeDetailButton.onClick.AddListener(CloseDetailPanel);
+            
+            if (showDebugLogs)
+                Debug.Log("✅ [ActiveInventory] 인게임 상세 패널 닫기 버튼 연결 완료");
+        }
+        
+        // 🆕 인게임 상세 패널 초기 비활성화
+        if (inGameDetailPanel != null)
+        {
+            inGameDetailPanel.SetActive(false);
+        }
+        
         // 초기 UI 새로고침
         RefreshInventoryUI();
     }
@@ -114,52 +141,83 @@ public class ActiveInventory : MonoBehaviour
     }
     
     /// <summary>
-    /// PlayerDataManager 인벤토리 데이터로 UI 새로고침
+    /// PlayerDataManager 인벤토리 데이터로 UI 새로고침 (V2 시스템)
     /// </summary>
     private void RefreshInventoryUI()
     {
         if (!useDynamicInventory || PlayerDataManager.Instance == null)
             return;
         
-        Debug.Log("🔄 [ActiveInventory] 인벤토리 UI 새로고침 시작");
+        Debug.Log("🔄 [ActiveInventory] 인벤토리 UI 새로고침 시작 (V2)");
         
-        var inventoryItems = PlayerDataManager.Instance.InventoryItems;
+        // ⭐ V2 시스템: 캐릭터 가방 아이템 ID 가져오기
+        var bagItemIds = PlayerDataManager.Instance.GetCharacterBagV2();
+        var accountManager = AccountDataManager.Instance;
         
-        Debug.Log($"📊 [ActiveInventory] 새로고침 전 상태:");
-        Debug.Log($"   - inventoryItems.Count: {inventoryItems.Count}");
+        if (accountManager == null)
+        {
+            Debug.LogError("❌ [ActiveInventory] AccountDataManager를 찾을 수 없습니다!");
+            return;
+        }
+        
+        Debug.Log($"📊 [ActiveInventory] V2 가방 상태: {bagItemIds.Count}개 아이템");
         
         // 각 슬롯에 아이템 할당
+        int displayedCount = 0;
         for (int i = 0; i < transform.childCount && i < maxDisplaySlots; i++)
         {
             Transform slotTransform = transform.GetChild(i);
             InventorySlot slot = slotTransform.GetComponent<InventorySlot>();
             
-            if (slot != null)
+            if (slot == null) continue;
+            
+            EquipmentData oldEquipment = slot.GetEquipmentData();
+            
+            if (i < bagItemIds.Count)
             {
-                EquipmentData oldEquipment = slot.GetEquipmentData();
+                // V2: ItemInstanceId → ItemInstanceData → EquipmentData
+                ItemInstanceId itemId = bagItemIds[i];
+                var itemInstance = accountManager.GetInstance(itemId);
                 
-                if (i < inventoryItems.Count)
+                if (itemInstance != null)
                 {
-                    EquipmentData newEquipment = inventoryItems[i];
-                    slot.SetEquipmentData(newEquipment);
+                    if (showDebugLogs)
+                        Debug.Log($"🔍 [ActiveInventory] 슬롯 {i}: ItemInstance 존재 - templateName: {itemInstance.templateName}");
                     
-                    if (oldEquipment != newEquipment)
+                    // templateName으로 EquipmentData 로드
+                    EquipmentData newEquipment = ItemTemplateResolver.Load(itemInstance.templateName);
+                    
+                    if (newEquipment != null)
                     {
-                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: {oldEquipment?.equipmentName ?? "null"} → {newEquipment?.equipmentName ?? "null"}");
+                        slot.SetEquipmentData(newEquipment);
+                        displayedCount++;
+                        
+                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: {oldEquipment?.equipmentName ?? "null"} → {newEquipment.equipmentName} (ID: {itemId.id.Substring(0, 8)}...)");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {i}: 템플릿 로드 실패 ({itemInstance.templateName})");
+                        slot.SetEquipmentData(null);
                     }
                 }
                 else
                 {
+                    Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {i}: ItemInstance를 찾을 수 없음 (ID: {itemId.id})");
                     slot.SetEquipmentData(null);
-                    if (oldEquipment != null)
-                    {
-                        Debug.Log($"🗑️ [ActiveInventory] 슬롯 {i}: {oldEquipment.equipmentName} → 비움");
-                    }
+                }
+            }
+            else
+            {
+                // 빈 슬롯
+                slot.SetEquipmentData(null);
+                if (showDebugLogs && oldEquipment != null)
+                {
+                    Debug.Log($"🗑️ [ActiveInventory] 슬롯 {i}: {oldEquipment.equipmentName} → 비움");
                 }
             }
         }
         
-        Debug.Log($"✅ [ActiveInventory] UI 새로고침 완료 - 총 {inventoryItems.Count}개 아이템 표시");
+        Debug.Log($"✅ [ActiveInventory] UI 새로고침 완료 (V2) - 총 {displayedCount}개 아이템 표시");
     }
     
     /// <summary>
@@ -167,23 +225,31 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     public void OnSlotClickedForInGame(EquipmentData equipmentData, int slotIndex)
     {
-        Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 시작 =============");
+        if (showDebugLogs)
+            Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 시작 =============");
         
         // 🆕 NULL 체크 추가
         if (equipmentData == null)
         {
-            Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {slotIndex}의 equipmentData가 null입니다 (빈 슬롯 클릭)");
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {slotIndex}의 equipmentData가 null입니다 (빈 슬롯 클릭)");
             return;
         }
         
-        Debug.Log($"🖱️ [ActiveInventory] 인게임 슬롯 클릭 처리: {equipmentData.equipmentName} (인덱스: {slotIndex})");
-        Debug.Log($"🖱️ [ActiveInventory] 전달받은 slotIndex: {slotIndex}");
-        Debug.Log($"🖱️ [ActiveInventory] transform.childCount: {transform.childCount}");
+        // 🆕 V2: 상세 패널 표시 (인게임은 정보만, 버튼 없음)
+        ShowInGameDetailPanel(equipmentData);
         
-        // 🆕 추가: 실제 클릭된 슬롯의 Transform 정보 확인
-        Transform clickedTransform = transform.GetChild(slotIndex);
-        Debug.Log($"🖱️ [ActiveInventory] 클릭된 Transform: {clickedTransform.name}");
-        Debug.Log($"🖱️ [ActiveInventory] Transform의 siblingIndex: {clickedTransform.GetSiblingIndex()}");
+        if (showDebugLogs)
+        {
+            Debug.Log($"🖱️ [ActiveInventory] 인게임 슬롯 클릭 처리: {equipmentData.equipmentName} (인덱스: {slotIndex})");
+            Debug.Log($"🖱️ [ActiveInventory] 전달받은 slotIndex: {slotIndex}");
+            Debug.Log($"🖱️ [ActiveInventory] transform.childCount: {transform.childCount}");
+            
+            // 🆕 추가: 실제 클릭된 슬롯의 Transform 정보 확인
+            Transform clickedTransform = transform.GetChild(slotIndex);
+            Debug.Log($"🖱️ [ActiveInventory] 클릭된 Transform: {clickedTransform.name}");
+            Debug.Log($"🖱️ [ActiveInventory] Transform의 siblingIndex: {clickedTransform.GetSiblingIndex()}");
+        }
         
         // 슬롯 인덱스 유효성 검사
         if (slotIndex < 0 || slotIndex >= transform.childCount)
@@ -202,13 +268,12 @@ public class ActiveInventory : MonoBehaviour
         
         EquipmentData clickedEquipment = clickedSlot.GetEquipmentData();
         
-        // 🆕 디버그: 비교 분석
-        Debug.Log($"🔍 [ActiveInventory] 비교 분석:");
-        Debug.Log($"   클릭한 슬롯[{slotIndex}]: {clickedEquipment.equipmentName}");
-        Debug.Log($"   매니저 데이터[{slotIndex}]: {PlayerDataManager.Instance.InventoryItems[slotIndex].equipmentName}");
-        
-        // 🆕 오프셋 검증
-        Debug.Log($"오프셋: {(clickedEquipment.equipmentName == PlayerDataManager.Instance.InventoryItems[slotIndex].equipmentName ? "일치" : "같은 로그는 안나와")}");
+        if (showDebugLogs)
+        {
+            Debug.Log($"🔍 [ActiveInventory] 슬롯 클릭 상세:");
+            Debug.Log($"   - 슬롯 인덱스: {slotIndex}");
+            Debug.Log($"   - 아이템: {clickedEquipment.equipmentName}");
+        }
         
         Debug.Log($"🎯 [ActiveInventory] 클릭한 아이템: {clickedEquipment.equipmentName} (슬롯 {slotIndex})");
         
@@ -747,6 +812,59 @@ public class ActiveInventory : MonoBehaviour
     }
     */
     
+    /// <summary>
+    /// 🆕 인게임 상세 패널 표시 (정보만, 버튼 없음)
+    /// </summary>
+    private void ShowInGameDetailPanel(EquipmentData equipmentData)
+    {
+        if (inGameDetailPanel == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [ActiveInventory] 인게임 상세 패널이 설정되지 않았습니다");
+            return;
+        }
+        
+        // 패널 활성화
+        inGameDetailPanel.SetActive(true);
+        
+        // 아이템 정보 표시
+        if (detailItemIcon != null)
+            detailItemIcon.sprite = equipmentData.icon;
+        
+        if (itemNameText != null)
+            itemNameText.text = equipmentData.equipmentName;
+        
+        if (itemGradeText != null)
+            itemGradeText.text = $"등급: {equipmentData.itemGrade}";
+        
+        // 스탯 표시 (EquipmentData 실제 필드명 사용)
+        if (stat1Text != null)
+            stat1Text.text = $"공격력: +{equipmentData.attackDamage}";
+        
+        if (stat2Text != null)
+            stat2Text.text = $"방어력: +{equipmentData.defenseBonus}";
+        
+        if (stat3Text != null)
+            stat3Text.text = $"이동속도: +{equipmentData.speedBonus}";
+        
+        if (showDebugLogs)
+            Debug.Log($"📋 [ActiveInventory] 인게임 상세 패널 표시: {equipmentData.equipmentName}");
+    }
+    
+    /// <summary>
+    /// 🆕 인게임 상세 패널 닫기
+    /// </summary>
+    private void CloseDetailPanel()
+    {
+        if (inGameDetailPanel != null)
+        {
+            inGameDetailPanel.SetActive(false);
+            
+            if (showDebugLogs)
+                Debug.Log($"📋 [ActiveInventory] 인게임 상세 패널 닫기");
+        }
+    }
+    
     private void OnDestroy()
     {
         // 이벤트 구독 해제
@@ -756,6 +874,12 @@ public class ActiveInventory : MonoBehaviour
             // 🆕 공용 이벤트 구독 해제
             PlayerDataManager.Instance.OnSlotClicked -= OnSlotClickedForInGame;
             PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForInGame; // 지연 로드 이벤트 해제
+        }
+        
+        // 🆕 닫기 버튼 이벤트 해제
+        if (closeDetailButton != null)
+        {
+            closeDetailButton.onClick.RemoveListener(CloseDetailPanel);
         }
     }
 } 

@@ -99,45 +99,63 @@ public class ShopController : MonoBehaviour
             return false;
         }
         
-        // EquipmentData 로드
-        EquipmentData equipment = Resources.Load<EquipmentData>($"Equipment/{itemID}_Equipment");
-        if (equipment == null)
+        // V2 시스템: templateName 구성
+        // itemID = "Sword_A" → templateName = "Sword_A_Equipment"
+        string templateName = $"{itemID}_Equipment";
+        
+        // 골드 차감
+        if (!PlayerDataManager.Instance.SpendGold(buyPrice))
         {
             if (showDebugLogs)
-                Debug.LogError($"❌ [ShopController] {itemID} EquipmentData를 찾을 수 없습니다!");
+                Debug.LogWarning($"💰 [ShopController] 골드 부족!");
             OnTransactionFailed?.Invoke(itemID);
             return false;
         }
         
-        // 인벤토리 공간 확인
-        if (PlayerDataManager.Instance.IsInventoryFull)
+        // 🆕 V2: 계정 공유 창고에 아이템 추가
+        // 1. 새 인스턴스 생성
+        ItemInstanceId newItemId = AccountDataManager.Instance.RegisterNewInstance(templateName);
+        
+        if (!newItemId.IsValid())
         {
+            // 실패 시 골드 환불
+            PlayerDataManager.Instance.AddGold(buyPrice);
+            
             if (showDebugLogs)
-                Debug.LogWarning($"📦 [ShopController] 인벤토리가 가득 참!");
+                Debug.LogError($"❌ [ShopController] {itemID} 인스턴스 생성 실패! (골드 환불 완료)");
             OnTransactionFailed?.Invoke(itemID);
             return false;
         }
         
-        // 거래 실행
-        if (PlayerDataManager.Instance.SpendGold(buyPrice) && 
-            PlayerDataManager.Instance.AddToInventory(equipment))
+        // 2. 공유 창고에 추가 (가득 차면 우편함)
+        bool addedToShared = AccountDataManager.Instance.TryAddToShared(newItemId, 50);
+        
+        if (!addedToShared)
         {
+            // 창고 가득 참 → 우편함으로 전송
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopController] {itemID} 구매 성공! 가격: {buyPrice}");
-            OnItemPurchased?.Invoke(itemID);
-            return true;
+                Debug.LogWarning($"⚠️ [ShopController] 보관창고 가득 참! 우편함으로 전송: {itemID}");
+            
+            AccountDataManager.Instance.MoveToMailbox(newItemId);  // 🔧 수정: TryAddToMailbox → MoveToMailbox
         }
+        
+        // 3. 계정 데이터 저장
+        AccountDataManager.Instance.Save();
         
         if (showDebugLogs)
-            Debug.LogError($"❌ [ShopController] {itemID} 구매 실패!");
-        OnTransactionFailed?.Invoke(itemID);
-        return false;
+        {
+            string destination = addedToShared ? "보관창고" : "우편함";
+            Debug.Log($"✅ [ShopController] {itemID} 구매 성공 (V2)! 가격: {buyPrice}, 위치: {destination}, ID: {newItemId.id.Substring(0, 8)}...");
+        }
+        
+        OnItemPurchased?.Invoke(itemID);
+        return true;
     }
     
     /// <summary>
-    /// 아이템 판매 시도
+    /// 🆕 V2: 아이템 판매 시도 (ItemInstanceId 기반)
     /// </summary>
-    public bool TrySellItem(EquipmentData equipment)
+    public bool TrySellItem(EquipmentData equipment, ItemInstanceId instanceId)
     {
         if (priceProvider == null || PlayerDataManager.Instance == null || equipment == null)
         {
@@ -155,20 +173,32 @@ public class ShopController : MonoBehaviour
             return false;
         }
         
+        // 🆕 V2: ItemInstanceId 유효성 검사
+        if (!instanceId.IsValid())
+        {
+            if (showDebugLogs)
+                Debug.LogError($"❌ [ShopController] 잘못된 ItemInstanceId!");
+            OnTransactionFailed?.Invoke(equipment.itemID);
+            return false;
+        }
+        
         int sellPrice = priceProvider.GetSellPrice(equipment.itemID);
         
-        // 거래 실행
-        if (PlayerDataManager.Instance.RemoveFromInventory(equipment))
+        // 🆕 V2: 계정 공유 창고에서 제거
+        if (AccountDataManager.Instance.RemoveFromShared(instanceId))
         {
             PlayerDataManager.Instance.AddGold(sellPrice);
+            AccountDataManager.Instance.Save();  // 🆕 V2: 계정 데이터 저장
+            
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}");
+                Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}, ID: {instanceId.id.Substring(0, 8)}...");
+            
             OnItemSold?.Invoke(equipment.itemID);
             return true;
         }
         
         if (showDebugLogs)
-            Debug.LogError($"❌ [ShopController] {equipment.itemID} 판매 실패!");
+            Debug.LogError($"❌ [ShopController] {equipment.itemID} 판매 실패! (보관창고에서 제거 실패)");
         OnTransactionFailed?.Invoke(equipment.itemID);
         return false;
     }

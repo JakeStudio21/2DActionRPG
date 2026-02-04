@@ -346,7 +346,16 @@ public class SelectedPlayerData : ScriptableObject
         slotData.lastPlayedChapterId = this.currentChapterId;
         slotData.lastPlayedStageId = this.lastPlayedStageId ?? "";
         
+        // ========================================
+        // 📌 V2 인벤토리 & 장비 (Phase 0-7) ⭐ 중요!
+        // ========================================
+        // ⚠️ 주의: PlayerSlotData가 실제 V2 데이터를 가지고 있으므로,
+        // SelectedPlayerData는 이를 직접 저장하지 않습니다.
+        // 대신 PlayerDataManager.GetSlotData()에서 최신 데이터를 가져와야 합니다!
+        // 여기서는 비워둡니다 (PlayerDataManager.AddItemV2에서 직접 처리).
+        
         Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
+        Debug.Log($"⚠️ [SelectedPlayerData] V2 데이터는 PlayerDataManager.GetSlotData()의 최신 데이터 사용");
         return slotData;
     }
     

@@ -134,6 +134,9 @@ public class GameManager : Singleton<GameManager>
         currentGameState = GameState.None;
         isGamePaused = false;
         
+        // ⭐ Phase 1: AccountDataManager 초기화 (PlayerDataManager보다 먼저)
+        AccountDataManager.Initialize();
+        
         // ⭐ 수정: selectedPlayerData가 null인 경우 런타임에서 생성
         if (selectedPlayerData == null)
         {

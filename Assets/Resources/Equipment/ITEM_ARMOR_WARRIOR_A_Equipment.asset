@@ -15,7 +15,7 @@ MonoBehaviour:
   equipmentName: Warrior_Armor_A
   itemID: ITEM_ARMOR_WARRIOR_A
   equipmentType: 1
-  itemGrade: 1
+  itemGrade: 3
   usableClass: 1
   isTradable: 1
   requiredLevel: 1
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 20
   speedBonus: 0
   healthBonus: 30
-  buyPrice: 200
-  sellPrice: 100
+  buyPrice: 5000
+  sellPrice: 2500
   isLimited: 0
   quantityLimit: 0
   pickupPrefab: {fileID: 0}

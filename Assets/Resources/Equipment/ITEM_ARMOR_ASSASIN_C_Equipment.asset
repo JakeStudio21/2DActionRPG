@@ -15,7 +15,7 @@ MonoBehaviour:
   equipmentName: Assasin_Armor_C
   itemID: ITEM_ARMOR_ASSASIN_C
   equipmentType: 1
-  itemGrade: 3
+  itemGrade: 1
   usableClass: 2
   isTradable: 1
   requiredLevel: 20

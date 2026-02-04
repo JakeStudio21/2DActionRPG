@@ -57,12 +57,19 @@ public class PlayerSlotData
     [Tooltip("마지막으로 플레이한 스테이지 ID (예: CH03_ST05)")]
     public string lastPlayedStageId = "";
     
-    [Header("🎒 인벤토리 & 장비")]
+    [Header("🎒 인벤토리 & 장비 (Legacy)")]
     public List<string> inventoryItemNames = new List<string>();
     // Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 기존 삭제
     [SerializeField] private List<string> equippedSlotKeys = new List<string>();
     [SerializeField] private List<string> equippedSlotValues = new List<string>();
     public int maxInventorySize = 16;
+    
+    [Header("🎒 V2 인벤토리 & 장비 (병행)")]
+    [Tooltip("인게임 가방 (16칸, 캐릭터 전용)")]
+    public List<ItemInstanceId> characterBagInstanceIds = new List<ItemInstanceId>();
+    
+    [Tooltip("장착 아이템 (슬롯 포함)")]
+    public List<EquippedRecord> equippedRecords = new List<EquippedRecord>();
     
     // Dictionary로 변환하여 사용
     private Dictionary<string, string> _equippedItemNames = null;

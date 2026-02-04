@@ -621,6 +621,9 @@ public class StageManager : MonoBehaviour
                 ProcessStageRewards(clearTime);
                 SaveStageProgress(clearTime);
                 
+                // 🎒 Phase 3.5: 스테이지 종료 시 V2 가방 아이템을 계정 창고로 자동 이동
+                TransferItemsToAccount();
+                
                 // 🎯 Phase 5: Stage 10 클리어 시 챕터 종료 처리
                 if (stageConfig.stageIndexInChapter == 10)
                 {
@@ -1621,5 +1624,33 @@ public class StageManager : MonoBehaviour
             waveController.TriggerWave(triggerId);
         }
     }
+    
+    #region 🎒 Phase 3.5: V2 인벤토리 자동 전송
+    
+    /// <summary>
+    /// 스테이지 종료 시 V2 가방 아이템을 계정 창고로 자동 이동
+    /// </summary>
+    private void TransferItemsToAccount()
+    {
+        // StageEndItemTransfer 컴포넌트 찾기
+        var transfer = GetComponent<StageEndItemTransfer>();
+        
+        if (transfer == null)
+        {
+            // 없으면 동적 생성
+            transfer = gameObject.AddComponent<StageEndItemTransfer>();
+            transfer.enableLogs = enableDebugLogs;
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log("✨ [StageManager] StageEndItemTransfer 컴포넌트 동적 생성");
+            }
+        }
+        
+        // 아이템 전송 실행
+        transfer.TransferItemsToAccount();
+    }
+    
+    #endregion
 }  // ✅ StageManager 클래스 닫기
 }  // ✅ StageSystem 네임스페이스 닫기

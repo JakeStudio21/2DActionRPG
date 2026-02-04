@@ -66,6 +66,7 @@ public class ShopUI : MonoBehaviour
     private EquipmentType currentTab = EquipmentType.Weapon;
     private string selectedBuyItemID = "";
     private EquipmentData selectedSellItem = null;
+    private ItemInstanceId selectedSellItemInstanceId;  // 🆕 V2: 판매 아이템 ID
     
     // 탭별 슬롯 리스트로 분리
     private Dictionary<EquipmentType, List<ShopItemSlot>> tabShopSlots = new Dictionary<EquipmentType, List<ShopItemSlot>>();
@@ -371,11 +372,12 @@ public class ShopUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 판매 아이템 설정 (TradeCenterUI 활용)
+    /// 🆕 V2: 판매 아이템 설정 (ItemInstanceId 포함)
     /// </summary>
-    public void SetSellItem(EquipmentData item, int price)
+    public void SetSellItem(EquipmentData item, int price, ItemInstanceId instanceId = default)
     {
         selectedSellItem = item;
+        selectedSellItemInstanceId = instanceId;  // 🆕 V2: ID 저장
         
         if (tradeCenterUI != null)
         {
@@ -387,7 +389,7 @@ public class ShopUI : MonoBehaviour
         }
         
         if (showDebugLogs)
-            Debug.Log($"💰 [ShopUI] 판매 아이템 설정: {item?.equipmentName}, 가격: {price}");
+            Debug.Log($"💰 [ShopUI] 판매 아이템 설정: {item?.equipmentName}, 가격: {price}, ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")}");
     }
     
     /// <summary>
@@ -450,6 +452,7 @@ public class ShopUI : MonoBehaviour
     // 현재 선택된 아이템들 접근자
     public string SelectedBuyItemID => selectedBuyItemID;
     public EquipmentData SelectedSellItem => selectedSellItem;
+    public ItemInstanceId SelectedSellItemInstanceId => selectedSellItemInstanceId;  // 🆕 V2
     public EquipmentType CurrentTab => currentTab;
 
     /// <summary>

@@ -15,14 +15,14 @@ MonoBehaviour:
   equipmentName: Sword_A
   itemID: ITEM_SWORD_A
   equipmentType: 0
-  itemGrade: 1
+  itemGrade: 3
   usableClass: 1
   isTradable: 1
   requiredLevel: 8
   resourceID: RES_WEAPON_SWORD_A
   description: "\uBC31\uC740 \uC7A5\uAC80"
   icon: {fileID: 654507440, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
-  equipmentPrefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 1
   weaponCooldown: 1
   weaponRange: 5
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 0
   speedBonus: 0
   healthBonus: 0
-  buyPrice: 200
-  sellPrice: 100
+  buyPrice: 10000
+  sellPrice: 5000
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: c8a7de5bbe195e242991a93c3761effb, type: 3}
+  pickupPrefab: {fileID: 0}

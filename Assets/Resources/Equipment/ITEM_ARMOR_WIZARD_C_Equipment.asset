@@ -15,7 +15,7 @@ MonoBehaviour:
   equipmentName: Wizard_Armor_C
   itemID: ITEM_ARMOR_WIZARD_C
   equipmentType: 1
-  itemGrade: 3
+  itemGrade: 1
   usableClass: 3
   isTradable: 1
   requiredLevel: 1
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 20
   speedBonus: 0
   healthBonus: 30
-  buyPrice: 100
-  sellPrice: 50
+  buyPrice: 1000
+  sellPrice: 500
   isLimited: 0
   quantityLimit: 0
   pickupPrefab: {fileID: 0}

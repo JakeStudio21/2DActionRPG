@@ -191,40 +191,71 @@ namespace StageSystem
                 OnExpRewarded?.Invoke(result.Exp);
             }
             
-            // 아이템 지급
+            // 아이템 지급 (V2 시스템 사용)
             if (result.Items.Count > 0)
             {
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    Debug.Log($"🔍 [DEBUG - RewardSystem] 아이템 보상 처리 시작!");
+                    Debug.Log($"  result.Items.Count: {result.Items.Count}");
+                    for (int debugIdx = 0; debugIdx < result.Items.Count; debugIdx++)
+                    {
+                        Debug.Log($"    [{debugIdx}] ItemID: {result.Items[debugIdx].ItemID}, Amount: {result.Items[debugIdx].Amount}");
+                    }
+                    Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                }
+                
                 if (PlayerDataManager.Instance != null)
                 {
                     int successCount = 0;
+                    int skippedCount = 0;
                     foreach (var itemData in result.Items)
                     {
-                        // EquipmentData 로드 시도
-                        EquipmentData equipment = LoadEquipmentData(itemData.ItemID);
-                        if (equipment != null)
+                        string rawId = itemData.ItemID;
+                        
+                        // ⭐ _Equipment 접미사 자동 추가 (보상 테이블 ID → 에셋 이름 변환)
+                        string templateName = rawId.EndsWith("_Equipment") ? rawId : $"{rawId}_Equipment";
+                        
+                        if (enableDebugLogs)
+                            Debug.Log($"🔍 [DEBUG - RewardSystem] 아이템 지급 - rawId: {rawId} → templateName: {templateName}, Amount: {itemData.Amount}");
+                        
+                        // ⭐ 장비 아이템인지 확인 (V2 시스템은 장비 전용)
+                        var equipmentData = ItemTemplateResolver.Load(templateName);
+                        if (equipmentData == null)
                         {
-                            if (PlayerDataManager.Instance.AddToInventory(equipment))
+                            if (enableDebugLogs)
+                                Debug.LogWarning($"⚠️ [RewardSystem] 장비 아이템이 아니므로 V2 시스템 건너뜀: {rawId}");
+                            skippedCount++;
+                            continue;
+                        }
+                        
+                        // ⭐ 장비 아이템: Amount만큼 개별 인스턴스 생성
+                        int itemSuccessCount = 0;
+                        for (int i = 0; i < itemData.Amount; i++)
+                        {
+                            ItemInstanceId newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
+                            
+                            if (newItemId.IsValid())
                             {
                                 successCount++;
-                                if (enableDebugLogs)
-                                {
-                                    Debug.Log($" [RewardSystem] 아이템 지급 완료: {equipment.equipmentName} x{itemData.Amount}");
-                                }
+                                itemSuccessCount++;
                             }
                             else
                             {
-                                Debug.LogWarning($"⚠️ [RewardSystem] 인벤토리 가득 참으로 아이템 지급 실패: {itemData.ItemID}");
+                                Debug.LogWarning($"⚠️ [RewardSystem] 아이템 지급 실패: {rawId} (#{i+1}/{itemData.Amount})");
                             }
                         }
-                        else
+                        
+                        if (itemSuccessCount > 0)
                         {
-                            Debug.LogWarning($"⚠️ [RewardSystem] EquipmentData 로드 실패: {itemData.ItemID}");
+                            Debug.Log($"🎁 [RewardSystem] 아이템 지급 완료 (V2): {rawId} x{itemSuccessCount}");
                         }
                     }
                     
-                    if (enableDebugLogs)
+                    if (successCount > 0 || skippedCount > 0)
                     {
-                        Debug.Log($" [RewardSystem] 아이템 지급 완료: {successCount}/{result.Items.Count}개 성공");
+                        Debug.Log($"🎁 [RewardSystem] 아이템 지급 완료: 장비 {successCount}개 성공, 기타 {skippedCount}개 건너뜀");
                     }
                 }
                 else

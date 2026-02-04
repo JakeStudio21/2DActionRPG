@@ -20,15 +20,15 @@ MonoBehaviour:
   Items:
   - ItemID: ITEM_ARMOR_WARRIOR_B
     Amount: 1
-    DropRate: 0.3
+    DropRate: 1
     ItemPrefab: {fileID: 0}
   - ItemID: ITEM_ARMOR_ASSASIN_B
     Amount: 1
-    DropRate: 0.3
+    DropRate: 1
     ItemPrefab: {fileID: 0}
   - ItemID: ITEM_ARMOR_WIZARD_B
     Amount: 1
-    DropRate: 0.3
+    DropRate: 1
     ItemPrefab: {fileID: 0}
   - ItemID: ITEM_GOLD_COIN
     Amount: 1000

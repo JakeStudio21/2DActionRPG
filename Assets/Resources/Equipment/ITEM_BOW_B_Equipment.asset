@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_WEAPON_BOW_B
   description: "\uD76C\uADC0 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uBB34\uAE30\uC785\uB2C8\uB2E4.\n"
   icon: {fileID: -1500047283, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
-  equipmentPrefab: {fileID: 4551001115370886643, guid: 92aa0eea7f9748d449116a8d6586a468, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 2
   weaponCooldown: 1.5
   weaponRange: 7
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 0
   speedBonus: 0
   healthBonus: 0
-  buyPrice: 150
-  sellPrice: 75
+  buyPrice: 4000
+  sellPrice: 2000
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: e93c652a78cfdc44b99b9b5f46ac017b, type: 3}
+  pickupPrefab: {fileID: 0}

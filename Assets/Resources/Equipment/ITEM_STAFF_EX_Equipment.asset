@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ITEM_STAFF_EX_Equipment
   m_EditorClassIdentifier: 
   equipmentName: Wizard_Weapon_EX
-  itemID: ITEM_WEAPON_WIZARD_EX
+  itemID: ITEM_STAFF_EX
   equipmentType: 0
   itemGrade: 6
   usableClass: 3

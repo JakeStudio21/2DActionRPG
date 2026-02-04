@@ -15,7 +15,7 @@ MonoBehaviour:
   equipmentName: Staff_A
   itemID: ITEM_STAFF_A
   equipmentType: 0
-  itemGrade: 1
+  itemGrade: 3
   usableClass: 3
   isTradable: 1
   requiredLevel: 8
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 0
   speedBonus: 0
   healthBonus: 0
-  buyPrice: 200
-  sellPrice: 100
+  buyPrice: 10000
+  sellPrice: 5000
   isLimited: 0
   quantityLimit: 0
   pickupPrefab: {fileID: 0}

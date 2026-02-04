@@ -125,39 +125,37 @@ public class ShopInventoryManager : MonoBehaviour
     {
         shopItemsByType.Clear();
         
-        // 🔧 수정: PlayerDataManager 방식과 동일하게 이름 기반 분류
+        // 🔧 수정: ArmorType 기반 정확한 분류 (9종 방어구 대응)
         var weaponItems = allShopItems.Where(item => item.equipmentType == EquipmentType.Weapon).ToList();
 
+        // ✅ 갑옷 탭: ArmorType.Armor만 (상의)
         var armorItems = allShopItems.Where(item => 
-            item.equipmentType == EquipmentType.Armor && 
-            !item.equipmentName.ToLower().Contains("boots") && 
-            !item.equipmentName.ToLower().Contains("신발") && 
-            !item.equipmentName.ToLower().Contains("부츠")
+            item.ArmorType == ArmorType.Armor
         ).ToList();
 
+        // ✅ 신발 탭: ArmorType.Boots만
         var bootsItems = allShopItems.Where(item => 
-            item.equipmentType == EquipmentType.Armor && 
-            (item.equipmentName.ToLower().Contains("boots") || 
-             item.equipmentName.ToLower().Contains("신발") || 
-             item.equipmentName.ToLower().Contains("부츠"))
+            item.ArmorType == ArmorType.Boots
         ).ToList();
 
         var accessoryItems = allShopItems.Where(item => item.equipmentType == EquipmentType.Accessory).ToList();
 
-        // 정렬 (등급별) - 신발 추가
+        // ✅ 정렬 (1차: 등급, 2차: 가격) - 8등급 체계 대응
         if (sortByGradeAscending)
         {
-            weaponItems = weaponItems.OrderBy(item => (int)item.itemGrade).ToList();
-            armorItems = armorItems.OrderBy(item => (int)item.itemGrade).ToList();
-            bootsItems = bootsItems.OrderBy(item => (int)item.itemGrade).ToList();
-            accessoryItems = accessoryItems.OrderBy(item => (int)item.itemGrade).ToList();
+            // D → C → B → A → S → SS → EX → TR (낮은 가격 → 높은 가격)
+            weaponItems = weaponItems.OrderBy(item => (int)item.itemGrade).ThenBy(item => item.buyPrice).ToList();
+            armorItems = armorItems.OrderBy(item => (int)item.itemGrade).ThenBy(item => item.buyPrice).ToList();
+            bootsItems = bootsItems.OrderBy(item => (int)item.itemGrade).ThenBy(item => item.buyPrice).ToList();
+            accessoryItems = accessoryItems.OrderBy(item => (int)item.itemGrade).ThenBy(item => item.buyPrice).ToList();
         }
         else
         {
-            weaponItems = weaponItems.OrderByDescending(item => (int)item.itemGrade).ToList();
-            armorItems = armorItems.OrderByDescending(item => (int)item.itemGrade).ToList();
-            bootsItems = bootsItems.OrderByDescending(item => (int)item.itemGrade).ToList();
-            accessoryItems = accessoryItems.OrderByDescending(item => (int)item.itemGrade).ToList();
+            // TR → EX → SS → S → A → B → C → D (높은 가격 → 낮은 가격)
+            weaponItems = weaponItems.OrderByDescending(item => (int)item.itemGrade).ThenByDescending(item => item.buyPrice).ToList();
+            armorItems = armorItems.OrderByDescending(item => (int)item.itemGrade).ThenByDescending(item => item.buyPrice).ToList();
+            bootsItems = bootsItems.OrderByDescending(item => (int)item.itemGrade).ThenByDescending(item => item.buyPrice).ToList();
+            accessoryItems = accessoryItems.OrderByDescending(item => (int)item.itemGrade).ThenByDescending(item => item.buyPrice).ToList();
         }
 
         shopItemsByType[EquipmentType.Weapon] = weaponItems;
@@ -167,6 +165,16 @@ public class ShopInventoryManager : MonoBehaviour
         if (showDebugLogs)
         {
             Debug.Log($"🗂️ [ShopInventoryManager] 무기: {weaponItems.Count}개, 방어구: {armorItems.Count}개, 신발: {bootsItems.Count}개, 악세서리: {accessoryItems.Count}개");
+            
+            // 🔍 디버그: 갑옷 가격 순서 확인
+            Debug.Log($"═══════════════════════════════════════════════════════");
+            Debug.Log($"🔍 [DEBUG] 갑옷 아이템 정렬 순서 (등급 → 가격):");
+            for (int i = 0; i < armorItems.Count && i < 12; i++)  // 최대 12개만 출력
+            {
+                var item = armorItems[i];
+                Debug.Log($"   [{i}] {item.equipmentName} | 등급: {item.itemGrade} | 가격: {item.buyPrice} | 클래스: {item.usableClass}");
+            }
+            Debug.Log($"═══════════════════════════════════════════════════════");
         }
     }
     

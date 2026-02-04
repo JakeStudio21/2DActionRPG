@@ -15,7 +15,7 @@ MonoBehaviour:
   equipmentName: Warrior_Boots_A
   itemID: ITEM_BOOTS_WARRIOR_A
   equipmentType: 1
-  itemGrade: 1
+  itemGrade: 3
   usableClass: 1
   isTradable: 1
   requiredLevel: 1
@@ -26,7 +26,7 @@ MonoBehaviour:
   weaponType: 0
   weaponCooldown: 0
   weaponRange: 0
-  armorType: 3
+  armorType: 4
   attackDamage: 0
   attackSpeed: 0
   attackRange: 0
@@ -37,8 +37,8 @@ MonoBehaviour:
   defenseBonus: 0
   speedBonus: 5
   healthBonus: 20
-  buyPrice: 200
-  sellPrice: 100
+  buyPrice: 5000
+  sellPrice: 2500
   isLimited: 0
   quantityLimit: 0
   pickupPrefab: {fileID: 0}

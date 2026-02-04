@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_WEAPON_SWORD_SS
   description: "\uC2E0\uD654\uC758 \uC804\uC7C1\uAC80"
   icon: {fileID: -447706147, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
-  equipmentPrefab: {fileID: 4316638647348942652, guid: 29d74b6c195b90644969c3a88f2e2036, type: 3}
+  equipmentPrefab: {fileID: 0}
   weaponType: 1
   weaponCooldown: 0.5
   weaponRange: 5
@@ -41,4 +41,4 @@ MonoBehaviour:
   sellPrice: 100000
   isLimited: 0
   quantityLimit: 0
-  pickupPrefab: {fileID: 6665777931767919178, guid: 911ac3fa4206dcf47ba7fb5848e0c9f6, type: 3}
+  pickupPrefab: {fileID: 0}

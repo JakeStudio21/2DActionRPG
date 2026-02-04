@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 084707e0029f35e4e856d49d3470e414, type: 3}
+  m_Name: FusionRule
+  m_EditorClassIdentifier: 
+  lowTierRequiredCount: 3
+  highTierRequiredCount: 4
+  exTierRequiredCount: 5
+  costD_to_C: 100
+  costC_to_B: 200
+  costB_to_A: 500
+  costA_to_S: 1000
+  costS_to_SS: 2000
+  costSS_to_EX: 5000
