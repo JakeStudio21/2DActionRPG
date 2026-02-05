@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_WEAPON_STAFF_B
   description: "\uD76C\uADC0 \uB4F1\uAE09\uC758 Wizard \uC804\uC6A9 \uBB34\uAE30\uC785\uB2C8\uB2E4.\n"
   icon: {fileID: 1776458744, guid: 0a68f7f37d5081f4eb222a57d75e31ac, type: 3}
-  equipmentPrefab: {fileID: 0}
+  equipmentPrefab: {fileID: 6839322275408168106, guid: 982f4a907eeb6b5438c669b09550932c, type: 3}
   weaponType: 3
   weaponCooldown: 1
   weaponRange: 5

@@ -17,7 +17,7 @@ MonoBehaviour:
   pickCount: 1
   description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
   dropEntries:
-  - itemId: ITEM_ARMOR_ASSASIN_A
+  - itemId: ITEM_ARMOR_ASSASIN_SS
     rarity: 1
     weight: 1
     chance: 0.5
@@ -27,7 +27,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_RING_NONE_B
+  - itemId: ITEM_RING_NONE_TR
     rarity: 3
     weight: 1
     chance: 0.5
@@ -47,7 +47,7 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_BELT_ASSASIN_C
+  - itemId: ITEM_BELT_ASSASIN_EX
     rarity: 3
     weight: 1
     chance: 0.5
@@ -77,8 +77,8 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_HELMET_ASSASIN_D
-    rarity: 0
+  - itemId: ITEM_BOW_TR
+    rarity: 7
     weight: 1
     chance: 1
     minQuantity: 1
@@ -88,7 +88,7 @@ MonoBehaviour:
     isGuaranteed: 0
     conditions: []
   - itemId: ITEM_BOW_EX
-    rarity: 2
+    rarity: 6
     weight: 1
     chance: 0.2
     minQuantity: 1

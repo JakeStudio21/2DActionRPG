@@ -155,7 +155,47 @@ public class SelectedPlayerData : ScriptableObject
             RuntimeEquippedItems[slot] = null;
         }
         
-        if (slotData.equippedItemNames != null)
+        // ⭐ V2 시스템 우선 처리 (Phase 4.5)
+        if (slotData.equippedRecords != null && slotData.equippedRecords.Count > 0)
+        {
+            // V2: equippedRecords에서 ItemInstanceId → EquipmentData 변환
+            var account = AccountDataManager.Instance;
+            foreach (var record in slotData.equippedRecords)
+            {
+                if (record.instanceId.IsValid())
+                {
+                    var instance = account?.GetInstance(record.instanceId);
+                    if (instance != null)
+                    {
+                        Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 시도: templateName={instance.templateName}, slot={record.slot}");
+                        
+                        var item = ItemTemplateResolver.Load(instance.templateName);
+                        if (item != null)
+                        {
+                            RuntimeEquippedItems[record.slot] = item;
+                            
+                            // ⚠️ 디버그: EquipmentData 상세 정보
+                            Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 성공:");
+                            Debug.Log($"   - equipmentName: {item.equipmentName}");
+                            Debug.Log($"   - name (asset): {item.name}");
+                            Debug.Log($"   - equipmentType: {item.equipmentType}");
+                            Debug.Log($"   - slot: {record.slot}");
+                            Debug.Log($"   - equipmentPrefab: {(item.equipmentPrefab != null ? item.equipmentPrefab.name : "null")}");
+                        }
+                        else
+                        {
+                            Debug.LogError($"❌ [SelectedPlayerData] V2 장비 템플릿을 찾을 수 없음: {instance.templateName}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚠️ [SelectedPlayerData] V2 장비 인스턴스를 찾을 수 없음: {record.instanceId.id}");
+                    }
+                }
+            }
+        }
+        // Legacy 시스템 (V2 데이터가 없을 때만)
+        else if (slotData.equippedItemNames != null)
         {
             foreach (var kvp in slotData.equippedItemNames)
             {
@@ -165,10 +205,11 @@ public class SelectedPlayerData : ScriptableObject
                     if (item != null) 
                     {
                         RuntimeEquippedItems[slot] = item;
+                        Debug.Log($"✅ [SelectedPlayerData] Legacy 장비 로드: {item.equipmentName} → {slot}");
                     }
                     else
                     {
-                        Debug.LogWarning($"⚠️ [SelectedPlayerData] 장비 아이템을 찾을 수 없음: {kvp.Value}");
+                        Debug.LogWarning($"⚠️ [SelectedPlayerData] Legacy 장비 아이템을 찾을 수 없음: {kvp.Value}");
                     }
                 }
             }

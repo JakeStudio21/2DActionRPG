@@ -26,30 +26,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: Bow_A
-    prefab: {fileID: 4551001115370886643, guid: f02902a9371db2a4caf031af45e012f4, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: Bow_B
-    prefab: {fileID: 4551001115370886643, guid: 92aa0eea7f9748d449116a8d6586a468, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: Bow_C
-    prefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
-  - tag: Bow_S
-    prefab: {fileID: 4551001115370886643, guid: b5338b20cfe041c4b9d7452896159b9f, type: 3}
-    size: 1
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
   - tag: MON_BLUESLIME_001
     prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
     size: 5
@@ -358,6 +334,24 @@ MonoBehaviour:
     maxInstancesPerFrame: 5
   - tag: Fx_Equipment_D
     prefab: {fileID: 7111470932628664318, guid: 3185b37acd08aa748b0a046287d16ce9, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_SS
+    prefab: {fileID: 7111470932628664318, guid: ef2c97bf37403af4a81d85d189f8455c, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_EX
+    prefab: {fileID: 7111470932628664318, guid: 0380ab5f78c0eb948991f3c550c8ec20, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_TR
+    prefab: {fileID: 7111470932628664318, guid: f39c110b00e319c4097e44b43e853d0e, type: 3}
     size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 1

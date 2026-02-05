@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d5c2c97dcdef204bb74147c1a125ee8, type: 3}
+  m_Name: Lobby_PoolConfig
+  m_EditorClassIdentifier: 
+  sceneName: Lobby
+  requiredPools:
+  - tag: ButtonClickVFX
+    prefab: {fileID: 724470073289127030, guid: 8d5a74abab342ac4daa100220e87326c, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: MuzzleFlash_C
+    prefab: {fileID: 4186470608034871016, guid: 3dd2aebcc29f67d48bbb81c299a4aa05, type: 3}
+    size: 2
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: VFX_Click_02
+    prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: Fx_Equipment_A
+    prefab: {fileID: 7111470932628664318, guid: 2e27c637500de234b864d9c4b99e9401, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_B
+    prefab: {fileID: 7111470932628664318, guid: c886a6b9aa81f3045bc7284e7c859e14, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Fx_Equipment_C
+    prefab: {fileID: 7111470932628664318, guid: 86a1eb4ebecbb0343954d3f087baf396, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Fx_Equipment_S
+    prefab: {fileID: 7111470932628664318, guid: dc95a01b0936bb84d8f08fd033967a0c, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Equipment_D
+    prefab: {fileID: 7111470932628664318, guid: 3185b37acd08aa748b0a046287d16ce9, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: PanelCloseVFX
+    prefab: {fileID: 724470073289127030, guid: 3fa96f72f0bd4614bb56718a4616600b, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: MuzzleFlash
+    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  optionalPools: []
+  enableDebugLogs: 1

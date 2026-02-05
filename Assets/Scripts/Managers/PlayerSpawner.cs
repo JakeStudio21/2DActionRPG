@@ -410,13 +410,15 @@ public class PlayerSpawner : MonoBehaviour
     {
         Debug.Log($"[PlayerSpawner] 무기 장착 시도: {equipmentData.name}");
         
-        if (equipmentData.equipmentPrefab == null)  // weaponPrefab → equipmentPrefab
+        if (equipmentData.equipmentPrefab == null)
         {
             Debug.LogError($"[PlayerSpawner] EquipmentData '{equipmentData.name}'의 equipmentPrefab이 null입니다!");
+            Debug.LogError($"   - equipmentType: {equipmentData.equipmentType}");
+            Debug.LogError($"   - equipmentName: {equipmentData.equipmentName}");
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 무기 프리팹 확인됨: {equipmentData.equipmentPrefab.name}");  // weaponPrefab → equipmentPrefab
+        Debug.Log($"[PlayerSpawner] 무기 프리팹 확인됨: {equipmentData.equipmentPrefab.name}");
 
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon == null)

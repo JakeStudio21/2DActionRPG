@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_WEAPON_BOW_TR
   description: "\uCD08\uC6D4 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uD65C\uC785\uB2C8\uB2E4."
   icon: {fileID: 906681301, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
-  equipmentPrefab: {fileID: 0}
+  equipmentPrefab: {fileID: 4551001115370886643, guid: 29c265ff7fe535e48ac3f75fd5a7b6cb, type: 3}
   weaponType: 2
   weaponCooldown: 0.5
   weaponRange: 5
@@ -33,7 +33,7 @@ MonoBehaviour:
   attackShape: 1
   criticalChance: 0.5
   criticalDamage: 3.5
-  projectileId: Arrow
+  projectileId: Arrow_B
   defenseBonus: 0
   speedBonus: 0
   healthBonus: 0

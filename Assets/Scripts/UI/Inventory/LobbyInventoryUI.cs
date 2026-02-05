@@ -543,7 +543,7 @@ public class LobbyInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 착용 버튼 클릭 처리
+    /// 🆕 착용 버튼 클릭 처리 (Phase 4: 귀속 경고 통합)
     /// </summary>
     private void OnEquipButtonClicked()
     {
@@ -571,13 +571,94 @@ public class LobbyInventoryUI : MonoBehaviour
             return;
         }
         
-        // 🔧 착용 가능한 클래스 - 착용 시도
-        bool equipped = TryEquipItem(currentSelectedItem, currentSelectedSlotIndex);
+        // ⭐ Phase 4: 귀속 경고 체크
+        TryEquipItemWithBindWarning(currentSelectedItem, currentSelectedSlotIndex);
+    }
+    
+    /// <summary>
+    /// 🆕 Phase 4: 귀속 경고 팝업 통합 장착 (비동기)
+    /// </summary>
+    private void TryEquipItemWithBindWarning(EquipmentData equipment, int uiSlotIndex)
+    {
+        // 1. UI 슬롯에서 ItemInstanceId 가져오기
+        if (uiSlotIndex < 0 || uiSlotIndex >= lobbySlots.Count)
+        {
+            Debug.LogError($"🔴 [LobbyInventoryUI] 잘못된 슬롯 인덱스: {uiSlotIndex}");
+            if (equipWarningText != null)
+            {
+                StartCoroutine(ShowTemporaryMessage("착용 실패", Color.red, 2f));
+            }
+            return;
+        }
+        
+        ItemInstanceId itemId = lobbySlots[uiSlotIndex].GetItemInstanceId();
+        if (!itemId.IsValid())
+        {
+            Debug.LogError($"🔴 [LobbyInventoryUI] 슬롯 {uiSlotIndex}에 유효한 ItemInstanceId 없음");
+            if (equipWarningText != null)
+            {
+                StartCoroutine(ShowTemporaryMessage("착용 실패", Color.red, 2f));
+            }
+            return;
+        }
+        
+        // 2. 귀속 경고가 필요한지 확인
+        if (BindWarningManager.Instance != null && BindWarningManager.Instance.ShouldShowWarning(itemId))
+        {
+            // 3. 귀속 경고 데이터 생성
+            var account = AccountDataManager.Instance;
+            var instance = account.GetInstance(itemId);
+            var playerData = PlayerDataManager.Instance;
+            var slotData = playerData.GetSlotData(playerData.CurrentSlotIndex);
+            
+            var warningData = new Systems.BindWarningData(
+                itemId,
+                instance.templateName,
+                instance.enhancementLevel,
+                GetTargetSlot(equipment),
+                playerData.CurrentSlotIndex,
+                slotData?.playerName ?? "Unknown"
+            );
+            
+            // 4. 귀속 경고 팝업 표시 및 사용자 응답 대기
+            BindWarningManager.Instance.ShowWarningAndWaitForResponse(warningData, (userConfirmed) =>
+            {
+                if (userConfirmed)
+                {
+                    // 사용자 확인 → 장착 진행
+                    ExecuteEquipItem(equipment, uiSlotIndex);
+                }
+                else
+                {
+                    // 사용자 취소 → 장착 중단
+                    if (showDebugLogs)
+                        Debug.Log($"🚫 [LobbyInventoryUI] 사용자가 장착 취소: {equipment.equipmentName}");
+                    
+                    if (equipWarningText != null)
+                    {
+                        StartCoroutine(ShowTemporaryMessage("장착 취소", Color.yellow, 1.5f));
+                    }
+                }
+            });
+        }
+        else
+        {
+            // 귀속 경고 불필요 → 바로 장착
+            ExecuteEquipItem(equipment, uiSlotIndex);
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 Phase 4: 실제 장착 실행 (귀속 경고 후 호출)
+    /// </summary>
+    private void ExecuteEquipItem(EquipmentData equipment, int uiSlotIndex)
+    {
+        bool equipped = TryEquipItem(equipment, uiSlotIndex);
         
         if (equipped)
         {
             if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] 아이템 착용 성공: {currentSelectedItem.equipmentName}");
+                Debug.Log($"✅ [LobbyInventoryUI] 아이템 착용 성공: {equipment.equipmentName}");
             
             // 🔧 착용 성공 후 빈 상태 DetailPanel 표시
             ShowEmptyDetailPanel();
@@ -594,7 +675,7 @@ public class LobbyInventoryUI : MonoBehaviour
         else
         {
             if (showDebugLogs)
-                Debug.LogError($"❌ [LobbyInventoryUI] 아이템 착용 실패: {currentSelectedItem.equipmentName}");
+                Debug.LogError($"❌ [LobbyInventoryUI] 아이템 착용 실패: {equipment.equipmentName}");
                 
             // 🆕 착용 실패 메시지 표시
             if (equipWarningText != null)

@@ -2124,6 +2124,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         var bindInfo = account.GetBindInfo(instanceId);
         if (bindInfo.isBound && bindInfo.characterSlotIndex != currentSlotIndex)
         {
+            // ⭐ Phase 4: 다른 캐릭터 귀속 아이템 경고 표시
+            if (BindWarningManager.Instance != null)
+            {
+                var boundSlotData = GetSlotData(bindInfo.characterSlotIndex);
+                string boundCharacterName = boundSlotData?.playerName ?? $"슬롯 {bindInfo.characterSlotIndex}";
+                BindWarningManager.Instance.ShowAlreadyBoundWarning(instanceId, bindInfo.characterSlotIndex, boundCharacterName);
+            }
+            
             Debug.LogError($"[EquipV2] 아이템 {instanceId}는 캐릭터 {bindInfo.characterSlotIndex}에 귀속되어 장착할 수 없습니다.");
             return false;
         }
@@ -2177,12 +2185,33 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 });
             }
             
-            // 귀속 설정
-            account.SetBind(instanceId, currentSlotIndex);
+            // ⭐ Phase 4.5: 등급별 귀속 설정 (SS/EX/TR만 귀속)
+            var instance = account.GetInstance(instanceId);
+            var equipment = ItemTemplateResolver.Load(instance.templateName);
+            
+            if (equipment != null && equipment.itemGrade >= ItemGrade.SS)
+            {
+                // SS, EX, TR 등급만 귀속
+                account.SetBind(instanceId, currentSlotIndex);
+                Debug.Log($"⚠️ [EquipV2] {equipment.itemGrade} 등급 아이템 귀속: {equipment.equipmentName} → 슬롯 {currentSlotIndex}");
+            }
+            else if (equipment != null)
+            {
+                // D~S 등급은 귀속 없음
+                Debug.Log($"✅ [EquipV2] {equipment.itemGrade} 등급 아이템 귀속 없음: {equipment.equipmentName}");
+            }
             
             // 저장
             SaveSlotData(slotData);
             account.Save();
+            
+            // ⭐ 중요: selectedPlayerData 동기화 (RuntimeEquippedItems 업데이트)
+            if (selectedPlayerData != null)
+            {
+                Debug.Log($"🔄 [EquipV2] selectedPlayerData 동기화 중...");
+                selectedPlayerData.LoadFromSlotData(slotData);
+                Debug.Log($"✅ [EquipV2] selectedPlayerData 동기화 완료");
+            }
             
             MarkDirty();
             

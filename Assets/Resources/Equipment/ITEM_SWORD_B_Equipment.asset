@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_WEAPON_SWORD_B
   description: "\uACE0\uAC15 \uCCA0\uC81C \uC7A5\uAC80"
   icon: {fileID: -1500047283, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
-  equipmentPrefab: {fileID: 0}
+  equipmentPrefab: {fileID: 4316638647348942652, guid: e07cd3a729c1bc8468b038ab0d53890c, type: 3}
   weaponType: 1
   weaponCooldown: 1.5
   weaponRange: 5

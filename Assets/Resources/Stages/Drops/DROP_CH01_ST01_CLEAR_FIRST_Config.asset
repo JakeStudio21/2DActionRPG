@@ -18,7 +18,7 @@ MonoBehaviour:
   Gold: 350
   Exp: 100
   Items:
-  - ItemID: ITEM_ARMOR_WARRIOR_B
+  - ItemID: ITEM_BOW_TR
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}

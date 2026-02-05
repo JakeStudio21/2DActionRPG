@@ -22,7 +22,7 @@ MonoBehaviour:
   resourceID: RES_WEAPON_WIZARD_D
   description: "\uC77C\uBC18 \uB4F1\uAE09\uC758 Wizard \uC804\uC6A9 \uBB34\uAE30\uC785\uB2C8\uB2E4."
   icon: {fileID: 611174850, guid: 0a68f7f37d5081f4eb222a57d75e31ac, type: 3}
-  equipmentPrefab: {fileID: 0}
+  equipmentPrefab: {fileID: 6839322275408168106, guid: 655972b64487d8e4ebe337fa9cf5fb52, type: 3}
   weaponType: 0
   weaponCooldown: 1
   weaponRange: 5

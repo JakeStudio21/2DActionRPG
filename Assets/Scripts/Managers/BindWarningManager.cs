@@ -67,11 +67,11 @@ public class BindWarningManager : MonoBehaviour
     }
     
     /// <summary>
-    /// 귀속 경고가 필요한지 확인
+    /// 귀속 경고가 필요한지 확인 (Phase 4.5: 등급별 귀속)
     /// </summary>
     public bool ShouldShowWarning(ItemInstanceId itemId)
     {
-        // '다시 보지 않기' 설정 확인
+        // 1. '다시 보지 않기' 설정 확인
         if (BindWarningPopup.IsDontShowAgain())
         {
             Log($"[BindWarningManager] '다시 보지 않기' 설정으로 경고 스킵: {itemId.id.Substring(0, 8)}...");
@@ -79,16 +79,39 @@ public class BindWarningManager : MonoBehaviour
         }
         
         var account = AccountDataManager.Instance;
-        var bindInfo = account.GetBindInfo(itemId);
         
-        // 이미 귀속된 아이템은 경고 불필요
+        // 2. 등급 체크 (Phase 4.5: D~S 등급은 귀속 불필요)
+        var instance = account.GetInstance(itemId);
+        if (instance == null)
+        {
+            LogError($"[BindWarningManager] 아이템 인스턴스를 찾을 수 없음: {itemId.id.Substring(0, 8)}...");
+            return false;
+        }
+        
+        var equipment = ItemTemplateResolver.Load(instance.templateName);
+        if (equipment == null)
+        {
+            LogError($"[BindWarningManager] 아이템 템플릿을 찾을 수 없음: {instance.templateName}");
+            return false;
+        }
+        
+        // ⭐ D, C, B, A, S 등급: 귀속 불필요
+        if (equipment.itemGrade <= ItemGrade.S)
+        {
+            Log($"[BindWarningManager] {equipment.itemGrade} 등급 아이템 → 귀속 불필요: {equipment.equipmentName}");
+            return false;
+        }
+        
+        // 3. 이미 귀속된 아이템은 경고 불필요
+        var bindInfo = account.GetBindInfo(itemId);
         if (bindInfo.isBound)
         {
             Log($"[BindWarningManager] 이미 귀속된 아이템: {itemId.id.Substring(0, 8)}... (슬롯 {bindInfo.characterSlotIndex})");
             return false;
         }
         
-        // 아직 귀속되지 않은 아이템은 경고 필요
+        // ⭐ SS, EX, TR 등급: 귀속 경고 필요
+        Log($"[BindWarningManager] {equipment.itemGrade} 등급 아이템 → 귀속 경고 필요: {equipment.equipmentName}");
         return true;
     }
     

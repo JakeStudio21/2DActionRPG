@@ -34,7 +34,39 @@ public class LobbyInitializer : MonoBehaviour
     /// </summary>
     public void InitializeLobby()
     {
+        StartCoroutine(InitializeLobbyCoroutine());
+    }
+    
+    /// <summary>
+    /// 로비 초기화 (풀 로딩 대기 포함)
+    /// </summary>
+    private IEnumerator InitializeLobbyCoroutine()
+    {
         Debug.Log("📋 [LobbyInitializer] 로비 초기화 시작");
+        
+        // ⭐ GamePoolManager 풀 로딩 완료 대기
+        if (GamePoolManager.Instance != null)
+        {
+            Debug.Log("⏳ [LobbyInitializer] GamePoolManager 풀 로딩 대기 중...");
+            
+            float timeout = 5f; // 5초 타임아웃
+            float elapsed = 0f;
+            
+            while (GamePoolManager.Instance.IsLoadingPools && elapsed < timeout)
+            {
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+            
+            if (elapsed >= timeout)
+            {
+                Debug.LogWarning("⚠️ [LobbyInitializer] GamePoolManager 풀 로딩 타임아웃 (5초 초과)");
+            }
+            else
+            {
+                Debug.Log("✅ [LobbyInitializer] GamePoolManager 풀 로딩 완료!");
+            }
+        }
         
         CheckManagerInitializationStatus();
         ValidateUIElements();
