@@ -131,13 +131,15 @@ public class LobbyInventoryController : MonoBehaviour
     
     /// <summary>
     /// 🆕 슬롯 클릭 처리
+    /// V2: ItemInstanceId 추가 (로비는 ItemDetailPopup이 자동 처리)
     /// </summary>
-    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex)
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId = default)
     {
         if (showDebugLogs)
-            Debug.Log($"🏠 [LobbyInventoryController] 슬롯 클릭: {equipmentData?.equipmentName}");
+            Debug.Log($"🏠 [LobbyInventoryController] 슬롯 클릭: {equipmentData?.equipmentName} (ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")})");
         
         // 필요시 추가 처리 (DetailPanel 표시 등)
+        // ItemDetailPopup이 OnSlotClicked 이벤트를 구독하여 자동으로 팝업 표시
     }
     
     void OnDestroy()

@@ -164,6 +164,29 @@ public class BindWarningManager : MonoBehaviour
         Debug.LogWarning(message);
     }
     
+    /// <summary>
+    /// ⭐ 커스텀 메시지로 경고 팝업 표시 (귀속 해제 등)
+    /// </summary>
+    public void ShowCustomWarning(string title, string message, System.Action<bool> onUserResponse)
+    {
+        if (bindWarningPopup == null)
+        {
+            InitializePopup();
+            
+            if (bindWarningPopup == null)
+            {
+                LogError("[BindWarningManager] BindWarningPopup이 없어 경고를 표시할 수 없습니다. 자동으로 승인합니다.");
+                onUserResponse?.Invoke(true);
+                return;
+            }
+        }
+        
+        Log($"[BindWarningManager] 커스텀 경고 표시: {title}");
+        
+        // BindWarningPopup의 ShowCustom 메서드 호출
+        bindWarningPopup.ShowCustom(title, message, onUserResponse);
+    }
+    
     #region Debug Helpers
     
     private void Log(string message)

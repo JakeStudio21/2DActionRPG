@@ -30,7 +30,11 @@ public class SelectedPlayerData : ScriptableObject
     [SerializeField] private List<EquipmentSlot> equippedSlotKeys = new List<EquipmentSlot>();
     [SerializeField] private List<EquipmentData> equippedSlotValues = new List<EquipmentData>();
     
-    public int maxInventorySize = 16; // 50 → 16으로 변경
+    [Header("🆔 V2: 장착 아이템 Instance ID 추적")]
+    [SerializeField] private List<EquipmentSlot> equippedIdSlotKeys = new List<EquipmentSlot>();
+    [SerializeField] private List<ItemInstanceId> equippedIdSlotValues = new List<ItemInstanceId>();
+    
+    public int maxInventorySize = 16; // 인게임 캐릭터 가방 크기 (고정)
     
     [Header("🎯 런타임 클래스 특성")]
     public int classLevel = 1;
@@ -94,6 +98,26 @@ public class SelectedPlayerData : ScriptableObject
         }
     }
     
+    // ⭐ V2: 장착된 아이템의 ItemInstanceId Dictionary
+    private Dictionary<EquipmentSlot, ItemInstanceId> _runtimeEquippedInstanceIds = null;
+    public Dictionary<EquipmentSlot, ItemInstanceId> RuntimeEquippedInstanceIds
+    {
+        get
+        {
+            if (_runtimeEquippedInstanceIds == null)
+            {
+                _runtimeEquippedInstanceIds = new Dictionary<EquipmentSlot, ItemInstanceId>();
+                
+                // 저장된 데이터 복원
+                for (int i = 0; i < Mathf.Min(equippedIdSlotKeys.Count, equippedIdSlotValues.Count); i++)
+                {
+                    _runtimeEquippedInstanceIds[equippedIdSlotKeys[i]] = equippedIdSlotValues[i];
+                }
+            }
+            return _runtimeEquippedInstanceIds;
+        }
+    }
+    
     private Dictionary<string, float> _runtimeExtraStats = null;
     public Dictionary<string, float> RuntimeExtraStats
     {
@@ -150,6 +174,8 @@ public class SelectedPlayerData : ScriptableObject
         
         // 장비 복사
         RuntimeEquippedItems.Clear();
+        RuntimeEquippedInstanceIds.Clear(); // ⭐ V2: InstanceId Dictionary도 초기화
+        
         foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
         {
             RuntimeEquippedItems[slot] = null;
@@ -173,6 +199,7 @@ public class SelectedPlayerData : ScriptableObject
                         if (item != null)
                         {
                             RuntimeEquippedItems[record.slot] = item;
+                            RuntimeEquippedInstanceIds[record.slot] = record.instanceId; // ⭐ V2: InstanceId 추적
                             
                             // ⚠️ 디버그: EquipmentData 상세 정보
                             Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 성공:");
@@ -180,6 +207,7 @@ public class SelectedPlayerData : ScriptableObject
                             Debug.Log($"   - name (asset): {item.name}");
                             Debug.Log($"   - equipmentType: {item.equipmentType}");
                             Debug.Log($"   - slot: {record.slot}");
+                            Debug.Log($"   - instanceId: {record.instanceId.id.Substring(0, 8)}...");
                             Debug.Log($"   - equipmentPrefab: {(item.equipmentPrefab != null ? item.equipmentPrefab.name : "null")}");
                         }
                         else
@@ -390,13 +418,23 @@ public class SelectedPlayerData : ScriptableObject
         // ========================================
         // 📌 V2 인벤토리 & 장비 (Phase 0-7) ⭐ 중요!
         // ========================================
-        // ⚠️ 주의: PlayerSlotData가 실제 V2 데이터를 가지고 있으므로,
-        // SelectedPlayerData는 이를 직접 저장하지 않습니다.
-        // 대신 PlayerDataManager.GetSlotData()에서 최신 데이터를 가져와야 합니다!
-        // 여기서는 비워둡니다 (PlayerDataManager.AddItemV2에서 직접 처리).
+        // ⭐ V2: RuntimeEquippedInstanceIds → equippedRecords 변환
+        slotData.equippedRecords.Clear();
+        foreach (var kvp in RuntimeEquippedInstanceIds)
+        {
+            if (kvp.Value.IsValid())
+            {
+                slotData.equippedRecords.Add(new EquippedRecord
+                {
+                    slot = kvp.Key,
+                    instanceId = kvp.Value
+                });
+                Debug.Log($"💾 [SelectedPlayerData] V2 장비 저장: {kvp.Key} → {kvp.Value.id.Substring(0, 8)}...");
+            }
+        }
         
         Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
-        Debug.Log($"⚠️ [SelectedPlayerData] V2 데이터는 PlayerDataManager.GetSlotData()의 최신 데이터 사용");
+        Debug.Log($"💾 [SelectedPlayerData] V2 장비 레코드: {slotData.equippedRecords.Count}개");
         return slotData;
     }
     

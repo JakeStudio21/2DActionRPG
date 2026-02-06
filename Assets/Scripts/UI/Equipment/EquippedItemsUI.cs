@@ -5,11 +5,22 @@ using UnityEngine.UI;
 using TMPro; // TMPro 네임스페이스 추가
 
 /// <summary>
-/// 🎮 착용된 장비들을 표시하는 전용 UI 시스템
-/// Weapon / Armor / Boots 슬롯을 개별적으로 관리 + 플레이어 정보 & 실시간 능력치 표시
+/// 🗑️ Legacy: 인게임 캐릭터 장비창 UI (더 이상 사용하지 않음)
+/// 
+/// **변경 이유:**
+/// - 이전 구조: 인게임에서 가방 아이템 클릭 → 자동 장착 (Legacy 장비창 사용)
+/// - 현재 구조: 인게임에서 가방 아이템 클릭 → InGameItemDetailPanel 표시 (정보 확인만)
+/// - 스테이지 클리어 후 자동으로 보관창고로 이동
+/// 
+/// **히스토리:** 전체 코드는 참고용으로 주석 처리됨
+/// 
+/// ⚠️ 이 스크립트는 더 이상 사용되지 않으므로 씬에서 제거하거나 GameObject를 비활성화하세요.
 /// </summary>
+[System.Obsolete("Legacy: 인게임 장비창은 더 이상 사용되지 않습니다. InGameItemDetailPanel을 사용하세요.")]
 public class EquippedItemsUI : MonoBehaviour
 {
+    /* ❌ Legacy 코드 전체 주석 처리 (히스토리 보존용)
+    
     [Header("🎒 착용 장비 슬롯들")]
     [SerializeField] private InventorySlot weaponSlot;      // 무기 슬롯
     [SerializeField] private InventorySlot helmetSlot;      // 투구 슬롯
@@ -591,11 +602,10 @@ public class EquippedItemsUI : MonoBehaviour
     private void RemoveSlotClickEvents()
     {
         RemoveSlotClickEvent(weaponSlot);
-        RemoveSlotClickEvent(helmetSlot);
         RemoveSlotClickEvent(armorSlot);
-        RemoveSlotClickEvent(glovesSlot);
         RemoveSlotClickEvent(bootsSlot);
-        RemoveSlotClickEvent(beltSlot);
+        RemoveSlotClickEvent(helmetSlot);
+        RemoveSlotClickEvent(shieldSlot);
         RemoveSlotClickEvent(ring1Slot);
         RemoveSlotClickEvent(ring2Slot);
         RemoveSlotClickEvent(necklaceSlot);
@@ -614,4 +624,6 @@ public class EquippedItemsUI : MonoBehaviour
             button.onClick.RemoveAllListeners();
         }
     }
+    
+    */ // ❌ Legacy 코드 주석 처리 끝
 }

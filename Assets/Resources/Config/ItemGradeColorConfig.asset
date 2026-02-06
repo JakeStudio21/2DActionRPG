@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19cacf8d60cea9e4faff18c155db56e2, type: 3}
+  m_Name: ItemGradeColorConfig
+  m_EditorClassIdentifier: 
+  gradeColors:
+  - grade: 0
+    color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - grade: 1
+    color: {r: 0.071956225, g: 0.46226418, b: 0.2531707, a: 1}
+  - grade: 2
+    color: {r: 0.24705882, g: 0.39215687, b: 0.7176471, a: 1}
+  - grade: 3
+    color: {r: 0.28590894, g: 0.120772526, b: 0.4339623, a: 1}
+  - grade: 4
+    color: {r: 1, g: 0.41660103, b: 0.07843137, a: 1}
+  - grade: 5
+    color: {r: 1, g: 0, b: 0.008716583, a: 1}
+  - grade: 6
+    color: {r: 0.98039216, g: 0.785502, b: 0.09803918, a: 1}
+  - grade: 7
+    color: {r: 1, g: 1, b: 1, a: 1}
+  showDebugLogs: 0

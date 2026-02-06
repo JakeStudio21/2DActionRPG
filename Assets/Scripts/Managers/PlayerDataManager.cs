@@ -67,8 +67,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 모든 슬롯 클릭 시 발생 (인게임/로비 공통)
     /// 기본적인 슬롯 클릭 이벤트로, 장착/해제 등 기본 기능에 사용
+    /// V2: ItemInstanceId 추가 (귀속 체크용)
     /// </summary>
-    public event Action<EquipmentData, int> OnSlotClicked; // (장비데이터, 슬롯인덱스)
+    public event Action<EquipmentData, int, ItemInstanceId> OnSlotClicked; // (장비데이터, 슬롯인덱스, 인스턴스ID)
     
     /// <summary>
     /// 로비에서만 상세 정보가 필요할 때 발생
@@ -561,13 +562,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 2. Legacy 데이터 저장 (SaveToSlotData)
         var slotData = selectedPlayerData.SaveToSlotData();
         
-        // 3. ⭐ V2 데이터 복원
+        // 3. ⭐ V2 데이터 복원 (characterBagInstanceIds만, equippedRecords는 SaveToSlotData에서 처리)
         slotData.characterBagInstanceIds = backupBagIds;
-        slotData.equippedRecords = backupEquippedRecords;
+        // ❌ slotData.equippedRecords = backupEquippedRecords; // 제거! SaveToSlotData()가 이미 처리함
         
         if (showDebugLogs)
         {
             Debug.Log($"📦 [SaveCurrentSlot] V2 데이터 복원 완료: 가방 {slotData.characterBagInstanceIds.Count}개");
+            Debug.Log($"💾 [SaveCurrentSlot] V2 장착 레코드: {slotData.equippedRecords.Count}개 (SaveToSlotData에서 생성)");
             Debug.Log($"📦 [SaveCurrentSlot] SaveToSlotData() 완료 - 장착 아이템: {slotData.equippedItemNames.Count}개 (Legacy)");
         }
         
@@ -1154,6 +1156,115 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         return true;
     }
     
+    /// <summary>
+    /// ⭐ V2: 장비 해제 (ItemInstanceId 기반, 보관창고로 이동)
+    /// </summary>
+    public bool UnequipItemV2(EquipmentSlot slot, ItemInstanceId instanceId)
+    {
+        if (!IsSlotSelected || !instanceId.IsValid())
+        {
+            Debug.LogError($"❌ [PlayerDataManager] UnequipItemV2 실패: 슬롯 미선택 또는 ID 무효 (ID: {instanceId.id})");
+            return false;
+        }
+        
+        var account = AccountDataManager.Instance;
+        if (account == null)
+        {
+            Debug.LogError("❌ [PlayerDataManager] AccountDataManager가 null입니다!");
+            return false;
+        }
+        
+        // 1. 장비 해제 (equippedItems에서 제거)
+        if (!EquippedItems.ContainsKey(slot) || EquippedItems[slot] == null)
+        {
+            Debug.LogWarning($"⚠️ [PlayerDataManager] {slot} 슬롯이 이미 비어있음");
+            return false;
+        }
+        
+        var item = EquippedItems[slot];
+        
+        // 2. ⭐ V2: RuntimeEquippedItems에서 제거 (UI 갱신용)
+        selectedPlayerData.RuntimeEquippedItems[slot] = null;
+        
+        // 3. ⭐ V2: InstanceId 추적에서 제거
+        if (selectedPlayerData.RuntimeEquippedInstanceIds.ContainsKey(slot))
+        {
+            selectedPlayerData.RuntimeEquippedInstanceIds.Remove(slot);
+        }
+        
+        // 4. 계정 공유 창고로 이동 (sharedInventoryIds)
+        // ⭐ V2 시스템: AccountDataManager의 TryAddToShared 사용
+        if (!account.TryAddToShared(instanceId))
+        {
+            Debug.LogWarning($"⚠️ [PlayerDataManager] 창고 추가 실패, 우편함으로 이동: {item.equipmentName}");
+            account.MoveToMailbox(instanceId);
+        }
+        
+        // 4. 저장 및 이벤트
+        MarkDirty();
+        SaveOnMeaningfulEvent("ItemUnequippedV2");
+        
+        OnItemUnequipped?.Invoke(slot, item);
+        OnInventoryChanged?.Invoke();
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [PlayerDataManager] V2 장비 해제: {item.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...) → 보관창고");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// ⭐ V2: 귀속 아이템 해제 및 삭제
+    /// </summary>
+    public bool UnequipAndDeleteBoundItem(EquipmentSlot slot, ItemInstanceId instanceId)
+    {
+        if (!IsSlotSelected || !instanceId.IsValid())
+        {
+            Debug.LogError($"❌ [PlayerDataManager] UnequipAndDeleteBoundItem 실패: 슬롯 미선택 또는 ID 무효");
+            return false;
+        }
+        
+        var account = AccountDataManager.Instance;
+        if (account == null)
+        {
+            Debug.LogError("❌ [PlayerDataManager] AccountDataManager가 null입니다!");
+            return false;
+        }
+        
+        // 1. 장비 해제
+        if (!EquippedItems.ContainsKey(slot) || EquippedItems[slot] == null)
+        {
+            Debug.LogWarning($"⚠️ [PlayerDataManager] {slot} 슬롯이 이미 비어있음");
+            return false;
+        }
+        
+        var item = EquippedItems[slot];
+        
+        // 2. ⭐ V2: RuntimeEquippedItems에서 제거 (UI 갱신용)
+        selectedPlayerData.RuntimeEquippedItems[slot] = null;
+        
+        // 3. ⭐ V2: InstanceId 추적에서 제거
+        if (selectedPlayerData.RuntimeEquippedInstanceIds.ContainsKey(slot))
+        {
+            selectedPlayerData.RuntimeEquippedInstanceIds.Remove(slot);
+        }
+        
+        // 4. 아이템 삭제 (AccountDataManager에서 제거)
+        account.RemoveInstance(instanceId);
+        
+        // 3. 저장 및 이벤트
+        MarkDirty();
+        SaveOnMeaningfulEvent("BoundItemDeleted");
+        
+        OnItemUnequipped?.Invoke(slot, item);
+        OnInventoryChanged?.Invoke();
+        
+        if (showDebugLogs)
+            Debug.Log($"🗑️ [PlayerDataManager] 귀속 아이템 해제 및 삭제: {item.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+        
+        return true;
+    }
+    
     #endregion
     
     #region 🔧 유틸리티 메서드
@@ -1559,13 +1670,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     // 🆕 공용 이벤트 발생 메서드들
     /// <summary>
     /// 슬롯 클릭 이벤트 발생 (인게임/로비 공통)
+    /// V2: ItemInstanceId 추가
     /// </summary>
-    public void TriggerSlotClicked(EquipmentData equipmentData, int slotIndex)
+    public void TriggerSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId = default)
     {
         if (showDebugLogs)
-            Debug.Log($"🖱️ [PlayerDataManager] 슬롯 클릭 이벤트 발생: {(equipmentData?.equipmentName ?? "빈 슬롯")} (인덱스: {slotIndex})");
+            Debug.Log($"🖱️ [PlayerDataManager] 슬롯 클릭 이벤트 발생: {(equipmentData?.equipmentName ?? "빈 슬롯")} (인덱스: {slotIndex}, ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")})");
         
-        OnSlotClicked?.Invoke(equipmentData, slotIndex);
+        OnSlotClicked?.Invoke(equipmentData, slotIndex, instanceId);
     }
     
     /// <summary>
@@ -1774,15 +1886,43 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 Debug.Log($"   - 기존 장비 해제: {oldEquipment.equipmentName}");
                 
-                // 기존 장비의 ItemInstanceId 찾기 (V2 시스템)
-                // 주의: 현재 장착된 장비는 V2 아이템 인스턴스가 아닐 수 있음 (Legacy)
-                // 이 경우 보관창고로 반환하지 않음
-                Debug.Log($"   ⚠️ 기존 장비는 V2 시스템 외부 아이템 (보관창고 반환 생략)");
+                // ⭐ V2: RuntimeEquippedInstanceIds에서 기존 아이템 ID 확인
+                ItemInstanceId oldInstanceId = default;
+                if (selectedPlayerData.RuntimeEquippedInstanceIds.ContainsKey(targetSlot))
+                {
+                    oldInstanceId = selectedPlayerData.RuntimeEquippedInstanceIds[targetSlot];
+                }
+                
+                if (oldInstanceId.IsValid())
+                {
+                    // V2 아이템 → 보관창고로 반환
+                    bool addedToShared = AccountDataManager.Instance.TryAddToShared(oldInstanceId);
+                    
+                    if (addedToShared)
+                    {
+                        Debug.Log($"✅ [PlayerDataManager] 기존 장비 보관창고 반환: {oldEquipment.equipmentName} (ID: {oldInstanceId.id.Substring(0, 8)}...)");
+                    }
+                    else
+                    {
+                        // 보관창고 가득 찬 → 우편함으로 이동
+                        AccountDataManager.Instance.MoveToMailbox(oldInstanceId);
+                        Debug.Log($"📬 [PlayerDataManager] 기존 장비 우편함 이동: {oldEquipment.equipmentName} (보관창고 가득 찬)");
+                    }
+                    
+                    // RuntimeEquippedInstanceIds에서 제거
+                    selectedPlayerData.RuntimeEquippedInstanceIds.Remove(targetSlot);
+                }
+                else
+                {
+                    // Legacy 아이템 (ItemInstanceId 없음) → 경고
+                    Debug.LogWarning($"⚠️ [PlayerDataManager] 기존 장비는 Legacy 아이템: {oldEquipment.equipmentName} (V2 시스템 반환 불가, 사라짐)");
+                }
             }
             
             // 6️⃣ 새 장비 착용
             selectedPlayerData.RuntimeEquippedItems[targetSlot] = equipment;
-            Debug.Log($"✅ [PlayerDataManager] 새 장비 착용 완료: {equipment.equipmentName} → {targetSlot}");
+            selectedPlayerData.RuntimeEquippedInstanceIds[targetSlot] = itemId; // ⭐ V2: InstanceId 추적
+            Debug.Log($"✅ [PlayerDataManager] 새 장비 착용 완료: {equipment.equipmentName} → {targetSlot} (ID: {itemId.id.Substring(0, 8)}...)");
             
             // 7️⃣ 보관창고에서 제거
             bool removed = AccountDataManager.Instance.RemoveFromShared(itemId);

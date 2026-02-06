@@ -297,8 +297,9 @@ public class IntegratedInventoryController : MonoBehaviour
     
     /// <summary>
     /// 🆕 인게임 슬롯 클릭 처리 (무기 교체 중심)
+    /// V2: ItemInstanceId 추가 (인게임은 사용하지 않음)
     /// </summary>
-    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex)
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId = default)
     {
         if (equipmentData == null) return;
         

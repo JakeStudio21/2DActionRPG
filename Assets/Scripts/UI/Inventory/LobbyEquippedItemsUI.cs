@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UI.Popups; // ⭐ ItemDetailPopup
 
 /// <summary>
 /// 🏠 로비 전용 착용 장비 UI 시스템
@@ -179,24 +180,16 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             // 기존 클릭 이벤트 제거 (코드로 추가된 것만 제거됨)
             button.onClick.RemoveAllListeners();
             
-        // 🔒 읽기 전용 모드일 때는 클릭 이벤트 연결 안 함
-        if (isReadOnly)
-        {
-            // 버튼 비활성화 (클릭 불가)
-            button.interactable = false;
-            
-            if (showDebugLogs)
-                Debug.Log($"🔒 [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 읽기 전용 (클릭 비활성화)");
-        }
-        else
-        {
-            // 인벤토리 모드: 클릭 이벤트 연결 (장비 해제 가능)
+            // ⭐ ReadOnly 모드든 아니든 항상 클릭 이벤트 연결
+            // OnEquippedSlotClicked() 내부에서 ReadOnly 체크하여 분기 처리
             button.onClick.AddListener(() => OnEquippedSlotClicked(equipmentSlot));
             button.interactable = true;
             
             if (showDebugLogs)
-                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결 (장비 해제 가능)");
-        }
+            {
+                string mode = isReadOnly ? "읽기 전용 (정보 보기)" : "읽기/쓰기 (장비 해제)";
+                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결: {mode}");
+            }
         }
         else
         {
@@ -209,15 +202,8 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnEquippedSlotClicked(EquipmentSlot slot)
     {
-        // 🔒 읽기 전용 모드 체크 (안전장치)
-        if (isReadOnly)
-        {
-            Debug.LogWarning($"🔒 [LobbyEquippedItemsUI] 읽기 전용 모드에서 클릭 무시: {slot}");
-            return;
-        }
-        
         if (showDebugLogs)
-            Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot} 슬롯 클릭됨");
+            Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot} 슬롯 클릭됨 (ReadOnly: {isReadOnly})");
         
         // PlayerDataManager에서 해당 슬롯의 장비 확인
         if (PlayerDataManager.Instance == null) return;
@@ -227,21 +213,15 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         {
             var equippedItem = equippedItems[slot];
             
-            if (showDebugLogs)
-                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot}에서 {equippedItem.equipmentName} 해제 시도");
-            
-            // 장비 해제 실행
-            bool success = PlayerDataManager.Instance.UnequipItem(slot);
-            
-            if (success)
+            if (isReadOnly)
             {
-                if (showDebugLogs)
-                    Debug.Log($"✅ [LobbyEquippedItemsUI] {equippedItem.equipmentName} 해제 성공");
+                // ⭐ 캐릭터 정보창: 읽기 전용 (ReadOnly 컨텍스트)
+                ShowItemDetailPopupReadOnly(equippedItem, slot);
             }
             else
             {
-                if (showDebugLogs)
-                    Debug.LogWarning($"⚠️ [LobbyEquippedItemsUI] {equippedItem.equipmentName} 해제 실패 (인벤토리가 가득참?)");
+                // ⭐ 로비 인벤토리: 해제 가능 (Equipment 컨텍스트)
+                ShowItemDetailPopupEquipment(equippedItem, slot);
             }
         }
         else
@@ -249,6 +229,95 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot} 슬롯이 비어있습니다");
         }
+    }
+    
+    /// <summary>
+    /// ⭐ 아이템 상세 팝업 표시 (읽기 전용 모드)
+    /// </summary>
+    private void ShowItemDetailPopupReadOnly(EquipmentData equipmentData, EquipmentSlot slot)
+    {
+        if (equipmentData == null)
+        {
+            Debug.LogWarning("⚠️ [LobbyEquippedItemsUI] 빈 슬롯입니다.");
+            return;
+        }
+        
+        // PopupCanvas에서 ItemDetailPopup 찾기
+        var popup = FindObjectOfType<ItemDetailPopup>(true); // includeInactive = true
+        
+        if (popup == null)
+        {
+            Debug.LogError("❌ [LobbyEquippedItemsUI] ItemDetailPopup을 찾을 수 없습니다!");
+            return;
+        }
+        
+        // ⭐ ReadOnly 컨텍스트로 팝업 열기 (ItemInstanceId는 필요하지 않음, 읽기 전용이므로)
+        // slotIndex는 의미 없으므로 -1 전달
+        popup.Show(equipmentData, ItemDetailContext.ReadOnly, -1, default);
+        
+        if (showDebugLogs)
+            Debug.Log($"📖 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (읽기 전용)");
+    }
+    
+    /// <summary>
+    /// ⭐ 아이템 상세 팝업 표시 (장비 해제 모드)
+    /// </summary>
+    private void ShowItemDetailPopupEquipment(EquipmentData equipmentData, EquipmentSlot slot)
+    {
+        if (equipmentData == null)
+        {
+            Debug.LogWarning("⚠️ [LobbyEquippedItemsUI] 빈 슬롯입니다.");
+            return;
+        }
+        
+        // PopupCanvas에서 ItemDetailPopup 찾기
+        var popup = FindObjectOfType<ItemDetailPopup>(true); // includeInactive = true
+        
+        if (popup == null)
+        {
+            Debug.LogError("❌ [LobbyEquippedItemsUI] ItemDetailPopup을 찾을 수 없습니다!");
+            return;
+        }
+        
+        // ⭐ ItemInstanceId 가져오기
+        ItemInstanceId instanceId = GetItemInstanceIdForSlot(slot);
+        
+        // ⭐ Equipment 컨텍스트로 팝업 열기
+        popup.Show(equipmentData, ItemDetailContext.Equipment, -1, instanceId);
+        
+        if (showDebugLogs)
+            Debug.Log($"🎒 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (해제 모드, ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")})");
+    }
+    
+    /// <summary>
+    /// ⭐ 슬롯의 ItemInstanceId 가져오기 (V2 시스템)
+    /// </summary>
+    private ItemInstanceId GetItemInstanceIdForSlot(EquipmentSlot slot)
+    {
+        var playerData = PlayerDataManager.Instance;
+        
+        if (playerData == null || playerData.selectedPlayerData == null)
+        {
+            Debug.LogWarning("⚠️ [LobbyEquippedItemsUI] PlayerDataManager가 null입니다.");
+            return default;
+        }
+        
+        // ⭐ V2 시스템: RuntimeEquippedInstanceIds에서 직접 조회
+        var equippedInstanceIds = playerData.selectedPlayerData.RuntimeEquippedInstanceIds;
+        if (equippedInstanceIds.ContainsKey(slot))
+        {
+            var instanceId = equippedInstanceIds[slot];
+            if (instanceId.IsValid())
+            {
+                if (showDebugLogs)
+                    Debug.Log($"✅ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceId 찾음: {instanceId.id.Substring(0, 8)}...");
+                return instanceId;
+            }
+        }
+        
+        if (showDebugLogs)
+            Debug.LogWarning($"⚠️ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceId를 찾을 수 없습니다.");
+        return default;
     }
     
     /// <summary>

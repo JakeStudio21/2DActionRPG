@@ -59,6 +59,9 @@ public class CharacterInfoUI : MonoBehaviour
             return;
         }
         
+        // ⭐ 캐릭터 정보창용 LobbyEquippedItemsUI를 읽기 전용 모드로 설정
+        SetEquippedItemsUIReadOnlyMode(true);
+        
         InitializeCharacterInfoUI();
     }
     
@@ -680,5 +683,33 @@ public class CharacterInfoUI : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"✅ [CharacterInfoUI] 슬롯 {currentSlot} UI 갱신 완료 (데이터 재로딩 없음)");
+    }
+    
+    /// <summary>
+    /// ⭐ LobbyEquippedItemsUI 읽기 전용 모드 설정
+    /// </summary>
+    private void SetEquippedItemsUIReadOnlyMode(bool isReadOnly)
+    {
+        if (equippedItemsUI == null)
+        {
+            Debug.LogWarning("⚠️ [CharacterInfoUI] equippedItemsUI가 null입니다!");
+            return;
+        }
+        
+        // Reflection을 사용하여 private 필드 접근
+        var fieldInfo = equippedItemsUI.GetType().GetField("isReadOnly", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+        if (fieldInfo != null)
+        {
+            fieldInfo.SetValue(equippedItemsUI, isReadOnly);
+            
+            if (showDebugLogs)
+                Debug.Log($"📖 [CharacterInfoUI] LobbyEquippedItemsUI 읽기 전용 모드 설정: {isReadOnly}");
+        }
+        else
+        {
+            Debug.LogError("❌ [CharacterInfoUI] LobbyEquippedItemsUI.isReadOnly 필드를 찾을 수 없습니다!");
+        }
     }
 }

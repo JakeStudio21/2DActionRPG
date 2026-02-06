@@ -222,8 +222,9 @@ public class ActiveInventory : MonoBehaviour
     
     /// <summary>
     /// 인게임 슬롯 클릭 이벤트 처리 (PlayerDataManager에서 호출)
+    /// V2: ItemInstanceId 추가 (인게임은 사용하지 않음)
     /// </summary>
-    public void OnSlotClickedForInGame(EquipmentData equipmentData, int slotIndex)
+    public void OnSlotClickedForInGame(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId = default)
     {
         if (showDebugLogs)
             Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 시작 =============");
@@ -241,16 +242,15 @@ public class ActiveInventory : MonoBehaviour
         
         if (showDebugLogs)
         {
-            Debug.Log($"🖱️ [ActiveInventory] 인게임 슬롯 클릭 처리: {equipmentData.equipmentName} (인덱스: {slotIndex})");
-            Debug.Log($"🖱️ [ActiveInventory] 전달받은 slotIndex: {slotIndex}");
-            Debug.Log($"🖱️ [ActiveInventory] transform.childCount: {transform.childCount}");
-            
-            // 🆕 추가: 실제 클릭된 슬롯의 Transform 정보 확인
-            Transform clickedTransform = transform.GetChild(slotIndex);
-            Debug.Log($"🖱️ [ActiveInventory] 클릭된 Transform: {clickedTransform.name}");
-            Debug.Log($"🖱️ [ActiveInventory] Transform의 siblingIndex: {clickedTransform.GetSiblingIndex()}");
+            Debug.Log($"✅ [ActiveInventory] 인게임 슬롯 클릭 처리 완료: {equipmentData.equipmentName} (인덱스: {slotIndex})");
         }
         
+        // 🗑️ Legacy 제거: 인게임에서는 더 이상 자동 장착하지 않음
+        // - 이전 구조: 아이템 클릭 → 바로 장착 (Legacy 장비창 사용)
+        // - 현재 구조: 아이템 클릭 → InGameItemDetailPanel 표시 (정보 확인만)
+        // - 스테이지 클리어 후 자동으로 보관창고로 이동
+        
+        /* ❌ Legacy 자동 장착 로직 제거됨 (히스토리)
         // 슬롯 인덱스 유효성 검사
         if (slotIndex < 0 || slotIndex >= transform.childCount)
         {
@@ -304,6 +304,7 @@ public class ActiveInventory : MonoBehaviour
         // 하이라이트 업데이트 (기존 코드 유지)
         activeSlotIndexNum = slotIndex;
         UpdateSlotHighlights();
+        */
         
         Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 완료 =============");
     }

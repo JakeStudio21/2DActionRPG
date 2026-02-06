@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UI.Popups; // ⭐ ItemDetailPopup
 
 /// <summary>
 /// 🏪 상점 전용 인벤토리 UI (View Only)
@@ -53,9 +54,11 @@ using TMPro;
 public class ShopInventoryUI : MonoBehaviour
 {
     [Header("🎒 상점 인벤토리 설정")]
-    [SerializeField] private Transform slotContainer;       // 슬롯들이 들어갈 컨테이너
+    [SerializeField] private ScrollRect scrollRect;         // ⭐ ScrollView의 ScrollRect 컴포넌트
+    [SerializeField] private Transform slotContainer;       // 슬롯들이 들어갈 컨테이너 (ScrollView의 Content)
     [SerializeField] private GameObject slotPrefab;         // 상점용 슬롯 프리팹
-    [SerializeField] private int maxDisplaySlots = 16;      // 표시할 최대 슬롯 수
+    
+    // ❌ 제거: maxDisplaySlots (AccountData에서 가져옴)
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = false; // 🔧 수정: 기본값 false
@@ -131,8 +134,15 @@ public class ShopInventoryUI : MonoBehaviour
         }
         shopInventorySlots.Clear();
         
+        // ⭐ AccountData에서 최대 크기 가져오기 (기본 64칸, 확장 가능)
+        int maxSlots = 64; // 기본값 (8x8 그리드)
+        if (AccountDataManager.IsInitialized())
+        {
+            maxSlots = AccountDataManager.Instance.GetAccountData().maxSharedInventorySize;
+        }
+        
         // 새 슬롯들 생성
-        for (int i = 0; i < maxDisplaySlots; i++)
+        for (int i = 0; i < maxSlots; i++)
         {
             GameObject slotObj = Instantiate(slotPrefab, slotContainer);
             slotObj.name = $"ShopInventorySlot_{i}";
@@ -148,7 +158,7 @@ public class ShopInventoryUI : MonoBehaviour
         SetupShopSlotClickEvents();
         
         if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] {shopInventorySlots.Count}개 슬롯 생성 완료");
+            Debug.Log($"🏪 [ShopInventoryUI] {shopInventorySlots.Count}개 슬롯 생성 완료 (최대: {maxSlots})");
     }
     
     /// <summary>
@@ -189,6 +199,21 @@ public class ShopInventoryUI : MonoBehaviour
             
         if (showDebugLogs)
             Debug.Log($"🏪 [ShopInventoryUI] RefreshInventoryUI() 호출 (V2: 계정 공유 창고)");
+        
+        // ⭐ ScrollRect Position 저장 (스크롤 위치 유지)
+        Vector2 savedScrollPosition = Vector2.zero;
+        bool hasScrollRect = scrollRect != null;
+        if (hasScrollRect)
+        {
+            savedScrollPosition = scrollRect.normalizedPosition;
+            if (showDebugLogs)
+                Debug.Log($"💾 [ShopInventoryUI] 스크롤 위치 저장: {savedScrollPosition} (vertical: {savedScrollPosition.y})");
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [ShopInventoryUI] scrollRect가 null입니다! Unity Editor에서 ScrollRect 컴포넌트를 할당하세요.");
+        }
         
         // 🆕 V2: AccountDataManager 확인
         if (AccountDataManager.Instance == null)
@@ -262,8 +287,49 @@ public class ShopInventoryUI : MonoBehaviour
         
         if (showDebugLogs)
         {
-            Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 새로고침 완료: {inventoryItems.Count}/{maxDisplaySlots}");
+            int maxSlots = AccountDataManager.IsInitialized() 
+                ? AccountDataManager.Instance.GetAccountData().maxSharedInventorySize 
+                : 64;
+            Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 새로고침 완료: {inventoryItems.Count}/{maxSlots}");
             Debug.Log($"═══════════════════════════════════════════════════════");
+        }
+        
+        // ⭐ ScrollRect Position 복원 (다음 프레임에 실행하여 Layout 재계산 완료 후 적용)
+        if (hasScrollRect)
+        {
+            StartCoroutine(RestoreScrollPositionNextFrame(savedScrollPosition));
+        }
+    }
+    
+    /// <summary>
+    /// ⭐ ScrollRect Position 복원 (다음 프레임)
+    /// </summary>
+    private IEnumerator RestoreScrollPositionNextFrame(Vector2 position)
+    {
+        if (showDebugLogs)
+            Debug.Log($"⏳ [ShopInventoryUI] 스크롤 복원 대기 중... (목표: {position})");
+        
+        yield return null; // 1프레임 대기 (Layout 재계산 완료)
+        
+        if (scrollRect != null)
+        {
+            Vector2 beforePosition = scrollRect.normalizedPosition;
+            scrollRect.normalizedPosition = position;
+            Vector2 afterPosition = scrollRect.normalizedPosition;
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"🔄 [ShopInventoryUI] 스크롤 위치 복원 시도:");
+                Debug.Log($"   - 목표 위치: {position}");
+                Debug.Log($"   - 복원 전: {beforePosition}");
+                Debug.Log($"   - 복원 후: {afterPosition}");
+                Debug.Log($"   - 성공 여부: {Vector2.Distance(afterPosition, position) < 0.01f}");
+            }
+        }
+        else
+        {
+            if (showDebugLogs)
+                Debug.LogError($"❌ [ShopInventoryUI] scrollRect가 null입니다! (복원 실패)");
         }
     }
     
@@ -275,7 +341,11 @@ public class ShopInventoryUI : MonoBehaviour
         // Shop 환경에서만 처리 (이미 Button.onClick으로 호출되므로 활성화 상태 보장됨)
         if (equipmentData != null && instanceId.IsValid())
         {
+            // ⭐ 기존 이벤트 유지 (다른 시스템 호환성)
             OnInventoryItemClicked?.Invoke(equipmentData, slotIndex, instanceId);  // 🆕 V2: ID 전달
+            
+            // ⭐ ItemDetailPopup 열기 (Shop_Sell 컨텍스트)
+            ShowItemDetailPopup(equipmentData, slotIndex, instanceId);
             
             if (showDebugLogs)
                 Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 아이템 클릭: {equipmentData.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
@@ -284,6 +354,27 @@ public class ShopInventoryUI : MonoBehaviour
         {
             Debug.LogWarning($"⚠️ [ShopInventoryUI] 빈 슬롯 클릭 또는 잘못된 ID (슬롯: {slotIndex})");
         }
+    }
+    
+    /// <summary>
+    /// ⭐ 아이템 상세 팝업 표시 (상점 판매용)
+    /// </summary>
+    private void ShowItemDetailPopup(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId)
+    {
+        // PopupCanvas에서 ItemDetailPopup 찾기
+        var popup = FindObjectOfType<ItemDetailPopup>(true); // includeInactive = true
+        
+        if (popup == null)
+        {
+            Debug.LogError("❌ [ShopInventoryUI] ItemDetailPopup을 찾을 수 없습니다!");
+            return;
+        }
+        
+        // Shop_Sell 컨텍스트로 팝업 열기
+        popup.Show(equipmentData, ItemDetailContext.Shop_Sell, slotIndex, instanceId);
+        
+        if (showDebugLogs)
+            Debug.Log($"🏪 [ShopInventoryUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (판매 모드)");
     }
     
     /// <summary>

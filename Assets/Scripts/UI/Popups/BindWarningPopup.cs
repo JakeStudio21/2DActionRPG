@@ -69,6 +69,42 @@ namespace UI.Popups
         }
         
         /// <summary>
+        /// ⭐ 커스텀 메시지로 팝업 표시 (귀속 해제 등)
+        /// </summary>
+        public void ShowCustom(string title, string message, System.Action<bool> onUserResponse)
+        {
+            _currentWarningData = null; // 커스텀 모드
+            _onUserResponse = onUserResponse;
+            
+            // 타이틀 설정 (titleText가 있으면)
+            var titleText = popupPanel?.transform.Find("Title")?.GetComponent<TMPro.TextMeshProUGUI>();
+            if (titleText != null)
+            {
+                titleText.text = title;
+            }
+            
+            // 메시지 설정
+            if (messageText != null)
+            {
+                messageText.text = message;
+            }
+            
+            // "다시 보지 않기" 토글 숨김 (커스텀 경고에서는 사용 안 함)
+            if (dontShowAgainToggle != null)
+            {
+                dontShowAgainToggle.gameObject.SetActive(false);
+            }
+            
+            // 팝업 표시
+            if (popupPanel != null)
+            {
+                popupPanel.SetActive(true);
+            }
+            
+            Log($"[BindWarningPopup] 커스텀 경고 표시: {title}");
+        }
+        
+        /// <summary>
         /// 확인 버튼 클릭
         /// </summary>
         private void OnConfirmClicked()

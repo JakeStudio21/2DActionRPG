@@ -255,6 +255,8 @@ MonoBehaviour:
   currentSlotIndex: -1
   lastSelectedSlotIndex: 0
   showDebugLogs: 1
+  isDirty: 0
+  isLoading: 0
 --- !u!1 &7290968884572180690
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,6 +267,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7166106308255166314}
   - component: {fileID: 4639642882801342193}
+  - component: {fileID: 4702508444405460544}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -304,6 +307,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78086fea4535770439ccfe3505bb16c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4702508444405460544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7290968884572180690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a7d511f84b2afa4686a3ebf98716223, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: ac45dad322bdc4d49940ed17c24144d0, type: 2}
+  showDebugLogs: 0
 --- !u!1 &8367321699995915079
 GameObject:
   m_ObjectHideFlags: 0

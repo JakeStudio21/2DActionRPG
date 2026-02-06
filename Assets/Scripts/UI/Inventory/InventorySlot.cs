@@ -5,6 +5,7 @@ using UnityEngine.UI;
 // 🗑️ 제거: IPointerClickHandler 사용 안 함 (Button.onClick 사용)
 // using UnityEngine.EventSystems;
 using TMPro; // 🆕 추가
+using UI.Components; // ⭐ ItemIconGradeFrame
 
 
 /// 🏠 LobbyInventoryUI - 로비 전용 인벤토리 UI
@@ -58,6 +59,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     [Header("🎨 UI 컴포넌트")]
     [SerializeField] private Image slotImage;      // 슬롯 배경
     [SerializeField] private Image itemIconImage;  // 아이템 아이콘
+    [SerializeField] private ItemIconGradeFrame itemIconGradeFrame; // ⭐ 등급별 배경 색상
     [SerializeField] private Button slotButton;    // 클릭 버튼
     [SerializeField] private Image bindIcon;       // 🆕 귀속 아이콘
 
@@ -187,9 +189,10 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         }
         
         // 🎯 PlayerDataManager 이벤트 발생 (모든 UI에서 구독 가능)
+        // V2: ItemInstanceId 전달 (귀속 체크용)
         if (PlayerDataManager.Instance != null)
         {
-            PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex);
+            PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex, itemInstanceId);
         }
     }
     
@@ -262,6 +265,12 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             if (bindIcon != null)
             {
                 bindIcon.gameObject.SetActive(false);
+            }
+            
+            // ⭐ 등급 프레임 초기화 (빈 슬롯에서 이전 색상 제거)
+            if (itemIconGradeFrame != null)
+            {
+                itemIconGradeFrame.SetGrade(ItemGrade.D); // 기본 등급으로 리셋
             }
         }
     }
@@ -475,6 +484,13 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     {
         equipmentData = data;
         itemInstanceId = instanceId;  // 🆕 V2: 인스턴스 ID 저장
+        
+        // ⭐ 등급별 배경 색상 적용
+        if (itemIconGradeFrame != null && data != null)
+        {
+            itemIconGradeFrame.SetGrade(data.itemGrade);
+        }
+        
         UpdateSlotVisual();
     }
     
