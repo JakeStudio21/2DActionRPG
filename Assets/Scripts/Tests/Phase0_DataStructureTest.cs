@@ -283,7 +283,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
         {
             var material = new MaterialStack
             {
-                materialId = "FRAGMENT_ENHANCE",
+                materialType = MaterialType.WeaponFragment,
                 count = 100
             };
             
@@ -345,7 +345,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
             
             var material = new MaterialStack
             {
-                materialId = "FRAGMENT_ENHANCE",
+                materialType = MaterialType.ArmorCrystal,
                 count = 50
             };
             accountData.materials.Add(material);

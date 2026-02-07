@@ -18,7 +18,7 @@ public class AccountDataManager
     // ⭐ 캐시는 Manager에서 관리
     private Dictionary<ItemInstanceId, ItemInstanceData> instanceCache;
     private Dictionary<ItemInstanceId, int> bindCache; // instanceId -> characterSlotIndex
-    private Dictionary<string, int> materialCache; // materialId -> count
+    private Dictionary<MaterialType, int> materialCache; // ⭐ MaterialType enum 기반
     
     private const string ACCOUNT_SAVE_KEY = "Account";
     
@@ -109,7 +109,7 @@ public class AccountDataManager
     {
         instanceCache = new Dictionary<ItemInstanceId, ItemInstanceData>();
         bindCache = new Dictionary<ItemInstanceId, int>();
-        materialCache = new Dictionary<string, int>();
+        materialCache = new Dictionary<MaterialType, int>();
         
         // 인스턴스 캐시
         foreach (var instance in accountData.itemInstances)
@@ -123,13 +123,13 @@ public class AccountDataManager
             bindCache[bind.instanceId] = bind.characterSlotIndex;
         }
         
-        // 재료 캐시
+        // 재료 캐시 (MaterialType enum 기반)
         foreach (var mat in accountData.materials)
         {
-            materialCache[mat.materialId] = mat.count;
+            materialCache[mat.materialType] = mat.count;
         }
         
-        Debug.Log($"🔄 [AccountDataManager] 캐시 재구축 완료: 인스턴스 {instanceCache.Count}개");
+        Debug.Log($"🔄 [AccountDataManager] 캐시 재구축 완료: 인스턴스 {instanceCache.Count}개, 재료 {materialCache.Count}종류");
     }
     
     // ========================================
@@ -425,98 +425,144 @@ public class AccountDataManager
     }
     
     // ========================================
-    // 재료 관리
+    // 재료 관리 (MaterialType enum 기반)
     // ========================================
+    
+    /// <summary>
+    /// 재료 변경 이벤트
+    /// </summary>
+    public event System.Action<MaterialType, int> OnMaterialChanged;
     
     /// <summary>
     /// 재료 추가
     /// </summary>
-    public void AddMaterial(string materialId, int amount)
+    public void AddMaterial(MaterialType materialType, int amount)
     {
-        if (materialCache.TryGetValue(materialId, out int currentCount))
+        if (amount <= 0)
+        {
+            Debug.LogWarning($"⚠️ [AccountDataManager] 잘못된 수량: {materialType} +{amount}");
+            return;
+        }
+        
+        if (materialCache.TryGetValue(materialType, out int currentCount))
         {
             // 기존 스택 증가
             currentCount += amount;
-            materialCache[materialId] = currentCount;
+            materialCache[materialType] = currentCount;
             
-            var stack = accountData.materials.Find(m => m.materialId == materialId);
-            stack.count = currentCount;
+            var stack = accountData.materials.Find(m => m.materialType == materialType);
+            if (stack != null)
+            {
+                stack.count = currentCount;
+            }
         }
         else
         {
             // 신규 재료
-            var stack = new MaterialStack { materialId = materialId, count = amount };
+            var stack = new MaterialStack { materialType = materialType, count = amount };
             accountData.materials.Add(stack);
-            materialCache[materialId] = amount;
+            materialCache[materialType] = amount;
         }
         
-        Debug.Log($"🎁 [AccountDataManager] 재료 추가: {materialId} +{amount} (총: {materialCache[materialId]}개)");
+        Debug.Log($"🎁 [AccountDataManager] 재료 추가: {materialType.GetDisplayName()} +{amount} (총: {materialCache[materialType]}개)");
+        
+        // 이벤트 발생
+        OnMaterialChanged?.Invoke(materialType, materialCache[materialType]);
     }
     
     /// <summary>
-    /// 재료 소모
+    /// 재료 제거 (소모)
     /// </summary>
-    public bool ConsumeMaterial(string materialId, int amount)
+    public bool RemoveMaterial(MaterialType materialType, int amount)
     {
-        if (!materialCache.TryGetValue(materialId, out int currentCount))
+        if (amount <= 0)
         {
-            Debug.LogWarning($"⚠️ [AccountDataManager] 재료 없음: {materialId}");
+            Debug.LogWarning($"⚠️ [AccountDataManager] 잘못된 수량: {materialType} -{amount}");
+            return false;
+        }
+        
+        if (!materialCache.TryGetValue(materialType, out int currentCount))
+        {
+            Debug.LogWarning($"⚠️ [AccountDataManager] 재료 없음: {materialType.GetDisplayName()}");
             return false;
         }
         
         if (currentCount < amount)
         {
-            Debug.LogWarning($"⚠️ [AccountDataManager] 재료 부족: {materialId} (필요: {amount}, 보유: {currentCount})");
+            Debug.LogWarning($"⚠️ [AccountDataManager] 재료 부족: {materialType.GetDisplayName()} (필요: {amount}, 보유: {currentCount})");
             return false;
         }
         
         currentCount -= amount;
-        materialCache[materialId] = currentCount;
+        materialCache[materialType] = currentCount;
         
-        var stack = accountData.materials.Find(m => m.materialId == materialId);
-        stack.count = currentCount;
-        
-        // 0개가 되면 제거
-        if (currentCount == 0)
+        var stack = accountData.materials.Find(m => m.materialType == materialType);
+        if (stack != null)
         {
-            accountData.materials.Remove(stack);
-            materialCache.Remove(materialId);
+            stack.count = currentCount;
+            
+            // 0개가 되면 제거
+            if (currentCount == 0)
+            {
+                accountData.materials.Remove(stack);
+                materialCache.Remove(materialType);
+            }
         }
         
-        Debug.Log($"🎁 [AccountDataManager] 재료 소모: {materialId} -{amount} (남은: {currentCount}개)");
+        Debug.Log($"🎁 [AccountDataManager] 재료 소모: {materialType.GetDisplayName()} -{amount} (남은: {currentCount}개)");
+        
+        // 이벤트 발생
+        OnMaterialChanged?.Invoke(materialType, currentCount);
+        
         return true;
     }
     
     /// <summary>
     /// 재료 보유량 조회
     /// </summary>
-    public int GetMaterialCount(string materialId)
-    {
-        return materialCache.TryGetValue(materialId, out int count) ? count : 0;
-    }
-    
-    /// <summary>
-    /// 재료 추가 (MaterialType enum 기반)
-    /// </summary>
-    public void AddMaterial(MaterialType materialType, int amount)
-    {
-        AddMaterial(materialType.ToString(), amount);
-    }
-    
-    /// <summary>
-    /// 재료 소모 (MaterialType enum 기반)
-    /// </summary>
-    public bool ConsumeMaterial(MaterialType materialType, int amount)
-    {
-        return ConsumeMaterial(materialType.ToString(), amount);
-    }
-    
-    /// <summary>
-    /// 재료 보유량 조회 (MaterialType enum 기반)
-    /// </summary>
     public int GetMaterialCount(MaterialType materialType)
     {
-        return GetMaterialCount(materialType.ToString());
+        return materialCache.TryGetValue(materialType, out int count) ? count : 0;
+    }
+    
+    /// <summary>
+    /// 재료가 충분한지 확인
+    /// </summary>
+    public bool HasMaterial(MaterialType materialType, int requiredAmount)
+    {
+        return GetMaterialCount(materialType) >= requiredAmount;
+    }
+    
+    /// <summary>
+    /// 모든 재료 가져오기 (정렬됨)
+    /// </summary>
+    public List<MaterialStack> GetAllMaterials()
+    {
+        // MaterialType 순서대로 정렬
+        var sorted = new List<MaterialStack>(accountData.materials);
+        sorted.Sort((a, b) => a.materialType.CompareTo(b.materialType));
+        return sorted;
+    }
+    
+    /// <summary>
+    /// UI 표시용 재료 리스트 (0개 제외)
+    /// </summary>
+    public List<MaterialStack> GetMaterialsForDisplay()
+    {
+        var result = new List<MaterialStack>();
+        
+        foreach (var mat in accountData.materials)
+        {
+            if (mat.count > 0)
+            {
+                result.Add(mat);
+            }
+        }
+        
+        // MaterialType 순서대로 정렬
+        result.Sort((a, b) => a.materialType.CompareTo(b.materialType));
+        
+        return result;
     }
     
     // ========================================
@@ -557,7 +603,7 @@ public class AccountDataManager
         Debug.Log($"   - 재료: {accountData.materials.Count}종류");
         foreach (var mat in accountData.materials)
         {
-            Debug.Log($"     - {mat.materialId}: {mat.count}개");
+            Debug.Log($"     - {mat.GetDisplayName()}: {mat.count}개 [{mat.materialType}]");
         }
         Debug.Log("═══════════════════════════════════════════════════════");
     }

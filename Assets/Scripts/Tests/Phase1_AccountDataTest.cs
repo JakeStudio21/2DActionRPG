@@ -272,35 +272,35 @@ public class Phase1_AccountDataTest : MonoBehaviour
         {
             var manager = AccountDataManager.Instance;
             
-            // 재료 추가
-            manager.AddMaterial("FRAGMENT_ENHANCE", 100);
-            manager.AddMaterial("SPIRITSTONE", 50);
+            // 재료 추가 (MaterialType enum 사용)
+            manager.AddMaterial(MaterialType.WeaponFragment, 100);
+            manager.AddMaterial(MaterialType.ArmorCrystal, 50);
             
             // 추가 누적
-            manager.AddMaterial("FRAGMENT_ENHANCE", 50);
+            manager.AddMaterial(MaterialType.WeaponFragment, 50);
             
             // 보유량 확인
-            if (manager.GetMaterialCount("FRAGMENT_ENHANCE") != 150)
+            if (manager.GetMaterialCount(MaterialType.WeaponFragment) != 150)
             {
-                Debug.LogError($"❌ Test 5 실패: 파편 수량 오류 (예상: 150, 실제: {manager.GetMaterialCount("FRAGMENT_ENHANCE")})");
+                Debug.LogError($"❌ Test 5 실패: 파편 수량 오류 (예상: 150, 실제: {manager.GetMaterialCount(MaterialType.WeaponFragment)})");
                 return false;
             }
             
-            // 소모
-            if (!manager.ConsumeMaterial("FRAGMENT_ENHANCE", 30))
+            // 소모 (RemoveMaterial 사용)
+            if (!manager.RemoveMaterial(MaterialType.WeaponFragment, 30))
             {
                 Debug.LogError("❌ Test 5 실패: 재료 소모 실패");
                 return false;
             }
             
-            if (manager.GetMaterialCount("FRAGMENT_ENHANCE") != 120)
+            if (manager.GetMaterialCount(MaterialType.WeaponFragment) != 120)
             {
-                Debug.LogError($"❌ Test 5 실패: 소모 후 수량 오류 (예상: 120, 실제: {manager.GetMaterialCount("FRAGMENT_ENHANCE")})");
+                Debug.LogError($"❌ Test 5 실패: 소모 후 수량 오류 (예상: 120, 실제: {manager.GetMaterialCount(MaterialType.WeaponFragment)})");
                 return false;
             }
             
             // 부족한 경우
-            if (manager.ConsumeMaterial("FRAGMENT_ENHANCE", 200))
+            if (manager.RemoveMaterial(MaterialType.WeaponFragment, 200))
             {
                 Debug.LogError("❌ Test 5 실패: 부족한데 소모 성공함");
                 return false;
@@ -308,8 +308,8 @@ public class Phase1_AccountDataTest : MonoBehaviour
             
             if (showDetailedLogs)
             {
-                Debug.Log($"✅ 파편: {manager.GetMaterialCount("FRAGMENT_ENHANCE")}개");
-                Debug.Log($"✅ 정령석: {manager.GetMaterialCount("SPIRITSTONE")}개");
+                Debug.Log($"✅ 무기 파편: {manager.GetMaterialCount(MaterialType.WeaponFragment)}개");
+                Debug.Log($"✅ 방어구 결정: {manager.GetMaterialCount(MaterialType.ArmorCrystal)}개");
             }
             
             Debug.Log("✅ Test 5 통과: 재료 관리 성공");

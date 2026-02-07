@@ -56,12 +56,17 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     [SerializeField] private EquipmentData equipmentData;
     private ItemInstanceId itemInstanceId;  // 🆕 V2: 아이템 인스턴스 ID
     
+    [Header("📦 재료 데이터")]
+    private MaterialType? currentMaterial = null; // 재료 타입 (null이면 장비 슬롯)
+    
     [Header("🎨 UI 컴포넌트")]
     [SerializeField] private Image slotImage;      // 슬롯 배경
     [SerializeField] private Image itemIconImage;  // 아이템 아이콘
     [SerializeField] private ItemIconGradeFrame itemIconGradeFrame; // ⭐ 등급별 배경 색상
     [SerializeField] private Button slotButton;    // 클릭 버튼
     [SerializeField] private Image bindIcon;       // 🆕 귀속 아이콘
+    [SerializeField] private TMP_Text countText;   // 📦 재료 수량 텍스트 ("X999")
+    [SerializeField] private Image rarityBorder;   // 📦 재료 등급 테두리
 
     [Header("🎨 UI 메시지")]
     [SerializeField] private GameObject messagePanel; // 메시지 패널 (생성될 예정)
@@ -161,6 +166,18 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void OnSlotClicked()
     {
+        // 📦 재료 슬롯 클릭 처리
+        if (currentMaterial.HasValue)
+        {
+            if (showDebugLogs)
+                Debug.Log($"📦 [InventorySlot] 재료 클릭: {currentMaterial.Value.GetDisplayName()}");
+            
+            // 재료 상세 패널 열기 (TODO: Phase D에서 구현)
+            // ItemDetailPopup.ShowMaterialDetail(currentMaterial.Value);
+            
+            return;
+        }
+        
         // 빈 슬롯 클릭 방지
         if (equipmentData == null)
         {
@@ -485,10 +502,34 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         equipmentData = data;
         itemInstanceId = instanceId;  // 🆕 V2: 인스턴스 ID 저장
         
-        // ⭐ 등급별 배경 색상 적용
-        if (itemIconGradeFrame != null && data != null)
+        // ⭐ 재료 모드 해제 (장비 모드로 전환)
+        currentMaterial = null;
+        
+        // ⭐ 재료 전용 UI 숨김
+        if (countText != null)
         {
-            itemIconGradeFrame.SetGrade(data.itemGrade);
+            countText.gameObject.SetActive(false);
+        }
+        
+        if (rarityBorder != null)
+        {
+            rarityBorder.enabled = false;
+            rarityBorder.gameObject.SetActive(false); // ⭐ GameObject도 비활성화
+        }
+        
+        // ⭐ GradeBoard (ItemIconGradeFrame) 활성화 및 등급별 배경 색상 적용
+        if (itemIconGradeFrame != null)
+        {
+            if (data != null)
+            {
+                itemIconGradeFrame.gameObject.SetActive(true); // ⭐ 장비 모드에서 활성화
+                itemIconGradeFrame.SetGrade(data.itemGrade);
+            }
+            else
+            {
+                // 빈 슬롯일 경우 비활성화
+                itemIconGradeFrame.gameObject.SetActive(false);
+            }
         }
         
         UpdateSlotVisual();
@@ -606,5 +647,154 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         
         // 클릭 이벤트 재처리
         OnSlotClicked();
+    }
+    
+    // ========================================
+    // 📦 재료 관련 메서드
+    // ========================================
+    
+    /// <summary>
+    /// 재료 슬롯 설정
+    /// </summary>
+    public void SetupMaterial(MaterialStack materialStack)
+    {
+        ClearSlot();
+        
+        currentMaterial = materialStack.materialType;
+        var data = materialStack.GetData();
+        
+        if (data == null)
+        {
+            Debug.LogWarning($"[InventorySlot] MaterialData 없음: {materialStack.materialType}");
+            return;
+        }
+        
+        // 아이콘 설정
+        if (itemIconImage != null)
+        {
+            itemIconImage.sprite = data.icon;
+            itemIconImage.enabled = true;
+            itemIconImage.color = Color.white;
+        }
+        
+        // 수량 텍스트
+        if (countText != null)
+        {
+            countText.text = $"X{materialStack.count}";
+            countText.gameObject.SetActive(true);
+        }
+        
+        // ⭐ 등급 테두리 (재료 전용)
+        if (rarityBorder != null)
+        {
+            Color borderColor = data.GetBorderColor();
+            rarityBorder.color = borderColor;
+            rarityBorder.enabled = true;
+            rarityBorder.gameObject.SetActive(true); // ⭐ GameObject도 활성화
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"[InventorySlot] 재료 테두리 설정: {materialStack.materialType} " +
+                         $"| Rarity: {data.rarity} " +
+                         $"| Color: {borderColor} " +
+                         $"| Alpha: {borderColor.a} " +
+                         $"| GameObject Active: {rarityBorder.gameObject.activeSelf}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[InventorySlot] rarityBorder가 null입니다! (재료: {materialStack.materialType})");
+        }
+        
+        // ⭐ GradeBoard (ItemIconGradeFrame) 비활성화 (재료 모드에서는 사용 안 함)
+        if (itemIconGradeFrame != null)
+        {
+            itemIconGradeFrame.gameObject.SetActive(false);
+        }
+        
+        // ⭐ 귀속 아이콘 비활성화 (재료는 귀속 개념 없음)
+        if (bindIcon != null)
+        {
+            bindIcon.enabled = false;
+        }
+        
+        // 슬롯 배경 (활성화)
+        if (slotImage != null)
+        {
+            slotImage.enabled = true;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📦 [InventorySlot] 재료 설정: {data.displayName} x{materialStack.count}");
+    }
+    
+    /// <summary>
+    /// 슬롯 초기화
+    /// </summary>
+    public void ClearSlot()
+    {
+        // 장비 데이터 초기화
+        equipmentData = null;
+        itemInstanceId = default;
+        
+        // 재료 데이터 초기화
+        currentMaterial = null;
+        
+        // UI 초기화
+        if (itemIconImage != null)
+        {
+            itemIconImage.sprite = null;
+            itemIconImage.enabled = false;
+        }
+        
+        // 수량 텍스트 숨김
+        if (countText != null)
+        {
+            countText.gameObject.SetActive(false);
+        }
+        
+        // 테두리 숨김
+        if (rarityBorder != null)
+        {
+            rarityBorder.enabled = false;
+            rarityBorder.gameObject.SetActive(false); // ⭐ GameObject도 비활성화
+        }
+        
+        // ItemIconGradeFrame (GradeBoard) 숨김
+        if (itemIconGradeFrame != null)
+        {
+            itemIconGradeFrame.gameObject.SetActive(false);
+        }
+        
+        // 귀속 아이콘 숨김
+        if (bindIcon != null)
+        {
+            bindIcon.enabled = false;
+        }
+        
+        // 슬롯 배경
+        if (slotImage != null)
+        {
+            slotImage.enabled = true;
+        }
+        
+        isBound = false;
+        isSelected = false;
+    }
+    
+    /// <summary>
+    /// 재료인지 확인
+    /// </summary>
+    public bool IsMaterial()
+    {
+        return currentMaterial.HasValue;
+    }
+    
+    /// <summary>
+    /// 현재 재료 타입 가져오기
+    /// </summary>
+    public MaterialType? GetMaterialType()
+    {
+        return currentMaterial;
     }
 } 

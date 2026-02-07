@@ -50,6 +50,17 @@ using UnityEngine.SceneManagement; // 🆕 씬 관리를 위한 추가
 /// </summary>
 public class LobbyInventoryUI : MonoBehaviour
 {
+    /// <summary>
+    /// 인벤토리 탭 타입 (확장 가능)
+    /// </summary>
+    public enum InventoryTabType
+    {
+        Equipment,  // 장비 (기본)
+        Material,   // 재료
+        Bound,      // 귀속 (Phase C)
+        Quest       // 퀘스트 (Phase D)
+    }
+    
     [Header("🎒 로비 인벤토리 설정")]
     [SerializeField] private GameObject inventoryPanel;     // 인벤토리 패널
     [SerializeField] private Button inventoryToggleButton;  // 가방 버튼
@@ -57,6 +68,14 @@ public class LobbyInventoryUI : MonoBehaviour
     [SerializeField] private Transform slotContainer;       // 슬롯들이 들어갈 컨테이너 (ScrollView의 Content)
     [SerializeField] private GameObject slotPrefab;         // 로비용 슬롯 프리팹
     [SerializeField] private Button closePanelButton;       // 패널 닫기 버튼 (로비로 돌아가기)
+    
+    [Header("📑 탭 시스템")]
+    [SerializeField] private Button equipmentTabButton;     // 장비 탭 버튼
+    [SerializeField] private Button materialTabButton;      // 재료 탭 버튼
+    [SerializeField] private TMP_Text equipmentTabText;     // 장비 탭 텍스트
+    [SerializeField] private TMP_Text materialTabText;      // 재료 탭 텍스트
+    
+    private InventoryTabType currentTab = InventoryTabType.Equipment; // 현재 활성 탭
     
     // ❌ 제거: maxDisplaySlots (AccountData에서 가져옴)
     
@@ -109,6 +128,7 @@ public class LobbyInventoryUI : MonoBehaviour
         if (AccountDataManager.Instance != null)
         {
             AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+            AccountDataManager.Instance.OnMaterialChanged -= OnMaterialChangedHandler;
         }
     }
 
@@ -325,6 +345,19 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             closePanelButton.onClick.AddListener(ClosePanel);
         }
+        
+        // 📑 탭 버튼 이벤트
+        if (equipmentTabButton != null)
+        {
+            equipmentTabButton.onClick.AddListener(() => SwitchTab(InventoryTabType.Equipment));
+            Debug.Log("✅ [LobbyInventoryUI] 장비 탭 버튼 이벤트 연결 완료");
+        }
+        
+        if (materialTabButton != null)
+        {
+            materialTabButton.onClick.AddListener(() => SwitchTab(InventoryTabType.Material));
+            Debug.Log("✅ [LobbyInventoryUI] 재료 탭 버튼 이벤트 연결 완료");
+        }
 
         // PlayerDataManager 이벤트 구독 (지연 갱신 지원)
         if (PlayerDataManager.Instance != null)
@@ -338,6 +371,28 @@ public class LobbyInventoryUI : MonoBehaviour
             
             // 🆕 지연 로드 완료 이벤트 구독
             PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoaded;
+        }
+        
+        // AccountDataManager 이벤트 구독 (재료 변경)
+        if (AccountDataManager.Instance != null)
+        {
+            AccountDataManager.Instance.OnMaterialChanged += OnMaterialChangedHandler;
+            Debug.Log("✅ [LobbyInventoryUI] AccountDataManager 재료 이벤트 구독 완료");
+        }
+    }
+    
+    /// <summary>
+    /// 재료 변경 이벤트 핸들러
+    /// </summary>
+    private void OnMaterialChangedHandler(MaterialType materialType, int newCount)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🔄 [LobbyInventoryUI] 재료 변경 감지: {materialType.GetDisplayName()} = {newCount}개");
+        
+        // 재료 탭이 활성화된 경우에만 갱신
+        if (currentTab == InventoryTabType.Material && inventoryPanel != null && inventoryPanel.activeInHierarchy)
+        {
+            RefreshCurrentTab();
         }
     }
 
@@ -986,9 +1041,12 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
 
-        // 슬롯 데이터 설정 (🆕 ItemInstanceId도 함께 전달)
+        // ⭐ 슬롯 데이터 설정 (🆕 ItemInstanceId도 함께 전달)
+        // 중요: 재료 탭에서 비활성화된 슬롯을 복원하기 위해 명시적으로 활성화
         for (int i = 0; i < lobbySlots.Count; i++)
         {
+            lobbySlots[i].gameObject.SetActive(true); // ⭐ 모든 슬롯 활성화 (재료 탭 복원)
+            
             if (i < inventoryItems.Count)
             {
                 lobbySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);  // 🆕 ID 전달
@@ -1393,5 +1451,127 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             Debug.LogError($"❌ [LobbyInventoryUI] goldText가 NULL입니다! Inspector에서 할당해주세요.");
         }
+    }
+    
+    // ========================================
+    // 📑 탭 시스템
+    // ========================================
+    
+    /// <summary>
+    /// 탭 전환
+    /// </summary>
+    public void SwitchTab(InventoryTabType tabType)
+    {
+        if (currentTab == tabType)
+        {
+            if (showDebugLogs)
+                Debug.Log($"📑 [LobbyInventoryUI] 이미 {tabType} 탭이 활성화되어 있습니다.");
+            return;
+        }
+        
+        currentTab = tabType;
+        
+        if (showDebugLogs)
+            Debug.Log($"📑 [LobbyInventoryUI] 탭 전환: {tabType}");
+        
+        RefreshCurrentTab();
+        UpdateTabButtonStates();
+    }
+    
+    /// <summary>
+    /// 현재 탭 갱신
+    /// </summary>
+    private void RefreshCurrentTab()
+    {
+        switch (currentTab)
+        {
+            case InventoryTabType.Equipment:
+                RefreshEquipmentTab();
+                break;
+            
+            case InventoryTabType.Material:
+                RefreshMaterialTab();
+                break;
+            
+            default:
+                Debug.LogWarning($"⚠️ [LobbyInventoryUI] 지원하지 않는 탭: {currentTab}");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// 장비 탭 갱신 (기존 RefreshInventoryUI)
+    /// </summary>
+    private void RefreshEquipmentTab()
+    {
+        // 기존 RefreshInventoryUI() 로직을 여기로 이동할 예정
+        RefreshInventoryUI();
+    }
+    
+    /// <summary>
+    /// 재료 탭 갱신
+    /// </summary>
+    private void RefreshMaterialTab()
+    {
+        if (!AccountDataManager.IsInitialized())
+        {
+            Debug.LogWarning("⚠️ [LobbyInventoryUI] AccountDataManager가 초기화되지 않았습니다.");
+            return;
+        }
+        
+        var materials = AccountDataManager.Instance.GetMaterialsForDisplay();
+        
+        if (showDebugLogs)
+            Debug.Log($"📦 [LobbyInventoryUI] 재료 탭 갱신: {materials.Count}개 재료");
+        
+        // 슬롯 초기화 (16칸만 사용: 8칸 x 2행)
+        int maxMaterialSlots = 16;
+        
+        // 재료 표시
+        for (int i = 0; i < maxMaterialSlots; i++)
+        {
+            if (i < materials.Count)
+            {
+                lobbySlots[i].SetupMaterial(materials[i]);
+                lobbySlots[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                lobbySlots[i].ClearSlot();
+                lobbySlots[i].gameObject.SetActive(false); // 빈 칸 숨김
+            }
+        }
+        
+        // 나머지 슬롯 숨김
+        for (int i = maxMaterialSlots; i < lobbySlots.Count; i++)
+        {
+            lobbySlots[i].gameObject.SetActive(false);
+        }
+    }
+    
+    /// <summary>
+    /// 탭 버튼 상태 업데이트 (활성/비활성 색상)
+    /// </summary>
+    private void UpdateTabButtonStates()
+    {
+        // 활성 탭: 밝게 (Alpha 1.0)
+        // 비활성 탭: 어둡게 (Alpha 0.6)
+        
+        if (equipmentTabText != null)
+        {
+            Color color = equipmentTabText.color;
+            color.a = (currentTab == InventoryTabType.Equipment) ? 1.0f : 0.6f;
+            equipmentTabText.color = color;
+        }
+        
+        if (materialTabText != null)
+        {
+            Color color = materialTabText.color;
+            color.a = (currentTab == InventoryTabType.Material) ? 1.0f : 0.6f;
+            materialTabText.color = color;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📑 [LobbyInventoryUI] 탭 버튼 상태 업데이트 완료 (현재: {currentTab})");
     }
 }

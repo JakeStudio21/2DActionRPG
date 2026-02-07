@@ -156,7 +156,7 @@ namespace Systems
                 MaterialType materialType = Data.GetRequiredMaterialType(template.equipmentType, template.itemGrade);
                 int materialAmount = Data.GetRequiredMaterialAmount(template.itemGrade, targetLevel);
                 
-                if (!account.ConsumeMaterial(materialType, materialAmount))
+                if (!account.RemoveMaterial(materialType, materialAmount))
                 {
                     result.errorMessage = "재료 소모 실패";
                     return result;
