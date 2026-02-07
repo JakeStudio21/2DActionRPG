@@ -45,13 +45,6 @@ public class DismantleRewardData : ScriptableObject
     [Tooltip("분해 시 추가로 획득하는 골드")]
     public int goldPerDismantle = 100;
     
-    [Tooltip("강화석 획득 확률 (0~100)")]
-    [Range(0, 100)]
-    public int enhancementStoneChance = 10; // 10% 확률
-    
-    [Tooltip("강화석 획득 시 개수")]
-    public int enhancementStoneAmount = 1;
-    
     /// <summary>
     /// 등급별 기본 재료량 가져오기 (8등급 지원)
     /// </summary>
@@ -97,39 +90,28 @@ public class DismantleRewardData : ScriptableObject
     }
     
     /// <summary>
-    /// 강화석 획득 여부 (확률 기반)
+    /// 분해 보상 계산 (장비 카테고리별)
     /// </summary>
-    public bool RollEnhancementStone()
-    {
-        if (enhancementStoneChance <= 0) return false;
-        return Random.Range(0, 100) < enhancementStoneChance;
-    }
-    
-    /// <summary>
-    /// 분해 보상 계산
-    /// </summary>
-    public Dictionary<MaterialType, int> CalculateRewards(ItemGrade grade, int enhancementLevel)
+    /// <param name="equipType">장비 타입 (Weapon/Armor/Accessory)</param>
+    /// <param name="grade">아이템 등급 (D~TR)</param>
+    /// <param name="enhancementLevel">강화 레벨</param>
+    /// <returns>획득할 재료 Dictionary</returns>
+    public Dictionary<MaterialType, int> CalculateRewards(EquipmentType equipType, ItemGrade grade, int enhancementLevel)
     {
         var rewards = new Dictionary<MaterialType, int>();
         
-        // 1. 등급별 조각
-        MaterialType fragmentType = MaterialTypeExtensions.GetFragmentTypeByGrade(grade);
-        if (fragmentType != MaterialType.None)
+        // 1. 장비 타입 + 등급별 재료
+        MaterialType materialType = MaterialTypeExtensions.GetMaterialType(equipType, grade);
+        if (materialType != MaterialType.None)
         {
-            int fragmentAmount = CalculateTotalFragmentAmount(grade, enhancementLevel);
-            rewards[fragmentType] = fragmentAmount;
+            int materialAmount = CalculateTotalFragmentAmount(grade, enhancementLevel);
+            rewards[materialType] = materialAmount;
         }
         
         // 2. 골드
         if (goldPerDismantle > 0)
         {
             rewards[MaterialType.Gold] = goldPerDismantle;
-        }
-        
-        // 3. 강화석 (확률)
-        if (RollEnhancementStone())
-        {
-            rewards[MaterialType.EnhancementStone] = enhancementStoneAmount;
         }
         
         return rewards;

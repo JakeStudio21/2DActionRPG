@@ -86,28 +86,28 @@ public class Phase5_DismantleTest
             var itemId = account.RegisterNewInstance("ITEM_ARMOR_ASSASIN_D_Equipment");
             accountData.sharedInventoryIds.Add(itemId);
             
-            // 분해 전 재료 확인
-            int fragmentsBefore = account.GetMaterialCount(MaterialType.EnhancementFragment);
+            // 분해 전 재료 확인 (D등급 방어구 → 방어구 파편)
+            int fragmentsBefore = account.GetMaterialCount(MaterialType.ArmorFragment);
             
             // 분해 실행
             var rewards = Systems.DismantleSystem.DismantleItem(itemId);
             
             // 검증 1: 재료 획득
-            if (!rewards.ContainsKey(MaterialType.EnhancementFragment))
+            if (!rewards.ContainsKey(MaterialType.ArmorFragment))
             {
-                Debug.LogError("❌ 강화 파편을 획득하지 못함");
+                Debug.LogError("❌ 방어구 강화 파편을 획득하지 못함");
                 return false;
             }
             
-            int fragmentsGained = rewards[MaterialType.EnhancementFragment];
+            int fragmentsGained = rewards[MaterialType.ArmorFragment];
             if (fragmentsGained != 5)
             {
-                Debug.LogError($"❌ 강화 파편 획득량 오류: {fragmentsGained} (예상: 5)");
+                Debug.LogError($"❌ 방어구 강화 파편 획득량 오류: {fragmentsGained} (예상: 5)");
                 return false;
             }
             
             // 검증 2: 재료 저장 확인
-            int fragmentsAfter = account.GetMaterialCount(MaterialType.EnhancementFragment);
+            int fragmentsAfter = account.GetMaterialCount(MaterialType.ArmorFragment);
             if (fragmentsAfter != fragmentsBefore + 5)
             {
                 Debug.LogError($"❌ 재료 저장 오류: {fragmentsAfter} (예상: {fragmentsBefore + 5})");
@@ -145,17 +145,19 @@ public class Phase5_DismantleTest
             var account = AccountDataManager.Instance;
             var accountData = account.GetAccountData();
             
-            // 등급별 예상 재료량 (3단계 통합: 파편/결정/코어)
+            // 등급별 + 장비 타입별 예상 재료량
             var expectedFragments = new Dictionary<string, (MaterialType type, int amount)>
             {
-                // D/C/B → 강화 파편
-                { "ITEM_ARMOR_ASSASIN_D_Equipment", (MaterialType.EnhancementFragment, 5) },
-                { "ITEM_BELT_ASSASIN_C_Equipment", (MaterialType.EnhancementFragment, 10) },
-                { "ITEM_BOOTS_WARRIOR_B_Equipment", (MaterialType.EnhancementFragment, 25) },
+                // 방어구 (D/C/B) → 방어구 강화 파편
+                { "ITEM_ARMOR_ASSASIN_D_Equipment", (MaterialType.ArmorFragment, 5) },
+                { "ITEM_BELT_ASSASIN_C_Equipment", (MaterialType.ArmorFragment, 10) },
+                { "ITEM_BOOTS_WARRIOR_B_Equipment", (MaterialType.ArmorFragment, 25) },
                 
-                // A/S → 강화 결정
-                { "ITEM_GLOVES_WARRIOR_A_Equipment", (MaterialType.EnhancementCrystal, 50) },
-                { "ITEM_BOW_S_Equipment", (MaterialType.EnhancementCrystal, 100) }
+                // 방어구 (A) → 방어구 강화 결정
+                { "ITEM_GLOVES_WARRIOR_A_Equipment", (MaterialType.ArmorCrystal, 50) },
+                
+                // 무기 (S) → 무기 강화 결정
+                { "ITEM_BOW_S_Equipment", (MaterialType.WeaponCrystal, 100) }
             };
             
             foreach (var kvp in expectedFragments)
@@ -220,9 +222,9 @@ public class Phase5_DismantleTest
             // 분해
             var rewards = Systems.DismantleSystem.DismantleItem(itemId);
             
-            // 검증: 기본 25 + 보너스 12 (25 * 0.1 * 5) = 37
+            // 검증: 기본 25 + 보너스 12 (25 * 0.1 * 5) = 37 (방어구 파편)
             int expectedAmount = 25 + Mathf.FloorToInt(25 * 0.1f * 5);
-            int actualAmount = rewards[MaterialType.EnhancementFragment];
+            int actualAmount = rewards[MaterialType.ArmorFragment];
             
             if (actualAmount != expectedAmount)
             {
@@ -308,22 +310,22 @@ public class Phase5_DismantleTest
             var account = AccountDataManager.Instance;
             var accountData = account.GetAccountData();
             
-            // 초기 재료 확인
-            int fragmentsBefore = account.GetMaterialCount(MaterialType.EnhancementFragment);
+            // 초기 재료 확인 (방어구 파편)
+            int fragmentsBefore = account.GetMaterialCount(MaterialType.ArmorFragment);
             
-            // 첫 번째 C등급 아이템 분해
+            // 첫 번째 C등급 방어구 분해
             var itemId1 = account.RegisterNewInstance("ITEM_BELT_ASSASIN_C_Equipment");
             accountData.sharedInventoryIds.Add(itemId1);
             Systems.DismantleSystem.DismantleItem(itemId1);
             
-            int fragmentsAfterFirst = account.GetMaterialCount(MaterialType.EnhancementFragment);
+            int fragmentsAfterFirst = account.GetMaterialCount(MaterialType.ArmorFragment);
             
-            // 두 번째 C등급 아이템 분해
+            // 두 번째 C등급 방어구 분해
             var itemId2 = account.RegisterNewInstance("ITEM_BELT_ASSASIN_C_Equipment");
             accountData.sharedInventoryIds.Add(itemId2);
             Systems.DismantleSystem.DismantleItem(itemId2);
             
-            int fragmentsAfterSecond = account.GetMaterialCount(MaterialType.EnhancementFragment);
+            int fragmentsAfterSecond = account.GetMaterialCount(MaterialType.ArmorFragment);
             
             // 검증
             int expectedAfterFirst = fragmentsBefore + 10;
@@ -399,19 +401,19 @@ public class Phase5_DismantleTest
                 return false;
             }
             
-            // 재료 확인: 강화 파편 75개 (C 5개*10 + D 5개*5 = 50+25)
+            // 재료 확인: 방어구 강화 파편 75개 (C 5개*10 + D 5개*5 = 50+25)
             int expectedFragment = (5 * 10) + (5 * 5); // C: 50, D: 25
             
-            if (!result.totalRewards.ContainsKey(MaterialType.EnhancementFragment) || 
-                result.totalRewards[MaterialType.EnhancementFragment] != expectedFragment)
+            if (!result.totalRewards.ContainsKey(MaterialType.ArmorFragment) || 
+                result.totalRewards[MaterialType.ArmorFragment] != expectedFragment)
             {
-                int actual = result.totalRewards.GetValueOrDefault(MaterialType.EnhancementFragment);
-                Debug.LogError($"❌ 강화 파편 오류: {actual} (예상: {expectedFragment})");
+                int actual = result.totalRewards.GetValueOrDefault(MaterialType.ArmorFragment);
+                Debug.LogError($"❌ 방어구 강화 파편 오류: {actual} (예상: {expectedFragment})");
                 return false;
             }
             
             Debug.Log($"✅ 일괄 분해: {result.successCount}개 성공");
-            Debug.Log($"✅ 획득 재료: 강화 파편 {result.totalRewards[MaterialType.EnhancementFragment]}개 (C:50 + D:25)");
+            Debug.Log($"✅ 획득 재료: 방어구 강화 파편 {result.totalRewards[MaterialType.ArmorFragment]}개 (C:50 + D:25)");
             Debug.Log("✅ Test 6 통과: 일괄 분해 성공\n");
             return true;
         }

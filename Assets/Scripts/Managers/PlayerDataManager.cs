@@ -3138,7 +3138,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 경고 데이터 생성
             float successRate = Systems.EnhancementSystem.GetSuccessRate(instanceId);
             var failureType = enhanceData.GetFailureType(itemData.enhancementLevel);
-            var materialType = enhanceData.GetRequiredMaterialType(template.itemGrade);
+            var materialType = enhanceData.GetRequiredMaterialType(template.equipmentType, template.itemGrade);
             int materialAmount = enhanceData.GetRequiredMaterialAmount(template.itemGrade, itemData.enhancementLevel + 1);
             int goldCost = enhanceData.GetRequiredGold(template.itemGrade, itemData.enhancementLevel + 1);
             

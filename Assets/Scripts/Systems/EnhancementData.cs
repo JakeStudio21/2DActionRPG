@@ -92,20 +92,9 @@ namespace Systems
         /// <summary>
         /// 필요 재료 타입 반환
         /// </summary>
-        public MaterialType GetRequiredMaterialType(ItemGrade grade)
+        public MaterialType GetRequiredMaterialType(EquipmentType equipType, ItemGrade grade)
         {
-            return grade switch
-            {
-                ItemGrade.D => MaterialType.EnhancementFragment,
-                ItemGrade.C => MaterialType.EnhancementFragment,
-                ItemGrade.B => MaterialType.EnhancementFragment,
-                ItemGrade.A => MaterialType.EnhancementCrystal,
-                ItemGrade.S => MaterialType.EnhancementCrystal,
-                ItemGrade.SS => MaterialType.EnhancementCrystal,
-                ItemGrade.EX => MaterialType.EnhancementCore,
-                ItemGrade.TR => MaterialType.EnhancementCore,
-                _ => MaterialType.None
-            };
+            return MaterialTypeExtensions.GetMaterialType(equipType, grade);
         }
         
         /// <summary>

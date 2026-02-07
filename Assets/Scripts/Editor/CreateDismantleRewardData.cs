@@ -30,16 +30,17 @@ public class CreateDismantleRewardData
         
         var data = ScriptableObject.CreateInstance<DismantleRewardData>();
         
-        // 기본값 설정
-        data.fragmentS = 100;
-        data.fragmentA = 50;
-        data.fragmentB = 25;
-        data.fragmentC = 10;
+        // 기본값 설정 (등급별 재료량)
         data.fragmentD = 5;
+        data.fragmentC = 10;
+        data.fragmentB = 25;
+        data.fragmentA = 50;
+        data.fragmentS = 100;
+        data.fragmentSS = 150;
+        data.fragmentEX = 200;
+        data.fragmentTR = 300;
         data.enhancementBonusPerLevel = 0.1f; // +1당 10%
         data.goldPerDismantle = 100;
-        data.enhancementStoneChance = 10; // 10%
-        data.enhancementStoneAmount = 1;
         
         AssetDatabase.CreateAsset(data, assetPath);
         AssetDatabase.SaveAssets();

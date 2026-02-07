@@ -66,8 +66,8 @@ namespace Systems
                 return false;
             }
             
-            // 재료 확인
-            MaterialType requiredMaterial = Data.GetRequiredMaterialType(template.itemGrade);
+            // 재료 확인 (장비 타입 + 등급 기반)
+            MaterialType requiredMaterial = Data.GetRequiredMaterialType(template.equipmentType, template.itemGrade);
             int requiredAmount = Data.GetRequiredMaterialAmount(template.itemGrade, itemData.enhancementLevel + 1);
             int ownedAmount = account.GetMaterialCount(requiredMaterial);
             
@@ -152,8 +152,8 @@ namespace Systems
             
             try
             {
-                // 1. 재료 소모
-                MaterialType materialType = Data.GetRequiredMaterialType(template.itemGrade);
+                // 1. 재료 소모 (장비 타입 + 등급 기반)
+                MaterialType materialType = Data.GetRequiredMaterialType(template.equipmentType, template.itemGrade);
                 int materialAmount = Data.GetRequiredMaterialAmount(template.itemGrade, targetLevel);
                 
                 if (!account.ConsumeMaterial(materialType, materialAmount))

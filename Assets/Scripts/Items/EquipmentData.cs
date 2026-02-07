@@ -31,6 +31,9 @@ public class EquipmentData : ScriptableObject
     [Header("🛡️ 방어구 전용 설정")]
     [SerializeField] private ArmorType armorType = ArmorType.None;
     
+    [Header("💍 악세사리 전용 설정")]
+    [SerializeField] private AccessoryType accessoryType = AccessoryType.None;
+    
     [Header("⚔️ 무기 전투 스탯")]
     public float attackDamage = 0f;     // 공격 데미지
     public float attackSpeed = 1f;      // 공격 속도  
@@ -61,6 +64,7 @@ public class EquipmentData : ScriptableObject
     public float WeaponCooldown => weaponCooldown;
     public float WeaponRange => weaponRange;
     public ArmorType ArmorType => armorType; // 🆕 방어구 타입 프로퍼티
+    public AccessoryType AccessoryType => accessoryType; // 🆕 악세사리 타입 프로퍼티
     
     /// <summary>
     /// Pickup 프리팹 반환
@@ -210,6 +214,16 @@ public enum ArmorType
     Gloves,  // 장갑
     Boots,   // 신발
     Belt     // 허리띠
+}
+
+/// <summary>
+/// 악세사리 타입 분류
+/// </summary>
+public enum AccessoryType
+{
+    None,      // 악세사리가 아닌 경우
+    Ring,      // 반지
+    Necklace   // 목걸이
 }
 
 /// <summary>

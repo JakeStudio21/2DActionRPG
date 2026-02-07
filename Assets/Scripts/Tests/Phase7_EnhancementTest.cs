@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 using Managers;
 using Systems;
 using System.Collections.Generic;
@@ -11,8 +12,7 @@ namespace Tests
     /// </summary>
     public static class Phase7_EnhancementTest
     {
-        // ⚠️ 자동 실행 비활성화: Play 모드에서 계정 데이터 덮어쓰기 방지
-        // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        [MenuItem("Tools/Phase 7 Test")]
         public static void RunPhase7Test()
         {
             RunAllTests();
@@ -85,7 +85,7 @@ namespace Tests
                 slotData.characterBagInstanceIds.Add(itemId);
 
                 // 재료 추가
-                account.AddMaterial(MaterialType.EnhancementFragment, 100);
+                account.AddMaterial(MaterialType.AccessoryFragment, 100);
                 
                 // 골드 추가
                 slotData.gold = 10000;
@@ -140,7 +140,7 @@ namespace Tests
                 itemData.enhancementLevel = 15;
 
                 // 재료 추가
-                account.AddMaterial(MaterialType.EnhancementFragment, 100);
+                account.AddMaterial(MaterialType.AccessoryFragment, 100);
                 slotData.gold = 10000;
                 player.SaveSlotData(slotData);
 
@@ -193,7 +193,7 @@ namespace Tests
                 account.ClearAllData();
                 
                 // 재료 초기화 직후 확인
-                int materialAfterClear = account.GetMaterialCount(MaterialType.EnhancementFragment);
+                int materialAfterClear = account.GetMaterialCount(MaterialType.AccessoryFragment);
                 Debug.Log($"🔍 [Test 3] 초기화 직후 파편 개수: {materialAfterClear}");
 
                 Debug.Log("🔧 [Test 3] Step 3: slotData 가져오기");
@@ -222,7 +222,7 @@ namespace Tests
                     Debug.LogError($"❌ 재료 부족인데 강화 허용됨 (사유: '{reason}')");
                     
                     // 디버그: 실제 재료 개수 확인
-                    int materialCount = account.GetMaterialCount(MaterialType.EnhancementFragment);
+                    int materialCount = account.GetMaterialCount(MaterialType.AccessoryFragment);
                     Debug.LogError($"🔍 현재 강화 파편 개수: {materialCount}");
                     
                     return false;
@@ -265,7 +265,7 @@ namespace Tests
                 slotData.characterBagInstanceIds.Add(itemId);
 
                 // 재료 충분, 골드 부족
-                account.AddMaterial(MaterialType.EnhancementFragment, 100);
+                account.AddMaterial(MaterialType.AccessoryFragment, 100);
                 slotData.gold = 0;
                 player.SaveSlotData(slotData);
 
@@ -375,7 +375,7 @@ namespace Tests
                 slotData.characterBagInstanceIds.Add(itemId);
 
                 // 재료/골드 추가
-                account.AddMaterial(MaterialType.EnhancementFragment, 1000);
+                account.AddMaterial(MaterialType.AccessoryFragment, 1000);
                 slotData.gold = 100000;
                 player.SaveSlotData(slotData);
 
@@ -447,7 +447,7 @@ namespace Tests
                 itemData.enhancementLevel = 10;
 
                 // 재료/골드 추가
-                account.AddMaterial(MaterialType.EnhancementFragment, 1000);
+                account.AddMaterial(MaterialType.AccessoryFragment, 1000);
                 slotData.gold = 100000;
                 player.SaveSlotData(slotData);
 
@@ -526,7 +526,7 @@ namespace Tests
                 itemData.enhancementLevel = 13;
 
                 // 재료/골드 추가
-                account.AddMaterial(MaterialType.EnhancementFragment, 1000);
+                account.AddMaterial(MaterialType.AccessoryFragment, 1000);
                 slotData.gold = 100000;
                 player.SaveSlotData(slotData);
 
@@ -594,7 +594,7 @@ namespace Tests
                 slotData.characterBagInstanceIds.Add(itemId);
 
                 // 재료/골드 추가
-                account.AddMaterial(MaterialType.EnhancementFragment, 1000);
+                account.AddMaterial(MaterialType.AccessoryFragment, 1000);
                 slotData.gold = 100000;
                 player.SaveSlotData(slotData);
 
@@ -666,25 +666,25 @@ namespace Tests
                     return false;
                 }
                 
-                var materialD = enhanceData.GetRequiredMaterialType(templateD.itemGrade);
-                var materialA = enhanceData.GetRequiredMaterialType(templateA.itemGrade);
-                var materialS = enhanceData.GetRequiredMaterialType(templateS.itemGrade);
+                var materialD = enhanceData.GetRequiredMaterialType(templateD.equipmentType, templateD.itemGrade);
+                var materialA = enhanceData.GetRequiredMaterialType(templateA.equipmentType, templateA.itemGrade);
+                var materialS = enhanceData.GetRequiredMaterialType(templateS.equipmentType, templateS.itemGrade);
                 
-                if (materialD != MaterialType.EnhancementFragment)
+                if (materialD != MaterialType.AccessoryFragment)
                 {
-                    Debug.LogError($"❌ D등급 재료 오류: {materialD} (강화 파편이어야 함)");
+                    Debug.LogError($"❌ D등급 반지 재료 오류: {materialD} (악세사리 파편이어야 함)");
                     return false;
                 }
                 
-                if (materialA != MaterialType.EnhancementCrystal)
+                if (materialA != MaterialType.ArmorCrystal)
                 {
-                    Debug.LogError($"❌ A등급 재료 오류: {materialA} (강화 결정이어야 함)");
+                    Debug.LogError($"❌ A등급 장갑 재료 오류: {materialA} (방어구 결정이어야 함)");
                     return false;
                 }
                 
-                if (materialS != MaterialType.EnhancementCrystal)
+                if (materialS != MaterialType.WeaponCrystal)
                 {
-                    Debug.LogError($"❌ S등급 재료 오류: {materialS} (강화 결정이어야 함)");
+                    Debug.LogError($"❌ S등급 활 재료 오류: {materialS} (무기 결정이어야 함)");
                     return false;
                 }
 
@@ -818,11 +818,17 @@ namespace Tests
                 
                 Debug.Log($"🧹 [Test Helper] 모든 재료 초기화 완료 (남은 재료: {accountData.materials.Count}개)");
                 
-                // 검증
-                int fragmentCount = account.GetMaterialCount(MaterialType.EnhancementFragment);
-                int crystalCount = account.GetMaterialCount(MaterialType.EnhancementCrystal);
-                int coreCount = account.GetMaterialCount(MaterialType.EnhancementCore);
-                Debug.Log($"🔍 [검증] 파편:{fragmentCount}, 결정:{crystalCount}, 코어:{coreCount}");
+                // 검증 (9가지 재료 타입 확인)
+                int weaponFragment = account.GetMaterialCount(MaterialType.WeaponFragment);
+                int weaponCrystal = account.GetMaterialCount(MaterialType.WeaponCrystal);
+                int weaponCore = account.GetMaterialCount(MaterialType.WeaponCore);
+                int armorFragment = account.GetMaterialCount(MaterialType.ArmorFragment);
+                int armorCrystal = account.GetMaterialCount(MaterialType.ArmorCrystal);
+                int armorCore = account.GetMaterialCount(MaterialType.ArmorCore);
+                int accessoryFragment = account.GetMaterialCount(MaterialType.AccessoryFragment);
+                int accessoryCrystal = account.GetMaterialCount(MaterialType.AccessoryCrystal);
+                int accessoryCore = account.GetMaterialCount(MaterialType.AccessoryCore);
+                Debug.Log($"🔍 [검증] 무기(파편:{weaponFragment}, 결정:{weaponCrystal}, 코어:{weaponCore}) / 방어구(파편:{armorFragment}, 결정:{armorCrystal}, 코어:{armorCore}) / 악세사리(파편:{accessoryFragment}, 결정:{accessoryCrystal}, 코어:{accessoryCore})");
             }
             catch (System.Exception ex)
             {

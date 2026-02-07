@@ -124,8 +124,8 @@ namespace Systems
                 return new Dictionary<MaterialType, int>();
             }
             
-            // 보상 계산
-            return rewardData.CalculateRewards(template.itemGrade, itemData.enhancementLevel);
+            // 보상 계산 (장비 타입 + 등급 기반)
+            return rewardData.CalculateRewards(template.equipmentType, template.itemGrade, itemData.enhancementLevel);
         }
         
         /// <summary>
