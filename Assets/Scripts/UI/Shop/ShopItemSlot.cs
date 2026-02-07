@@ -29,12 +29,14 @@ public class ShopItemSlot : MonoBehaviour
     [SerializeField] private bool showDebugLogs = true;
     
     // 이벤트
-    public event Action<string> OnItemClicked;
+    public event Action<string> OnItemClicked;              // Legacy: itemID 기반
+    public event Action<ItemInstanceId> OnItemClickedV2;    // 🆕 V2: ItemInstanceId 기반
     
     // 현재 아이템 정보
     private EquipmentData currentEquipment;
     private string currentItemID;
     private int currentPrice;
+    private ItemInstanceId currentInstanceId;               // 🆕 V2: 전시용 ItemInstance ID
     
     void Start()
     {
@@ -86,11 +88,12 @@ public class ShopItemSlot : MonoBehaviour
     }
     
     /// <summary>
-    /// 아이템 데이터 설정
+    /// 아이템 데이터 설정 (Legacy)
     /// </summary>
     public void SetEquipmentData(EquipmentData equipment)
     {
         currentEquipment = equipment;
+        currentInstanceId = default; // Legacy 모드에서는 ItemInstanceId 없음
         
         if (equipment != null)
         {
@@ -110,6 +113,31 @@ public class ShopItemSlot : MonoBehaviour
     }
     
     /// <summary>
+    /// 🆕 V2: 아이템 데이터 설정 (ItemInstanceId 기반)
+    /// </summary>
+    public void SetEquipmentDataV2(ItemInstanceId instanceId, EquipmentData equipment)
+    {
+        currentInstanceId = instanceId;
+        currentEquipment = equipment;
+        
+        if (equipment != null && instanceId.IsValid())
+        {
+            currentItemID = equipment.itemID;
+            currentPrice = equipment.buyPrice;
+            
+            UpdateSlotVisuals();
+            SetInteractable(true);
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [ShopItemSlot] V2 아이템 설정 완료: {equipment.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+        }
+        else
+        {
+            SetEmpty();
+        }
+    }
+    
+    /// <summary>
     /// 🔧 수정: 슬롯 시각적 업데이트
     /// </summary>
     private void UpdateSlotVisuals()
@@ -121,26 +149,19 @@ public class ShopItemSlot : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔧 [ShopItemSlot] UpdateSlotVisuals 시작: {currentEquipment.equipmentName}");
+        Debug.Log($"🔧 [ShopItemSlot] UpdateSlotVisuals 시작: {currentEquipment.equipmentName}");
         
-        // 🆕 UI 요소 null 체크 강화
-        if (showDebugLogs)
-        {
-            Debug.Log($"�� [ShopItemSlot] UI 요소 상태 체크:");
-            Debug.Log($"   - itemIcon: {itemIcon != null} {(itemIcon != null ? $"(GameObject: {itemIcon.gameObject.name}, Active: {itemIcon.gameObject.activeInHierarchy})" : "")}");
-            Debug.Log($"   - itemNameText: {itemNameText != null} {(itemNameText != null ? $"(GameObject: {itemNameText.gameObject.name}, Active: {itemNameText.gameObject.activeInHierarchy})" : "")}");
-            Debug.Log($"   - priceText: {priceText != null} {(priceText != null ? $"(GameObject: {priceText.gameObject.name}, Active: {priceText.gameObject.activeInHierarchy})" : "")}");
-            Debug.Log($"   - gradeFrame: {gradeFrame != null} {(gradeFrame != null ? $"(GameObject: {gradeFrame.gameObject.name}, Active: {gradeFrame.gameObject.activeInHierarchy})" : "")}");
-        }
+        // 🆕 UI 요소 null 체크 강화 (강제 디버그)
+        Debug.Log($"🔍 [ShopItemSlot] UI 요소 상태 체크:");
         
-        // 🔧 수정: 아이콘 설정
+        // 아이콘 설정
         if (itemIcon != null)
         {
             if (currentEquipment.icon != null)
             {
                 itemIcon.sprite = currentEquipment.icon;
                 itemIcon.color = new Color(1f, 1f, 1f, 1f);
+                itemIcon.gameObject.SetActive(true);
             }
             else
             {
@@ -155,36 +176,38 @@ public class ShopItemSlot : MonoBehaviour
                 Debug.LogError($"❌ [ShopItemSlot] itemIcon이 null입니다!");
         }
         
-        // 🔧 수정: 이름 설정
+        // 이름 설정
         if (itemNameText != null)
         {
             itemNameText.text = currentEquipment.equipmentName;
             itemNameText.color = Color.white;
+            itemNameText.gameObject.SetActive(true);
             
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] 아이템 이름 설정 완료: {currentEquipment.equipmentName}");
+                Debug.Log($"✅ [ShopItemSlot] 아이템 이름 설정: {currentEquipment.equipmentName}");
         }
         else
         {
             if (showDebugLogs)
-                Debug.LogError($"❌ [ShopItemSlot] itemNameText가 null입니다!");
+                Debug.LogError($"❌ [ShopItemSlot] itemNameText가 null!");
         }
         
         // 가격 설정
         if (priceText != null)
         {
             priceText.text = currentPrice.ToString();
+            priceText.gameObject.SetActive(true);
             
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] 가격 설정 완료: {currentPrice}");
+                Debug.Log($"✅ [ShopItemSlot] 가격 설정: {currentPrice}");
         }
         else
         {
             if (showDebugLogs)
-                Debug.LogError($"❌ [ShopItemSlot] priceText가 null입니다! (아이템: {currentEquipment.equipmentName})");
+                Debug.LogError($"❌ [ShopItemSlot] priceText가 null!");
         }
         
-        // 🔧 수정: 등급별 테두리 색상 설정 (디버깅 추가)
+        // 등급별 테두리 색상 설정
         UpdateGradeFrame();
         
         // 재고 정보 업데이트
@@ -238,6 +261,12 @@ public class ShopItemSlot : MonoBehaviour
         }
         
         gradeFrame.color = frameColor;
+        gradeFrame.gameObject.SetActive(true);
+        
+        // 🆕 활성화 상태 확인
+        Debug.Log($"   🔍 gradeFrame.gameObject.SetActive(true) 호출 완료");
+        Debug.Log($"      - activeInHierarchy: {gradeFrame.gameObject.activeInHierarchy}");
+        Debug.Log($"      - activeSelf: {gradeFrame.gameObject.activeSelf}");
         
         // 🔧 수정: 과도한 디버깅 로그 제거
         // Debug.Log($"🌈 [ShopItemSlot] 등급 프레임 색상 설정: {currentEquipment.itemGrade} → {frameColor}");
@@ -279,6 +308,7 @@ public class ShopItemSlot : MonoBehaviour
         currentEquipment = null;
         currentItemID = "";
         currentPrice = 0;
+        currentInstanceId = default; // 🆕 V2: ItemInstanceId 초기화
         
         // UI 초기화
         if (itemIcon != null)
@@ -322,26 +352,33 @@ public class ShopItemSlot : MonoBehaviour
     /// </summary>
     private void HandleSlotClicked()
     {
-        Debug.Log($"🔥 [ShopItemSlot] HandleSlotClicked 호출됨!");
-        Debug.Log($"🔥 [ShopItemSlot] currentItemID: '{currentItemID}', currentEquipment: {currentEquipment != null}");
+        if (showDebugLogs)
+            Debug.Log($"🔥 [ShopItemSlot] HandleSlotClicked 호출됨!");
         
         if (!string.IsNullOrEmpty(currentItemID) && currentEquipment != null)
         {
-            // 디버그 로그 추가
             if (showDebugLogs)
                 Debug.Log($"🛒 [ShopItemSlot] 상점 아이템 클릭됨: {currentEquipment.equipmentName} (ID: {currentItemID}, 가격: {currentPrice})");
             
-            Debug.Log($"🔥 [ShopItemSlot] OnItemClicked 이벤트 발생 시도 중...");
-            Debug.Log($"🔥 [ShopItemSlot] OnItemClicked 구독자 수: {OnItemClicked?.GetInvocationList()?.Length ?? 0}");
+            // V2 이벤트 우선 발생
+            if (currentInstanceId.IsValid())
+            {
+                OnItemClickedV2?.Invoke(currentInstanceId);
+                
+                if (showDebugLogs)
+                    Debug.Log($"📤 [ShopItemSlot] OnItemClickedV2 이벤트 발생 완료 (InstanceId: {currentInstanceId.id.Substring(0, 8)}...)");
+            }
             
-            // 이벤트 발생 - ShopUIController에서 처리
+            // Legacy 이벤트도 발생 (하위 호환성)
             OnItemClicked?.Invoke(currentItemID);
             
-            Debug.Log($"📤 [ShopItemSlot] OnItemClicked 이벤트 발생 완료");
+            if (showDebugLogs)
+                Debug.Log($"📤 [ShopItemSlot] OnItemClicked 이벤트 발생 완료");
         }
         else
         {
-            Debug.LogWarning($"⚠️ [ShopItemSlot] 클릭했지만 아이템 정보가 없음: ItemID='{currentItemID}', Equipment={currentEquipment != null}");
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [ShopItemSlot] 클릭했지만 아이템 정보가 없음: ItemID='{currentItemID}', Equipment={currentEquipment != null}");
         }
     }
     

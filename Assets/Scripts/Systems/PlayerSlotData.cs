@@ -21,7 +21,9 @@ public class PlayerSlotData
     public int level = 1;
     public int exp = 0;
     public int expToNextLevel = 100;
-    public int gold = 0;
+    
+    [System.Obsolete("V2: 골드는 AccountData.gold로 이동됨 (계정 공유)")]
+    public int gold = 0; // ⚠️ Deprecated: V2에서는 AccountData.gold 사용
     
     [Header("🎯 스테이지 진행도")]
     public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();

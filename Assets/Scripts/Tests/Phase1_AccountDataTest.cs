@@ -148,20 +148,20 @@ public class Phase1_AccountDataTest : MonoBehaviour
             var id3 = manager.RegisterNewInstance("Armor_A_Equipment");
             
             // 창고에 추가
-            if (!manager.TryAddToShared(id1, 50))
+            if (!manager.TryAddToShared(id1))
             {
                 Debug.LogError("❌ Test 3 실패: 창고 추가 실패");
                 return false;
             }
             
-            if (!manager.TryAddToShared(id2, 50))
+            if (!manager.TryAddToShared(id2))
             {
                 Debug.LogError("❌ Test 3 실패: 창고 추가 실패 (2)");
                 return false;
             }
             
             // 중복 추가 시도 (실패해야 함)
-            if (manager.TryAddToShared(id1, 50))
+            if (manager.TryAddToShared(id1))
             {
                 Debug.LogError("❌ Test 3 실패: 중복 추가가 성공함 (실패해야 정상)");
                 return false;

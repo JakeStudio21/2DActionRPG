@@ -377,12 +377,12 @@ namespace UI.Popups
                     break;
                     
                 case ItemDetailContext.Shop_Buy:
-                    // 상점(구매): "구매" + 고급 액션 숨김
+                    // 상점(구매): "구매" + 구매가 표시
                     SetPrimaryButtonActive(true, "구매");
                     SetBatchActionActive(false);        // ⭐ 일괄판매 숨김
                     SetAdvancedButtonsActive(false);
-                    UpdatePriceDisplay(false);          // ⭐ 가격 숨김 (미래: 구매가 표시)
-                    Log("🏪 [ItemDetailPopup] 상점(구매) 모드: 구매만");
+                    UpdatePriceDisplay(true, currentItem, true);  // ⭐ 구매가 표시 (isBuyPrice = true)
+                    Log("🏪 [ItemDetailPopup] 상점(구매) 모드: 구매 + 구매가 표시");
                     break;
                     
                 case ItemDetailContext.ReadOnly:
@@ -513,8 +513,9 @@ namespace UI.Popups
                     break;
                     
                 case ItemDetailContext.Shop_Buy:
-                    // 구매 로직
+                    // ⭐ 구매 로직 (코루틴에서 팝업 닫기 처리)
                     BuyItem();
+                    shouldClose = false; // 코루틴에서 자동 닫기
                     break;
                     
                 case ItemDetailContext.ReadOnly:
@@ -1062,8 +1063,62 @@ namespace UI.Popups
         {
             Log($"🏪 [ItemDetailPopup] 아이템 구매: {currentItem.equipmentName}");
             
-            // TODO: ShopManager를 통해 구매 처리
-            Debug.Log($"[TODO] 구매 로직 구현 필요: {currentItem.equipmentName}");
+            if (!currentItemInstanceId.IsValid())
+            {
+                Debug.LogError("❌ [ItemDetailPopup] currentItemInstanceId가 유효하지 않습니다!");
+                return;
+            }
+            
+            if (ShopController.Instance == null)
+            {
+                Debug.LogError("❌ [ItemDetailPopup] ShopController.Instance가 null입니다!");
+                return;
+            }
+            
+            // ShopController를 통해 구매 처리 (V2 시스템)
+            bool success = ShopController.Instance.BuyItemV2(currentItemInstanceId, out PurchaseFailReason failReason);
+            
+            if (success)
+            {
+                Log($"✅ [ItemDetailPopup] 구매 성공: {currentItem.equipmentName}");
+                
+                // 거래 결과 표시 (성공)
+                StartCoroutine(ShowTransactionResult(true, "구매 완료!"));
+            }
+            else
+            {
+                Log($"❌ [ItemDetailPopup] 구매 실패: {currentItem.equipmentName}, 이유: {failReason}");
+                
+                // 실패 이유에 따른 메시지 생성
+                string failMessage = GetPurchaseFailMessage(failReason);
+                
+                // 거래 결과 표시 (실패)
+                StartCoroutine(ShowTransactionResult(false, failMessage));
+            }
+        }
+        
+        /// <summary>
+        /// 구매 실패 메시지 생성
+        /// </summary>
+        private string GetPurchaseFailMessage(PurchaseFailReason reason)
+        {
+            switch (reason)
+            {
+                case PurchaseFailReason.InsufficientGold:
+                    return "구매 불가\n골드가 부족합니다";
+                    
+                case PurchaseFailReason.InventoryFull:
+                    return "구매 불가\n보관창고가 가득 찼습니다";
+                    
+                case PurchaseFailReason.InvalidItem:
+                    return "구매 불가\n잘못된 아이템입니다";
+                    
+                case PurchaseFailReason.SystemError:
+                    return "구매 불가\n시스템 오류가 발생했습니다";
+                    
+                default:
+                    return "구매 불가";
+            }
         }
         
         #endregion
@@ -1106,7 +1161,7 @@ namespace UI.Popups
         /// </summary>
         /// <param name="show">표시 여부</param>
         /// <param name="item">아이템 데이터</param>
-        private void UpdatePriceDisplay(bool show, EquipmentData item = null)
+        private void UpdatePriceDisplay(bool show, EquipmentData item = null, bool isBuyPrice = false)
         {
             // 가격 그룹 표시/숨김
             if (priceGroup != null)
@@ -1121,23 +1176,31 @@ namespace UI.Popups
                 return;
             }
             
-            // ShopController에서 판매 가격 조회
+            // 가격 조회 (구매가 또는 판매가)
             int price = 0;
-            if (ShopController.Instance != null)
+            if (isBuyPrice)
             {
-                price = ShopController.Instance.GetItemSellPrice(item.itemID);
+                // 구매가 (EquipmentData.buyPrice 사용)
+                price = item.buyPrice;
             }
             else
             {
-                // ShopController가 없으면 EquipmentData의 sellPrice 사용 (fallback)
-                price = item.sellPrice;
-                Debug.LogWarning($"⚠️ [ItemDetailPopup] ShopController가 없어서 EquipmentData.sellPrice 사용: {price}");
+                // 판매가 (ShopController 또는 EquipmentData.sellPrice 사용)
+                if (ShopController.Instance != null)
+                {
+                    price = ShopController.Instance.GetItemSellPrice(item.itemID);
+                }
+                else
+                {
+                    price = item.sellPrice;
+                    Debug.LogWarning($"⚠️ [ItemDetailPopup] ShopController가 없어서 EquipmentData.sellPrice 사용: {price}");
+                }
             }
             
             // UI 업데이트
             if (priceLabelText != null)
             {
-                priceLabelText.text = "판매 가격:";
+                priceLabelText.text = isBuyPrice ? "구매 가격:" : "판매 가격:";
             }
             
             if (priceValueText != null)

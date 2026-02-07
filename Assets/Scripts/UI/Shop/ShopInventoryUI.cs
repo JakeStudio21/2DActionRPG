@@ -231,6 +231,7 @@ public class ShopInventoryUI : MonoBehaviour
             Debug.Log($"📦 [ShopInventoryUI] 계정 공유 창고 데이터 확인:");
             Debug.Log($"   - 공유 창고 아이템 수: {sharedInventoryIds?.Count ?? 0}");
             Debug.Log($"   - 슬롯 수: {shopInventorySlots?.Count ?? 0}");
+            Debug.Log($"🔍 [ShopInventoryUI] accountData 해시코드: {accountData?.GetHashCode() ?? 0}");
         }
         
         // 🆕 V2: ItemInstanceId → EquipmentData 변환 (ID도 함께 저장)
@@ -240,31 +241,42 @@ public class ShopInventoryUI : MonoBehaviour
         {
             for (int i = 0; i < sharedInventoryIds.Count; i++)
             {
-                var instanceId = sharedInventoryIds[i];
-                var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
-                
-                if (instanceData != null)
+                try
                 {
-                    var template = ItemTemplateResolver.Load(instanceData.templateName);
-                    if (template != null)
+                    var instanceId = sharedInventoryIds[i];
+                    var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
+                    
+                    if (instanceData != null)
                     {
-                        inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
-                        
-                        if (i < 5 && showDebugLogs) // 처음 5개만 로그
+                        var template = ItemTemplateResolver.Load(instanceData.templateName);
+                        if (template != null)
                         {
-                            Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+                            inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
+                            
+                            if (i < 5 && showDebugLogs) // 처음 5개만 로그
+                            {
+                                string idPreview = instanceId.id != null && instanceId.id.Length >= 8 
+                                    ? instanceId.id.Substring(0, 8) 
+                                    : instanceId.id;
+                                Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {idPreview}...)");
+                            }
+                        }
+                        else
+                        {
+                            if (showDebugLogs)
+                                Debug.LogWarning($"⚠️ [ShopInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
                         }
                     }
                     else
                     {
                         if (showDebugLogs)
-                            Debug.LogWarning($"⚠️ [ShopInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
+                            Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
                     }
                 }
-                else
+                catch (System.Exception ex)
                 {
-                    if (showDebugLogs)
-                        Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
+                    Debug.LogError($"❌ [ShopInventoryUI] 아이템 로드 중 예외 발생 (인덱스: {i}): {ex.Message}\n{ex.StackTrace}");
+                    // 루프 계속 진행 (다른 아이템도 로드)
                 }
             }
         }

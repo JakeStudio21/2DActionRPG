@@ -62,14 +62,20 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: MuzzleFlash
+    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   - tag: PanelCloseVFX
     prefab: {fileID: 724470073289127030, guid: 3fa96f72f0bd4614bb56718a4616600b, type: 3}
     size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
-  - tag: MuzzleFlash
-    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
+  - tag: PanelOpenVFX
+    prefab: {fileID: 724470073289127030, guid: 672b5b3855235554a996568801e96c60, type: 3}
     size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 1

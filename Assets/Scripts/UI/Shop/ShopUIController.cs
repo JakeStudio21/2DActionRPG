@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using UnityEngine.SceneManagement;
+using UI.Popups;  // 🆕 ItemDetailPopup을 위한 using
 
 /// <summary>
 /// 🏪 상점 UI 컨트롤러 (Controller Layer)
@@ -13,9 +14,15 @@ using UnityEngine.SceneManagement;
 public class ShopUIController : MonoBehaviour
 {
     [Header("🏪 상점 UI 컴포넌트")]
-    [SerializeField] private ShopUI shopUI;
+    // ❌ 구버전 제거: ShopUI는 더 이상 사용하지 않음 (Phase 2에서 ShopBuyPanel로 대체)
+    // [SerializeField] private ShopUI shopUI;
     [SerializeField] private ShopInventoryUI playerInventoryUI;
-    [SerializeField] private TradeCenterUI tradeCenterUI;    // 🆕 직접 참조 추가
+    // ❌ 구버전 제거: TradeCenterUI는 더 이상 사용하지 않음 (Phase 2에서 ItemDetailPopup으로 대체)
+    // [SerializeField] private TradeCenterUI tradeCenterUI;
+    [SerializeField] private ShopBuyPanel shopBuyPanel;      // 🆕 Phase 2: 클래스 탭 기반 구매 패널
+    
+    [Header("🔘 공통 버튼")]
+    [SerializeField] private Button closeShopButton;         // ✅ Phase 2: ShopUI에서 이동
     
     [Header("🎮 로비 전용 설정")]
     [SerializeField] private bool enableShopInLobbyOnly = true;  // 로비에서만 활성화
@@ -54,10 +61,26 @@ public class ShopUIController : MonoBehaviour
             return;
         }
         
-        SetupShopUIEvents();
+        // ✅ ShopController.Start()에서 이미 초기화 수행
+        // GetShopDataByClass()에서 자동 초기화 보장하므로 여기서는 불필요
+        if (showDebugLogs && ShopController.Instance != null)
+        {
+            Debug.Log("✅ [ShopUIController] ShopController 준비 완료 (자동 초기화 시스템)");
+        }
+        
+        // ❌ 구버전 이벤트 설정 비활성화 (Phase 2 신버전 사용)
+        // SetupShopUIEvents();  // 구버전 ShopUI 이벤트
+        
+        // ✅ 공통 버튼 이벤트 연결 (CloseShopButton 등)
+        SetupCommonButtonEvents();
+        
         SetupControllerReferences();
         SetupShopControllerEvents();
-        SetupTradeCenterEvents();
+        
+        // ❌ 구버전 TradeCenterUI 이벤트 설정 비활성화
+        // SetupTradeCenterEvents();
+        
+        SetupShopBuyPanelEvents();  // ✅ Phase 2: ShopBuyPanel 이벤트 설정 (신버전)
         
         if (showDebugLogs)
             Debug.Log("✅ [ShopUIController] 상점 컨트롤러 초기화 완료");
@@ -136,16 +159,16 @@ public class ShopUIController : MonoBehaviour
             }
         }
         
-        // 방법 3: 상점 UI 하위에서 검색
-        if (shopUI != null)
-        {
-            playerInventoryUI = shopUI.GetComponentInChildren<ShopInventoryUI>();
-            if (playerInventoryUI != null)
-            {
-                Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (GetComponentInChildren)");
-                yield break;
-            }
-        }
+        // ❌ 구버전 제거: 방법 3: 상점 UI 하위에서 검색
+        // if (shopUI != null)
+        // {
+        //     playerInventoryUI = shopUI.GetComponentInChildren<ShopInventoryUI>();
+        //     if (playerInventoryUI != null)
+        //     {
+        //         Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (GetComponentInChildren)");
+        //         yield break;
+        //     }
+        // }
         
         Debug.LogError("❌ [ShopUIController] ShopInventoryUI 참조 재설정 실패");
     }
@@ -158,11 +181,12 @@ public class ShopUIController : MonoBehaviour
         Debug.Log("🔍 [ShopUIController] 상점 UI 구조 검증 시작");
         
         // 필수 컴포넌트 검증
-        if (shopUI == null)
-        {
-            Debug.LogError("❌ [ShopUIController] shopUI가 null입니다");
-            return false;
-        }
+        // ❌ 구버전 제거: shopUI는 더 이상 사용하지 않음
+        // if (shopUI == null)
+        // {
+        //     Debug.LogError("❌ [ShopUIController] shopUI가 null입니다");
+        //     return false;
+        // }
         
         if (playerInventoryUI == null)
         {
@@ -208,31 +232,71 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// UI 이벤트 연결
+    /// UI 이벤트 연결 (구버전 - 사용 안 함)
     /// </summary>
-    private void SetupShopUIEvents()
+    // ❌ 구버전 제거: SetupShopUIEvents()
+    // private void SetupShopUIEvents()
+    // {
+    //     if (shopUI != null)
+    //     {
+    //         shopUI.OnCloseShopRequested += HandleCloseShop;
+    //         shopUI.OnTabChanged += HandleTabChanged;
+    //         shopUI.OnShopItemClicked += HandleShopItemClicked;
+    //         shopUI.OnBuyRequested += HandleBuyRequest;
+    //         shopUI.OnSellRequested += HandleSellRequest;
+    //         
+    //         // ❌ 구버전 제거: TradeCenterUI 취소 이벤트 (Phase 2에서 사용 안 함)
+    //         // shopUI.OnBuyCancelRequested += HandleBuyCancelRequest;
+    //         // shopUI.OnSellCancelRequested += HandleSellCancelRequest;
+    //     }
+    // }
+    
+    /// <summary>
+    /// ✅ 공통 버튼 이벤트 연결 (Phase 2: ShopUI 의존성 제거)
+    /// </summary>
+    private void SetupCommonButtonEvents()
     {
-        if (shopUI != null)
+        if (closeShopButton != null)
         {
-            shopUI.OnCloseShopRequested += HandleCloseShop;
-            shopUI.OnTabChanged += HandleTabChanged;
-            shopUI.OnShopItemClicked += HandleShopItemClicked;
-            shopUI.OnBuyRequested += HandleBuyRequest;
-            shopUI.OnSellRequested += HandleSellRequest;
+            // ✅ Phase 2: closeShopButton을 ShopUIController에서 직접 관리
+            closeShopButton.onClick.RemoveAllListeners(); // 중복 방지
+            closeShopButton.onClick.AddListener(HandleCloseShop);
             
-            // 🆕 개별 취소 이벤트 구독
-            shopUI.OnBuyCancelRequested += HandleBuyCancelRequest;
-            shopUI.OnSellCancelRequested += HandleSellCancelRequest;
+            if (showDebugLogs)
+                Debug.Log("✅ [ShopUIController] CloseShopButton 이벤트 연결 완료");
+        }
+        else
+        {
+            Debug.LogError("❌ [ShopUIController] closeShopButton이 null입니다! Inspector에서 할당해주세요.");
         }
     }
     
-    private void SetupTradeCenterEvents()
+    // ❌ 구버전 제거: TradeCenterUI 이벤트 설정 (Phase 2에서 사용 안 함)
+    // private void SetupTradeCenterEvents()
+    // {
+    //     if (shopUI != null && shopUI.GetComponent<TradeCenterUI>() != null)
+    //     {
+    //         var tradeCenterUI = shopUI.GetComponent<TradeCenterUI>();
+    //         tradeCenterUI.OnBuyCancelRequested += HandleBuyCancelRequest;
+    //         tradeCenterUI.OnSellCancelRequested += HandleSellCancelRequest;
+    //     }
+    // }
+    
+    /// <summary>
+    /// 🆕 Phase 2: ShopBuyPanel 이벤트 설정
+    /// </summary>
+    private void SetupShopBuyPanelEvents()
     {
-        if (shopUI != null && shopUI.GetComponent<TradeCenterUI>() != null)
+        if (shopBuyPanel != null)
         {
-            var tradeCenterUI = shopUI.GetComponent<TradeCenterUI>();
-            tradeCenterUI.OnBuyCancelRequested += HandleBuyCancelRequest;
-            tradeCenterUI.OnSellCancelRequested += HandleSellCancelRequest;
+            shopBuyPanel.OnItemClicked += HandleShopBuyItemClicked;
+            
+            if (showDebugLogs)
+                Debug.Log("✅ [ShopUIController] ShopBuyPanel 이벤트 연결 완료");
+        }
+        else
+        {
+            Debug.LogError("❌ [ShopUIController] ShopBuyPanel이 null입니다!");
         }
     }
     
@@ -284,16 +348,13 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void HandleCloseShop()
     {
-        // 거래 센터 초기화
-        if (shopUI != null)
-        {
-            shopUI.ResetTradeCenter();
-        }
+        // ✅ Phase 2: ShopBuyPanel은 비활성화하지 않음 (z-order 방식 사용)
+        // shopPanel이 BringPanelToFront()로 관리되므로, 자식인 shopBuyPanel은 자동으로 따라감
         
         // ✅ 로비로 돌아가기 (저장 포함)
+        // lobbyUIController.OnBackToLobby() → panelManager.ShowLobbyPanel() → BringPanelToFront(lobbyPanel)
         if (lobbyUIController != null)
         {
-            // ✅ ShowLobbyPanel() 대신 OnBackToLobby() 호출 (저장 포함)
             lobbyUIController.OnBackToLobby();
         }
         
@@ -302,7 +363,7 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔧 수정: 상점 열기 시 초기화 (UI 활성화 후 초기화 + P0 버그 수정)
+    /// 🔧 수정: 상점 열기 시 초기화 (Phase 2: ShopBuyPanel 사용)
     /// </summary>
     public void OnShopOpened()
     {
@@ -315,25 +376,26 @@ public class ShopUIController : MonoBehaviour
             Debug.LogError("❌ [ShopUIController] 상점 시스템 유효성 검증 실패");
             return;
         }
-    
-        if (shopUI != null)
+        
+        // ✅ Phase 2: ShopBuyPanel은 이미 활성화되어 있음 (z-order 방식)
+        // shopPanel이 BringPanelToFront()로 최상위로 오면, 자식인 shopBuyPanel도 함께 보임
+        
+        // 🔧 안전장치: 만약 비활성화되어 있다면 활성화 (초기 진입 시만)
+        if (shopBuyPanel != null && !shopBuyPanel.gameObject.activeSelf)
         {
-            // 🆕 P0 수정: Shop 열 때 TradeCenterUI 완전 초기화
-            shopUI.ResetTradeCenter();
-            
+            shopBuyPanel.gameObject.SetActive(true);
             if (showDebugLogs)
-                Debug.Log("🎯 [ShopUIController] Shop 오픈 시 TradeCenterUI 초기화 완료");
-            
-            // 🎯 핵심: 상점 패널 먼저 활성화
-            shopUI.SetShopPanelActive(true);
-            
-            // 🔧 수정: 1프레임 대기 후 UI 초기화 (Unity 생명주기 보장)
-            StartCoroutine(InitializeShopUIAfterActivation());
+                Debug.Log("🔧 [ShopUIController] ShopBuyPanel 활성화 (초기 진입)");
         }
-        else
+        
+        // ShopInventoryUI (판매 탭) 초기화
+        if (playerInventoryUI != null)
         {
-            Debug.LogError("❌ [ShopUIController] shopUI가 null입니다!");
+            playerInventoryUI.RefreshInventoryUI();
         }
+        
+        if (showDebugLogs)
+            Debug.Log("✅ [ShopUIController] OnShopOpened 완료");
     }
 
     /// <summary>
@@ -374,17 +436,18 @@ public class ShopUIController : MonoBehaviour
         // 각 탭을 빠르게 전환하면서 초기화 (깜빡임 최소화)
         EquipmentType[] allTabs = { EquipmentType.Weapon, EquipmentType.Armor, EquipmentType.Accessory };
         
-        foreach (EquipmentType tabType in allTabs)
-        {
-            shopUI.SwitchTab(tabType);
-            // 프레임 대기 없이 바로 다음 탭으로 (빠른 전환)
-            
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopUIController] {tabType} 탭 초기화 완료");
-        }
-        
-        // 마지막에 무기 탭으로 설정
-        shopUI.SwitchTab(EquipmentType.Weapon);
+        // ❌ 구버전 제거: shopUI 탭 전환
+        // foreach (EquipmentType tabType in allTabs)
+        // {
+        //     shopUI.SwitchTab(tabType);
+        //     // 프레임 대기 없이 바로 다음 탭으로 (빠른 전환)
+        //     
+        //     if (showDebugLogs)
+        //         Debug.Log($"✅ [ShopUIController] {tabType} 탭 초기화 완료");
+        // }
+        // 
+        // // 마지막에 무기 탭으로 설정
+        // shopUI.SwitchTab(EquipmentType.Weapon);
         
         // 1프레임만 대기 (모든 초기화 완료 후)
         yield return null;
@@ -406,11 +469,11 @@ public class ShopUIController : MonoBehaviour
         
         foreach (EquipmentType tabType in allTabs)
         {
-            // 해당 탭의 아이템 표시 업데이트
-            if (shopUI != null)
-            {
-                shopUI.UpdateShopDisplay(tabType);
-            }
+            // ❌ 구버전 제거: 해당 탭의 아이템 표시 업데이트
+            // if (shopUI != null)
+            // {
+            //     shopUI.UpdateShopDisplay(tabType);
+            // }
             
             yield return null; // 1프레임 대기 (성능 분산)
             
@@ -485,11 +548,11 @@ public class ShopUIController : MonoBehaviour
             ShopInventoryManager.Instance.LoadItemsForShop();
         }
         
-        // 탭 변경 시 거래 센터 초기화
-        if (shopUI != null)
-        {
-            shopUI.ResetTradeCenter();
-        }
+        // ❌ 구버전 탭 변경 시 거래 센터 초기화 비활성화
+        // if (shopUI != null)
+        // {
+        //     shopUI.ResetTradeCenter();
+        // }
         
         // 해당 탭의 아이템 목록 새로고침
         RefreshShopItems(tabType);
@@ -511,19 +574,65 @@ public class ShopUIController : MonoBehaviour
             // 아이템 가격 조회
             int buyPrice = ShopController.Instance.GetItemBuyPrice(itemID);
             
-            // UI에 구매 아이템 설정
-            if (shopUI != null)
-            {
-                shopUI.SetBuyItem(itemID, buyPrice);
-            }
-            else
-            {
-                Debug.LogError($"❌ [ShopUIController] shopUI가 null입니다!");
-            }
+            // ❌ 구버전 제거: UI에 구매 아이템 설정
+            // if (shopUI != null)
+            // {
+            //     shopUI.SetBuyItem(itemID, buyPrice);
+            // }
+            // else
+            // {
+            //     Debug.LogError($"❌ [ShopUIController] shopUI가 null입니다!");
+            // }
         }
         else
         {
             Debug.LogError($"❌ [ShopUIController] ShopController.Instance가 null입니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 Phase 2: 상점 구매 아이템 클릭 처리 (ItemInstanceId 기반)
+    /// </summary>
+    private void HandleShopBuyItemClicked(ItemInstanceId displayInstanceId)
+    {
+        if (showDebugLogs)
+            Debug.Log($"🛒 [ShopUIController] 상점 구매 아이템 클릭 (V2): {displayInstanceId.id}");
+        
+        if (!displayInstanceId.IsValid())
+        {
+            Debug.LogError("❌ [ShopUIController] displayInstanceId가 유효하지 않습니다!");
+            return;
+        }
+        
+        // ShopItemPool에서 EquipmentData 가져오기
+        if (ShopController.Instance == null || ShopController.Instance.ItemPool == null)
+        {
+            Debug.LogError("❌ [ShopUIController] ShopController 또는 ItemPool이 null입니다!");
+            return;
+        }
+        
+        EquipmentData equipment = ShopController.Instance.ItemPool.GetEquipmentData(displayInstanceId);
+        
+        if (equipment == null)
+        {
+            Debug.LogError($"❌ [ShopUIController] EquipmentData를 찾을 수 없습니다: {displayInstanceId.id}");
+            return;
+        }
+        
+        // ItemDetailPopup 열기 (Shop_Buy 컨텍스트)
+        ItemDetailPopup popup = FindObjectOfType<ItemDetailPopup>();
+        
+        if (popup != null)
+        {
+            // slotIndex는 -1 (사용 안 함), instanceId는 displayInstanceId 전달
+            popup.Show(equipment, ItemDetailContext.Shop_Buy, slotIndex: -1, instanceId: displayInstanceId);
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [ShopUIController] ItemDetailPopup 열림: {equipment.equipmentName} (Shop_Buy 컨텍스트)");
+        }
+        else
+        {
+            Debug.LogError("❌ [ShopUIController] ItemDetailPopup을 찾을 수 없습니다!");
         }
     }
     
@@ -536,11 +645,11 @@ public class ShopUIController : MonoBehaviour
         {
             int sellPrice = ShopController.Instance.GetItemSellPrice(item.itemID);
             
-            // UI에 판매 아이템 설정 (🆕 V2: ItemInstanceId 전달)
-            if (shopUI != null)
-            {
-                shopUI.SetSellItem(item, sellPrice, instanceId);
-            }
+            // ❌ 구버전 제거: UI에 판매 아이템 설정 (🆕 V2: ItemInstanceId 전달)
+            // if (shopUI != null)
+            // {
+            //     shopUI.SetSellItem(item, sellPrice, instanceId);
+            // }
             
             if (showDebugLogs)
                 Debug.Log($"💸 [ShopUIController] 인벤토리 아이템 선택: {item.equipmentName} (슬롯: {slotIndex}, ID: {instanceId.id.Substring(0, 8)}...)");
@@ -554,144 +663,115 @@ public class ShopUIController : MonoBehaviour
     /// <summary>
     /// 🔧 수정: 구매 요청 처리 (향상된 버전)
     /// </summary>
+    // ❌ 구버전 제거: HandleBuyRequest() - Phase 2에서 ItemDetailPopup으로 대체
     private void HandleBuyRequest()
     {
-        if (shopUI != null && !string.IsNullOrEmpty(shopUI.SelectedBuyItemID))
-        {
-            string itemID = shopUI.SelectedBuyItemID;
-            
-            if (ShopController.Instance != null)
-            {
-                // 골드 및 인벤토리 공간 사전 체크
-                int buyPrice = ShopController.Instance.GetItemBuyPrice(itemID);
-                
-                if (PlayerDataManager.Instance.CurrentGold < buyPrice)
-                {
-                    ShowTransactionMessage($"골드가 부족합니다! (필요: {buyPrice}, 보유: {PlayerDataManager.Instance.CurrentGold})");
-                    return;
-                }
-                
-                if (PlayerDataManager.Instance.IsInventoryFull)
-                {
-                    ShowTransactionMessage("인벤토리가 가득 참!");
-                    return;
-                }
-                
-                // 구매 실행
-                ShopController.Instance.TryPurchaseItem(itemID);
-            }
-            else
-            {
-                Debug.LogError($"❌ [ShopUIController] ShopController.Instance가 null입니다!");
-            }
-        }
-        else
-        {
-            ShowTransactionMessage("구매할 아이템을 선택해주세요!");
-        }
+        // 구버전 - 사용 안 함
     }
     
     /// <summary>
     /// 🔧 수정: 판매 요청 처리 (향상된 버전)
     /// </summary>
+    // ❌ 구버전 제거: HandleSellRequest() - Phase 2에서 ItemDetailPopup으로 대체
     private void HandleSellRequest()
     {
-        if (shopUI != null && shopUI.SelectedSellItem != null)
-        {
-            var item = shopUI.SelectedSellItem;
-            
-            // 판매 가능 여부 체크
-            if (!item.isTradable)
-            {
-                ShowTransactionMessage($"{item.equipmentName}은(는) 판매할 수 없는 아이템입니다!");
-                return;
-            }
-            
-            if (ShopController.Instance != null)
-            {
-                // 🆕 V2: ItemInstanceId 전달
-                var instanceId = shopUI.SelectedSellItemInstanceId;
-                ShopController.Instance.TrySellItem(item, instanceId);
-            }
-            else
-            {
-                Debug.LogError($"❌ [ShopUIController] ShopController.Instance가 null입니다!");
-            }
-        }
-        else
-        {
-            ShowTransactionMessage("판매할 아이템을 선택해주세요!");
-        }
+        // 구버전 - 사용 안 함
     }
     
-    /// <summary>
-    /// 🆕 구매 취소 요청 처리
-    /// </summary>
-    private void HandleBuyCancelRequest()
-    {
-        if (tradeCenterUI != null)
-        {
-            tradeCenterUI.ResetBuySlot();
-            ShowTransactionMessage("구매가 취소되었습니다.");
-        }
-        else
-        {
-            Debug.LogError($"❌ [ShopUIController] tradeCenterUI가 할당되지 않았습니다!");
-        }
-    }
-    
-    /// <summary>
-    /// 🆕 판매 취소 요청 처리
-    /// </summary>
-    private void HandleSellCancelRequest()
-    {
-        TradeCenterUI tradeCenterUI = FindObjectOfType<TradeCenterUI>();
-        
-        if (tradeCenterUI != null)
-        {
-            tradeCenterUI.ResetSellSlot();
-            ShowTransactionMessage("판매가 취소되었습니다.");
-        }
-        else
-        {
-            Debug.LogError($"❌ [ShopUIController] 씬에서 TradeCenterUI를 찾을 수 없습니다!");
-            
-            // 대안: shopUI를 통한 방법 시도
-            if (shopUI != null)
-            {
-                shopUI.ResetTradeCenter();
-                ShowTransactionMessage("판매가 취소되었습니다.");
-            }
-        }
-    }
+    // ❌ 구버전 제거: TradeCenterUI 취소 기능 (Phase 2에서 ItemDetailPopup으로 대체)
+    // /// <summary>
+    // /// 🆕 구매 취소 요청 처리
+    // /// </summary>
+    // private void HandleBuyCancelRequest()
+    // {
+    //     if (tradeCenterUI != null)
+    //     {
+    //         tradeCenterUI.ResetBuySlot();
+    //         ShowTransactionMessage("구매가 취소되었습니다.");
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError($"❌ [ShopUIController] tradeCenterUI가 할당되지 않았습니다!");
+    //     }
+    // }
+    // 
+    // /// <summary>
+    // /// 🆕 판매 취소 요청 처리
+    // /// </summary>
+    // private void HandleSellCancelRequest()
+    // {
+    //     TradeCenterUI tradeCenterUI = FindObjectOfType<TradeCenterUI>();
+    //     
+    //     if (tradeCenterUI != null)
+    //     {
+    //         tradeCenterUI.ResetSellSlot();
+    //         ShowTransactionMessage("판매가 취소되었습니다.");
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError($"❌ [ShopUIController] 씬에서 TradeCenterUI를 찾을 수 없습니다!");
+    //         
+    //         // 대안: shopUI를 통한 방법 시도
+    //         if (shopUI != null)
+    //         {
+    //             shopUI.ResetTradeCenter();
+    //             ShowTransactionMessage("판매가 취소되었습니다.");
+    //         }
+    //     }
+    // }
     
     /// <summary>
     /// 🔧 수정: 아이템 구매 완료 처리
     /// </summary>
+    // ❌ 구버전 제거: HandleItemPurchased() - Phase 2에서 ItemDetailPopup으로 대체
     private void HandleItemPurchased(string itemID)
     {
-        if (shopUI != null)
-        {
-            shopUI.ShowTransactionPopup($"구매 완료!");
-            shopUI.OnTransactionCompleted();  // 🆕 UI 상태 갱신
-        }
+        // if (shopUI != null)
+        // {
+        //     shopUI.ShowTransactionPopup($"구매 완료!");
+        //     shopUI.OnTransactionCompleted();  // 🆕 UI 상태 갱신
+        // }
         
         RefreshPlayerInventory();
+        
+        // 🆕 로비 보관창고 새로고침 트리거
+        StartCoroutine(RefreshLobbyInventoryDelayed());
         
         if (showDebugLogs)
             Debug.Log($"🛒 [ShopUIController] 구매 완료: {itemID}");
     }
     
     /// <summary>
+    /// 🆕 로비 보관창고 UI 새로고침 (지연 실행)
+    /// </summary>
+    private System.Collections.IEnumerator RefreshLobbyInventoryDelayed()
+    {
+        // 1프레임 대기 (UI가 닫히는 것을 기다림)
+        yield return null;
+        
+        // LobbyInventoryController 찾기 및 새로고침
+        var lobbyInventoryController = FindObjectOfType<LobbyInventoryController>();
+        if (lobbyInventoryController != null)
+        {
+            // SendMessage로 새로고침 메서드 호출 시도
+            lobbyInventoryController.SendMessage("RefreshInventoryUI", SendMessageOptions.DontRequireReceiver);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔄 [ShopUIController] 로비 보관창고 새로고침 요청");
+        }
+    }
+    
+    /// <summary>
     /// 🔧 수정: 아이템 판매 완료 처리
     /// </summary>
+    // ❌ 구버전 제거: HandleItemSold() - Phase 2에서 ItemDetailPopup으로 대체
     private void HandleItemSold(string itemID)
     {
-        if (shopUI != null)
-        {
-            shopUI.ShowTransactionPopup($"판매 완료!");
-            shopUI.OnTransactionCompleted();  // 🆕 UI 상태 갱신
-        }
+        // if (shopUI != null)
+        // {
+        //     shopUI.ShowTransactionPopup($"판매 완료!");
+        //     shopUI.OnTransactionCompleted();  // 🆕 UI 상태 갱신
+        // }
         
         RefreshPlayerInventory();
         
@@ -718,12 +798,13 @@ public class ShopUIController : MonoBehaviour
     /// <summary>
     /// 🔧 수정: 상점 아이템 목록 새로고침
     /// </summary>
+    // ❌ 구버전 제거: RefreshShopItems() - Phase 2에서 ShopBuyPanel로 대체
     private void RefreshShopItems(EquipmentType equipmentType)
     {
-        if (shopUI != null)
-        {
-            shopUI.UpdateShopDisplay(equipmentType);
-        }
+        // if (shopUI != null)
+        // {
+        //     shopUI.UpdateShopDisplay(equipmentType);
+        // }
         
         if (showDebugLogs)
             Debug.Log($"🔄 [ShopUIController] {equipmentType} 아이템 목록 새로고침 완료");
@@ -734,14 +815,21 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void RefreshPlayerInventory()
     {
-        Debug.Log("🔄 [ShopUIController] RefreshPlayerInventory 시작 (지연 로드 지원)");
-        
-        // ✅ 상점 패널이 활성화되지 않은 상태에서는 실행하지 않음
-        if (shopUI == null || !shopUI.gameObject.activeInHierarchy)
+        // ⭐ 로비 전용: 인게임에서 호출되면 무시
+        if (this == null || !this.isActiveAndEnabled)
         {
-            Debug.Log("🔄 [ShopUIController] 상점 패널이 비활성화 상태 - RefreshPlayerInventory 스킵");
+            Debug.Log("⚠️ [ShopUIController] RefreshPlayerInventory 스킵 - 오브젝트 비활성화 또는 파괴됨 (인게임에서 호출됨)");
             return;
         }
+        
+        Debug.Log("🔄 [ShopUIController] RefreshPlayerInventory 시작 (지연 로드 지원)");
+        
+        // ❌ 구버전 제거: 상점 패널 활성화 체크
+        // if (shopUI == null || !shopUI.gameObject.activeInHierarchy)
+        // {
+        //     Debug.Log("🔄 [ShopUIController] 상점 패널이 비활성화 상태 - RefreshPlayerInventory 스킵");
+        //     return;
+        // }
         
         // 1. 캐릭터 데이터 로드 상태 확인
         if (PlayerDataManager.Instance.IsLazyLoadRequired())
@@ -880,16 +968,16 @@ public class ShopUIController : MonoBehaviour
                     }
                 }
                 
-                // 방법 3: 상점 패널 하위에서 검색
-                if (playerInventoryUI == null && shopUI != null)
-                {
-                    var shopInventoryInChildren = shopUI.GetComponentInChildren<ShopInventoryUI>();
-                    if (shopInventoryInChildren != null)
-                    {
-                        playerInventoryUI = shopInventoryInChildren;
-                        Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (GetComponentInChildren)");
-                    }
-                }
+                // ❌ 구버전 제거: 방법 3: 상점 패널 하위에서 검색
+                // if (playerInventoryUI == null && shopUI != null)
+                // {
+                //     var shopInventoryInChildren = shopUI.GetComponentInChildren<ShopInventoryUI>();
+                //     if (shopInventoryInChildren != null)
+                //     {
+                //         playerInventoryUI = shopInventoryInChildren;
+                //         Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (GetComponentInChildren)");
+                //     }
+                // }
             }
         }
         
@@ -926,16 +1014,16 @@ public class ShopUIController : MonoBehaviour
             }
         }
         
-        // 3. 상점 패널 재활성화 시도 (기존 로직 유지)
-        if (shopUI != null)
-        {
-            shopUI.SetShopPanelActive(false);
-            yield return new WaitForSeconds(0.1f);
-            shopUI.SetShopPanelActive(true);
-            yield return new WaitForSeconds(0.1f);
-            
-            Debug.Log("🔧 [ShopUIController] 상점 패널 재활성화 완료");
-        }
+        // ❌ 구버전 제거: 3. 상점 패널 재활성화 시도 (기존 로직 유지)
+        // if (shopUI != null)
+        // {
+        //     shopUI.SetShopPanelActive(false);
+        //     yield return new WaitForSeconds(0.1f);
+        //     shopUI.SetShopPanelActive(true);
+        //     yield return new WaitForSeconds(0.1f);
+        //     
+        //     Debug.Log("🔧 [ShopUIController] 상점 패널 재활성화 완료");
+        // }
         
         // 4. 최종 상태 확인 (더 상세한 로그)
         if (playerInventoryUI != null)
@@ -1007,11 +1095,11 @@ public class ShopUIController : MonoBehaviour
         {
             int sellPrice = ShopController.Instance.GetItemSellPrice(item.itemID);
             
-            // UI에 판매 아이템 설정
-            if (shopUI != null)
-            {
-                shopUI.SetSellItem(item, sellPrice);
-            }
+            // ❌ 구버전 제거: UI에 판매 아이템 설정
+            // if (shopUI != null)
+            // {
+            //     shopUI.SetSellItem(item, sellPrice);
+            // }
             
             if (showDebugLogs)
                 Debug.Log($"💸 [ShopUIController] 상점 인벤토리 슬롯 클릭: {item.equipmentName} (슬롯: {slotIndex})");
@@ -1019,33 +1107,27 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 골드 변경 이벤트 처리
+    /// 🆕 골드 변경 이벤트 처리 (Phase 2: LobbyPlayerInfoUI가 자동 처리)
     /// </summary>
     private void HandleGoldChanged(int newGoldAmount)
     {
-        // TradeCenterUI의 골드 표시 업데이트
-        if (shopUI != null && shopUI.gameObject.activeInHierarchy)
-        {
-            var tradeCenterUI = shopUI.GetComponentInChildren<TradeCenterUI>();
-            if (tradeCenterUI != null)
-            {
-                tradeCenterUI.UpdatePlayerGoldDisplay();
-            }
-        }
+        // ✅ Phase 2: LobbyPlayerInfoUI가 PlayerDataManager.OnGoldChanged 이벤트를 구독하여 자동 업데이트
+        // TradeCenterUI는 더 이상 사용하지 않음
         
         if (showDebugLogs)
-            Debug.Log($"💰 [ShopUIController] 골드 변경됨: {newGoldAmount}");
+            Debug.Log($"💰 [ShopUIController] 골드 변경됨: {newGoldAmount} (LobbyPlayerInfoUI가 자동 업데이트)");
     }
     
     /// <summary>
     /// 🆕 거래 메시지 표시
     /// </summary>
+    // ❌ 구버전 제거: ShowTransactionMessage() - Phase 2에서 ItemDetailPopup으로 대체
     private void ShowTransactionMessage(string message)
     {
-        if (shopUI != null)
-        {
-            shopUI.ShowTransactionPopup(message);
-        }
+        // if (shopUI != null)
+        // {
+        //     shopUI.ShowTransactionPopup(message);
+        // }
         
         if (showDebugLogs)
             Debug.Log($"💬 [ShopUIController] {message}");
@@ -1069,28 +1151,29 @@ public class ShopUIController : MonoBehaviour
         // 1프레임 대기 (모든 컴포넌트 활성화 완료 대기)
         yield return null;
         
-        if (shopUI != null && shopUI.gameObject.activeInHierarchy)
-        {
-            OnShopOpened();
-        }
+        // ❌ 구버전 제거: shopUI 활성화 체크
+        // if (shopUI != null && shopUI.gameObject.activeInHierarchy)
+        // {
+        //     OnShopOpened();
+        // }
         // 🔧 수정: 워닝 제거 (정상적인 초기화 대기 상황)
     }
     
     void OnDestroy()
     {
-        // 이벤트 구독 해제
-        if (shopUI != null)
-        {
-            shopUI.OnCloseShopRequested -= HandleCloseShop;
-            shopUI.OnTabChanged -= HandleTabChanged;
-            shopUI.OnShopItemClicked -= HandleShopItemClicked;
-            shopUI.OnBuyRequested -= HandleBuyRequest;
-            shopUI.OnSellRequested -= HandleSellRequest;
-            
-            // 🆕 개별 취소 이벤트 구독 해제
-            shopUI.OnBuyCancelRequested -= HandleBuyCancelRequest;
-            shopUI.OnSellCancelRequested -= HandleSellCancelRequest;
-        }
+        // ❌ 구버전 제거: 이벤트 구독 해제
+        // if (shopUI != null)
+        // {
+        //     shopUI.OnCloseShopRequested -= HandleCloseShop;
+        //     shopUI.OnTabChanged -= HandleTabChanged;
+        //     shopUI.OnShopItemClicked -= HandleShopItemClicked;
+        //     shopUI.OnBuyRequested -= HandleBuyRequest;
+        //     shopUI.OnSellRequested -= HandleSellRequest;
+        //     
+        //     // ❌ 구버전 제거: TradeCenterUI 취소 이벤트 구독 해제 (Phase 2에서 사용 안 함)
+        //     // shopUI.OnBuyCancelRequested -= HandleBuyCancelRequest;
+        //     // shopUI.OnSellCancelRequested -= HandleSellCancelRequest;
+        // }
         
         if (ShopController.Instance != null)
         {
@@ -1126,9 +1209,24 @@ public class ShopUIController : MonoBehaviour
             isValid = false;
         }
         
-        if (shopUI == null)
+        // ❌ 구버전 ShopUI 검증 비활성화 (Phase 2 신버전 사용)
+        // if (shopUI == null)
+        // {
+        //     Debug.LogError("❌ [ShopUIController] ShopUI가 할당되지 않았습니다!");
+        //     isValid = false;
+        // }
+        
+        // ✅ Phase 2: ShopBuyPanel 검증 추가
+        if (shopBuyPanel == null)
         {
-            Debug.LogError("❌ [ShopUIController] ShopUI가 할당되지 않았습니다!");
+            Debug.LogError("❌ [ShopUIController] ShopBuyPanel이 할당되지 않았습니다!");
+            isValid = false;
+        }
+        
+        // ✅ Phase 2: CloseShopButton 검증 추가
+        if (closeShopButton == null)
+        {
+            Debug.LogError("❌ [ShopUIController] closeShopButton이 할당되지 않았습니다!");
             isValid = false;
         }
         

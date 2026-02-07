@@ -21,6 +21,32 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         InitializePlayerInfoUI();
     }
     
+    void OnEnable()
+    {
+        // ⭐ V2: AccountDataManager 이벤트도 구독
+        if (AccountDataManager.Instance != null)
+        {
+            AccountDataManager.Instance.OnGoldChanged += OnGoldChanged;
+            Debug.Log($"✅ [LobbyPlayerInfoUI] AccountDataManager.OnGoldChanged 구독");
+        }
+        
+        // 활성화 시 UI 갱신
+        if (playerDataManager != null)
+        {
+            UpdatePlayerInfo();
+        }
+    }
+    
+    void OnDisable()
+    {
+        // ⭐ V2: AccountDataManager 이벤트 구독 해제
+        if (AccountDataManager.Instance != null)
+        {
+            AccountDataManager.Instance.OnGoldChanged -= OnGoldChanged;
+            Debug.Log($"🔌 [LobbyPlayerInfoUI] AccountDataManager.OnGoldChanged 구독 해제");
+        }
+    }
+    
     private void InitializePlayerInfoUI()
     {
         // PlayerDataManager 참조
@@ -57,9 +83,13 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         // if (playerNameText != null) // 이 부분은 삭제되었으므로 주석 처리
         //     playerNameText.text = playerDataManager.selectedPlayerData.playerName;
         
-        // 골드
+        // 💰 V2: 골드는 AccountDataManager에서 가져옴
         if (goldText != null)
-            goldText.text = playerDataManager.CurrentGold.ToString();
+        {
+            int currentGold = playerDataManager.CurrentGold;
+            goldText.text = currentGold.ToString();
+            Debug.Log($"💰 [LobbyPlayerInfoUI] UpdatePlayerInfo - 골드: {currentGold}");
+        }
         
         // 레벨
         if (levelText != null)
@@ -108,7 +138,10 @@ public class LobbyPlayerInfoUI : MonoBehaviour
     private void OnGoldChanged(int newGold)
     {
         if (goldText != null)
+        {
             goldText.text = newGold.ToString();
+            Debug.Log($"💰 [LobbyPlayerInfoUI] OnGoldChanged - 골드 업데이트: {newGold}");
+        }
     }
     
     private void OnLevelChanged(int newLevel)
@@ -124,6 +157,7 @@ public class LobbyPlayerInfoUI : MonoBehaviour
     
     /// <summary>
     /// 슬롯 데이터로부터 직접 UI 업데이트
+    /// ⭐ V2: 골드는 AccountDataManager에서 가져옴 (계정 공유)
     /// </summary>
     public void UpdatePlayerInfoFromSlotData(PlayerSlotData slotData)
     {
@@ -133,9 +167,13 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         // if (playerNameText != null)
         //     playerNameText.text = slotData.playerName;
         
-        // ✅ 유지: 골드, 레벨, 경험치만 표시
+        // ✅ V2: 골드는 AccountDataManager에서 가져옴 (계정 공유)
         if (goldText != null)
-            goldText.text = slotData.gold.ToString();
+        {
+            int accountGold = AccountDataManager.Instance?.CurrentGold ?? 0;
+            goldText.text = accountGold.ToString();
+            Debug.Log($"💰 [LobbyPlayerInfoUI] UpdatePlayerInfoFromSlotData - Account 골드: {accountGold}");
+        }
         
         if (levelText != null)
             levelText.text = slotData.level.ToString(); 

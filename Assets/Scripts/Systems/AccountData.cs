@@ -9,6 +9,10 @@ using UnityEngine;
 [System.Serializable]
 public class AccountData
 {
+    [Header("💰 계정 공유 재화")]
+    [Tooltip("모든 캐릭터가 공유하는 골드 (V2 시스템)")]
+    public int gold = 0;
+    
     [Header("🎒 계정 공유 창고")]
     [Tooltip("모든 캐릭터가 공유하는 창고 (기본 64칸, 8x8 그리드)")]
     public List<ItemInstanceId> sharedInventoryIds = new List<ItemInstanceId>();

@@ -60,6 +60,9 @@ public class LobbyInventoryUI : MonoBehaviour
     
     // ❌ 제거: maxDisplaySlots (AccountData에서 가져옴)
     
+    [Header("💰 골드 표시")]
+    [SerializeField] private TMP_Text goldText;             // 플레이어 골드 표시
+    
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
     
@@ -89,6 +92,24 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             Invoke(nameof(RefreshInventoryUI), 0.1f);
         }
+        
+        // 골드 표시 초기화
+        InitializeGoldDisplay();
+    }
+    
+    void OnDisable()
+    {
+        // 골드 변경 이벤트 구독 해제 (PlayerDataManager)
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+        }
+        
+        // ⭐ V2: AccountDataManager 이벤트 구독 해제
+        if (AccountDataManager.Instance != null)
+        {
+            AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+        }
     }
 
     void Start()
@@ -98,8 +119,129 @@ public class LobbyInventoryUI : MonoBehaviour
         // 슬롯 생성
         SetupSlots();
         
+        // ⭐ 골드 초기화 (OnEnable이 호출되지 않을 경우 대비)
+        InitializeGoldDisplay();
+        
         if (showDebugLogs)
             Debug.Log($"✅ [LobbyInventoryUI] Start() 완료");
+    }
+    
+    // ========================================
+    // 💰 골드 관련 헬퍼 메서드
+    // ========================================
+    
+    /// <summary>
+    /// 재귀적으로 자식 GameObject 찾기
+    /// </summary>
+    private Transform FindChildRecursive(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+                return child;
+            
+            Transform result = FindChildRecursive(child, name);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
+    
+    /// <summary>
+    /// GameObject의 전체 경로 가져오기
+    /// </summary>
+    private string GetGameObjectPath(GameObject obj)
+    {
+        string path = obj.name;
+        Transform current = obj.transform.parent;
+        while (current != null)
+        {
+            path = current.name + "/" + path;
+            current = current.parent;
+        }
+        return path;
+    }
+    
+    /// <summary>
+    /// 골드 표시 초기화 (Start 및 OnEnable에서 호출)
+    /// </summary>
+    private void InitializeGoldDisplay()
+    {
+        Debug.Log($"🔍 [LobbyInventoryUI] InitializeGoldDisplay() 시작");
+        Debug.Log($"   - PlayerDataManager: {(PlayerDataManager.Instance != null ? "있음" : "NULL")}");
+        Debug.Log($"   - AccountDataManager: {(AccountDataManager.Instance != null ? "있음" : "NULL")}");
+        Debug.Log($"   - goldText: {(goldText != null ? "할당됨" : "NULL")}");
+        
+        // ⭐ goldText가 null인 경우 자동으로 찾기 시도
+        if (goldText == null)
+        {
+            Debug.LogWarning($"⚠️ [LobbyInventoryUI] goldText가 NULL! 자식 GameObject에서 'GoldText' 찾는 중...");
+            
+            // 자식 GameObject에서 "GoldText" 이름으로 찾기
+            Transform goldTextTransform = transform.Find("GoldPanel/GoldText");
+            if (goldTextTransform == null)
+            {
+                // 재귀적으로 모든 자식에서 찾기
+                goldTextTransform = FindChildRecursive(transform, "GoldText");
+            }
+            
+            if (goldTextTransform != null)
+            {
+                goldText = goldTextTransform.GetComponent<TMP_Text>();
+                if (goldText != null)
+                {
+                    Debug.Log($"✅ [LobbyInventoryUI] goldText 자동 할당 성공: {goldTextTransform.name}");
+                }
+                else
+                {
+                    Debug.LogError($"❌ [LobbyInventoryUI] GoldText GameObject는 찾았지만 TMP_Text 컴포넌트가 없음!");
+                }
+            }
+            else
+            {
+                Debug.LogError($"❌ [LobbyInventoryUI] GoldText GameObject를 찾을 수 없음!");
+            }
+        }
+        
+        if (goldText != null)
+        {
+            Debug.Log($"📋 [LobbyInventoryUI] goldText 상세 정보:");
+            Debug.Log($"   - GameObject 이름: {goldText.gameObject.name}");
+            Debug.Log($"   - 활성화 상태: {goldText.gameObject.activeInHierarchy}");
+            Debug.Log($"   - 부모: {(goldText.transform.parent != null ? goldText.transform.parent.name : "없음")}");
+            Debug.Log($"   - 경로: {GetGameObjectPath(goldText.gameObject)}");
+        }
+        
+        // 골드 변경 이벤트 구독 (PlayerDataManager)
+        if (PlayerDataManager.Instance != null)
+        {
+            // 중복 구독 방지
+            PlayerDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+            PlayerDataManager.Instance.OnGoldChanged += UpdateGoldDisplay;
+            Debug.Log($"✅ [LobbyInventoryUI] PlayerDataManager.OnGoldChanged 구독 완료");
+        }
+        else
+        {
+            Debug.LogError($"❌ [LobbyInventoryUI] PlayerDataManager.Instance가 NULL입니다!");
+        }
+        
+        // ⭐ V2: AccountDataManager 이벤트도 구독
+        if (AccountDataManager.Instance != null)
+        {
+            // 중복 구독 방지
+            AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+            AccountDataManager.Instance.OnGoldChanged += UpdateGoldDisplay;
+            Debug.Log($"✅ [LobbyInventoryUI] AccountDataManager.OnGoldChanged 구독 완료");
+        }
+        else
+        {
+            Debug.LogError($"❌ [LobbyInventoryUI] AccountDataManager.Instance가 NULL입니다!");
+        }
+        
+        // 초기 골드 표시
+        int currentGold = PlayerDataManager.Instance?.CurrentGold ?? 0;
+        Debug.Log($"🔍 [LobbyInventoryUI] 현재 골드: {currentGold}");
+        UpdateGoldDisplay(currentGold);
     }
 
     /// <summary>
@@ -797,6 +939,7 @@ public class LobbyInventoryUI : MonoBehaviour
         Debug.Log($"📦 [LobbyInventoryUI] 계정 공유 창고 데이터 확인:");
         Debug.Log($"   - 공유 창고 아이템 수: {sharedInventoryIds?.Count ?? 0}");
         Debug.Log($"   - 슬롯 수: {lobbySlots?.Count ?? 0}");
+        Debug.Log($"🔍 [LobbyInventoryUI] accountData 해시코드: {accountData?.GetHashCode() ?? 0}");
         
         // 🆕 V2: ItemInstanceId → EquipmentData 변환 (ID도 함께 저장)
         List<(EquipmentData equipment, ItemInstanceId instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceId)>();
@@ -805,29 +948,40 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             for (int i = 0; i < sharedInventoryIds.Count; i++)
             {
-                var instanceId = sharedInventoryIds[i];
-                var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
-                
-                if (instanceData != null)
+                try
                 {
-                    var template = ItemTemplateResolver.Load(instanceData.templateName);
-                    if (template != null)
+                    var instanceId = sharedInventoryIds[i];
+                    var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
+                    
+                    if (instanceData != null)
                     {
-                        inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
-                        
-                        if (i < 5) // 처음 5개만 로그
+                        var template = ItemTemplateResolver.Load(instanceData.templateName);
+                        if (template != null)
                         {
-                            Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+                            inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
+                            
+                            if (i < 5) // 처음 5개만 로그
+                            {
+                                string idPreview = instanceId.id != null && instanceId.id.Length >= 8 
+                                    ? instanceId.id.Substring(0, 8) 
+                                    : instanceId.id;
+                                Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {idPreview}...)");
+                            }
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"⚠️ [LobbyInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
                         }
                     }
                     else
                     {
-                        Debug.LogWarning($"⚠️ [LobbyInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
+                        Debug.LogWarning($"⚠️ [LobbyInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
                     }
                 }
-                else
+                catch (System.Exception ex)
                 {
-                    Debug.LogWarning($"⚠️ [LobbyInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
+                    Debug.LogError($"❌ [LobbyInventoryUI] 아이템 로드 중 예외 발생 (인덱스: {i}): {ex.Message}\n{ex.StackTrace}");
+                    // 루프 계속 진행 (다른 아이템도 로드)
                 }
             }
         }
@@ -1200,9 +1354,44 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             PlayerDataManager.Instance.OnItemEquipped -= OnItemEquippedHandler;
             PlayerDataManager.Instance.OnItemUnequipped -= OnItemUnequippedHandler;
+            PlayerDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+        }
+        
+        // ⭐ V2: AccountDataManager 이벤트 구독 해제
+        if (AccountDataManager.Instance != null)
+        {
+            AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
         }
         
         if (showDebugLogs)
             Debug.Log("🔄 [LobbyInventoryUI] 이벤트 구독 해제 완료");
+    }
+    
+    /// <summary>
+    /// 골드 표시 업데이트
+    /// </summary>
+    private void UpdateGoldDisplay(int gold)
+    {
+        Debug.Log($"🔍 [LobbyInventoryUI] UpdateGoldDisplay 호출됨 - gold: {gold}, goldText: {(goldText != null ? "할당됨" : "NULL")}");
+        
+        if (goldText != null)
+        {
+            // 상세 정보 출력
+            Debug.Log($"📋 [LobbyInventoryUI] goldText 상세 정보:");
+            Debug.Log($"   - GameObject 이름: {goldText.gameObject.name}");
+            Debug.Log($"   - 활성화 상태: {goldText.gameObject.activeInHierarchy}");
+            Debug.Log($"   - 부모: {(goldText.transform.parent != null ? goldText.transform.parent.name : "없음")}");
+            Debug.Log($"   - 현재 텍스트 (업데이트 전): '{goldText.text}'");
+            
+            // 텍스트 업데이트
+            goldText.text = gold.ToString();
+            
+            Debug.Log($"   - 업데이트 후 텍스트: '{goldText.text}'");
+            Debug.Log($"💰 [LobbyInventoryUI] 골드 텍스트 업데이트 완료: {gold}");
+        }
+        else
+        {
+            Debug.LogError($"❌ [LobbyInventoryUI] goldText가 NULL입니다! Inspector에서 할당해주세요.");
+        }
     }
 }

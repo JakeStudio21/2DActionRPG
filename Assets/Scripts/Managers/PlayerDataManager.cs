@@ -107,8 +107,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnFirstClearRewardClaimed?.Invoke(stageId);
     }
     
-    // 접근자 프로퍼티 (SelectedPlayerData 위임)
-    public int CurrentGold => selectedPlayerData != null ? selectedPlayerData.CurrentGold : 0;
+    // 접근자 프로퍼티 (AccountDataManager 위임 - V2 계정 공유 골드)
+    public int CurrentGold => AccountDataManager.Instance?.CurrentGold ?? 0;
     public int CurrentLevel => selectedPlayerData != null ? selectedPlayerData.CurrentLevel : 1;
     public int CurrentExp => selectedPlayerData != null ? selectedPlayerData.CurrentExp : 0;
     public int ExpToNextLevel => selectedPlayerData != null ? selectedPlayerData.ExpToNextLevel : 100;
@@ -661,6 +661,34 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             Debug.Log($"     ⚔️ 장착[{equipped.Key}]: {equipped.Value}");
         }
         
+        // 💰 V2 마이그레이션: Slot 골드 → Account 골드 이동
+        if (slotData.gold > 0 && AccountDataManager.Instance != null)
+        {
+            int oldAccountGold = AccountDataManager.Instance.CurrentGold;
+            int slotGold = slotData.gold;
+            
+            // 계정 골드에 추가 (중복 방지: 최초 1회만)
+            if (oldAccountGold == 0)
+            {
+                Debug.Log($"💰 [SelectSlot] V2 마이그레이션: Slot {slotIndex}의 골드 {slotGold} → Account로 이동");
+                AccountDataManager.Instance.AddGold(slotGold);
+                AccountDataManager.Instance.Save();
+                
+                // 슬롯 골드 초기화
+                slotData.gold = 0;
+                SaveSlotData(slotData);
+                
+                Debug.Log($"✅ [SelectSlot] 골드 마이그레이션 완료: Account 골드 = {AccountDataManager.Instance.CurrentGold}");
+            }
+            else
+            {
+                // 이미 Account에 골드가 있으면 슬롯 골드만 초기화
+                Debug.Log($"⚠️ [SelectSlot] Account에 이미 골드 존재 ({oldAccountGold}) - Slot 골드 초기화만 진행");
+                slotData.gold = 0;
+                SaveSlotData(slotData);
+            }
+        }
+        
         // 🔧 로딩 시작: Dirty 플래그 방지
         isLoading = true;
         
@@ -838,46 +866,55 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
 
     #endregion
     
-    #region 💰 기존 호환성 메서드들 (SelectedPlayerData 위임)
+    #region 💰 골드 관리 (AccountDataManager 위임 - V2 계정 공유)
     
     /// <summary>
-    /// 골드 추가
+    /// 골드 추가 (AccountDataManager로 위임)
+    /// ⭐ V2: 계정 전체 공유 골드
     /// </summary>
     public void AddGold(int amount)
     {
-        if (!IsSlotSelected || amount <= 0) return;
+        if (amount == 0) return;
         
-        selectedPlayerData.currentGold += amount;
-        MarkDirty(); // 🔧 데이터 변경 표시
-        
-        // 🔧 수정: 직접 호출 대신 NotifyGoldChanged 사용
-        NotifyGoldChanged(selectedPlayerData.currentGold);
-        
-        if (showDebugLogs)
-            Debug.Log($"💰 [PlayerDataManager] 골드 추가: +{amount}, 현재: {selectedPlayerData.currentGold}");
-    }
-    
-    /// <summary>
-    /// 골드 소모
-    /// </summary>
-    public bool SpendGold(int amount)
-    {
-        if (!IsSlotSelected || amount <= 0) return false;
-        
-        if (selectedPlayerData.currentGold >= amount)
+        if (AccountDataManager.Instance != null)
         {
-            selectedPlayerData.currentGold -= amount;
-            MarkDirty(); // 🔧 성공했을 때만 데이터 변경 표시
-            OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
+            AccountDataManager.Instance.AddGold(amount);
+            AccountDataManager.Instance.Save(); // 골드 변경 시 즉시 저장
             
-            if (showDebugLogs)
-                Debug.Log($"💰 [PlayerDataManager] 골드 소모: -{amount}, 현재: {selectedPlayerData.currentGold}");
-            return true;
+            // 이벤트 발행 (UI 동기화)
+            OnGoldChanged?.Invoke(AccountDataManager.Instance.CurrentGold);
         }
         else
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [PlayerDataManager] 골드 부족: 필요 {amount}, 보유 {selectedPlayerData.currentGold}");
+            Debug.LogError("❌ [PlayerDataManager] AccountDataManager.Instance가 null입니다!");
+        }
+    }
+    
+    /// <summary>
+    /// 골드 소모 (AccountDataManager로 위임)
+    /// ⭐ V2: 계정 전체 공유 골드
+    /// </summary>
+    public bool SpendGold(int amount)
+    {
+        if (amount <= 0) return false;
+        
+        if (AccountDataManager.Instance != null)
+        {
+            bool success = AccountDataManager.Instance.SpendGold(amount);
+            
+            if (success)
+            {
+                AccountDataManager.Instance.Save(); // 골드 변경 시 즉시 저장
+                
+                // 이벤트 발행 (UI 동기화)
+                OnGoldChanged?.Invoke(AccountDataManager.Instance.CurrentGold);
+            }
+            
+            return success;
+        }
+        else
+        {
+            Debug.LogError("❌ [PlayerDataManager] AccountDataManager.Instance가 null입니다!");
             return false;
         }
     }
@@ -1328,12 +1365,17 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     
     /// <summary>
     /// 모든 UI 이벤트 트리거
+    /// ⭐ V2: 골드는 AccountDataManager에서 가져옴
     /// </summary>
     private void TriggerAllUIEvents()
     {
         if (!IsSlotSelected) return;
         
-        OnGoldChanged?.Invoke(selectedPlayerData.currentGold);
+        // ⭐ V2: 골드는 AccountDataManager에서 가져옴 (계정 공유)
+        int accountGold = AccountDataManager.Instance?.CurrentGold ?? 0;
+        OnGoldChanged?.Invoke(accountGold);
+        Debug.Log($"💰 [TriggerAllUIEvents] 골드 이벤트 발행: {accountGold}");
+        
         OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
         OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
         OnInventoryChanged?.Invoke();
@@ -2218,6 +2260,17 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnGoldChanged?.Invoke(newGold); // 기존 이벤트도 유지
         NotifyDataChanged();
     }
+    
+    /// <summary>
+    /// 🆕 인벤토리 변경 알림 (공유 창고 포함)
+    /// </summary>
+    public void NotifyInventoryChanged()
+    {
+        OnInventoryChanged?.Invoke();
+        
+        if (showDebugLogs)
+            Debug.Log($"🔄 [PlayerDataManager] 인벤토리 변경 알림 발생");
+    }
 
     #endregion
 
@@ -2713,30 +2766,50 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         // 3. 저장 및 메모리 동기화
-        Debug.Log($"💾 [AddItemV2] SaveSlotData() 호출 전: 가방 {slotData.characterBagInstanceIds.Count}개");
-        bool saved = SaveSlotData(slotData);
-        Debug.Log($"💾 [AddItemV2] SaveSlotData() 결과: {(saved ? "성공" : "실패")}");
-        
-        // 3.5. ⭐ 중요: selectedPlayerData도 업데이트 (SaveCurrentSlot 덮어쓰기 방지!)
-        if (selectedPlayerData != null)
+        try
         {
-            Debug.Log($"🔄 [AddItemV2] selectedPlayerData 동기화 중...");
-            selectedPlayerData.LoadFromSlotData(slotData);
-            Debug.Log($"✅ [AddItemV2] selectedPlayerData 동기화 완료");
+            Debug.Log($"💾 [AddItemV2] SaveSlotData() 호출 전: 가방 {slotData.characterBagInstanceIds.Count}개");
+            bool saved = SaveSlotData(slotData);
+            Debug.Log($"💾 [AddItemV2] SaveSlotData() 결과: {(saved ? "성공" : "실패")}");
+            
+            if (!saved)
+            {
+                Debug.LogError($"❌ [AddItemV2] SaveSlotData 실패! 아이템 롤백: {templateName}");
+                // 가방에서 제거 (롤백)
+                slotData.characterBagInstanceIds.Remove(newId);
+                return default(ItemInstanceId);
+            }
+            
+            // 3.5. ⭐ 중요: selectedPlayerData도 업데이트 (SaveCurrentSlot 덮어쓰기 방지!)
+            if (selectedPlayerData != null)
+            {
+                Debug.Log($"🔄 [AddItemV2] selectedPlayerData 동기화 중...");
+                selectedPlayerData.LoadFromSlotData(slotData);
+                Debug.Log($"✅ [AddItemV2] selectedPlayerData 동기화 완료");
+            }
+            
+            // 저장 후 검증
+            var verifySlot = GetSlotData(currentSlotIndex);
+            Debug.Log($"🔍 [AddItemV2] 저장 후 검증: 가방 {verifySlot?.characterBagInstanceIds.Count ?? 0}개");
+            
+            account.Save();
+            
+            MarkDirty();
+            
+            Debug.Log($"✅ [AddItemV2] 아이템 획득 성공: {templateName} (ID: {newId.id}, 강화: +{enhancementLevel})");
+            OnInventoryChanged?.Invoke();
+            
+            return newId;
         }
-        
-        // 저장 후 검증
-        var verifySlot = GetSlotData(currentSlotIndex);
-        Debug.Log($"🔍 [AddItemV2] 저장 후 검증: 가방 {verifySlot?.characterBagInstanceIds.Count ?? 0}개");
-        
-        account.Save();
-        
-        MarkDirty();
-        
-        Debug.Log($"✅ [AddItemV2] 아이템 획득 성공: {templateName} (ID: {newId.id}, 강화: +{enhancementLevel})");
-        OnInventoryChanged?.Invoke();
-        
-        return newId;
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"💥 [AddItemV2] 예외 발생! {ex.Message}\n{ex.StackTrace}");
+            
+            // 가방에서 제거 (롤백)
+            slotData.characterBagInstanceIds.Remove(newId);
+            
+            return default(ItemInstanceId);
+        }
     }
     
     #endregion

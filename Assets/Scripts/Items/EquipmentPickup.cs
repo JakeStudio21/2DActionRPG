@@ -343,6 +343,8 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             // V2 아이템 추가 (가방 가득 차면 우편함 처리)
             ItemInstanceId newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
             
+            Debug.Log($"🔍 [DEBUG] AddItemV2 호출 완료 - newItemId.IsValid(): {newItemId.IsValid()}, ID: {(newItemId.IsValid() ? newItemId.id : "INVALID")}");
+            
             if (newItemId.IsValid())
             {
                 if (enableDebugLogs)
@@ -350,13 +352,17 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
                 
                 // TODO: 사운드 재생 (추후 추가)
                 
+                Debug.Log($"🔍 [EquipmentPickup] ReturnToPool() 호출 예정 - GameObject: {gameObject.name}");
+                
                 // 풀 반환
                 ReturnToPool();
+                
+                Debug.Log($"✅ [EquipmentPickup] ReturnToPool() 호출 완료");
             }
             else
             {
                 // ⭐ 획득 실패 (allowMailboxOnFull=false인 경우만 발생)
-                Debug.LogWarning($"💼 [EquipmentPickup] 아이템 획득 실패: {currentEquipmentData.equipmentName}");
+                Debug.LogError($"💼 [EquipmentPickup] 아이템 획득 실패! newItemId.IsValid() = false, templateName: {templateName}, 아이템: {currentEquipmentData.equipmentName}");
                 
                 // 알림 메시지 표시
                 if (NotificationManager.Instance != null)

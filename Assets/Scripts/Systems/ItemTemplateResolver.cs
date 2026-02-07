@@ -70,30 +70,26 @@ public static class ItemTemplateResolver
     
     private static EquipmentData LoadFromResources(string templateName)
     {
-        // 1차 시도: Equipment 폴더 (현재 프로젝트 구조)
-        string path = $"Equipment/{templateName}";
-        var data = Resources.Load<EquipmentData>(path);
-        
-        if (data != null)
+        // 시도할 경로 패턴들
+        string[] pathPatterns = new string[]
         {
-            return data;
-        }
+            $"Equipment/{templateName}",              // 1. Equipment/ITEM_BOOTS_ASSASIN_C
+            $"Equipment/{templateName}_Equipment",    // 2. Equipment/ITEM_BOOTS_ASSASIN_C_Equipment
+            $"EquipmentData/{templateName}",          // 3. EquipmentData/ITEM_BOOTS_ASSASIN_C
+            $"EquipmentData/{templateName}_Equipment",// 4. EquipmentData/ITEM_BOOTS_ASSASIN_C_Equipment
+            templateName,                             // 5. ITEM_BOOTS_ASSASIN_C (루트)
+            $"{templateName}_Equipment"               // 6. ITEM_BOOTS_ASSASIN_C_Equipment (루트)
+        };
         
-        // 2차 시도: EquipmentData 폴더 (대체 경로)
-        path = $"EquipmentData/{templateName}";
-        data = Resources.Load<EquipmentData>(path);
-        
-        if (data != null)
+        // 순차적으로 시도
+        foreach (var path in pathPatterns)
         {
-            return data;
-        }
-        
-        // 3차 시도: 루트 경로
-        data = Resources.Load<EquipmentData>(templateName);
-        
-        if (data != null)
-        {
-            return data;
+            var data = Resources.Load<EquipmentData>(path);
+            
+            if (data != null)
+            {
+                return data;
+            }
         }
         
         // ⚠️ 장비 아이템이 아닐 수 있으므로 에러가 아니라 null 반환

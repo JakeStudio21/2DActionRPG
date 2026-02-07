@@ -2,6 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
+using Shop;
+
+/// <summary>
+/// 🛒 구매 실패 이유
+/// </summary>
+public enum PurchaseFailReason
+{
+    None,               // 성공
+    InsufficientGold,   // 골드 부족
+    InventoryFull,      // 인벤토리 가득 참
+    InvalidItem,        // 잘못된 아이템
+    SystemError         // 시스템 오류
+}
 
 /// <summary>
 /// 🏪 상점 시스템 컨트롤러 (Service Layer)
@@ -14,6 +28,12 @@ public class ShopController : MonoBehaviour
     [Header("💰 가격 제공자")]
     [SerializeField] private MonoBehaviour priceProviderBehaviour;
     private IPriceProvider priceProvider;
+    
+    [Header("🏪 상점 아이템 풀 (전시용)")]
+    private ShopItemPool itemPool;
+    
+    // Public 접근자
+    public ShopItemPool ItemPool => itemPool;
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
@@ -40,8 +60,64 @@ public class ShopController : MonoBehaviour
     void Start()
     {
         InitializePriceProvider();
+        InitializeShop();
     }
     
+
+
+
+
+// ShopController.cs에 추가 (Update 메서드)
+void Update()
+{
+    // 테스트용: B키 누르면 첫 번째 아이템 구매 시도
+    if (Input.GetKeyDown(KeyCode.B))
+    {
+        TestBuyItem();
+    }
+}
+
+private void TestBuyItem()
+{
+    Debug.Log("=== 🧪 구매 테스트 시작 ===");
+    
+    // Assasin 클래스 데이터 조회
+    var assasinData = GetShopDataByClass(PlayerClass.Assasin);
+    
+    if (assasinData.Count > 0 && assasinData[0].items.Count > 0)
+    {
+        var firstItem = assasinData[0].items[0];
+        
+        Debug.Log($"💰 구매 시도: {firstItem.equipmentData.equipmentName} (가격: {firstItem.equipmentData.buyPrice})");
+        Debug.Log($"💰 현재 골드: {PlayerDataManager.Instance.CurrentGold}"); // ⭐ V2: 계정 공유 골드
+        
+        bool success = BuyItemV2(firstItem.displayInstanceId);
+        
+        if (success)
+        {
+            Debug.Log($"✅ 구매 성공!");
+            Debug.Log($"💰 남은 골드: {PlayerDataManager.Instance.CurrentGold}"); // ⭐ V2: 계정 공유 골드
+        }
+        else
+        {
+            Debug.Log($"❌ 구매 실패!");
+        }
+    }
+    else
+    {
+        Debug.Log("⚠️ 구매할 아이템이 없습니다!");
+    }
+    
+    Debug.Log("=== ✅ 구매 테스트 완료 ===");
+}
+
+
+
+
+
+
+
+
     /// <summary>
     /// 가격 제공자 초기화
     /// </summary>
@@ -128,7 +204,7 @@ public class ShopController : MonoBehaviour
         }
         
         // 2. 공유 창고에 추가 (가득 차면 우편함)
-        bool addedToShared = AccountDataManager.Instance.TryAddToShared(newItemId, 50);
+        bool addedToShared = AccountDataManager.Instance.TryAddToShared(newItemId);
         
         if (!addedToShared)
         {
@@ -215,4 +291,257 @@ public class ShopController : MonoBehaviour
     {
         return priceProvider?.GetSellPrice(itemID) ?? 0;
     }
+    
+    #region Shop V2 System (전시용 Instance)
+    
+    /// <summary>
+    /// ⭐ 상점 초기화 (1회만 실행, 멱등성 보장)
+    /// - 전시용 ItemInstance 풀 생성
+    /// - 자동 초기화 시스템으로 언제든 호출 가능
+    /// </summary>
+    public void InitializeShop()
+    {
+        // ✅ 이미 초기화되었으면 조용히 리턴 (멱등성)
+        if (itemPool != null && itemPool.IsInitialized)
+        {
+            return;
+        }
+        
+        if (showDebugLogs)
+            Debug.Log("🏪 [ShopController] 상점 초기화 시작...");
+        
+        itemPool = new ShopItemPool();
+        itemPool.Initialize();
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [ShopController] 상점 초기화 완료! (전시용 Instance: {itemPool.DisplayInstanceCount}개)");
+    }
+    
+    /// <summary>
+    /// ⭐ 클래스별 상점 데이터 조회
+    /// - usableClass 기반 자동 필터링
+    /// - 6개 카테고리별로 그룹화
+    /// - 등급순 정렬 (D → C → B → A)
+    /// </summary>
+    public List<ShopInventoryData> GetShopDataByClass(PlayerClass playerClass)
+    {
+        Debug.Log($"🔄 [ShopController] GetShopDataByClass({playerClass}) 시작");
+        
+        // ✅ 자동 초기화 보장 (Unity Start() 순서 문제 해결)
+        if (itemPool == null || !itemPool.IsInitialized)
+        {
+            Debug.LogWarning("⚠️ [ShopController] 상점이 초기화되지 않아 자동 초기화 수행...");
+            
+            InitializeShop();
+            
+            // 초기화 실패 시
+            if (itemPool == null || !itemPool.IsInitialized)
+            {
+                Debug.LogError("❌ [ShopController] 상점 자동 초기화 실패!");
+                Debug.LogError("   💡 AccountDataManager가 초기화되었는지 확인하세요!");
+                return new List<ShopInventoryData>();
+            }
+            
+            Debug.Log("   ✅ 상점 자동 초기화 완료");
+        }
+        
+        Debug.Log("   ✅ itemPool 확인됨 (초기화 완료)");
+        
+        // 1. 모든 D/C/B/A 등급 장비 로드
+        EquipmentData[] allEquipments = Resources.LoadAll<EquipmentData>("Equipment");
+        
+        // 2. usableClass 필터링
+        var filteredEquipments = allEquipments.Where(eq =>
+            (eq.usableClass == playerClass || 
+             eq.usableClass == PlayerClass.Any || 
+             eq.usableClass == PlayerClass.None) &&
+            (eq.itemGrade == ItemGrade.D || eq.itemGrade == ItemGrade.C || 
+             eq.itemGrade == ItemGrade.B || eq.itemGrade == ItemGrade.A)
+        ).ToList();
+        
+        if (showDebugLogs)
+            Debug.Log($"🎯 [ShopController] {playerClass} 클래스 장비: {filteredEquipments.Count}개");
+        
+        // 3. 6개 카테고리별로 그룹화
+        var result = new List<ShopInventoryData>();
+        var categories = ShopCategoryHelper.GetAllCategories();
+        
+        foreach (var category in categories)
+        {
+            var slot = ShopCategoryHelper.ToEquipmentSlot(category);
+            var shopData = new ShopInventoryData(playerClass, slot);
+            
+            // 해당 카테고리에 맞는 장비 필터링
+            var categoryItems = filteredEquipments.Where(eq => IsMatchingCategory(eq, category)).ToList();
+            
+            // ShopItemEntry 생성
+            foreach (var equipment in categoryItems)
+            {
+                // ⭐ itemID를 키로 사용 (V2 시스템 표준)
+                var displayInstanceId = itemPool.GetDisplayInstance(equipment.itemID);
+                if (displayInstanceId.IsValid())
+                {
+                    var entry = new ShopItemEntry(displayInstanceId, equipment);
+                    shopData.AddItem(entry);
+                }
+            }
+            
+            // 등급순 정렬 (D → C → B → A)
+            shopData.SortByGrade();
+            
+            result.Add(shopData);
+            
+            if (showDebugLogs)
+                Debug.Log($"  📦 {ShopCategoryHelper.GetCategoryName(category)}: {shopData.items.Count}개");
+        }
+        
+        return result;
+    }
+    
+    /// <summary>
+    /// ⭐ 아이템 구매 (V2 시스템)
+    /// - 전시용 displayInstanceId를 받아서 새로운 플레이어 전용 Instance 생성
+    /// </summary>
+    public bool BuyItemV2(ItemInstanceId displayInstanceId, out PurchaseFailReason failReason)
+    {
+        failReason = PurchaseFailReason.None;
+        
+        if (!displayInstanceId.IsValid())
+        {
+            if (showDebugLogs)
+                Debug.LogError("❌ [ShopController] 잘못된 displayInstanceId입니다!");
+            failReason = PurchaseFailReason.InvalidItem;
+            return false;
+        }
+        
+        // ✅ 자동 초기화 보장
+        if (itemPool == null || !itemPool.IsInitialized)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [ShopController] 구매 시도 시 상점 자동 초기화...");
+            
+            InitializeShop();
+            
+            if (itemPool == null || !itemPool.IsInitialized)
+            {
+                Debug.LogError("❌ [ShopController] 상점 자동 초기화 실패!");
+                failReason = PurchaseFailReason.SystemError;
+                return false;
+            }
+        }
+        
+        // 1. 전시용 ID로 EquipmentData 조회 (이미 로드되어 있음)
+        EquipmentData equipment = itemPool.GetEquipmentData(displayInstanceId);
+        if (equipment == null)
+        {
+            Debug.LogError($"❌ [ShopController] EquipmentData를 찾을 수 없습니다: {displayInstanceId.id}");
+            failReason = PurchaseFailReason.InvalidItem;
+            return false;
+        }
+        
+        string templateName = equipment.itemID;
+        
+        int buyPrice = equipment.buyPrice;
+        
+        // 3. 골드 체크 (⭐ V2: AccountDataManager 사용)
+        if (PlayerDataManager.Instance == null)
+        {
+            Debug.LogError("❌ [ShopController] PlayerDataManager.Instance가 null입니다!");
+            failReason = PurchaseFailReason.SystemError;
+            return false;
+        }
+        
+        int currentGold = PlayerDataManager.Instance.CurrentGold; // ⭐ V2: 계정 공유 골드
+        if (currentGold < buyPrice)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [ShopController] 골드 부족! 필요: {buyPrice}, 보유: {currentGold}");
+            OnTransactionFailed?.Invoke(templateName);
+            failReason = PurchaseFailReason.InsufficientGold;
+            return false;
+        }
+        
+        // 4. 새 ItemInstance 생성 (플레이어 전용)
+        var newInstanceId = itemPool.CreateNewInstance(templateName);
+        if (!newInstanceId.IsValid())
+        {
+            Debug.LogError($"❌ [ShopController] 새 Instance 생성 실패: {templateName}");
+            OnTransactionFailed?.Invoke(templateName);
+            failReason = PurchaseFailReason.SystemError;
+            return false;
+        }
+        
+        // 5. 계정 공유 창고에 추가
+        if (!AccountDataManager.Instance.TryAddToShared(newInstanceId))
+        {
+            Debug.LogError($"❌ [ShopController] 보관창고 추가 실패: {templateName}");
+            OnTransactionFailed?.Invoke(templateName);
+            failReason = PurchaseFailReason.InventoryFull;
+            return false;
+        }
+        
+        // 6. 골드 차감
+        PlayerDataManager.Instance.AddGold(-buyPrice);
+        PlayerDataManager.Instance.SaveOnMeaningfulEvent("ItemPurchased");
+        AccountDataManager.Instance.Save();
+        
+        // 7. UI 새로고침 이벤트 발생 (보관창고 업데이트)
+        PlayerDataManager.Instance.NotifyInventoryChanged();
+        
+        if (showDebugLogs)
+            Debug.Log($"✅ [ShopController] 구매 성공! {templateName} (가격: {buyPrice}, ID: {newInstanceId.id.Substring(0, 8)}...)");
+        
+        // 8. 이벤트 발생
+        OnItemPurchased?.Invoke(templateName);
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// ⭐ 아이템 구매 (오버로드: 실패 이유 없음)
+    /// </summary>
+    public bool BuyItemV2(ItemInstanceId displayInstanceId)
+    {
+        return BuyItemV2(displayInstanceId, out _);
+    }
+    
+    /// <summary>
+    /// 장비가 특정 카테고리에 속하는지 체크
+    /// </summary>
+    private bool IsMatchingCategory(EquipmentData equipment, ShopCategory category)
+    {
+        if (equipment == null)
+            return false;
+        
+        switch (category)
+        {
+            case ShopCategory.Weapon:
+                return equipment.equipmentType == EquipmentType.Weapon;
+                
+            case ShopCategory.Armor:
+                return equipment.equipmentType == EquipmentType.Armor && 
+                       equipment.ArmorType == ArmorType.Armor;
+                
+            case ShopCategory.Boots:
+                return equipment.equipmentType == EquipmentType.Armor && 
+                       equipment.ArmorType == ArmorType.Boots;
+                
+            case ShopCategory.Helmet:
+                return equipment.equipmentType == EquipmentType.Armor && 
+                       equipment.ArmorType == ArmorType.Helmet;
+                
+            case ShopCategory.Belt:
+                return equipment.equipmentType == EquipmentType.Armor && 
+                       equipment.ArmorType == ArmorType.Belt;
+                
+            case ShopCategory.Gloves:
+                return equipment.equipmentType == EquipmentType.Armor && 
+                       equipment.ArmorType == ArmorType.Gloves;
+                
+            default:
+                return false;
+        }
+    }
+    
+    #endregion
 }

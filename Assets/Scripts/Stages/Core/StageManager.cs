@@ -188,6 +188,26 @@ public class StageManager : MonoBehaviour
             totalEnemyKillCount = 0;
             isBossKilled = false; // ✅ 보스 처치 플래그 초기화
             
+            // ⭐ 0단계: 캐릭터 가방 초기화 (인게임 전용 임시 저장소)
+            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+            {
+                int slotIndex = PlayerDataManager.Instance.GetCurrentSlotIndex();
+                var slotData = PlayerDataManager.Instance.GetSlotData(slotIndex);
+                
+                if (slotData != null)
+                {
+                    Debug.Log($"🎒 [StageManager] 캐릭터 가방 초기화: {slotData.characterBagInstanceIds.Count}개 아이템 제거");
+                    slotData.characterBagInstanceIds.Clear();
+                    PlayerDataManager.Instance.SaveSlotData(slotData);
+                    
+                    // selectedPlayerData도 동기화
+                    if (PlayerDataManager.Instance.selectedPlayerData != null)
+                    {
+                        PlayerDataManager.Instance.selectedPlayerData.LoadFromSlotData(slotData);
+                    }
+                }
+            }
+            
             // 1단계: 풀 시스템 Warmup
             yield return StartCoroutine(WarmupPoolSystem());
             

@@ -61,6 +61,7 @@ public class AccountDataManager
     public void Load()
     {
         Debug.Log($"🔄 [AccountDataManager] Load() 시작 - 저장 키: {ACCOUNT_SAVE_KEY}");
+        Debug.Log($"🔍 [AccountDataManager] Load() 호출 스택:\n{System.Environment.StackTrace}");
         
         string json = storage.Load(ACCOUNT_SAVE_KEY);
         
@@ -78,6 +79,7 @@ public class AccountDataManager
             Debug.Log($"   - 공유 창고: {accountData.sharedInventoryIds.Count}개");
             Debug.Log($"   - 우편함: {accountData.mailboxIds.Count}개");
             Debug.Log($"   - 귀속 정보: {accountData.binds.Count}개");
+            Debug.Log($"🔍 [AccountDataManager] Load() 완료 후 accountData 해시코드: {accountData.GetHashCode()}");
         }
         
         // 캐시 재구축
@@ -90,11 +92,14 @@ public class AccountDataManager
         Debug.Log($"   - 아이템 인스턴스: {accountData.itemInstances.Count}개");
         Debug.Log($"   - 공유 창고: {accountData.sharedInventoryIds.Count}개");
         Debug.Log($"   - 우편함: {accountData.mailboxIds.Count}개");
+        Debug.Log($"🔍 [AccountDataManager] Save() 시작 시 accountData 해시코드: {accountData.GetHashCode()}");
         
         string json = JsonUtility.ToJson(accountData, true);
         storage.Save(ACCOUNT_SAVE_KEY, json);
         
         Debug.Log($"✅ [AccountDataManager] 계정 데이터 저장 완료 ({json.Length} bytes)");
+        Debug.Log($"🔍 [AccountDataManager] Save() 완료 후 accountData 해시코드: {accountData.GetHashCode()}");
+        Debug.Log($"🔍 [AccountDataManager] Save() 완료 후 공유 창고: {accountData.sharedInventoryIds.Count}개");
     }
     
     /// <summary>
@@ -125,6 +130,77 @@ public class AccountDataManager
         }
         
         Debug.Log($"🔄 [AccountDataManager] 캐시 재구축 완료: 인스턴스 {instanceCache.Count}개");
+    }
+    
+    // ========================================
+    // 💰 골드 관리 (V2 계정 공유 시스템)
+    // ========================================
+    
+    /// <summary>
+    /// 골드 변경 이벤트 (UI 동기화용)
+    /// </summary>
+    public System.Action<int> OnGoldChanged;
+    
+    /// <summary>
+    /// 현재 골드 조회
+    /// </summary>
+    public int CurrentGold
+    {
+        get => accountData?.gold ?? 0;
+        private set
+        {
+            if (accountData != null)
+            {
+                accountData.gold = value;
+                OnGoldChanged?.Invoke(value);
+                Debug.Log($"💰 [AccountDataManager] 골드 변경: {value}");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 골드 추가 (보상, 판매 등)
+    /// </summary>
+    public void AddGold(int amount)
+    {
+        if (amount <= 0)
+        {
+            Debug.LogWarning($"⚠️ [AccountDataManager] 잘못된 골드 추가: {amount}");
+            return;
+        }
+        
+        CurrentGold += amount;
+        Debug.Log($"💰 [AccountDataManager] 골드 추가: +{amount} → {CurrentGold}");
+    }
+    
+    /// <summary>
+    /// 골드 소비 (구매, 강화 등)
+    /// </summary>
+    public bool SpendGold(int amount)
+    {
+        if (amount <= 0)
+        {
+            Debug.LogWarning($"⚠️ [AccountDataManager] 잘못된 골드 소비: {amount}");
+            return false;
+        }
+        
+        if (CurrentGold < amount)
+        {
+            Debug.LogWarning($"⚠️ [AccountDataManager] 골드 부족: {CurrentGold} < {amount}");
+            return false;
+        }
+        
+        CurrentGold -= amount;
+        Debug.Log($"💰 [AccountDataManager] 골드 소비: -{amount} → {CurrentGold}");
+        return true;
+    }
+    
+    /// <summary>
+    /// 골드 충분 여부 확인
+    /// </summary>
+    public bool HasEnoughGold(int amount)
+    {
+        return CurrentGold >= amount;
     }
     
     // ========================================
@@ -184,6 +260,33 @@ public class AccountDataManager
         Debug.Log($"🗑️ [AccountDataManager] 아이템 인스턴스 삭제: {id.id}");
     }
     
+    /// <summary>
+    /// ⭐ 새로운 아이템 인스턴스 생성 (상점 구매, 드롭 등)
+    /// </summary>
+    public ItemInstanceId CreateInstance(string templateName, int enhancementLevel = 0)
+    {
+        // 새 Instance ID 생성
+        var newInstanceId = ItemInstanceId.NewId();
+        
+        // ItemInstanceData 생성
+        var instanceData = new ItemInstanceData
+        {
+            instanceId = newInstanceId,
+            templateName = templateName,
+            enhancementLevel = enhancementLevel
+        };
+        
+        // AccountData에 추가
+        accountData.itemInstances.Add(instanceData);
+        
+        // 캐시에 추가
+        instanceCache[newInstanceId] = instanceData;
+        
+        Debug.Log($"✨ [AccountDataManager] 새 아이템 인스턴스 생성: {templateName} (ID: {newInstanceId.id.Substring(0, 8)}..., 강화: +{enhancementLevel})");
+        
+        return newInstanceId;
+    }
+    
     // ========================================
     // 공유 창고 관리
     // ========================================
@@ -191,8 +294,11 @@ public class AccountDataManager
     /// <summary>
     /// 계정 공유 창고에 추가
     /// </summary>
-    public bool TryAddToShared(ItemInstanceId id, int maxSize = 50)
+    public bool TryAddToShared(ItemInstanceId id, int? maxSize = null)
     {
+        // ✅ maxSize가 지정되지 않으면 AccountData의 maxSharedInventorySize 사용
+        int actualMaxSize = maxSize ?? accountData.maxSharedInventorySize;
+        
         // 중복 체크
         if (accountData.sharedInventoryIds.Contains(id))
         {
@@ -201,14 +307,13 @@ public class AccountDataManager
         }
         
         // 크기 체크
-        if (accountData.sharedInventoryIds.Count >= maxSize)
+        if (accountData.sharedInventoryIds.Count >= actualMaxSize)
         {
-            Debug.LogWarning($"⚠️ [AccountDataManager] 창고가 가득 참! ({maxSize}개)");
+            Debug.LogWarning($"⚠️ [AccountDataManager] 창고가 가득 참! ({accountData.sharedInventoryIds.Count}/{actualMaxSize}개)");
             return false;
         }
         
         accountData.sharedInventoryIds.Add(id);
-        Debug.Log($"📦 [AccountDataManager] 창고 추가: {id.id} ({accountData.sharedInventoryIds.Count}/{maxSize})");
         return true;
     }
     
@@ -423,6 +528,8 @@ public class AccountDataManager
     /// </summary>
     public AccountData GetAccountData()
     {
+        // 🔍 디버그: 호출 시점 추적
+        Debug.Log($"🔍 [AccountDataManager] GetAccountData() 호출됨 - 공유 창고: {accountData?.sharedInventoryIds?.Count ?? 0}개");
         return accountData;
     }
     

@@ -199,14 +199,15 @@ public static class Phase3_5_StageEndTest
             // 테스트 슬롯 생성
             CreateTestSlot();
             
-            // 창고를 가득 채움 (SharedInventoryMaxSize = 50)
-            for (int i = 0; i < 50; i++)
+            // 창고를 가득 채움 (maxSharedInventorySize 사용)
+            int maxSize = account.GetAccountData().maxSharedInventorySize;
+            for (int i = 0; i < maxSize; i++)
             {
                 var dummyItem = account.RegisterNewInstance("DummyItem");
                 account.TryAddToShared(dummyItem);
             }
             
-            Debug.Log("✅ 창고를 50개로 가득 채움");
+            Debug.Log($"✅ 창고를 {maxSize}개로 가득 채움");
             
             // 가방에 아이템 2개 추가
             var item1 = account.RegisterNewInstance("Sword_D_Equipment");
