@@ -35,10 +35,11 @@ public class LobbyUIController : MonoBehaviour
     [Header("=== 패널 관리 시스템 ===")]
     public LobbyPanelManager panelManager; // 패널 전환 관리자   
     
-    [Header("🏪 로비 상점 버튼")]  // 🆕 추가
+    [Header("🏪 로비 메뉴 버튼")]  // 🔧 수정
     public Button shopButton;               // 🆕 상점 버튼 참조
     public Button inventoryButton;          // 🆕 기존 가방 버튼 참조 (일관성)
     public Button characterInfoButton;      //  기존 영웅 버튼 참조 (일관성)
+    public Button workshopButton;           // 🆕 공방 버튼 참조
     public Button quitGameButton;           // 🆕 게임 종료 버튼 추가
     
     [Header("🎬 다시보기 버튼")]  // 🆕 Phase 7 추가
@@ -617,6 +618,15 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log("[LobbyUIController] Hero 버튼 클릭!");
         ShowCharacterInfoPanel();
+    }
+    
+    /// <summary>
+    /// 🆕 Workshop 버튼 클릭 (Unity Editor OnClick 연결용)
+    /// </summary>
+    public void OnWorkshopButton()
+    {
+        Debug.Log("[LobbyUIController] Workshop 버튼 클릭!");
+        ShowWorkshopPanel();
     }
     
     #endregion
@@ -1250,6 +1260,24 @@ public class LobbyUIController : MonoBehaviour
         }
         
         Debug.Log($"[LobbyUIController] 캐릭터 정보 패널 표시 완료 (슬롯 {selectedSlotIndex})");
+    }
+    
+    /// <summary>
+    /// 🆕 공방(제작) 패널 표시
+    /// </summary>
+    public void ShowWorkshopPanel()
+    {
+        if (!EnsureCharacterSelected()) return;
+        
+        Debug.Log("🏭 [LobbyUIController] ShowWorkshopPanel 호출됨");
+        
+        // 패널 전환 (LobbyPanelManager로 위임)
+        if (panelManager != null)
+        {
+            panelManager.ShowWorkshopPanel();
+        }
+        
+        Debug.Log("[LobbyUIController] 공방 패널 표시 완료");
     }
 
 

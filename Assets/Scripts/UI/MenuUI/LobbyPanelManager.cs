@@ -15,6 +15,7 @@ public class LobbyPanelManager : MonoBehaviour
     public GameObject inventoryPanel;
     public GameObject shopPanel;
     public GameObject characterInfoPanel;
+    public GameObject workshopPanel;        // 🆕 공방 패널
     
     [Header("=== 컨트롤러 참조 ===")]
     public StageSelectPanelController stageSelectPanelController;
@@ -38,6 +39,7 @@ public class LobbyPanelManager : MonoBehaviour
         if (inventoryPanel == null) Debug.LogError("[LobbyPanelManager] inventoryPanel 누락!");
         if (shopPanel == null) Debug.LogError("[LobbyPanelManager] shopPanel 누락!");
         if (characterInfoPanel == null) Debug.LogError("[LobbyPanelManager] characterInfoPanel 누락!");
+        if (workshopPanel == null) Debug.LogError("[LobbyPanelManager] workshopPanel 누락!");  // 🆕
         
         // 초기 활성 패널 설정 (로비)
         currentActivePanel = lobbyPanel;
@@ -136,6 +138,34 @@ public class LobbyPanelManager : MonoBehaviour
     }
     
     /// <summary>
+    /// 🆕 공방(제작) 패널 표시
+    /// </summary>
+    public void ShowWorkshopPanel()
+    {
+        Debug.Log("🏭 [LobbyPanelManager] ShowWorkshopPanel 호출됨");
+        
+        // Cue 이벤트 발행
+        EmitButtonClickCue();
+        EmitWorkshopOpenCue();
+        
+        // 패널 전환
+        BringPanelToFront(workshopPanel);
+        
+        // WorkshopUI 초기화
+        var workshopUI = workshopPanel?.GetComponent<UI.Workshop.WorkshopUI>();
+        if (workshopUI != null)
+        {
+            workshopUI.OnPanelOpened();
+        }
+        else
+        {
+            Debug.LogError("[LobbyPanelManager] WorkshopUI 컴포넌트를 찾을 수 없습니다!");
+        }
+        
+        Debug.Log("[LobbyPanelManager] 공방 패널을 최상위로 이동 완료");
+    }
+    
+    /// <summary>
     /// 패널을 최상위로 가져오기 (Z-Order 제어)
     /// </summary>
     private void BringPanelToFront(GameObject panel)
@@ -224,6 +254,16 @@ public class LobbyPanelManager : MonoBehaviour
             actorType = ActorType.UI
         };
         CueEmitter.Emit("ui.character.open", "UI", context);
+    }
+    
+    private void EmitWorkshopOpenCue()
+    {
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.workshop.open", "UI", context);
     }
     
     #endregion

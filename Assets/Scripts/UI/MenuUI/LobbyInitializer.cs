@@ -22,6 +22,7 @@ public class LobbyInitializer : MonoBehaviour
     public Button inventoryButton;
     public Button characterInfoButton;
     public Button shopButton;
+    public Button workshopButton;       // 🆕 공방 버튼
     public Button quitGameButton;
     public Button replayIntroButton;
     public Button replayTutorialButton;
@@ -234,6 +235,16 @@ public class LobbyInitializer : MonoBehaviour
                 lobbyUIController.ShowShopPanel();
             });
             Debug.Log("   ✅ 상점 버튼");
+        }
+        
+        // 🆕 공방 버튼
+        if (workshopButton != null)
+        {
+            workshopButton.onClick.AddListener(() => {
+                EmitButtonClickCue();
+                lobbyUIController.ShowWorkshopPanel();
+            });
+            Debug.Log("   ✅ 공방 버튼");
         }
         
         // 게임 종료 버튼
