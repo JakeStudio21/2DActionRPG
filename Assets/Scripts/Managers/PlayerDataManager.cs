@@ -36,7 +36,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     private const string COIN_AMOUNT_TEXT = "Gold Amount Text";
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
+    [SerializeField] private bool showDebugLogs = false;
     
     [Header("🔧 Dirty Flag 시스템")]
     [SerializeField] private bool isDirty = false;
@@ -555,15 +555,19 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         var backupEquippedRecords = existingSlotData?.equippedRecords != null
             ? new List<EquippedRecord>(existingSlotData.equippedRecords)
             : new List<EquippedRecord>();
+        var backupBagMaterials = existingSlotData?.characterBagMaterials != null
+            ? new List<MaterialStack>(existingSlotData.characterBagMaterials)
+            : new List<MaterialStack>();
         
         if (showDebugLogs)
-            Debug.Log($"📦 [SaveCurrentSlot] V2 데이터 백업: 가방 {backupBagIds.Count}개, 장착 {backupEquippedRecords.Count}개");
+            Debug.Log($"📦 [SaveCurrentSlot] V2 데이터 백업: 가방 {backupBagIds.Count}개, 장착 {backupEquippedRecords.Count}개, 재료 {backupBagMaterials.Count}개");
         
         // 2. Legacy 데이터 저장 (SaveToSlotData)
         var slotData = selectedPlayerData.SaveToSlotData();
         
-        // 3. ⭐ V2 데이터 복원 (characterBagInstanceIds만, equippedRecords는 SaveToSlotData에서 처리)
+        // 3. ⭐ V2 데이터 복원 (characterBagInstanceIds + characterBagMaterials, equippedRecords는 SaveToSlotData에서 처리)
         slotData.characterBagInstanceIds = backupBagIds;
+        slotData.characterBagMaterials = backupBagMaterials; // ⭐ 재료 복원!
         // ❌ slotData.equippedRecords = backupEquippedRecords; // 제거! SaveToSlotData()가 이미 처리함
         
         if (showDebugLogs)
@@ -3224,6 +3228,163 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         return result;
+    }
+    
+    #endregion
+    
+    #region 🎒 캐릭터 가방 관리 (인게임 임시 저장소)
+    
+    // 이벤트
+    public event Action OnCharacterBagChanged;
+    
+    /// <summary>
+    /// 캐릭터 가방에 재료 추가 (인게임 임시 저장)
+    /// </summary>
+    public void AddMaterialToCharacterBag(MaterialType type, int amount)
+    {
+        var slotData = GetCurrentSlotData();
+        if (slotData == null)
+        {
+            Debug.LogError("[AddMaterialToCharacterBag] 현재 슬롯 데이터가 없습니다");
+            return;
+        }
+        
+        // 기존 재료 찾기
+        var existing = slotData.characterBagMaterials.Find(m => m.materialType == type);
+        
+        if (existing != null)
+        {
+            existing.count += amount;
+            
+            if (showDebugLogs)
+                Debug.Log($"📦 [CharacterBag] 재료 추가: {type.GetDisplayName()} +{amount} (총: {existing.count}개)");
+        }
+        else
+        {
+            slotData.characterBagMaterials.Add(new MaterialStack
+            {
+                materialType = type,
+                count = amount
+            });
+            
+            if (showDebugLogs)
+                Debug.Log($"📦 [CharacterBag] 신규 재료 추가: {type.GetDisplayName()} x{amount}");
+        }
+        
+        MarkDirty();
+        OnCharacterBagChanged?.Invoke();
+    }
+    
+    /// <summary>
+    /// 캐릭터 가방의 장비 아이템 가져오기
+    /// </summary>
+    public List<EquipmentData> GetCharacterBagItems()
+    {
+        var slotData = GetCurrentSlotData();
+        if (slotData == null) return new List<EquipmentData>();
+        
+        var bagItems = new List<EquipmentData>();
+        var account = AccountDataManager.Instance;
+        
+        if (account == null) return bagItems;
+        
+        foreach (var instanceId in slotData.characterBagInstanceIds)
+        {
+            if (!instanceId.IsValid()) continue;
+            
+            var instance = account.GetInstance(instanceId);
+            if (instance == null) continue;
+            
+            var template = ItemTemplateResolver.Load(instance.templateName);
+            if (template != null)
+            {
+                bagItems.Add(template);
+            }
+        }
+        
+        return bagItems;
+    }
+    
+    /// <summary>
+    /// 캐릭터 가방 초기화 (로비 복귀 시)
+    /// </summary>
+    public void ClearCharacterBag()
+    {
+        var slotData = GetCurrentSlotData();
+        if (slotData == null)
+        {
+            Debug.LogWarning("[ClearCharacterBag] 현재 슬롯 데이터가 없습니다");
+            return;
+        }
+        
+        int equipCount = slotData.characterBagInstanceIds.Count;
+        int matCount = slotData.characterBagMaterials.Count;
+        
+        slotData.characterBagInstanceIds.Clear();
+        slotData.characterBagMaterials.Clear();
+        
+        MarkDirty();
+        OnCharacterBagChanged?.Invoke();
+        
+        Debug.Log($"🧹 [CharacterBag] 초기화 완료 (장비: {equipCount}개, 재료: {matCount}개)");
+    }
+    
+    /// <summary>
+    /// 캐릭터 가방 → 보관창고 자동 전송 (스테이지 클리어 시)
+    /// </summary>
+    public void TransferCharacterBagToStorage()
+    {
+        var slotData = GetCurrentSlotData();
+        if (slotData == null)
+        {
+            Debug.LogError("[TransferCharacterBag] 현재 슬롯 데이터가 없습니다");
+            return;
+        }
+        
+        var account = AccountDataManager.Instance;
+        if (account == null)
+        {
+            Debug.LogError("[TransferCharacterBag] AccountDataManager가 초기화되지 않았습니다");
+            return;
+        }
+        
+        int equipTransferred = 0;
+        int matTransferred = 0;
+        
+        // 1. 장비 전송 (기존 Phase 3.5)
+        foreach (var instanceId in slotData.characterBagInstanceIds)
+        {
+            if (instanceId.IsValid())
+            {
+                if (account.TryAddToShared(instanceId))
+                {
+                    equipTransferred++;
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [TransferCharacterBag] 장비 전송 실패: {instanceId.id}");
+                }
+            }
+        }
+        
+        // 2. 재료 전송 (신규)
+        foreach (var mat in slotData.characterBagMaterials)
+        {
+            account.AddMaterial(mat.materialType, mat.count);
+            matTransferred++;
+            Debug.Log($"📦 [TransferCharacterBag] 재료 전송: {mat.materialType.GetDisplayName()} x{mat.count}");
+        }
+        
+        // 3. 캐릭터 가방 초기화
+        slotData.characterBagInstanceIds.Clear();
+        slotData.characterBagMaterials.Clear();
+        
+        // 4. 저장
+        MarkDirty();
+        SaveOnMeaningfulEvent("CharacterBagTransferred");
+        account.Save();
+        
+        Debug.Log($"✅ [TransferCharacterBag] 전송 완료 - 장비: {equipTransferred}개, 재료: {matTransferred}개");
     }
     
     #endregion

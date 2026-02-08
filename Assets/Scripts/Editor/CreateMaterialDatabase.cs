@@ -116,6 +116,7 @@ public class CreateMaterialDatabase
         }
         
         // 데이터 설정
+        data.materialId = type.ToItemId(); // ⭐ materialId 자동 할당 (DropTable 연동용)
         data.materialType = type;
         data.displayName = displayName;
         data.description = description;

@@ -29,7 +29,7 @@ public class ActiveInventory : MonoBehaviour
     [Header("📊 디버그")]
     [SerializeField] 
     #pragma warning disable 0414
-    private bool showDebugLogs = true; // 사용하도록 수정
+    private bool showDebugLogs = false;
     #pragma warning restore 0414
 
     private PlayerControls playerControls;
@@ -103,10 +103,13 @@ public class ActiveInventory : MonoBehaviour
             PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
             PlayerDataManager.Instance.OnSlotClicked += OnSlotClickedForInGame;
             
+            // 🆕 캐릭터 가방 변경 이벤트 구독 (재료 획득 시 자동 갱신) ⭐
+            PlayerDataManager.Instance.OnCharacterBagChanged += RefreshInventoryUI;
+            
             // 🆕 지연 로드 완료 이벤트 구독
             PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoadedForInGame;
             
-            Debug.Log("✅ [ActiveInventory] PlayerDataManager 이벤트 구독 완료 (지연 갱신 지원)");
+            Debug.Log("✅ [ActiveInventory] PlayerDataManager 이벤트 구독 완료 (장비 + 재료 통합)");
         }
         
         // 🆕 인게임 상세 패널 닫기 버튼 이벤트 연결
@@ -141,28 +144,56 @@ public class ActiveInventory : MonoBehaviour
     }
     
     /// <summary>
-    /// PlayerDataManager 인벤토리 데이터로 UI 새로고침 (V2 시스템)
+    /// ⭐ 캐릭터 가방 통합 표시 (장비 + 재료)
     /// </summary>
     private void RefreshInventoryUI()
     {
         if (!useDynamicInventory || PlayerDataManager.Instance == null)
             return;
         
-        Debug.Log("🔄 [ActiveInventory] 인벤토리 UI 새로고침 시작 (V2)");
+        Debug.Log("🔄 [ActiveInventory] 캐릭터 가방 UI 새로고침 시작 (장비 + 재료 통합)");
         
-        // ⭐ V2 시스템: 캐릭터 가방 아이템 ID 가져오기
-        var bagItemIds = PlayerDataManager.Instance.GetCharacterBagV2();
-        var accountManager = AccountDataManager.Instance;
+        // 1. 통합 표시 아이템 목록 생성
+        var displayItems = new List<InventoryDisplayItem>();
         
-        if (accountManager == null)
+        // 1-1. 장비 아이템 추가
+        var equipments = PlayerDataManager.Instance.GetCharacterBagItems();
+        foreach (var equip in equipments)
         {
-            Debug.LogError("❌ [ActiveInventory] AccountDataManager를 찾을 수 없습니다!");
-            return;
+            displayItems.Add(new InventoryDisplayItem
+            {
+                type = ItemDisplayType.Equipment,
+                equipmentData = equip,
+                sortOrder = 1 // 장비가 먼저
+            });
         }
         
-        Debug.Log($"📊 [ActiveInventory] V2 가방 상태: {bagItemIds.Count}개 아이템");
+        // 1-2. 재료 아이템 추가
+        var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
+        if (slotData != null)
+        {
+            foreach (var mat in slotData.characterBagMaterials)
+            {
+                displayItems.Add(new InventoryDisplayItem
+                {
+                    type = ItemDisplayType.Material,
+                    materialStack = mat,
+                    sortOrder = 2 // 재료가 그 다음
+                });
+            }
+        }
         
-        // 각 슬롯에 아이템 할당
+        // 2. 정렬 (타입별 → 이름순)
+        displayItems.Sort((a, b) =>
+        {
+            if (a.sortOrder != b.sortOrder)
+                return a.sortOrder.CompareTo(b.sortOrder);
+            return a.GetDisplayName().CompareTo(b.GetDisplayName());
+        });
+        
+        Debug.Log($"📊 [ActiveInventory] 통합 가방 상태: 장비 {equipments.Count}개, 재료 {slotData?.characterBagMaterials.Count ?? 0}개 (총 {displayItems.Count}개)");
+        
+        // 3. 슬롯에 표시
         int displayedCount = 0;
         for (int i = 0; i < transform.childCount && i < maxDisplaySlots; i++)
         {
@@ -171,53 +202,61 @@ public class ActiveInventory : MonoBehaviour
             
             if (slot == null) continue;
             
-            EquipmentData oldEquipment = slot.GetEquipmentData();
-            
-            if (i < bagItemIds.Count)
+            if (i < displayItems.Count)
             {
-                // V2: ItemInstanceId → ItemInstanceData → EquipmentData
-                ItemInstanceId itemId = bagItemIds[i];
-                var itemInstance = accountManager.GetInstance(itemId);
+                var item = displayItems[i];
                 
-                if (itemInstance != null)
+                if (item.type == ItemDisplayType.Equipment)
                 {
+                    slot.SetEquipmentData(item.equipmentData);
                     if (showDebugLogs)
-                        Debug.Log($"🔍 [ActiveInventory] 슬롯 {i}: ItemInstance 존재 - templateName: {itemInstance.templateName}");
-                    
-                    // templateName으로 EquipmentData 로드
-                    EquipmentData newEquipment = ItemTemplateResolver.Load(itemInstance.templateName);
-                    
-                    if (newEquipment != null)
-                    {
-                        slot.SetEquipmentData(newEquipment);
-                        displayedCount++;
-                        
-                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: {oldEquipment?.equipmentName ?? "null"} → {newEquipment.equipmentName} (ID: {itemId.id.Substring(0, 8)}...)");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {i}: 템플릿 로드 실패 ({itemInstance.templateName})");
-                        slot.SetEquipmentData(null);
-                    }
+                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: 장비 - {item.equipmentData.equipmentName}");
                 }
-                else
+                else if (item.type == ItemDisplayType.Material)
                 {
-                    Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {i}: ItemInstance를 찾을 수 없음 (ID: {itemId.id})");
-                    slot.SetEquipmentData(null);
+                    slot.SetupMaterial(item.materialStack);
+                    if (showDebugLogs)
+                        Debug.Log($"📦 [ActiveInventory] 슬롯 {i}: 재료 - {item.materialStack.GetDisplayName()} x{item.materialStack.count}");
                 }
+                
+                displayedCount++;
             }
             else
             {
                 // 빈 슬롯
-                slot.SetEquipmentData(null);
-                if (showDebugLogs && oldEquipment != null)
-                {
-                    Debug.Log($"🗑️ [ActiveInventory] 슬롯 {i}: {oldEquipment.equipmentName} → 비움");
-                }
+                slot.ClearSlot();
             }
         }
         
-        Debug.Log($"✅ [ActiveInventory] UI 새로고침 완료 (V2) - 총 {displayedCount}개 아이템 표시");
+        Debug.Log($"✅ [ActiveInventory] UI 새로고침 완료 - 총 {displayedCount}개 표시 (장비 + 재료 통합)");
+    }
+    
+    /// <summary>
+    /// 통합 표시용 헬퍼 클래스
+    /// </summary>
+    private class InventoryDisplayItem
+    {
+        public ItemDisplayType type;
+        public EquipmentData equipmentData;
+        public MaterialStack materialStack;
+        public int sortOrder;
+        
+        public string GetDisplayName()
+        {
+            return type == ItemDisplayType.Equipment 
+                ? (equipmentData?.equipmentName ?? "") 
+                : (materialStack?.GetDisplayName() ?? "");
+        }
+    }
+    
+    /// <summary>
+    /// 아이템 표시 타입
+    /// </summary>
+    private enum ItemDisplayType
+    {
+        Equipment,
+        Material,
+        Quest
     }
     
     /// <summary>

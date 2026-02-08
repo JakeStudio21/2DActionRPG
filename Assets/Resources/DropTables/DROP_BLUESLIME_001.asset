@@ -17,8 +17,8 @@ MonoBehaviour:
   pickCount: 1
   description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
   dropEntries:
-  - itemId: ITEM_ARMOR_ASSASIN_SS
-    rarity: 1
+  - itemId: MAT_WEAPON_FRAGMENT
+    rarity: 0
     weight: 1
     chance: 0.5
     minQuantity: 1

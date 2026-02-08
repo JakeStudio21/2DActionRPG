@@ -67,8 +67,11 @@ public class PlayerSlotData
     public int maxInventorySize = 16;
     
     [Header("🎒 V2 인벤토리 & 장비 (병행)")]
-    [Tooltip("인게임 가방 (16칸, 캐릭터 전용)")]
+    [Tooltip("인게임 가방 - 장비 (16칸, 캐릭터 전용)")]
     public List<ItemInstanceId> characterBagInstanceIds = new List<ItemInstanceId>();
+    
+    [Tooltip("인게임 가방 - 재료 (임시 저장, 스테이지 클리어 시 자동 전송)")]
+    public List<MaterialStack> characterBagMaterials = new List<MaterialStack>();
     
     [Tooltip("장착 아이템 (슬롯 포함)")]
     public List<EquippedRecord> equippedRecords = new List<EquippedRecord>();

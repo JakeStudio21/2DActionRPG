@@ -172,8 +172,16 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             if (showDebugLogs)
                 Debug.Log($"📦 [InventorySlot] 재료 클릭: {currentMaterial.Value.GetDisplayName()}");
             
-            // 재료 상세 패널 열기 (TODO: Phase D에서 구현)
-            // ItemDetailPopup.ShowMaterialDetail(currentMaterial.Value);
+            // 재료 상세 패널 열기
+            var itemDetailPopup = FindObjectOfType<UI.Popups.ItemDetailPopup>();
+            if (itemDetailPopup != null)
+            {
+                itemDetailPopup.ShowMaterialDetail(currentMaterial.Value);
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [InventorySlot] ItemDetailPopup을 찾을 수 없습니다!");
+            }
             
             return;
         }
@@ -235,7 +243,8 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 아이템 아이콘 표시
         if (!isEmpty)
         {
-            // 아이콘 있음
+            // ⭐ 아이콘 활성화 (명시적)
+            itemIconImage.enabled = true;
             itemIconImage.color = Color.white;
             
             // 아이콘 이미지 설정 (EquipmentData 우선)
@@ -254,7 +263,9 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                         if (spriteRenderer != null && spriteRenderer.sprite != null)
                         {
                             itemIconImage.sprite = spriteRenderer.sprite;
-                            Debug.Log($"🎨 [InventorySlot] 프리팹에서 스프라이트 가져옴: {equipmentData.equipmentName}");
+                            
+                            if (showDebugLogs)
+                                Debug.Log($"🎨 [InventorySlot] 프리팹에서 스프라이트 가져옴: {equipmentData.equipmentName}");
                         }
                         else
                         {
@@ -275,6 +286,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         else
         {
             // 아이콘 없음 (빈 슬롯)
+            itemIconImage.enabled = false;
             itemIconImage.color = Color.clear;
             itemIconImage.sprite = null;
             
@@ -530,6 +542,12 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                 // 빈 슬롯일 경우 비활성화
                 itemIconGradeFrame.gameObject.SetActive(false);
             }
+        }
+        
+        // ⭐ 아이템 아이콘 이미지 활성화 (필수!)
+        if (itemIconImage != null && data != null)
+        {
+            itemIconImage.enabled = true;
         }
         
         UpdateSlotVisual();

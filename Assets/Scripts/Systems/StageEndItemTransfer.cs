@@ -10,7 +10,7 @@ public class StageEndItemTransfer : MonoBehaviour
 {
     [Header("설정")]
     [Tooltip("전송 결과 로그 표시")]
-    public bool enableLogs = true;
+    public bool enableLogs = false;
     
     [Tooltip("전송 지연 시간 (초)")]
     public float transferDelay = 0.5f;
@@ -67,8 +67,11 @@ public class StageEndItemTransfer : MonoBehaviour
         
         var result = new TransferResult();
         
+        // ⭐ 슬롯 데이터 한 번만 가져오기 (여러 번 저장하면 재료 손실!)
+        var slotData = playerData.GetSlotData(currentSlotIndex);
+        
         // 1. 현재 가방 아이템 목록 가져오기
-        var bagItems = new List<ItemInstanceId>(playerData.GetCharacterBagV2());
+        var bagItems = new List<ItemInstanceId>(slotData.characterBagInstanceIds);
         
         Log($"🔍 [StageEndItemTransfer] 가방 아이템 목록 가져오기 완료: {bagItems.Count}개");
         for (int i = 0; i < bagItems.Count; i++)
@@ -76,15 +79,15 @@ public class StageEndItemTransfer : MonoBehaviour
             Log($"  [{i}] {bagItems[i].id}");
         }
         
-        if (bagItems.Count == 0)
+        if (bagItems.Count == 0 && slotData.characterBagMaterials.Count == 0)
         {
             Log("📦 가방이 비어있음 - 전송할 아이템 없음");
             return result;
         }
         
-        Log($"📦 가방 아이템 수: {bagItems.Count}개");
+        Log($"📦 가방 아이템 수: {bagItems.Count}개, 재료: {slotData.characterBagMaterials.Count}개");
         
-        // 2. 각 아이템 처리
+        // 3. 각 장비 아이템 처리
         foreach (var itemId in bagItems)
         {
             if (!itemId.IsValid())
@@ -109,10 +112,8 @@ public class StageEndItemTransfer : MonoBehaviour
             
             if (addedToStorage)
             {
-                // 가방에서 제거
-                var slotData = playerData.GetSlotData(currentSlotIndex);
+                // ⭐ 메모리에서만 제거 (저장은 나중에 한 번만!)
                 slotData.characterBagInstanceIds.Remove(itemId);
-                playerData.SaveSlotData(slotData);
                 
                 Log($"✅ 창고 이동: {itemId}");
                 result.transferredToStorage++;
@@ -122,21 +123,50 @@ public class StageEndItemTransfer : MonoBehaviour
                 // 창고 가득 참 → 우편함 처리
                 account.MoveToMailbox(itemId);
                 
-                // 가방에서 제거
-                var slotData = playerData.GetSlotData(currentSlotIndex);
+                // ⭐ 메모리에서만 제거 (저장은 나중에 한 번만!)
                 slotData.characterBagInstanceIds.Remove(itemId);
-                playerData.SaveSlotData(slotData);
                 
                 LogWarning($"📬 창고 가득 참 → 우편함 이동: {itemId}");
                 result.transferredToMailbox++;
             }
         }
         
-        // 3. 저장
+        // 4. 재료 전송 (신규) ⭐
+        TransferMaterials(slotData, account, result);
+        
+        // 5. 저장 (⭐ 한 번만 저장!)
         account.Save();
+        playerData.SaveSlotData(slotData);
         playerData.MarkDirty();
         
         return result;
+    }
+    
+    /// <summary>
+    /// 재료 전송 처리
+    /// </summary>
+    private void TransferMaterials(PlayerSlotData slotData, AccountDataManager account, TransferResult result)
+    {
+        if (slotData == null || slotData.characterBagMaterials == null || slotData.characterBagMaterials.Count == 0)
+        {
+            Log("📦 재료 가방이 비어있음");
+            return;
+        }
+        
+        Log($"📦 재료 가방: {slotData.characterBagMaterials.Count}종류");
+        
+        int matTransferred = 0;
+        foreach (var mat in slotData.characterBagMaterials)
+        {
+            account.AddMaterial(mat.materialType, mat.count);
+            matTransferred++;
+            Log($"✅ 재료 전송: {mat.materialType.GetDisplayName()} x{mat.count}");
+        }
+        
+        // ⭐ 재료 가방 초기화 (메모리에서만, 저장은 ExecuteTransfer()에서!)
+        slotData.characterBagMaterials.Clear();
+        
+        Log($"✅ 재료 전송 완료: {matTransferred}종류");
     }
     
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

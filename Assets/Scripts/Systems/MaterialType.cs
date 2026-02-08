@@ -177,5 +177,65 @@ public static class MaterialTypeExtensions
         var data = type.GetMaterialData();
         return data != null ? data.GetBorderColor() : UnityEngine.Color.white;
     }
+    
+    /// <summary>
+    /// 📦 MaterialType → itemId 변환 (DropTable 연동용)
+    /// </summary>
+    public static string ToItemId(this MaterialType type)
+    {
+        return type switch
+        {
+            // 무기 재료
+            MaterialType.WeaponFragment => "MAT_WEAPON_FRAGMENT",
+            MaterialType.WeaponCrystal => "MAT_WEAPON_CRYSTAL",
+            MaterialType.WeaponCore => "MAT_WEAPON_CORE",
+            
+            // 방어구 재료
+            MaterialType.ArmorFragment => "MAT_ARMOR_FRAGMENT",
+            MaterialType.ArmorCrystal => "MAT_ARMOR_CRYSTAL",
+            MaterialType.ArmorCore => "MAT_ARMOR_CORE",
+            
+            // 악세사리 재료
+            MaterialType.AccessoryFragment => "MAT_ACCESSORY_FRAGMENT",
+            MaterialType.AccessoryCrystal => "MAT_ACCESSORY_CRYSTAL",
+            MaterialType.AccessoryCore => "MAT_ACCESSORY_CORE",
+            
+            // 기타 재료
+            MaterialType.CraftingEssence => "MAT_CRAFTING_ESSENCE",
+            MaterialType.Gold => "ITEM_GOLD", // 기존 골드 아이템과 호환
+            
+            _ => ""
+        };
+    }
+    
+    /// <summary>
+    /// 📦 itemId → MaterialType 변환 (DropTable 연동용)
+    /// </summary>
+    public static MaterialType FromItemId(string itemId)
+    {
+        return itemId switch
+        {
+            // 무기 재료
+            "MAT_WEAPON_FRAGMENT" => MaterialType.WeaponFragment,
+            "MAT_WEAPON_CRYSTAL" => MaterialType.WeaponCrystal,
+            "MAT_WEAPON_CORE" => MaterialType.WeaponCore,
+            
+            // 방어구 재료
+            "MAT_ARMOR_FRAGMENT" => MaterialType.ArmorFragment,
+            "MAT_ARMOR_CRYSTAL" => MaterialType.ArmorCrystal,
+            "MAT_ARMOR_CORE" => MaterialType.ArmorCore,
+            
+            // 악세사리 재료
+            "MAT_ACCESSORY_FRAGMENT" => MaterialType.AccessoryFragment,
+            "MAT_ACCESSORY_CRYSTAL" => MaterialType.AccessoryCrystal,
+            "MAT_ACCESSORY_CORE" => MaterialType.AccessoryCore,
+            
+            // 기타 재료
+            "MAT_CRAFTING_ESSENCE" => MaterialType.CraftingEssence,
+            "ITEM_GOLD" => MaterialType.Gold,
+            
+            _ => MaterialType.None
+        };
+    }
 }
 

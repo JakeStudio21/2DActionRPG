@@ -84,6 +84,32 @@ public class MaterialDatabase : ScriptableObject
     }
     
     /// <summary>
+    /// 📦 materialId → MaterialData 변환 (DropTable 연동용)
+    /// </summary>
+    /// <param name="materialId">재료 고유 ID (예: "MAT_WEAPON_FRAGMENT")</param>
+    /// <returns>MaterialData 또는 null</returns>
+    public MaterialData GetDataById(string materialId)
+    {
+        if (string.IsNullOrEmpty(materialId))
+        {
+            Debug.LogWarning("[MaterialDatabase] materialId가 null 또는 빈 문자열입니다.");
+            return null;
+        }
+        
+        // ⭐ materialId로 직접 검색 (JSON 외부 연동 안전)
+        foreach (var mat in materials)
+        {
+            if (mat != null && mat.materialId == materialId)
+            {
+                return mat;
+            }
+        }
+        
+        Debug.LogWarning($"[MaterialDatabase] materialId를 찾을 수 없음: {materialId}");
+        return null;
+    }
+    
+    /// <summary>
     /// 모든 재료 가져오기 (정렬 순서대로)
     /// </summary>
     /// <returns>정렬된 MaterialData 리스트</returns>
@@ -143,8 +169,10 @@ public class MaterialDatabase : ScriptableObject
         int nullCount = 0;
         int duplicateCount = 0;
         int missingIconCount = 0;
+        int missingIdCount = 0;
         
         var typeSet = new HashSet<MaterialType>();
+        var idSet = new HashSet<string>();
         
         foreach (var mat in materials)
         {
@@ -155,7 +183,24 @@ public class MaterialDatabase : ScriptableObject
                 continue;
             }
             
-            // 중복 체크
+            // ⭐ materialId 중복 체크 (JSON 연동 안전성)
+            if (string.IsNullOrEmpty(mat.materialId))
+            {
+                missingIdCount++;
+                Debug.LogWarning($"❌ materialId 없음: {mat.displayName} ({mat.name})");
+            }
+            else if (idSet.Contains(mat.materialId))
+            {
+                duplicateCount++;
+                Debug.LogWarning($"❌ 중복된 materialId: {mat.materialId} ({mat.name})");
+                continue;
+            }
+            else
+            {
+                idSet.Add(mat.materialId);
+            }
+            
+            // MaterialType 중복 체크
             if (typeSet.Contains(mat.materialType))
             {
                 duplicateCount++;
@@ -172,7 +217,7 @@ public class MaterialDatabase : ScriptableObject
             }
             
             validCount++;
-            Debug.Log($"✅ {mat.materialType}: {mat.displayName} [{mat.rarity}] (정렬: {mat.sortOrder})");
+            Debug.Log($"✅ {mat.materialType}: {mat.displayName} [{mat.rarity}] (ID: {mat.materialId}, 정렬: {mat.sortOrder})");
         }
         
         Debug.Log("═══════════════════════════════════════════════════════");
@@ -180,6 +225,7 @@ public class MaterialDatabase : ScriptableObject
         Debug.Log($"  - 유효: {validCount}개");
         Debug.Log($"  - Null: {nullCount}개");
         Debug.Log($"  - 중복: {duplicateCount}개");
+        Debug.Log($"  - materialId 없음: {missingIdCount}개");
         Debug.Log($"  - 아이콘 없음: {missingIconCount}개");
         
         if (validCount == 9 && nullCount == 0 && duplicateCount == 0)

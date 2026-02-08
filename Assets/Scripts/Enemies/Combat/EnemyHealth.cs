@@ -648,6 +648,11 @@ public class EnemyHealth : MonoBehaviour
         {
             SpawnCurrencyItem(itemId, spawnPosition);
         }
+        // 📦 재료 아이템 (MAT_로 시작)
+        else if (itemId.StartsWith("MAT_"))
+        {
+            SpawnMaterialItem(itemId, spawnPosition);
+        }
         // 장비 아이템 (무기/방어구)
         else
         {
@@ -741,6 +746,50 @@ public class EnemyHealth : MonoBehaviour
         {
             Debug.LogError("[EnemyHealth] Drop_Equipment 프리팹에 EquipmentPickup 컴포넌트가 없습니다!");
             dropObj.SetActive(false);
+        }
+    }
+    
+    /// <summary>
+    /// 📦 재료 아이템 스폰 (MaterialPickup 사용)
+    /// </summary>
+    private void SpawnMaterialItem(string itemId, Vector3 spawnPosition)
+    {
+        // 1. itemId → MaterialData 직접 검색 ⭐ (JSON 외부 연동 안전)
+        MaterialData materialData = MaterialDatabase.Instance?.GetDataById(itemId);
+        
+        if (materialData == null)
+        {
+            Debug.LogError($"❌ [EnemyHealth] MaterialData를 찾을 수 없습니다: {itemId}");
+            return;
+        }
+        
+        // 2. MaterialType 추출
+        MaterialType materialType = materialData.materialType;
+        
+        // 3. Drop_Material 프리팹 스폰 (범용 프리팹) ⭐
+        string poolTag = "Drop_Material"; // Drop_Currency, Drop_Equipment와 동일한 네이밍 규칙
+        GameObject dropObj = GamePoolManager.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
+        
+        if (dropObj == null)
+        {
+            Debug.LogError($"❌ [EnemyHealth] '{poolTag}' 풀에서 오브젝트를 스폰할 수 없습니다!");
+            return;
+        }
+        
+        // 4. 데이터 주입 ⭐
+        MaterialPickup pickup = dropObj.GetComponent<MaterialPickup>();
+        if (pickup != null)
+        {
+            // 재료 수량 (1~3개 랜덤)
+            int amount = Random.Range(1, 4);
+            pickup.Initialize(materialType, amount, spawnPosition);
+            
+            Debug.Log($"📦 [EnemyHealth] 재료 드롭 성공: {materialType.GetDisplayName()} x{amount}");
+        }
+        else
+        {
+            Debug.LogError($"❌ [EnemyHealth] Drop_Material 프리팹에 MaterialPickup 컴포넌트가 없습니다!");
+            GamePoolManager.Instance.ReturnToPool(poolTag, dropObj);
         }
     }
 

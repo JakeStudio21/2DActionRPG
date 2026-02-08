@@ -17,7 +17,8 @@ namespace UI.Popups
         Equipment,      // 장비창: "해제" 버튼
         Shop_Sell,      // 상점(판매): "판매" 버튼
         Shop_Buy,       // 상점(구매): "구매" 버튼
-        ReadOnly        // 캐릭터 정보창: 버튼 없음 (읽기 전용)
+        ReadOnly,       // 캐릭터 정보창: 버튼 없음 (읽기 전용)
+        Material        // 재료: 버튼 없음 (정보만 표시)
     }
 
     /// <summary>
@@ -72,7 +73,7 @@ namespace UI.Popups
         [SerializeField] private Button backgroundButton;            // 배경 클릭 버튼 (닫기)
         
         [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = true;
+        [SerializeField] private bool showDebugLogs = false; // ⭐ 프로덕션 기본값
         
         #endregion
         
@@ -80,6 +81,7 @@ namespace UI.Popups
         
         // 현재 상태
         private EquipmentData currentItem;
+        private MaterialType? currentMaterial; // 📦 재료 모드용
         private ItemDetailContext currentContext;
         private int currentSlotIndex = -1; // 슬롯 인덱스 (인벤토리/장비창용)
         private ItemInstanceId currentItemInstanceId; // V2: 아이템 인스턴스 ID (귀속 체크용)
@@ -245,6 +247,43 @@ namespace UI.Popups
         }
         
         /// <summary>
+        /// 📦 재료 상세 팝업 표시
+        /// </summary>
+        public void ShowMaterialDetail(MaterialType materialType)
+        {
+            var materialData = MaterialDatabase.Instance.GetData(materialType);
+            if (materialData == null)
+            {
+                Debug.LogError($"❌ [ItemDetailPopup] MaterialData를 찾을 수 없습니다: {materialType}");
+                return;
+            }
+            
+            // 현재 상태 설정
+            currentItem = null;
+            currentMaterial = materialType;
+            currentContext = ItemDetailContext.Material;
+            currentSlotIndex = -1;
+            currentItemInstanceId = default;
+            
+            // UI 업데이트
+            UpdateMaterialInfo(materialData);
+            UpdateButtonsByContext();
+            
+            // ⭐ Background와 PopupPanel 모두 활성화
+            if (backgroundPanel != null)
+            {
+                backgroundPanel.SetActive(true);
+            }
+            
+            if (popupPanel != null)
+            {
+                popupPanel.SetActive(true);
+            }
+            
+            Log($"📦 [ItemDetailPopup] 재료 팝업 열기: {materialData.displayName}");
+        }
+        
+        /// <summary>
         /// 팝업 닫기
         /// </summary>
         public void Hide()
@@ -280,6 +319,7 @@ namespace UI.Popups
             
             // 상태 초기화
             currentItem = null;
+            currentMaterial = null; // 📦 재료 상태 초기화
             currentSlotIndex = -1;
             currentItemInstanceId = default; // V2: ItemInstanceId 초기화
             
@@ -343,6 +383,75 @@ namespace UI.Popups
         }
         
         /// <summary>
+        /// 📦 재료 정보 UI 업데이트
+        /// </summary>
+        private void UpdateMaterialInfo(MaterialData data)
+        {
+            // 재료 아이콘
+            if (itemIcon != null && data.icon != null)
+            {
+                itemIcon.sprite = data.icon;
+                itemIcon.color = Color.white;
+                itemIcon.gameObject.SetActive(true);
+            }
+            
+            // 재료 이름
+            if (itemNameText != null)
+            {
+                itemNameText.text = data.displayName;
+            }
+            
+            // 재료 등급 (MaterialRarity → 한글 표시)
+            if (itemGradeText != null)
+            {
+                string rarityText = data.rarity switch
+                {
+                    MaterialRarity.Common => "일반",
+                    MaterialRarity.Uncommon => "고급",
+                    MaterialRarity.Rare => "희귀",
+                    MaterialRarity.Epic => "영웅",
+                    MaterialRarity.Legendary => "전설",
+                    _ => "알 수 없음"
+                };
+                itemGradeText.text = $"등급: {rarityText}";
+            }
+            
+            // ⭐ 등급별 배경 색상 적용 (MaterialRarity → ItemGrade 매핑)
+            if (itemIconGradeFrame != null)
+            {
+                ItemGrade mappedGrade = data.rarity switch
+                {
+                    MaterialRarity.Common => ItemGrade.C,
+                    MaterialRarity.Uncommon => ItemGrade.B,
+                    MaterialRarity.Rare => ItemGrade.A,
+                    MaterialRarity.Epic => ItemGrade.S,
+                    MaterialRarity.Legendary => ItemGrade.EX,
+                    _ => ItemGrade.D
+                };
+                itemIconGradeFrame.SetGrade(mappedGrade);
+            }
+            
+            // 보유 수량
+            if (stat1Text != null)
+            {
+                int count = AccountDataManager.Instance.GetMaterialCount(data.materialType);
+                stat1Text.text = $"보유: {count}개";
+            }
+            
+            // 사용처
+            if (stat2Text != null)
+            {
+                stat2Text.text = $"사용처: {data.usageHint}";
+            }
+            
+            // 획득처
+            if (stat3Text != null)
+            {
+                stat3Text.text = $"획득처: {data.obtainHint}";
+            }
+        }
+        
+        /// <summary>
         /// 컨텍스트별 버튼 표시/숨김 및 텍스트 변경
         /// </summary>
         private void UpdateButtonsByContext()
@@ -392,6 +501,15 @@ namespace UI.Popups
                     SetAdvancedButtonsActive(false);
                     UpdatePriceDisplay(false);          // ⭐ 가격 숨김
                     Log("📖 [ItemDetailPopup] 읽기 전용 모드: 정보만 표시");
+                    break;
+                    
+                case ItemDetailContext.Material:
+                    // 📦 재료: 모든 버튼 숨김 (정보만 표시)
+                    SetPrimaryButtonActive(false, "");
+                    SetBatchActionActive(false);
+                    SetAdvancedButtonsActive(false);
+                    UpdatePriceDisplay(false);
+                    Log("📦 [ItemDetailPopup] 재료 모드: 정보만 표시");
                     break;
             }
         }
@@ -520,6 +638,10 @@ namespace UI.Popups
                     
                 case ItemDetailContext.ReadOnly:
                     // 읽기 전용 모드에서는 버튼이 없으므로 도달하지 않음
+                    break;
+                    
+                case ItemDetailContext.Material:
+                    // 📦 재료 모드에서는 버튼이 없으므로 도달하지 않음
                     break;
             }
             

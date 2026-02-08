@@ -10,6 +10,9 @@ using UnityEngine;
 public class MaterialData : ScriptableObject
 {
     [Header("🔑 기본 정보")]
+    [Tooltip("재료 고유 ID (DropTable, JSON 연동용)")]
+    public string materialId = "MAT_WEAPON_FRAGMENT";
+    
     [Tooltip("MaterialType enum과 연결 (데이터 저장용)")]
     public MaterialType materialType;
     

@@ -88,18 +88,8 @@ public class AccountDataManager
     
     public void Save()
     {
-        Debug.Log($"💾 [AccountDataManager] Save() 시작");
-        Debug.Log($"   - 아이템 인스턴스: {accountData.itemInstances.Count}개");
-        Debug.Log($"   - 공유 창고: {accountData.sharedInventoryIds.Count}개");
-        Debug.Log($"   - 우편함: {accountData.mailboxIds.Count}개");
-        Debug.Log($"🔍 [AccountDataManager] Save() 시작 시 accountData 해시코드: {accountData.GetHashCode()}");
-        
         string json = JsonUtility.ToJson(accountData, true);
         storage.Save(ACCOUNT_SAVE_KEY, json);
-        
-        Debug.Log($"✅ [AccountDataManager] 계정 데이터 저장 완료 ({json.Length} bytes)");
-        Debug.Log($"🔍 [AccountDataManager] Save() 완료 후 accountData 해시코드: {accountData.GetHashCode()}");
-        Debug.Log($"🔍 [AccountDataManager] Save() 완료 후 공유 창고: {accountData.sharedInventoryIds.Count}개");
     }
     
     /// <summary>

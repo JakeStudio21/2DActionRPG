@@ -83,7 +83,7 @@ public class LobbyInventoryUI : MonoBehaviour
     [SerializeField] private TMP_Text goldText;             // 플레이어 골드 표시
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
+    [SerializeField] private bool showDebugLogs = false; // ⭐ 프로덕션 기본값
     
     [Header("🎒 착용 장비 UI 연동")]
     [SerializeField] private LobbyEquippedItemsUI equippedItemsUI; // 🆕 장비창 UI 참조
@@ -105,6 +105,9 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         Debug.Log($"🔄 [LobbyInventoryUI] OnEnable() 호출됨 - 인벤토리 새로고침 예약");
         
+        // ⭐ 탭 버튼 상태 업데이트 (장비탭 활성화)
+        UpdateTabButtonStates();
+        
         // 패널이 활성화될 때마다 인벤토리 새로고침
         // (다음 프레임에 실행하여 초기화 완료 보장)
         if (AccountDataManager.IsInitialized())
@@ -118,6 +121,9 @@ public class LobbyInventoryUI : MonoBehaviour
     
     void OnDisable()
     {
+        // ⭐ 탭 리셋: 다음에 열 때 항상 장비탭부터 시작
+        currentTab = InventoryTabType.Equipment;
+        
         // 골드 변경 이벤트 구독 해제 (PlayerDataManager)
         if (PlayerDataManager.Instance != null)
         {
@@ -908,8 +914,12 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     public void ClosePanel()
     {
+        // ⭐ 탭 리셋: 다음에 열 때 항상 장비탭부터 시작
+        currentTab = InventoryTabType.Equipment;
+        UpdateTabButtonStates();
+        
         if (showDebugLogs)
-            Debug.Log($"🏠 [LobbyInventoryUI] ClosePanel 호출 - 로비로 전환 시작");
+            Debug.Log($"🏠 [LobbyInventoryUI] ClosePanel 호출 - 로비로 전환 시작 (탭 리셋: 장비)");
         
         // ✅ 수정: OnBackToLobby() 호출하여 저장 로직 실행
         // LobbyUIController를 찾아서 로비 전환 요청

@@ -302,12 +302,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
-  - tag: FX_Currency
-    prefab: {fileID: 7111470932628664318, guid: 4a5db5af568233446bd1cf6ddc960721, type: 3}
-    size: 5
+  - tag: Drop_Material
+    prefab: {fileID: 1691389736464142175, guid: ff2a4299fc8bae440baf6e3b7744770d, type: 3}
+    size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
+    maxInstancesPerFrame: 10
   - tag: Fx_Equipment_A
     prefab: {fileID: 7111470932628664318, guid: 2e27c637500de234b864d9c4b99e9401, type: 3}
     size: 5
