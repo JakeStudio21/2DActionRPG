@@ -17,6 +17,9 @@ namespace UI.Workshop
         [Header("📊 디버그")]
         [SerializeField] private bool showDebugLogs = true;
         
+        [Header("🔗 연동 컴포넌트")]
+        [SerializeField] private WorkshopUI workshopUI; // ⭐ 공방 메인 UI
+        
         [Header("⬅️ 제작 전 슬롯")]
         [SerializeField] private InventorySlot beforeSlot1;
         [SerializeField] private InventorySlot beforeSlot2; // 합성 전용
@@ -35,6 +38,7 @@ namespace UI.Workshop
         
         // 현재 모드
         private WorkshopMode currentMode = WorkshopMode.None;
+        private WorkshopUI.WorkshopTabType currentTab = WorkshopUI.WorkshopTabType.Enhancement; // ⭐ 현재 탭
         
         void Awake()
         {
@@ -43,6 +47,63 @@ namespace UI.Workshop
             
             // 초기 상태: 모든 슬롯 비활성화
             ClearAll();
+        }
+        
+        /// <summary>
+        /// GameObject 활성화 시 이벤트 구독
+        /// </summary>
+        void OnEnable()
+        {
+            // ⭐ WorkshopUI 탭 변경 이벤트 구독
+            if (workshopUI != null)
+            {
+                workshopUI.OnTabChanged += OnWorkshopTabChanged;
+                
+                // 현재 탭 가져오기
+                currentTab = workshopUI.GetCurrentTab();
+                
+                // 탭별 슬롯 설정 적용
+                SetupForWorkshopTab(currentTab);
+                
+                if (showDebugLogs)
+                    Debug.Log($"🔗 [BeforeAfterComparisonUI] WorkshopUI 이벤트 구독 (현재 탭: {currentTab})");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [BeforeAfterComparisonUI] workshopUI가 null입니다! Inspector에서 연결하세요.");
+            }
+        }
+        
+        /// <summary>
+        /// GameObject 비활성화 시 이벤트 구독 해제
+        /// </summary>
+        void OnDisable()
+        {
+            // ⭐ WorkshopUI 이벤트 구독 해제
+            if (workshopUI != null)
+            {
+                workshopUI.OnTabChanged -= OnWorkshopTabChanged;
+                
+                if (showDebugLogs)
+                    Debug.Log("🔄 [BeforeAfterComparisonUI] WorkshopUI 이벤트 구독 해제");
+            }
+        }
+        
+        /// <summary>
+        /// 공방 탭 변경 이벤트 핸들러
+        /// </summary>
+        private void OnWorkshopTabChanged(WorkshopUI.WorkshopTabType newTab)
+        {
+            currentTab = newTab;
+            
+            if (showDebugLogs)
+                Debug.Log($"🔄 [BeforeAfterComparisonUI] 공방 탭 변경: {newTab}");
+            
+            // ⭐ 1. 먼저 모든 슬롯 초기화
+            ClearAll();
+            
+            // ⭐ 2. 그 다음 탭별 슬롯 활성화
+            SetupForWorkshopTab(newTab);
         }
         
         /// <summary>
@@ -100,6 +161,84 @@ namespace UI.Workshop
                 Debug.Log("🔄 [BeforeAfterComparisonUI] 모든 슬롯 초기화");
         }
         
+        /// <summary>
+        /// 탭별 슬롯 개수 설정 (동적 레이아웃)
+        /// </summary>
+        private void SetupForWorkshopTab(WorkshopUI.WorkshopTabType tab)
+        {
+            switch (tab)
+            {
+                case WorkshopUI.WorkshopTabType.Enhancement:
+                    // 강화: Before 1개, After 1개
+                    EnableSlots(beforeCount: 1, afterCount: 1);
+                    
+                    if (beforeLabel != null)
+                        beforeLabel.text = "강화 전";
+                    if (afterLabel != null)
+                        afterLabel.text = "강화 후";
+                    
+                    if (showDebugLogs)
+                        Debug.Log("🔨 [BeforeAfterComparisonUI] 강화 탭 - Before 1개, After 1개");
+                    break;
+                    
+                case WorkshopUI.WorkshopTabType.Fusion:
+                    // 합성: Before 3~5개 (FusionRule 기반), After 1개
+                    // TODO: FusionRule에서 동적으로 가져오기
+                    EnableSlots(beforeCount: 3, afterCount: 1);
+                    
+                    if (beforeLabel != null)
+                        beforeLabel.text = "재료";
+                    if (afterLabel != null)
+                        afterLabel.text = "합성 결과";
+                    
+                    if (showDebugLogs)
+                        Debug.Log("⚗️ [BeforeAfterComparisonUI] 합성 탭 - Before 3개, After 1개");
+                    break;
+                    
+                case WorkshopUI.WorkshopTabType.Dismantle:
+                    // 분해: Before 여러 개, After 0개 (재료는 별도 UI에서 표시)
+                    EnableSlots(beforeCount: 3, afterCount: 0);
+                    
+                    if (beforeLabel != null)
+                        beforeLabel.text = "분해 대상";
+                    if (afterLabel != null)
+                        afterLabel.text = "분해 재료";
+                    
+                    if (showDebugLogs)
+                        Debug.Log("🔧 [BeforeAfterComparisonUI] 분해 탭 - Before 3개, After 0개");
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// 슬롯 활성화/비활성화 (개수 기반)
+        /// </summary>
+        private void EnableSlots(int beforeCount, int afterCount)
+        {
+            // Before 슬롯
+            if (beforeSlot1 != null)
+                beforeSlot1.gameObject.SetActive(beforeCount >= 1);
+            if (beforeSlot2 != null)
+                beforeSlot2.gameObject.SetActive(beforeCount >= 2);
+            if (beforeSlot3 != null)
+                beforeSlot3.gameObject.SetActive(beforeCount >= 3);
+            
+            // After 슬롯
+            if (afterSlot1 != null)
+                afterSlot1.gameObject.SetActive(afterCount >= 1);
+            if (afterSlot2 != null)
+                afterSlot2.gameObject.SetActive(afterCount >= 2);
+            if (afterSlot3 != null)
+                afterSlot3.gameObject.SetActive(afterCount >= 3);
+            
+            // 화살표 표시 (After가 1개 이상일 때만)
+            if (arrowIcon != null)
+                arrowIcon.SetActive(afterCount > 0);
+            
+            if (showDebugLogs)
+                Debug.Log($"🎯 [BeforeAfterComparisonUI] 슬롯 활성화 - Before: {beforeCount}개, After: {afterCount}개");
+        }
+        
         // ========================================
         // 🔨 강화 모드
         // ========================================
@@ -109,7 +248,8 @@ namespace UI.Workshop
         /// </summary>
         public void SetupForEnhancement(ItemInstanceId itemId)
         {
-            ClearAll();
+            // ⭐ 활성화된 슬롯만 초기화 (SetupForWorkshopTab에서 설정한 레이아웃 유지)
+            ClearActiveSlots();
             currentMode = WorkshopMode.Enhancement;
             
             var itemData = AccountDataManager.Instance.GetInstance(itemId);
@@ -129,32 +269,67 @@ namespace UI.Workshop
             // 귀속 상태 확인
             bool isBound = AccountDataManager.Instance.IsBound(itemId);
             
-            // 제작 전: 현재 아이템
-            beforeSlot1.gameObject.SetActive(true);
-            beforeSlot1.SetEquipmentData(equipmentData, itemId);
-            beforeSlot1.SetBindingStatus(isBound);
-            
-            // 제작 후: 강화 레벨 +1 프리뷰
-            var previewData = CreateEnhancementPreview(equipmentData, itemData.enhancementLevel);
-            afterSlot1.gameObject.SetActive(true);
-            afterSlot1.SetEquipmentData(previewData);
-            afterSlot1.SetBindingStatus(isBound);
-            
-            // 반짝임 효과 (선택 사항)
-            // afterSlot1.PlayGlowAnimation();
-            
-            // 화살표 활성화
-            if (arrowIcon != null)
+            // ⭐ 제작 전: BeforeSlot1만 사용 (강화는 1:1)
+            if (beforeSlot1 != null && beforeSlot1.gameObject.activeSelf)
             {
-                arrowIcon.SetActive(true);
+                beforeSlot1.SetEquipmentData(equipmentData, itemId);
+                beforeSlot1.SetBindingStatus(isBound);
             }
             
-            // 라벨 설정
-            if (beforeLabel != null) beforeLabel.text = "제작 전";
-            if (afterLabel != null) afterLabel.text = "강화 후";
+            // ⭐ 제작 후: AfterSlot1만 사용 (강화 레벨 +1 프리뷰)
+            if (afterSlot1 != null && afterSlot1.gameObject.activeSelf)
+            {
+                var previewData = CreateEnhancementPreview(equipmentData, itemData.enhancementLevel);
+                afterSlot1.SetEquipmentData(previewData);
+                afterSlot1.SetBindingStatus(isBound);
+                afterSlot1.SetEnhancementLevel(itemData.enhancementLevel + 1); // 🆕 프리뷰 강화 레벨 표시
+            }
+            
+            // 화살표는 SetupForWorkshopTab에서 이미 설정됨
             
             if (showDebugLogs)
                 Debug.Log($"🔨 [BeforeAfterComparisonUI] 강화 모드 설정: {equipmentData.equipmentName} +{itemData.enhancementLevel} → +{itemData.enhancementLevel + 1}");
+        }
+        
+        /// <summary>
+        /// 활성화된 슬롯만 초기화 (레이아웃 유지)
+        /// </summary>
+        private void ClearActiveSlots()
+        {
+            // 제작 전 슬롯
+            if (beforeSlot1 != null && beforeSlot1.gameObject.activeSelf)
+            {
+                beforeSlot1.ClearSlot();
+            }
+            
+            if (beforeSlot2 != null && beforeSlot2.gameObject.activeSelf)
+            {
+                beforeSlot2.ClearSlot();
+            }
+            
+            if (beforeSlot3 != null && beforeSlot3.gameObject.activeSelf)
+            {
+                beforeSlot3.ClearSlot();
+            }
+            
+            // 제작 후 슬롯
+            if (afterSlot1 != null && afterSlot1.gameObject.activeSelf)
+            {
+                afterSlot1.ClearSlot();
+            }
+            
+            if (afterSlot2 != null && afterSlot2.gameObject.activeSelf)
+            {
+                afterSlot2.ClearSlot();
+            }
+            
+            if (afterSlot3 != null && afterSlot3.gameObject.activeSelf)
+            {
+                afterSlot3.ClearSlot();
+            }
+            
+            if (showDebugLogs)
+                Debug.Log("🔄 [BeforeAfterComparisonUI] 활성화된 슬롯만 초기화 (레이아웃 유지)");
         }
         
         /// <summary>

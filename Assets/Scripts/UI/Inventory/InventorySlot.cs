@@ -52,6 +52,10 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = false; // 🆕 추가: 디버그 로그 제어
     
+    // ⭐ 디버깅: itemIconImage.enabled 상태 추적
+    private bool lastImageEnabledState = false;
+    private int framesSinceSetupMaterial = -1;
+    
     [Header("🛡️ 장비 데이터 (신규 시스템)")]
     [SerializeField] private EquipmentData equipmentData;
     private ItemInstanceId itemInstanceId;  // 🆕 V2: 아이템 인스턴스 ID
@@ -67,11 +71,16 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     [SerializeField] private Image bindIcon;       // 🆕 귀속 아이콘
     [SerializeField] private TMP_Text countText;   // 📦 재료 수량 텍스트 ("X999")
     [SerializeField] private Image rarityBorder;   // 📦 재료 등급 테두리
+    [SerializeField] private TMP_Text enhancementLevelText; // 🆕 강화 레벨 텍스트 ("+5") ⭐ 맨 끝으로 이동
     
     [Header("🔘 다중 선택 UI (공방 전용)")]
     [SerializeField] private GameObject selectionCheckbox;      // 체크박스 오브젝트
     [SerializeField] private Image selectionCheckmark;          // ☑ 체크 아이콘
     [SerializeField] private Image selectionHighlight;          // 선택 시 테두리 하이라이트
+    
+    [Header("🎨 선택 하이라이트 색상")]
+    [SerializeField] private Color highlightColorSelected = new Color(1f, 0.84f, 0f, 0.3f); // 선택 시 색상 (Inspector에서 조절)
+    [SerializeField] private Color highlightColorUnselected = new Color(1f, 1f, 1f, 0f);    // 선택 해제 시 색상 (투명)
 
     [Header("🎨 UI 메시지")]
     [SerializeField] private GameObject messagePanel; // 메시지 패널 (생성될 예정)
@@ -379,11 +388,11 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // ⭐ 다중 선택 상태 재적용 (UpdateSlotVisual 호출 시 유지)
         if (isMultiSelectMode && selectionHighlight != null)
         {
-            // 선택 하이라이트 상태 유지
+            // 선택 하이라이트 상태 유지 (Inspector 색상 사용)
             selectionHighlight.enabled = true;
             selectionHighlight.color = isSelected 
-                ? new Color(1f, 0.84f, 0f, 0.3f) // 골드 하이라이트 (Alpha 30%)
-                : new Color(1f, 1f, 1f, 0f);     // 투명
+                ? highlightColorSelected     // Inspector에서 조절 가능
+                : highlightColorUnselected;  // 투명
         }
     }
     
@@ -612,6 +621,9 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             rarityBorder.gameObject.SetActive(false); // ⭐ GameObject도 비활성화
         }
         
+        // 🆕 강화 레벨 표시
+        UpdateEnhancementLevelDisplay();
+        
         // ⭐ GradeBoard (ItemIconGradeFrame) 활성화 및 등급별 배경 색상 적용
         if (itemIconGradeFrame != null)
         {
@@ -634,6 +646,92 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         }
         
         UpdateSlotVisual();
+    }
+    
+    /// <summary>
+    /// 🆕 강화 레벨 표시 업데이트
+    /// </summary>
+    private void UpdateEnhancementLevelDisplay()
+    {
+        // enhancementLevelText가 없으면 무시 (하위 호환성)
+        if (enhancementLevelText == null) return;
+        
+        // 장비가 없거나 ItemInstanceId가 유효하지 않으면 숨김
+        if (equipmentData == null || !itemInstanceId.IsValid())
+        {
+            enhancementLevelText.gameObject.SetActive(false);
+            return;
+        }
+        
+        // ItemInstanceData에서 강화 레벨 가져오기
+        int enhancementLevel = GetEnhancementLevel();
+        
+        // +0은 표시 안 함, +1 이상만 표시
+        if (enhancementLevel <= 0)
+        {
+            enhancementLevelText.gameObject.SetActive(false);
+        }
+        else
+        {
+            enhancementLevelText.gameObject.SetActive(true);
+            enhancementLevelText.text = $"+{enhancementLevel}";
+            
+            // 흰색 고정 (색상 변경 제외)
+            enhancementLevelText.color = Color.white;
+            
+            if (showDebugLogs)
+                Debug.Log($"✨ [InventorySlot] 강화 레벨 표시: +{enhancementLevel} ({equipmentData.equipmentName})");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 강화 레벨 수동 설정 (프리뷰 모드 전용)
+    /// 
+    /// 용도:
+    /// - BeforeAfterComparisonUI의 강화 프리뷰 (Before: +5 → After: +6)
+    /// - ItemInstanceId가 없는 프리뷰 아이템에 강화 레벨 표시
+    /// 
+    /// 사용 예시:
+    /// afterSlot.SetEquipmentData(previewEquipmentData);
+    /// afterSlot.SetEnhancementLevel(currentLevel + 1); // +5 → +6
+    /// </summary>
+    public void SetEnhancementLevel(int level)
+    {
+        if (enhancementLevelText == null) return;
+        
+        if (level <= 0)
+        {
+            enhancementLevelText.gameObject.SetActive(false);
+        }
+        else
+        {
+            enhancementLevelText.gameObject.SetActive(true);
+            enhancementLevelText.text = $"+{level}";
+            enhancementLevelText.color = Color.white;
+            
+            if (showDebugLogs)
+                Debug.Log($"🔮 [InventorySlot] 프리뷰 강화 레벨 설정: +{level}");
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 강화 레벨 가져오기 (ItemInstanceData에서)
+    /// </summary>
+    private int GetEnhancementLevel()
+    {
+        if (!itemInstanceId.IsValid()) return 0;
+        
+        // AccountDataManager에서 ItemInstanceData 가져오기
+        if (AccountDataManager.IsInitialized())
+        {
+            var itemData = AccountDataManager.Instance.GetInstance(itemInstanceId);
+            if (itemData != null)
+            {
+                return itemData.enhancementLevel;
+            }
+        }
+        
+        return 0;
     }
     
     /// <summary>
@@ -773,9 +871,43 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 아이콘 설정
         if (itemIconImage != null)
         {
+            // ⭐ GameObject 계층 구조 전체 활성화 (부모까지)
+            Transform current = itemIconImage.transform;
+            while (current != null && current != transform)
+            {
+                if (!current.gameObject.activeSelf)
+                {
+                    Debug.LogWarning($"⚠️ [InventorySlot] 비활성화된 부모 발견: {current.name} → 활성화!");
+                    current.gameObject.SetActive(true);
+                }
+                current = current.parent;
+            }
+            
+            Debug.Log($"🔍 [InventorySlot] SetupMaterial() 이미지 설정:\n" +
+                     $"   슬롯: {gameObject.name}\n" +
+                     $"   재료: {materialStack.materialType.GetDisplayName()}\n" +
+                     $"   itemIconImage.enabled: {itemIconImage.enabled} → True\n" +
+                     $"   itemIconImage.gameObject.activeSelf: {itemIconImage.gameObject.activeSelf}\n" +
+                     $"   ⭐ 부모(EffectTarget?) activeSelf: {itemIconImage.transform.parent?.gameObject.activeSelf}");
+            
             itemIconImage.sprite = data.icon;
             itemIconImage.enabled = true;
             itemIconImage.color = Color.white;
+            itemIconImage.gameObject.SetActive(true); // GameObject도 명시적 활성화
+            
+            // ⭐ 디버깅: enabled 상태 추적 시작
+            lastImageEnabledState = true;
+            framesSinceSetupMaterial = 0;
+            
+            Debug.Log($"✅ [InventorySlot] SetupMaterial() 완료:\n" +
+                     $"   enabled: {itemIconImage.enabled}\n" +
+                     $"   GameObject Active: {itemIconImage.gameObject.activeSelf}\n" +
+                     $"   Sprite: {(itemIconImage.sprite != null ? itemIconImage.sprite.name : "NULL")}\n" +
+                     $"   ⭐ LateUpdate 모니터링 시작 (5프레임)");
+        }
+        else
+        {
+            Debug.LogError($"❌ [InventorySlot] itemIconImage가 NULL입니다! GameObject: {gameObject.name}");
         }
         
         // 수량 텍스트
@@ -783,6 +915,12 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         {
             countText.text = $"X{materialStack.count}";
             countText.gameObject.SetActive(true);
+        }
+        
+        // 🆕 강화 레벨 텍스트 숨김 (재료 모드에서는 사용 안 함)
+        if (enhancementLevelText != null)
+        {
+            enhancementLevelText.gameObject.SetActive(false);
         }
         
         // ⭐ 등급 테두리 (재료 전용)
@@ -834,6 +972,10 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void ClearSlot()
     {
+        Debug.Log($"🧹 [InventorySlot] ClearSlot() 호출: {gameObject.name}\n" +
+                 $"   itemIconImage.enabled 변경: {itemIconImage?.enabled} → false\n" +
+                 $"   ⭐ 호출 스택:\n{System.Environment.StackTrace}");
+        
         // 장비 데이터 초기화
         equipmentData = null;
         itemInstanceId = default;
@@ -852,6 +994,12 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         if (countText != null)
         {
             countText.gameObject.SetActive(false);
+        }
+        
+        // 🆕 강화 레벨 텍스트 숨김
+        if (enhancementLevelText != null)
+        {
+            enhancementLevelText.gameObject.SetActive(false);
         }
         
         // 테두리 숨김
@@ -890,7 +1038,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         
         if (selectionHighlight != null)
         {
-            selectionHighlight.color = new Color(1f, 1f, 1f, 0f); // 투명
+            selectionHighlight.color = highlightColorUnselected; // Inspector 설정 색상 (투명)
         }
     }
     
@@ -938,12 +1086,32 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             // ⭐ 하이라이트 명시적 숨김
             if (selectionHighlight != null)
             {
-                selectionHighlight.color = new Color(1f, 1f, 1f, 0f); // 투명
+                selectionHighlight.color = highlightColorUnselected; // Inspector 설정 색상 (투명)
             }
         }
         
         if (showDebugLogs)
             Debug.Log($"🔘 [InventorySlot] 다중 선택 모드: {(enabled ? "활성화" : "비활성화")}");
+    }
+    
+    /// <summary>
+    /// 체크박스 표시/숨김 (공방 탭별 제어)
+    /// </summary>
+    public void SetCheckboxVisible(bool visible)
+    {
+        if (selectionCheckbox != null)
+        {
+            selectionCheckbox.SetActive(visible);
+        }
+        
+        // 체크박스 숨김 시 선택 초기화
+        if (!visible && isSelected)
+        {
+            SetSelected(false);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🔘 [InventorySlot] 체크박스 표시: {visible}");
     }
     
     /// <summary>
@@ -981,10 +1149,10 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             // ⭐ Image 컴포넌트 명시적 활성화
             selectionHighlight.enabled = true;
             
-            // ⭐ Alpha 값 설정
+            // ⭐ Inspector에서 설정한 색상 사용
             Color highlightColor = selected 
-                ? new Color(1f, 0.84f, 0f, 0.3f) // 골드 하이라이트 (Alpha 30%)
-                : new Color(1f, 1f, 1f, 0f);     // 투명
+                ? highlightColorSelected     // Inspector에서 조절 가능
+                : highlightColorUnselected;  // 투명
             
             selectionHighlight.color = highlightColor;
             
@@ -1021,4 +1189,40 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     {
         return isMultiSelectMode;
     }
+    
+    // ========================================
+    // 🐞 디버깅: itemIconImage.enabled 상태 추적
+    // ========================================
+    
+    private void LateUpdate()
+    {
+        // MaterialSlot만 모니터링 (이름에 "MaterialSlot"이 포함된 경우)
+        if (itemIconImage == null || !gameObject.name.Contains("MaterialSlot"))
+            return;
+        
+        // SetupMaterial() 호출 후 몇 프레임 동안만 모니터링
+        if (framesSinceSetupMaterial >= 0)
+        {
+            framesSinceSetupMaterial++;
+            
+            // enabled 상태가 변경되었는지 확인
+            bool currentState = itemIconImage.enabled;
+            if (currentState != lastImageEnabledState)
+            {
+                Debug.LogError($"❌❌❌ [InventorySlot] itemIconImage.enabled 변경 감지! ❌❌❌\n" +
+                             $"   슬롯: {gameObject.name}\n" +
+                             $"   {lastImageEnabledState} → {currentState}\n" +
+                             $"   SetupMaterial() 이후 프레임: {framesSinceSetupMaterial}\n" +
+                             $"   ⭐⭐⭐ 호출 스택:\n{System.Environment.StackTrace}");
+                lastImageEnabledState = currentState;
+            }
+            
+            // 5프레임 후에는 모니터링 중단
+            if (framesSinceSetupMaterial > 5)
+            {
+                framesSinceSetupMaterial = -1;
+            }
+        }
+    }
+    
 } 

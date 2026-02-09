@@ -52,9 +52,11 @@ namespace UI.Workshop
         
         [Header("🔗 연동 컴포넌트")]
         [SerializeField] private EnhancementUI enhancementUI;
+        [SerializeField] private WorkshopUI workshopUI; // ⭐ 공방 메인 UI
         
         // 상태
         private InventoryTabType currentTab = InventoryTabType.Equipment;
+        private WorkshopUI.WorkshopTabType currentWorkshopTab = WorkshopUI.WorkshopTabType.Enhancement; // ⭐ 현재 공방 탭
         private List<InventorySlot> inventorySlots = new List<InventorySlot>();
         private List<ItemInstanceId> selectedItems = new List<ItemInstanceId>();
         private bool isMultiSelectMode = false;
@@ -89,6 +91,22 @@ namespace UI.Workshop
         {
             Debug.Log("🟢 [WorkshopInventoryUI] OnEnable() 호출됨!");
             
+            // ⭐ WorkshopUI 탭 변경 이벤트 구독
+            if (workshopUI != null)
+            {
+                workshopUI.OnTabChanged += OnWorkshopTabChanged;
+                
+                // 현재 탭 가져오기
+                currentWorkshopTab = workshopUI.GetCurrentTab();
+                
+                if (showDebugLogs)
+                    Debug.Log($"🔗 [WorkshopInventoryUI] WorkshopUI 이벤트 구독 (현재 탭: {currentWorkshopTab})");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [WorkshopInventoryUI] workshopUI가 null입니다! Inspector에서 연결하세요.");
+            }
+            
             // ⭐ 공방 패널이 열릴 때마다 인벤토리 자동 갱신
             // (상점에서 아이템 구매 후 공방에 들어왔을 때 반영되도록)
             if (inventorySlots != null && inventorySlots.Count > 0)
@@ -121,7 +139,16 @@ namespace UI.Workshop
         /// </summary>
         void OnDisable()
         {
-            // ⭐ 이벤트 구독 해제 (메모리 누수 방지)
+            // ⭐ WorkshopUI 이벤트 구독 해제
+            if (workshopUI != null)
+            {
+                workshopUI.OnTabChanged -= OnWorkshopTabChanged;
+                
+                if (showDebugLogs)
+                    Debug.Log("🔄 [WorkshopInventoryUI] WorkshopUI 이벤트 구독 해제");
+            }
+            
+            // ⭐ AccountDataManager 이벤트 구독 해제 (메모리 누수 방지)
             if (AccountDataManager.Instance != null)
             {
                 AccountDataManager.Instance.OnSharedInventoryChanged -= OnInventoryChangedHandler;
@@ -130,6 +157,80 @@ namespace UI.Workshop
                 if (showDebugLogs)
                     Debug.Log("🔄 [WorkshopInventoryUI] AccountDataManager 이벤트 구독 해제");
             }
+        }
+        
+        /// <summary>
+        /// 공방 탭 변경 이벤트 핸들러
+        /// </summary>
+        private void OnWorkshopTabChanged(WorkshopUI.WorkshopTabType newTab)
+        {
+            currentWorkshopTab = newTab;
+            
+            if (showDebugLogs)
+                Debug.Log($"🔄 [WorkshopInventoryUI] 공방 탭 변경: {newTab}");
+            
+            // 탭별 UI 조정
+            UpdateUIForCurrentTab();
+            
+            // 선택 초기화
+            ClearSelection();
+        }
+        
+        /// <summary>
+        /// 현재 공방 탭에 맞게 UI 조정
+        /// </summary>
+        private void UpdateUIForCurrentTab()
+        {
+            bool isEnhancementTab = (currentWorkshopTab == WorkshopUI.WorkshopTabType.Enhancement);
+            
+            // 강화 탭: 등급 필터 + 다중 선택 토글 숨김
+            if (selectDGradeButton != null)
+                selectDGradeButton.gameObject.SetActive(!isEnhancementTab);
+            if (selectCGradeButton != null)
+                selectCGradeButton.gameObject.SetActive(!isEnhancementTab);
+            if (selectBGradeButton != null)
+                selectBGradeButton.gameObject.SetActive(!isEnhancementTab);
+            if (selectAGradeButton != null)
+                selectAGradeButton.gameObject.SetActive(!isEnhancementTab);
+            if (selectSGradeButton != null)
+                selectSGradeButton.gameObject.SetActive(!isEnhancementTab);
+            if (excludeEquippedToggle != null)
+                excludeEquippedToggle.gameObject.SetActive(!isEnhancementTab);
+            
+            // 다중 선택 토글 숨김/표시
+            if (multiSelectModeToggle != null)
+                multiSelectModeToggle.gameObject.SetActive(!isEnhancementTab);
+            
+            // 강화 탭은 항상 단일 선택 모드
+            if (isEnhancementTab)
+            {
+                SetMultiSelectMode(false);
+            }
+            
+            // 모든 슬롯의 체크박스 표시/숨김 갱신
+            UpdateAllSlotCheckboxVisibility();
+            
+            if (showDebugLogs)
+                Debug.Log($"✅ [WorkshopInventoryUI] 탭별 UI 조정 완료 (강화 탭: {isEnhancementTab})");
+        }
+        
+        /// <summary>
+        /// 모든 슬롯의 체크박스 표시/숨김 갱신
+        /// </summary>
+        private void UpdateAllSlotCheckboxVisibility()
+        {
+            bool showCheckbox = (currentWorkshopTab != WorkshopUI.WorkshopTabType.Enhancement);
+            
+            foreach (var slot in inventorySlots)
+            {
+                if (slot != null)
+                {
+                    slot.SetCheckboxVisible(showCheckbox);
+                }
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"🔄 [WorkshopInventoryUI] 모든 슬롯 체크박스 표시: {showCheckbox}");
         }
         
         /// <summary>
@@ -338,6 +439,9 @@ namespace UI.Workshop
             }
             
             UpdateItemCountText();
+            
+            // ⭐ 탭별 UI 조정 (체크박스 표시/숨김 등)
+            UpdateUIForCurrentTab();
             
             Debug.Log("✅ [WorkshopInventoryUI] RefreshInventoryDisplay() 완료");
         }
@@ -552,6 +656,42 @@ namespace UI.Workshop
         {
             if (selected)
             {
+                // ⭐ 합성 탭: 같은 등급만 선택 가능 (다중 선택 모드)
+                if (isMultiSelectMode && currentWorkshopTab == WorkshopUI.WorkshopTabType.Fusion && selectedItems.Count > 0)
+                {
+                    // 현재 선택하려는 아이템의 등급
+                    var newItemInstance = AccountDataManager.Instance.GetInstance(itemId);
+                    if (newItemInstance != null)
+                    {
+                        var newItemData = ItemTemplateResolver.Load(newItemInstance.templateName);
+                        if (newItemData != null)
+                        {
+                            // 기존 선택된 아이템들의 등급 확인
+                            var firstSelectedId = selectedItems[0];
+                            var firstItemInstance = AccountDataManager.Instance.GetInstance(firstSelectedId);
+                            if (firstItemInstance != null)
+                            {
+                                var firstItemData = ItemTemplateResolver.Load(firstItemInstance.templateName);
+                                if (firstItemData != null)
+                                {
+                                    // 등급이 다르면 이전 선택 모두 초기화
+                                    if (newItemData.itemGrade != firstItemData.itemGrade)
+                                    {
+                                        if (showDebugLogs)
+                                            Debug.Log($"⚗️ [WorkshopInventoryUI] 합성 탭 - 다른 등급 선택 감지! {firstItemData.itemGrade} → {newItemData.itemGrade}");
+                                        
+                                        // 모든 선택 해제
+                                        ClearSelection();
+                                        
+                                        if (showDebugLogs)
+                                            Debug.Log($"✅ [WorkshopInventoryUI] 이전 선택 초기화 완료, 새 등급 {newItemData.itemGrade} 선택 시작");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 // ⭐ 단일 선택 모드: 이전 선택 해제
                 if (!isMultiSelectMode)
                 {
@@ -680,6 +820,27 @@ namespace UI.Workshop
             var equippedIds = PlayerDataManager.Instance.selectedPlayerData
                 .RuntimeEquippedInstanceIds.Values.ToList();
             
+            // ⭐ 합성 탭: 필요 개수 제한 + 강화 레벨 +0만 선택
+            bool isFusionTab = (currentWorkshopTab == WorkshopUI.WorkshopTabType.Fusion);
+            int requiredCount = 0;
+            
+            if (isFusionTab)
+            {
+                // FusionRule에서 필요 개수 가져오기
+                var fusionRule = Resources.Load<Systems.FusionRule>("Data/FusionRule");
+                if (fusionRule != null)
+                {
+                    requiredCount = fusionRule.GetRequiredCount(grade);
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"⚗️ [WorkshopInventoryUI] 합성 탭 - {grade}등급 필요 개수: {requiredCount}개 (강화 +0만 선택)");
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ [WorkshopInventoryUI] FusionRule을 찾을 수 없습니다! (Resources/Data/FusionRule)");
+                }
+            }
+            
             int selectedCount = 0;
             
             foreach (var slot in inventorySlots)
@@ -695,13 +856,35 @@ namespace UI.Workshop
                         continue;
                     }
                     
+                    // ⭐ 합성 탭: 강화 레벨 +0만 자동 선택
+                    if (isFusionTab)
+                    {
+                        var itemInstanceData = AccountDataManager.Instance.GetInstance(itemId);
+                        if (itemInstanceData == null || itemInstanceData.enhancementLevel > 0)
+                        {
+                            // 강화된 아이템은 자동 선택에서 제외
+                            continue;
+                        }
+                        
+                        // 필요 개수만큼만 선택
+                        if (selectedCount >= requiredCount)
+                        {
+                            break; // 필요 개수 도달, 더 이상 선택 안 함
+                        }
+                    }
+                    
                     slot.SetSelected(true);
                     selectedCount++;
                 }
             }
             
             if (showDebugLogs)
-                Debug.Log($"🔘 [WorkshopInventoryUI] {grade}등급 일괄 선택: {selectedCount}개");
+            {
+                if (isFusionTab)
+                    Debug.Log($"⚗️ [WorkshopInventoryUI] {grade}등급 일괄 선택 (합성): {selectedCount}/{requiredCount}개 (강화 +0만)");
+                else
+                    Debug.Log($"🔘 [WorkshopInventoryUI] {grade}등급 일괄 선택: {selectedCount}개");
+            }
         }
         
         /// <summary>

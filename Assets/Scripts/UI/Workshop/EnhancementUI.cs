@@ -25,12 +25,12 @@ namespace UI.Workshop
     /// </summary>
     public class EnhancementUI : MonoBehaviour
     {
-        [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = true;
+    [Header("📊 디버그")]
+    [SerializeField] private bool showDebugLogs = false; // 🔧 디버깅 완료
         
         [Header("📌 선택된 아이템 정보")]
         [SerializeField] private TMP_Text itemNameText;
-        [SerializeField] private Image itemIconImage;
+        [SerializeField] private Image itemIconImage; // ⚠️ BeforeAfterComparisonUI와 중복, 숨김 처리됨
         [SerializeField] private TMP_Text enhancementLevelText;
         
         [Header("📊 성공 확률 표시")]
@@ -54,6 +54,7 @@ namespace UI.Workshop
         [Header("🔘 강화 버튼")]
         [SerializeField] private Button enhanceButton;
         [SerializeField] private TMP_Text enhanceButtonText;
+        [SerializeField] private TMP_Text enhanceWarningText; // ⭐ 버튼 외부 경고 텍스트 (조건 불만족 시)
         
         [Header("🔗 연동 컴포넌트")]
         [SerializeField] private BeforeAfterComparisonUI comparisonUI;
@@ -155,6 +156,15 @@ namespace UI.Workshop
         /// </summary>
         private void InitializeUI()
         {
+            // ⭐ ItemIcon 숨김 처리 (BeforeAfterComparisonUI와 중복)
+            if (itemIconImage != null)
+            {
+                itemIconImage.gameObject.SetActive(false);
+                
+                if (showDebugLogs)
+                    Debug.Log("🔄 [EnhancementUI] ItemIcon 숨김 처리 (BeforeAfterComparisonUI와 중복)");
+            }
+            
             // 모든 패널 비활성화
             if (successRatePanel != null)
                 successRatePanel.SetActive(false);
@@ -171,7 +181,14 @@ namespace UI.Workshop
                 enhanceButton.interactable = false;
                 
                 if (enhanceButtonText != null)
-                    enhanceButtonText.text = "아이템을 선택하세요";
+                    enhanceButtonText.text = "아이템선택";
+            }
+            
+            // ⭐ 경고 텍스트 초기화
+            if (enhanceWarningText != null)
+            {
+                enhanceWarningText.text = "";
+                enhanceWarningText.gameObject.SetActive(false);
             }
             
             // 재료 슬롯 초기화
@@ -287,12 +304,12 @@ namespace UI.Workshop
                 itemNameText.text = displayName;
             }
             
-            // 아이템 아이콘
-            if (itemIconImage != null && selectedEquipmentData.icon != null)
-            {
-                itemIconImage.sprite = selectedEquipmentData.icon;
-                itemIconImage.enabled = true;
-            }
+            // ⚠️ 아이템 아이콘 (BeforeAfterComparisonUI와 중복, 숨김 처리됨)
+            // if (itemIconImage != null && selectedEquipmentData.icon != null)
+            // {
+            //     itemIconImage.sprite = selectedEquipmentData.icon;
+            //     itemIconImage.enabled = true;
+            // }
             
             // 강화 레벨 표시
             if (enhancementLevelText != null)
@@ -317,11 +334,56 @@ namespace UI.Workshop
                 return;
             }
             
-            if (materialCostPanel != null)
+            // ⭐ 중요: materialCostPanel 활성화 **후** 1프레임 대기한 다음 슬롯 설정
+            // 이유: Unity UI Layout 시스템이 활성화 직후 재계산하면서 Image.enabled를 false로 설정하는 문제 방지
+            if (materialCostPanel != null && !materialCostPanel.activeSelf)
+            {
+                Debug.Log("🔍 [EnhancementUI] materialCostPanel 활성화 → 코루틴으로 1프레임 대기 후 슬롯 설정");
                 materialCostPanel.SetActive(true);
+                StartCoroutine(UpdateMaterialSlotsDelayed());
+                return;
+            }
+            
+            // materialCostPanel이 이미 활성화된 경우 즉시 업데이트
+            UpdateMaterialSlotsImmediate();
+        }
+        
+        /// <summary>
+        /// ⭐ Unity UI 버그 해결: materialCostPanel 활성화 후 1프레임 대기한 다음 슬롯 설정
+        /// </summary>
+        private System.Collections.IEnumerator UpdateMaterialSlotsDelayed()
+        {
+            // 1프레임 대기 (Unity UI Layout 계산 완료 대기)
+            yield return null;
+            
+            Debug.Log("⏰ [EnhancementUI] 1프레임 대기 완료 → MaterialSlot 설정 시작");
+            UpdateMaterialSlotsImmediate();
+        }
+        
+        /// <summary>
+        /// Material Slot 즉시 업데이트 (코루틴에서 호출)
+        /// </summary>
+        private void UpdateMaterialSlotsImmediate()
+        {
+            // 모든 슬롯 Clear (이전 데이터 제거)
+            Debug.Log("🧹 [EnhancementUI] 모든 MaterialSlot Clear 시작");
+            if (materialSlot1 != null)
+                materialSlot1.ClearSlot();
+            if (materialSlot2 != null)
+                materialSlot2.ClearSlot();
+            if (materialSlot3 != null)
+                materialSlot3.ClearSlot();
+            Debug.Log("✅ [EnhancementUI] 모든 MaterialSlot Clear 완료");
             
             // 필요 재료 계산
             var requiredMaterials = CalculateRequiredMaterials();
+            if (showDebugLogs)
+            {
+                foreach (var kvp in requiredMaterials)
+                {
+                    Debug.Log($"💎 [EnhancementUI] 필요 재료: {kvp.Key.GetDisplayName()} x{kvp.Value}");
+                }
+            }
             
             // 재료 슬롯 업데이트
             int slotIndex = 0;
@@ -347,7 +409,12 @@ namespace UI.Workshop
                         materialType = materialType,
                         count = requiredAmount
                     };
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"🔧 [EnhancementUI] {targetSlot.name}.SetupMaterial() 호출: {materialType.GetDisplayName()}");
                     targetSlot.SetupMaterial(materialStack);
+                    
+                    // ⭐ 더 이상 코루틴 불필요: materialCostPanel 활성화 후 1프레임 대기했으므로 Image가 정상 작동
                     
                     // 부족 시 빨간색 표시 (TODO: InventorySlot에 부족 표시 기능 추가 필요)
                     bool isInsufficient = ownedAmount < requiredAmount;
@@ -368,18 +435,18 @@ namespace UI.Workshop
                 bool isGoldInsufficient = ownedGold < requiredGold;
                 
                 if (showDebugLogs)
-                    Debug.Log($"💰 [EnhancementUI] UpdateMaterialSlots() - 필요 골드: {requiredGold}, 보유 골드: {ownedGold}, 부족: {isGoldInsufficient}");
+                    Debug.Log($"💰 [EnhancementUI] UpdateMaterialSlotsImmediate() - 골드: {requiredGold}, 보유 골드: {ownedGold}, 부족: {isGoldInsufficient}");
                 
                 // 골드 부족 시 빨간색
                 if (isGoldInsufficient)
                 {
                     goldCostText.color = Color.red;
-                    goldCostText.text = $"필요 골드: {requiredGold:N0}G (부족: {requiredGold - ownedGold:N0}G)";
+                    goldCostText.text = $"골드: {requiredGold:N0}G (부족: {requiredGold - ownedGold:N0}G)";
                 }
                 else
                 {
                     goldCostText.color = Color.white;
-                    goldCostText.text = $"필요 골드: {requiredGold:N0}G";
+                    goldCostText.text = $"골드: {requiredGold:N0}G";
                 }
             }
         }
@@ -614,7 +681,7 @@ namespace UI.Workshop
                     enhanceButton.interactable = false;
                     
                     if (enhanceButtonText != null)
-                        enhanceButtonText.text = "아이템을 선택하세요";
+                        enhanceButtonText.text = "아이템선택";
                 }
                 return;
             }
@@ -622,13 +689,32 @@ namespace UI.Workshop
             // 강화 가능 여부 체크
             bool canEnhance = EnhancementSystem.CanEnhance(selectedItemId, out string reason);
             
+            // ⭐ 버튼 텍스트: 간단하게 상태만 표시
             if (enhanceButton != null)
             {
                 enhanceButton.interactable = canEnhance;
                 
                 if (enhanceButtonText != null)
                 {
-                    enhanceButtonText.text = canEnhance ? "강화하기" : reason;
+                    enhanceButtonText.text = canEnhance ? "강화하기" : "강화 불가";
+                }
+            }
+            
+            // ⭐ 경고 텍스트: 버튼 외부에 상세 이유 표시
+            if (enhanceWarningText != null)
+            {
+                if (canEnhance)
+                {
+                    // 강화 가능: 경고 텍스트 숨김
+                    enhanceWarningText.gameObject.SetActive(false);
+                    enhanceWarningText.text = "";
+                }
+                else
+                {
+                    // 강화 불가: 경고 텍스트 표시
+                    enhanceWarningText.gameObject.SetActive(true);
+                    enhanceWarningText.text = reason;
+                    enhanceWarningText.color = new Color(1f, 0.3f, 0.3f); // 빨간색
                 }
             }
             
@@ -805,6 +891,7 @@ namespace UI.Workshop
             
             return equipData;
         }
+        
     }
 }
 
