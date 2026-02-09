@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da52de7ff046b954f8739dbdb7548dec, type: 3}
+  m_Name: EnhanceLevelTable
+  m_EditorClassIdentifier: 
+  levelTable:
+  - level: 0
+    goldCost: 0
+    materialCount: 0
+    successRate: 1
+    failureType: 0
+    bonusId: 
+    bonusDescription: 
+  - level: 1
+    goldCost: 200
+    materialCount: 1
+    successRate: 0.95
+    failureType: 0
+    bonusId: 
+    bonusDescription: 
+  - level: 2
+    goldCost: 350
+    materialCount: 1
+    successRate: 0.92
+    failureType: 0
+    bonusId: 
+    bonusDescription: 
+  - level: 3
+    goldCost: 550
+    materialCount: 2
+    successRate: 0.88
+    failureType: 0
+    bonusId: BONUS_LV3
+    bonusDescription: "\uD06C\uB9AC\uD2F0\uCEEC \uD655\uB960 +1%"
+  - level: 4
+    goldCost: 800
+    materialCount: 2
+    successRate: 0.85
+    failureType: 0
+    bonusId: 
+    bonusDescription: 
+  - level: 5
+    goldCost: 1100
+    materialCount: 3
+    successRate: 0.82
+    failureType: 0
+    bonusId: 
+    bonusDescription: 
+  - level: 6
+    goldCost: 1500
+    materialCount: 3
+    successRate: 0.75
+    failureType: 1
+    bonusId: BONUS_LV6
+    bonusDescription: "\uD06C\uB9AC\uD2F0\uCEEC \uB370\uBBF8\uC9C0 +5%"
+  - level: 7
+    goldCost: 2000
+    materialCount: 4
+    successRate: 0.72
+    failureType: 1
+    bonusId: 
+    bonusDescription: 
+  - level: 8
+    goldCost: 2600
+    materialCount: 4
+    successRate: 0.68
+    failureType: 1
+    bonusId: 
+    bonusDescription: 
+  - level: 9
+    goldCost: 3300
+    materialCount: 5
+    successRate: 0.62
+    failureType: 1
+    bonusId: BONUS_LV9
+    bonusDescription: "\uACF5\uACA9 \uC18D\uB3C4 +3%"
+  - level: 10
+    goldCost: 4100
+    materialCount: 5
+    successRate: 0.58
+    failureType: 1
+    bonusId: 
+    bonusDescription: 
+  - level: 11
+    goldCost: 5200
+    materialCount: 6
+    successRate: 0.5
+    failureType: 1
+    bonusId: 
+    bonusDescription: 
+  - level: 12
+    goldCost: 6600
+    materialCount: 6
+    successRate: 0.45
+    failureType: 2
+    bonusId: BONUS_LV12
+    bonusDescription: "\uC2A4\uD0AC \uCFE8\uB2E4\uC6B4 -5%"
+  - level: 13
+    goldCost: 8300
+    materialCount: 7
+    successRate: 0.4
+    failureType: 2
+    bonusId: 
+    bonusDescription: 
+  - level: 14
+    goldCost: 10500
+    materialCount: 7
+    successRate: 0.35
+    failureType: 2
+    bonusId: 
+    bonusDescription: 
+  - level: 15
+    goldCost: 13500
+    materialCount: 8
+    successRate: 0.3
+    failureType: 2
+    bonusId: BONUS_LV15
+    bonusDescription: "\uBAA8\uB4E0 \uC2A4\uD0EF +2%"
+  maxEnhancementLevel: 15

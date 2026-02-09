@@ -12,20 +12,59 @@ namespace Systems
     /// </summary>
     public static class EnhancementSystem
     {
-        private static EnhancementData _data;
-        private static EnhancementData Data
+        // ⭐ 새로운 2개 SO 시스템
+        private static EnhanceLevelTableSO _levelTable;
+        private static EnhanceCurveTableSO _curveTable;
+        
+        /// <summary>
+        /// 강화 레벨 테이블 (비용/확률/보너스)
+        /// </summary>
+        private static EnhanceLevelTableSO LevelTable
         {
             get
             {
-                if (_data == null)
+                if (_levelTable == null)
                 {
-                    _data = Resources.Load<EnhancementData>("Data/EnhancementData");
-                    if (_data == null)
+                    _levelTable = Resources.Load<EnhanceLevelTableSO>("Data/EnhanceLevelTable");
+                    if (_levelTable == null)
                     {
-                        Debug.LogError("[EnhancementSystem] EnhancementData를 찾을 수 없습니다. (경로: Resources/Data/EnhancementData)");
+                        Debug.LogError("[EnhancementSystem] EnhanceLevelTableSO를 찾을 수 없습니다. (경로: Resources/Data/EnhanceLevelTable)");
                     }
                 }
-                return _data;
+                return _levelTable;
+            }
+        }
+        
+        /// <summary>
+        /// 강화 곡선 테이블 (스탯 증가율)
+        /// </summary>
+        private static EnhanceCurveTableSO CurveTable
+        {
+            get
+            {
+                if (_curveTable == null)
+                {
+                    _curveTable = Resources.Load<EnhanceCurveTableSO>("Data/EnhanceCurveTable");
+                    if (_curveTable == null)
+                    {
+                        Debug.LogError("[EnhancementSystem] EnhanceCurveTableSO를 찾을 수 없습니다. (경로: Resources/Data/EnhanceCurveTable)");
+                    }
+                }
+                return _curveTable;
+            }
+        }
+        
+        // ⚠️ 기존 EnhancementData (Deprecated - 하위 호환성 유지용)
+        private static EnhancementData _legacyData;
+        private static EnhancementData LegacyData
+        {
+            get
+            {
+                if (_legacyData == null)
+                {
+                    _legacyData = Resources.Load<EnhancementData>("Data/EnhancementData");
+                }
+                return _legacyData;
             }
         }
         
@@ -60,15 +99,17 @@ namespace Systems
             }
             
             // 최대 레벨 확인
-            if (itemData.enhancementLevel >= Data.maxEnhancementLevel)
+            if (itemData.enhancementLevel >= LevelTable.maxEnhancementLevel)
             {
-                reason = $"이미 최대 강화 레벨입니다. (+{Data.maxEnhancementLevel})";
+                reason = $"이미 최대 강화 레벨입니다. (+{LevelTable.maxEnhancementLevel})";
                 return false;
             }
             
-            // 재료 확인 (장비 타입 + 등급 기반)
-            MaterialType requiredMaterial = Data.GetRequiredMaterialType(template.equipmentType, template.itemGrade);
-            int requiredAmount = Data.GetRequiredMaterialAmount(template.itemGrade, itemData.enhancementLevel + 1);
+            int targetLevel = itemData.enhancementLevel + 1;
+            
+            // ⭐ 새 SO: 재료 확인
+            MaterialType requiredMaterial = GetRequiredMaterialType(template.equipmentType, template.itemGrade);
+            int requiredAmount = LevelTable.GetMaterialCount(targetLevel); // ⭐ 새 SO
             int ownedAmount = account.GetMaterialCount(requiredMaterial);
             
             if (ownedAmount < requiredAmount)
@@ -77,11 +118,11 @@ namespace Systems
                 return false;
             }
             
-            // 골드 확인 (⭐ 수정: PlayerDataManager.CurrentGold 사용)
-            int requiredGold = Data.GetRequiredGold(template.itemGrade, itemData.enhancementLevel + 1);
+            // ⭐ 새 SO: 골드 확인
+            int requiredGold = LevelTable.GetGoldCost(targetLevel); // ⭐ 새 SO
             if (PlayerDataManager.Instance != null)
             {
-                int currentGold = PlayerDataManager.Instance.CurrentGold; // ⭐ AccountDataManager 통해 골드 가져옴
+                int currentGold = PlayerDataManager.Instance.CurrentGold;
                 if (currentGold < requiredGold)
                 {
                     reason = $"골드가 부족합니다. (필요: {requiredGold}, 보유: {currentGold})";
@@ -104,13 +145,14 @@ namespace Systems
             
             if (itemData == null) return false;
             
-            // 현재 레벨이 파괴 구간인지 확인
-            var failureType = Data.GetFailureType(itemData.enhancementLevel);
+            // ⭐ 새 SO: 실패 처리 규칙
+            int targetLevel = itemData.enhancementLevel + 1;
+            var failureType = LevelTable.GetFailureType(targetLevel);
             return failureType == EnhancementFailureType.Destroy;
         }
         
         /// <summary>
-        /// 강화 성공률 조회
+        /// 강화 성공률 조회 (⭐ 새 SO 기반)
         /// </summary>
         public static float GetSuccessRate(ItemInstanceId instanceId)
         {
@@ -121,10 +163,10 @@ namespace Systems
             
             if (itemData == null) return 0f;
             
-            var template = ItemTemplateResolver.Load(itemData.templateName);
-            if (template == null) return 0f;
+            int targetLevel = itemData.enhancementLevel + 1;
             
-            return Data.CalculateSuccessRate(template.itemGrade, itemData.enhancementLevel);
+            // ⭐ 새 SO: 성공률 (0~100%)
+            return LevelTable.GetSuccessRate(targetLevel);
         }
         
         /// <summary>
@@ -152,9 +194,9 @@ namespace Systems
             
             try
             {
-                // 1. 재료 소모 (장비 타입 + 등급 기반)
-                MaterialType materialType = Data.GetRequiredMaterialType(template.equipmentType, template.itemGrade);
-                int materialAmount = Data.GetRequiredMaterialAmount(template.itemGrade, targetLevel);
+                // ⭐ 1. 재료 소모 (새 SO)
+                MaterialType materialType = GetRequiredMaterialType(template.equipmentType, template.itemGrade);
+                int materialAmount = LevelTable.GetMaterialCount(targetLevel); // ⭐ 새 SO
                 
                 if (!account.RemoveMaterial(materialType, materialAmount))
                 {
@@ -164,8 +206,8 @@ namespace Systems
                 
                 Debug.Log($"💎 [EnhancementSystem] 재료 소모: {materialType.GetDisplayName()} -{materialAmount}");
                 
-                // 2. 골드 소모
-                int goldCost = Data.GetRequiredGold(template.itemGrade, targetLevel);
+                // ⭐ 2. 골드 소모 (새 SO)
+                int goldCost = LevelTable.GetGoldCost(targetLevel); // ⭐ 새 SO
                 if (playerData != null && playerData.IsSlotSelected)
                 {
                     var slotData = playerData.GetSlotData(playerData.CurrentSlotIndex);
@@ -177,8 +219,8 @@ namespace Systems
                     }
                 }
                 
-                // 3. 성공/실패 판정
-                float successRate = Data.CalculateSuccessRate(template.itemGrade, currentLevel);
+                // ⭐ 3. 성공/실패 판정 (새 SO)
+                float successRate = LevelTable.GetSuccessRate(targetLevel); // ⭐ 새 SO (0~100%)
                 float randomValue = Random.Range(0f, 100f);
                 bool enhancementSuccess = randomValue <= successRate;
                 
@@ -199,8 +241,8 @@ namespace Systems
                 }
                 else
                 {
-                    // 실패: 실패 타입에 따라 처리
-                    var failureType = Data.GetFailureType(currentLevel);
+                    // 실패: 실패 타입에 따라 처리 (⭐ 새 SO 기반)
+                    var failureType = LevelTable.GetFailureType(targetLevel);
                     itemData.enhancementAttempts++;
                     
                     switch (failureType)
@@ -255,6 +297,48 @@ namespace Systems
         /// <summary>
         /// 인벤토리에서 아이템 제거 (내부 헬퍼)
         /// </summary>
+        /// <summary>
+        /// 장비 타입과 등급에 따른 필요 재료 타입 반환 (헬퍼 메서드)
+        /// </summary>
+        private static MaterialType GetRequiredMaterialType(EquipmentType equipType, ItemGrade grade)
+        {
+            // ⭐ 장비 타입 × 등급에 따른 재료 매핑
+            // 무기: WeaponFragment/Crystal/Core
+            // 방어구: ArmorFragment/Crystal/Core
+            // 악세사리: AccessoryFragment/Crystal/Core
+            
+            if (equipType == EquipmentType.Weapon)
+            {
+                return grade switch
+                {
+                    ItemGrade.D or ItemGrade.C or ItemGrade.B => MaterialType.WeaponFragment,
+                    ItemGrade.A or ItemGrade.S or ItemGrade.SS => MaterialType.WeaponCrystal,
+                    ItemGrade.EX or ItemGrade.TR => MaterialType.WeaponCore,
+                    _ => MaterialType.WeaponFragment
+                };
+            }
+            else if (equipType == EquipmentType.Armor)
+            {
+                return grade switch
+                {
+                    ItemGrade.D or ItemGrade.C or ItemGrade.B => MaterialType.ArmorFragment,
+                    ItemGrade.A or ItemGrade.S or ItemGrade.SS => MaterialType.ArmorCrystal,
+                    ItemGrade.EX or ItemGrade.TR => MaterialType.ArmorCore,
+                    _ => MaterialType.ArmorFragment
+                };
+            }
+            else // Accessory
+            {
+                return grade switch
+                {
+                    ItemGrade.D or ItemGrade.C or ItemGrade.B => MaterialType.AccessoryFragment,
+                    ItemGrade.A or ItemGrade.S or ItemGrade.SS => MaterialType.AccessoryCrystal,
+                    ItemGrade.EX or ItemGrade.TR => MaterialType.AccessoryCore,
+                    _ => MaterialType.AccessoryFragment
+                };
+            }
+        }
+        
         private static bool RemoveItemFromInventory(ItemInstanceId instanceId)
         {
             var account = AccountDataManager.Instance;
@@ -308,4 +392,5 @@ namespace Systems
         public string errorMessage;     // 에러 메시지
     }
 }
+
 

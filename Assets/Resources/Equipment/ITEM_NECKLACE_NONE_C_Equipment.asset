@@ -27,6 +27,7 @@ MonoBehaviour:
   weaponCooldown: 1
   weaponRange: 5
   armorType: 0
+  accessoryType: 0
   attackDamage: 0
   attackSpeed: 1
   attackRange: 1
@@ -41,4 +42,5 @@ MonoBehaviour:
   sellPrice: 500
   isLimited: 0
   quantityLimit: 0
+  enhancementCurveGroupId: CURVE_ACCESSORY
   pickupPrefab: {fileID: 0}

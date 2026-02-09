@@ -32,6 +32,8 @@ namespace UI.Workshop
         [SerializeField] private TMP_Text itemNameText;
         [SerializeField] private Image itemIconImage; // ⚠️ BeforeAfterComparisonUI와 중복, 숨김 처리됨
         [SerializeField] private TMP_Text enhancementLevelText;
+        [SerializeField] private TMP_Text statBonusText; // ⭐ 이번 강화 스탯 증가량 (예: "공격력 +1.5%")
+        [SerializeField] private TMP_Text totalStatBonusText; // ⭐ 누적 스탯 표시 (예: "현재 누적: +7.5% → +9.0%")
         
         [Header("📊 성공 확률 표시")]
         [SerializeField] private TMP_Text successRateText;
@@ -316,6 +318,90 @@ namespace UI.Workshop
             {
                 enhancementLevelText.text = $"+{selectedItemData.enhancementLevel} → +{selectedItemData.enhancementLevel + 1}";
             }
+            
+            // ⭐ 스탯 증가량 표시
+            if (statBonusText != null)
+            {
+                UpdateStatBonusDisplay();
+            }
+        }
+        
+        /// <summary>
+        /// ⭐ 스탯 증가량 계산 및 표시 (이번 강화 + 누적) - 새 SO 기반
+        /// </summary>
+        private void UpdateStatBonusDisplay()
+        {
+            if (!isItemSelected) return;
+            
+            // ⭐ 새 SO 로드
+            var curveTable = Resources.Load<EnhanceCurveTableSO>("Data/EnhanceCurveTable");
+            if (curveTable == null)
+            {
+                if (statBonusText != null) statBonusText.text = "";
+                if (totalStatBonusText != null) totalStatBonusText.text = "";
+                return;
+            }
+            
+            int currentLevel = selectedItemData.enhancementLevel;
+            int targetLevel = currentLevel + 1;
+            
+            // ⭐ 장비의 곡선 그룹 ID
+            string curveGroupId = selectedEquipmentData.enhancementCurveGroupId;
+            if (string.IsNullOrEmpty(curveGroupId))
+            {
+                curveGroupId = "CURVE_STANDARD"; // 기본값
+            }
+            
+            // 장비 타입에 따른 스탯 이름
+            string statName = GetStatNameByEquipmentType(selectedEquipmentData.equipmentType);
+            
+            // ⭐ 이번 강화 시 증가하는 스탯 (+1.5% 같은)
+            float thisLevelStatRate = curveTable.GetStatRateAdd(curveGroupId, targetLevel);
+            
+            if (statBonusText != null)
+            {
+                if (thisLevelStatRate > 0)
+                {
+                    statBonusText.text = $"<color=#4CAF50>{statName} +{thisLevelStatRate:F1}%</color>";
+                }
+                else
+                {
+                    statBonusText.text = "";
+                }
+            }
+            
+            // ⭐ 누적 스탯 계산 및 표시
+            if (totalStatBonusText != null)
+            {
+                float currentTotalBonus = curveTable.GetTotalStatBonus(curveGroupId, currentLevel);
+                float nextTotalBonus = curveTable.GetTotalStatBonus(curveGroupId, targetLevel);
+                
+                if (currentLevel > 0 || nextTotalBonus > 0)
+                {
+                    totalStatBonusText.text = $"<color=#FFC107>현재 누적: +{currentTotalBonus:F1}%</color> → <color=#4CAF50>+{nextTotalBonus:F1}%</color>";
+                }
+                else
+                {
+                    totalStatBonusText.text = "";
+                }
+                
+                if (showDebugLogs)
+                    Debug.Log($"📊 [EnhancementUI] 이번 강화: +{thisLevelStatRate:F1}%, 누적: {currentTotalBonus:F1}% → {nextTotalBonus:F1}%");
+            }
+        }
+        
+        /// <summary>
+        /// 장비 타입별 주요 스탯 이름 반환
+        /// </summary>
+        private string GetStatNameByEquipmentType(EquipmentType equipType)
+        {
+            return equipType switch
+            {
+                EquipmentType.Weapon => "공격력",
+                EquipmentType.Armor => "방어력",
+                EquipmentType.Accessory => "체력",
+                _ => "스탯"
+            };
         }
         
         // ========================================
@@ -452,7 +538,7 @@ namespace UI.Workshop
         }
         
         /// <summary>
-        /// 필요 재료 계산
+        /// 필요 재료 계산 (⭐ 새 SO 기반)
         /// </summary>
         private Dictionary<MaterialType, int> CalculateRequiredMaterials()
         {
@@ -460,26 +546,24 @@ namespace UI.Workshop
             
             if (!isItemSelected) return result;
             
-            var enhancementData = Resources.Load<EnhancementData>("Data/EnhancementData");
-            if (enhancementData == null)
+            // ⭐ 새 SO 로드
+            var levelTable = Resources.Load<EnhanceLevelTableSO>("Data/EnhanceLevelTable");
+            if (levelTable == null)
             {
-                Debug.LogError("❌ [EnhancementUI] EnhancementData를 찾을 수 없습니다!");
+                Debug.LogError("❌ [EnhancementUI] EnhanceLevelTableSO를 찾을 수 없습니다!");
                 return result;
             }
             
             int targetLevel = selectedItemData.enhancementLevel + 1;
             
-            // 필요 재료 타입
-            MaterialType materialType = enhancementData.GetRequiredMaterialType(
+            // 필요 재료 타입 (등급별 매핑)
+            MaterialType materialType = GetRequiredMaterialType(
                 selectedEquipmentData.equipmentType,
                 selectedEquipmentData.itemGrade
             );
             
-            // 필요 재료 개수
-            int materialAmount = enhancementData.GetRequiredMaterialAmount(
-                selectedEquipmentData.itemGrade,
-                targetLevel
-            );
+            // ⭐ 새 SO: 필요 재료 개수
+            int materialAmount = levelTable.GetMaterialCount(targetLevel);
             
             result[materialType] = materialAmount;
             
@@ -490,21 +574,62 @@ namespace UI.Workshop
         }
         
         /// <summary>
-        /// 필요 골드 계산
+        /// 필요 골드 계산 (⭐ 새 SO 기반)
         /// </summary>
         private int CalculateRequiredGold()
         {
             if (!isItemSelected) return 0;
             
-            var enhancementData = Resources.Load<EnhancementData>("Data/EnhancementData");
-            if (enhancementData == null) return 0;
+            // ⭐ 새 SO 로드
+            var levelTable = Resources.Load<EnhanceLevelTableSO>("Data/EnhanceLevelTable");
+            if (levelTable == null) return 0;
             
             int targetLevel = selectedItemData.enhancementLevel + 1;
             
-            return enhancementData.GetRequiredGold(
-                selectedEquipmentData.itemGrade,
-                targetLevel
-            );
+            // ⭐ 새 SO: 골드 비용
+            return levelTable.GetGoldCost(targetLevel);
+        }
+        
+        /// <summary>
+        /// 장비 타입과 등급에 따른 필요 재료 타입 반환 (헬퍼 메서드)
+        /// </summary>
+        private MaterialType GetRequiredMaterialType(EquipmentType equipType, ItemGrade grade)
+        {
+            // ⭐ 장비 타입 × 등급에 따른 재료 매핑
+            // 무기: WeaponFragment/Crystal/Core
+            // 방어구: ArmorFragment/Crystal/Core
+            // 악세사리: AccessoryFragment/Crystal/Core
+            
+            if (equipType == EquipmentType.Weapon)
+            {
+                return grade switch
+                {
+                    ItemGrade.D or ItemGrade.C or ItemGrade.B => MaterialType.WeaponFragment,
+                    ItemGrade.A or ItemGrade.S or ItemGrade.SS => MaterialType.WeaponCrystal,
+                    ItemGrade.EX or ItemGrade.TR => MaterialType.WeaponCore,
+                    _ => MaterialType.WeaponFragment
+                };
+            }
+            else if (equipType == EquipmentType.Armor)
+            {
+                return grade switch
+                {
+                    ItemGrade.D or ItemGrade.C or ItemGrade.B => MaterialType.ArmorFragment,
+                    ItemGrade.A or ItemGrade.S or ItemGrade.SS => MaterialType.ArmorCrystal,
+                    ItemGrade.EX or ItemGrade.TR => MaterialType.ArmorCore,
+                    _ => MaterialType.ArmorFragment
+                };
+            }
+            else // Accessory
+            {
+                return grade switch
+                {
+                    ItemGrade.D or ItemGrade.C or ItemGrade.B => MaterialType.AccessoryFragment,
+                    ItemGrade.A or ItemGrade.S or ItemGrade.SS => MaterialType.AccessoryCrystal,
+                    ItemGrade.EX or ItemGrade.TR => MaterialType.AccessoryCore,
+                    _ => MaterialType.AccessoryFragment
+                };
+            }
         }
         
         /// <summary>
@@ -637,11 +762,13 @@ namespace UI.Workshop
                 warningPanel.SetActive(true);
             
             int currentLevel = selectedItemData.enhancementLevel;
+            int targetLevel = currentLevel + 1;
             
-            var enhancementData = Resources.Load<EnhancementData>("Data/EnhancementData");
-            if (enhancementData == null) return;
+            // ⭐ 새 SO: 실패 처리 규칙
+            var levelTable = Resources.Load<EnhanceLevelTableSO>("Data/EnhanceLevelTable");
+            if (levelTable == null) return;
             
-            var failureType = enhancementData.GetFailureType(currentLevel);
+            var failureType = levelTable.GetFailureType(targetLevel);
             
             string warningMessage = failureType switch
             {
@@ -772,19 +899,29 @@ namespace UI.Workshop
             // EnhancementSystem.ExecuteEnhancement() 호출
             var result = EnhancementSystem.ExecuteEnhancement(selectedItemId);
             
+            // 강화 결과 로그
             if (result.success)
             {
                 Debug.Log($"✨ [EnhancementUI] 강화 성공! +{selectedItemData.enhancementLevel - 1} → +{selectedItemData.enhancementLevel}");
+                
+                // TODO: CueSystem으로 성공 이펙트/사운드 재생
+                // CueManager.EmitCue("enhancement.success", transform.position);
             }
             else
             {
                 if (result.wasDestroyed)
                 {
                     Debug.Log($"💥 [EnhancementUI] 강화 실패 (파괴): {selectedEquipmentData.equipmentName}");
+                    
+                    // TODO: CueSystem으로 파괴 이펙트/사운드 재생
+                    // CueManager.EmitCue("enhancement.destroy", transform.position);
                 }
                 else
                 {
                     Debug.Log($"⚠️ [EnhancementUI] 강화 실패: {result.errorMessage}");
+                    
+                    // TODO: CueSystem으로 실패 이펙트/사운드 재생
+                    // CueManager.EmitCue("enhancement.fail", transform.position);
                 }
             }
             

@@ -11,6 +11,10 @@ namespace Systems
     [CreateAssetMenu(fileName = "EnhancementData", menuName = "Data/Enhancement Data", order = 302)]
     public class EnhancementData : ScriptableObject
     {
+        [Header("📊 강화 레벨별 상세 테이블")]
+        [Tooltip("레벨 0~15 강화 데이터 (골드, 재료, 성공률, 스탯 증가율)")]
+        public EnhancementLevelData[] levelTable = new EnhancementLevelData[16]; // 0~15
+        
         [Header("강화 레벨 제한")]
         [Tooltip("최대 강화 레벨")]
         public int maxEnhancementLevel = 15;
@@ -157,6 +161,116 @@ namespace Systems
                 return EnhancementFailureType.Downgrade;
             else
                 return EnhancementFailureType.Destroy;
+        }
+        
+        // ========================================
+        // ⭐ 레벨별 테이블 접근 메서드
+        // ========================================
+        
+        /// <summary>
+        /// 특정 레벨의 강화 데이터 반환
+        /// </summary>
+        public EnhancementLevelData GetLevelData(int level)
+        {
+            if (levelTable == null || level < 0 || level >= levelTable.Length)
+            {
+                Debug.LogError($"[EnhancementData] 잘못된 레벨: {level}");
+                return null;
+            }
+            
+            return levelTable[level];
+        }
+        
+        /// <summary>
+        /// 레벨별 골드 비용 (테이블 우선)
+        /// </summary>
+        public int GetRequiredGoldFromTable(int targetLevel)
+        {
+            var levelData = GetLevelData(targetLevel);
+            if (levelData != null)
+            {
+                return levelData.goldCost;
+            }
+            
+            // Fallback: 기존 방식
+            return GetRequiredGold(ItemGrade.A, targetLevel);
+        }
+        
+        /// <summary>
+        /// 레벨별 재료 개수 (테이블 우선)
+        /// </summary>
+        public int GetRequiredMaterialCountFromTable(int targetLevel)
+        {
+            var levelData = GetLevelData(targetLevel);
+            if (levelData != null)
+            {
+                return levelData.materialCount;
+            }
+            
+            // Fallback: 기존 방식
+            return GetRequiredMaterialAmount(ItemGrade.A, targetLevel);
+        }
+        
+        /// <summary>
+        /// 레벨별 성공률 (테이블 우선)
+        /// </summary>
+        public float GetSuccessRateFromTable(int targetLevel)
+        {
+            var levelData = GetLevelData(targetLevel);
+            if (levelData != null)
+            {
+                return levelData.successRate * 100f; // 0.0~1.0 → 0~100%
+            }
+            
+            // Fallback: 기존 방식
+            return CalculateSuccessRate(ItemGrade.A, targetLevel);
+        }
+        
+        /// <summary>
+        /// 레벨별 스탯 증가율 반환
+        /// </summary>
+        public float GetStatRateAdd(int level, EquipmentType equipType)
+        {
+            var levelData = GetLevelData(level);
+            if (levelData != null)
+            {
+                return levelData.GetStatRateAdd(equipType);
+            }
+            
+            return 0f;
+        }
+        
+        /// <summary>
+        /// 누적 스탯 증가율 계산 (0 ~ targetLevel)
+        /// </summary>
+        public float GetTotalStatBonus(int targetLevel, EquipmentType equipType)
+        {
+            float total = 0f;
+            
+            for (int i = 1; i <= targetLevel; i++)
+            {
+                total += GetStatRateAdd(i, equipType);
+            }
+            
+            return total;
+        }
+        
+        /// <summary>
+        /// 보너스 확인
+        /// </summary>
+        public bool HasBonus(int level)
+        {
+            var levelData = GetLevelData(level);
+            return levelData != null && levelData.HasBonus();
+        }
+        
+        /// <summary>
+        /// 보너스 ID 반환
+        /// </summary>
+        public string GetBonusId(int level)
+        {
+            var levelData = GetLevelData(level);
+            return levelData?.bonusId ?? "";
         }
     }
     
