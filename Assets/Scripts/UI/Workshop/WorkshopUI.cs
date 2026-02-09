@@ -47,6 +47,9 @@ namespace UI.Workshop
         [Header("🔘 공통 버튼")]
         [SerializeField] private Button closeButton;            // 닫기 버튼 (X)
         
+        [Header("🔗 연동 컴포넌트")]
+        [SerializeField] private WorkshopInventoryUI workshopInventoryUI;
+        
         [Header("📊 디버그")]
         [SerializeField] private bool showDebugLogs = false;
         
@@ -171,6 +174,15 @@ namespace UI.Workshop
             
             // 탭 버튼 상태 업데이트
             UpdateTabButtonStates();
+            
+            // ⭐ 탭 전환 시 항상 다중 선택 모드 OFF (디폴트: 단일 선택)
+            if (workshopInventoryUI != null)
+            {
+                workshopInventoryUI.SetMultiSelectMode(false);
+                
+                if (showDebugLogs)
+                    Debug.Log($"🔄 [WorkshopUI] 다중 선택 모드 OFF (탭: {tab})");
+            }
             
             // 이벤트 발행
             OnTabChanged?.Invoke(tab);

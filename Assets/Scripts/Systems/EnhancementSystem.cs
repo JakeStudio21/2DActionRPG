@@ -77,14 +77,14 @@ namespace Systems
                 return false;
             }
             
-            // 골드 확인
+            // 골드 확인 (⭐ 수정: PlayerDataManager.CurrentGold 사용)
             int requiredGold = Data.GetRequiredGold(template.itemGrade, itemData.enhancementLevel + 1);
-            if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
+            if (PlayerDataManager.Instance != null)
             {
-                var slotData = PlayerDataManager.Instance.GetSlotData(PlayerDataManager.Instance.CurrentSlotIndex);
-                if (slotData != null && slotData.gold < requiredGold)
+                int currentGold = PlayerDataManager.Instance.CurrentGold; // ⭐ AccountDataManager 통해 골드 가져옴
+                if (currentGold < requiredGold)
                 {
-                    reason = $"골드가 부족합니다. (필요: {requiredGold}, 보유: {slotData.gold})";
+                    reason = $"골드가 부족합니다. (필요: {requiredGold}, 보유: {currentGold})";
                     return false;
                 }
             }

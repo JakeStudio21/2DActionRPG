@@ -67,6 +67,11 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     [SerializeField] private Image bindIcon;       // 🆕 귀속 아이콘
     [SerializeField] private TMP_Text countText;   // 📦 재료 수량 텍스트 ("X999")
     [SerializeField] private Image rarityBorder;   // 📦 재료 등급 테두리
+    
+    [Header("🔘 다중 선택 UI (공방 전용)")]
+    [SerializeField] private GameObject selectionCheckbox;      // 체크박스 오브젝트
+    [SerializeField] private Image selectionCheckmark;          // ☑ 체크 아이콘
+    [SerializeField] private Image selectionHighlight;          // 선택 시 테두리 하이라이트
 
     [Header("🎨 UI 메시지")]
     [SerializeField] private GameObject messagePanel; // 메시지 패널 (생성될 예정)
@@ -78,6 +83,12 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     
     // 🆕 V2: 귀속 상태 (나중에 ItemInstanceData에서 가져올 예정)
     private bool isBound = false;
+    
+    // 🆕 다중 선택 상태 (공방 전용)
+    private bool isMultiSelectMode = false;
+    
+    // 🆕 다중 선택 이벤트
+    public event System.Action<ItemInstanceId, bool> OnSelectionChanged;
 
     void Awake()
     {
@@ -166,6 +177,12 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void OnSlotClicked()
     {
+        // 빈 슬롯 클릭 방지
+        if (equipmentData == null && !currentMaterial.HasValue)
+        {
+            return;
+        }
+        
         // 📦 재료 슬롯 클릭 처리
         if (currentMaterial.HasValue)
         {
@@ -186,12 +203,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             return;
         }
         
-        // 빈 슬롯 클릭 방지
-        if (equipmentData == null)
-        {
-            return;
-        }
-        
         // 🔧 지연 갱신 최적화: 데이터 로드 상태 확인
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
         {
@@ -200,6 +211,24 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             
             // 지연 로드 후 클릭 이벤트 재처리
             StartCoroutine(HandleClickWithLazyLoad());
+            return;
+        }
+        
+        // ⭐ 공방 환경 감지
+        bool isInWorkshop = IsInWorkshopEnvironment();
+        
+        if (isInWorkshop)
+        {
+            // 🏭 공방 환경: 선택 이벤트만 발생, 상세 패널 열지 않음
+            HandleWorkshopClick();
+            return;
+        }
+        
+        // 🏠 일반 환경 (로비, 상점): 기존 로직
+        // 🔘 다중 선택 모드: 토글 선택
+        if (isMultiSelectMode && equipmentData != null)
+        {
+            ToggleSelection();
             return;
         }
         
@@ -213,11 +242,55 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             Debug.Log($"🖱️ [InventorySlot] {environment} 슬롯 클릭: {equipmentData.equipmentName} (인덱스: {slotIndex})");
         }
         
-        // 🎯 PlayerDataManager 이벤트 발생 (모든 UI에서 구독 가능)
-        // V2: ItemInstanceId 전달 (귀속 체크용)
+        // 🎯 PlayerDataManager 이벤트 발생 (상세 패널 열기)
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.TriggerSlotClicked(equipmentData, slotIndex, itemInstanceId);
+        }
+    }
+    
+    /// <summary>
+    /// 🏭 공방 환경 체크
+    /// </summary>
+    private bool IsInWorkshopEnvironment()
+    {
+        return GetComponentInParent<UI.Workshop.WorkshopInventoryUI>() != null;
+    }
+    
+    /// <summary>
+    /// 🏭 공방에서 슬롯 클릭 처리
+    /// </summary>
+    private void HandleWorkshopClick()
+    {
+        if (equipmentData == null) return;
+        
+        if (showDebugLogs)
+            Debug.Log($"🏭 [InventorySlot] 공방에서 클릭: {equipmentData.equipmentName} (다중 선택: {isMultiSelectMode})");
+        
+        // 다중 선택 모드: 토글 선택
+        if (isMultiSelectMode)
+        {
+            ToggleSelection();
+        }
+        else
+        {
+            // ⭐ 단일 선택 모드: 중복 호출 방지 로직 우회
+            // 이미 선택된 슬롯을 다시 클릭해도 이벤트를 발생시켜야 함
+            bool wasSelected = isSelected;
+            
+            if (!wasSelected)
+            {
+                // 선택되지 않은 슬롯: 정상 선택
+                SetSelected(true, notifyEvent: true);
+            }
+            else
+            {
+                // 이미 선택된 슬롯: 강제로 이벤트 재발생
+                OnSelectionChanged?.Invoke(itemInstanceId, true);
+                
+                if (showDebugLogs)
+                    Debug.Log($"🔄 [InventorySlot] 이미 선택된 슬롯 재클릭 - 이벤트 재발생: {itemInstanceId}");
+            }
         }
     }
     
@@ -301,6 +374,16 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             {
                 itemIconGradeFrame.SetGrade(ItemGrade.D); // 기본 등급으로 리셋
             }
+        }
+        
+        // ⭐ 다중 선택 상태 재적용 (UpdateSlotVisual 호출 시 유지)
+        if (isMultiSelectMode && selectionHighlight != null)
+        {
+            // 선택 하이라이트 상태 유지
+            selectionHighlight.enabled = true;
+            selectionHighlight.color = isSelected 
+                ? new Color(1f, 0.84f, 0f, 0.3f) // 골드 하이라이트 (Alpha 30%)
+                : new Color(1f, 1f, 1f, 0f);     // 투명
         }
     }
     
@@ -798,6 +881,17 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         
         isBound = false;
         isSelected = false;
+        
+        // ⭐ 다중 선택 UI 초기화
+        if (selectionCheckmark != null)
+        {
+            selectionCheckmark.enabled = false;
+        }
+        
+        if (selectionHighlight != null)
+        {
+            selectionHighlight.color = new Color(1f, 1f, 1f, 0f); // 투명
+        }
     }
     
     /// <summary>
@@ -814,5 +908,117 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     public MaterialType? GetMaterialType()
     {
         return currentMaterial;
+    }
+    
+    // ========================================
+    // 🔘 다중 선택 관련 메서드 (공방 전용)
+    // ========================================
+    
+    /// <summary>
+    /// 다중 선택 모드 설정
+    /// </summary>
+    public void SetMultiSelectMode(bool enabled)
+    {
+        isMultiSelectMode = enabled;
+        
+        // 체크박스 표시/숨김
+        if (selectionCheckbox != null)
+        {
+            selectionCheckbox.SetActive(enabled);
+        }
+        
+        // 모드 해제 시 선택 초기화
+        if (!enabled)
+        {
+            if (isSelected)
+            {
+                SetSelected(false);
+            }
+            
+            // ⭐ 하이라이트 명시적 숨김
+            if (selectionHighlight != null)
+            {
+                selectionHighlight.color = new Color(1f, 1f, 1f, 0f); // 투명
+            }
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🔘 [InventorySlot] 다중 선택 모드: {(enabled ? "활성화" : "비활성화")}");
+    }
+    
+    /// <summary>
+    /// 선택 토글 (다중 선택 모드에서 사용)
+    /// </summary>
+    public void ToggleSelection()
+    {
+        if (!isMultiSelectMode)
+        {
+            Debug.LogWarning("⚠️ [InventorySlot] 다중 선택 모드가 아닙니다!");
+            return;
+        }
+        
+        SetSelected(!isSelected);
+    }
+    
+    /// <summary>
+    /// 선택 상태 설정 (다중 선택용 오버로드)
+    /// </summary>
+    public void SetSelected(bool selected, bool notifyEvent = true)
+    {
+        if (isSelected == selected) return; // 중복 호출 방지
+        
+        isSelected = selected;
+        
+        // 체크마크 표시/숨김
+        if (selectionCheckmark != null)
+        {
+            selectionCheckmark.enabled = selected;
+        }
+        
+        // 하이라이트 표시
+        if (selectionHighlight != null)
+        {
+            // ⭐ Image 컴포넌트 명시적 활성화
+            selectionHighlight.enabled = true;
+            
+            // ⭐ Alpha 값 설정
+            Color highlightColor = selected 
+                ? new Color(1f, 0.84f, 0f, 0.3f) // 골드 하이라이트 (Alpha 30%)
+                : new Color(1f, 1f, 1f, 0f);     // 투명
+            
+            selectionHighlight.color = highlightColor;
+            
+            if (showDebugLogs)
+            {
+                Debug.Log($"🎨 [InventorySlot] SelectionHighlight 색상 설정: " +
+                         $"R={highlightColor.r:F2}, G={highlightColor.g:F2}, B={highlightColor.b:F2}, A={highlightColor.a:F2} " +
+                         $"| Enabled: {selectionHighlight.enabled}");
+            }
+        }
+        
+        // 이벤트 발생
+        if (notifyEvent)
+        {
+            OnSelectionChanged?.Invoke(itemInstanceId, selected);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🔘 [InventorySlot] 선택 상태 변경: {equipmentData?.equipmentName} → {(selected ? "선택됨" : "해제됨")}");
+    }
+    
+    /// <summary>
+    /// 선택 여부 확인
+    /// </summary>
+    public bool IsSelected()
+    {
+        return isSelected;
+    }
+    
+    /// <summary>
+    /// 다중 선택 모드 여부 확인
+    /// </summary>
+    public bool IsMultiSelectMode()
+    {
+        return isMultiSelectMode;
     }
 } 

@@ -239,7 +239,7 @@ public class AccountDataManager
     public void RemoveInstance(ItemInstanceId id)
     {
         // 모든 컨테이너에서 제거
-        accountData.sharedInventoryIds.Remove(id);
+        bool wasInShared = accountData.sharedInventoryIds.Remove(id);
         accountData.mailboxIds.Remove(id);
         accountData.itemInstances.RemoveAll(i => i.instanceId == id);
         accountData.binds.RemoveAll(b => b.instanceId == id);
@@ -248,6 +248,12 @@ public class AccountDataManager
         bindCache.Remove(id);
         
         Debug.Log($"🗑️ [AccountDataManager] 아이템 인스턴스 삭제: {id.id}");
+        
+        // ⭐ 이벤트 발생: 공유 창고에 있던 아이템이면 변경 이벤트 발생
+        if (wasInShared)
+        {
+            OnSharedInventoryChanged?.Invoke();
+        }
     }
     
     /// <summary>
@@ -304,6 +310,11 @@ public class AccountDataManager
         }
         
         accountData.sharedInventoryIds.Add(id);
+        
+        // ⭐ 이벤트 발생: 공유 창고 변경됨
+        Debug.Log($"🔔 [AccountDataManager] OnSharedInventoryChanged 이벤트 발생! (아이템 추가: {id.id})");
+        OnSharedInventoryChanged?.Invoke();
+        
         return true;
     }
     
@@ -314,7 +325,12 @@ public class AccountDataManager
     {
         bool removed = accountData.sharedInventoryIds.Remove(id);
         if (removed)
+        {
             Debug.Log($"🗑️ [AccountDataManager] 창고 제거: {id.id}");
+            
+            // ⭐ 이벤트 발생: 공유 창고 변경됨
+            OnSharedInventoryChanged?.Invoke();
+        }
         return removed;
     }
     
@@ -422,6 +438,12 @@ public class AccountDataManager
     /// 재료 변경 이벤트
     /// </summary>
     public event System.Action<MaterialType, int> OnMaterialChanged;
+    
+    /// <summary>
+    /// 공유 창고 인벤토리 변경 이벤트
+    /// (아이템 추가/제거/수정 시 발생)
+    /// </summary>
+    public event System.Action OnSharedInventoryChanged;
     
     /// <summary>
     /// 재료 추가
