@@ -383,7 +383,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
+  showDebugLogs: 1
   equipmentData: {fileID: 0}
   slotImage: {fileID: 9145077039957133807}
   itemIconImage: {fileID: 1509856324789420896}

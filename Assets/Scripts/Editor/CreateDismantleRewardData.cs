@@ -40,7 +40,7 @@ public class CreateDismantleRewardData
         data.fragmentEX = 200;
         data.fragmentTR = 300;
         data.enhancementBonusPerLevel = 0.1f; // +1당 10%
-        data.goldPerDismantle = 100;
+        // ⚠️ [삭제됨] 골드 보상 제거 - 분해 시 재료만 획득
         
         AssetDatabase.CreateAsset(data, assetPath);
         AssetDatabase.SaveAssets();

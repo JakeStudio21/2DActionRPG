@@ -154,6 +154,24 @@ namespace UI.Workshop
         }
         
         /// <summary>
+        /// ⭐ 강화 탭 활성화 시 호출 (탭 전환 시 상태 초기화)
+        /// </summary>
+        public void Initialize()
+        {
+            Debug.Log("📦 [EnhancementUI] 초기화 시작");
+            
+            // 선택 상태 초기화
+            selectedItemId = default;
+            selectedItemData = null;
+            selectedEquipmentData = null;
+            
+            // UI 갱신
+            RefreshUI();
+            
+            Debug.Log("✅ [EnhancementUI] 초기화 완료");
+        }
+        
+        /// <summary>
         /// UI 초기 상태 설정
         /// </summary>
         private void InitializeUI()

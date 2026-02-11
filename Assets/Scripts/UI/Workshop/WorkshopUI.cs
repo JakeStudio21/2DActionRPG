@@ -50,6 +50,11 @@ namespace UI.Workshop
         [Header("🔗 연동 컴포넌트")]
         [SerializeField] private WorkshopInventoryUI workshopInventoryUI;
         
+        [Header("🎮 UI Controllers")]
+        [SerializeField] private EnhancementUI enhancementUI;
+        [SerializeField] private DismantleUI dismantleUI;
+        // private FusionUI fusionUI; // Phase 2
+        
         [Header("📊 디버그")]
         [SerializeField] private bool showDebugLogs = false;
         
@@ -148,6 +153,19 @@ namespace UI.Workshop
                     if (enhancementSubPanel != null)
                     {
                         enhancementSubPanel.SetActive(true);
+                        
+                        // ⭐ EnhancementUI 명시적 초기화 (탭 전환 시 상태 초기화)
+                        if (enhancementUI != null)
+                        {
+                            enhancementUI.Initialize();
+                            if (showDebugLogs)
+                                Debug.Log("🔨 [WorkshopUI] 강화 UI 초기화 완료");
+                        }
+                        else
+                        {
+                            Debug.LogError("🔴 [WorkshopUI] EnhancementUI 참조가 null입니다!");
+                        }
+                        
                         if (showDebugLogs)
                             Debug.Log("🔨 [WorkshopUI] 강화 패널 활성화");
                     }
@@ -157,6 +175,8 @@ namespace UI.Workshop
                     if (fusionSubPanel != null)
                     {
                         fusionSubPanel.SetActive(true);
+                        
+                        // TODO: Phase 2 - FusionUI.Initialize() 호출
                         if (showDebugLogs)
                             Debug.Log("⚗️ [WorkshopUI] 합성 패널 활성화");
                     }
@@ -166,6 +186,19 @@ namespace UI.Workshop
                     if (dismantleSubPanel != null)
                     {
                         dismantleSubPanel.SetActive(true);
+                        
+                        // ⭐ DismantleUI 명시적 초기화
+                        if (dismantleUI != null)
+                        {
+                            dismantleUI.Initialize();
+                            if (showDebugLogs)
+                                Debug.Log("🔧 [WorkshopUI] 분해 UI 초기화 완료");
+                        }
+                        else
+                        {
+                            Debug.LogError("🔴 [WorkshopUI] DismantleUI 참조가 null입니다!");
+                        }
+                        
                         if (showDebugLogs)
                             Debug.Log("🔧 [WorkshopUI] 분해 패널 활성화");
                     }

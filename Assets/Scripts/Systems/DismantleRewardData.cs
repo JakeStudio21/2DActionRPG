@@ -41,9 +41,8 @@ public class DismantleRewardData : ScriptableObject
     [Range(0f, 1f)]
     public float enhancementBonusPerLevel = 0.1f; // +1당 10% 추가
     
-    [Header("추가 재료")]
-    [Tooltip("분해 시 추가로 획득하는 골드")]
-    public int goldPerDismantle = 100;
+    // ⚠️ [삭제됨] 골드 보상 제거
+    // → 분해 시 골드는 지급하지 않음 (재료만 획득)
     
     /// <summary>
     /// 등급별 기본 재료량 가져오기 (8등급 지원)
@@ -108,11 +107,8 @@ public class DismantleRewardData : ScriptableObject
             rewards[materialType] = materialAmount;
         }
         
-        // 2. 골드
-        if (goldPerDismantle > 0)
-        {
-            rewards[MaterialType.Gold] = goldPerDismantle;
-        }
+        // ⚠️ [삭제됨] 골드 보상 제거
+        // → 분해 시 재료만 획득 (골드 제외)
         
         return rewards;
     }

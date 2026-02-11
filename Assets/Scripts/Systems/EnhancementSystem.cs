@@ -206,18 +206,18 @@ namespace Systems
                 
                 Debug.Log($"💎 [EnhancementSystem] 재료 소모: {materialType.GetDisplayName()} -{materialAmount}");
                 
-                // ⭐ 2. 골드 소모 (새 SO)
+                // ⭐ 2. 골드 소모 (새 SO) - V2 계정 공유 골드
                 int goldCost = LevelTable.GetGoldCost(targetLevel); // ⭐ 새 SO
-                if (playerData != null && playerData.IsSlotSelected)
+                
+                // ⭐ PlayerDataManager.SpendGold() 사용 (UI 이벤트 자동 발행)
+                if (!playerData.SpendGold(goldCost))
                 {
-                    var slotData = playerData.GetSlotData(playerData.CurrentSlotIndex);
-                    if (slotData != null)
-                    {
-                        slotData.gold -= goldCost;
-                        playerData.SaveSlotData(slotData);
-                        Debug.Log($"💰 [EnhancementSystem] 골드 소모: -{goldCost} (잔액: {slotData.gold})");
-                    }
+                    result.errorMessage = "골드 소모 실패";
+                    Debug.LogError($"❌ [EnhancementSystem] 골드 소모 실패: {goldCost}");
+                    return result;
                 }
+                
+                Debug.Log($"💰 [EnhancementSystem] 골드 소모: -{goldCost} (잔액: {playerData.CurrentGold})");
                 
                 // ⭐ 3. 성공/실패 판정 (새 SO)
                 float successRate = LevelTable.GetSuccessRate(targetLevel); // ⭐ 새 SO (0~100%)

@@ -226,6 +226,8 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // ⭐ 공방 환경 감지
         bool isInWorkshop = IsInWorkshopEnvironment();
         
+        Debug.Log($"🔍 [InventorySlot] OnSlotClicked - 공방 환경: {isInWorkshop}, 아이템: {(equipmentData != null ? equipmentData.equipmentName : "null")}, 다중 선택 모드: {isMultiSelectMode}");
+        
         if (isInWorkshop)
         {
             // 🏭 공방 환경: 선택 이벤트만 발생, 상세 패널 열지 않음
@@ -271,14 +273,19 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     private void HandleWorkshopClick()
     {
-        if (equipmentData == null) return;
+        if (equipmentData == null)
+        {
+            Debug.LogWarning("⚠️ [InventorySlot] HandleWorkshopClick: equipmentData가 null입니다!");
+            return;
+        }
         
-        if (showDebugLogs)
-            Debug.Log($"🏭 [InventorySlot] 공방에서 클릭: {equipmentData.equipmentName} (다중 선택: {isMultiSelectMode})");
+        // ⭐ 강제 로그 (디버깅용)
+        Debug.Log($"🏭 [InventorySlot] 공방에서 클릭: {equipmentData.equipmentName} (다중 선택 모드: {isMultiSelectMode}, 현재 선택: {isSelected})");
         
         // 다중 선택 모드: 토글 선택
         if (isMultiSelectMode)
         {
+            Debug.Log($"🔄 [InventorySlot] ToggleSelection() 호출 - 현재: {isSelected} → 변경 예정: {!isSelected}");
             ToggleSelection();
         }
         else
@@ -303,14 +310,8 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         }
     }
     
-    /// <summary>
-    /// 슬롯 선택 상태 설정
-    /// </summary>
-    public void SetSelected(bool selected)
-    {
-        isSelected = selected;
-        UpdateSlotVisual();
-    }
+    // ⚠️ [삭제됨] 오래된 SetSelected() 메서드
+    // → 1154번 줄의 새로운 SetSelected(bool, bool) 메서드를 사용하세요!
 
     /// <summary>
     /// 슬롯 비주얼 업데이트
@@ -1067,6 +1068,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void SetMultiSelectMode(bool enabled)
     {
+        bool wasMultiSelectMode = isMultiSelectMode;
         isMultiSelectMode = enabled;
         
         // 체크박스 표시/숨김
@@ -1075,8 +1077,17 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             selectionCheckbox.SetActive(enabled);
         }
         
+        // ⭐ 모드 전환 시 선택 상태 다시 적용 (표시 방식 변경)
+        if (wasMultiSelectMode != enabled && isSelected)
+        {
+            // 현재 선택 상태를 유지하면서 표시 방식만 변경
+            bool currentSelected = isSelected;
+            isSelected = !currentSelected; // 임시로 반대로 설정
+            SetSelected(currentSelected, notifyEvent: false); // 다시 설정하여 표시 방식 갱신
+        }
+        
         // 모드 해제 시 선택 초기화
-        if (!enabled)
+        if (!enabled && wasMultiSelectMode)
         {
             if (isSelected)
             {
@@ -1119,12 +1130,15 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void ToggleSelection()
     {
+        Debug.Log($"🔄 [InventorySlot] ToggleSelection() 호출 - 다중 선택 모드: {isMultiSelectMode}, 현재 선택: {isSelected}");
+        
         if (!isMultiSelectMode)
         {
             Debug.LogWarning("⚠️ [InventorySlot] 다중 선택 모드가 아닙니다!");
             return;
         }
         
+        Debug.Log($"🔄 [InventorySlot] SetSelected({!isSelected}) 호출 예정");
         SetSelected(!isSelected);
     }
     
@@ -1133,34 +1147,62 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void SetSelected(bool selected, bool notifyEvent = true)
     {
-        if (isSelected == selected) return; // 중복 호출 방지
+        Debug.Log($"🔍 [InventorySlot] SetSelected() 진입 - 요청: {selected}, 현재 isSelected: {isSelected}, 같은가? {isSelected == selected}");
         
-        isSelected = selected;
-        
-        // 체크마크 표시/숨김
-        if (selectionCheckmark != null)
+        if (isSelected == selected)
         {
-            selectionCheckmark.enabled = selected;
+            Debug.LogWarning($"⚠️ [InventorySlot] SetSelected() 조기 리턴 - 이미 같은 상태: {selected}");
+            return; // 중복 호출 방지
         }
         
-        // 하이라이트 표시
-        if (selectionHighlight != null)
+        Debug.Log($"✅ [InventorySlot] SetSelected() 계속 진행 - {isSelected} → {selected}");
+        isSelected = selected;
+        
+        // ⭐ 다중 선택 모드: Checkmark 사용
+        if (isMultiSelectMode)
         {
-            // ⭐ Image 컴포넌트 명시적 활성화
-            selectionHighlight.enabled = true;
-            
-            // ⭐ Inspector에서 설정한 색상 사용
-            Color highlightColor = selected 
-                ? highlightColorSelected     // Inspector에서 조절 가능
-                : highlightColorUnselected;  // 투명
-            
-            selectionHighlight.color = highlightColor;
-            
-            if (showDebugLogs)
+            // 체크마크 표시/숨김
+            if (selectionCheckmark != null)
             {
-                Debug.Log($"🎨 [InventorySlot] SelectionHighlight 색상 설정: " +
-                         $"R={highlightColor.r:F2}, G={highlightColor.g:F2}, B={highlightColor.b:F2}, A={highlightColor.a:F2} " +
-                         $"| Enabled: {selectionHighlight.enabled}");
+                selectionCheckmark.enabled = selected;
+                Debug.Log($"✅ [InventorySlot] Checkmark 설정: {(selected ? "표시" : "숨김")} | enabled: {selectionCheckmark.enabled}, gameObject.activeSelf: {selectionCheckmark.gameObject.activeSelf}");
+            }
+            else
+            {
+                Debug.LogError($"❌ [InventorySlot] selectionCheckmark가 null입니다!");
+            }
+            
+            // 하이라이트는 사용 안 함
+            if (selectionHighlight != null)
+            {
+                selectionHighlight.enabled = false;
+            }
+        }
+        // ⭐ 단일 선택 모드: SelectionHighlight 사용
+        else
+        {
+            // 체크마크는 사용 안 함
+            if (selectionCheckmark != null)
+            {
+                selectionCheckmark.enabled = false;
+            }
+            
+            // 하이라이트 표시
+            if (selectionHighlight != null)
+            {
+                selectionHighlight.enabled = true;
+                
+                Color highlightColor = selected 
+                    ? highlightColorSelected
+                    : highlightColorUnselected;
+                
+                selectionHighlight.color = highlightColor;
+                
+                if (showDebugLogs)
+                {
+                    Debug.Log($"🎨 [InventorySlot] SelectionHighlight 색상 설정: " +
+                             $"R={highlightColor.r:F2}, G={highlightColor.g:F2}, B={highlightColor.b:F2}, A={highlightColor.a:F2}");
+                }
             }
         }
         
@@ -1168,10 +1210,10 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         if (notifyEvent)
         {
             OnSelectionChanged?.Invoke(itemInstanceId, selected);
+            Debug.Log($"📣 [InventorySlot] OnSelectionChanged 이벤트 발생: {itemInstanceId}, selected: {selected}");
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔘 [InventorySlot] 선택 상태 변경: {equipmentData?.equipmentName} → {(selected ? "선택됨" : "해제됨")}");
+        Debug.Log($"🔘 [InventorySlot] 선택 상태 변경: {equipmentData?.equipmentName} → {(selected ? "선택됨" : "해제됨")} (모드: {(isMultiSelectMode ? "다중" : "단일")})");
     }
     
     /// <summary>

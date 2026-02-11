@@ -49,6 +49,7 @@ namespace UI.Workshop
         
         [Header("📊 하단 정보")]
         [SerializeField] private TMP_Text itemCountText;
+        [SerializeField] private TMP_Text playerGoldText; // ⭐ 플레이어 보유 골드 표시
         
         [Header("🔗 연동 컴포넌트")]
         [SerializeField] private EnhancementUI enhancementUI;
@@ -130,6 +131,17 @@ namespace UI.Workshop
             }
             else
             {
+                Debug.LogWarning("⚠️ [WorkshopInventoryUI] AccountDataManager.Instance가 null입니다!");
+            }
+            
+            // ⭐ 골드 변경 이벤트 구독 (실시간 갱신)
+            if (PlayerDataManager.Instance != null)
+            {
+                PlayerDataManager.Instance.OnGoldChanged += OnGoldChangedHandler;
+                Debug.Log("✅ [WorkshopInventoryUI] PlayerDataManager.OnGoldChanged 구독 완료");
+            }
+            else
+            {
                 Debug.LogError("❌ [WorkshopInventoryUI] AccountDataManager.Instance가 null입니다!");
             }
         }
@@ -157,6 +169,15 @@ namespace UI.Workshop
                 if (showDebugLogs)
                     Debug.Log("🔄 [WorkshopInventoryUI] AccountDataManager 이벤트 구독 해제");
             }
+            
+            // ⭐ 골드 변경 이벤트 구독 해제
+            if (PlayerDataManager.Instance != null)
+            {
+                PlayerDataManager.Instance.OnGoldChanged -= OnGoldChangedHandler;
+                
+                if (showDebugLogs)
+                    Debug.Log("🔄 [WorkshopInventoryUI] PlayerDataManager 이벤트 구독 해제");
+            }
         }
         
         /// <summary>
@@ -164,16 +185,20 @@ namespace UI.Workshop
         /// </summary>
         private void OnWorkshopTabChanged(WorkshopUI.WorkshopTabType newTab)
         {
+            if (showDebugLogs)
+                Debug.Log($"🔄 [WorkshopInventoryUI] 공방 탭 변경: {currentWorkshopTab} → {newTab}");
+            
+            // ⭐ 선택 초기화 먼저 (이전 모드에서 선택 해제)
+            ClearSelection();
+            
+            // 탭 변경
             currentWorkshopTab = newTab;
             
-            if (showDebugLogs)
-                Debug.Log($"🔄 [WorkshopInventoryUI] 공방 탭 변경: {newTab}");
-            
-            // 탭별 UI 조정
+            // ⭐ 탭별 UI 조정 (새 모드 설정)
             UpdateUIForCurrentTab();
             
-            // 선택 초기화
-            ClearSelection();
+            if (showDebugLogs)
+                Debug.Log($"✅ [WorkshopInventoryUI] 탭 변경 완료: {newTab}");
         }
         
         /// <summary>
@@ -197,14 +222,24 @@ namespace UI.Workshop
             if (excludeEquippedToggle != null)
                 excludeEquippedToggle.gameObject.SetActive(!isEnhancementTab);
             
-            // 다중 선택 토글 숨김/표시
+            // ⭐ 다중 선택 토글 항상 숨김 (분해/합성은 자동으로 다중 선택)
             if (multiSelectModeToggle != null)
-                multiSelectModeToggle.gameObject.SetActive(!isEnhancementTab);
+                multiSelectModeToggle.gameObject.SetActive(false);
             
-            // 강화 탭은 항상 단일 선택 모드
+            // ⭐ 탭에 따라 선택 모드 자동 설정
             if (isEnhancementTab)
             {
+                // 강화: 단일 선택 (SelectionHighlight)
                 SetMultiSelectMode(false);
+                if (showDebugLogs)
+                    Debug.Log("🔨 [WorkshopInventoryUI] 강화 탭 → 단일 선택 모드");
+            }
+            else
+            {
+                // 분해/합성: 다중 선택 (SelectionCheckbox)
+                SetMultiSelectMode(true);
+                if (showDebugLogs)
+                    Debug.Log("🔧 [WorkshopInventoryUI] 분해/합성 탭 → 다중 선택 모드");
             }
             
             // 모든 슬롯의 체크박스 표시/숨김 갱신
@@ -263,6 +298,17 @@ namespace UI.Workshop
         }
         
         /// <summary>
+        /// ⭐ 골드 변경 이벤트 핸들러
+        /// </summary>
+        private void OnGoldChangedHandler(int newGold)
+        {
+            UpdatePlayerGoldDisplay();
+            
+            if (showDebugLogs)
+                Debug.Log($"🔔 [WorkshopInventoryUI] 골드 변경 감지: {newGold:N0}G - 표시 갱신");
+        }
+        
+        /// <summary>
         /// UI 초기화
         /// </summary>
         private void InitializeUI()
@@ -285,6 +331,9 @@ namespace UI.Workshop
             
             // 다중 선택 모드 초기 비활성화
             SetMultiSelectMode(false);
+            
+            // ⭐ 초기 골드 표시
+            UpdatePlayerGoldDisplay();
         }
         
         /// <summary>
@@ -806,6 +855,49 @@ namespace UI.Workshop
         /// </summary>
         public void SelectAllByGrade(ItemGrade grade)
         {
+            if (showDebugLogs)
+                Debug.Log($"🎯 [WorkshopInventoryUI] {grade}등급 일괄 선택 시작");
+            
+            // ⭐ 같은 등급 재선택 시 토글(해제)
+            bool alreadySelectedAll = true;
+            foreach (var slot in inventorySlots)
+            {
+                var itemData = slot.GetEquipmentData();
+                if (itemData != null && itemData.itemGrade == grade)
+                {
+                    if (!slot.IsSelected())
+                    {
+                        alreadySelectedAll = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (alreadySelectedAll && selectedItems.Count > 0)
+            {
+                // 같은 등급 전체가 이미 선택되어 있으면 해제
+                if (showDebugLogs)
+                    Debug.Log($"🔄 [WorkshopInventoryUI] {grade}등급 이미 선택됨 → 해제");
+                
+                foreach (var slot in inventorySlots)
+                {
+                    var itemData = slot.GetEquipmentData();
+                    if (itemData != null && itemData.itemGrade == grade)
+                    {
+                        slot.SetSelected(false, notifyEvent: false);
+                        selectedItems.Remove(slot.GetItemInstanceId());
+                    }
+                }
+                
+                UpdateSelectionUI();
+                OnSelectionChanged?.Invoke(selectedItems);
+                
+                if (showDebugLogs)
+                    Debug.Log($"✅ [WorkshopInventoryUI] {grade}등급 해제 완료, selectedItems.Count={selectedItems.Count}");
+                
+                return;
+            }
+            
             // 다중 선택 모드 활성화
             if (!isMultiSelectMode)
             {
@@ -873,17 +965,29 @@ namespace UI.Workshop
                         }
                     }
                     
-                    slot.SetSelected(true);
+                    // ⭐ 개별 이벤트는 발생시키지 않음 (마지막에 한 번만 발생)
+                    slot.SetSelected(true, notifyEvent: false);
+                    
+                    // ⭐ selectedItems에 수동으로 추가 (이벤트 미발생이므로)
+                    if (!selectedItems.Contains(itemId))
+                    {
+                        selectedItems.Add(itemId);
+                    }
+                    
                     selectedCount++;
                 }
             }
             
+            // ⭐ 선택 완료 후 한 번만 UI 갱신 및 이벤트 발생
+            UpdateSelectionUI();
+            OnSelectionChanged?.Invoke(selectedItems);
+            
             if (showDebugLogs)
             {
                 if (isFusionTab)
-                    Debug.Log($"⚗️ [WorkshopInventoryUI] {grade}등급 일괄 선택 (합성): {selectedCount}/{requiredCount}개 (강화 +0만)");
+                    Debug.Log($"⚗️ [WorkshopInventoryUI] {grade}등급 일괄 선택 완료: {selectedCount}/{requiredCount}개 (강화 +0만), selectedItems.Count={selectedItems.Count}");
                 else
-                    Debug.Log($"🔘 [WorkshopInventoryUI] {grade}등급 일괄 선택: {selectedCount}개");
+                    Debug.Log($"🔘 [WorkshopInventoryUI] {grade}등급 일괄 선택 완료: {selectedCount}개, selectedItems.Count={selectedItems.Count}");
             }
         }
         
@@ -896,15 +1000,18 @@ namespace UI.Workshop
             {
                 if (slot.IsSelected())
                 {
-                    slot.SetSelected(false);
+                    slot.SetSelected(false, notifyEvent: false); // ⭐ 개별 이벤트는 발생시키지 않음
                 }
             }
             
             selectedItems.Clear();
             UpdateSelectionUI();
             
+            // ⭐ 선택 초기화 이벤트 발생 (빈 리스트)
+            OnSelectionChanged?.Invoke(new List<ItemInstanceId>());
+            
             if (showDebugLogs)
-                Debug.Log("🔘 [WorkshopInventoryUI] 선택 초기화");
+                Debug.Log("✅ [WorkshopInventoryUI] 선택 초기화 완료 - 이벤트 발생");
         }
         
         /// <summary>
@@ -921,6 +1028,26 @@ namespace UI.Workshop
         public bool IsMultiSelectMode()
         {
             return isMultiSelectMode;
+        }
+        
+        /// <summary>
+        /// ⭐ 플레이어 보유 골드 표시 업데이트
+        /// </summary>
+        private void UpdatePlayerGoldDisplay()
+        {
+            if (playerGoldText != null && PlayerDataManager.Instance != null)
+            {
+                int currentGold = PlayerDataManager.Instance.CurrentGold;
+                playerGoldText.text = $"{currentGold:N0}"; // 천 단위 쉼표 포함
+                
+                if (showDebugLogs)
+                    Debug.Log($"💰 [WorkshopInventoryUI] 골드 표시 업데이트: {currentGold:N0}G");
+            }
+            else
+            {
+                if (playerGoldText == null && showDebugLogs)
+                    Debug.LogWarning("⚠️ [WorkshopInventoryUI] playerGoldText가 null입니다! Inspector에서 연결하세요.");
+            }
         }
     }
     

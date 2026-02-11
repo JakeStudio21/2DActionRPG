@@ -176,7 +176,7 @@ namespace Systems
                 // 3-2. 아이템 인스턴스 삭제
                 account.RemoveInstance(instanceId);
                 
-                // 3-3. 재료 추가
+                // 3-3. 재료 추가 (골드 제외)
                 foreach (var reward in rewards)
                 {
                     account.AddMaterial(reward.Key, reward.Value);
