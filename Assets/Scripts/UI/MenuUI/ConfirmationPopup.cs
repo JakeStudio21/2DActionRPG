@@ -188,19 +188,32 @@ public class ConfirmationPopup : MonoBehaviour
     {
         Debug.Log("[ConfirmationPopup] 확인 버튼 클릭");
         
-        // 콜백 실행
-        if (onConfirmCallback != null)
-        {
-            onConfirmCallback.Invoke();
-            Debug.Log("[ConfirmationPopup] ✅ 확인 콜백 실행 완료");
-        }
-        else
-        {
-            Debug.LogWarning("[ConfirmationPopup] ⚠️ 확인 콜백이 null입니다.");
-        }
+        // ⭐ 콜백이 다시 Show()를 호출할 수 있으므로, Hide()를 1프레임 지연
+        Action callbackToExecute = onConfirmCallback;
         
-        // 팝업 닫기
+        // 콜백 초기화 (다음 Show()에서 덮어씌워짐)
+        onConfirmCallback = null;
+        onCancelCallback = null;
+        
+        // 팝업 먼저 닫기
         Hide();
+        
+        // 1프레임 후 콜백 실행 (콜백 내부에서 다시 Show() 호출 가능)
+        if (callbackToExecute != null)
+        {
+            StartCoroutine(ExecuteCallbackDelayed(callbackToExecute));
+        }
+    }
+    
+    /// <summary>
+    /// 콜백을 1프레임 지연 실행 (팝업 체이닝 지원)
+    /// </summary>
+    private System.Collections.IEnumerator ExecuteCallbackDelayed(Action callback)
+    {
+        yield return null; // 1프레임 대기
+        
+        callback?.Invoke();
+        Debug.Log("[ConfirmationPopup] ✅ 확인 콜백 실행 완료 (1프레임 지연)");
     }
     
     /// <summary>

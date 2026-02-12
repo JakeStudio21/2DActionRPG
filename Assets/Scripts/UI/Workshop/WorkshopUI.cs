@@ -52,8 +52,8 @@ namespace UI.Workshop
         
         [Header("🎮 UI Controllers")]
         [SerializeField] private EnhancementUI enhancementUI;
+        [SerializeField] private FusionUI fusionUI;
         [SerializeField] private DismantleUI dismantleUI;
-        // private FusionUI fusionUI; // Phase 2
         
         [Header("📊 디버그")]
         [SerializeField] private bool showDebugLogs = false;
@@ -176,7 +176,18 @@ namespace UI.Workshop
                     {
                         fusionSubPanel.SetActive(true);
                         
-                        // TODO: Phase 2 - FusionUI.Initialize() 호출
+                        // ⭐ FusionUI 명시적 초기화 (탭 전환 시 상태 초기화)
+                        if (fusionUI != null)
+                        {
+                            fusionUI.Initialize();
+                            if (showDebugLogs)
+                                Debug.Log("⚗️ [WorkshopUI] 합성 UI 초기화 완료");
+                        }
+                        else
+                        {
+                            Debug.LogError("🔴 [WorkshopUI] FusionUI 참조가 null입니다!");
+                        }
+                        
                         if (showDebugLogs)
                             Debug.Log("⚗️ [WorkshopUI] 합성 패널 활성화");
                     }

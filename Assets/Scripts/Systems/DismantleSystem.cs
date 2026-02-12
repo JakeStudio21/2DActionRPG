@@ -192,6 +192,12 @@ namespace Systems
                 // 3-5. 저장
                 account.Save();
                 
+                // 3-6. ⭐ UI 이벤트 발생 (상점 UI 갱신용)
+                if (PlayerDataManager.Instance != null)
+                {
+                    PlayerDataManager.Instance.NotifyInventoryChanged();
+                }
+                
                 Debug.Log($"✅ [DismantleSystem] 분해 완료: {itemData.templateName} → {string.Join(", ", rewards)}");
                 
                 return rewards;

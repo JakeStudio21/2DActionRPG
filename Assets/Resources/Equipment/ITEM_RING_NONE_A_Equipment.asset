@@ -27,7 +27,7 @@ MonoBehaviour:
   weaponCooldown: 1
   weaponRange: 5
   armorType: 0
-  accessoryType: 0
+  accessoryType: 1
   attackDamage: 25
   attackSpeed: 1
   attackRange: 1

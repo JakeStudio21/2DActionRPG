@@ -88,8 +88,10 @@ namespace Systems
                 return false;
             }
 
-            // 5. 모든 아이템이 동일한지 확인
-            string targetTemplate = firstItem.templateName;
+            // 5. 같은 등급 + 같은 EquipmentType 확인 (클래스 무관)
+            ItemGrade targetGrade = firstTemplate.itemGrade;
+            EquipmentType targetType = firstTemplate.equipmentType;
+
             foreach (var materialId in materialIds)
             {
                 var itemData = account.GetInstance(materialId);
@@ -99,11 +101,28 @@ namespace Systems
                     return false;
                 }
 
-                if (itemData.templateName != targetTemplate)
+                var template = ItemTemplateResolver.Load(itemData.templateName);
+                if (template == null)
                 {
-                    reason = "모든 재료는 동일한 아이템이어야 합니다.";
+                    reason = $"재료 템플릿을 찾을 수 없습니다: {itemData.templateName}";
                     return false;
                 }
+
+                // 등급 체크
+                if (template.itemGrade != targetGrade)
+                {
+                    reason = "모든 재료는 같은 등급이어야 합니다.";
+                    return false;
+                }
+
+                // 장비 타입 체크 (Weapon/Armor/Belt/Boots/Gloves/Ring/Helmet/Necklace)
+                if (template.equipmentType != targetType)
+                {
+                    reason = "모든 재료는 같은 장비 종류여야 합니다.";
+                    return false;
+                }
+
+                // 클래스는 체크하지 않음 (Warrior/Assasin/Wizard 혼합 가능)
             }
 
             // 6. 장착 중인 아이템 확인
@@ -128,16 +147,13 @@ namespace Systems
                 }
             }
 
-            // 7. 골드 확인
+            // 7. ⭐ 골드 확인 (PlayerDataManager.CurrentGold 사용)
             int fusionCost = Rule.GetFusionCost(firstTemplate.itemGrade);
-            if (PlayerDataManager.Instance != null)
+            int currentGold = PlayerDataManager.Instance.CurrentGold;
+            if (currentGold < fusionCost)
             {
-                var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
-                if (slotData != null && slotData.gold < fusionCost)
-                {
-                    reason = $"골드가 부족합니다. (필요: {fusionCost}, 보유: {slotData.gold})";
-                    return false;
-                }
+                reason = $"골드가 부족합니다. (필요: {fusionCost}, 보유: {currentGold})";
+                return false;
             }
 
             return true;
@@ -182,30 +198,43 @@ namespace Systems
             var account = AccountDataManager.Instance;
             var playerData = PlayerDataManager.Instance;
 
-            // 첫 번째 아이템 정보 가져오기
-            var firstItem = account.GetInstance(materialIds[0]);
-            var firstTemplate = ItemTemplateResolver.Load(firstItem.templateName);
+            // 📌 결과물 결정: materialIds[0]를 기준으로 상위 등급 생성 (명확성 우선)
+            // - 개별 선택 모드: UI가 "첫 선택 = 결과물"을 보장
+            // - 일괄 선택 모드: UI가 자동으로 정렬하여 전달
+            var baseItem = account.GetInstance(materialIds[0]);
+            var baseTemplate = ItemTemplateResolver.Load(baseItem.templateName);
 
             // 결과 아이템 등급 결정
-            ItemGrade nextGrade = Rule.GetNextGrade(firstTemplate.itemGrade);
+            ItemGrade nextGrade = Rule.GetNextGrade(baseTemplate.itemGrade);
             
-            // 결과 아이템 템플릿 이름 생성 (등급만 변경)
-            string resultTemplateName = firstItem.templateName.Replace($"_{firstTemplate.itemGrade}_", $"_{nextGrade}_");
+            // ⭐ 결과 아이템 템플릿 이름 생성 (등급만 변경, 클래스 유지)
+            // 예: "Helmet_Warrior_D" → "Helmet_Warrior_C"
+            // 마지막 언더스코어 이후 등급 문자열 교체 (가장 안전한 방법)
+            string templateName = baseItem.templateName;
+            string resultTemplateName = templateName;
+            
+            int lastUnderscoreIndex = templateName.LastIndexOf('_');
+            if (lastUnderscoreIndex >= 0)
+            {
+                string prefix = templateName.Substring(0, lastUnderscoreIndex + 1); // "Helmet_Warrior_"
+                resultTemplateName = prefix + nextGrade.ToString(); // "Helmet_Warrior_C"
+            }
+            else
+            {
+                // 언더스코어가 없으면 그냥 뒤에 추가
+                resultTemplateName = templateName + "_" + nextGrade.ToString();
+            }
 
             try
             {
-                // 1. 골드 소모
-                int fusionCost = Rule.GetFusionCost(firstTemplate.itemGrade);
-                if (playerData != null)
+                // 1. ⭐ 골드 소모 (PlayerDataManager.SpendGold 사용 필수! UI 이벤트 발생)
+                int fusionCost = Rule.GetFusionCost(baseTemplate.itemGrade);
+                if (!PlayerDataManager.Instance.SpendGold(fusionCost))
                 {
-                    var slotData = playerData.GetCurrentSlotData();
-                    if (slotData != null)
-                    {
-                        slotData.gold -= fusionCost;
-                        playerData.SaveSlotData(slotData);
-                        Debug.Log($"💰 [FusionSystem] 골드 소모: -{fusionCost} (잔액: {slotData.gold})");
-                    }
+                    Debug.LogError($"❌ [FusionSystem] 골드 소모 실패: {fusionCost} (잔액 부족)");
+                    return false;
                 }
+                Debug.Log($"💰 [FusionSystem] 골드 소모: -{fusionCost}");
 
                 // 2. 재료 아이템 삭제
                 foreach (var materialId in materialIds)
@@ -223,21 +252,22 @@ namespace Systems
                 var resultData = account.GetInstance(resultId);
                 resultData.enhancementLevel = 0; // 강화 초기화 (이미 참조로 수정됨)
 
-                // 4. 결과 아이템을 캐릭터 가방에 추가
-                if (playerData != null && playerData.IsSlotSelected)
-                {
-                    var slotData = playerData.GetCurrentSlotData();
-                    if (slotData != null)
-                    {
-                        slotData.characterBagInstanceIds.Add(resultId);
-                        playerData.SaveSlotData(slotData);
-                    }
-                }
+                // 4. ⭐ 결과 아이템을 계정 공유 창고에 추가 (로비 공방/보관창고에서 표시)
+                var accountData = account.GetAccountData();
+                accountData.sharedInventoryIds.Add(resultId);
+                Debug.Log($"📦 [FusionSystem] 결과 아이템 추가: {resultTemplateName} (ID: {resultId})");
 
                 // 5. 저장
                 account.Save();
                 
-                Debug.Log($"✨ [FusionSystem] 합성 성공: {firstTemplate.itemGrade} x{materialIds.Count} → {nextGrade} (ID: {resultId})");
+                // 6. ⭐ UI 이벤트 발생 (상점 UI 갱신용)
+                if (PlayerDataManager.Instance != null)
+                {
+                    PlayerDataManager.Instance.NotifyInventoryChanged();
+                    Debug.Log("🔔 [FusionSystem] OnInventoryChanged 이벤트 발생 (상점 UI 갱신)");
+                }
+                
+                Debug.Log($"✨ [FusionSystem] 합성 성공: {baseTemplate.itemGrade} {baseTemplate.equipmentType} x{materialIds.Count} → {nextGrade} {baseTemplate.equipmentType} (결과 ID: {resultId})");
                 return true;
             }
             catch (System.Exception ex)

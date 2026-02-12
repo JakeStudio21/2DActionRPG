@@ -284,6 +284,12 @@ namespace Systems
                 // 5. 저장
                 account.Save();
                 
+                // 6. ⭐ UI 이벤트 발생 (상점 UI 갱신용)
+                if (PlayerDataManager.Instance != null)
+                {
+                    PlayerDataManager.Instance.NotifyInventoryChanged();
+                }
+                
                 return result;
             }
             catch (System.Exception ex)

@@ -63,6 +63,9 @@ namespace UI.Workshop
         private bool isMultiSelectMode = false;
         private InventorySlot lastSelectedSlot = null; // 단일 선택 시 마지막 선택 슬롯
         
+        // ⭐ 선택 모드 추적 (개별 클릭 vs 일괄 선택)
+        public bool IsIndividualSelectionMode { get; private set; } = false;
+        
         // 이벤트
         public event Action<List<ItemInstanceId>> OnSelectionChanged;
         public event Action<ItemInstanceId> OnSingleItemSelected; // 단일 선택 시
@@ -705,17 +708,17 @@ namespace UI.Workshop
         {
             if (selected)
             {
-                // ⭐ 합성 탭: 같은 등급만 선택 가능 (다중 선택 모드)
+                // ⭐ 합성 탭: 같은 등급 + 같은 타입만 선택 가능 (다중 선택 모드)
                 if (isMultiSelectMode && currentWorkshopTab == WorkshopUI.WorkshopTabType.Fusion && selectedItems.Count > 0)
                 {
-                    // 현재 선택하려는 아이템의 등급
+                    // 현재 선택하려는 아이템의 등급 + 타입
                     var newItemInstance = AccountDataManager.Instance.GetInstance(itemId);
                     if (newItemInstance != null)
                     {
                         var newItemData = ItemTemplateResolver.Load(newItemInstance.templateName);
                         if (newItemData != null)
                         {
-                            // 기존 선택된 아이템들의 등급 확인
+                            // 기존 선택된 아이템들의 등급 + 타입 확인
                             var firstSelectedId = selectedItems[0];
                             var firstItemInstance = AccountDataManager.Instance.GetInstance(firstSelectedId);
                             if (firstItemInstance != null)
@@ -723,17 +726,88 @@ namespace UI.Workshop
                                 var firstItemData = ItemTemplateResolver.Load(firstItemInstance.templateName);
                                 if (firstItemData != null)
                                 {
-                                    // 등급이 다르면 이전 선택 모두 초기화
-                                    if (newItemData.itemGrade != firstItemData.itemGrade)
+                                    // ⭐ 선택 초기화 여부 판단
+                                    bool shouldClear = false;
+                                    string clearReason = "";
+                                    
+                                    if (IsIndividualSelectionMode)
                                     {
-                                        if (showDebugLogs)
-                                            Debug.Log($"⚗️ [WorkshopInventoryUI] 합성 탭 - 다른 등급 선택 감지! {firstItemData.itemGrade} → {newItemData.itemGrade}");
+                                        // ⭐ 개별 클릭 모드: 등급 또는 세부타입이 다르면 초기화
+                                        string newDetailedType = GetDetailedEquipmentType(newItemData);
+                                        string firstDetailedType = GetDetailedEquipmentType(firstItemData);
                                         
-                                        // 모든 선택 해제
-                                        ClearSelection();
+                                        if (newItemData.itemGrade != firstItemData.itemGrade)
+                                        {
+                                            shouldClear = true;
+                                            clearReason = "다른 등급";
+                                        }
+                                        else if (newDetailedType != firstDetailedType)
+                                        {
+                                            shouldClear = true;
+                                            clearReason = "다른 세부타입";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // ⭐ 일괄 선택 모드: 등급만 체크 (세부타입 무관)
+                                        if (newItemData.itemGrade != firstItemData.itemGrade)
+                                        {
+                                            shouldClear = true;
+                                            clearReason = "다른 등급";
+                                        }
+                                    }
+                                    
+                                    if (shouldClear)
+                                    {
+                                        Debug.Log($"🚨 [WorkshopInventoryUI] 합성 탭 - {clearReason} 선택 감지!");
+                                        Debug.Log($"   이전: {firstItemData.itemGrade} {GetDetailedEquipmentType(firstItemData)} ({firstItemData.equipmentName})");
+                                        Debug.Log($"   새로: {newItemData.itemGrade} {GetDetailedEquipmentType(newItemData)} ({newItemData.equipmentName})");
+                                        Debug.Log($"   현재 selectedItems.Count: {selectedItems.Count}");
                                         
-                                        if (showDebugLogs)
-                                            Debug.Log($"✅ [WorkshopInventoryUI] 이전 선택 초기화 완료, 새 등급 {newItemData.itemGrade} 선택 시작");
+                                        // ⭐ 완전 초기화: 모든 슬롯 선택 해제 (현재 클릭한 슬롯 포함)
+                                        int clearedCount = 0;
+                                        foreach (var slot in inventorySlots)
+                                        {
+                                            if (slot.IsSelected())
+                                            {
+                                                slot.SetSelected(false, notifyEvent: false);
+                                                clearedCount++;
+                                            }
+                                        }
+                                        Debug.Log($"   → {clearedCount}개 슬롯 선택 해제 완료");
+                                        
+                                        // 선택 리스트 완전 초기화
+                                        selectedItems.Clear();
+                                        
+                                        // ⭐ 개별 클릭 모드 유지 (등급 전환도 개별 클릭)
+                                        IsIndividualSelectionMode = true;
+                                        
+                                        Debug.Log($"   → selectedItems.Clear() 완료, IsIndividualSelectionMode=true");
+                                        
+                                        // ⭐ UI 즉시 갱신 (어둡게 처리 해제)
+                                        UpdateSelectionUI();
+                                        Debug.Log($"   → UpdateSelectionUI() 완료 (모든 슬롯 밝게)");
+                                        
+                                        // ⭐ 현재 클릭한 슬롯만 다시 선택 (notifyEvent: false로 재귀 방지)
+                                        InventorySlot currentSlot = FindSlotByItemId(itemId);
+                                        if (currentSlot != null)
+                                        {
+                                            currentSlot.SetSelected(true, notifyEvent: false);
+                                            selectedItems.Add(itemId);
+                                            Debug.Log($"   → 새 슬롯 선택 완료: {newItemData.equipmentName}");
+                                        }
+                                        else
+                                        {
+                                            Debug.LogError($"   ❌ currentSlot이 null!");
+                                        }
+                                        
+                                        // ⭐ 최종 UI 갱신 및 이벤트 발생
+                                        UpdateSelectionUI();
+                                        OnSelectionChanged?.Invoke(selectedItems);
+                                        Debug.Log($"✅ [WorkshopInventoryUI] 등급/타입 전환 완료 - selectedItems.Count: {selectedItems.Count}");
+                                        
+                                        // ⭐ 여기서 메서드 종료 (아래 중복 로직 실행 방지)
+                                        return;
                                     }
                                 }
                             }
@@ -744,6 +818,9 @@ namespace UI.Workshop
                 // ⭐ 단일 선택 모드: 이전 선택 해제
                 if (!isMultiSelectMode)
                 {
+                    // ⭐ 개별 클릭 모드 활성화
+                    IsIndividualSelectionMode = true;
+                    
                     // 이전 선택 슬롯 해제
                     if (lastSelectedSlot != null && lastSelectedSlot.GetItemInstanceId() != itemId)
                     {
@@ -780,13 +857,16 @@ namespace UI.Workshop
                 }
                 else
                 {
-                    // 다중 선택 모드: 리스트에 추가
+                    // ⭐ 다중 선택 모드: 리스트에 추가 (개별 클릭)
+                    // Fusion 탭에서도 개별 클릭 추적!
+                    IsIndividualSelectionMode = true;
+                    
                     if (!selectedItems.Contains(itemId))
                     {
                         selectedItems.Add(itemId);
                         
                         if (showDebugLogs)
-                            Debug.Log($"🔘 [WorkshopInventoryUI] 아이템 선택 (다중): {itemId}");
+                            Debug.Log($"🔘 [WorkshopInventoryUI] 아이템 선택 (다중): {itemId}, IsIndividualSelectionMode=true");
                     }
                 }
             }
@@ -835,6 +915,29 @@ namespace UI.Workshop
         }
         
         /// <summary>
+        /// 장비의 세부 타입 문자열 반환 (합성용)
+        /// - Weapon: 모든 무기(Sword/Bow/Magic) 통합 취급 (클래스 무관)
+        /// - Armor: Helmet/Armor/Boots 등 세부 구분
+        /// - Accessory: Ring/Necklace 등 세부 구분
+        /// </summary>
+        private string GetDetailedEquipmentType(EquipmentData equipData)
+        {
+            switch (equipData.equipmentType)
+            {
+                case EquipmentType.Weapon:
+                    // ⭐ 무기는 예외: Sword/Bow/Magic 모두 "Weapon"으로 통합
+                    // → Warrior 검 + Assassin 활 + Wizard 지팡이 합성 가능!
+                    return "Weapon";
+                case EquipmentType.Armor:
+                    return $"Armor_{equipData.ArmorType}";
+                case EquipmentType.Accessory:
+                    return $"Accessory_{equipData.AccessoryType}";
+                default:
+                    return equipData.equipmentType.ToString();
+            }
+        }
+        
+        /// <summary>
         /// 선택 정보 UI 갱신
         /// </summary>
         private void UpdateSelectionUI()
@@ -848,6 +951,58 @@ namespace UI.Workshop
             {
                 clearSelectionButton.interactable = selectedItems.Count > 0;
             }
+
+            // ⭐ 합성 탭: 선택된 아이템과 같은 등급 (+ 개별 클릭 시 같은 분류)만 밝게 표시
+            if (currentWorkshopTab == WorkshopUI.WorkshopTabType.Fusion && selectedItems.Count > 0)
+            {
+                // 첫 번째 선택 아이템의 등급 + 세부타입 기준
+                var firstSelectedId = selectedItems[0];
+                var firstItemInstance = AccountDataManager.Instance.GetInstance(firstSelectedId);
+                if (firstItemInstance != null)
+                {
+                    var firstItemData = ItemTemplateResolver.Load(firstItemInstance.templateName);
+                    if (firstItemData != null)
+                    {
+                        ItemGrade targetGrade = firstItemData.itemGrade;
+                        string targetDetailedType = GetDetailedEquipmentType(firstItemData); // ⭐ 세부타입 추가
+
+                        if (showDebugLogs)
+                            Debug.Log($"🔍 [WorkshopInventoryUI] UpdateSelectionUI - 타겟: {targetGrade} {targetDetailedType}, IsIndividualSelectionMode={IsIndividualSelectionMode}");
+
+                        // 모든 슬롯 검사
+                        foreach (var slot in inventorySlots)
+                        {
+                            var slotData = slot.GetEquipmentData();
+                            if (slotData != null)
+                            {
+                                bool isMatching = false;
+
+                                // ⭐ 개별 클릭 모드: 등급 + 세부타입 둘 다 체크
+                                if (IsIndividualSelectionMode)
+                                {
+                                    string slotDetailedType = GetDetailedEquipmentType(slotData);
+                                    isMatching = (slotData.itemGrade == targetGrade && slotDetailedType == targetDetailedType);
+                                }
+                                // ⭐ 일괄 선택 모드: 등급만 체크 (여러 타입 허용)
+                                else
+                                {
+                                    isMatching = (slotData.itemGrade == targetGrade);
+                                }
+
+                                slot.SetDimmed(!isMatching);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // 합성 탭이 아니거나 선택이 없으면 모든 슬롯 밝게
+                foreach (var slot in inventorySlots)
+                {
+                    slot.SetDimmed(false);
+                }
+            }
         }
         
         /// <summary>
@@ -857,6 +1012,12 @@ namespace UI.Workshop
         {
             if (showDebugLogs)
                 Debug.Log($"🎯 [WorkshopInventoryUI] {grade}등급 일괄 선택 시작");
+            
+            // ⭐ 0단계: 기존 선택 완전 초기화 (다른 등급 선택 시 깔끔하게 시작)
+            ClearSelection();
+            
+            if (showDebugLogs)
+                Debug.Log($"   0단계: 기존 선택 완전 초기화 완료");
             
             // ⭐ 같은 등급 재선택 시 토글(해제)
             bool alreadySelectedAll = true;
@@ -898,6 +1059,9 @@ namespace UI.Workshop
                 return;
             }
             
+            // ⭐ 일괄 선택 모드 활성화
+            IsIndividualSelectionMode = false; // 일괄 선택 = 개별 클릭 아님
+            
             // 다중 선택 모드 활성화
             if (!isMultiSelectMode)
             {
@@ -912,9 +1076,10 @@ namespace UI.Workshop
             var equippedIds = PlayerDataManager.Instance.selectedPlayerData
                 .RuntimeEquippedInstanceIds.Values.ToList();
             
-            // ⭐ 합성 탭: 필요 개수 제한 + 강화 레벨 +0만 선택
+            // ⭐ 합성 탭: 필요 개수의 배수로만 선택
             bool isFusionTab = (currentWorkshopTab == WorkshopUI.WorkshopTabType.Fusion);
             int requiredCount = 0;
+            int maxSelectable = int.MaxValue;
             
             if (isFusionTab)
             {
@@ -925,7 +1090,7 @@ namespace UI.Workshop
                     requiredCount = fusionRule.GetRequiredCount(grade);
                     
                     if (showDebugLogs)
-                        Debug.Log($"⚗️ [WorkshopInventoryUI] 합성 탭 - {grade}등급 필요 개수: {requiredCount}개 (강화 +0만 선택)");
+                        Debug.Log($"⚗️ [WorkshopInventoryUI] 합성 탭 - {grade}등급 필요 개수: {requiredCount}개");
                 }
                 else
                 {
@@ -933,7 +1098,8 @@ namespace UI.Workshop
                 }
             }
             
-            int selectedCount = 0;
+            // ⭐ 1단계: 선택 가능한 아이템 수집
+            var candidateSlots = new List<(InventorySlot slot, ItemInstanceId itemId, EquipmentData equipData, int enhancementLevel)>();
             
             foreach (var slot in inventorySlots)
             {
@@ -948,32 +1114,73 @@ namespace UI.Workshop
                         continue;
                     }
                     
-                    // ⭐ 합성 탭: 강화 레벨 +0만 자동 선택
-                    if (isFusionTab)
+                    var itemInstanceData = AccountDataManager.Instance.GetInstance(itemId);
+                    if (itemInstanceData != null)
                     {
-                        var itemInstanceData = AccountDataManager.Instance.GetInstance(itemId);
-                        if (itemInstanceData == null || itemInstanceData.enhancementLevel > 0)
+                        candidateSlots.Add((slot, itemId, itemData, itemInstanceData.enhancementLevel));
+                    }
+                }
+            }
+            
+            int selectedCount = 0;
+            
+            // ⭐ 2단계: 합성 탭 - 세부타입별로 그룹핑하여 각 타입별로 선택
+            if (isFusionTab && requiredCount > 0)
+            {
+                // 세부타입별로 그룹핑 (Helmet ≠ Armor)
+                var groupedByDetailedType = candidateSlots
+                    .GroupBy(c => GetDetailedEquipmentType(c.equipData))
+                    .ToList();
+                
+                Debug.Log($"🔍 [WorkshopInventoryUI] {grade}등급 세부타입별 그룹 수: {groupedByDetailedType.Count}개");
+                
+                // ⭐ 모든 세부타입을 순회하면서 각각 배수만큼 선택
+                foreach (var typeGroup in groupedByDetailedType)
+                {
+                    string detailedType = typeGroup.Key;
+                    
+                    // ⭐ 강화되지 않은 아이템만 자동 선택 (enhancementLevel == 0)
+                    var itemsInGroup = typeGroup
+                        .Where(c => c.enhancementLevel == 0)  // 비강화만 필터링
+                        .ToList();
+                    
+                    int totalAvailableForType = itemsInGroup.Count;
+                    int maxSelectableForType = (totalAvailableForType / requiredCount) * requiredCount;
+                    
+                    Debug.Log($"⚗️ [WorkshopInventoryUI] {detailedType}: 비강화 {totalAvailableForType}개, 선택 가능 {maxSelectableForType}개 ({maxSelectableForType / requiredCount}회 합성)");
+                    
+                    // 배수만큼 선택
+                    int selectedInType = 0;
+                    foreach (var (slot, itemId, equipData, enhancementLevel) in itemsInGroup)
+                    {
+                        if (selectedInType >= maxSelectableForType)
+                            break;
+                        
+                        slot.SetSelected(true, notifyEvent: false);
+                        if (!selectedItems.Contains(itemId))
                         {
-                            // 강화된 아이템은 자동 선택에서 제외
-                            continue;
+                            selectedItems.Add(itemId);
                         }
                         
-                        // 필요 개수만큼만 선택
-                        if (selectedCount >= requiredCount)
-                        {
-                            break; // 필요 개수 도달, 더 이상 선택 안 함
-                        }
+                        selectedInType++;
+                        selectedCount++;
                     }
-                    
-                    // ⭐ 개별 이벤트는 발생시키지 않음 (마지막에 한 번만 발생)
+                }
+            }
+            else // 비합성 탭 - 기존 로직
+            {
+                // ⭐ 강화되지 않은 아이템만 자동 선택 (비합성 탭도 동일)
+                candidateSlots = candidateSlots
+                    .Where(c => c.enhancementLevel == 0)  // 비강화만 필터링
+                    .ToList();
+                
+                foreach (var (slot, itemId, equipData, enhancementLevel) in candidateSlots)
+                {
                     slot.SetSelected(true, notifyEvent: false);
-                    
-                    // ⭐ selectedItems에 수동으로 추가 (이벤트 미발생이므로)
                     if (!selectedItems.Contains(itemId))
                     {
                         selectedItems.Add(itemId);
                     }
-                    
                     selectedCount++;
                 }
             }
@@ -985,9 +1192,9 @@ namespace UI.Workshop
             if (showDebugLogs)
             {
                 if (isFusionTab)
-                    Debug.Log($"⚗️ [WorkshopInventoryUI] {grade}등급 일괄 선택 완료: {selectedCount}/{requiredCount}개 (강화 +0만), selectedItems.Count={selectedItems.Count}");
+                    Debug.Log($"⚗️ [WorkshopInventoryUI] {grade}등급 일괄 선택 완료: {selectedCount}개 (비강화만, 타입별 배수 선택), selectedItems.Count={selectedItems.Count}");
                 else
-                    Debug.Log($"🔘 [WorkshopInventoryUI] {grade}등급 일괄 선택 완료: {selectedCount}개, selectedItems.Count={selectedItems.Count}");
+                    Debug.Log($"🔘 [WorkshopInventoryUI] {grade}등급 일괄 선택 완료: {selectedCount}개 (비강화만), selectedItems.Count={selectedItems.Count}");
             }
         }
         
@@ -1005,6 +1212,10 @@ namespace UI.Workshop
             }
             
             selectedItems.Clear();
+            
+            // ⭐ 선택 모드 리셋
+            IsIndividualSelectionMode = false;
+            
             UpdateSelectionUI();
             
             // ⭐ 선택 초기화 이벤트 발생 (빈 리스트)

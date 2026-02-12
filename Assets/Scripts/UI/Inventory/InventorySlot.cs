@@ -1232,6 +1232,36 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         return isMultiSelectMode;
     }
     
+    /// <summary>
+    /// 슬롯 어둡게/밝게 처리 (합성 탭 전용)
+    /// </summary>
+    public void SetDimmed(bool dimmed)
+    {
+        float alpha = dimmed ? 0.3f : 1.0f;
+        
+        // 아이템 아이콘 어둡게
+        if (itemIconImage != null)
+        {
+            Color iconColor = itemIconImage.color;
+            iconColor.a = alpha;
+            itemIconImage.color = iconColor;
+        }
+        
+        // 슬롯 배경 어둡게
+        if (slotImage != null)
+        {
+            Color bgColor = slotImage.color;
+            bgColor.a = alpha;
+            slotImage.color = bgColor;
+        }
+        
+        // 등급 프레임도 어둡게 (있다면)
+        if (itemIconGradeFrame != null)
+        {
+            itemIconGradeFrame.SetAlpha(alpha);
+        }
+    }
+    
     // ========================================
     // 🐞 디버깅: itemIconImage.enabled 상태 추적
     // ========================================

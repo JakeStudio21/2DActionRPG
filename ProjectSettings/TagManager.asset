@@ -10,6 +10,7 @@ TagManager:
   - Wall
   - SimpleMob
   - PlayerReachedPoint
+  - MustBeDisabled
   layers:
   - Default
   - TransparentFX

@@ -148,6 +148,22 @@ namespace UI.Components
             }
         }
         
+        /// <summary>
+        /// 알파값 설정 (어둡게/밝게 처리용)
+        /// </summary>
+        public void SetAlpha(float alpha)
+        {
+            if (backgroundImage != null)
+            {
+                Color color = backgroundImage.color;
+                color.a = alpha;
+                backgroundImage.color = color;
+                
+                if (showDebugLogs)
+                    Debug.Log($"🎨 [ItemIconGradeFrame] 알파값 설정: {alpha}");
+            }
+        }
+        
         #endregion
         
         #region Private Methods
