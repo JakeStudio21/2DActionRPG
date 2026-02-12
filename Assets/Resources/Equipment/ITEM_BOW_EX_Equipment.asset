@@ -24,7 +24,7 @@ MonoBehaviour:
   icon: {fileID: -785598635, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 4551001115370886643, guid: b506a7df143340242a0519c5d64287f4, type: 3}
   weaponType: 2
-  weaponCooldown: 0.5
+  weaponCooldown: 0.05
   weaponRange: 5
   armorType: 0
   accessoryType: 0

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d5c2c97dcdef204bb74147c1a125ee8, type: 3}
-  m_Name: CH01_ST01_PoolConfig
+  m_Name: CH01_ST07_PoolConfig
   m_EditorClassIdentifier: 
-  sceneName: CH01_ST01
+  sceneName: CH01_ST07
   requiredPools:
   - tag: Arrow_B
     prefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
@@ -26,18 +26,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: MON_BLUESLIME_001
-    prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: MON_GRAPE_001
-    prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
   - tag: Grape Projectile
     prefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
     size: 10
@@ -164,24 +152,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
-  - tag: MON_BEETLE_001
-    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_LADYBUG_001
-    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_PLANTS_001
-    prefab: {fileID: 3235174918318939483, guid: c40cffd48c2084e458aa480204ffdcda, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: StraightProjectile
     prefab: {fileID: 6830296691463287077, guid: 83ae11102c63fd94594904bd0df3e079, type: 3}
     size: 10
@@ -203,18 +173,6 @@ MonoBehaviour:
   - tag: VFX_Click_02
     prefab: {fileID: 7018822306135176576, guid: cc002eab793f07244b142af5a20daf14, type: 3}
     size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_SPIDER_001
-    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_BEAR_001
-    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
-    size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
@@ -272,12 +230,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 30
-  - tag: MON_MUSHROOM_001
-    prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: Fx_Attack_Spore_Poison
     prefab: {fileID: 4912645067155827441, guid: 54beec8f69623fe42ba4b6be69924631, type: 3}
     size: 5
@@ -289,6 +241,12 @@ MonoBehaviour:
     size: 5
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: MuzzleFlash
+    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
     maxInstancesPerFrame: 5
   - tag: Drop_Currency
     prefab: {fileID: 1576404571005045479, guid: 7fe62c09751caef408fd9673cc872e47, type: 3}
@@ -344,12 +302,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
-  - tag: MuzzleFlash
-    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
   - tag: Fx_Equipment_SS
     prefab: {fileID: 7111470932628664318, guid: ef2c97bf37403af4a81d85d189f8455c, type: 3}
     size: 5
@@ -368,5 +320,77 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
-  optionalPools: []
-  enableDebugLogs: 1
+  - tag: MON_LADYBUG_001
+    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_PLANTS_001
+    prefab: {fileID: 3235174918318939483, guid: c40cffd48c2084e458aa480204ffdcda, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SPIDER_001
+    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BEAR_001
+    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_MUSHROOM_001
+    prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BEETLE_001
+    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GOBLINBOMB_001
+    prefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GOBLINWARRIOR_001
+    prefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GOBLINCART_001
+    prefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: ELITEMON_ORC_001
+    prefab: {fileID: 3235174918318939483, guid: 0806c881d4f5f174d83411b786a59268, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  optionalPools:
+  - tag: SimpleMobHit
+    prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}
+    size: 0
+    preloadOnSceneStart: 0
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 0
+  - tag: SimpleMobDeath
+    prefab: {fileID: 724470073289127030, guid: 168752663e8d8fb40a0efa48d70d3671, type: 3}
+    size: 0
+    preloadOnSceneStart: 0
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 0
+  enableDebugLogs: 0

@@ -1,19 +1,43 @@
 using UnityEngine;
 
-// 이 스크립트는 AttackButton UI에 부착되어 OnClick 이벤트를 처리합니다.
+/// <summary>
+/// HUD 공격 버튼 컨트롤러
+/// PlayerAnimationController를 통해 정상적인 공격 플로우 실행
+/// </summary>
 public class AttackButtonController : MonoBehaviour
 {
-    // 버튼이 클릭되었을 때 호출될 공용 메서드입니다.
+    [Header("디버그")]
+    [SerializeField] private bool showDebugLogs = false;
+    
+    /// <summary>
+    /// HUD 공격 버튼 클릭 이벤트
+    /// </summary>
     public void OnAttackButtonPressed()
     {
-        var activeWeapon = FindObjectOfType<ActiveWeapon>();
-        if (activeWeapon != null)
+        if (showDebugLogs)
+            Debug.Log("🎯 [AttackButtonController] 공격 버튼 클릭됨!");
+        
+        // ⭐ PlayerAnimationController를 통해 정상적인 공격 플로우 실행
+        var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        if (playerAnimationController != null)
         {
-            activeWeapon.PerformAttack();  // 변경: Attack() → PerformAttack()
+            bool success = playerAnimationController.TriggerAttack();
+            
+            if (showDebugLogs)
+            {
+                if (success)
+                {
+                    Debug.Log("🟢 [AttackButtonController] 공격 성공 (쿨다운 체크 + 애니메이션)");
+                }
+                else
+                {
+                    Debug.LogWarning("🟡 [AttackButtonController] 공격 실패 (쿨다운 중 또는 다른 액션 중)");
+                }
+            }
         }
         else
         {
-            Debug.LogWarning("공격 버튼이 눌렸지만 ActiveWeapon을 찾을 수 없습니다!");
+            Debug.LogError("🔴 [AttackButtonController] PlayerAnimationController를 찾을 수 없습니다!");
         }
     }
 } 
