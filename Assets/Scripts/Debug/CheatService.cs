@@ -65,9 +65,16 @@ namespace DebugTools
                     // instanceData.isBound = isBound;
                     
                     // 계정 공유 창고에 추가
-                    account.GetAccountData().sharedInventoryIds.Add(instanceId);
-                    
-                    createdIds.Add(instanceId);
+                    // ✅ TryAddToShared() 사용 (이벤트 발행 + 크기 체크)
+                    if (account.TryAddToShared(instanceId))
+                    {
+                        createdIds.Add(instanceId);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚠️ [CheatService] 창고 가득 참! 아이템 추가 실패: {template.equipmentName}");
+                        account.RemoveInstance(instanceId); // 롤백
+                    }
                 }
             }
             

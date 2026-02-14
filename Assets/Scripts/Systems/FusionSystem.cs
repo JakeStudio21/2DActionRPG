@@ -253,8 +253,15 @@ namespace Systems
                 resultData.enhancementLevel = 0; // 강화 초기화 (이미 참조로 수정됨)
 
                 // 4. ⭐ 결과 아이템을 계정 공유 창고에 추가 (로비 공방/보관창고에서 표시)
-                var accountData = account.GetAccountData();
-                accountData.sharedInventoryIds.Add(resultId);
+                // ✅ TryAddToShared() 사용 (이벤트 발행 + 크기 체크)
+                if (!account.TryAddToShared(resultId))
+                {
+                    // 창고 가득 참 (재료 삭제 후에도) → 결과 아이템 제거
+                    account.RemoveInstance(resultId);
+                    Debug.LogError($"❌ [FusionSystem] 창고 가득 참! 합성 결과 아이템 추가 실패: {resultTemplateName}");
+                    resultId = default;
+                    return false;
+                }
                 Debug.Log($"📦 [FusionSystem] 결과 아이템 추가: {resultTemplateName} (ID: {resultId})");
 
                 // 5. 저장

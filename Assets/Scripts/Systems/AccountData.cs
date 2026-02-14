@@ -20,6 +20,9 @@ public class AccountData
     [Tooltip("보관창고 최대 크기 (확장 가능: 64 → 128 → 256)")]
     public int maxSharedInventorySize = 64; // 기본 64칸 (8열 x 8행)
     
+    [Tooltip("현재 공유 창고 아이템 개수 (JSON 가독성용, 자동 생성)")]
+    public int currentSharedInventoryCount = 0; // sharedInventoryIds.Count
+    
     [Header("📬 우편함 (창고 넘침 처리)")]
     [Tooltip("창고가 가득 찼을 때 임시 보관 공간")]
     public List<ItemInstanceId> mailboxIds = new List<ItemInstanceId>();

@@ -27,10 +27,10 @@ MonoBehaviour:
   playerType: 2
   classIcon: {fileID: 0}
   description: 
-  attackPowerMultiplier: 1.1
-  moveSpeedMultiplier: 1.1
+  attackPowerMultiplier: 1.108
+  moveSpeedMultiplier: 1.12
   skillCooldownMultiplier: 1
-  healthMultiplier: 1
+  healthMultiplier: 1.12
   assasinStealthDuration: 2
   assasinDodgeChance: 0.1
   assasinBackAttackBonus: 1.3

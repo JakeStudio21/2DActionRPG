@@ -11,6 +11,12 @@ public class MaterialStack
     [Tooltip("재료 타입 (enum, JSON 저장용)")]
     public MaterialType materialType;
     
+    [Tooltip("재료 타입 이름 (JSON 가독성용, 자동 생성)")]
+    public string materialTypeName; // "WeaponFragment"
+    
+    [Tooltip("재료 표시 이름 (JSON 가독성용, 자동 생성)")]
+    public string displayName; // "무기 강화 파편"
+    
     [Tooltip("보유 수량")]
     public int count;
     

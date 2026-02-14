@@ -137,6 +137,9 @@ public class GameManager : Singleton<GameManager>
         // ⭐ Phase 1: AccountDataManager 초기화 (PlayerDataManager보다 먼저)
         AccountDataManager.Initialize();
         
+        // ⭐ Phase 2: 자동 정리 실행 (고아 아이템, 무효 참조 제거)
+        AccountDataManager.Instance?.AutoCleanup();
+        
         // ⭐ 수정: selectedPlayerData가 null인 경우 런타임에서 생성
         if (selectedPlayerData == null)
         {

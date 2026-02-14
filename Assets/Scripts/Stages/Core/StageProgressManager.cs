@@ -340,6 +340,21 @@ namespace StageSystem
         }
         
         /// <summary>
+        /// ⭐ 진행도 캐시 강제 초기화 (슬롯 삭제 시 사용)
+        /// </summary>
+        public void ClearProgressCache()
+        {
+            if (progressCache != null)
+            {
+                progressCache.Clear();
+                currentSlotIndex = -1;
+                
+                if (enableDebugLogs)
+                    Debug.Log($"[StageProgressManager] 진행도 캐시 완전 초기화 (currentSlotIndex → -1)");
+            }
+        }
+        
+        /// <summary>
         /// 특정 스테이지 진행도 가져오기
         /// </summary>
         public StageProgress GetStageProgress(string stageId)

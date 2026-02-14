@@ -88,8 +88,27 @@ public class AccountDataManager
     
     public void Save()
     {
+        // 📊 저장 전 JSON 가독성 필드 자동 채우기
+        UpdateReadabilityFields();
+        
         string json = JsonUtility.ToJson(accountData, true);
         storage.Save(ACCOUNT_SAVE_KEY, json);
+    }
+    
+    /// <summary>
+    /// JSON 가독성을 위한 필드 자동 채우기 (저장 전)
+    /// </summary>
+    private void UpdateReadabilityFields()
+    {
+        // 1. 공유 창고 개수 (sharedInventoryIds.Count)
+        accountData.currentSharedInventoryCount = accountData.sharedInventoryIds.Count;
+        
+        // 2. 재료 타입 이름 (materialType → materialTypeName, displayName)
+        foreach (var material in accountData.materials)
+        {
+            material.materialTypeName = material.materialType.ToString(); // "WeaponFragment"
+            material.displayName = material.materialType.GetDisplayName(); // "무기 강화 파편"
+        }
     }
     
     /// <summary>
@@ -456,6 +475,14 @@ public class AccountDataManager
             return;
         }
         
+        // ❌ 골드는 materials에 저장하면 안 됨! AccountData.gold 필드 사용!
+        if (materialType == MaterialType.Gold)
+        {
+            Debug.LogError($"❌ [AccountDataManager] 골드는 AddMaterial()이 아닌 AddGold()를 사용하세요! AddGold({amount}) 호출을 권장합니다.");
+            Debug.LogError($"   골드의 트루 소스는 AccountData.gold 필드입니다. materials 리스트에 저장하지 마세요!");
+            return;
+        }
+        
         if (materialCache.TryGetValue(materialType, out int currentCount))
         {
             // 기존 스택 증가
@@ -602,12 +629,26 @@ public class AccountDataManager
     }
     
     /// <summary>
+    /// Account.json 파일 전체 경로 반환
+    /// </summary>
+    public string GetSavePath()
+    {
+        if (storage is JsonFileStorage jsonStorage)
+        {
+            string basePath = jsonStorage.GetBasePath();
+            return System.IO.Path.Combine(basePath, ACCOUNT_SAVE_KEY + ".json");
+        }
+        return "Unknown";
+    }
+    
+    /// <summary>
     /// 통계 정보 출력
     /// </summary>
     public void PrintStats()
     {
         Debug.Log("═══════════════════════════════════════════════════════");
         Debug.Log($"📊 [AccountDataManager] 통계");
+        Debug.Log($"   - 💰 골드 (AccountData.gold): {accountData.gold:N0}원 ⭐ 트루 소스!");
         Debug.Log($"   - 아이템 인스턴스: {accountData.itemInstances.Count}개");
         Debug.Log($"   - 공유 창고: {accountData.sharedInventoryIds.Count}개");
         Debug.Log($"   - 우편함: {accountData.mailboxIds.Count}개");
@@ -618,6 +659,588 @@ public class AccountDataManager
             Debug.Log($"     - {mat.GetDisplayName()}: {mat.count}개 [{mat.materialType}]");
         }
         Debug.Log("═══════════════════════════════════════════════════════");
+    }
+    
+    #region 데이터 정합성 검증 시스템 (Phase 2)
+    
+    /// <summary>
+    /// 📊 데이터 정합성 검증 결과
+    /// </summary>
+    public class ValidationResult
+    {
+        public List<ItemInstanceId> orphanedItems = new List<ItemInstanceId>();      // 고아 아이템 (itemInstances에만 존재)
+        public List<ItemInstanceId> invalidReferences = new List<ItemInstanceId>();  // 무효 참조 (sharedInventoryIds/mailboxIds에만 존재)
+        public List<ItemBindRecord> invalidBinds = new List<ItemBindRecord>();       // 무효 귀속 정보
+        public Dictionary<string, int> duplicateInstances = new Dictionary<string, int>(); // 중복 Instance (templateName → 개수)
+        public List<MaterialType> invalidMaterials = new List<MaterialType>();        // ❌ 잘못 저장된 재료 (Gold 등)
+        public int totalIssues => orphanedItems.Count + invalidReferences.Count + invalidBinds.Count + duplicateInstances.Count + invalidMaterials.Count;
+        
+        public bool IsValid => totalIssues == 0;
+        public bool HasIssues => !IsValid;
+    }
+    
+    /// <summary>
+    /// 🔍 데이터 정합성 검증
+    /// </summary>
+    public ValidationResult ValidateDataIntegrity()
+    {
+        Debug.Log("🔍 [AccountDataManager] 데이터 정합성 검증 시작...");
+        
+        var result = new ValidationResult();
+        
+        // 1. 고아 아이템 찾기 (itemInstances에만 존재)
+        result.orphanedItems = FindOrphanedItems();
+        
+        // 2. 무효 참조 찾기 (sharedInventoryIds/mailboxIds에만 존재)
+        result.invalidReferences = FindInvalidReferences();
+        
+        // 3. 무효 귀속 정보 찾기
+        result.invalidBinds = FindInvalidBinds();
+        
+        // 4. 중복 Instance 찾기
+        result.duplicateInstances = FindDuplicateInstances();
+        
+        // 5. ❌ 잘못 저장된 재료 찾기 (Gold 등)
+        result.invalidMaterials = FindInvalidMaterials();
+        
+        // 결과 출력
+        Debug.Log($"📊 [검증 결과]");
+        Debug.Log($"   - 고아 아이템: {result.orphanedItems.Count}개");
+        Debug.Log($"   - ❌ 무효 참조: {result.invalidReferences.Count}개");
+        Debug.Log($"   - 무효 귀속 정보: {result.invalidBinds.Count}개");
+        Debug.Log($"   - 중복 템플릿: {result.duplicateInstances.Count}개");
+        Debug.Log($"   - ❌ 잘못된 재료: {result.invalidMaterials.Count}개");
+        
+        if (result.IsValid)
+        {
+            Debug.Log($"✅ [AccountDataManager] 데이터 정합성 검증 완료 - 문제 없음");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [AccountDataManager] 데이터 정합성 문제 발견: {result.totalIssues}개");
+        }
+        
+        return result;
+    }
+    
+    /// <summary>
+    /// 🧹 고아 아이템 찾기
+    /// - itemInstances에는 있지만 어디에도 참조되지 않는 아이템
+    /// </summary>
+    private List<ItemInstanceId> FindOrphanedItems()
+    {
+        var orphaned = new List<ItemInstanceId>();
+        
+        // 모든 유효한 참조 수집
+        var validRefs = new HashSet<ItemInstanceId>();
+        validRefs.UnionWith(accountData.sharedInventoryIds);
+        validRefs.UnionWith(accountData.mailboxIds);
+        
+        // PlayerDataManager에서 모든 캐릭터의 가방 아이템 수집
+        if (PlayerDataManager.Instance != null)
+        {
+            for (int i = 0; i < 3; i++) // 최대 3개 슬롯
+            {
+                var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                if (slotData != null && slotData.characterBagInstanceIds != null)
+                {
+                    validRefs.UnionWith(slotData.characterBagInstanceIds);
+                }
+            }
+        }
+        
+        // itemInstances에서 참조되지 않는 아이템 찾기
+        foreach (var instance in accountData.itemInstances)
+        {
+            if (!validRefs.Contains(instance.instanceId))
+            {
+                orphaned.Add(instance.instanceId);
+                
+                Debug.Log($"   🗑️ 고아 아이템 발견: {instance.templateName} (ID: {instance.instanceId.id.Substring(0, 8)}...)");
+            }
+        }
+        
+        return orphaned;
+    }
+    
+    /// <summary>
+    /// ❌ 무효 참조 찾기
+    /// - sharedInventoryIds/mailboxIds/characterBag에는 있지만 itemInstances에 없는 ID
+    /// </summary>
+    private List<ItemInstanceId> FindInvalidReferences()
+    {
+        var invalidRefs = new List<ItemInstanceId>();
+        
+        // itemInstances의 모든 유효한 ID 수집
+        var validInstanceIds = new HashSet<ItemInstanceId>();
+        foreach (var instance in accountData.itemInstances)
+        {
+            validInstanceIds.Add(instance.instanceId);
+        }
+        
+        // 1. sharedInventoryIds 체크
+        foreach (var id in accountData.sharedInventoryIds)
+        {
+            if (!validInstanceIds.Contains(id))
+            {
+                invalidRefs.Add(id);
+                Debug.LogError($"   ❌ 무효 참조 발견 (공유 창고): ID={id.id.Substring(0, 8)}... (itemInstances에 없음!)");
+            }
+        }
+        
+        // 2. mailboxIds 체크
+        foreach (var id in accountData.mailboxIds)
+        {
+            if (!validInstanceIds.Contains(id))
+            {
+                invalidRefs.Add(id);
+                Debug.LogError($"   ❌ 무효 참조 발견 (우편함): ID={id.id.Substring(0, 8)}... (itemInstances에 없음!)");
+            }
+        }
+        
+        // 3. characterBagInstanceIds 체크
+        if (PlayerDataManager.Instance != null)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                if (slotData != null && slotData.characterBagInstanceIds != null)
+                {
+                    foreach (var id in slotData.characterBagInstanceIds)
+                    {
+                        if (!validInstanceIds.Contains(id))
+                        {
+                            invalidRefs.Add(id);
+                            Debug.LogError($"   ❌ 무효 참조 발견 (캐릭터 가방 슬롯{i}): ID={id.id.Substring(0, 8)}... (itemInstances에 없음!)");
+                        }
+                    }
+                }
+            }
+        }
+        
+        return invalidRefs;
+    }
+    
+    /// <summary>
+    /// 🔒 무효 귀속 정보 찾기
+    /// - 삭제된 캐릭터의 귀속 정보
+    /// - 존재하지 않는 아이템의 귀속 정보
+    /// </summary>
+    private List<ItemBindRecord> FindInvalidBinds()
+    {
+        var invalid = new List<ItemBindRecord>();
+        
+        // 유효한 캐릭터 슬롯 확인
+        var validSlots = new HashSet<int>();
+        if (PlayerDataManager.Instance != null)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                if (slotData != null && !string.IsNullOrEmpty(slotData.playerName))
+                {
+                    validSlots.Add(i);
+                }
+            }
+        }
+        
+        // 유효한 아이템 확인
+        var validItems = new HashSet<ItemInstanceId>();
+        foreach (var instance in accountData.itemInstances)
+        {
+            validItems.Add(instance.instanceId);
+        }
+        
+        // 무효 귀속 정보 찾기
+        foreach (var bind in accountData.binds)
+        {
+            bool isInvalid = false;
+            string reason = "";
+            
+            // 1. 삭제된 캐릭터 체크
+            if (!validSlots.Contains(bind.characterSlotIndex))
+            {
+                isInvalid = true;
+                reason = $"삭제된 캐릭터 (슬롯 {bind.characterSlotIndex})";
+            }
+            // 2. 존재하지 않는 아이템 체크
+            else if (!validItems.Contains(bind.instanceId))
+            {
+                isInvalid = true;
+                reason = "존재하지 않는 아이템";
+            }
+            
+            if (isInvalid)
+            {
+                invalid.Add(bind);
+                Debug.Log($"   🔒 무효 귀속 정보: 슬롯{bind.characterSlotIndex}, ID:{bind.instanceId.id.Substring(0, 8)}... ({reason})");
+            }
+        }
+        
+        return invalid;
+    }
+    
+    /// <summary>
+    /// 📦 중복 Instance 찾기 (같은 템플릿의 여러 Instance)
+    /// - 상점 전시용 아이템 중복 감지
+    /// </summary>
+    private Dictionary<string, int> FindDuplicateInstances()
+    {
+        var duplicates = new Dictionary<string, int>();
+        
+        // 모든 유효한 참조 수집 (고아 아이템 제외)
+        var validRefs = new HashSet<ItemInstanceId>();
+        validRefs.UnionWith(accountData.sharedInventoryIds);
+        validRefs.UnionWith(accountData.mailboxIds);
+        
+        if (PlayerDataManager.Instance != null)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                if (slotData != null && slotData.characterBagInstanceIds != null)
+                {
+                    validRefs.UnionWith(slotData.characterBagInstanceIds);
+                }
+            }
+        }
+        
+        // 템플릿별 그룹화 (유효한 참조만)
+        var templateGroups = accountData.itemInstances
+            .Where(i => validRefs.Contains(i.instanceId))
+            .GroupBy(i => i.templateName)
+            .Where(g => g.Count() > 1) // 2개 이상만
+            .ToList();
+        
+        foreach (var group in templateGroups)
+        {
+            duplicates[group.Key] = group.Count();
+            Debug.Log($"   📦 중복 템플릿: {group.Key} ({group.Count()}개)");
+        }
+        
+        return duplicates;
+    }
+    
+    /// <summary>
+    /// ❌ 잘못 저장된 재료 찾기
+    /// - materials 리스트에 저장되면 안 되는 타입 (예: Gold)
+    /// </summary>
+    private List<MaterialType> FindInvalidMaterials()
+    {
+        var invalid = new List<MaterialType>();
+        
+        foreach (var mat in accountData.materials)
+        {
+            // ❌ Gold는 materials에 저장되면 안 됨!
+            if (mat.materialType == MaterialType.Gold)
+            {
+                invalid.Add(mat.materialType);
+                Debug.LogError($"   ❌ 잘못된 재료 발견: {mat.materialType.GetDisplayName()} (count: {mat.count})");
+                Debug.LogError($"      → 골드는 AccountData.gold 필드에만 저장되어야 합니다!");
+            }
+        }
+        
+        return invalid;
+    }
+    
+    #endregion
+    
+    #region 자동 정리 시스템 (Phase 3)
+    
+    /// <summary>
+    /// 🧹 자동 정리 실행 (게임 시작 시 호출)
+    /// </summary>
+    public void AutoCleanup()
+    {
+        Debug.Log("═══════════════════════════════════════════════════════");
+        Debug.Log("🧹 [AccountDataManager] 자동 정리 시작...");
+        Debug.Log("═══════════════════════════════════════════════════════");
+        
+        int totalCleaned = 0;
+        
+        // 1. 데이터 정합성 검증
+        var validation = ValidateDataIntegrity();
+        
+        if (validation.IsValid)
+        {
+            Debug.Log("✅ [AutoCleanup] 데이터 정합성 문제 없음 - 정리 불필요");
+            Debug.Log("═══════════════════════════════════════════════════════");
+            return;
+        }
+        
+        Debug.Log($"\n⚠️ [AutoCleanup] 정합성 문제 발견 - 정리 시작...");
+        Debug.Log($"   - 고아 아이템: {validation.orphanedItems.Count}개");
+        Debug.Log($"   - ❌ 무효 참조: {validation.invalidReferences.Count}개");
+        Debug.Log($"   - 무효 귀속 정보: {validation.invalidBinds.Count}개");
+        Debug.Log($"   - ❌ 잘못된 재료: {validation.invalidMaterials.Count}개");
+        
+        // 2. 고아 아이템 제거
+        if (validation.orphanedItems.Count > 0)
+        {
+            int removed = RemoveOrphanedItems(validation.orphanedItems);
+            totalCleaned += removed;
+            Debug.Log($"   ✅ 고아 아이템 제거: {removed}개");
+        }
+        
+        // 3. ❌ 무효 참조 제거
+        if (validation.invalidReferences.Count > 0)
+        {
+            int removed = RemoveInvalidReferences(validation.invalidReferences);
+            totalCleaned += removed;
+            Debug.Log($"   ✅ 무효 참조 제거: {removed}개");
+        }
+        
+        // 4. 무효 귀속 정보 제거
+        if (validation.invalidBinds.Count > 0)
+        {
+            int removed = RemoveInvalidBinds(validation.invalidBinds);
+            totalCleaned += removed;
+            Debug.Log($"   ✅ 무효 귀속 정보 제거: {removed}개");
+        }
+        
+        // 5. ❌ 잘못된 재료 제거
+        if (validation.invalidMaterials.Count > 0)
+        {
+            int removed = RemoveInvalidMaterials(validation.invalidMaterials);
+            totalCleaned += removed;
+            Debug.Log($"   ✅ 잘못된 재료 제거: {removed}개");
+        }
+        
+        // 6. 저장
+        if (totalCleaned > 0)
+        {
+            Save();
+            
+            Debug.Log($"\n✅ [AutoCleanup] 자동 정리 완료!");
+            Debug.Log($"   - 총 정리된 항목: {totalCleaned}개");
+            PrintStats();
+        }
+        
+        Debug.Log("═══════════════════════════════════════════════════════");
+    }
+    
+    /// <summary>
+    /// 🗑️ 고아 아이템 제거
+    /// </summary>
+    private int RemoveOrphanedItems(List<ItemInstanceId> orphanedIds)
+    {
+        int removed = 0;
+        
+        foreach (var orphanedId in orphanedIds)
+        {
+            // itemInstances에서 제거
+            var instance = accountData.itemInstances.Find(i => i.instanceId == orphanedId);
+            if (instance != null)
+            {
+                accountData.itemInstances.Remove(instance);
+                removed++;
+                
+                Debug.Log($"      🗑️ 제거: {instance.templateName} (ID: {orphanedId.id.Substring(0, 8)}...)");
+            }
+            
+            // 캐시에서도 제거
+            if (instanceCache.ContainsKey(orphanedId))
+            {
+                instanceCache.Remove(orphanedId);
+            }
+        }
+        
+        return removed;
+    }
+    
+    /// <summary>
+    /// ❌ 무효 참조 제거
+    /// - sharedInventoryIds/mailboxIds/characterBag에서 invalid ID 제거
+    /// </summary>
+    private int RemoveInvalidReferences(List<ItemInstanceId> invalidRefs)
+    {
+        int removed = 0;
+        
+        foreach (var invalidId in invalidRefs)
+        {
+            // 1. sharedInventoryIds에서 제거
+            if (accountData.sharedInventoryIds.Remove(invalidId))
+            {
+                removed++;
+                Debug.Log($"      ❌ 제거 (공유 창고): ID={invalidId.id.Substring(0, 8)}...");
+            }
+            
+            // 2. mailboxIds에서 제거
+            if (accountData.mailboxIds.Remove(invalidId))
+            {
+                removed++;
+                Debug.Log($"      ❌ 제거 (우편함): ID={invalidId.id.Substring(0, 8)}...");
+            }
+            
+            // 3. characterBagInstanceIds에서 제거
+            if (PlayerDataManager.Instance != null)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                    if (slotData != null && slotData.characterBagInstanceIds != null)
+                    {
+                        if (slotData.characterBagInstanceIds.Remove(invalidId))
+                        {
+                            removed++;
+                            Debug.Log($"      ❌ 제거 (캐릭터 가방 슬롯{i}): ID={invalidId.id.Substring(0, 8)}...");
+                        }
+                    }
+                }
+            }
+        }
+        
+        return removed;
+    }
+    
+    /// <summary>
+    /// 🔒 무효 귀속 정보 제거
+    /// </summary>
+    private int RemoveInvalidBinds(List<ItemBindRecord> invalidBinds)
+    {
+        int removed = 0;
+        
+        foreach (var bind in invalidBinds)
+        {
+            if (accountData.binds.Remove(bind))
+            {
+                removed++;
+                Debug.Log($"      🔒 제거: 슬롯{bind.characterSlotIndex}, ID:{bind.instanceId.id.Substring(0, 8)}...");
+            }
+            
+            // 캐시에서도 제거
+            if (bindCache.ContainsKey(bind.instanceId))
+            {
+                bindCache.Remove(bind.instanceId);
+            }
+        }
+        
+        return removed;
+    }
+    
+    /// <summary>
+    /// ❌ 잘못 저장된 재료 제거
+    /// - materials 리스트에서 Gold 등 잘못된 타입 제거
+    /// </summary>
+    private int RemoveInvalidMaterials(List<MaterialType> invalidMaterials)
+    {
+        int removed = 0;
+        
+        foreach (var matType in invalidMaterials)
+        {
+            // materials 리스트에서 제거
+            var stack = accountData.materials.Find(m => m.materialType == matType);
+            if (stack != null && accountData.materials.Remove(stack))
+            {
+                removed++;
+                Debug.Log($"      ❌ 제거: {matType.GetDisplayName()} (count: {stack.count})");
+            }
+            
+            // 캐시에서도 제거
+            if (materialCache.ContainsKey(matType))
+            {
+                materialCache.Remove(matType);
+            }
+        }
+        
+        return removed;
+    }
+    
+    #endregion
+    
+    /// <summary>
+    /// 🧹 상점 전시용 고아 아이템 제거 (Legacy 정리)
+    /// - 과거에 저장된 상점 전시용 아이템 제거
+    /// - 원칙: 상점 전시용 아이템은 메모리 전용, AccountData 저장 안 함
+    /// </summary>
+    public int CleanupLegacyShopItems()
+    {
+        Debug.Log("🧹 [AccountDataManager] Legacy 상점 아이템 정리 시작...");
+        
+        int beforeCount = accountData.itemInstances.Count;
+        
+        // 1. 보관창고/우편함/캐릭터 가방에 있는 Instance ID 수집 (보호 대상)
+        var protectedIds = new HashSet<ItemInstanceId>();
+        protectedIds.UnionWith(accountData.sharedInventoryIds);
+        protectedIds.UnionWith(accountData.mailboxIds);
+        
+        if (PlayerDataManager.Instance != null)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var slotData = PlayerDataManager.Instance.GetSlotData(i);
+                if (slotData != null && slotData.characterBagInstanceIds != null)
+                {
+                    protectedIds.UnionWith(slotData.characterBagInstanceIds);
+                }
+            }
+        }
+        
+        Debug.Log($"🔒 [CleanupLegacyShopItems] 보호 대상 ID: {protectedIds.Count}개");
+        
+        // 2. D/C/B/A 등급 상점 장비 템플릿 로드
+        var shopTemplates = new HashSet<string>();
+        EquipmentData[] allEquipments = Resources.LoadAll<EquipmentData>("Equipment");
+        foreach (var eq in allEquipments)
+        {
+            if ((eq.itemGrade == ItemGrade.D || eq.itemGrade == ItemGrade.C || 
+                 eq.itemGrade == ItemGrade.B || eq.itemGrade == ItemGrade.A) &&
+                (eq.equipmentType == EquipmentType.Weapon || eq.equipmentType == EquipmentType.Armor))
+            {
+                shopTemplates.Add(eq.itemID);
+            }
+        }
+        
+        Debug.Log($"📦 [CleanupLegacyShopItems] 상점 템플릿: {shopTemplates.Count}개");
+        
+        // 3. 상점 템플릿이면서 보호 대상이 아닌 아이템 = Legacy 상점 전시용 아이템
+        var legacyShopItems = accountData.itemInstances
+            .Where(i => shopTemplates.Contains(i.templateName) && !protectedIds.Contains(i.instanceId))
+            .ToList();
+        
+        Debug.Log($"🗑️ [CleanupLegacyShopItems] Legacy 상점 아이템 발견: {legacyShopItems.Count}개");
+        
+        // 4. 제거
+        int removed = 0;
+        foreach (var item in legacyShopItems)
+        {
+            accountData.itemInstances.Remove(item);
+            removed++;
+            
+            // 캐시에서도 제거
+            if (instanceCache.ContainsKey(item.instanceId))
+            {
+                instanceCache.Remove(item.instanceId);
+            }
+            
+            if (removed <= 10) // 처음 10개만 로그 출력
+            {
+                Debug.Log($"   🗑️ 제거: {item.templateName} (ID: {item.instanceId.id.Substring(0, 8)}...)");
+            }
+        }
+        
+        if (removed > 10)
+        {
+            Debug.Log($"   ... 외 {removed - 10}개 더");
+        }
+        
+        int afterCount = accountData.itemInstances.Count;
+        
+        // 5. 저장
+        if (removed > 0)
+        {
+            Save();
+            Debug.Log($"✅ [CleanupLegacyShopItems] 정리 완료!");
+            Debug.Log($"   - 이전: {beforeCount}개");
+            Debug.Log($"   - 이후: {afterCount}개");
+            Debug.Log($"   - 제거: {removed}개");
+        }
+        else
+        {
+            Debug.Log($"✅ [CleanupLegacyShopItems] Legacy 상점 아이템 없음 (정상)");
+        }
+        
+        return removed;
     }
     
     /// <summary>

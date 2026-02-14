@@ -188,7 +188,7 @@ namespace Shop
         }
         
         /// <summary>
-        /// 전시용 Instance 생성
+        /// 전시용 Instance 생성 (메모리 전용, JSON 저장 안 함)
         /// </summary>
         private bool CreateDisplayInstance(EquipmentData equipment)
         {
@@ -210,33 +210,24 @@ namespace Shop
             // 이미 존재하면 스킵
             if (displayInstances.ContainsKey(templateName))
             {
-                Debug.LogWarning($"⚠️ [ShopItemPool] 이미 존재하는 전시용 Instance: {templateName}");
-                return false;
+                Log($"♻️ [ShopItemPool] 기존 전시용 Instance 재사용: {templateName}");
+                return true; // 스킵하되 성공으로 처리
             }
             
-            if (AccountDataManager.Instance == null)
-            {
-                Debug.LogError("❌ [ShopItemPool] AccountDataManager.Instance가 null입니다!");
-                Debug.LogError("   💡 AccountDataManager가 씬에 존재하는지 확인하세요!");
-                return false;
-            }
-            
-            // 전시용 Instance 생성
-            Log($"   🔄 CreateInstance({templateName}) 호출...");
-            var displayInstanceId = AccountDataManager.Instance.CreateInstance(templateName);
+            // ✅ 메모리 전용 ItemInstanceId 생성 (AccountData에 저장 안 함)
+            var displayInstanceId = new ItemInstanceId { id = System.Guid.NewGuid().ToString() };
             
             if (!displayInstanceId.IsValid())
             {
-                Debug.LogError($"❌ [ShopItemPool] 전시용 Instance 생성 실패: {templateName}");
-                Debug.LogError($"   equipment: {equipment.equipmentName}, itemID: {equipment.itemID}");
+                Debug.LogError($"❌ [ShopItemPool] 전시용 Instance ID 생성 실패: {templateName}");
                 return false;
             }
             
-            // 저장 (itemID 기반)
+            // 저장 (메모리에만, itemID 기반)
             displayInstances[templateName] = displayInstanceId;
             displayEquipmentData[displayInstanceId] = equipment;
             
-            Log($"🎁 [ShopItemPool] 전시용 Instance 생성: {equipment.equipmentName} (itemID: {templateName}, 등급: {equipment.itemGrade}, ID: {displayInstanceId.id.Substring(0, 8)}...)");
+            Log($"🎁 [ShopItemPool] 전시용 Instance 생성 (메모리 전용): {equipment.equipmentName} (itemID: {templateName}, 등급: {equipment.itemGrade}, ID: {displayInstanceId.id.Substring(0, 8)}...)");
             
             return true;
         }
