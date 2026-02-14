@@ -480,7 +480,7 @@ public class SelectedPlayerData : ScriptableObject
     }
     
     // 기존 PlayerDataManager 인터페이스 호환성을 위한 프로퍼티들
-    public int CurrentGold => currentGold;
+    public int CurrentGold => AccountDataManager.Instance?.CurrentGold ?? 0;
     public int CurrentLevel => currentLevel;
     public int CurrentExp => currentExp;
     public int ExpToNextLevel => expToNextLevel;
@@ -492,9 +492,11 @@ public class SelectedPlayerData : ScriptableObject
     
     /// <summary>
     /// 🔄 기존 호환성: 데이터 초기화
+    /// ⚠️ 모든 필드를 초기 상태로 되돌림 (ScriptableObject 오염 방지)
     /// </summary>
     public void Reset()
     {
+        selectedSlotIndex = -1;
         selectedPlayerType = PlayerType.None;
         weaponName = "";
         currentLevel = 1;
@@ -506,6 +508,29 @@ public class SelectedPlayerData : ScriptableObject
         runtimeInventoryItems.Clear();
         RuntimeEquippedItems.Clear();
         RuntimeExtraStats.Clear();
+        
+        // ========================================
+        // ✅ Phase 1: 스테이지 진행도 초기화 (오염 방지)
+        // ========================================
+        stageProgresses.Clear();
+        clearedChapters.Clear();
+        
+        // ========================================
+        // ✅ Phase 1: 컷신 시청 기록 초기화
+        // ========================================
+        seenChapterStart.Clear();
+        seenChapterClear.Clear();
+        seenStageEnter.Clear();
+        seenStageClear.Clear();
+        
+        // ========================================
+        // ✅ Phase 1: 챕터/스테이지 위치 초기화
+        // ========================================
+        currentChapterId = 1;
+        lastPlayedStageId = "";
+        pendingCutsceneId = null;
+        pendingChapterId = 0;
+        
         SyncDictionaries();
     }
     

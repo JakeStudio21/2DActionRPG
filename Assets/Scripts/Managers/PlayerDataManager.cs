@@ -411,8 +411,12 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 저장
         if (SaveSlotData(newSlot))
         {
-            // 🆕 추가: 새 슬롯 생성 후 메모리에서도 갱신
-            LoadAllSlots();
+            // ========================================
+            // ✅ 원칙: SaveSlotData()가 이미 파일+메모리 동기화 완료
+            // - File.WriteAllText() → JSON 저장
+            // - playerSlots[index] = slotData → 메모리 캐시 업데이트
+            // - LoadAllSlots() 호출 시 파일 시스템 캐시로 인한 동기화 지연 문제 발생 가능
+            // ========================================
             
             // 🆕 신규 캐릭터 생성 후 즉시 선택 (핵심 수정)
             bool selectSuccess = SelectSlot(slotIndex);
@@ -461,6 +465,19 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             currentSlotIndex = -1;
             selectedPlayerData.Reset();
             
+            // ========================================
+            // ✅ 원칙: StageProgressManager 캐시 강제 초기화
+            // - StageProgressManager는 DontDestroyOnLoad 싱글톤이므로 씬 전환 시에도 유지됨
+            // - 슬롯 삭제 시 progressCache를 초기화하지 않으면 이전 진행도가 남음
+            // - ClearProgressCache()로 캐시만 초기화 (currentSlotIndex는 -1로 유지)
+            // ========================================
+            if (StageSystem.StageProgressManager.Instance != null)
+            {
+                // progressCache 강제 초기화
+                StageSystem.StageProgressManager.Instance.ClearProgressCache();
+                Debug.Log($"🗑️ [PlayerDataManager] StageProgressManager 캐시 초기화 완료");
+            }
+            
             // 🆕 추가: SelectedPlayerData ScriptableObject 완전 초기화
             if (selectedPlayerData != null)
             {
@@ -474,6 +491,26 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 selectedPlayerData.expToNextLevel = 100;
                 selectedPlayerData.classLevel = 1;
                 selectedPlayerData.maxInventorySize = 16;
+                
+                // ========================================
+                // ✅ Phase 2: 스테이지 진행도 명시적 초기화 (안전장치)
+                // ========================================
+                selectedPlayerData.stageProgresses.Clear();
+                selectedPlayerData.clearedChapters.Clear();
+                
+                // ========================================
+                // ✅ Phase 2: 컷신 시청 기록 명시적 초기화
+                // ========================================
+                selectedPlayerData.seenChapterStart.Clear();
+                selectedPlayerData.seenChapterClear.Clear();
+                selectedPlayerData.seenStageEnter.Clear();
+                selectedPlayerData.seenStageClear.Clear();
+                
+                // ========================================
+                // ✅ Phase 2: 위치 정보 명시적 초기화
+                // ========================================
+                selectedPlayerData.currentChapterId = 1;
+                selectedPlayerData.lastPlayedStageId = "";
                 
                 // 🆕 추가: Unity 에디터에서 ScriptableObject 상태 강제 갱신
                 #if UNITY_EDITOR
@@ -2750,12 +2787,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             else
             {
                 // 아이템 삭제 (등록 취소)
-                var accountData = account.GetAccountData();
-                var instanceData = accountData.itemInstances.Find(i => i.instanceId == newId);
-                if (instanceData != null)
-                {
-                    accountData.itemInstances.Remove(instanceData);
-                }
+                // ✅ RemoveInstance() 사용 (캐시 정리 + 모든 참조 제거)
+                account.RemoveInstance(newId);
                 
                 Debug.LogError($"❌ [AddItemV2] 가방 가득 차서 획득 실패: {templateName}");
                 return default(ItemInstanceId);
