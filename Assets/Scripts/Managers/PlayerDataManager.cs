@@ -974,28 +974,36 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (amount <= 0) return;
         
-        int oldExp = selectedPlayerData.currentExp;
         int oldLevel = selectedPlayerData.currentLevel;
         
         selectedPlayerData.currentExp += amount;
-        MarkDirty(); // 🔧 경험치 추가 시 데이터 변경 표시
+        MarkDirty();
         
         // 레벨업 체크
+        bool leveledUp = false;
         while (selectedPlayerData.currentExp >= selectedPlayerData.expToNextLevel)
         {
             selectedPlayerData.currentExp -= selectedPlayerData.expToNextLevel;
             selectedPlayerData.currentLevel++;
             selectedPlayerData.expToNextLevel = CalculateExpToNextLevel(selectedPlayerData.currentLevel);
             OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
+            leveledUp = true;
             
             if (showDebugLogs)
-                Debug.Log($"🆙 [PlayerDataManager] 레벨업! 새 레벨: {selectedPlayerData.currentLevel}");
+                Debug.Log($"🆙 [PlayerDataManager] 레벨업! {oldLevel} → {selectedPlayerData.currentLevel}");
         }
         
         OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
         
-        if (showDebugLogs)
-            Debug.Log($"✨ [PlayerDataManager] 경험치 추가: +{amount} ({oldExp}→{selectedPlayerData.currentExp}) 레벨: {oldLevel}→{selectedPlayerData.currentLevel}");
+        // 경험치 획득 시 즉시 저장
+        if (leveledUp)
+        {
+            SaveOnMeaningfulEvent("LevelUp");
+        }
+        else
+        {
+            SaveOnMeaningfulEvent("ExpGained");
+        }
     }
     
     /// <summary>
@@ -3418,6 +3426,43 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         account.Save();
         
         Debug.Log($"✅ [TransferCharacterBag] 전송 완료 - 장비: {equipTransferred}개, 재료: {matTransferred}개");
+    }
+    
+    #endregion
+    
+    #region 🎮 치트 명령어 (디버그용)
+    
+    /// <summary>
+    /// [치트] 경험치 추가 테스트
+    /// Unity 상단 메뉴: Tools → Player Cheats → Add Exp 50
+    /// </summary>
+    [ContextMenu("🎮 치트: 경험치 +50")]
+    public void CheatAddExp50()
+    {
+        if (!IsSlotSelected)
+        {
+            Debug.LogWarning("⚠️ [치트] 슬롯이 선택되지 않았습니다!");
+            return;
+        }
+        
+        AddExp(50);
+        Debug.Log($"🎮 [치트] 경험치 +50 추가 완료! 현재: {CurrentExp}/{ExpToNextLevel}");
+    }
+    
+    /// <summary>
+    /// [치트] 경험치 대량 추가
+    /// </summary>
+    [ContextMenu("🎮 치트: 경험치 +500")]
+    public void CheatAddExp500()
+    {
+        if (!IsSlotSelected)
+        {
+            Debug.LogWarning("⚠️ [치트] 슬롯이 선택되지 않았습니다!");
+            return;
+        }
+        
+        AddExp(500);
+        Debug.Log($"🎮 [치트] 경험치 +500 추가 완료! 현재: {CurrentExp}/{ExpToNextLevel}");
     }
     
     #endregion

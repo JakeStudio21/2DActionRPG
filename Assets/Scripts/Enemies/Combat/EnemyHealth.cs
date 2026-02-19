@@ -114,12 +114,10 @@ public class EnemyHealth : MonoBehaviour
         if (baseEnemy?.EnemyData != null && baseEnemy?.GrowthProfile != null)
         {
             int scaledExp = baseEnemy.EnemyData.GetScaledExpReward(baseEnemy.CurrentLevel, baseEnemy.GrowthProfile);
-            Debug.Log($"[EnemyHealth] BaseEnemy 스케일된 경험치 사용: {scaledExp}");
             return scaledExp;
         }
         
-        // ❌ fallback 제거: 에러 처리
-        Debug.LogError($"[EnemyHealth] {gameObject.name}: EnemyData 또는 GrowthProfile이 없습니다! 경험치 설정을 확인해주세요.");
+        Debug.LogError($"❌ [EnemyHealth] {gameObject.name}: EnemyData 또는 GrowthProfile이 없습니다!");
         return 1; // 크래시 방지용 최소값
     }
 
@@ -131,12 +129,10 @@ public class EnemyHealth : MonoBehaviour
         if (baseEnemy?.EnemyData != null && baseEnemy?.GrowthProfile != null)
         {
             int scaledGold = baseEnemy.EnemyData.GetScaledGoldReward(baseEnemy.CurrentLevel, baseEnemy.GrowthProfile);
-            Debug.Log($"[EnemyHealth] BaseEnemy 스케일된 골드 사용: {scaledGold}");
             return scaledGold;
         }
         
-        // ❌ fallback 제거: 에러 처리
-        Debug.LogError($"[EnemyHealth] {gameObject.name}: EnemyData 또는 GrowthProfile이 없습니다! 골드 설정을 확인해주세요.");
+        Debug.LogError($"❌ [EnemyHealth] {gameObject.name}: EnemyData 또는 GrowthProfile이 없습니다!");
         return 1; // 크래시 방지용 최소값
     }
 
@@ -395,17 +391,8 @@ public class EnemyHealth : MonoBehaviour
             yield break;
         }
 
-        // ⭐ 경험치/골드 지급
-        int experience = CalculateExperienceReward();
-        int goldReward = CalculateGoldReward();
-        
-        Debug.Log($"[EnemyHealth] {gameObject.name} 처치! 경험치: {experience}, 골드: {goldReward}");
-        
-        PlayerDataManager.Instance.AddGold(goldReward);
-        PlayerDataManager.Instance.AddExp(experience);
-
         // ⭐ 애니메이션 완료 후 즉시 사망 처리
-        Debug.Log($"[EnemyHealth] {gameObject.name} 사망 처리 시작!");
+        Debug.Log($"[EnemyHealth] {gameObject.name} DieRoutine 애니메이션 대기 완료 → 사망 처리 호출");
         OnDeathAnimationComplete();
     }
 
@@ -418,6 +405,20 @@ public class EnemyHealth : MonoBehaviour
         
         deathEventTriggered = true;
         Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event: 사망 처리 완료!");
+
+        // ⭐ 경험치/골드 지급 (사망 처리의 최우선!)
+        int experience = CalculateExperienceReward();
+        int goldReward = CalculateGoldReward();
+        
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.AddGold(goldReward);
+            PlayerDataManager.Instance.AddExp(experience);
+        }
+        else
+        {
+            Debug.LogError($"❌ [EnemyHealth] PlayerDataManager.Instance가 null입니다!");
+        }
 
         // ✅ 🎵 Cue 시스템 추가 - 사망 이펙트 발행
         EmitDeathCues();

@@ -14,6 +14,9 @@ public class LobbyPlayerInfoUI : MonoBehaviour
     [SerializeField] private Slider expSlider;
     [SerializeField] private TextMeshProUGUI expText;
     
+    [Header("Debug")]
+    [SerializeField] private bool showDebugLogs = false;
+    
     private PlayerDataManager playerDataManager;
     
     void Start()
@@ -27,7 +30,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         if (AccountDataManager.Instance != null)
         {
             AccountDataManager.Instance.OnGoldChanged += OnGoldChanged;
-            Debug.Log($"✅ [LobbyPlayerInfoUI] AccountDataManager.OnGoldChanged 구독");
         }
         
         // 활성화 시 UI 갱신
@@ -43,7 +45,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         if (AccountDataManager.Instance != null)
         {
             AccountDataManager.Instance.OnGoldChanged -= OnGoldChanged;
-            Debug.Log($"🔌 [LobbyPlayerInfoUI] AccountDataManager.OnGoldChanged 구독 해제");
         }
     }
     
@@ -66,8 +67,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         
         // 초기 UI 업데이트
         UpdatePlayerInfo();
-        
-        Debug.Log("✅ [LobbyPlayerInfoUI] 초기화 완료");
     }
     
     private void UpdatePlayerInfo()
@@ -88,7 +87,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         {
             int currentGold = playerDataManager.CurrentGold;
             goldText.text = currentGold.ToString();
-            Debug.Log($"💰 [LobbyPlayerInfoUI] UpdatePlayerInfo - 골드: {currentGold}");
         }
         
         // 레벨
@@ -119,14 +117,21 @@ public class LobbyPlayerInfoUI : MonoBehaviour
     
     private void UpdateExpUI()
     {
+        if (playerDataManager == null) return;
+        
+        int currentExp = playerDataManager.CurrentExp;
+        int expToNextLevel = playerDataManager.ExpToNextLevel;
+        float expRatio = expToNextLevel > 0 ? (float)currentExp / expToNextLevel : 0f;
+        
         if (expSlider != null)
         {
-            float expRatio = (float)playerDataManager.CurrentExp / playerDataManager.ExpToNextLevel;
             expSlider.value = expRatio;
         }
         
         if (expText != null)
-            expText.text = $"{playerDataManager.CurrentExp}/{playerDataManager.ExpToNextLevel}";
+        {
+            expText.text = $"{currentExp}/{expToNextLevel}";
+        }
     }
     
     // 이벤트 핸들러들
@@ -140,7 +145,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         if (goldText != null)
         {
             goldText.text = newGold.ToString();
-            Debug.Log($"💰 [LobbyPlayerInfoUI] OnGoldChanged - 골드 업데이트: {newGold}");
         }
     }
     
@@ -172,7 +176,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
         {
             int accountGold = AccountDataManager.Instance?.CurrentGold ?? 0;
             goldText.text = accountGold.ToString();
-            Debug.Log($"💰 [LobbyPlayerInfoUI] UpdatePlayerInfoFromSlotData - Account 골드: {accountGold}");
         }
         
         if (levelText != null)
