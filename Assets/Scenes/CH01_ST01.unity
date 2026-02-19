@@ -77606,6 +77606,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5507072774053842882, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
+      propertyPath: expText
+      value: 
+      objectReference: {fileID: 1746337307}
     - target: {fileID: 5542874721922474036, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -78123,6 +78127,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
+--- !u!114 &1746337307 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6500383540841080339, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
+  m_PrefabInstance: {fileID: 1746337306}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1751078679
 PrefabInstance:
   m_ObjectHideFlags: 0
