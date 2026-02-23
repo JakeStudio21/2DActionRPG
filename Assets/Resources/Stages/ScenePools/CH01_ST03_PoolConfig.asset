@@ -362,5 +362,11 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
+  - tag: BOSSMON_FORESTELEMENTAL_001
+    prefab: {fileID: 3235174918318939483, guid: a1f93d743fcbe7f489e56de247837aa9, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 0

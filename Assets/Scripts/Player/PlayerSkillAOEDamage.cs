@@ -13,6 +13,7 @@ public class PlayerSkillAOEDamage : MonoBehaviour
     
     [Header("Damage Settings")]
     [SerializeField] private int damageAmount = 0; // 외부에서 SetDamage()로 설정
+    [SerializeField] private float skillMultiplier = 1.0f; // 스킬 배율 (외부에서 설정 가능)
     [SerializeField] private LayerMask enemyLayerMask = 1 << 6; // Enemy layer (기본값 6)
     [SerializeField] private bool damageOnce = true; // 한 번만 데미지 (기본값 true)
     
@@ -55,6 +56,17 @@ public class PlayerSkillAOEDamage : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"[PlayerSkillAOEDamage] 데미지 설정: {damageAmount}");
+    }
+    
+    /// <summary>
+    /// 스킬 배율 설정 (CombatFormula용)
+    /// </summary>
+    public void SetSkillMultiplier(float multiplier)
+    {
+        skillMultiplier = multiplier;
+        
+        if (showDebugLogs)
+            Debug.Log($"[PlayerSkillAOEDamage] 스킬 배율 설정: {skillMultiplier}x");
     }
     
     /// <summary>
@@ -112,8 +124,37 @@ public class PlayerSkillAOEDamage : MonoBehaviour
         var enemyHealth = other.GetComponent<EnemyHealth>();
         if (enemyHealth != null)
         {
-            // 데미지 적용
-            enemyHealth.TakeDamage(damageAmount);
+            // ⚔️ CombatFormula 데미지 계산
+            var playerStats = FindObjectOfType<PlayerRuntimeStats>();
+            IPlayerClass playerClass = FindObjectOfType<BaseClassBehaviour>();
+            
+            var ctx = new CombatFormula.AttackContext
+            {
+                baseAttack = playerStats != null ? playerStats.FinalAttackDamage : damageAmount,
+                attackerClass = playerClass,
+                targetDefense = GetTargetDefense(other),
+                targetTransform = other.transform,
+                attackerTransform = transform,
+                isSkillAttack = true,
+                skillMultiplier = skillMultiplier,
+                criticalChance = playerStats != null ? playerStats.FinalCriticalChance : 0f,
+                criticalMultiplier = playerStats != null ? playerStats.FinalCriticalDamage : 1.5f,
+                isPlayerAttack = true,
+                attackerLevel = GetPlayerLevel(),
+                
+                // ⚙️ Phase 4: ConditionalModifier용 필드
+                target = other.GetComponent<IEnemyTarget>(),
+                selfHpPercent = GetPlayerHpPercent(),
+                targetHpPercent = GetTargetHpPercent(other)
+            };
+            
+            var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+            
+            // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
+            enemyHealth.TakeDamage(result, transform);
+            
+            // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만)
+            ApplyLifeStealOnly(result);
             
             // 중복 데미지 방지용 추가
             hitEnemies.Add(other);
@@ -121,11 +162,11 @@ public class PlayerSkillAOEDamage : MonoBehaviour
             // Hit Cue 발행
             if (emitHitCue && !string.IsNullOrEmpty(hitCueEventKey))
             {
-                EmitHitCue(other.transform.position);
+                EmitHitCue(other.transform.position, result.isCritical);
             }
             
             if (showDebugLogs)
-                Debug.Log($"💥 [PlayerSkillAOEDamage] {other.name}에게 {damageAmount} 데미지!");
+                Debug.Log($"💥 [PlayerSkillAOEDamage] {other.name}에게 {result.finalDamage} 데미지! (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack})");
         }
     }
     
@@ -136,22 +177,93 @@ public class PlayerSkillAOEDamage : MonoBehaviour
     /// <summary>
     /// Hit Cue 발행 (몬스터 타격 이펙트)
     /// </summary>
-    private void EmitHitCue(Vector3 hitPosition)
+    private void EmitHitCue(Vector3 hitPosition, bool isCritical = false)
     {
         var context = new CueContext
         {
             position = hitPosition,
             rotation = Quaternion.identity,
             actorType = ActorType.Player,
-            magnitude = 1.3f,
-            isCritical = false,
+            magnitude = isCritical ? 2.0f : 1.3f,
+            isCritical = isCritical,
             surfaceType = SurfaceType.Flesh // 몬스터 타격
         };
         
         bool cueSuccess = CueEmitter.Emit(hitCueEventKey, "Player", context);
         
         if (showDebugLogs)
-            Debug.Log($"💥 [PlayerSkillAOEDamage] Hit Cue 발행 ({hitCueEventKey}, 위치: {hitPosition}) → {cueSuccess}");
+            Debug.Log($"💥 [PlayerSkillAOEDamage] Hit Cue 발행 ({hitCueEventKey}, 위치: {hitPosition}, 크리티컬: {isCritical}) → {cueSuccess}");
+    }
+    
+    #endregion
+    
+    #region Helper Methods
+    
+    /// <summary>
+    /// 대상의 방어력 가져오기
+    /// ✅ 몬스터 방어력 시스템 활성화
+    /// </summary>
+    private float GetTargetDefense(Collider2D target)
+    {
+        // BaseEnemy에서 스케일된 방어력 가져오기
+        var baseEnemy = target.GetComponent<BaseEnemy>();
+        if (baseEnemy != null)
+        {
+            return baseEnemy.GetScaledDefense();
+        }
+        
+        return 0f;
+    }
+    
+    /// <summary>
+    /// 플레이어 레벨 가져오기 (Dynamic K 계산용)
+    /// </summary>
+    private int GetPlayerLevel()
+    {
+        // PlayerRuntimeStats를 통해 레벨 가져오기 (일관성 있는 데이터 소스)
+        var playerStats = FindObjectOfType<PlayerRuntimeStats>();
+        if (playerStats != null)
+        {
+            return playerStats.CurrentLevel;
+        }
+        
+        // Fallback: PlayerDataManager에서 직접 가져오기
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.selectedPlayerData != null)
+        {
+            return PlayerDataManager.Instance.selectedPlayerData.currentLevel;
+        }
+        
+        return 1; // 기본값
+    }
+    
+    /// <summary>
+    /// 플레이어 HP 비율 가져오기 (조건부 모디파이어용)
+    /// ⚙️ Phase 4: ConditionalModifier
+    /// </summary>
+    private float GetPlayerHpPercent()
+    {
+        var playerHealth = FindObjectOfType<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            return playerHealth.GetCurrentHpPercent();
+        }
+        
+        return 1.0f; // 안전 값
+    }
+    
+    /// <summary>
+    /// 대상 HP 비율 가져오기 (조건부 모디파이어용)
+    /// ⚙️ Phase 4: ConditionalModifier
+    /// </summary>
+    private float GetTargetHpPercent(Collider2D target)
+    {
+        var enemyTarget = target.GetComponent<IEnemyTarget>();
+        if (enemyTarget != null)
+        {
+            return enemyTarget.GetCurrentHpPercent();
+        }
+        
+        return 1.0f; // 안전 값
     }
     
     #endregion
@@ -173,6 +285,40 @@ public class PlayerSkillAOEDamage : MonoBehaviour
         info += $"Hit Enemies Count: {hitEnemies.Count}\n";
         
         Debug.Log(info);
+    }
+    
+    #endregion
+    
+    #region ⚙️ Phase 4-C: 후처리 효과 적용 (공격자 측: 흡혈만)
+    
+    /// <summary>
+    /// Phase 4-C: 공격자 측 후처리 (흡혈만 공격자가 처리)
+    /// </summary>
+    private void ApplyLifeStealOnly(CombatFormula.DamageResult result)
+    {
+        // 흡혈 처리 (공격자가 체력 회복)
+        if (result.lifeStealAmount > 0)
+        {
+            ApplyLifeSteal(result.lifeStealAmount);
+        }
+    }
+    
+    /// <summary>
+    /// 흡혈: 플레이어 체력 회복
+    /// </summary>
+    private void ApplyLifeSteal(float amount)
+    {
+        if (amount <= 0) return;
+        
+        var playerHealth = FindObjectOfType<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            int healAmount = Mathf.RoundToInt(amount);
+            playerHealth.HealPlayerAmount(healAmount);
+            
+            if (showDebugLogs)
+                Debug.Log($"💚 [PlayerSkillAOEDamage] 흡혈: {healAmount} HP 회복");
+        }
     }
     
     #endregion

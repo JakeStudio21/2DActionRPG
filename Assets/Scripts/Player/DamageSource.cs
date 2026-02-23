@@ -79,25 +79,46 @@ public class DamageSource : MonoBehaviour
             return;
         }
         
-        // 🎯 PlayerRuntimeStats에서 실시간 최종 데미지 가져오기
-        float baseDamage = GetCurrentBaseDamage();
-        float finalDamage = baseDamage;
+        // ⚔️ CombatFormula 데미지 계산
+        float critChance = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalChance : 0f;
+        float critDamage = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalDamage : 1.5f;
         
         if (showDebugLogs)
-            Debug.Log($"🎯 [DamageSource] 데미지 계산 시작 - 기본 데미지: {baseDamage:F1}");
+            Debug.Log($"🎯 [DamageSource] 크리티컬 확률: {critChance:P2} (치명 데미지: {critDamage:F2}x)");
         
-        // 클래스별 특수 효과 적용
-        finalDamage = ApplyClassSpecialEffects(finalDamage, baseDamage, other);
+        var ctx = new CombatFormula.AttackContext
+        {
+            baseAttack = GetCurrentBaseDamage(),
+            attackerClass = GetComponent<IPlayerClass>(),
+            targetDefense = GetTargetDefense(other),
+            targetTransform = other.transform,
+            attackerTransform = transform,
+            isSkillAttack = false,
+            skillMultiplier = 1.0f,
+            criticalChance = critChance,
+            criticalMultiplier = critDamage,
+            isPlayerAttack = true,
+            attackerLevel = GetPlayerLevel(),
+            
+            // ⚙️ Phase 4: ConditionalModifier용 필드
+            target = other.GetComponent<IEnemyTarget>(),
+            selfHpPercent = GetPlayerHpPercent(),
+            targetHpPercent = GetTargetHpPercent(other)
+        };
         
-        // 최종 데미지 적용
-        int roundedDamage = Mathf.RoundToInt(finalDamage);
-        enemyHealth.TakeDamage(roundedDamage);
+        var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+        
+        // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
+        enemyHealth.TakeDamage(result, transform);
         
         // ⭐ Phase 1-1: 히트 이펙트 Cue 발행
         EmitHitEffectCue(other.transform.position);
         
+        // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만 공격자가 처리)
+        ApplyLifeStealOnly(result);
+        
         if (showDebugLogs)
-            Debug.Log($"💥 [DamageSource] 최종 데미지: {roundedDamage} → {other.name}");
+            Debug.Log($"💥 [DamageSource] 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) → {other.name}");
     }
     
     /// <summary>
@@ -113,19 +134,40 @@ public class DamageSource : MonoBehaviour
             return;
         }
         
-        // 🎯 데미지 계산 (PlayerRuntimeStats 기반)
-        float baseDamage = GetCurrentBaseDamage();
-        float finalDamage = ApplyClassSpecialEffects(baseDamage, baseDamage, other);
+        // ⚔️ CombatFormula 데미지 계산
+        var ctx = new CombatFormula.AttackContext
+        {
+            baseAttack = GetCurrentBaseDamage(),
+            attackerClass = GetComponent<IPlayerClass>(),
+            targetDefense = 0f, // SimpleMob은 방어력 없음
+            targetTransform = other.transform,
+            attackerTransform = transform,
+            isSkillAttack = false,
+            skillMultiplier = 1.0f,
+            criticalChance = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalChance : 0f,
+            criticalMultiplier = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalDamage : 1.5f,
+            isPlayerAttack = true,
+            attackerLevel = GetPlayerLevel(),
+            
+            // ⚙️ Phase 4: ConditionalModifier용 필드
+            target = null, // SimpleMob은 IEnemyTarget 미구현
+            selfHpPercent = GetPlayerHpPercent(),
+            targetHpPercent = 1.0f // SimpleMob은 HP 비율 미지원
+        };
         
-        // SimpleMob에 데미지 적용
-        int roundedDamage = Mathf.RoundToInt(finalDamage);
-        simpleMob.TakeDamage(roundedDamage);
+        var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+        
+        // SimpleMob에 데미지 적용 (기본 int 데미지만 지원)
+        simpleMob.TakeDamage(result.finalDamage);
         
         // 히트 이펙트
         EmitHitEffectCue(other.transform.position);
         
+        // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만)
+        ApplyLifeStealOnly(result);
+        
         if (showDebugLogs)
-            Debug.Log($"💥 [DamageSource] SimpleMob 데미지: {roundedDamage} → {other.name}");
+            Debug.Log($"💥 [DamageSource] SimpleMob 데미지: {result.finalDamage} → {other.name}");
     }
     
     /// <summary>
@@ -406,6 +448,119 @@ public class DamageSource : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"✅ [DamageSource] 벽 없음 - 공격 가능");
             return false;
+        }
+    }
+    
+    #endregion
+    
+    #region ⚔️ 전투 공식 연동
+    
+    /// <summary>
+    /// 대상의 방어력 가져오기
+    /// ✅ 몬스터 방어력 시스템 활성화
+    /// </summary>
+    private float GetTargetDefense(Collider2D target)
+    {
+        // BaseEnemy에서 스케일된 방어력 가져오기
+        var baseEnemy = target.GetComponent<BaseEnemy>();
+        if (baseEnemy != null)
+        {
+            float defense = baseEnemy.GetScaledDefense();
+            if (showDebugLogs)
+                Debug.Log($"🛡️ [DamageSource] {target.name} 방어력: {defense:F1}");
+            return defense;
+        }
+        
+        return 0f;
+    }
+    
+    /// <summary>
+    /// 플레이어 레벨 가져오기 (Dynamic K 계산용)
+    /// </summary>
+    private int GetPlayerLevel()
+    {
+        // PlayerRuntimeStats를 통해 레벨 가져오기 (일관성 있는 데이터 소스)
+        if (playerRuntimeStats != null)
+        {
+            return playerRuntimeStats.CurrentLevel;
+        }
+        
+        // Fallback: PlayerDataManager에서 직접 가져오기
+        if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.selectedPlayerData != null)
+        {
+            return PlayerDataManager.Instance.selectedPlayerData.currentLevel;
+        }
+        
+        return 1; // 기본값
+    }
+    
+    /// <summary>
+    /// 플레이어 HP 비율 가져오기 (조건부 모디파이어용)
+    /// ⚙️ Phase 4: ConditionalModifier
+    /// </summary>
+    private float GetPlayerHpPercent()
+    {
+        var playerHealth = GetComponentInParent<PlayerHealth>();
+        if (playerHealth == null)
+            playerHealth = FindObjectOfType<PlayerHealth>();
+        
+        if (playerHealth != null)
+        {
+            return playerHealth.GetCurrentHpPercent();
+        }
+        
+        return 1.0f; // 안전 값
+    }
+    
+    /// <summary>
+    /// 대상 HP 비율 가져오기 (조건부 모디파이어용)
+    /// ⚙️ Phase 4: ConditionalModifier
+    /// </summary>
+    private float GetTargetHpPercent(Collider2D target)
+    {
+        var enemyTarget = target.GetComponent<IEnemyTarget>();
+        if (enemyTarget != null)
+        {
+            return enemyTarget.GetCurrentHpPercent();
+        }
+        
+        return 1.0f; // 안전 값
+    }
+    
+    #endregion
+    
+    #region ⚙️ Phase 4-C: 후처리 효과 적용 (공격자 측: 흡혈만)
+    
+    /// <summary>
+    /// Phase 4-C: 공격자 측 후처리 (흡혈만 공격자가 처리)
+    /// </summary>
+    private void ApplyLifeStealOnly(CombatFormula.DamageResult result)
+    {
+        // 흡혈 처리 (공격자가 체력 회복)
+        if (result.lifeStealAmount > 0)
+        {
+            ApplyLifeSteal(result.lifeStealAmount);
+        }
+    }
+    
+    /// <summary>
+    /// 흡혈: 플레이어 체력 회복
+    /// </summary>
+    private void ApplyLifeSteal(float amount)
+    {
+        if (amount <= 0) return;
+        
+        var playerHealth = GetComponentInParent<PlayerHealth>();
+        if (playerHealth == null)
+            playerHealth = FindObjectOfType<PlayerHealth>();
+        
+        if (playerHealth != null)
+        {
+            int healAmount = Mathf.RoundToInt(amount);
+            playerHealth.HealPlayerAmount(healAmount);
+            
+            if (showDebugLogs)
+                Debug.Log($"💚 [DamageSource] 흡혈: {healAmount} HP 회복");
         }
     }
     

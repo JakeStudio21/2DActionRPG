@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DefaultGrowthProfile
   m_EditorClassIdentifier: 
   hpGrowthRate: 0.15
-  atkGrowthRate: 0.12
+  atkGrowthRate: 0.3
   defGrowthRate: 0.08
   speedGrowthRate: 0.05
   growthCurve: 1.1

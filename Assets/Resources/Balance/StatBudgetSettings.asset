@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 483a62e3ed0684f42a90386982136fdf, type: 3}
+  m_Name: StatBudgetSettings
+  m_EditorClassIdentifier: 
+  statUnitCostCSV: {fileID: 4900000, guid: 01970cbed16097c4691efd3e9efd1185, type: 3}
+  gradeSlotBudgetCSV: {fileID: 4900000, guid: 3ccbea1bda97941449b18015bf4112f3, type: 3}
+  equipmentSlotBudgetCSV: {fileID: 4900000, guid: c0df114ea8ed8ac42a8276f262f48ea8, type: 3}
+  statSourceMappingCSV: {fileID: 4900000, guid: bee5f4f4f681dd841a3816841268cec8, type: 3}
+  gradeTotalBudgets:
+    keys: 0000000001000000020000000300000004000000050000000600000007000000
+    values:
+    - 37.5
+    - 41.25
+    - 48.75
+    - 56.25
+    - 63.75
+    - 75
+    - 86.25
+    - 97.5
+  slotBudgetWeights:
+    keys: 000000000100000002000000030000000400000008000000060000000700000005000000
+    values:
+    - 0.35
+    - 0.1
+    - 0.1
+    - 0.1
+    - 0.1
+    - 0.08
+    - 0.06
+    - 0.06
+    - 0.05
+  statUnitCosts:
+    keys:
+    - ATK_FLAT
+    - ATK_PERCENT
+    - ASPD
+    - CRIT_RATE
+    - CRIT_DMG
+    - SKILL_DMG_PERCENT
+    - COOLDOWN_REDUCTION
+    - DEF_FLAT
+    - HP_FLAT
+    - HP_REGEN
+    - DAMAGE_REDUCTION_PERCENT
+    - STATUS_RESIST_ALL
+    - MOVE_SPEED
+    - EXP_GAIN_PERCENT
+    values:
+    - 1
+    - 8
+    - 9
+    - 10
+    - 8
+    - 9
+    - 14
+    - 1
+    - 1
+    - 6
+    - 18
+    - 6
+    - 12
+    - 2
+  allowedStatsPerType:
+    keys:
+    - Bow
+    - Sword
+    - Staff
+    - Armor
+    - Accessory

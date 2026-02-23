@@ -1,330 +1,399 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 상태이상 효과 관리자
-/// 플레이어에게 독, 둔화, 화상, 기절 등의 상태이상을 적용하고 관리
+/// 🆕 상태이상 매니저 - Update 기반 통합 시스템
+/// ⚙️ Phase 4-C: 플레이어/몬스터 모두 지원, 면역 시스템 통합
+/// ⚙️ Singleton 패턴 유지 (BaseAttackBehaviour 호환성)
+/// ⚡ GC 최적화: List 사전 할당, Update 내 new 제거
 /// </summary>
 public class StatusEffectManager : Singleton<StatusEffectManager>
 {
-    [Header("🔧 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
+    #region 필드
     
-    // 활성 상태이상들
-    private List<ActiveStatusEffect> activeEffects = new List<ActiveStatusEffect>();
-    
-    // 상태이상별 코루틴 관리
-    private Dictionary<StatusEffectType, Coroutine> effectCoroutines = new Dictionary<StatusEffectType, Coroutine>();
-    
-    // 플레이어 참조
-    private PlayerHealth playerHealth;
-    private PlayerController playerController;
+    [Header("=== 디버그 설정 ===")]
+    [SerializeField] private bool enableDebugLogs = true;
     
     /// <summary>
-    /// 활성 상태이상 데이터 구조
+    /// 활성화된 상태이상 목록
+    /// ⚡ GC 최소화: 사전 할당된 리스트
     /// </summary>
-    [System.Serializable]
-    private class ActiveStatusEffect
-    {
-        public StatusEffectData effectData;
-        public float remainingTime;
-        public int stackCount;
-        public float lastTickTime;
-        
-        public ActiveStatusEffect(StatusEffectData data)
-        {
-            effectData = data;
-            remainingTime = data.Duration;
-            stackCount = 1;
-            lastTickTime = 0f;
-        }
-    }
-
+    private List<IStatusEffect> activeEffects = new List<IStatusEffect>(16);
+    
+    /// <summary>
+    /// 제거 대기 목록 (⚡ GC 최소화: 매 프레임 new 방지)
+    /// </summary>
+    private List<IStatusEffect> effectsToRemove = new List<IStatusEffect>(16);
+    
+    // 플레이어 참조 (캐싱)
+    private GameObject playerObject;
+    
+    #endregion
+    
+    #region Unity 생명주기
+    
     protected override void Awake()
     {
         base.Awake();
     }
-
+    
     private void Start()
     {
-        // 플레이어 참조 획득
-        playerHealth = FindObjectOfType<PlayerHealth>();
-        playerController = FindObjectOfType<PlayerController>();
-        
-        if (playerHealth == null)
-            Debug.LogWarning("[StatusEffectManager] PlayerHealth를 찾을 수 없습니다!");
-        if (playerController == null)
-            Debug.LogWarning("[StatusEffectManager] PlayerController를 찾을 수 없습니다!");
-    }
-
-    #region 상태이상 적용/해제
-
-    /// <summary>
-    /// 상태이상 적용
-    /// </summary>
-    public void ApplyStatusEffect(StatusEffectData effectData)
-    {
-        if (effectData == null || playerHealth == null) return;
-
-        // 이미 같은 효과가 있는지 확인
-        var existingEffect = activeEffects.Find(e => e.effectData.EffectType == effectData.EffectType);
-        
-        if (existingEffect != null)
+        // 플레이어 찾기
+        var playerHealth = FindObjectOfType<PlayerHealth>();
+        if (playerHealth != null)
         {
-            // 중첩 가능한 효과인지 확인
-            if (effectData.Stackable && existingEffect.stackCount < effectData.MaxStacks)
-            {
-                existingEffect.stackCount++;
-                existingEffect.remainingTime = effectData.Duration; // 지속시간 갱신
-                
-                if (showDebugLogs)
-                    Debug.Log($"[StatusEffect] {effectData.EffectName} 중첩 적용 (스택: {existingEffect.stackCount})");
-            }
-            else
-            {
-                // 중첩 불가능하면 지속시간만 갱신
-                existingEffect.remainingTime = effectData.Duration;
-                
-                if (showDebugLogs)
-                    Debug.Log($"[StatusEffect] {effectData.EffectName} 지속시간 갱신");
-            }
+            playerObject = playerHealth.gameObject;
+            if (enableDebugLogs)
+                Debug.Log($"[StatusEffectManager] 플레이어 오브젝트 찾음: {playerObject.name}");
         }
         else
         {
-            // 새로운 상태이상 추가
-            var newEffect = new ActiveStatusEffect(effectData);
-            activeEffects.Add(newEffect);
+            Debug.LogWarning("[StatusEffectManager] PlayerHealth를 찾을 수 없습니다!");
+        }
+    }
+    
+    private void Update()
+    {
+        // ⚡ GC 최소화: foreach 사용 (List는 struct enumerator 사용)
+        foreach (var effect in activeEffects)
+        {
+            // 틱 처리 (지속시간 감소 + 지속 피해 등)
+            bool isExpired = effect.Tick(Time.deltaTime);
             
-            // 즉시 효과 적용
-            ApplyImmediateEffect(effectData);
-            
-            // 지속 효과 시작
-            if (effectData.TickInterval > 0f)
+            if (isExpired)
             {
-                if (effectCoroutines.ContainsKey(effectData.EffectType))
-                {
-                    StopCoroutine(effectCoroutines[effectData.EffectType]);
-                }
-                effectCoroutines[effectData.EffectType] = StartCoroutine(TickEffectCoroutine(newEffect));
+                effectsToRemove.Add(effect);
+            }
+        }
+        
+        // 만료된 효과 제거
+        if (effectsToRemove.Count > 0)
+        {
+            foreach (var effect in effectsToRemove)
+            {
+                RemoveEffect(effect);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"[StatusEffect] {effectData.EffectName} 새로 적용 (지속: {effectData.Duration}초)");
+            effectsToRemove.Clear(); // ⚡ Clear()는 capacity 유지
         }
-
-        // 이펙트 및 사운드 재생
-        PlayEffectAndSound(effectData);
     }
-
+    
+    private void OnDestroy()
+    {
+        // 모든 상태이상 제거 (정리)
+        ClearAllEffects();
+    }
+    
+    #endregion
+    
+    #region 상태이상 추가 (신규 인터페이스)
+    
     /// <summary>
-    /// 특정 타입의 상태이상 제거
+    /// ⚙️ 상태이상 추가 (IStatusEffect 직접 추가)
+    /// </summary>
+    public void AddEffect(IStatusEffect newEffect)
+    {
+        if (newEffect == null)
+        {
+            Debug.LogWarning("[StatusEffectManager] null 상태이상을 추가하려고 시도");
+            return;
+        }
+        
+        // 🛡️ 면역 체크 (Phase 4-C)
+        if (IsImmuneToEffect(newEffect.Target, newEffect.EffectType))
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🛡️ [StatusEffectManager] {newEffect.Target.name}이(가) {newEffect.EffectType}에 면역! 차단됨.");
+            return; // 면역이 있으면 상태이상 적용 차단
+        }
+        
+        // 동일 타입 효과가 이미 있는지 확인
+        IStatusEffect existingEffect = FindEffectByType(newEffect.EffectType);
+        
+        if (existingEffect != null)
+        {
+            // 이미 존재하면 갱신/중첩
+            existingEffect.RefreshOrStack(newEffect.RemainingDuration, newEffect.Value);
+            
+            if (enableDebugLogs)
+                Debug.Log($"🔄 [StatusEffectManager] {newEffect.EffectType} 갱신/중첩 → {newEffect.Target.name}");
+        }
+        else
+        {
+            // 새로 추가
+            activeEffects.Add(newEffect);
+            newEffect.Apply();
+            
+            if (enableDebugLogs)
+                Debug.Log($"✅ [StatusEffectManager] {newEffect.EffectType} 추가 → {newEffect.Target.name} (지속: {newEffect.RemainingDuration:F1}초)");
+        }
+    }
+    
+    /// <summary>
+    /// 🛡️ 대상이 특정 상태이상에 면역인지 확인
+    /// </summary>
+    private bool IsImmuneToEffect(GameObject target, EStatusEffectType effectType)
+    {
+        if (target == null)
+            return false;
+        
+        // 플레이어 면역 체크
+        var playerHealth = target.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            return playerHealth.IsImmuneToEffect(effectType);
+        }
+        
+        // 몬스터 면역 체크
+        var enemyHealth = target.GetComponent<EnemyHealth>();
+        if (enemyHealth != null)
+        {
+            return enemyHealth.IsImmuneToEffect(effectType);
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// ⚙️ 간편 메서드: 중독 효과 추가
+    /// </summary>
+    public void AddPoison(GameObject target, float duration, float damagePerTick, float tickInterval = 1.0f)
+    {
+        var effect = new PoisonEffect(target, duration, damagePerTick, tickInterval);
+        AddEffect(effect);
+    }
+    
+    /// <summary>
+    /// ⚙️ 간편 메서드: 화상 효과 추가
+    /// </summary>
+    public void AddBurn(GameObject target, float duration, float damagePerTick, float tickInterval = 1.0f)
+    {
+        var effect = new BurnEffect(target, duration, damagePerTick, tickInterval);
+        AddEffect(effect);
+    }
+    
+    /// <summary>
+    /// ⚙️ 간편 메서드: 속박 효과 추가
+    /// </summary>
+    public void AddBind(GameObject target, float duration)
+    {
+        var effect = new BindEffect(target, duration);
+        AddEffect(effect);
+    }
+    
+    /// <summary>
+    /// ⚙️ 간편 메서드: 둔화 효과 추가
+    /// </summary>
+    public void AddSlow(GameObject target, float duration, float slowAmount)
+    {
+        var effect = new SlowEffect(target, duration, slowAmount);
+        AddEffect(effect);
+    }
+    
+    #endregion
+    
+    #region 상태이상 추가 (기존 StatusEffectData 호환)
+    
+    /// <summary>
+    /// ⚙️ 레거시 지원: StatusEffectData → IStatusEffect 변환
+    /// BaseAttackBehaviour와의 호환성을 위해 유지
+    /// </summary>
+    public void ApplyStatusEffect(StatusEffectData effectData)
+    {
+        if (effectData == null)
+        {
+            Debug.LogWarning("[StatusEffectManager] null StatusEffectData를 적용하려고 시도");
+            return;
+        }
+        
+        if (playerObject == null)
+        {
+            Debug.LogWarning("[StatusEffectManager] 플레이어 오브젝트가 없어서 상태이상 적용 불가");
+            return;
+        }
+        
+        // StatusEffectData를 IStatusEffect로 변환
+        IStatusEffect effect = ConvertFromStatusEffectData(effectData, playerObject);
+        
+        if (effect != null)
+        {
+            AddEffect(effect);
+        }
+    }
+    
+    /// <summary>
+    /// StatusEffectData → IStatusEffect 변환 헬퍼
+    /// </summary>
+    private IStatusEffect ConvertFromStatusEffectData(StatusEffectData effectData, GameObject target)
+    {
+        // EffectValue = 초당 데미지 or 감소율
+        float value = effectData.GetCurrentEffectValue(1, 1, 0f);
+        float duration = effectData.Duration;
+        float tickInterval = effectData.TickInterval > 0f ? effectData.TickInterval : 1.0f;
+        
+        switch (effectData.EffectType)
+        {
+            case StatusEffectType.Poison:
+                return new PoisonEffect(target, duration, value, tickInterval);
+                
+            case StatusEffectType.Burn:
+                return new BurnEffect(target, duration, value, tickInterval);
+                
+            case StatusEffectType.Slow:
+                return new SlowEffect(target, duration, value);
+                
+            case StatusEffectType.Stun:
+                // Bind 효과로 대체 (이동 불가)
+                return new BindEffect(target, duration);
+                
+            default:
+                Debug.LogWarning($"[StatusEffectManager] 지원하지 않는 StatusEffectType: {effectData.EffectType}");
+                return null;
+        }
+    }
+    
+    #endregion
+    
+    #region 상태이상 제거
+    
+    /// <summary>
+    /// 상태이상 제거 (내부 메서드)
+    /// </summary>
+    private void RemoveEffect(IStatusEffect effect)
+    {
+        if (effect == null)
+            return;
+        
+        effect.Remove();
+        activeEffects.Remove(effect);
+        
+        if (enableDebugLogs)
+            Debug.Log($"❌ [StatusEffectManager] {effect.EffectType} 제거 ← {effect.Target.name}");
+    }
+    
+    /// <summary>
+    /// ⚙️ 특정 타입의 상태이상 제거
+    /// </summary>
+    public void RemoveEffectByType(EStatusEffectType effectType)
+    {
+        var effect = FindEffectByType(effectType);
+        if (effect != null)
+        {
+            RemoveEffect(effect);
+        }
+    }
+    
+    /// <summary>
+    /// ⚙️ 레거시 지원: StatusEffectType 제거
     /// </summary>
     public void RemoveStatusEffect(StatusEffectType effectType)
     {
-        var effect = activeEffects.Find(e => e.effectData.EffectType == effectType);
-        if (effect != null)
-        {
-            RemoveEffectImpact(effect.effectData);
-            activeEffects.Remove(effect);
-            
-            if (effectCoroutines.ContainsKey(effectType))
-            {
-                StopCoroutine(effectCoroutines[effectType]);
-                effectCoroutines.Remove(effectType);
-            }
-            
-            if (showDebugLogs)
-                Debug.Log($"[StatusEffect] {effect.effectData.EffectName} 제거됨");
-        }
+        // StatusEffectType → EStatusEffectType 변환
+        EStatusEffectType convertedType = ConvertStatusEffectType(effectType);
+        RemoveEffectByType(convertedType);
     }
-
+    
     /// <summary>
-    /// 모든 상태이상 제거
+    /// ⚙️ 모든 상태이상 제거
+    /// </summary>
+    public void ClearAllEffects()
+    {
+        foreach (var effect in activeEffects)
+        {
+            effect.Remove();
+        }
+        
+        activeEffects.Clear();
+        
+        if (enableDebugLogs)
+            Debug.Log($"🧹 [StatusEffectManager] 모든 상태이상 제거됨 ({activeEffects.Count}개)");
+    }
+    
+    /// <summary>
+    /// ⚙️ 레거시 지원: RemoveAllStatusEffects
     /// </summary>
     public void RemoveAllStatusEffects()
     {
-        foreach (var effect in activeEffects.ToArray())
-        {
-            RemoveStatusEffect(effect.effectData.EffectType);
-        }
+        ClearAllEffects();
     }
-
-    #endregion
-
-    #region 상태이상 효과 구현
-
+    
     /// <summary>
-    /// 즉시 효과 적용 (기절, 둔화 등)
+    /// ⚙️ 특정 대상의 모든 상태이상 제거 (사망 시 호출)
     /// </summary>
-    private void ApplyImmediateEffect(StatusEffectData effectData)
+    public void ClearEffectsOnTarget(GameObject target)
     {
-        switch (effectData.EffectType)
+        if (target == null)
+            return;
+        
+        // 대상에게 적용된 효과 찾기
+        effectsToRemove.Clear();
+        foreach (var effect in activeEffects)
         {
-            case StatusEffectType.Slow:
-                ApplySlowEffect(effectData);
-                break;
-                
-            case StatusEffectType.Stun:
-                ApplyStunEffect(effectData);
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 지속 효과 처리 (독, 화상 등)
-    /// </summary>
-    private IEnumerator TickEffectCoroutine(ActiveStatusEffect effect)
-    {
-        while (effect.remainingTime > 0f)
-        {
-            // 틱 간격 대기
-            yield return new WaitForSeconds(effect.effectData.TickInterval);
-            
-            // 효과 적용
-            ApplyTickEffect(effect);
-            
-            // 시간 감소
-            effect.remainingTime -= effect.effectData.TickInterval;
-            effect.lastTickTime += effect.effectData.TickInterval;
+            if (effect.Target == target)
+            {
+                effectsToRemove.Add(effect);
+            }
         }
         
         // 효과 제거
-        RemoveStatusEffect(effect.effectData.EffectType);
-    }
-
-    /// <summary>
-    /// 틱 기반 효과 적용
-    /// </summary>
-    private void ApplyTickEffect(ActiveStatusEffect effect)
-    {
-        switch (effect.effectData.EffectType)
+        foreach (var effect in effectsToRemove)
         {
-            case StatusEffectType.Poison:
-                ApplyPoisonTick(effect);
-                break;
-                
-            case StatusEffectType.Burn:
-                ApplyBurnTick(effect);
-                break;
+            RemoveEffect(effect);
         }
-    }
-
-    /// <summary>
-    /// 독 효과 적용
-    /// </summary>
-    private void ApplyPoisonTick(ActiveStatusEffect effect)
-    {
-        if (playerHealth == null) return;
-
-        float damage = effect.effectData.GetCurrentEffectValue(1, effect.stackCount, effect.lastTickTime);
-        int intDamage = Mathf.RoundToInt(damage);
         
-        playerHealth.TakeDamage(intDamage, null);
+        if (enableDebugLogs && effectsToRemove.Count > 0)
+            Debug.Log($"🧹 [StatusEffectManager] {target.name}의 상태이상 {effectsToRemove.Count}개 제거됨");
         
-        if (showDebugLogs)
-            Debug.Log($"[StatusEffect] 독 데미지: {intDamage} (스택: {effect.stackCount})");
+        effectsToRemove.Clear();
     }
-
-    /// <summary>
-    /// 화상 효과 적용
-    /// </summary>
-    private void ApplyBurnTick(ActiveStatusEffect effect)
-    {
-        if (playerHealth == null) return;
-
-        float damage = effect.effectData.GetCurrentEffectValue(1, effect.stackCount, effect.lastTickTime);
-        int intDamage = Mathf.RoundToInt(damage);
-        
-        playerHealth.TakeDamage(intDamage, null);
-        
-        if (showDebugLogs)
-            Debug.Log($"[StatusEffect] 화상 데미지: {intDamage} (시간: {effect.lastTickTime:F1}초)");
-    }
-
-    /// <summary>
-    /// 둔화 효과 적용
-    /// </summary>
-    private void ApplySlowEffect(StatusEffectData effectData)
-    {
-        if (playerController == null) return;
-
-        // 이동속도 감소 (effectValue = 0.5면 50% 감소)
-        float speedMultiplier = 1f - effectData.EffectValue;
-        
-        // PlayerController의 이동속도에 배율 적용 (실제 구현은 PlayerController에 따라 다름)
-        // 여기서는 로그만 출력
-        if (showDebugLogs)
-            Debug.Log($"[StatusEffect] 둔화 적용: 이동속도 {speedMultiplier * 100:F0}%로 감소");
-    }
-
-    /// <summary>
-    /// 기절 효과 적용
-    /// </summary>
-    private void ApplyStunEffect(StatusEffectData effectData)
-    {
-        if (playerController == null) return;
-
-        // 플레이어 행동 제한 (실제 구현은 PlayerController에 따라 다름)
-        if (showDebugLogs)
-            Debug.Log($"[StatusEffect] 기절 적용: {effectData.Duration}초간 행동 불가");
-    }
-
-    /// <summary>
-    /// 상태이상 제거 시 영향 해제
-    /// </summary>
-    private void RemoveEffectImpact(StatusEffectData effectData)
-    {
-        switch (effectData.EffectType)
-        {
-            case StatusEffectType.Slow:
-                // 이동속도 원복
-                if (showDebugLogs)
-                    Debug.Log($"[StatusEffect] 둔화 해제: 이동속도 원복");
-                break;
-                
-            case StatusEffectType.Stun:
-                // 행동 제한 해제
-                if (showDebugLogs)
-                    Debug.Log($"[StatusEffect] 기절 해제: 행동 가능");
-                break;
-        }
-    }
-
+    
     #endregion
-
-    #region 이펙트 및 사운드
-
+    
+    #region 조회 메서드
+    
     /// <summary>
-    /// 상태이상 이펙트 및 사운드 재생
+    /// 특정 타입의 상태이상 찾기
     /// </summary>
-    private void PlayEffectAndSound(StatusEffectData effectData)
+    private IStatusEffect FindEffectByType(EStatusEffectType effectType)
     {
-        // 적용 이펙트 재생
-        if (effectData.ApplyEffect != null)
+        // ⚡ GC 최소화: foreach 사용
+        foreach (var effect in activeEffects)
         {
-            Instantiate(effectData.ApplyEffect, playerController.transform.position, Quaternion.identity);
+            if (effect.EffectType == effectType)
+            {
+                return effect;
+            }
         }
-
-        // 적용 사운드 재생
-        if (effectData.ApplySound != null)
-        {
-            AudioSource.PlayClipAtPoint(effectData.ApplySound, playerController.transform.position);
-        }
+        
+        return null;
     }
-
-    #endregion
-
-    #region 상태 확인 및 디버그
-
+    
     /// <summary>
-    /// 특정 상태이상이 활성화되어 있는지 확인
+    /// 특정 타입의 상태이상이 활성화되어 있는지 확인
+    /// </summary>
+    public bool HasEffect(EStatusEffectType effectType)
+    {
+        return FindEffectByType(effectType) != null;
+    }
+    
+    /// <summary>
+    /// ⚙️ 레거시 지원: HasStatusEffect
     /// </summary>
     public bool HasStatusEffect(StatusEffectType effectType)
     {
-        return activeEffects.Exists(e => e.effectData.EffectType == effectType);
+        EStatusEffectType convertedType = ConvertStatusEffectType(effectType);
+        return HasEffect(convertedType);
     }
-
+    
+    /// <summary>
+    /// 활성화된 모든 상태이상 목록
+    /// </summary>
+    public IReadOnlyList<IStatusEffect> GetActiveEffects()
+    {
+        return activeEffects;
+    }
+    
     /// <summary>
     /// 활성 상태이상 개수 반환
     /// </summary>
@@ -332,7 +401,35 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
     {
         return activeEffects.Count;
     }
-
+    
+    #endregion
+    
+    #region 타입 변환 헬퍼
+    
+    /// <summary>
+    /// StatusEffectType (레거시) → EStatusEffectType 변환
+    /// </summary>
+    private EStatusEffectType ConvertStatusEffectType(StatusEffectType oldType)
+    {
+        switch (oldType)
+        {
+            case StatusEffectType.Poison:
+                return EStatusEffectType.Poison;
+            case StatusEffectType.Burn:
+                return EStatusEffectType.Burn;
+            case StatusEffectType.Slow:
+                return EStatusEffectType.Slow;
+            case StatusEffectType.Stun:
+                return EStatusEffectType.Bind; // Stun을 Bind로 매핑
+            default:
+                return EStatusEffectType.None;
+        }
+    }
+    
+    #endregion
+    
+    #region 디버그
+    
     /// <summary>
     /// 현재 상태이상 디버그 정보 출력
     /// </summary>
@@ -348,13 +445,17 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         string info = "=== 활성 상태이상 목록 ===\n";
         foreach (var effect in activeEffects)
         {
-            info += $"- {effect.effectData.EffectName}: ";
-            info += $"남은시간 {effect.remainingTime:F1}초, ";
-            info += $"스택 {effect.stackCount}\n";
+            info += $"  - {effect.EffectType}: {effect.RemainingDuration:F1}초 남음 (값: {effect.Value})\n";
         }
         
         Debug.Log(info);
     }
-
+    
+    [ContextMenu("Print Active Effects")]
+    private void PrintActiveEffects()
+    {
+        DebugStatusEffects();
+    }
+    
     #endregion
 }

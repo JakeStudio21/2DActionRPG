@@ -28,16 +28,11 @@ MonoBehaviour:
   weaponRange: 5
   armorType: 2
   accessoryType: 0
-  attackDamage: 0
-  attackSpeed: 1
+  equipmentSlot: 2
+  baseStats: []
+  projectileId: 
   attackRange: 1
   attackShape: 1
-  criticalChance: 0
-  criticalDamage: 1
-  projectileId: 
-  defenseBonus: 40
-  speedBonus: 0
-  healthBonus: 25
   buyPrice: 2000
   sellPrice: 1000
   isLimited: 0

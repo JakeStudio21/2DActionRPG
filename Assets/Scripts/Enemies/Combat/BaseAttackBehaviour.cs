@@ -91,7 +91,16 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         if (attackData != null)
         {
             Debug.Log($"[{GetType().Name}] {gameObject.name} - AttackData 시스템 활성화: {attackData.AttackName}");
-            Debug.Log($"[{GetType().Name}] {attackData.GetDebugInfo(GetCurrentLevel())}");
+            
+            // ⭐ GrowthProfile 기반 디버그 정보
+            if (baseEnemy != null && baseEnemy.GrowthProfile != null)
+            {
+                Debug.Log($"[{GetType().Name}] {attackData.GetDebugInfoWithProfile(GetCurrentLevel(), baseEnemy.GrowthProfile, baseEnemy.EnemyData?.EnemyType ?? EnemyType.Basic)}");
+            }
+            else
+            {
+                Debug.Log($"[{GetType().Name}] {attackData.GetDebugInfo(GetCurrentLevel())}");
+            }
             
             // 공격 타입 검증
             ValidateAttackType();
@@ -121,7 +130,7 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
     
     /// <summary>
     /// 스케일된 공격 데미지 반환 (AttackData 필수)
-    /// ⭐ baseAttack 제거: AttackData만이 유일한 데미지 소스
+    /// ⭐ MonsterGrowthProfile 기반 데미지 계산
     /// </summary>
     public virtual int GetScaledDamage()
     {
@@ -138,10 +147,20 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
             return 1; // 크래시 방지용 최소값
         }
 
-        // AttackData만이 유일한 데미지 소스
-        int baseDamage = attackData.GetScaledDamage(level);
-        cachedScaledDamage = baseDamage;
-        return baseDamage;
+        // ⭐ BaseEnemy 검증 (null 체크)
+        if (baseEnemy == null)
+        {
+            Debug.LogError($"[{GetType().Name}] {gameObject.name}에 BaseEnemy 참조가 없습니다!");
+            return attackData.BaseDamage; // fallback
+        }
+
+        // ⭐ MonsterGrowthProfile 기반 데미지 계산
+        MonsterGrowthProfile growthProfile = baseEnemy.GrowthProfile;
+        EnemyType enemyType = baseEnemy.EnemyData?.EnemyType ?? EnemyType.Basic;
+        
+        int scaledDamage = attackData.GetScaledDamage(level, growthProfile, enemyType);
+        cachedScaledDamage = scaledDamage;
+        return scaledDamage;
     }
     
     /// <summary>
@@ -194,8 +213,9 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
     
     /// <summary>
     /// 스탯 캐시 무효화 (레벨 변경 시 호출)
+    /// ⭐ Public으로 변경: BaseEnemy에서 호출 가능
     /// </summary>
-    protected void InvalidateAttackCache()
+    public void InvalidateAttackCache()
     {
         cachedScaledDamage = null;
         cachedScaledCooldown = null;
@@ -491,8 +511,18 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         if (attackData != null)
         {
             info += $"AttackData: {attackData.name}\n";
-            info += attackData.GetDebugInfo(GetCurrentLevel()) + "\n";
-            info += $"Scaled Stats:\n";
+            
+            // ⭐ GrowthProfile 기반 디버그 정보
+            if (baseEnemy != null && baseEnemy.GrowthProfile != null)
+            {
+                info += attackData.GetDebugInfoWithProfile(GetCurrentLevel(), baseEnemy.GrowthProfile, baseEnemy.EnemyData?.EnemyType ?? EnemyType.Basic) + "\n";
+            }
+            else
+            {
+                info += attackData.GetDebugInfo(GetCurrentLevel()) + "\n";
+            }
+            
+            info += $"Scaled Stats (Runtime):\n";
             info += $"  Damage: {GetScaledDamage()}\n";
             info += $"  Cooldown: {GetScaledCooldown():F1}s\n";
             info += $"  Range: {GetScaledRange():F1}\n";

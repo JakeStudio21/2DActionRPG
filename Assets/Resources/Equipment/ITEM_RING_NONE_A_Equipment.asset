@@ -28,16 +28,20 @@ MonoBehaviour:
   weaponRange: 5
   armorType: 0
   accessoryType: 1
-  attackDamage: 25
-  attackSpeed: 1
+  equipmentSlot: 6
+  baseStats:
+  - statId: ATK_PERCENT
+    value: 0.140625
+    displayName: "\uACF5\uACA9\uB825 %"
+  - statId: ASPD
+    value: 0.125
+    displayName: "\uACF5\uACA9\uC18D\uB3C4"
+  - statId: CRIT_RATE
+    value: 30
+    displayName: "\uCE58\uBA85\uD0C0 \uD655\uB960"
+  projectileId: 
   attackRange: 1
   attackShape: 1
-  criticalChance: 0
-  criticalDamage: 1
-  projectileId: 
-  defenseBonus: 0
-  speedBonus: 0
-  healthBonus: 80
   buyPrice: 5000
   sellPrice: 2500
   isLimited: 0

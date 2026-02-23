@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -34,21 +35,76 @@ public class EquipmentData : ScriptableObject
     [Header("💍 악세사리 전용 설정")]
     [SerializeField] private AccessoryType accessoryType = AccessoryType.None;
     
-    [Header("⚔️ 무기 전투 스탯")]
-    public float attackDamage = 0f;     // 공격 데미지
-    public float attackSpeed = 1f;      // 공격 속도  
-    public float attackRange = 1f;      // 공격 사거리
-    public int attackShape = 1;         // 공격 형태 (1=근접, 2=원거리)
-    public float criticalChance = 0f;   // 크리티컬 확률
-    public float criticalDamage = 1f;   // 크리티컬 데미지 배수
+    [Header("📊 통합 스탯 시스템 (예산제)")]
+    [Tooltip("이 장비가 어느 슬롯에 장착되는지 (예산 계산용)")]
+    public EquipmentSlot equipmentSlot = EquipmentSlot.MainWeapon;
+    
+    [Tooltip("모든 스탯을 담는 통합 리스트 (StatDefinition.csv 기반)")]
+    public List<ItemStat> baseStats = new List<ItemStat>();
     
     [Header("🏹 원거리 무기 전용")]
     public string projectileId;         // "ITEM_ARROW_1" 형태 (활/지팡이용)
     
-    [Header("🛡️ 방어구 전용 스탯")]
-    public float defenseBonus = 0f;     // 방어력 (갑옷)
-    public float speedBonus = 0f;       // 이동속도 (신발)
-    public float healthBonus = 0f;      // 체력 (방어구 공통)
+    [Header("⚔️ 공격 사거리/형태 (비스탯 속성)")]
+    [Tooltip("공격 사거리")]
+    public float attackRange = 1f;
+    [Tooltip("공격 형태 (1=근접, 2=원거리)")]
+    public int attackShape = 1;
+    
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 🔧 레거시 호환 프로퍼티 (기존 코드용, 읽기/쓰기 지원)
+    // Get: baseStats에서 자동 계산
+    // Set: baseStats에 자동 저장
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    /// <summary>공격력 (ATK_FLAT)</summary>
+    public float attackDamage
+    {
+        get => GetStatValue("ATK_FLAT");
+        set => SetStatValue("ATK_FLAT", value, "공격력");
+    }
+    
+    /// <summary>공격속도 배율 (ASPD + 1.0, 저장 시 -1.0)</summary>
+    public float attackSpeed
+    {
+        get => 1f + (GetStatValue("ASPD") / 100f); // CSV: 12.5 → 코드: 1.125
+        set => SetStatValue("ASPD", (value - 1f) * 100f, "공격속도"); // 코드: 1.125 → CSV: 12.5
+    }
+    
+    /// <summary>크리티컬 확률 (CRIT_RATE)</summary>
+    public float criticalChance
+    {
+        get => GetStatValue("CRIT_RATE") / 100f; // CSV: 1 → 코드: 0.01
+        set => SetStatValue("CRIT_RATE", value * 100f, "크리티컬 확률"); // 코드: 0.01 → CSV: 1
+    }
+    
+    /// <summary>크리티컬 데미지 배수 (CRIT_DMG + 1.0, 저장 시 -1.0)</summary>
+    public float criticalDamage
+    {
+        get => 1f + (GetStatValue("CRIT_DMG") / 100f); // CSV: 50 → 코드: 1.5
+        set => SetStatValue("CRIT_DMG", (value - 1f) * 100f, "크리티컬 데미지"); // 코드: 1.5 → CSV: 50
+    }
+    
+    /// <summary>방어력 (DEF_FLAT)</summary>
+    public float defenseBonus
+    {
+        get => GetStatValue("DEF_FLAT");
+        set => SetStatValue("DEF_FLAT", value, "방어력");
+    }
+    
+    /// <summary>이동속도 보너스 (MOVE_SPEED)</summary>
+    public float speedBonus
+    {
+        get => GetStatValue("MOVE_SPEED") / 100f; // CSV: 10 → 코드: 0.1
+        set => SetStatValue("MOVE_SPEED", value * 100f, "이동속도"); // 코드: 0.1 → CSV: 10
+    }
+    
+    /// <summary>체력 보너스 (HP_FLAT)</summary>
+    public float healthBonus
+    {
+        get => GetStatValue("HP_FLAT");
+        set => SetStatValue("HP_FLAT", value, "체력");
+    }
     
     [Header("💰 상점 시스템")]
     public int buyPrice = 100;          // 상점에서 구매 가격
@@ -92,6 +148,33 @@ public class EquipmentData : ScriptableObject
     public bool IsSword => IsWeapon && weaponType == WeaponType.Sword;
     public bool IsBow => IsWeapon && weaponType == WeaponType.Bow;
     public bool IsMagic => IsWeapon && weaponType == WeaponType.Magic;
+    
+    /// <summary>
+    /// 📊 baseStats에서 특정 스탯 값 가져오기
+    /// </summary>
+    public float GetStatValue(string statId)
+    {
+        ItemStat stat = baseStats.Find(s => s.statId == statId);
+        return stat != null ? stat.value : 0f;
+    }
+    
+    /// <summary>
+    /// 📊 baseStats에 스탯 추가 또는 업데이트
+    /// </summary>
+    public void SetStatValue(string statId, float value, string displayName = "")
+    {
+        ItemStat stat = baseStats.Find(s => s.statId == statId);
+        if (stat != null)
+        {
+            stat.value = value;
+            if (!string.IsNullOrEmpty(displayName))
+                stat.displayName = displayName;
+        }
+        else
+        {
+            baseStats.Add(new ItemStat(statId, value, displayName));
+        }
+    }
     
     /// <summary>
     /// 장비 효과 요약 문자열 생성
@@ -183,6 +266,82 @@ public class EquipmentData : ScriptableObject
         Debug.Log($"   - 사거리: {weaponInfo.weaponRange}");
         
         return weaponInfo;
+    }
+    
+    /// <summary>
+    /// ⚔️ baseStats → StatModifier 변환 (Phase A 완전 전환용)
+    /// EquipmentInstance 없이도 StatModifier를 얻을 수 있음
+    /// </summary>
+    public List<StatModifier> GetStatModifiers()
+    {
+        List<StatModifier> modifiers = new List<StatModifier>();
+        
+        if (baseStats == null || baseStats.Count == 0)
+        {
+            return modifiers;
+        }
+        
+        string source = $"{equipmentName}";
+        
+        foreach (var itemStat in baseStats)
+        {
+            EStatType statType = ConvertStatIdToEnum(itemStat.statId);
+            if (statType == EStatType.None)
+            {
+                Debug.LogWarning($"[EquipmentData] 알 수 없는 StatId: {itemStat.statId}");
+                continue;
+            }
+            
+            var definition = StatDefinitions.Get(statType);
+            if (definition == null)
+            {
+                Debug.LogWarning($"[EquipmentData] StatDefinition을 찾을 수 없습니다: {statType}");
+                continue;
+            }
+            
+            float value = itemStat.value;
+            
+            // StatDefinition에 따라 Percent 단위 변환 (CSV: 30 → 코드: 0.30)
+            if (definition.unit == StatUnit.Percent)
+            {
+                value /= 100f;
+            }
+            
+            // StatModifier 생성자는 4개 인자만 받음 (stackRule, applyPhase는 StatDefinitions에서 자동 로드)
+            modifiers.Add(new StatModifier(
+                statType,
+                value,
+                definition.unit,
+                source
+            ));
+        }
+        
+        return modifiers;
+    }
+    
+    /// <summary>
+    /// StatId 문자열 → EStatType 변환
+    /// </summary>
+    private EStatType ConvertStatIdToEnum(string statId)
+    {
+        switch (statId)
+        {
+            case "ATK_FLAT": return EStatType.ATK_FLAT;
+            case "ATK_PERCENT": return EStatType.ATK_PERCENT;
+            case "ASPD": return EStatType.ASPD;
+            case "CRIT_RATE": return EStatType.CRIT_RATE;
+            case "CRIT_DMG": return EStatType.CRIT_DMG;
+            case "SKILL_DMG_PERCENT": return EStatType.SKILL_DMG_PERCENT;
+            case "COOLDOWN_REDUCTION": return EStatType.COOLDOWN_REDUCTION;
+            case "DEF_FLAT": return EStatType.DEF_FLAT;
+            case "DAMAGE_REDUCTION_PERCENT": return EStatType.DAMAGE_REDUCTION_PERCENT;
+            case "HP_FLAT": return EStatType.HP_FLAT;
+            case "HP_REGEN": return EStatType.HP_REGEN;
+            case "STATUS_RESIST_ALL": return EStatType.STATUS_RESIST_ALL;
+            case "MOVE_SPEED": return EStatType.MOVE_SPEED;
+            case "EXP_GAIN_PERCENT": return EStatType.EXP_GAIN_PERCENT;
+            default: return EStatType.None;
+        }
     }
 }
 

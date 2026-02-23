@@ -5,8 +5,9 @@ using UnityEngine.AI; // NavMeshAgent (Phase 2)
 /// <summary>
 /// 모든 몬스터의 기본 클래스 - 공통 기능 템플릿화
 /// ⭐ [Complete Reset] 완전한 데이터 기반 시스템 - fallback 제거
+/// ⚙️ [Phase 4] IEnemyTarget 구현 추가 - 조건부 모디파이어용
 /// </summary>
-public abstract class BaseEnemy : MonoBehaviour, IEnemy
+public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget
 {
     #region ⭐ 데이터 기반 시스템 (필수)
 
@@ -161,6 +162,28 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
             Debug.Log($"  - 공격력: AttackData에서 관리됨");
             Debug.Log($"  - 방어력: {GetScaledDefense():F1}");
             Debug.Log($"  - 이동속도: {GetScaledMoveSpeed():F1}");
+        }
+        
+        // ⭐ Phase 2-추가: 공격 데미지 캐시 무효화 (레벨 변경 시 필수!)
+        InvalidateAllAttackCaches();
+    }
+    
+    /// <summary>
+    /// 모든 공격 시스템의 캐시 무효화 (레벨 변경 시 호출)
+    /// </summary>
+    private void InvalidateAllAttackCaches()
+    {
+        // 모든 BaseAttackBehaviour 컴포넌트 찾기
+        var attackBehaviours = GetComponents<BaseAttackBehaviour>();
+        
+        if (attackBehaviours != null && attackBehaviours.Length > 0)
+        {
+            foreach (var attackBehaviour in attackBehaviours)
+            {
+                attackBehaviour.InvalidateAttackCache();
+            }
+            
+            Debug.Log($"🔄 [BaseEnemy] {gameObject.name}: {attackBehaviours.Length}개 공격 시스템 캐시 무효화 완료");
         }
     }
 
@@ -340,6 +363,34 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         }
         
         Debug.Log(info);
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 2: 런타임에 스테이지 기반 레벨 동적 설정
+    /// 스폰 직후 StageManager에서 호출되어야 함!
+    /// </summary>
+    /// <param name="stageBaseLevel">스테이지 기준 레벨</param>
+    /// <param name="levelOffset">레벨 오프셋 (특수 몬스터 강화용)</param>
+    public virtual void InitializeLevel(int stageBaseLevel, int levelOffset = 0)
+    {
+        // 1. 최종 레벨 계산
+        currentLevel = stageBaseLevel + levelOffset;
+        
+        Debug.Log($"🎯 [BaseEnemy] {gameObject.name} 레벨 초기화: Stage Lv.{stageBaseLevel} + Offset {levelOffset} = 최종 Lv.{currentLevel}");
+        
+        // 2. 스탯 재계산 (SO 기반)
+        CalculateRuntimeStats();
+        
+        // 3. 체력 리셋 (새 최대 체력으로 가득 채움)
+        var enemyHealth = GetComponent<EnemyHealth>();
+        if (enemyHealth != null)
+        {
+            enemyHealth.ResetHealthToMax();
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [BaseEnemy] {gameObject.name}: EnemyHealth 컴포넌트가 없습니다!");
+        }
     }
 
     #endregion
@@ -811,6 +862,73 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy
         }
         
         Debug.Log($"✅ [BaseEnemy] {gameObject.name} 연출 넉백 완료 (위치 동기화됨)");
+    }
+    
+    #endregion
+    
+    #region ⚙️ IEnemyTarget 인터페이스 구현 (Phase 4: ConditionalModifier)
+    
+    /// <summary>
+    /// 몬스터 타입 반환 (Basic, Elite, Boss)
+    /// </summary>
+    public EnemyType GetEnemyType()
+    {
+        // EnemyData가 없으면 Basic으로 간주
+        if (enemyData == null)
+        {
+            Debug.LogWarning($"[BaseEnemy] {gameObject.name}: EnemyData가 없어 Basic 타입으로 간주합니다.");
+            return EnemyType.Basic;
+        }
+        
+        return enemyData.EnemyType; // Public property 사용
+    }
+    
+    /// <summary>
+    /// 보스 몬스터인지 확인
+    /// </summary>
+    public bool IsBoss()
+    {
+        return GetEnemyType() == EnemyType.Boss;
+    }
+    
+    /// <summary>
+    /// 엘리트 몬스터인지 확인
+    /// </summary>
+    public bool IsElite()
+    {
+        return GetEnemyType() == EnemyType.Elite;
+    }
+    
+    /// <summary>
+    /// 현재 체력 비율 반환 (0.0 ~ 1.0)
+    /// </summary>
+    public float GetCurrentHpPercent()
+    {
+        if (enemyHealth == null)
+        {
+            Debug.LogWarning($"[BaseEnemy] {gameObject.name}: EnemyHealth 컴포넌트가 없습니다.");
+            return 1.0f; // 안전 값
+        }
+        
+        // EnemyHealth에서 현재 체력과 최대 체력 가져오기
+        float currentHp = enemyHealth.CurrentHealth;
+        float maxHp = enemyHealth.MaxHealth;
+        
+        if (maxHp <= 0)
+        {
+            Debug.LogWarning($"[BaseEnemy] {gameObject.name}: MaxHealth가 0 이하입니다.");
+            return 0f;
+        }
+        
+        return Mathf.Clamp01(currentHp / maxHp);
+    }
+    
+    /// <summary>
+    /// GameObject 참조 반환 (디버그/위치 확인용)
+    /// </summary>
+    public GameObject GetGameObject()
+    {
+        return gameObject;
     }
     
     #endregion

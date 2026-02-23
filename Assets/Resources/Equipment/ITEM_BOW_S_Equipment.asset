@@ -32,8 +32,8 @@ MonoBehaviour:
   attackSpeed: 20
   attackRange: 1
   attackShape: 1
-  criticalChance: 0
-  criticalDamage: 1
+  criticalChance: 0.3
+  criticalDamage: 2.2
   projectileId: Arrow_B
   defenseBonus: 0
   speedBonus: 0

@@ -77,8 +77,43 @@ public class GolemProjectile : MonoBehaviour
             PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(bulletDamage, transform);
-                Debug.Log($"[GolemProjectile] 플레이어에게 {bulletDamage} 데미지를 입혔습니다.");
+                // ⚔️ CombatFormula 데미지 계산
+                var playerStats = FindObjectOfType<PlayerRuntimeStats>();
+                var enemyTarget = GetComponentInParent<IEnemyTarget>();
+                var baseEnemy = GetComponentInParent<BaseEnemy>();
+                
+                var ctx = new CombatFormula.AttackContext
+                {
+                    baseAttack = bulletDamage,
+                    attackerClass = null,
+                    targetDefense = playerStats != null ? playerStats.FinalDefense : 0f,
+                    targetTransform = other.transform,
+                    attackerTransform = transform,
+                    isSkillAttack = false,
+                    skillMultiplier = 1.0f,
+                    criticalChance = 0f,
+                    criticalMultiplier = 2.0f,
+                    isPlayerAttack = false,
+                    attackerLevel = baseEnemy != null ? baseEnemy.CurrentLevel : 1,
+                    
+                    // ⚙️ Phase 4: ConditionalModifier용 필드
+                    target = null, // 플레이어는 IEnemyTarget 아님
+                    selfHpPercent = enemyTarget != null ? enemyTarget.GetCurrentHpPercent() : 1.0f,
+                    targetHpPercent = playerHealth != null ? playerHealth.GetCurrentHpPercent() : 1.0f
+                };
+                
+                var result = CombatFormula.CalculateEnemyToPlayerDamage(ctx);
+                
+                playerHealth.TakeDamage(result.finalDamage, transform);
+                
+                // ⚙️ Phase 4-C: 면역 체크 (플레이어가 상태이상 저항 가능)
+                if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
+                {
+                    Debug.Log($"🛡️ [GolemProjectile] 플레이어 면역 발동! 저항한 효과: {result.resistedEffects}");
+                    // 상태이상 부여 차단됨
+                }
+                
+                Debug.Log($"[GolemProjectile] 플레이어에게 {result.finalDamage} 데미지를 입혔습니다.");
 
                 OnHitEffect();
                 DestroyProjectile();

@@ -1,0 +1,15 @@
+﻿StatId,DisplayName,ValueType,Unit,StackRule,ApplyPhase,TargetScope,CapValue,Description
+ATK_FLAT,ATK Flat,Float,Flat,Add,Phase1_AttackBuild,Self,,공격력 고정값
+ATK_PERCENT,ATK %,Float,Percent,AddThenMultiply,Phase1_AttackBuild,Self,,공격력 %
+ASPD,Attack Speed,Float,Percent,Add,Runtime,Self,,공격속도 %
+CRIT_RATE,Crit Rate,Float,Percent,AddThenCap,Phase4_Crit,Self,1.0,치명 확률(최대 100%)
+CRIT_DMG,Crit Damage,Float,Percent,Add,Phase4_Crit,Self,,치명 피해 %
+SKILL_DMG_PERCENT,Skill Damage %,Float,Percent,AddThenMultiply,Phase3_Modifier,Self,,스킬 피해 증가 %
+COOLDOWN_REDUCTION,Cooldown Reduction,Float,Percent,AddThenCap,Runtime,Self,0.5,쿨감 최대 50%
+DEF_FLAT,DEF Flat,Float,Flat,Add,Phase5_Defense,Self,,방어력 고정값
+HP_FLAT,Max HP Flat,Float,Flat,Add,Runtime,Self,,최대 체력
+HP_REGEN,HP Regen,Float,Flat,Add,Runtime,Self,,초당 체력 회복
+DAMAGE_REDUCTION_PERCENT,Damage Reduction %,Float,Percent,AddThenCap,Phase5_Defense,Self,0.8,받는 피해 감소 최대 80%
+STATUS_RESIST_ALL,Status Resist All,Float,Percent,AddThenCap,Runtime,Self,1.0,상태이상 저항(최대 100%)
+MOVE_SPEED,Move Speed,Float,Percent,AddThenCap,Runtime,Self,1.0,이동속도(최대 100% 권장)
+EXP_GAIN_PERCENT,EXP Gain %,Float,Percent,AddThenMultiply,Runtime,Self,,경험치 획득 증가 %

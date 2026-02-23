@@ -34,6 +34,17 @@ public class PlayerHealth : MonoBehaviour
     // ✅ 외부 접근용 프로퍼티 추가
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
+    
+    // ⚙️ Phase 4-C: 회복 차단 시스템
+    [Header("⚙️ Phase 4-C: 회복 차단 시스템")]
+    [SerializeField] private float healingBlockDuration = 5f; // 회복 차단 지속 시간 (초)
+    private float healingBlockMultiplier = 0f; // 0~1, 1이면 100% 차단
+    private Coroutine healingBlockRoutine = null;
+    
+    [Header("🛡️ Phase 4-C: 상태이상 면역 시스템")]
+    [SerializeField] private float immunityDuration = 0.5f; // 면역 정보 유지 시간 (초)
+    private string currentResistedEffects = ""; // 현재 저항 중인 상태이상 목록
+    private float immunityExpireTime = 0f; // 면역 만료 시간
 
     private void Awake() {
         flash = GetComponent<Flash>();
@@ -127,7 +138,12 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void HealPlayerAmount(int healAmount) {
         if (currentHealth < maxHealth) {
-            int actualHeal = Mathf.Min(healAmount, maxHealth - currentHealth);
+            // ⚙️ Phase 4-C: 회복 차단 적용
+            float blockedPercent = healingBlockMultiplier;
+            int blockedAmount = Mathf.RoundToInt(healAmount * blockedPercent);
+            int effectiveHeal = healAmount - blockedAmount;
+            
+            int actualHeal = Mathf.Min(effectiveHeal, maxHealth - currentHealth);
             currentHealth += actualHeal;
             UpdateUI();
             
@@ -144,11 +160,21 @@ public class PlayerHealth : MonoBehaviour
             
             if (showDebugLogs)
             {
-                Debug.Log($"❤️ [PlayerHealth] 체력 회복: +{actualHeal} ({currentHealth}/{maxHealth})");
+                if (blockedPercent > 0)
+                {
+                    Debug.Log($"❤️ [PlayerHealth] 체력 회복: +{actualHeal} (회복 차단 {blockedPercent * 100:F0}%로 {blockedAmount} 차단됨) ({currentHealth}/{maxHealth})");
+                }
+                else
+                {
+                    Debug.Log($"❤️ [PlayerHealth] 체력 회복: +{actualHeal} ({currentHealth}/{maxHealth})");
+                }
             }
         }
     }
 
+    /// <summary>
+    /// ⚔️ 기본 데미지 받기 (기존 시스템 호환용)
+    /// </summary>
     public void TakeDamage(int damageAmount, Transform hitTransform) {
         if (!canTakeDamage) { return; }
 
@@ -207,11 +233,112 @@ public class PlayerHealth : MonoBehaviour
         string eventKey = "hit.player.normal";
         CueEmitter.Emit(eventKey, "Player", context);
     }
+    
+    /// <summary>
+    /// ⚔️ Phase 4-C: DamageResult 기반 데미지 받기 (완전한 전투 공식 연동)
+    /// </summary>
+    public void TakeDamage(CombatFormula.DamageResult result, Transform hitTransform) {
+        if (!canTakeDamage) { return; }
+
+        // 1️⃣ 🛡️ Phase 4-C: 면역 체크 (상태이상 차단)
+        if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
+        {
+            // 면역 정보 저장 (StatusEffectManager에서 참조)
+            currentResistedEffects = result.resistedEffects;
+            immunityExpireTime = Time.time + immunityDuration;
+            
+            if (showDebugLogs)
+                Debug.Log($"🛡️ [PlayerHealth] 플레이어 면역 발동! 저항한 효과: {result.resistedEffects}");
+            
+            // ⚙️ 향후: UI에 "면역!" 텍스트 표시 이벤트 발행
+        }
+
+        // 2️⃣ 💉 Phase 4-C: 회복 차단 디버프 적용
+        if (result.healingBlockPercent > 0)
+        {
+            ApplyHealingBlock(result.healingBlockPercent);
+        }
+
+        // 3️⃣ 애니메이션 및 효과
+        if (playerAnimationController != null)
+        {
+            playerAnimationController.OnHitStart();
+        }
+
+        // 4️⃣ 넉백
+        if (knockback != null)
+        {
+            knockback.GetKnockedBack(hitTransform, knockback.DefaultKnockBackThrust);
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [PlayerHealth] Knockback 컴포넌트가 없어서 넉백을 적용할 수 없습니다.");
+        }
+        
+        // 5️⃣ Flash 효과
+        if (flash != null)
+        {
+            StartCoroutine(flash.FlashRoutine());
+        }
+        
+        // 6️⃣ 실제 HP 차감
+        canTakeDamage = false;
+        currentHealth -= result.finalDamage;
+        
+        // 7️⃣ 데미지 넘버 표시 (Phase 4-C: DamageResult 통합 - 크리티컬, 면역 연출 포함)
+        if (DamageNumberManager.Instance != null)
+        {
+            DamageNumberManager.Instance.ShowDamage(
+                transform.position, 
+                result,  // ⚙️ DamageResult 통째로 전달
+                isPlayer: true, 
+                targetTransform: transform  // ⭐ 앵커 검색용
+            );
+        }
+        
+        // 8️⃣ UI 업데이트
+        UpdateUI();
+        
+        // 9️⃣ 회복 루틴 시작
+        StartCoroutine(DamageRecoveryRoutine());
+        StartCoroutine(QuickHitRecoveryRoutine());
+        
+        // 🔟 사망 체크
+        CheckIfPlayerDeath();
+
+        // 1️⃣1️⃣ Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = transform.position,
+            rotation = transform.rotation,
+            normal = (transform.position - hitTransform.position).normalized,
+            actorType = ActorType.Player,
+            magnitude = result.finalDamage / 10f,
+            damage = result.finalDamage,
+            isCritical = result.isCritical
+        };
+        
+        // 크리티컬 여부 반영
+        string eventKey = result.isCritical ? "hit.player.critical" : "hit.player.normal";
+        CueEmitter.Emit(eventKey, "Player", context);
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"💥 [PlayerHealth] {result.finalDamage} 데미지 받음 (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) ({currentHealth}/{maxHealth})");
+        }
+    }
 
     private void CheckIfPlayerDeath() {
         if (currentHealth <= 0 && !isDead)
         {
             isDead = true;
+            
+            // 🧹 Phase 4-C: 사망 시 모든 상태이상 제거
+            if (StatusEffectManager.Instance != null)
+            {
+                StatusEffectManager.Instance.ClearEffectsOnTarget(gameObject);
+            }
+            
             var activeWeapon = FindObjectOfType<ActiveWeapon>();
             if (activeWeapon != null)
             {
@@ -352,4 +479,120 @@ public class PlayerHealth : MonoBehaviour
                 Debug.Log($"🎯 [PlayerHealth] PlayerRuntimeStats와 동기화: 최대체력 {maxHealth}");
         }
     }
+    
+    /// <summary>
+    /// 현재 체력 비율 반환 (0.0 ~ 1.0)
+    /// ⚙️ Phase 4: ConditionalModifier 시스템에서 CombatContext 생성 시 사용
+    /// </summary>
+    public float GetCurrentHpPercent()
+    {
+        if (maxHealth <= 0)
+            return 0f;
+        
+        return Mathf.Clamp01((float)currentHealth / maxHealth);
+    }
+    
+    #region ⚙️ Phase 4-C: 회복 차단 시스템
+    
+    /// <summary>
+    /// 회복 차단 디버프 적용 (5초 지속)
+    /// </summary>
+    private void ApplyHealingBlock(float blockPercent)
+    {
+        // 기존 회복 차단 코루틴 중단
+        if (healingBlockRoutine != null)
+        {
+            StopCoroutine(healingBlockRoutine);
+        }
+        
+        // 새로운 회복 차단 적용
+        healingBlockMultiplier = blockPercent;
+        healingBlockRoutine = StartCoroutine(HealingBlockRoutine());
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"🚫 [PlayerHealth] 회복 차단 디버프 적용: {blockPercent * 100:F0}% ({healingBlockDuration}초 지속)");
+        }
+    }
+    
+    /// <summary>
+    /// 회복 차단 디버프 지속 시간 관리
+    /// </summary>
+    private IEnumerator HealingBlockRoutine()
+    {
+        // healingBlockDuration만큼 대기
+        yield return new WaitForSeconds(healingBlockDuration);
+        
+        // 회복 차단 해제
+        healingBlockMultiplier = 0f;
+        healingBlockRoutine = null;
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"✅ [PlayerHealth] 회복 차단 디버프 해제");
+        }
+    }
+    
+    #endregion
+
+    #region 🔧 DEBUG: 테스트용 메서드 (에디터 전용)
+    
+#if UNITY_EDITOR
+    /// <summary>
+    /// 디버그 전용: 체력을 특정 값으로 설정합니다.
+    /// </summary>
+    public void DEBUG_SetHealth(int newHealth)
+    {
+        currentHealth = Mathf.Clamp(newHealth, 0, maxHealth);
+        UpdateUI();
+        
+        if (showDebugLogs)
+            Debug.Log($"🔧 [DEBUG] 플레이어 체력 설정: {currentHealth}/{maxHealth}");
+    }
+    
+    /// <summary>
+    /// 디버그 전용: 체력을 특정 비율(%)로 설정합니다.
+    /// </summary>
+    public void DEBUG_SetHealthPercent(float percent)
+    {
+        int targetHealth = Mathf.RoundToInt(maxHealth * Mathf.Clamp01(percent));
+        DEBUG_SetHealth(targetHealth);
+    }
+    
+    /// <summary>
+    /// 디버그 전용: 체력을 완전히 회복합니다.
+    /// </summary>
+    public void DEBUG_HealFull()
+    {
+        currentHealth = maxHealth;
+        UpdateUI();
+        
+        if (showDebugLogs)
+            Debug.Log($"🔧 [DEBUG] 플레이어 완전 회복: {currentHealth}/{maxHealth}");
+    }
+#endif
+    
+    #endregion
+    
+    #region 🛡️ Phase 4-C: 상태이상 면역 시스템
+    
+    /// <summary>
+    /// 🛡️ 특정 상태이상에 면역인지 확인
+    /// StatusEffectManager에서 호출됨
+    /// </summary>
+    public bool IsImmuneToEffect(EStatusEffectType effectType)
+    {
+        // 면역 만료 시간 체크
+        if (Time.time > immunityExpireTime)
+        {
+            currentResistedEffects = "";
+            return false;
+        }
+        
+        // resistedEffects에 해당 상태이상이 포함되어 있는지 확인
+        string effectName = effectType.ToString();
+        return currentResistedEffects.Contains(effectName);
+    }
+    
+    #endregion
 }

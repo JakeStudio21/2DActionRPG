@@ -19,6 +19,12 @@ public class StageManager : MonoBehaviour
         [SerializeField] private string currentStageId;
         [SerializeField] private StageConfig stageConfig;
         
+        /// <summary>
+        /// ⭐ Phase 3: 현재 실행 중인 스테이지 설정 (읽기 전용)
+        /// 동적 레벨링 시스템에서 StageBaseLevel 접근용
+        /// </summary>
+        public StageConfig CurrentStageConfig => stageConfig;
+        
         [Header("디버그")]
         [SerializeField] private bool enableDebugLogs = false; // NavMesh 통합 완료 후 비활성화
         [SerializeField] private bool autoStartStage = false;
@@ -993,6 +999,25 @@ public class StageManager : MonoBehaviour
                             Debug.Log($"✅ [StageManager] 풀링 스폰 성공: {poolTag} at {position}");
                         }
                         
+                        // ⭐⭐⭐ Phase 3: 동적 레벨 초기화 (핵심!)
+                        BaseEnemy enemyComponent = spawnedObject.GetComponent<BaseEnemy>();
+                        if (enemyComponent != null && stageConfig != null)
+                        {
+                            int stageLevel = stageConfig.StageBaseLevel;
+                            int levelOffset = monsterData.LevelOffset;
+                            enemyComponent.InitializeLevel(stageLevel, levelOffset);
+                            
+                            if (enableDebugLogs)
+                            {
+                                Debug.Log($"🎯 [StageManager] 레벨 초기화: {spawnedObject.name} Lv.{stageLevel + levelOffset} (Stage:{stageLevel} + Offset:{levelOffset})");
+                            }
+                        }
+                        else if (enemyComponent == null)
+                        {
+                            Debug.LogWarning($"⚠️ [StageManager] {spawnedObject.name}: BaseEnemy 컴포넌트가 없습니다!");
+                        }
+                        // ⭐⭐⭐ Phase 3: 동적 레벨 초기화 끝
+                        
                         // 🔧 VFX 시스템 재활성화 (풀 에러 해결 후)
                         EmitSpawnCues(spawnedObject, monsterData, position);
                         
@@ -1014,6 +1039,21 @@ public class StageManager : MonoBehaviour
                 {
                     Debug.Log($"🔧 [StageManager] 직접 생성: {directSpawn.name} at {position}");
                 }
+                
+                // ⭐⭐⭐ Phase 3: 동적 레벨 초기화 (직접 생성 경로)
+                BaseEnemy directSpawnEnemy = directSpawn.GetComponent<BaseEnemy>();
+                if (directSpawnEnemy != null && stageConfig != null)
+                {
+                    int stageLevel = stageConfig.StageBaseLevel;
+                    int levelOffset = monsterData.LevelOffset;
+                    directSpawnEnemy.InitializeLevel(stageLevel, levelOffset);
+                    
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"🎯 [StageManager] 레벨 초기화 (직접생성): {directSpawn.name} Lv.{stageLevel + levelOffset}");
+                    }
+                }
+                // ⭐⭐⭐ Phase 3: 동적 레벨 초기화 끝
                 
                 EmitSpawnCues(directSpawn, monsterData, position);
                 return directSpawn;

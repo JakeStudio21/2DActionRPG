@@ -182,43 +182,56 @@ public class SelectedPlayerData : ScriptableObject
         }
         
         // ⭐ V2 시스템 우선 처리 (Phase 4.5)
+        Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 전 - equippedRecords: {(slotData.equippedRecords == null ? "null" : $"{slotData.equippedRecords.Count}개")}");
+        
         if (slotData.equippedRecords != null && slotData.equippedRecords.Count > 0)
         {
-            // V2: equippedRecords에서 ItemInstanceId → EquipmentData 변환
-            var account = AccountDataManager.Instance;
+            Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 시작: {slotData.equippedRecords.Count}개 아이템");
+            // ⭐ Phase B 수정: AccountData 의존성 제거, templateName 직접 사용
             foreach (var record in slotData.equippedRecords)
             {
-                if (record.instanceId.IsValid())
+                if (!record.instanceId.IsValid()) continue;
+                
+                string templateName = record.templateName;
+                
+                // ⚠️ Fallback: 기존 JSON 파일 호환성 (templateName 없을 때)
+                if (string.IsNullOrEmpty(templateName))
                 {
+                    Debug.LogWarning($"⚠️ [SelectedPlayerData] templateName 없음 → AccountData에서 복구 시도: {record.instanceId.id.Substring(0, 8)}...");
+                    var account = AccountDataManager.Instance;
                     var instance = account?.GetInstance(record.instanceId);
                     if (instance != null)
                     {
-                        Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 시도: templateName={instance.templateName}, slot={record.slot}");
-                        
-                        var item = ItemTemplateResolver.Load(instance.templateName);
-                        if (item != null)
-                        {
-                            RuntimeEquippedItems[record.slot] = item;
-                            RuntimeEquippedInstanceIds[record.slot] = record.instanceId; // ⭐ V2: InstanceId 추적
-                            
-                            // ⚠️ 디버그: EquipmentData 상세 정보
-                            Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 성공:");
-                            Debug.Log($"   - equipmentName: {item.equipmentName}");
-                            Debug.Log($"   - name (asset): {item.name}");
-                            Debug.Log($"   - equipmentType: {item.equipmentType}");
-                            Debug.Log($"   - slot: {record.slot}");
-                            Debug.Log($"   - instanceId: {record.instanceId.id.Substring(0, 8)}...");
-                            Debug.Log($"   - equipmentPrefab: {(item.equipmentPrefab != null ? item.equipmentPrefab.name : "null")}");
-                        }
-                        else
-                        {
-                            Debug.LogError($"❌ [SelectedPlayerData] V2 장비 템플릿을 찾을 수 없음: {instance.templateName}");
-                        }
+                        templateName = instance.templateName;
+                        Debug.Log($"✅ [SelectedPlayerData] Fallback 성공: {templateName}");
                     }
                     else
                     {
-                        Debug.LogWarning($"⚠️ [SelectedPlayerData] V2 장비 인스턴스를 찾을 수 없음: {record.instanceId.id}");
+                        Debug.LogError($"❌ [SelectedPlayerData] Fallback 실패: 인스턴스를 찾을 수 없음");
+                        continue;
                     }
+                }
+                
+                Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 시도: templateName={templateName}, slot={record.slot}");
+                
+                var item = ItemTemplateResolver.Load(templateName);
+                if (item != null)
+                {
+                    RuntimeEquippedItems[record.slot] = item;
+                    RuntimeEquippedInstanceIds[record.slot] = record.instanceId; // ⭐ V2: InstanceId 추적
+                    
+                    // ⚠️ 디버그: EquipmentData 상세 정보
+                    Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 성공:");
+                    Debug.Log($"   - equipmentName: {item.equipmentName}");
+                    Debug.Log($"   - name (asset): {item.name}");
+                    Debug.Log($"   - equipmentType: {item.equipmentType}");
+                    Debug.Log($"   - slot: {record.slot}");
+                    Debug.Log($"   - instanceId: {record.instanceId.id.Substring(0, 8)}...");
+                    Debug.Log($"   - equipmentPrefab: {(item.equipmentPrefab != null ? item.equipmentPrefab.name : "null")}");
+                }
+                else
+                {
+                    Debug.LogError($"❌ [SelectedPlayerData] V2 장비 템플릿을 찾을 수 없음: {templateName}");
                 }
             }
         }
@@ -419,17 +432,30 @@ public class SelectedPlayerData : ScriptableObject
         // 📌 V2 인벤토리 & 장비 (Phase 0-7) ⭐ 중요!
         // ========================================
         // ⭐ V2: RuntimeEquippedInstanceIds → equippedRecords 변환
+        Debug.Log($"🔍 [SelectedPlayerData] 저장 전 - RuntimeEquippedInstanceIds: {RuntimeEquippedInstanceIds.Count}개");
+        Debug.Log($"🔍 [SelectedPlayerData] 저장 전 - RuntimeEquippedItems: {RuntimeEquippedItems.Count}개");
+        
         slotData.equippedRecords.Clear();
         foreach (var kvp in RuntimeEquippedInstanceIds)
         {
+            Debug.Log($"  📦 저장 대상: {kvp.Key} → {(kvp.Value.IsValid() ? kvp.Value.id.Substring(0, 8) + "..." : "Invalid")}");
+            
             if (kvp.Value.IsValid())
             {
+                // ⭐ Phase B 수정: templateName도 함께 저장 (AccountData 의존성 제거)
+                string templateName = "";
+                if (RuntimeEquippedItems.TryGetValue(kvp.Key, out EquipmentData equipment))
+                {
+                    templateName = equipment.name; // Asset 이름
+                }
+                
                 slotData.equippedRecords.Add(new EquippedRecord
                 {
                     slot = kvp.Key,
-                    instanceId = kvp.Value
+                    instanceId = kvp.Value,
+                    templateName = templateName  // ⭐ Phase B: 템플릿명 저장
                 });
-                Debug.Log($"💾 [SelectedPlayerData] V2 장비 저장: {kvp.Key} → {kvp.Value.id.Substring(0, 8)}...");
+                Debug.Log($"💾 [SelectedPlayerData] V2 장비 저장: {kvp.Key} → {templateName} ({kvp.Value.id.Substring(0, 8)}...)");
             }
         }
         
@@ -443,13 +469,29 @@ public class SelectedPlayerData : ScriptableObject
     /// </summary>
     public void SyncDictionaries()
     {
-        // 장비 동기화
+        // 장비 동기화 (Legacy)
         equippedSlotKeys.Clear();
         equippedSlotValues.Clear();
         foreach (var kvp in RuntimeEquippedItems)
         {
             equippedSlotKeys.Add(kvp.Key);
             equippedSlotValues.Add(kvp.Value);
+        }
+        
+        // ⭐ V2: RuntimeEquippedInstanceIds 동기화 (Phase B 수정)
+        equippedIdSlotKeys.Clear();
+        equippedIdSlotValues.Clear();
+        if (_runtimeEquippedInstanceIds != null)
+        {
+            foreach (var kvp in _runtimeEquippedInstanceIds)
+            {
+                if (kvp.Value.IsValid())
+                {
+                    equippedIdSlotKeys.Add(kvp.Key);
+                    equippedIdSlotValues.Add(kvp.Value);
+                }
+            }
+            Debug.Log($"🔄 [SyncDictionaries] V2 장비 ID 동기화: {equippedIdSlotKeys.Count}개");
         }
         
         // 특성 동기화
@@ -507,6 +549,7 @@ public class SelectedPlayerData : ScriptableObject
         
         runtimeInventoryItems.Clear();
         RuntimeEquippedItems.Clear();
+        RuntimeEquippedInstanceIds.Clear(); // ⭐ V2: InstanceId Dictionary도 초기화 (Phase B)
         RuntimeExtraStats.Clear();
         
         // ========================================

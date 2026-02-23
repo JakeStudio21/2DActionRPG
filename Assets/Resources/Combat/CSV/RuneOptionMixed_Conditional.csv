@@ -1,0 +1,4 @@
+﻿optionId,optionName,cost,costTypeOrUnit,note
+PLAYER_HP30_DR25,플레이어 체력 30% 이하 피해감소 25%,260,FIXED,25% DR은 커서 고정형이 안전
+BOSS_HP50_UPDMG25,보스 체력 50% 이상 추가 피해 25%,220,FIXED,조건부 폭딜
+BOSS_DOT_LIFESTEAL_PCT,보스 피해 HP DOT 회복(흡혈) 초당 %,12,+1%p,

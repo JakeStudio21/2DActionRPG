@@ -86,4 +86,10 @@ public interface IPlayerClass
     /// </summary>
     /// <param name="active">활성화 여부</param>
     void SetActive(bool active);
+    
+    /// <summary>
+    /// GameObject 참조 반환 (위치, 이름 등 디버그용)
+    /// ⚙️ Phase 4: ConditionalModifier 시스템에서 CombatContext 생성 시 사용
+    /// </summary>
+    GameObject GetGameObject();
 } 

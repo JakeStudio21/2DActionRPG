@@ -911,6 +911,7 @@ public class ActiveInventory : MonoBehaviour
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
+            PlayerDataManager.Instance.OnCharacterBagChanged -= RefreshInventoryUI; // 🔧 수정: 캐릭터 가방 이벤트 구독 해제
             // 🆕 공용 이벤트 구독 해제
             PlayerDataManager.Instance.OnSlotClicked -= OnSlotClickedForInGame;
             PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForInGame; // 지연 로드 이벤트 해제

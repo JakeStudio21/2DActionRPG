@@ -30,6 +30,7 @@ MonoBehaviour:
     RequiredStageId: 
   WaveCount: 3
   Victory: 0
+  StageBaseLevel: 6
   hasTimeLimit: 1
   TimeLimitSec: 180
   FirstClearDropGroupId: DROP_CH01_ST05_FIRST

@@ -129,20 +129,39 @@ public class MeleeAttack : BaseAttackBehaviour
                 // ⭐ 히트 성공
                 lastAttackHit = true;
                 
-                // ⭐ 새 시스템: 크리티컬 판정
-                bool isCritical = RollCriticalHit();
-                int finalDamage = isCritical ? GetCriticalDamage(currentDamage) : currentDamage;
+                // ⚔️ CombatFormula 데미지 계산
+                var ctx = new CombatFormula.AttackContext
+                {
+                    baseAttack = currentDamage,
+                    attackerClass = null,
+                    targetDefense = GetPlayerDefense(),
+                    targetTransform = hitCollider.transform,
+                    attackerTransform = transform,
+                    isSkillAttack = false,
+                    skillMultiplier = 1.0f,
+                    criticalChance = AttackData != null ? AttackData.CriticalChance : 0f,
+                    criticalMultiplier = AttackData != null ? AttackData.CriticalMultiplier : 2.0f,
+                    isPlayerAttack = false,
+                    attackerLevel = GetEnemyLevel(),
+                    
+                    // ⚙️ Phase 4: ConditionalModifier용 필드
+                    target = null, // 플레이어는 IEnemyTarget 아님 (몬스터가 공격자이므로 역전)
+                    selfHpPercent = GetEnemyHpPercent(),
+                    targetHpPercent = GetPlayerHpPercent(hitCollider)
+                };
                 
-                // 데미지 적용
-                playerHealth.TakeDamage(finalDamage, transform);
+                var result = CombatFormula.CalculateEnemyToPlayerDamage(ctx);
                 
-                // ⭐ 새 시스템: 상태이상 적용
-                ApplyStatusEffects(playerHealth, hitCollider.transform);
+                // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
+                playerHealth.TakeDamage(result, transform);
+                
+                // ⚙️ Phase 4-C: TODO - 상태이상 적용은 나중에 구현
+                // 면역 체크는 PlayerHealth.TakeDamage()에서 이미 처리됨
                 
                 // ⭐ 새 시스템: 이펙트 및 사운드
-                PlayHitEffectsAndSounds(hitCollider.transform.position, isCritical);
+                PlayHitEffectsAndSounds(hitCollider.transform.position, result.isCritical);
                 
-                Debug.Log($"[MeleeAttack] {gameObject.name}이 플레이어에게 {finalDamage} 데미지를 입혔습니다. {(isCritical ? "(크리티컬!)" : "")}");
+                Debug.Log($"[MeleeAttack] {gameObject.name}이 플레이어에게 {result.finalDamage} 데미지를 입혔습니다. {(result.isCritical ? "(크리티컬!)" : "")}");
                 break; // 한 번에 하나의 플레이어만 타격
             }
         }
@@ -518,6 +537,66 @@ public class MeleeAttack : BaseAttackBehaviour
             Debug.Log($"  - 크리티컬 확률: {AttackData.CriticalChance * 100:F1}%");
             Debug.Log($"  - 크리티컬 배율: {AttackData.CriticalMultiplier}배");
         }
+    }
+    
+    #endregion
+    
+    #region ⚔️ 전투 공식 연동
+    
+    /// <summary>
+    /// 플레이어 방어력 가져오기
+    /// </summary>
+    private float GetPlayerDefense()
+    {
+        var playerStats = FindObjectOfType<PlayerRuntimeStats>();
+        if (playerStats != null)
+        {
+            return playerStats.FinalDefense;
+        }
+        return 0f;
+    }
+    
+    /// <summary>
+    /// 몬스터 레벨 가져오기 (Dynamic K 계산용)
+    /// </summary>
+    private int GetEnemyLevel()
+    {
+        var baseEnemy = GetComponentInParent<BaseEnemy>();
+        if (baseEnemy != null)
+        {
+            return baseEnemy.CurrentLevel;
+        }
+        return 1; // 기본값
+    }
+    
+    /// <summary>
+    /// 몬스터 HP 비율 가져오기 (조건부 모디파이어용)
+    /// ⚙️ Phase 4: ConditionalModifier
+    /// </summary>
+    private float GetEnemyHpPercent()
+    {
+        var enemyTarget = GetComponent<IEnemyTarget>();
+        if (enemyTarget != null)
+        {
+            return enemyTarget.GetCurrentHpPercent();
+        }
+        
+        return 1.0f; // 안전 값
+    }
+    
+    /// <summary>
+    /// 플레이어 HP 비율 가져오기 (조건부 모디파이어용)
+    /// ⚙️ Phase 4: ConditionalModifier
+    /// </summary>
+    private float GetPlayerHpPercent(Collider2D playerCollider)
+    {
+        var playerHealth = playerCollider.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            return playerHealth.GetCurrentHpPercent();
+        }
+        
+        return 1.0f; // 안전 값
     }
     
     #endregion

@@ -780,4 +780,17 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         if (showDebugLogs)
             Debug.Log($"📢 [BaseClassBehaviour] {ClassName} 초기화 완료 알림 전송");
     }
+    
+    #region ⚙️ IPlayerClass 인터페이스 구현 (Phase 4: ConditionalModifier)
+    
+    /// <summary>
+    /// GameObject 참조 반환 (위치, 이름 등 디버그용)
+    /// ⚙️ Phase 4: ConditionalModifier 시스템에서 CombatContext 생성 시 사용
+    /// </summary>
+    public GameObject GetGameObject()
+    {
+        return gameObject;
+    }
+    
+    #endregion
 } 

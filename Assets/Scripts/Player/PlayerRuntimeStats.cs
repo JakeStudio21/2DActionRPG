@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections; // ✅ 추가: IEnumerator 사용을 위해 필요
+using System.Linq; // 🆕 Phase 3: LINQ (OrderBy, Sum 등)
 
 /// <summary>
 /// 🎯 PlayerRuntimeStats - 런타임 전용 최종 스탯 계산/관리 클래스
@@ -20,6 +21,7 @@ public class PlayerRuntimeStats : MonoBehaviour
     [SerializeField] private float finalCriticalChance = 0f;
     [SerializeField] private float finalCriticalDamage = 1.5f;
     [SerializeField] private float finalDefense = 0f;
+    [SerializeField] private float finalHealMultiplier = 1.0f;  // 🆕 회복 효율
     
     [Header("🔗 데이터 연결")]
     [SerializeField] private bool showDebugLogs = true;
@@ -32,6 +34,12 @@ public class PlayerRuntimeStats : MonoBehaviour
     public float FinalCriticalChance => finalCriticalChance;
     public float FinalCriticalDamage => finalCriticalDamage;
     public float FinalDefense => finalDefense;
+    public float FinalHealMultiplier => finalHealMultiplier;  // 🆕 회복 효율
+    
+    /// <summary>
+    /// 현재 플레이어 레벨 (Dynamic K 계산용)
+    /// </summary>
+    public int CurrentLevel => playerData != null ? playerData.currentLevel : 1;
     
     // 내부 참조
     private SelectedPlayerData playerData;
@@ -59,6 +67,14 @@ public class PlayerRuntimeStats : MonoBehaviour
     private float temporaryMoveSpeed = 0f;
     private float temporaryMaxHealth = 0f;
     private float temporaryDefense = 0f;
+    
+    // 🆕 Phase 3: StatModifier 시스템
+    private List<StatModifier> activeModifiers = new List<StatModifier>();
+    private Dictionary<EStatType, float> modifierCache = new Dictionary<EStatType, float>();
+    private bool isModifierCacheDirty = true;
+    
+    // 🆕 Phase 4-C: ConditionalModifier 시스템 (룬 전용)
+    private List<ConditionalModifier> activeConditionalModifiers = new List<ConditionalModifier>();
     
     private void Awake()
     {
@@ -187,8 +203,11 @@ public class PlayerRuntimeStats : MonoBehaviour
         // 1단계: 기본 스탯 계산 (레벨 기반)
         CalculateBaseStats();
         
-        // 2단계: 장비 스탯 추가
+        // 2단계: 장비 스탯 추가 (기존 시스템)
         ApplyEquipmentStats();
+        
+        // 🆕 2.5단계: StatModifier 시스템 적용 (Phase 순서대로)
+        ApplyStatModifiers();
         
         // 3단계: 클래스 배율 적용
         ApplyClassMultipliers();
@@ -274,37 +293,81 @@ public class PlayerRuntimeStats : MonoBehaviour
     
     /// <summary>
     /// 📊 1단계: 기본 스탯 계산 (레벨 기반)
+    /// ✅ CSV 밸런싱: ScriptableObject에서 모든 기본값 가져옴
     /// </summary>
     private void CalculateBaseStats()
     {
         int currentLevel = playerData.currentLevel;
         
-        // 🆕 ScriptableObject에서 기본값 가져오기
-        float baseAttack = GetBaseAttackDamageFromClass();
-        float baseDefense = GetBaseDefenseFromClass();
-        float baseHealth = GetBaseMaxHealthFromClass();
-        float baseMoveSpeed = GetBaseMoveSpeedFromClass();
+        // ========================================
+        // 📈 성장 스탯 (레벨업으로 증가)
+        // ========================================
         
-        // 기본 공식 (ScriptableObject 기본값 + 레벨당 증가)
-        finalAttackDamage = baseAttack + (currentLevel - 1) * 2f;        // 클래스 기본값 + 레벨당 +2 공격력
-        finalMoveSpeed = baseMoveSpeed;                                   // 클래스 기본값 (클래스에서 조정)
-        finalMaxHealth = baseHealth + (currentLevel - 1) * 20f;          // 클래스 기본값 + 레벨당 +20 체력
-        finalAttackSpeed = 1f;                                           // 기본 공격속도
-        finalCriticalChance = 0f;                                        // 기본 크리티컬 확률
-        finalCriticalDamage = 1.5f;                                      // 기본 크리티컬 데미지
-        finalDefense = baseDefense + (currentLevel - 1) * 1f;            // 클래스 기본값 + 레벨당 +1 방어력
+        // ⚔️ 공격력: 목표 역산 방식 (기존 공식 유지)
+        float characterBaseAttack = GetCharacterBaseAttack(currentLevel);
+        float levelBonus = (currentLevel - 1) * 2f;  // 범용 레벨 보너스
+        finalAttackDamage = characterBaseAttack + levelBonus;
+        
+        // ❤️ 체력: baseMaxHealth + (레벨당 증가량)
+        float baseHealth = GetBaseMaxHealthFromClass();
+        float hpGain = GetHpGainPerLevelFromClass();
+        finalMaxHealth = baseHealth + (currentLevel - 1) * hpGain;
+        
+        // 🛡️ 방어력: baseDefense + (레벨당 증가량) ✅ CSV 조정 가능
+        float baseDefense = GetBaseDefenseFromClass();
+        float defenseGain = GetDefenseGainPerLevelFromClass();
+        finalDefense = baseDefense + (currentLevel - 1) * defenseGain;
+        
+        // ========================================
+        // 🎯 고정 스탯 (클래스 고유 특성)
+        // ========================================
+        
+        // 🎯 크리티컬 ✅ CSV 조정 가능
+        float baseCritRate = GetBaseCritRateFromClass();
+        float baseCritDmg = GetBaseCritDamageFromClass();
+        finalCriticalChance = baseCritRate;
+        finalCriticalDamage = baseCritDmg;
+        
+        // ⚡ 공격속도 ✅ CSV 조정 가능
+        float baseAtkSpeed = GetBaseAttackSpeedFromClass();
+        finalAttackSpeed = baseAtkSpeed;
+        
+        // 🏃 이동속도 (클래스 배율은 ApplyClassMultipliers에서 적용)
+        float baseMoveSpeed = GetBaseMoveSpeedFromClass();
+        finalMoveSpeed = baseMoveSpeed;
+        
+        // 💚 회복 효율 ✅ CSV 조정 가능
+        float healMult = GetHealMultiplierFromClass();
+        finalHealMultiplier = healMult;
         
         if (showDebugLogs)
-            Debug.Log($"📊 [PlayerRuntimeStats] 기본 스탯 (Lv.{currentLevel}) - 공격력: {finalAttackDamage}, 체력: {finalMaxHealth}, 방어력: {finalDefense}");
+        {
+            Debug.Log($"📊 [PlayerRuntimeStats] 기본 스탯 계산 완료 (Lv.{currentLevel})");
+            Debug.Log($"  📈 성장: 공격력 {finalAttackDamage:F1}, 체력 {finalMaxHealth:F0}, 방어력 {finalDefense:F1}");
+            Debug.Log($"  🎯 고정: 크리 {finalCriticalChance:P0}(x{finalCriticalDamage:F1}), 공속 {finalAttackSpeed:F1}, 회복 {finalHealMultiplier:P0}");
+        }
     }
     
     /// <summary>
-    /// ⚔️ 2단계: 장비 스탯 추가
+    /// ⚔️ 2단계: 장비 스탯 추가 (StatModifier 기반 - Phase A 완전 전환)
     /// </summary>
     private void ApplyEquipmentStats()
     {
+        if (playerData == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("[PlayerRuntimeStats] PlayerData가 없습니다. 장비 스탯 적용 스킵.");
+            return;
+        }
+        
         var equippedItems = playerData.RuntimeEquippedItems;
         
+        if (showDebugLogs)
+        {
+            Debug.Log($"⚔️ [PlayerRuntimeStats] 장비 스탯 적용: {equippedItems.Count}개 장비");
+        }
+        
+        // ✅ StatModifier 기반 적용 (완전 전환)
         foreach (var kvp in equippedItems)
         {
             EquipmentSlot slot = kvp.Key;
@@ -312,66 +375,58 @@ public class PlayerRuntimeStats : MonoBehaviour
             
             if (equipment == null) continue;
             
-            // ⭐ 슬롯별 세분화된 스탯 적용
-            switch (slot)
+            // ⭐ EquipmentData.GetStatModifiers() 호출 (단위 변환 자동 처리)
+            var modifiers = equipment.GetStatModifiers();
+            
+            if (showDebugLogs)
             {
-                case EquipmentSlot.MainWeapon:
-                    // 무기 → 공격력, 공격속도, 크리티컬
-                    if (equipment.equipmentType == EquipmentType.Weapon)
-                    {
-                        finalAttackDamage += equipment.attackDamage;
-                        finalAttackSpeed *= equipment.attackSpeed;
-                        finalCriticalChance += equipment.criticalChance;
-                        finalCriticalDamage += (equipment.criticalDamage - 1f);
+                Debug.Log($"  📦 {slot}: {equipment.equipmentName} - {modifiers.Count}개 StatModifier");
+            }
+            
+            foreach (var modifier in modifiers)
+            {
+                // StatModifier는 이미 /100f 변환 완료
+                switch (modifier.statType)
+                {
+                    case EStatType.ATK_FLAT:
+                        finalAttackDamage += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    ⚔️ ATK_FLAT: +{modifier.value:F2} → {finalAttackDamage:F2}");
+                        break;
                         
-                        if (showDebugLogs)
-                            Debug.Log($"⚔️ [PlayerRuntimeStats] 무기: {equipment.equipmentName} (+{equipment.attackDamage} 공격력)");
-                    }
-                    break;
-                
-                case EquipmentSlot.Helmet:
-                case EquipmentSlot.Armor:
-                    // 투구, 상의 → 방어력
-                    finalDefense += equipment.defenseBonus;
-                    
-                    if (showDebugLogs)
-                        Debug.Log($"🛡️ [PlayerRuntimeStats] {slot}: {equipment.equipmentName} (+{equipment.defenseBonus} 방어력)");
-                    break;
-                
-                case EquipmentSlot.Gloves:
-                    // 장갑 → 공격력
-                    finalAttackDamage += equipment.attackDamage;
-                    
-                    if (showDebugLogs)
-                        Debug.Log($"🧤 [PlayerRuntimeStats] 장갑: {equipment.equipmentName} (+{equipment.attackDamage} 공격력)");
-                    break;
-                
-                case EquipmentSlot.Boots:
-                    // 신발 → 이동속도
-                    finalMoveSpeed += equipment.speedBonus;
-                    
-                    if (showDebugLogs)
-                        Debug.Log($"👢 [PlayerRuntimeStats] 신발: {equipment.equipmentName} (+{equipment.speedBonus} 이동속도)");
-                    break;
-                
-                case EquipmentSlot.Ring1:
-                case EquipmentSlot.Ring2:
-                    // 반지 → 공격력 or 체력
-                    finalAttackDamage += equipment.attackDamage;
-                    finalMaxHealth += equipment.healthBonus;
-                    
-                    if (showDebugLogs)
-                        Debug.Log($"💍 [PlayerRuntimeStats] {slot}: {equipment.equipmentName} (+{equipment.attackDamage} 공격력, +{equipment.healthBonus} 체력)");
-                    break;
-                
-                case EquipmentSlot.Necklace:
-                case EquipmentSlot.Belt:
-                    // 목걸이, 허리띠 → 체력
-                    finalMaxHealth += equipment.healthBonus;
-                    
-                    if (showDebugLogs)
-                        Debug.Log($"📿 [PlayerRuntimeStats] {slot}: {equipment.equipmentName} (+{equipment.healthBonus} 체력)");
-                    break;
+                    case EStatType.DEF_FLAT:
+                        finalDefense += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🛡️ DEF_FLAT: +{modifier.value:F2} → {finalDefense:F2}");
+                        break;
+                        
+                    case EStatType.HP_FLAT:
+                        finalMaxHealth += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    ❤️ HP_FLAT: +{modifier.value:F0} → {finalMaxHealth:F0}");
+                        break;
+                        
+                    case EStatType.MOVE_SPEED:
+                        finalMoveSpeed += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🏃 MOVE_SPEED: +{modifier.value:F2} → {finalMoveSpeed:F2}");
+                        break;
+                        
+                    case EStatType.ASPD:
+                        finalAttackSpeed *= (1f + modifier.value);
+                        if (showDebugLogs) Debug.Log($"    💨 ASPD: x{1f + modifier.value:F2} → {finalAttackSpeed:F2}");
+                        break;
+                        
+                    case EStatType.CRIT_RATE:
+                        finalCriticalChance += modifier.value; // 0.30 = 30%
+                        if (showDebugLogs) Debug.Log($"    🎯 CRIT_RATE: +{modifier.value:P2} → {finalCriticalChance:P2}");
+                        break;
+                        
+                    case EStatType.CRIT_DMG:
+                        finalCriticalDamage += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    💥 CRIT_DMG: +{modifier.value:P2} → {finalCriticalDamage:P2}");
+                        break;
+                        
+                    default:
+                        if (showDebugLogs) Debug.LogWarning($"    ⚠️ 처리되지 않은 스탯: {modifier.statType}");
+                        break;
+                }
             }
         }
     }
@@ -443,9 +498,10 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalMoveSpeed = 4f;
         finalMaxHealth = 200f;
         finalAttackSpeed = 1f;
-        finalCriticalChance = 0f;
+        finalCriticalChance = 0.05f;  // 5%
         finalCriticalDamage = 1.5f;
-        finalDefense = 0f;
+        finalDefense = 5f;
+        finalHealMultiplier = 1.0f;  // 🆕
     }
     
     /// <summary>
@@ -454,13 +510,16 @@ public class PlayerRuntimeStats : MonoBehaviour
     private void LogFinalStats()
     {
         Debug.Log($"📊 [PlayerRuntimeStats] =====최종 스탯 계산 완료=====");
-        Debug.Log($"   ⚔️ 공격력: {finalAttackDamage:F1} (변경: {finalAttackDamage - previousAttackDamage:+F1;-F1;±0})");
-        Debug.Log($"   🏃 이동속도: {finalMoveSpeed:F1} (변경: {finalMoveSpeed - previousMoveSpeed:+F1;-F1;±0})");
-        Debug.Log($"   ❤️ 최대체력: {finalMaxHealth:F0} (변경: {finalMaxHealth - previousMaxHealth:+F0;-F0;±0})");
-        Debug.Log($"   ⚡ 공격속도: {finalAttackSpeed:F2}");
-        Debug.Log($"   🎯 크리티컬: {finalCriticalChance:P1} (x{finalCriticalDamage:F1})");
-        Debug.Log($"   🛡️ 방어력: {finalDefense:F1} (변경: {finalDefense - previousDefense:+F1;-F1;±0})");
-        Debug.Log($"=====================================");
+        Debug.Log($"   📈 성장 스탯:");
+        Debug.Log($"      ⚔️ 공격력: {finalAttackDamage:F1} (변경: {finalAttackDamage - previousAttackDamage:+F1;-F1;±0})");
+        Debug.Log($"      ❤️ 최대체력: {finalMaxHealth:F0} (변경: {finalMaxHealth - previousMaxHealth:+F0;-F0;±0})");
+        Debug.Log($"      🛡️ 방어력: {finalDefense:F1} (변경: {finalDefense - previousDefense:+F1;-F1;±0})");
+        Debug.Log($"   🎯 고정 스탯:");
+        Debug.Log($"      🎯 크리티컬: {finalCriticalChance:P1} (x{finalCriticalDamage:F1})");
+        Debug.Log($"      ⚡ 공격속도: {finalAttackSpeed:F2}");
+        Debug.Log($"      🏃 이동속도: {finalMoveSpeed:F1} (변경: {finalMoveSpeed - previousMoveSpeed:+F1;-F1;±0})");
+        Debug.Log($"      💚 회복 효율: {finalHealMultiplier:P0}");
+        Debug.Log($"========================================");
     }
     
     /// <summary>
@@ -758,6 +817,65 @@ public class PlayerRuntimeStats : MonoBehaviour
     /// <summary>
     /// 🔗 클래스별 기본값 가져오기 헬퍼 메서드들
     /// </summary>
+    
+    /// <summary>
+    /// ⚔️ 레벨별 캐릭터 기본 공격력 (목표 역산 방식)
+    /// BaseClassData에서 자동 계산된 성장률 사용
+    /// </summary>
+    private float GetCharacterBaseAttack(int level)
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            // BaseClassData에서 찾기 (Assasin, Warrior, Wizard 등)
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            
+            if (classData != null)
+            {
+                // BaseClassData.GetCharacterBaseAttack()가 자동으로 목표 역산 계산
+                return classData.GetCharacterBaseAttack(level);
+            }
+            
+            // Fallback: BaseClassData가 없으면 기본 공격력만 사용
+            Debug.LogWarning($"[PlayerRuntimeStats] {playerClass.ClassName}의 BaseClassData를 찾을 수 없습니다. 기본값 사용.");
+            return baseClass.GetBaseAttackDamage();
+        }
+        return 10f; // Fallback
+    }
+    
+    /// <summary>
+    /// BaseClassBehaviour에서 사용 중인 ScriptableObject 찾기
+    /// </summary>
+    private BaseClassData GetClassDataFromBehaviour(BaseClassBehaviour baseClass)
+    {
+        // Assasin인 경우
+        if (baseClass is Assasin assasin)
+        {
+            // Reflection으로 assasinData 필드 접근
+            var field = typeof(Assasin).GetField("assasinData", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                return field.GetValue(assasin) as BaseClassData;
+            }
+        }
+        
+        // Warrior인 경우
+        if (baseClass is Warrior warrior)
+        {
+            var field = typeof(Warrior).GetField("warriorData", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                return field.GetValue(warrior) as BaseClassData;
+            }
+        }
+        
+        // TODO: Wizard 추가 시 여기에 추가
+        
+        return null;
+    }
+    
     private float GetBaseAttackDamageFromClass()
     {
         var playerClass = GetComponent<IPlayerClass>();
@@ -797,4 +915,377 @@ public class PlayerRuntimeStats : MonoBehaviour
         }
         return 4f; // 기본값
     }
+    
+    /// <summary>
+    /// 🆕 레벨당 체력 증가량 가져오기
+    /// </summary>
+    private float GetHpGainPerLevelFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            if (classData != null)
+            {
+                return classData.hpGainPerLevel;
+            }
+        }
+        return 20f; // 기본값
+    }
+    
+    /// <summary>
+    /// 🆕 레벨당 방어력 증가량 가져오기 (CSV 조정 가능)
+    /// </summary>
+    private float GetDefenseGainPerLevelFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            if (classData != null)
+            {
+                return classData.defenseGainPerLevel;
+            }
+        }
+        return 1f; // 기본값
+    }
+    
+    /// <summary>
+    /// 🆕 기본 크리티컬 확률 가져오기 (CSV 조정 가능)
+    /// </summary>
+    private float GetBaseCritRateFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            if (classData != null)
+            {
+                return classData.baseCritRate;
+            }
+        }
+        return 0.05f; // 기본값 5%
+    }
+    
+    /// <summary>
+    /// 🆕 기본 크리티컬 데미지 가져오기 (CSV 조정 가능)
+    /// </summary>
+    private float GetBaseCritDamageFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            if (classData != null)
+            {
+                return classData.baseCritDamage;
+            }
+        }
+        return 1.5f; // 기본값 150%
+    }
+    
+    /// <summary>
+    /// 🆕 기본 공격속도 가져오기 (CSV 조정 가능)
+    /// </summary>
+    private float GetBaseAttackSpeedFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            if (classData != null)
+            {
+                return classData.baseAttackSpeed;
+            }
+        }
+        return 1.0f; // 기본값
+    }
+    
+    /// <summary>
+    /// 🆕 회복 효율 배율 가져오기 (CSV 조정 가능)
+    /// </summary>
+    private float GetHealMultiplierFromClass()
+    {
+        var playerClass = GetComponent<IPlayerClass>();
+        if (playerClass is BaseClassBehaviour baseClass)
+        {
+            BaseClassData classData = GetClassDataFromBehaviour(baseClass);
+            if (classData != null)
+            {
+                return classData.healMultiplier;
+            }
+        }
+        return 1.0f; // 기본값 100%
+    }
+    
+    #region 🆕 Phase 3: StatModifier 시스템
+    
+    /// <summary>
+    /// StatModifier 추가
+    /// </summary>
+    public void AddStatModifier(StatModifier modifier)
+    {
+        if (modifier == null) return;
+        
+        activeModifiers.Add(modifier);
+        isModifierCacheDirty = true;
+        
+        if (showDebugLogs)
+            Debug.Log($"[PlayerRuntimeStats] StatModifier 추가: {modifier}");
+    }
+    
+    /// <summary>
+    /// StatModifier 제거
+    /// </summary>
+    public void RemoveStatModifier(StatModifier modifier)
+    {
+        if (modifier == null) return;
+        
+        // statType과 source가 일치하는 것 제거
+        activeModifiers.RemoveAll(m => 
+            m.statType == modifier.statType && 
+            m.source == modifier.source
+        );
+        
+        isModifierCacheDirty = true;
+        
+        if (showDebugLogs)
+            Debug.Log($"[PlayerRuntimeStats] StatModifier 제거: {modifier}");
+    }
+    
+    /// <summary>
+    /// 모든 StatModifier 제거
+    /// </summary>
+    public void ClearAllStatModifiers()
+    {
+        activeModifiers.Clear();
+        modifierCache.Clear();
+        isModifierCacheDirty = true;
+    }
+    
+    /// <summary>
+    /// StatModifier 적용 (ApplyPhase 순서대로 정렬)
+    /// </summary>
+    private void ApplyStatModifiers()
+    {
+        if (activeModifiers.Count == 0) return;
+        
+        // 캐시 갱신 필요한 경우
+        if (isModifierCacheDirty)
+        {
+            RebuildModifierCache();
+        }
+        
+        // 캐시된 값 적용
+        ApplyCachedModifiers();
+    }
+    
+    /// <summary>
+    /// Modifier 캐시 재구축 (ApplyPhase 순서대로 정렬 + 합산)
+    /// </summary>
+    private void RebuildModifierCache()
+    {
+        modifierCache.Clear();
+        
+        // 🔑 핵심: ApplyPhase 순서대로 정렬
+        var sortedModifiers = activeModifiers
+            .OrderBy(m => m.applyPhase)
+            .ThenBy(m => m.statType)
+            .ToList();
+        
+        // statType별로 그룹화
+        var groupedModifiers = sortedModifiers
+            .GroupBy(m => m.statType)
+            .ToList();
+        
+        foreach (var group in groupedModifiers)
+        {
+            EStatType statType = group.Key;
+            var mods = group.ToList();
+            
+            // StackRule에 따라 계산
+            float finalValue = CalculateStackedValue(mods);
+            
+            modifierCache[statType] = finalValue;
+        }
+        
+        isModifierCacheDirty = false;
+        
+        if (showDebugLogs)
+            Debug.Log($"[PlayerRuntimeStats] Modifier 캐시 재구축: {modifierCache.Count}개 스탯");
+    }
+    
+    /// <summary>
+    /// StackRule에 따른 값 계산
+    /// </summary>
+    private float CalculateStackedValue(List<StatModifier> mods)
+    {
+        if (mods.Count == 0) return 0f;
+        
+        StatStackRule stackRule = mods[0].stackRule;
+        
+        switch (stackRule)
+        {
+            case StatStackRule.Add:
+                // 단순 합산
+                return mods.Sum(m => m.value);
+                
+            case StatStackRule.AddThenMultiply:
+                // 합산 후 곱셈 형태로 변환 (1 + sum)
+                float sum = mods.Sum(m => m.value);
+                return 1f + sum;
+                
+            case StatStackRule.AddThenCap:
+                // 합산 후 상한 적용
+                float total = mods.Sum(m => m.value);
+                float cap = mods[0].capValue ?? float.MaxValue;
+                return Mathf.Min(total, cap);
+                
+            default:
+                return mods.Sum(m => m.value);
+        }
+    }
+    
+    /// <summary>
+    /// 캐시된 Modifier 값 적용
+    /// </summary>
+    private void ApplyCachedModifiers()
+    {
+        foreach (var kvp in modifierCache)
+        {
+            EStatType statType = kvp.Key;
+            float value = kvp.Value;
+            
+            ApplyModifierToStat(statType, value);
+        }
+    }
+    
+    /// <summary>
+    /// 특정 스탯에 Modifier 적용
+    /// </summary>
+    private void ApplyModifierToStat(EStatType statType, float value)
+    {
+        switch (statType)
+        {
+            case EStatType.ATK_FLAT:
+                finalAttackDamage += value;
+                break;
+                
+            case EStatType.ATK_PERCENT:
+                finalAttackDamage *= value;
+                break;
+                
+            case EStatType.ASPD:
+                finalAttackSpeed *= value;
+                break;
+                
+            case EStatType.CRIT_RATE:
+                finalCriticalChance += value;
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [PlayerRuntimeStats] CRIT_RATE 적용: +{value:P2} → 총 {finalCriticalChance:P2}");
+                break;
+                
+            case EStatType.CRIT_DMG:
+                finalCriticalDamage += value;
+                break;
+                
+            case EStatType.DEF_FLAT:
+                finalDefense += value;
+                break;
+                
+            case EStatType.HP_FLAT:
+                finalMaxHealth += value;
+                break;
+                
+            case EStatType.MOVE_SPEED:
+                finalMoveSpeed *= value;
+                break;
+                
+            // TODO: 다른 스탯 추가
+            
+            default:
+                if (showDebugLogs)
+                    Debug.LogWarning($"[PlayerRuntimeStats] 지원하지 않는 스탯 타입: {statType}");
+                break;
+        }
+    }
+    
+    #endregion
+    
+    #region 🆕 Phase 4-C: ConditionalModifier 시스템 (룬 전용)
+    
+    /// <summary>
+    /// 룬에서 활성화된 조건부 모디파이어 목록 가져오기
+    /// ⚙️ CombatFormula에서 조건 판정 시 사용
+    /// </summary>
+    public List<ConditionalModifier> GetActiveConditionalModifiers()
+    {
+        return activeConditionalModifiers;
+    }
+    
+    /// <summary>
+    /// 조건부 모디파이어 설정 (룬 장착/해제 시 호출)
+    /// ⚙️ RuneManager에서 호출
+    /// </summary>
+    /// <param name="modifiers">활성화할 조건부 모디파이어 목록</param>
+    public void SetConditionalModifiers(List<ConditionalModifier> modifiers)
+    {
+        if (modifiers == null)
+        {
+            activeConditionalModifiers.Clear();
+        }
+        else
+        {
+            activeConditionalModifiers = new List<ConditionalModifier>(modifiers);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"[PlayerRuntimeStats] 조건부 모디파이어 설정: {activeConditionalModifiers.Count}개");
+    }
+    
+    /// <summary>
+    /// 조건부 모디파이어 추가 (개별)
+    /// </summary>
+    public void AddConditionalModifier(ConditionalModifier modifier)
+    {
+        if (modifier == null)
+        {
+            Debug.LogWarning("[PlayerRuntimeStats] 추가할 조건부 모디파이어가 null입니다.");
+            return;
+        }
+        
+        activeConditionalModifiers.Add(modifier);
+        
+        if (showDebugLogs)
+            Debug.Log($"[PlayerRuntimeStats] 조건부 모디파이어 추가: {modifier.displayName}");
+    }
+    
+    /// <summary>
+    /// 조건부 모디파이어 제거 (개별)
+    /// </summary>
+    public void RemoveConditionalModifier(ConditionalModifier modifier)
+    {
+        if (modifier == null) return;
+        
+        int removed = activeConditionalModifiers.RemoveAll(m => 
+            m.modifierId == modifier.modifierId && 
+            m.source == modifier.source
+        );
+        
+        if (showDebugLogs && removed > 0)
+            Debug.Log($"[PlayerRuntimeStats] 조건부 모디파이어 제거: {modifier.displayName} ({removed}개)");
+    }
+    
+    /// <summary>
+    /// 모든 조건부 모디파이어 제거
+    /// </summary>
+    public void ClearAllConditionalModifiers()
+    {
+        activeConditionalModifiers.Clear();
+        
+        if (showDebugLogs)
+            Debug.Log("[PlayerRuntimeStats] 모든 조건부 모디파이어 제거");
+    }
+    
+    #endregion
 }

@@ -1,0 +1,5 @@
+﻿optionId,optionName,budgetCost,costType,note
+BOSS_BIND_IMMUNE,보스 공격 속박 면역,120,FIXED,강함(패턴 무시)
+BOSS_SLOW_IMMUNE,보스 공격 슬로우 면역,100,FIXED,빈도가 높아 유용
+BOSS_POISON_IMMUNE,보스 공격 독 면역,80,FIXED,DOT만 막음
+BOSS_BURN_IMMUNE,보스 공격 화상 면역,80,FIXED,DOT만 막음

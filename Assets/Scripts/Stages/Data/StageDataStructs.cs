@@ -17,6 +17,10 @@ namespace StageSystem
         public float SpawnCount;
         public bool IsBoss;
         
+        [Header("⭐ Phase 1: 동적 레벨링")]
+        [Tooltip("스테이지 기준 레벨에서의 레벨 오프셋 (StageBaseLevel + LevelOffset = 최종 레벨)")]
+        public int LevelOffset = 0;
+        
         [Header("런타임 연결")]
         public GameObject MonsterPrefab; // 런타임에 Resources.Load로 연결 (레거시 호환성)
         

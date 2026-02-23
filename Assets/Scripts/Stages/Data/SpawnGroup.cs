@@ -41,10 +41,12 @@ namespace StageSystem
         
         /// <summary>
         /// 몬스터 데이터 추가 (SpawnGroupMonster.csv)
+        /// ⭐ Phase 1: levelOffset 파라미터 추가
         /// </summary>
-        public void AddMonsterData(string monsterId, int count, float spawnCount, bool isBoss)
+        public void AddMonsterData(string monsterId, int count, float spawnCount, bool isBoss, int levelOffset = 0)
         {
             var monsterData = new MonsterSpawnData(monsterId, count, spawnCount, isBoss);
+            monsterData.LevelOffset = levelOffset; // ⭐ Phase 1: 동적 레벨 오프셋 설정
             Monsters.Add(monsterData);
         }
         

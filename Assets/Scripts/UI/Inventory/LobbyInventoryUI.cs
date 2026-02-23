@@ -1422,6 +1422,9 @@ public class LobbyInventoryUI : MonoBehaviour
         {
             PlayerDataManager.Instance.OnItemEquipped -= OnItemEquippedHandler;
             PlayerDataManager.Instance.OnItemUnequipped -= OnItemUnequippedHandler;
+            PlayerDataManager.Instance.OnItemAddedToInventory -= OnItemAdded; // 🔧 수정: 추가된 이벤트 구독 해제
+            PlayerDataManager.Instance.OnItemRemovedFromInventory -= OnItemRemoved; // 🔧 수정: 추가된 이벤트 구독 해제
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoaded; // 🔧 수정: 추가된 이벤트 구독 해제
             PlayerDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
         }
         
@@ -1429,6 +1432,7 @@ public class LobbyInventoryUI : MonoBehaviour
         if (AccountDataManager.Instance != null)
         {
             AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
+            AccountDataManager.Instance.OnMaterialChanged -= OnMaterialChangedHandler; // 🔧 수정: 추가된 이벤트 구독 해제
         }
         
         if (showDebugLogs)

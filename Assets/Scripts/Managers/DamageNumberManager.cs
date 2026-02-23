@@ -28,13 +28,16 @@ public class DamageNumberManager : MonoBehaviour
 
     [Header("🎨 색상 설정 (Phase 2)")]
     [Tooltip("일반 데미지 색상 (몬스터 피격)")]
-    [SerializeField] private Color normalDamageColor = Color.white;
+    [SerializeField] private Color normalDamageColor = Color.white; // 흰색
 
     [Tooltip("플레이어 피격 데미지 색상")]
-    [SerializeField] private Color playerHitDamageColor = Color.red;
+    [SerializeField] private Color playerHitDamageColor = new Color(1f, 0.3f, 0f); // 주황색
 
-    [Tooltip("크리티컬 데미지 색상")]
-    [SerializeField] private Color criticalDamageColor = new Color(1f, 0.6f, 0f); // 밝은 주황
+    [Tooltip("크리티컬 데미지 색상 (플레이어 → 몬스터)")]
+    [SerializeField] private Color criticalDamageColor = Color.yellow; // 노란색
+    
+    [Tooltip("플레이어 피격 크리티컬 색상 (몬스터 → 플레이어)")]
+    [SerializeField] private Color playerHitCriticalColor = Color.red; // 빨간색
 
     [Tooltip("DoT (지속 데미지) 색상")]
     [SerializeField] private Color dotDamageColor = new Color(0.7f, 0f, 1f); // 보라
@@ -57,6 +60,13 @@ public class DamageNumberManager : MonoBehaviour
 
     [Tooltip("힐 크기 배율")]
     [SerializeField] private float healScale = 1.2f;
+    
+    [Header("🛡️ 면역 설정 (Phase 4-C)")]
+    [Tooltip("면역 텍스트 색상")]
+    [SerializeField] private Color immunityColor = new Color(0.3f, 0.7f, 1f); // 밝은 파란색
+    
+    [Tooltip("면역 텍스트 크기 배율")]
+    [SerializeField] private float immunityScale = 1.3f;
 
     [Header("디버그")]
     [SerializeField] private bool enableDebugLogs = false;
@@ -77,6 +87,20 @@ public class DamageNumberManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // ⚙️ 색상 & 크기 강제 설정 (Phase 1 시각 피드백)
+        normalDamageColor = Color.white; // 일반 데미지: 흰색
+        playerHitDamageColor = new Color(1f, 0.3f, 0f); // 플레이어 피격: 주황색
+        criticalDamageColor = Color.yellow; // 몬스터 크리티컬 (플레이어 → 몬스터): 노란색
+        playerHitCriticalColor = Color.red; // 플레이어 크리티컬 (몬스터 → 플레이어): 빨간색
+        criticalDamageScale = 1.5f; // 크리티컬: 1.5배 크기
+        
+        Debug.Log($"🎨 [DamageNumberManager] 시각 설정 완료:");
+        Debug.Log($"  - 일반 데미지 (플레이어 → 몬스터): 흰색 {normalDamageColor}");
+        Debug.Log($"  - 플레이어 피격 (몬스터 → 플레이어): 주황색 {playerHitDamageColor}");
+        Debug.Log($"  - 몬스터 크리티컬 (플레이어 → 몬스터): 노란색 {criticalDamageColor}");
+        Debug.Log($"  - 플레이어 크리티컬 (몬스터 → 플레이어): 빨간색 {playerHitCriticalColor}");
+        Debug.Log($"  - 크기: {criticalDamageScale}배");
 
         // ✅ Prefab 검증 (Inspector 할당 우선, 없으면 Resources.Load 백업)
         ValidatePrefab();
@@ -208,12 +232,123 @@ public class DamageNumberManager : MonoBehaviour
     }
 
     #endregion
+    
+    #region Public API - Phase 4-C (DamageResult 통합)
+    
+    /// <summary>
+    /// ⚙️ Phase 4-C: DamageResult 기반 데미지 숫자 표시 (크리티컬, 면역 연출 포함)
+    /// </summary>
+    /// <param name="targetPosition">피격 대상의 transform.position</param>
+    /// <param name="result">CombatFormula.DamageResult 객체</param>
+    /// <param name="isPlayer">true: 플레이어 피격, false: 적 피격</param>
+    /// <param name="targetTransform">피격 대상의 Transform (앵커 검색용, 선택)</param>
+    public void ShowDamage(Vector3 targetPosition, CombatFormula.DamageResult result, bool isPlayer, Transform targetTransform = null)
+    {
+        // Prefab 검증
+        if (damageNumberPrefab == null)
+        {
+            Debug.LogError("[DamageNumberManager] Prefab이 없어서 데미지 숫자를 표시할 수 없습니다!");
+            return;
+        }
+        
+        // ✅ 앵커 우선 검색 → 없으면 오프셋 사용
+        Vector3 displayPosition = GetDamageNumberPosition(targetPosition, isPlayer, targetTransform);
+        
+        // 🛡️ 우선순위 1: 면역 (Immunity) 처리
+        if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
+        {
+            ShowImmunityNumber(displayPosition, result.resistedEffects, result.finalDamage);
+            return; // 면역 표시만 하고 종료
+        }
+        
+        // 💥 우선순위 2: 크리티컬 데미지
+        if (result.isCritical)
+        {
+            ShowCriticalDamageNumber(displayPosition, result.finalDamage, isPlayer);
+            return;
+        }
+        
+        // ⚔️ 우선순위 3: 일반 데미지
+        ShowNormalDamageNumber(displayPosition, result.finalDamage, isPlayer);
+    }
+    
+    /// <summary>
+    /// 💥 크리티컬 데미지 표시 (공격자에 따라 색상 구분)
+    /// </summary>
+    private void ShowCriticalDamageNumber(Vector3 displayPosition, int damage, bool isPlayer)
+    {
+        // 데미지 숫자 생성
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition, damage);
+        
+        // ⭐ 크리티컬 색상 구분
+        // isPlayer = true → 플레이어가 피격 (몬스터 → 플레이어) → 노란색
+        // isPlayer = false → 몬스터가 피격 (플레이어 → 몬스터) → 빨간색
+        Color critColor = isPlayer ? playerHitCriticalColor : criticalDamageColor;
+        
+        spawnedNumber.SetColor(critColor);
+        spawnedNumber.transform.localScale *= criticalDamageScale; // 1.5배
+        
+        // ⭐ 강제 디버그 (색상 확인용)
+        string target = isPlayer ? "플레이어 피격" : "몬스터 피격";
+        Debug.Log($"💥 [DamageNumberManager] 크리티컬 {target}: {damage} | 색상: {critColor} | 크기: {criticalDamageScale}배");
+    }
+    
+    /// <summary>
+    /// ⚔️ 일반 데미지 표시
+    /// </summary>
+    private void ShowNormalDamageNumber(Vector3 displayPosition, int damage, bool isPlayer)
+    {
+        // 데미지 숫자 생성
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition, damage);
+        
+        // ⭐ 색상 구분
+        Color damageColor = isPlayer ? playerHitDamageColor : normalDamageColor;
+        float damageScale = isPlayer ? playerHitDamageScale : normalDamageScale;
+        
+        spawnedNumber.SetColor(damageColor);
+        spawnedNumber.transform.localScale *= damageScale;
+        
+        // ⭐ 강제 디버그 (색상 확인용)
+        string targetType = isPlayer ? "플레이어 피격" : "몬스터 피격";
+        Debug.Log($"⚔️ [DamageNumberManager] {targetType}: {damage} | 색상: {damageColor} | 크기: {damageScale}배");
+    }
+    
+    /// <summary>
+    /// 🛡️ 면역 텍스트 표시 (파란색, "IMMUNE (효과명)")
+    /// </summary>
+    private void ShowImmunityNumber(Vector3 displayPosition, string resistedEffects, int damage)
+    {
+        // 데미지 숫자 생성 (0으로 설정)
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition, 0);
+        
+        // ⭐ 데미지 숫자 숨기기 (면역 텍스트만 표시)
+        spawnedNumber.enableNumber = false;
+        
+        // ⭐ 면역 텍스트 설정 (영어로 표시 - 한글 폰트 미지원)
+        spawnedNumber.enableTopText = true;
+        spawnedNumber.topText = "IMMUNE"; // 위쪽에 "IMMUNE" 표시
+        
+        // ⭐ 면역된 효과 이름 (아래쪽)
+        spawnedNumber.enableBottomText = true;
+        spawnedNumber.bottomText = $"({resistedEffects})"; // 예: (Bind)
+        
+        // ⭐ 색상 및 크기
+        spawnedNumber.SetColor(immunityColor); // 파란색
+        spawnedNumber.transform.localScale *= immunityScale; // 1.3배로 크게 표시
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"🛡️ [DamageNumberManager] 면역 표시: {resistedEffects} at {displayPosition:F2}");
+        }
+    }
+
+    #endregion
 
     #region Future Expansion - Phase 2 (준비됨)
 
     /*
     /// <summary>
-    /// 🔮 Phase 2: 크리티컬 데미지 표시 (밝은 주황, 큰 크기, 팝 애니메이션)
+    /// 🔮 Phase 2: 크리티컬 데미지 표시 (노란색, 큰 크기, 팝 애니메이션)
     /// </summary>
     /// <param name="targetPosition">피격 대상 위치</param>
     /// <param name="damage">크리티컬 데미지 값</param>

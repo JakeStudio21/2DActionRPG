@@ -647,8 +647,9 @@ public class CharacterInfoUI : MonoBehaviour
         // 이벤트 구독 해제
         if (PlayerDataManager.Instance != null)
         {
-            PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged;
-            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForCharacterInfo; // 🆕 추가
+            // 🔧 수정: OnSlotSelected는 구독하지 않으므로 해제 불필요 (105번 줄 주석 처리됨)
+            // PlayerDataManager.Instance.OnSlotSelected -= OnPlayerSlotChanged;
+            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForCharacterInfo;
         }
     }
 

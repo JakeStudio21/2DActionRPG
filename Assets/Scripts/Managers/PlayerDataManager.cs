@@ -753,7 +753,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             Debug.Log($"   - level: {selectedPlayerData.currentLevel}");
             Debug.Log($"   - gold: {selectedPlayerData.currentGold}");
             Debug.Log($"   - 인벤토리 아이템: {selectedPlayerData.runtimeInventoryItems.Count}개");
-            Debug.Log($"   - 장착 아이템: {selectedPlayerData.RuntimeEquippedItems.Count}개");
+            Debug.Log($"   - 장착 아이템 (Data): {selectedPlayerData.RuntimeEquippedItems.Count}개");
+            Debug.Log($"   - 장착 아이템 (InstanceIds): {selectedPlayerData.RuntimeEquippedInstanceIds.Count}개");
             
             for (int i = 0; i < Mathf.Min(selectedPlayerData.runtimeInventoryItems.Count, 5); i++)
             {
@@ -2014,6 +2015,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             selectedPlayerData.RuntimeEquippedItems[targetSlot] = equipment;
             selectedPlayerData.RuntimeEquippedInstanceIds[targetSlot] = itemId; // ⭐ V2: InstanceId 추적
             Debug.Log($"✅ [PlayerDataManager] 새 장비 착용 완료: {equipment.equipmentName} → {targetSlot} (ID: {itemId.id.Substring(0, 8)}...)");
+            Debug.Log($"🔍 [PlayerDataManager] 착용 후 - RuntimeEquippedInstanceIds.Count: {selectedPlayerData.RuntimeEquippedInstanceIds.Count}");
             
             // 7️⃣ 보관창고에서 제거
             bool removed = AccountDataManager.Instance.RemoveFromShared(itemId);

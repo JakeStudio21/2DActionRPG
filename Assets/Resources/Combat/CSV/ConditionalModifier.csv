@@ -1,0 +1,13 @@
+﻿ModifierId,DisplayName,ValueType,Unit,ApplyPhase,TargetScope,ConditionType,ConditionParam,EffectType,Value,Notes
+BOSS_DMG_UP,보스 피해 증가 %,Float,Percent,Phase3_Modifier,Self,TargetIsBoss,,DamageDealtMult,0.2,보스에게 추가 피해
+BOSS_ATK_DMG_REDUCE,보스 공격피해 감소 %,Float,Percent,Phase5_Defense,Self,TargetIsBoss,,DamageTakenReduce,0.25,보스 피해 감소
+LOW_HP_DR,체력 30% 이하 피해 감소,Float,Percent,Phase5_Defense,Self,SelfHpBelow,0.3,DamageTakenReduce,0.25,HP 30% 이하일 때
+BOSS_AREA_DMG_REDUCE,보스 장판 피해 감소 %,Float,Percent,Phase5_Defense,Self,TargetIsBossAndDamageType,AREA_GROUND,DamageTakenReduce,0.5,보스 장판 피해 감소
+IMMUNE_BIND,보스 공격 속박 면역,Bool,Bool,Phase0_Event,Self,TargetIsBoss,,Immunity_Bind,1,보스 속박 면역
+IMMUNE_SLOW,보스 공격 슬로우 면역,Bool,Bool,Phase0_Event,Self,TargetIsBoss,,Immunity_Slow,1,보스 슬로우 면역
+IMMUNE_POISON,보스 공격 독 면역,Bool,Bool,Phase0_Event,Self,TargetIsBoss,,Immunity_Poison,1,보스 독 면역
+IMMUNE_BURN,보스 공격 화상 면역,Bool,Bool,Phase0_Event,Self,TargetIsBoss,,Immunity_Burn,1,보스 화상 면역
+BOSS_IGNORE_DEF,보스 방어 무시 %,Float,Percent,Phase5_Defense,Self,TargetIsBoss,,IgnoreDefPercent,0.2,보스 방어 무시
+BOSS_BLOCK_HEAL,보스 회복 차단 %,Float,Percent,Phase7_Post,Target,TargetIsBoss,,BlockHealingPercent,0.5,보스 회복 차단
+BOSS_HP_HIGH_BONUS,보스 체력 50% 이상 추가 피해,Float,Percent,Phase3_Modifier,Self,TargetIsBossAndHpAbove,0.5,DamageDealtMult,0.25,보스 HP 50% 이상일 때
+BOSS_DOT_LIFESTEAL,보스 피해 HP DOT 회복 초당%(흡혈),Float,Percent,Phase7_Post,Self,TargetIsBoss,,LifeStealFromDamagePerSec,0.02,보스 대상 DOT 흡혈

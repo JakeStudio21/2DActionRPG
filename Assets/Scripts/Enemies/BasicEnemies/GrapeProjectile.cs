@@ -328,8 +328,43 @@ public class GrapeProjectile : MonoBehaviour
         {
             if (playerCollider.TryGetComponent(out PlayerHealth playerHealth))
             {
-                playerHealth.TakeDamage(projectileDamage, transform);
-                Debug.Log($"[GrapeProjectile] 플레이어에게 {projectileDamage} 데미지 적용!");
+                // ⚔️ CombatFormula 데미지 계산
+                var playerStats = FindObjectOfType<PlayerRuntimeStats>();
+                var enemyTarget = GetComponentInParent<IEnemyTarget>();
+                var baseEnemy = GetComponentInParent<BaseEnemy>();
+                
+                var ctx = new CombatFormula.AttackContext
+                {
+                    baseAttack = projectileDamage,
+                    attackerClass = null,
+                    targetDefense = playerStats != null ? playerStats.FinalDefense : 0f,
+                    targetTransform = playerCollider.transform,
+                    attackerTransform = transform,
+                    isSkillAttack = false,
+                    skillMultiplier = 1.0f,
+                    criticalChance = 0f,
+                    criticalMultiplier = 2.0f,
+                    isPlayerAttack = false,
+                    attackerLevel = baseEnemy != null ? baseEnemy.CurrentLevel : 1,
+                    
+                    // ⚙️ Phase 4: ConditionalModifier용 필드
+                    target = null, // 플레이어는 IEnemyTarget 아님
+                    selfHpPercent = enemyTarget != null ? enemyTarget.GetCurrentHpPercent() : 1.0f,
+                    targetHpPercent = playerHealth != null ? playerHealth.GetCurrentHpPercent() : 1.0f
+                };
+                
+                var result = CombatFormula.CalculateEnemyToPlayerDamage(ctx);
+                
+                playerHealth.TakeDamage(result.finalDamage, transform);
+                
+                // ⚙️ Phase 4-C: 면역 체크 (플레이어가 상태이상 저항 가능)
+                if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
+                {
+                    Debug.Log($"🛡️ [GrapeProjectile] 플레이어 면역 발동! 저항한 효과: {result.resistedEffects}");
+                    // 상태이상 부여 차단됨
+                }
+                
+                Debug.Log($"[GrapeProjectile] 플레이어에게 {result.finalDamage} 데미지 적용!");
                 break; // 한 명만 데미지 적용
             }
         }

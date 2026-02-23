@@ -47,6 +47,12 @@ namespace StageSystem
         public int WaveCount;
         public VictoryCondition Victory;
         
+        [Header("⭐ Phase 3: 레벨 시스템")]
+        [Tooltip("스테이지 기준 레벨 (몬스터 기본 레벨)\n" +
+                 "MonsterSpawnData의 LevelOffset과 합산되어 최종 레벨 결정\n" +
+                 "예: StageBaseLevel=5, LevelOffset=2 → 몬스터 레벨 7")]
+        public int StageBaseLevel = 1;
+        
         [Header("⏱️ 타임리미트 설정")]
         [Tooltip("타임리미트 활성화 여부 (KillAll/BossKill과 조합 가능)")]
         public bool hasTimeLimit = false;

@@ -237,7 +237,7 @@ public class WaterGolem : BaseEnemy
             info += $"AOE Duration: {aoeAttack.AttackData.AOEDuration:F1}초\n";
             info += $"AOE Shape: {aoeAttack.AttackData.AOEShape}\n";
             info += $"AOE Scale: {aoeAttack.AttackData.AOEScale:F1}\n";
-            info += $"Damage: {aoeAttack.AttackData.GetScaledDamage(CurrentLevel)}\n";
+            info += $"Damage: {aoeAttack.GetScaledDamage()}\n";
         }
         
         if (enemyData != null)

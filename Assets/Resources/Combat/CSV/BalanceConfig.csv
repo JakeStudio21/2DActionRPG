@@ -1,0 +1,2 @@
+﻿BossHP,BossTimeSec,NormalTimeSec,MaxLevel,DPS_Lv1,DPS_LvMax,GrowthRateR,BaseRatio,EquipRatio,EnhanceRatio,SkillRatio,RuneRatio
+300000,60,5,60,20,5000,0.098102932,0.2,0.25,0.2,0.2,0.15

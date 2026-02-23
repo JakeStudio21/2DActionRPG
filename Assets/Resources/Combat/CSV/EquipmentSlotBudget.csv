@@ -1,0 +1,10 @@
+slotId,slotName,weight,budgetPoint,roleTag
+1,Weapon,0.35,438,DPS_CORE
+2,Helmet,0.1,125,DEF_MAIN
+3,Armor,0.1,125,DEF_MAIN
+4,Gloves,0.1,125,DPS_SUB
+5,Boots,0.1,125,UTILITY
+6,Necklace,0.08,100,CRIT_CORE
+7,Ring_1,0.06,75,CRIT_SUB
+8,Ring_2,0.06,75,CRIT_SUB
+9,Belt,0.05,62,UTILITY

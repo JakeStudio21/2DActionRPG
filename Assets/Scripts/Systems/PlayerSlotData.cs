@@ -207,6 +207,17 @@ public class PlayerSlotData
             
         var data = JsonUtility.FromJson<PlayerSlotData>(json);
         data._extraStats = null; // Dictionary 재생성 강제
+        
+        // ⚠️ Phase B 진단: equippedRecords 로드 확인
+        Debug.Log($"🔍 [PlayerSlotData.FromJson] equippedRecords 역직렬화 결과: {(data.equippedRecords == null ? "null" : $"{data.equippedRecords.Count}개")}");
+        if (data.equippedRecords != null && data.equippedRecords.Count > 0)
+        {
+            foreach (var record in data.equippedRecords)
+            {
+                Debug.Log($"  📦 {record.slot} → {record.instanceId.id}");
+            }
+        }
+        
         return data;
     }
     

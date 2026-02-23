@@ -136,11 +136,20 @@ public class AttackData : ScriptableObject
 
 
     /// <summary>
-    /// 레벨에 따른 스케일된 데미지 계산
+    /// 레벨에 따른 스케일된 데미지 계산 (MonsterGrowthProfile 기반)
     /// </summary>
-    public int GetScaledDamage(int level, float levelMultiplier = 1.1f)
+    public int GetScaledDamage(int level, MonsterGrowthProfile growthProfile, EnemyType enemyType)
     {
-        return Mathf.RoundToInt(baseDamage * Mathf.Pow(levelMultiplier, level - 1));
+        // null 체크 (안전장치)
+        if (growthProfile == null)
+        {
+            Debug.LogWarning($"[AttackData] {attackName}: GrowthProfile이 null입니다. baseDamage 반환.");
+            return baseDamage;
+        }
+        
+        // MonsterGrowthProfile 기반 계산
+        float multiplier = growthProfile.GetAttackMultiplier(level, enemyType);
+        return Mathf.RoundToInt(baseDamage * multiplier);
     }
 
     /// <summary>
@@ -255,11 +264,13 @@ public class AttackData : ScriptableObject
 
     /// <summary>
     /// 디버그용 정보 출력
+    /// ⚠️ GrowthProfile과 EnemyType이 필요하므로 간단 버전만 출력
     /// </summary>
     public string GetDebugInfo(int level = 1)
     {
         string info = $"{attackName} ({attackType})\n";
-        info += $"Damage: {baseDamage} → Lv.{level}: {GetScaledDamage(level)}\n";
+        info += $"Base Damage: {baseDamage}\n";
+        info += $"⚠️ 실제 데미지는 MonsterGrowthProfile에 따라 다름\n";
         info += $"Range: {attackRange}, Cooldown: {attackCooldown}s\n";
         info += $"Critical: {criticalChance * 100:F1}% (x{criticalMultiplier})\n";
         
@@ -280,6 +291,37 @@ public class AttackData : ScriptableObject
                     info += $"  - {onHitEffects[i].EffectName} ({chance * 100:F0}%)\n";
                 }
             }
+        }
+        
+        return info;
+    }
+    
+    /// <summary>
+    /// 완전한 디버그 정보 출력 (GrowthProfile 포함)
+    /// </summary>
+    public string GetDebugInfoWithProfile(int level, MonsterGrowthProfile growthProfile, EnemyType enemyType)
+    {
+        string info = $"{attackName} ({attackType})\n";
+        info += $"Base Damage: {baseDamage}\n";
+        
+        if (growthProfile != null)
+        {
+            int scaledDamage = GetScaledDamage(level, growthProfile, enemyType);
+            float multiplier = growthProfile.GetAttackMultiplier(level, enemyType);
+            info += $"Lv.{level} {enemyType} Damage: {scaledDamage} (x{multiplier:F2})\n";
+        }
+        else
+        {
+            info += $"⚠️ GrowthProfile 없음\n";
+        }
+        
+        info += $"Range: {attackRange}, Cooldown: {attackCooldown}s\n";
+        info += $"Critical: {criticalChance * 100:F1}% (x{criticalMultiplier})\n";
+        
+        if (attackType == AttackType.Ranged)
+        {
+            info += $"Projectile: {(projectilePrefab != null ? projectilePrefab.name : "None")}\n";
+            info += $"Speed: {projectileSpeed}, Count: {projectileCount}\n";
         }
         
         return info;

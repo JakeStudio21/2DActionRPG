@@ -46,7 +46,20 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// StageConfig.csv → StageConfig ScriptableObject
+        /// StageConfig.csv → StageConfig ScriptableObject (개별 변환)
+        /// </summary>
+        [UnityEditor.MenuItem("Tools/Stage System/Convert Select Only/Convert StageConfig Only")]
+        public static void ConvertStageConfigsOnly()
+        {
+            Debug.Log("🔄 [CsvToSOConverter] StageConfig 변환 시작...");
+            ConvertStageConfigs();
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            Debug.Log("✅ [CsvToSOConverter] StageConfig 변환 완료!");
+        }
+        
+        /// <summary>
+        /// StageConfig.csv → StageConfig ScriptableObject (내부 메서드)
         /// </summary>
         private static List<StageConfig> ConvertStageConfigs()
         {
@@ -87,7 +100,20 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// WaveConfig.csv → WaveConfig ScriptableObject
+        /// WaveConfig.csv → WaveConfig ScriptableObject (개별 변환)
+        /// </summary>
+        [UnityEditor.MenuItem("Tools/Stage System/Convert Select Only/Convert WaveConfig Only")]
+        public static void ConvertWaveConfigsOnly()
+        {
+            Debug.Log("🔄 [CsvToSOConverter] WaveConfig 변환 시작...");
+            ConvertWaveConfigs();
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            Debug.Log("✅ [CsvToSOConverter] WaveConfig 변환 완료!");
+        }
+        
+        /// <summary>
+        /// WaveConfig.csv → WaveConfig ScriptableObject (내부 메서드)
         /// </summary>
         private static List<WaveConfig> ConvertWaveConfigs()
         {
@@ -128,7 +154,20 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// SpawnGroup.csv + SpawnGroupMonster.csv → SpawnGroup ScriptableObject
+        /// SpawnGroup.csv + SpawnGroupMonster.csv → SpawnGroup ScriptableObject (개별 변환)
+        /// </summary>
+        [UnityEditor.MenuItem("Tools/Stage System/Convert Select Only/Convert SpawnGroup Only")]
+        public static void ConvertSpawnGroupsOnly()
+        {
+            Debug.Log("🔄 [CsvToSOConverter] SpawnGroup 변환 시작...");
+            ConvertSpawnGroups();
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            Debug.Log("✅ [CsvToSOConverter] SpawnGroup 변환 완료!");
+        }
+        
+        /// <summary>
+        /// SpawnGroup.csv + SpawnGroupMonster.csv → SpawnGroup ScriptableObject (내부 메서드)
         /// </summary>
         private static List<SpawnGroup> ConvertSpawnGroups()
         {
@@ -184,7 +223,10 @@ namespace StageSystem
                             float.TryParse(csvData.GetValueOrDefault("Spawn Count", "0"), out float spawnCount);
                             bool.TryParse(csvData.GetValueOrDefault("IsBoss", "FALSE"), out bool isBoss);
                             
-                            groupDict[groupId].AddMonsterData(monsterId, count, spawnCount, isBoss);
+                            // ⭐ Phase 1: LevelOffset 파싱 추가 (없으면 기본값 0)
+                            int.TryParse(csvData.GetValueOrDefault("LevelOffset", "0"), out int levelOffset);
+                            
+                            groupDict[groupId].AddMonsterData(monsterId, count, spawnCount, isBoss, levelOffset);
                         }
                     }
                 }
@@ -202,7 +244,20 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// DropGroup.csv + DropItem.csv → DropTable ScriptableObject
+        /// DropGroup.csv + DropItem.csv → DropTable ScriptableObject (개별 변환)
+        /// </summary>
+        [UnityEditor.MenuItem("Tools/Stage System/Convert Select Only/Convert DropTable Only")]
+        public static void ConvertDropTablesOnly()
+        {
+            Debug.Log("🔄 [CsvToSOConverter] DropTable 변환 시작...");
+            ConvertDropTables();
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            Debug.Log("✅ [CsvToSOConverter] DropTable 변환 완료!");
+        }
+        
+        /// <summary>
+        /// DropGroup.csv + DropItem.csv → DropTable ScriptableObject (내부 메서드)
         /// </summary>
         private static List<DropTable> ConvertDropTables()
         {
@@ -275,7 +330,59 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// 참조 연결
+        /// 모든 참조 연결 + 무결성 검사 (개별 변환 후 실행)
+        /// </summary>
+        [UnityEditor.MenuItem("Tools/Stage System/Link All References")]
+        public static void LinkAllReferences()
+        {
+            Debug.Log("🔗 [CsvToSOConverter] 참조 연결 시작...");
+            
+            // 기존 SO들을 로드
+            var stages = LoadAllScriptableObjects<StageConfig>("Assets/Resources/Stages/Configs");
+            var waves = LoadAllScriptableObjects<WaveConfig>("Assets/Resources/Stages/Waves");
+            var groups = LoadAllScriptableObjects<SpawnGroup>("Assets/Resources/Stages/Spawns");
+            var drops = LoadAllScriptableObjects<DropTable>("Assets/Resources/Stages/Drops");
+            
+            // 참조 연결
+            LinkReferences(stages, waves, groups, drops);
+            
+            // 무결성 검사
+            ValidateAllData(stages, waves, groups, drops);
+            
+            Debug.Log("✅ [CsvToSOConverter] 참조 연결 + 검증 완료!");
+        }
+        
+        /// <summary>
+        /// 특정 폴더의 모든 ScriptableObject 로드
+        /// </summary>
+        private static List<T> LoadAllScriptableObjects<T>(string folderPath) where T : ScriptableObject
+        {
+            var results = new List<T>();
+            
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.LogWarning($"⚠️ [CsvToSOConverter] 폴더가 존재하지 않습니다: {folderPath}");
+                return results;
+            }
+            
+            string[] guids = UnityEditor.AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { folderPath });
+            
+            foreach (string guid in guids)
+            {
+                string assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                T asset = UnityEditor.AssetDatabase.LoadAssetAtPath<T>(assetPath);
+                if (asset != null)
+                {
+                    results.Add(asset);
+                }
+            }
+            
+            Debug.Log($"📂 [CsvToSOConverter] {typeof(T).Name} {results.Count}개 로드됨");
+            return results;
+        }
+        
+        /// <summary>
+        /// 참조 연결 (내부 메서드)
         /// </summary>
         private static void LinkReferences(List<StageConfig> stages, List<WaveConfig> waves, 
                                          List<SpawnGroup> groups, List<DropTable> drops)

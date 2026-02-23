@@ -139,8 +139,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -18491,6 +18500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 524eb29bb0a389b4bb8363229db6b65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showDebugLogs: 0
 --- !u!1 &1341661621746816500
 GameObject:
   m_ObjectHideFlags: 0
@@ -18664,25 +18674,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b46b96f88f3263418ebf1929cf39985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponSlot: {fileID: 385175530102590318}
-  helmetSlot: {fileID: 777099001612063057}
-  armorSlot: {fileID: 5899891073509447778}
-  glovesSlot: {fileID: 9150640472694293752}
-  bootsSlot: {fileID: 755578302847090460}
-  beltSlot: {fileID: 109169779205582115}
-  ring1Slot: {fileID: 2510974332534763015}
-  ring2Slot: {fileID: 5275077048060875899}
-  necklaceSlot: {fileID: 3745836707032109389}
-  playerNameText: {fileID: 4885789556628119983}
-  playerClassIcon: {fileID: 576146822084363442}
-  finalAttackDamageText: {fileID: 5899347871508189877}
-  finalDefenseText: {fileID: 7862966967491399508}
-  finalAttackSpeedText: {fileID: 6718993717783019771}
-  finalMoveSpeedText: {fileID: 7227775852400538133}
-  warriorClassIcon: {fileID: 21300000, guid: 02f7e13c728bc8e47b09b708f1c02066, type: 3}
-  assassinClassIcon: {fileID: 21300000, guid: e2a0a5dea7fc06e45922585b38d3e657, type: 3}
-  wizardClassIcon: {fileID: 21300000, guid: 585502b8bda0fc741ab2e5c0a04dcc8e, type: 3}
-  showDebugLogs: 1
 --- !u!1 &1363202841345752266
 GameObject:
   m_ObjectHideFlags: 0
@@ -18860,8 +18851,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -19069,8 +19069,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -25860,8 +25869,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -26028,8 +26046,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -27541,8 +27568,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -28402,8 +28438,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -28570,8 +28615,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -28888,8 +28942,17 @@ MonoBehaviour:
   equipmentData: {fileID: 11400000, guid: 16d9c77db4585ce45b0c5e3b1a1c084a, type: 2}
   slotImage: {fileID: 6265714879509221452}
   itemIconImage: {fileID: 7803821058047169453}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 4058589267606705891}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -29391,8 +29454,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -30613,8 +30685,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -33799,8 +33880,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -34357,8 +34447,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -35378,8 +35477,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -39235,8 +39343,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -39708,8 +39825,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -42869,8 +42995,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -48738,8 +48873,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -66211,8 +66355,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -66379,8 +66532,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -66547,8 +66709,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -67675,8 +67846,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -68905,8 +69085,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -69863,8 +70052,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -75290,8 +75488,17 @@ MonoBehaviour:
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
   bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -75424,7 +75631,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expSlider: {fileID: 0}
+  expText: {fileID: 6500383540841080339}
   autoFindSlider: 1
+  autoFindText: 1
   showDebugLogs: 1
 --- !u!1 &8683672560941235188
 GameObject:

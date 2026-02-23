@@ -51,6 +51,11 @@ public class EnemyHealth : MonoBehaviour
     // 체력바 인스턴스
     private EliteHealthBarUI activeHealthBar; // 엘리트/보스용
     private BasicEnemyHealthBarUI basicHealthBar; // Basic용
+    
+    [Header("🛡️ Phase 4-C: 상태이상 면역 시스템")]
+    [SerializeField] private float immunityDuration = 0.5f; // 면역 정보 유지 시간 (초)
+    private string currentResistedEffects = ""; // 현재 저항 중인 상태이상 목록
+    private float immunityExpireTime = 0f; // 면역 만료 시간
 
     private void Awake()
     {
@@ -177,6 +182,36 @@ public class EnemyHealth : MonoBehaviour
         Debug.LogError($"[EnemyHealth] {gameObject.name}: EnemyData가 없어서 보스 ID 확인 불가!");
         return "";
     }
+    
+    #region ⭐ Phase 2: 동적 레벨 초기화 시스템
+    
+    /// <summary>
+    /// 동적 레벨 변경 후 체력 리셋
+    /// BaseEnemy.InitializeLevel()에서 호출됨
+    /// </summary>
+    public void ResetHealthToMax()
+    {
+        // ⭐ BaseEnemy의 currentLevel이 이미 변경된 상태!
+        int newMaxHealth = CalculateMaxHealth(); // baseEnemy.GetScaledMaxHealth() 호출
+        currentHealth = newMaxHealth;
+        
+        Debug.Log($"💚 [EnemyHealth] {gameObject.name} 체력 리셋: {currentHealth} (레벨 {baseEnemy?.CurrentLevel})");
+        
+        // 체력바 갱신 (비율 1.0 = 100%)
+        if (activeHealthBar != null)
+        {
+            activeHealthBar.UpdateHealthBar(1f); // 최대 체력으로 리셋
+        }
+        
+        if (basicHealthBar != null)
+        {
+            basicHealthBar.UpdateHealthBar(1f); // 최대 체력으로 리셋
+        }
+    }
+    
+    // ⭐ MaxHealth, CurrentHealth 프로퍼티는 이미 파일 하단(Line 1015, 1020)에 정의되어 있음
+    
+    #endregion
 
     /// <summary>
     /// ⭐ 데이터 필수 - 사망 이펙트 로드
@@ -208,6 +243,9 @@ public class EnemyHealth : MonoBehaviour
         return null; // 이펙트 없음
     }
 
+    /// <summary>
+    /// ⚔️ 기본 데미지 받기 (기존 시스템 호환용)
+    /// </summary>
     public void TakeDamage(int damage)
     {
         // ⭐ 이미 죽었거나 사망 애니메이션 중이면 데미지 무시
@@ -255,6 +293,12 @@ public class EnemyHealth : MonoBehaviour
             isDead = true;
             isDeathAnimationPlaying = true;
             
+            // 🧹 Phase 4-C: 사망 시 모든 상태이상 제거
+            if (StatusEffectManager.Instance != null)
+            {
+                StatusEffectManager.Instance.ClearEffectsOnTarget(gameObject);
+            }
+            
             Debug.Log($"[EnemyHealth] {gameObject.name}: 사망 상태 진입, 넉백 스킵!");
             
             // ⭐ 사망 시 넉백 스킵 (Die 애니메이션 방해 방지)
@@ -288,6 +332,135 @@ public class EnemyHealth : MonoBehaviour
                 {
                     float knockBackThrust = CalculateKnockBackThrust();
                     knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
+                    Debug.Log($"[EnemyHealth] {gameObject.name} 물리 넉백 실행 (Knockback 컴포넌트 사용)");
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name} 비-NavMesh 몬스터인데 Knockback 컴포넌트가 없습니다!");
+                }
+            }
+            
+            // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
+            var bossSkillController = GetComponent<BossSkillController>();
+            if (bossSkillController != null)
+            {
+                bossSkillController.ForceCancelSkill();
+            }
+            
+            if (enemyFSM != null && enemyFSM.FSMController != null)
+            {
+                // 현재 상태를 저장하고 Hit 상태로 전환
+                enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
+            }
+        }
+    }
+    
+    /// <summary>
+    /// ⚔️ Phase 4-C: DamageResult 기반 데미지 받기 (완전한 전투 공식 연동)
+    /// </summary>
+    public void TakeDamage(CombatFormula.DamageResult result, Transform hitTransform)
+    {
+        // ⭐ 이미 죽었거나 사망 애니메이션 중이면 데미지 무시
+        if (isDead || isDeathAnimationPlaying) 
+        {
+            Debug.Log($"[EnemyHealth] {gameObject.name}: 이미 죽었거나 사망 중이므로 데미지 무시");
+            return;
+        }
+
+        // 1️⃣ 실제 HP 차감
+        currentHealth -= result.finalDamage;
+        
+        // 2️⃣ 데미지 넘버 표시 (Phase 4-C: DamageResult 통합 - 크리티컬, 면역 연출 포함)
+        if (DamageNumberManager.Instance != null)
+        {
+            DamageNumberManager.Instance.ShowDamage(
+                transform.position, 
+                result,  // ⚙️ DamageResult 통째로 전달
+                isPlayer: false,
+                targetTransform: transform  // ⭐ 앵커 검색용
+            );
+        }
+        
+        // 3️⃣ Basic 몬스터 체력바 표시 (피격 시에만)
+        if (basicHealthBar != null)
+        {
+            basicHealthBar.ShowAndAutoHide();
+        }
+        
+        // 4️⃣ 피격 이벤트 발생 (튜토리얼용)
+        OnTakeDamageEvent?.Invoke();
+        
+        // 5️⃣ 체력바 업데이트
+        UpdateHealthBar();
+        
+        // 6️⃣ Cue 시스템 추가 - 피격 이펙트 발행
+        EmitHitCues(result.finalDamage);
+        
+        // 7️⃣ 🛡️ Phase 4-C: 면역 처리
+        if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
+        {
+            // 면역 정보 저장 (StatusEffectManager에서 참조)
+            currentResistedEffects = result.resistedEffects;
+            immunityExpireTime = Time.time + immunityDuration;
+            
+            Debug.Log($"🛡️ [EnemyHealth] {gameObject.name} 면역 발동! 저항한 효과: {result.resistedEffects}");
+        }
+        
+        // 8️⃣ 💉 Phase 4-C: 회복 차단 처리
+        if (result.healingBlockPercent > 0)
+        {
+            // TODO: 회복 차단 디버프 구현 (나중에 몬스터 회복 시스템 추가 시)
+            Debug.Log($"🚫 [EnemyHealth] {gameObject.name} 회복 차단 {result.healingBlockPercent * 100:F0}% (구현 예정)");
+        }
+        
+        // FSM 기반 Hit/Die 상태 전환 (IEnemy 구현 몬스터만)
+        IEnemy enemyFSM = GetComponent<IEnemy>();
+        
+        if (currentHealth <= 0)
+        {
+            // ⭐ 즉시 데미지 차단용 플래그 설정
+            isDead = true;
+            isDeathAnimationPlaying = true;
+            
+            // 🧹 Phase 4-C: 사망 시 모든 상태이상 제거
+            if (StatusEffectManager.Instance != null)
+            {
+                StatusEffectManager.Instance.ClearEffectsOnTarget(gameObject);
+            }
+            
+            Debug.Log($"[EnemyHealth] {gameObject.name}: 사망 상태 진입, 넉백 스킵!");
+            
+            // ⭐ 사망 시 넉백 스킵 (Die 애니메이션 방해 방지)
+            // Flash만 실행
+            StartCoroutine(flash.FlashRoutine());
+            
+            // FSM 기반 Die 상태 전환 (IEnemy 구현 몬스터만)
+            if (enemyFSM != null && enemyFSM.FSMController != null)
+            {
+                enemyFSM.FSMController.ChangeState(new EnemyDieState(enemyFSM));
+            }
+            
+            StartCoroutine(DieRoutine());
+        }
+        else
+        {
+            // ⭐ 살아있을 때만 넉백 및 Hit 상태 전환
+            StartCoroutine(flash.FlashRoutine());
+            
+            // ⭐⭐⭐ 넉백 분기 처리 (NavMesh vs 물리 넉백)
+            if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+            {
+                // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행
+                // Knockback 컴포넌트 불필요!
+                Debug.Log($"[EnemyHealth] {gameObject.name} NavMesh 몬스터 - 연출 넉백 사용 (Knockback 컴포넌트 불필요)");
+            }
+            else
+            {
+                // 비-NavMesh 몬스터: 기존 물리 넉백 사용
+                if (knockback != null)
+                {
+                    float knockBackThrust = CalculateKnockBackThrust();
+                    knockback.GetKnockedBack(hitTransform, knockBackThrust);
                     Debug.Log($"[EnemyHealth] {gameObject.name} 물리 넉백 실행 (Knockback 컴포넌트 사용)");
                 }
                 else
@@ -1103,6 +1276,28 @@ public class EnemyHealth : MonoBehaviour
             
             Debug.Log($"🗑️ [EnemyHealth] {gameObject.name} Basic 체력바 제거");
         }
+    }
+    
+    #endregion
+    
+    #region 🛡️ Phase 4-C: 상태이상 면역 시스템
+    
+    /// <summary>
+    /// 🛡️ 특정 상태이상에 면역인지 확인
+    /// StatusEffectManager에서 호출됨
+    /// </summary>
+    public bool IsImmuneToEffect(EStatusEffectType effectType)
+    {
+        // 면역 만료 시간 체크
+        if (Time.time > immunityExpireTime)
+        {
+            currentResistedEffects = "";
+            return false;
+        }
+        
+        // resistedEffects에 해당 상태이상이 포함되어 있는지 확인
+        string effectName = effectType.ToString();
+        return currentResistedEffects.Contains(effectName);
     }
     
     #endregion
