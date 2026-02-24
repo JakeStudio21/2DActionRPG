@@ -175,9 +175,10 @@ private void TestBuyItem()
             return false;
         }
         
-        // V2 시스템: templateName 구성
-        // itemID = "Sword_A" → templateName = "Sword_A_Equipment"
-        string templateName = $"{itemID}_Equipment";
+        // V2 시스템: templateName = itemID 그대로 사용
+        // itemID = "ITEM_ARMOR_WIZARD_B" → templateName = "ITEM_ARMOR_WIZARD_B"
+        // ItemTemplateResolver가 자동으로 "_Equipment" 붙은 Asset 파일을 찾아줌
+        string templateName = itemID;
         
         // 골드 차감
         if (!PlayerDataManager.Instance.SpendGold(buyPrice))
@@ -190,9 +191,9 @@ private void TestBuyItem()
         
         // 🆕 V2: 계정 공유 창고에 아이템 추가
         // 1. 새 인스턴스 생성
-        ItemInstanceId newItemId = AccountDataManager.Instance.RegisterNewInstance(templateName);
+        ItemInstanceID newItemId = AccountDataManager.Instance.RegisterNewInstance(templateName);
         
-        if (!newItemId.IsValid())
+        if (newItemId.IsEmpty)
         {
             // 실패 시 골드 환불
             PlayerDataManager.Instance.AddGold(buyPrice);
@@ -221,7 +222,7 @@ private void TestBuyItem()
         if (showDebugLogs)
         {
             string destination = addedToShared ? "보관창고" : "우편함";
-            Debug.Log($"✅ [ShopController] {itemID} 구매 성공 (V2)! 가격: {buyPrice}, 위치: {destination}, ID: {newItemId.id.Substring(0, 8)}...");
+            Debug.Log($"✅ [ShopController] {itemID} 구매 성공 (V2)! 가격: {buyPrice}, 위치: {destination}, ID: {newItemId.Value.Substring(0, 8)}...");
         }
         
         OnItemPurchased?.Invoke(itemID);
@@ -229,9 +230,9 @@ private void TestBuyItem()
     }
     
     /// <summary>
-    /// 🆕 V2: 아이템 판매 시도 (ItemInstanceId 기반)
+    /// 🆕 V2: 아이템 판매 시도 (ItemInstanceID 기반)
     /// </summary>
-    public bool TrySellItem(EquipmentData equipment, ItemInstanceId instanceId)
+    public bool TrySellItem(EquipmentData equipment, ItemInstanceID instanceId)
     {
         if (priceProvider == null || PlayerDataManager.Instance == null || equipment == null)
         {
@@ -249,11 +250,11 @@ private void TestBuyItem()
             return false;
         }
         
-        // 🆕 V2: ItemInstanceId 유효성 검사
-        if (!instanceId.IsValid())
+        // 🆕 V2: ItemInstanceID 유효성 검사
+        if (instanceId.IsEmpty)
         {
             if (showDebugLogs)
-                Debug.LogError($"❌ [ShopController] 잘못된 ItemInstanceId!");
+                Debug.LogError($"❌ [ShopController] 잘못된 ItemInstanceID!");
             OnTransactionFailed?.Invoke(equipment.itemID);
             return false;
         }
@@ -267,7 +268,7 @@ private void TestBuyItem()
             AccountDataManager.Instance.Save();  // 🆕 V2: 계정 데이터 저장
             
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}, ID: {instanceId.id.Substring(0, 8)}...");
+                Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}, ID: {instanceId.Value.Substring(0, 8)}...");
             
             OnItemSold?.Invoke(equipment.itemID);
             return true;
@@ -379,7 +380,7 @@ private void TestBuyItem()
             {
                 // ⭐ itemID를 키로 사용 (V2 시스템 표준)
                 var displayInstanceId = itemPool.GetDisplayInstance(equipment.itemID);
-                if (displayInstanceId.IsValid())
+                if (!displayInstanceId.IsEmpty)
                 {
                     var entry = new ShopItemEntry(displayInstanceId, equipment);
                     shopData.AddItem(entry);
@@ -402,11 +403,11 @@ private void TestBuyItem()
     /// ⭐ 아이템 구매 (V2 시스템)
     /// - 전시용 displayInstanceId를 받아서 새로운 플레이어 전용 Instance 생성
     /// </summary>
-    public bool BuyItemV2(ItemInstanceId displayInstanceId, out PurchaseFailReason failReason)
+    public bool BuyItemV2(ItemInstanceID displayInstanceId, out PurchaseFailReason failReason)
     {
         failReason = PurchaseFailReason.None;
         
-        if (!displayInstanceId.IsValid())
+        if (displayInstanceId.IsEmpty)
         {
             if (showDebugLogs)
                 Debug.LogError("❌ [ShopController] 잘못된 displayInstanceId입니다!");
@@ -434,7 +435,7 @@ private void TestBuyItem()
         EquipmentData equipment = itemPool.GetEquipmentData(displayInstanceId);
         if (equipment == null)
         {
-            Debug.LogError($"❌ [ShopController] EquipmentData를 찾을 수 없습니다: {displayInstanceId.id}");
+            Debug.LogError($"❌ [ShopController] EquipmentData를 찾을 수 없습니다: {displayInstanceId.Value}");
             failReason = PurchaseFailReason.InvalidItem;
             return false;
         }
@@ -463,7 +464,7 @@ private void TestBuyItem()
         
         // 4. 새 ItemInstance 생성 (플레이어 전용)
         var newInstanceId = itemPool.CreateNewInstance(templateName);
-        if (!newInstanceId.IsValid())
+        if (newInstanceId.IsEmpty)
         {
             Debug.LogError($"❌ [ShopController] 새 Instance 생성 실패: {templateName}");
             OnTransactionFailed?.Invoke(templateName);
@@ -481,15 +482,19 @@ private void TestBuyItem()
         }
         
         // 6. 골드 차감
-        PlayerDataManager.Instance.AddGold(-buyPrice);
+        if (!PlayerDataManager.Instance.SpendGold(buyPrice))
+        {
+            Debug.LogError($"❌ [ShopController] 골드 차감 실패: {buyPrice}");
+            failReason = PurchaseFailReason.InsufficientGold;
+            return false;
+        }
         PlayerDataManager.Instance.SaveOnMeaningfulEvent("ItemPurchased");
-        AccountDataManager.Instance.Save();
         
         // 7. UI 새로고침 이벤트 발생 (보관창고 업데이트)
         PlayerDataManager.Instance.NotifyInventoryChanged();
         
         if (showDebugLogs)
-            Debug.Log($"✅ [ShopController] 구매 성공! {templateName} (가격: {buyPrice}, ID: {newInstanceId.id.Substring(0, 8)}...)");
+            Debug.Log($"✅ [ShopController] 구매 성공! {templateName} (가격: {buyPrice}, ID: {newInstanceId.Value.Substring(0, 8)}...)");
         
         // 8. 이벤트 발생
         OnItemPurchased?.Invoke(templateName);
@@ -500,7 +505,7 @@ private void TestBuyItem()
     /// <summary>
     /// ⭐ 아이템 구매 (오버로드: 실패 이유 없음)
     /// </summary>
-    public bool BuyItemV2(ItemInstanceId displayInstanceId)
+    public bool BuyItemV2(ItemInstanceID displayInstanceId)
     {
         return BuyItemV2(displayInstanceId, out _);
     }

@@ -12,7 +12,7 @@ namespace UI.Inventory
         /// <summary>
         /// 인벤토리 슬롯에 귀속 상태 표시
         /// </summary>
-        public static void UpdateBindStatus(this GameObject slotObject, ItemInstanceId itemId)
+        public static void UpdateBindStatus(this GameObject slotObject, ItemInstanceID itemId)
         {
             if (slotObject == null)
                 return;

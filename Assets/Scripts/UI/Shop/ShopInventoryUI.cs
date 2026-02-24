@@ -66,8 +66,8 @@ public class ShopInventoryUI : MonoBehaviour
     // 내부 상태
     private List<InventorySlot> shopInventorySlots = new List<InventorySlot>();
     
-    // 🔧 수정: 상점 전용 이벤트 (판매용) - 🆕 V2: ItemInstanceId 추가
-    public event Action<EquipmentData, int, ItemInstanceId> OnInventoryItemClicked;
+    // 🔧 수정: 상점 전용 이벤트 (판매용) - 🆕 V2: ItemInstanceID 추가
+    public event Action<EquipmentData, int, ItemInstanceID> OnInventoryItemClicked;
     
     // 🗑️ 제거: 착용, 상세 정보 등 로비 전용 기능 제거
     // (상점에서는 단순히 판매할 아이템 선택만)
@@ -178,7 +178,7 @@ public class ShopInventoryUI : MonoBehaviour
                     button.onClick.RemoveAllListeners();
                     button.onClick.AddListener(() => {
                         var equipmentData = shopInventorySlots[slotIndex].GetEquipmentData();
-                        var instanceId = shopInventorySlots[slotIndex].GetItemInstanceId();  // 🆕 V2: ID 가져오기
+                        var instanceId = shopInventorySlots[slotIndex].GetItemInstanceID();  // 🆕 V2: ID 가져오기
                         HandleSlotClicked(equipmentData, slotIndex, instanceId);
                     });
                 }
@@ -234,8 +234,8 @@ public class ShopInventoryUI : MonoBehaviour
             Debug.Log($"🔍 [ShopInventoryUI] accountData 해시코드: {accountData?.GetHashCode() ?? 0}");
         }
         
-        // 🆕 V2: ItemInstanceId → EquipmentData 변환 (ID도 함께 저장)
-        List<(EquipmentData equipment, ItemInstanceId instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceId)>();
+        // 🆕 V2: ItemInstanceID → EquipmentData 변환 (ID도 함께 저장)
+        List<(EquipmentData equipment, ItemInstanceID instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceID)>();
         
         if (sharedInventoryIds != null)
         {
@@ -255,9 +255,9 @@ public class ShopInventoryUI : MonoBehaviour
                             
                             if (i < 5 && showDebugLogs) // 처음 5개만 로그
                             {
-                                string idPreview = instanceId.id != null && instanceId.id.Length >= 8 
-                                    ? instanceId.id.Substring(0, 8) 
-                                    : instanceId.id;
+                                string idPreview = instanceId.Value != null && instanceId.Value.Length >= 8 
+                                    ? instanceId.Value.Substring(0, 8) 
+                                    : instanceId.Value;
                                 Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {idPreview}...)");
                             }
                         }
@@ -270,7 +270,7 @@ public class ShopInventoryUI : MonoBehaviour
                     else
                     {
                         if (showDebugLogs)
-                            Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
+                            Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.Value}");
                     }
                 }
                 catch (System.Exception ex)
@@ -281,7 +281,7 @@ public class ShopInventoryUI : MonoBehaviour
             }
         }
 
-        // 슬롯 데이터 설정 (🆕 ItemInstanceId도 함께 전달)
+        // 슬롯 데이터 설정 (🆕 ItemInstanceID도 함께 전달)
         for (int i = 0; i < shopInventorySlots.Count; i++)
         {
             if (i < inventoryItems.Count)
@@ -346,12 +346,12 @@ public class ShopInventoryUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 V2: 슬롯 클릭 처리 (ItemInstanceId 포함)
+    /// 🆕 V2: 슬롯 클릭 처리 (ItemInstanceID 포함)
     /// </summary>
-    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId)
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId)
     {
         // Shop 환경에서만 처리 (이미 Button.onClick으로 호출되므로 활성화 상태 보장됨)
-        if (equipmentData != null && instanceId.IsValid())
+        if (equipmentData != null && !instanceId.IsEmpty)
         {
             // ⭐ 기존 이벤트 유지 (다른 시스템 호환성)
             OnInventoryItemClicked?.Invoke(equipmentData, slotIndex, instanceId);  // 🆕 V2: ID 전달
@@ -360,7 +360,7 @@ public class ShopInventoryUI : MonoBehaviour
             ShowItemDetailPopup(equipmentData, slotIndex, instanceId);
             
             if (showDebugLogs)
-                Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 아이템 클릭: {equipmentData.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+                Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 아이템 클릭: {equipmentData.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...)");
         }
         else if (showDebugLogs)
         {
@@ -371,7 +371,7 @@ public class ShopInventoryUI : MonoBehaviour
     /// <summary>
     /// ⭐ 아이템 상세 팝업 표시 (상점 판매용)
     /// </summary>
-    private void ShowItemDetailPopup(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId)
+    private void ShowItemDetailPopup(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId)
     {
         // PopupCanvas에서 ItemDetailPopup 찾기
         var popup = FindObjectOfType<ItemDetailPopup>(true); // includeInactive = true

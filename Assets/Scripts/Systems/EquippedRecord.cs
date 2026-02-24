@@ -11,7 +11,7 @@ public class EquippedRecord
     public EquipmentSlot slot;
     
     [Tooltip("아이템 인스턴스 ID")]
-    public ItemInstanceId instanceId;
+    public ItemInstanceID instanceId;
     
     [Tooltip("아이템 템플릿 이름 (Phase B 수정: AccountData 의존성 제거)")]
     public string templateName;

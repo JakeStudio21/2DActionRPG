@@ -71,12 +71,12 @@ public class StageEndItemTransfer : MonoBehaviour
         var slotData = playerData.GetSlotData(currentSlotIndex);
         
         // 1. 현재 가방 아이템 목록 가져오기
-        var bagItems = new List<ItemInstanceId>(slotData.characterBagInstanceIds);
+        var bagItems = new List<ItemInstanceID>(slotData.characterBagInstanceIds);
         
         Log($"🔍 [StageEndItemTransfer] 가방 아이템 목록 가져오기 완료: {bagItems.Count}개");
         for (int i = 0; i < bagItems.Count; i++)
         {
-            Log($"  [{i}] {bagItems[i].id}");
+            Log($"  [{i}] {bagItems[i].Value}");
         }
         
         if (bagItems.Count == 0 && slotData.characterBagMaterials.Count == 0)
@@ -90,7 +90,7 @@ public class StageEndItemTransfer : MonoBehaviour
         // 3. 각 장비 아이템 처리
         foreach (var itemId in bagItems)
         {
-            if (!itemId.IsValid())
+            if (itemId.IsEmpty)
             {
                 LogWarning($"⚠️ 잘못된 아이템 ID 스킵: {itemId}");
                 continue;

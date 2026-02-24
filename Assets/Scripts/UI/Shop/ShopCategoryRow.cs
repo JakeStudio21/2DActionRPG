@@ -37,7 +37,7 @@ public class ShopCategoryRow : MonoBehaviour
     private List<ShopItemEntry> currentItems = new List<ShopItemEntry>();
     
     // 이벤트: 아이템 클릭 시
-    public event System.Action<ItemInstanceId> OnItemClicked;
+    public event System.Action<ItemInstanceID> OnItemClicked;
     
     /// <summary>
     /// 카테고리 데이터 설정
@@ -158,7 +158,7 @@ public class ShopCategoryRow : MonoBehaviour
         {
             itemSlots.Add(slot);
             
-            // 클릭 이벤트 연결 (ItemInstanceId 버전)
+            // 클릭 이벤트 연결 (ItemInstanceID 버전)
             slot.OnItemClickedV2 += HandleItemClicked;
             
             if (showDebugLogs)
@@ -211,10 +211,10 @@ public class ShopCategoryRow : MonoBehaviour
     /// <summary>
     /// 아이템 클릭 핸들러
     /// </summary>
-    private void HandleItemClicked(ItemInstanceId instanceId)
+    private void HandleItemClicked(ItemInstanceID instanceId)
     {
         if (showDebugLogs)
-            Debug.Log($"🛒 [ShopCategoryRow] 아이템 클릭: {instanceId.id}");
+            Debug.Log($"🛒 [ShopCategoryRow] 아이템 클릭: {instanceId.Value}");
         
         OnItemClicked?.Invoke(instanceId);
     }

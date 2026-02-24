@@ -68,7 +68,7 @@ public class PlayerSlotData
     
     [Header("🎒 V2 인벤토리 & 장비 (병행)")]
     [Tooltip("인게임 가방 - 장비 (16칸, 캐릭터 전용)")]
-    public List<ItemInstanceId> characterBagInstanceIds = new List<ItemInstanceId>();
+    public List<ItemInstanceID> characterBagInstanceIds = new List<ItemInstanceID>();
     
     [Tooltip("인게임 가방 - 재료 (임시 저장, 스테이지 클리어 시 자동 전송)")]
     public List<MaterialStack> characterBagMaterials = new List<MaterialStack>();
@@ -214,7 +214,7 @@ public class PlayerSlotData
         {
             foreach (var record in data.equippedRecords)
             {
-                Debug.Log($"  📦 {record.slot} → {record.instanceId.id}");
+                Debug.Log($"  📦 {record.slot} → {record.instanceId.Value}");
             }
         }
         

@@ -69,12 +69,12 @@ public class BindWarningManager : MonoBehaviour
     /// <summary>
     /// 귀속 경고가 필요한지 확인 (Phase 4.5: 등급별 귀속)
     /// </summary>
-    public bool ShouldShowWarning(ItemInstanceId itemId)
+    public bool ShouldShowWarning(ItemInstanceID itemId)
     {
         // 1. '다시 보지 않기' 설정 확인
         if (BindWarningPopup.IsDontShowAgain())
         {
-            Log($"[BindWarningManager] '다시 보지 않기' 설정으로 경고 스킵: {itemId.id.Substring(0, 8)}...");
+            Log($"[BindWarningManager] '다시 보지 않기' 설정으로 경고 스킵: {itemId.Value.Substring(0, 8)}...");
             return false;
         }
         
@@ -84,7 +84,7 @@ public class BindWarningManager : MonoBehaviour
         var instance = account.GetInstance(itemId);
         if (instance == null)
         {
-            LogError($"[BindWarningManager] 아이템 인스턴스를 찾을 수 없음: {itemId.id.Substring(0, 8)}...");
+            LogError($"[BindWarningManager] 아이템 인스턴스를 찾을 수 없음: {itemId.Value.Substring(0, 8)}...");
             return false;
         }
         
@@ -106,7 +106,7 @@ public class BindWarningManager : MonoBehaviour
         var bindInfo = account.GetBindInfo(itemId);
         if (bindInfo.isBound)
         {
-            Log($"[BindWarningManager] 이미 귀속된 아이템: {itemId.id.Substring(0, 8)}... (슬롯 {bindInfo.characterSlotIndex})");
+            Log($"[BindWarningManager] 이미 귀속된 아이템: {itemId.Value.Substring(0, 8)}... (슬롯 {bindInfo.characterSlotIndex})");
             return false;
         }
         
@@ -139,12 +139,12 @@ public class BindWarningManager : MonoBehaviour
     /// <summary>
     /// 다른 캐릭터에 귀속된 아이템 장착 시도 경고
     /// </summary>
-    public void ShowAlreadyBoundWarning(ItemInstanceId itemId, int boundToSlot, string boundCharacterName)
+    public void ShowAlreadyBoundWarning(ItemInstanceID itemId, int boundToSlot, string boundCharacterName)
     {
         string message = $"이 아이템은 이미 <color=red>{boundCharacterName}</color>에게 귀속되어 있습니다.\n\n" +
                         $"다른 캐릭터는 장착할 수 없습니다.";
         
-        LogWarning($"[BindWarningManager] 다른 캐릭터 귀속 아이템: {itemId.id.Substring(0, 8)}... → 슬롯 {boundToSlot}");
+        LogWarning($"[BindWarningManager] 다른 캐릭터 귀속 아이템: {itemId.Value.Substring(0, 8)}... → 슬롯 {boundToSlot}");
         
         // TODO: 간단한 알림 팝업 표시 (확인 버튼만)
         Debug.LogWarning(message);
@@ -153,12 +153,12 @@ public class BindWarningManager : MonoBehaviour
     /// <summary>
     /// 귀속 아이템 계정 창고 이동 시도 경고
     /// </summary>
-    public void ShowCannotMoveToStorageWarning(ItemInstanceId itemId, string characterName)
+    public void ShowCannotMoveToStorageWarning(ItemInstanceID itemId, string characterName)
     {
         string message = $"이 아이템은 <color=red>{characterName}</color>에게 귀속되어 있습니다.\n\n" +
                         $"귀속된 아이템은 계정 창고로 이동할 수 없습니다.";
         
-        LogWarning($"[BindWarningManager] 귀속 아이템 창고 이동 불가: {itemId.id.Substring(0, 8)}...");
+        LogWarning($"[BindWarningManager] 귀속 아이템 창고 이동 불가: {itemId.Value.Substring(0, 8)}...");
         
         // TODO: 간단한 알림 팝업 표시 (확인 버튼만)
         Debug.LogWarning(message);

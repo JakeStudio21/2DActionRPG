@@ -71,7 +71,7 @@ namespace Systems
         /// <summary>
         /// 강화 가능 여부 검증
         /// </summary>
-        public static bool CanEnhance(ItemInstanceId instanceId, out string reason)
+        public static bool CanEnhance(ItemInstanceID instanceId, out string reason)
         {
             reason = "";
             
@@ -136,7 +136,7 @@ namespace Systems
         /// <summary>
         /// 파괴 경고 필요 여부
         /// </summary>
-        public static bool NeedsDestructionWarning(ItemInstanceId instanceId)
+        public static bool NeedsDestructionWarning(ItemInstanceID instanceId)
         {
             if (!AccountDataManager.IsInitialized()) return false;
             
@@ -154,7 +154,7 @@ namespace Systems
         /// <summary>
         /// 강화 성공률 조회 (⭐ 새 SO 기반)
         /// </summary>
-        public static float GetSuccessRate(ItemInstanceId instanceId)
+        public static float GetSuccessRate(ItemInstanceID instanceId)
         {
             if (!AccountDataManager.IsInitialized()) return 0f;
             
@@ -172,7 +172,7 @@ namespace Systems
         /// <summary>
         /// 강화 시도 (실제 실행)
         /// </summary>
-        public static EnhancementResult ExecuteEnhancement(ItemInstanceId instanceId)
+        public static EnhancementResult ExecuteEnhancement(ItemInstanceID instanceId)
         {
             var result = new EnhancementResult { success = false };
             
@@ -345,7 +345,7 @@ namespace Systems
             }
         }
         
-        private static bool RemoveItemFromInventory(ItemInstanceId instanceId)
+        private static bool RemoveItemFromInventory(ItemInstanceID instanceId)
         {
             var account = AccountDataManager.Instance;
             var accountData = account.GetAccountData();

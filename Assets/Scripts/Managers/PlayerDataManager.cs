@@ -67,9 +67,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 모든 슬롯 클릭 시 발생 (인게임/로비 공통)
     /// 기본적인 슬롯 클릭 이벤트로, 장착/해제 등 기본 기능에 사용
-    /// V2: ItemInstanceId 추가 (귀속 체크용)
+    /// V2: ItemInstanceID 추가 (귀속 체크용)
     /// </summary>
-    public event Action<EquipmentData, int, ItemInstanceId> OnSlotClicked; // (장비데이터, 슬롯인덱스, 인스턴스ID)
+    public event Action<EquipmentData, int, ItemInstanceID> OnSlotClicked; // (장비데이터, 슬롯인덱스, 인스턴스ID)
     
     /// <summary>
     /// 로비에서만 상세 정보가 필요할 때 발생
@@ -587,8 +587,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 1. ⭐ 기존 V2 데이터 백업
         var existingSlotData = GetSlotData(currentSlotIndex);
         var backupBagIds = existingSlotData?.characterBagInstanceIds != null 
-            ? new List<ItemInstanceId>(existingSlotData.characterBagInstanceIds)
-            : new List<ItemInstanceId>();
+            ? new List<ItemInstanceID>(existingSlotData.characterBagInstanceIds)
+            : new List<ItemInstanceID>();
         var backupEquippedRecords = existingSlotData?.equippedRecords != null
             ? new List<EquippedRecord>(existingSlotData.equippedRecords)
             : new List<EquippedRecord>();
@@ -1244,13 +1244,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     }
     
     /// <summary>
-    /// ⭐ V2: 장비 해제 (ItemInstanceId 기반, 보관창고로 이동)
+    /// ⭐ V2: 장비 해제 (ItemInstanceID 기반, 보관창고로 이동)
     /// </summary>
-    public bool UnequipItemV2(EquipmentSlot slot, ItemInstanceId instanceId)
+    public bool UnequipItemV2(EquipmentSlot slot, ItemInstanceID instanceId)
     {
-        if (!IsSlotSelected || !instanceId.IsValid())
+        if (!IsSlotSelected || instanceId.IsEmpty)
         {
-            Debug.LogError($"❌ [PlayerDataManager] UnequipItemV2 실패: 슬롯 미선택 또는 ID 무효 (ID: {instanceId.id})");
+            Debug.LogError($"❌ [PlayerDataManager] UnequipItemV2 실패: 슬롯 미선택 또는 ID 무효 (ID: {instanceId.Value})");
             return false;
         }
         
@@ -1295,7 +1295,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnInventoryChanged?.Invoke();
         
         if (showDebugLogs)
-            Debug.Log($"✅ [PlayerDataManager] V2 장비 해제: {item.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...) → 보관창고");
+            Debug.Log($"✅ [PlayerDataManager] V2 장비 해제: {item.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...) → 보관창고");
         
         return true;
     }
@@ -1303,9 +1303,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// ⭐ V2: 귀속 아이템 해제 및 삭제
     /// </summary>
-    public bool UnequipAndDeleteBoundItem(EquipmentSlot slot, ItemInstanceId instanceId)
+    public bool UnequipAndDeleteBoundItem(EquipmentSlot slot, ItemInstanceID instanceId)
     {
-        if (!IsSlotSelected || !instanceId.IsValid())
+        if (!IsSlotSelected || instanceId.IsEmpty)
         {
             Debug.LogError($"❌ [PlayerDataManager] UnequipAndDeleteBoundItem 실패: 슬롯 미선택 또는 ID 무효");
             return false;
@@ -1347,7 +1347,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnInventoryChanged?.Invoke();
         
         if (showDebugLogs)
-            Debug.Log($"🗑️ [PlayerDataManager] 귀속 아이템 해제 및 삭제: {item.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+            Debug.Log($"🗑️ [PlayerDataManager] 귀속 아이템 해제 및 삭제: {item.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...)");
         
         return true;
     }
@@ -1762,12 +1762,12 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     // 🆕 공용 이벤트 발생 메서드들
     /// <summary>
     /// 슬롯 클릭 이벤트 발생 (인게임/로비 공통)
-    /// V2: ItemInstanceId 추가
+    /// V2: ItemInstanceID 추가
     /// </summary>
-    public void TriggerSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId = default)
+    public void TriggerSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId = default)
     {
         if (showDebugLogs)
-            Debug.Log($"🖱️ [PlayerDataManager] 슬롯 클릭 이벤트 발생: {(equipmentData?.equipmentName ?? "빈 슬롯")} (인덱스: {slotIndex}, ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")})");
+            Debug.Log($"🖱️ [PlayerDataManager] 슬롯 클릭 이벤트 발생: {(equipmentData?.equipmentName ?? "빈 슬롯")} (인덱스: {slotIndex}, ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
         
         OnSlotClicked?.Invoke(equipmentData, slotIndex, instanceId);
     }
@@ -1824,13 +1824,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        // ⭐ V2: ItemInstanceId로 아이템 확인
-        ItemInstanceId itemId = bagItemIds[slotIndex];
+        // ⭐ V2: ItemInstanceID로 아이템 확인
+        ItemInstanceID itemId = bagItemIds[slotIndex];
         var itemInstance = AccountDataManager.Instance?.GetInstance(itemId);
         
         if (itemInstance == null)
         {
-            Debug.LogError($"🔴 [PlayerDataManager] 슬롯 {slotIndex}의 ItemInstance를 찾을 수 없음 (ID: {itemId.id})");
+            Debug.LogError($"🔴 [PlayerDataManager] 슬롯 {slotIndex}의 ItemInstance를 찾을 수 없음 (ID: {itemId.Value})");
             return false;
         }
         
@@ -1843,7 +1843,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        Debug.Log($"✅ [PlayerDataManager] V2 아이템 확인 완료: {itemInstance.templateName} (ID: {itemId.id.Substring(0, 8)}...)");
+        Debug.Log($"✅ [PlayerDataManager] V2 아이템 확인 완료: {itemInstance.templateName} (ID: {itemId.Value.Substring(0, 8)}...)");
         
         // 적절한 장비 슬롯 결정
         EquipmentSlot targetSlot = DetermineEquipmentSlot(item);
@@ -1913,14 +1913,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// 🆕 보관창고에서 직접 장비 착용 (V2)
     /// 계정 공유 창고 → 장비 슬롯 직접 장착
     /// </summary>
-    public bool EquipItemFromSharedStorage(ItemInstanceId itemId)
+    public bool EquipItemFromSharedStorage(ItemInstanceID itemId)
     {
         Debug.Log($"⚔️ [PlayerDataManager] ============= EquipItemFromSharedStorage 시작 (V2) =============");
-        Debug.Log($"   - 요청 아이템 ID: {itemId.id.Substring(0, 8)}...");
+        Debug.Log($"   - 요청 아이템 ID: {itemId.Value.Substring(0, 8)}...");
         
-        if (!itemId.IsValid() || !IsSlotSelected)
+        if (itemId.IsEmpty || !IsSlotSelected)
         {
-            Debug.LogError($"🔴 [PlayerDataManager] 기본 검증 실패 (ID 유효: {itemId.IsValid()}, 슬롯 선택: {IsSlotSelected})");
+            Debug.LogError($"🔴 [PlayerDataManager] 기본 검증 실패 (ID 유효: {!itemId.IsEmpty}, 슬롯 선택: {IsSlotSelected})");
             return false;
         }
         
@@ -1928,7 +1928,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         var accountData = AccountDataManager.Instance.GetAccountData();
         if (!accountData.sharedInventoryIds.Contains(itemId))
         {
-            Debug.LogError($"🔴 [PlayerDataManager] 보관창고에 ID {itemId.id.Substring(0, 8)}... 아이템 없음");
+            Debug.LogError($"🔴 [PlayerDataManager] 보관창고에 ID {itemId.Value.Substring(0, 8)}... 아이템 없음");
             return false;
         }
         
@@ -1936,7 +1936,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         var instanceData = AccountDataManager.Instance.GetInstance(itemId);
         if (instanceData == null)
         {
-            Debug.LogError($"🔴 [PlayerDataManager] 아이템 인스턴스 데이터 없음: {itemId.id}");
+            Debug.LogError($"🔴 [PlayerDataManager] 아이템 인스턴스 데이터 없음: {itemId.Value}");
             return false;
         }
         
@@ -1979,20 +1979,20 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 Debug.Log($"   - 기존 장비 해제: {oldEquipment.equipmentName}");
                 
                 // ⭐ V2: RuntimeEquippedInstanceIds에서 기존 아이템 ID 확인
-                ItemInstanceId oldInstanceId = default;
+                ItemInstanceID oldInstanceId = default;
                 if (selectedPlayerData.RuntimeEquippedInstanceIds.ContainsKey(targetSlot))
                 {
                     oldInstanceId = selectedPlayerData.RuntimeEquippedInstanceIds[targetSlot];
                 }
                 
-                if (oldInstanceId.IsValid())
+                if (!oldInstanceId.IsEmpty)
                 {
                     // V2 아이템 → 보관창고로 반환
                     bool addedToShared = AccountDataManager.Instance.TryAddToShared(oldInstanceId);
                     
                     if (addedToShared)
                     {
-                        Debug.Log($"✅ [PlayerDataManager] 기존 장비 보관창고 반환: {oldEquipment.equipmentName} (ID: {oldInstanceId.id.Substring(0, 8)}...)");
+                        Debug.Log($"✅ [PlayerDataManager] 기존 장비 보관창고 반환: {oldEquipment.equipmentName} (ID: {oldInstanceId.Value.Substring(0, 8)}...)");
                     }
                     else
                     {
@@ -2006,7 +2006,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 }
                 else
                 {
-                    // Legacy 아이템 (ItemInstanceId 없음) → 경고
+                    // Legacy 아이템 (ItemInstanceID 없음) → 경고
                     Debug.LogWarning($"⚠️ [PlayerDataManager] 기존 장비는 Legacy 아이템: {oldEquipment.equipmentName} (V2 시스템 반환 불가, 사라짐)");
                 }
             }
@@ -2014,14 +2014,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 6️⃣ 새 장비 착용
             selectedPlayerData.RuntimeEquippedItems[targetSlot] = equipment;
             selectedPlayerData.RuntimeEquippedInstanceIds[targetSlot] = itemId; // ⭐ V2: InstanceId 추적
-            Debug.Log($"✅ [PlayerDataManager] 새 장비 착용 완료: {equipment.equipmentName} → {targetSlot} (ID: {itemId.id.Substring(0, 8)}...)");
+            Debug.Log($"✅ [PlayerDataManager] 새 장비 착용 완료: {equipment.equipmentName} → {targetSlot} (ID: {itemId.Value.Substring(0, 8)}...)");
             Debug.Log($"🔍 [PlayerDataManager] 착용 후 - RuntimeEquippedInstanceIds.Count: {selectedPlayerData.RuntimeEquippedInstanceIds.Count}");
             
             // 7️⃣ 보관창고에서 제거
             bool removed = AccountDataManager.Instance.RemoveFromShared(itemId);
             if (removed)
             {
-                Debug.Log($"✅ [PlayerDataManager] 보관창고에서 제거 완료: {itemId.id.Substring(0, 8)}...");
+                Debug.Log($"✅ [PlayerDataManager] 보관창고에서 제거 완료: {itemId.Value.Substring(0, 8)}...");
             }
             else
             {
@@ -2325,18 +2325,18 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
 
     #endregion
 
-    #region 🆕 Phase 3: V2 인벤토리/장착 API (ItemInstanceId 기반)
+    #region 🆕 Phase 3: V2 인벤토리/장착 API (ItemInstanceID 기반)
     
     /// <summary>
-    /// V2 아이템 장착 (ItemInstanceId 기반, 원자성 보장)
+    /// V2 아이템 장착 (ItemInstanceID 기반, 원자성 보장)
     /// </summary>
     /// <param name="instanceId">장착할 아이템 인스턴스 ID</param>
     /// <param name="targetSlot">장착할 슬롯</param>
     /// <param name="allowMailboxOnFull">인벤토리 가득 찰 때 우편함 처리 여부</param>
     /// <returns>성공 여부</returns>
-    public bool EquipV2(ItemInstanceId instanceId, EquipmentSlot targetSlot, bool allowMailboxOnFull = true)
+    public bool EquipV2(ItemInstanceID instanceId, EquipmentSlot targetSlot, bool allowMailboxOnFull = true)
     {
-        if (!IsSlotSelected || !instanceId.IsValid())
+        if (!IsSlotSelected || instanceId.IsEmpty)
         {
             Debug.LogError("[EquipV2] 슬롯 미선택 또는 잘못된 인스턴스 ID");
             return false;
@@ -2382,10 +2382,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         // 2. 현재 장착된 아이템 확인
         var currentEquipped = slotData.equippedRecords.Find(r => r.slot == targetSlot);
-        ItemInstanceId? oldInstanceId = currentEquipped?.instanceId;
+        ItemInstanceID? oldInstanceId = currentEquipped?.instanceId;
         
         // 3. 인벤토리 공간 확인 (기존 아이템이 있고, 가방이 가득 찬 경우)
-        bool needsSpace = oldInstanceId.HasValue && oldInstanceId.Value.IsValid();
+        bool needsSpace = oldInstanceId.HasValue && !oldInstanceId.Value.IsEmpty;
         bool bagFull = slotData.characterBagInstanceIds.Count >= selectedPlayerData.MaxInventorySize;
         
         if (needsSpace && bagFull)
@@ -2473,7 +2473,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     }
     
     /// <summary>
-    /// V2 아이템 해제 (ItemInstanceId 기반, 원자성 보장)
+    /// V2 아이템 해제 (ItemInstanceID 기반, 원자성 보장)
     /// </summary>
     /// <param name="targetSlot">해제할 슬롯</param>
     /// <param name="allowMailboxOnFull">인벤토리 가득 찰 때 우편함 처리 여부</param>
@@ -2504,13 +2504,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 1. 장착된 아이템 확인
         var equippedRecord = slotData.equippedRecords.Find(r => r.slot == targetSlot);
         
-        if (equippedRecord == null || !equippedRecord.instanceId.IsValid())
+        if (equippedRecord == null || equippedRecord.instanceId.IsEmpty)
         {
             Debug.LogWarning($"[UnequipV2] {targetSlot} 슬롯이 비어있음");
             return false;
         }
         
-        ItemInstanceId instanceId = equippedRecord.instanceId;
+        ItemInstanceID instanceId = equippedRecord.instanceId;
         
         // 2. 인벤토리 공간 확인
         bool bagFull = slotData.characterBagInstanceIds.Count >= selectedPlayerData.MaxInventorySize;
@@ -2561,9 +2561,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 가방 → 계정 창고로 아이템 이동
     /// </summary>
-    public bool MoveToAccountStorage(ItemInstanceId instanceId)
+    public bool MoveToAccountStorage(ItemInstanceID instanceId)
     {
-        if (!IsSlotSelected || !instanceId.IsValid())
+        if (!IsSlotSelected || instanceId.IsEmpty)
         {
             Debug.LogError("[MoveToAccountStorage] 슬롯 미선택 또는 잘못된 인스턴스 ID");
             return false;
@@ -2633,9 +2633,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 우편함 → 가방으로 아이템 이동
     /// </summary>
-    public bool ClaimFromMailbox(ItemInstanceId instanceId)
+    public bool ClaimFromMailbox(ItemInstanceID instanceId)
     {
-        if (!IsSlotSelected || !instanceId.IsValid())
+        if (!IsSlotSelected || instanceId.IsEmpty)
         {
             Debug.LogError("[ClaimFromMailbox] 슬롯 미선택 또는 잘못된 인스턴스 ID");
             return false;
@@ -2692,16 +2692,16 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 현재 캐릭터의 V2 가방 아이템 목록 가져오기
     /// </summary>
-    public List<ItemInstanceId> GetCharacterBagV2()
+    public List<ItemInstanceID> GetCharacterBagV2()
     {
         if (!IsSlotSelected)
         {
             Debug.Log("[GetCharacterBagV2] 슬롯 미선택 - 빈 리스트 반환");
-            return new List<ItemInstanceId>();
+            return new List<ItemInstanceID>();
         }
         
         var slotData = GetSlotData(currentSlotIndex);
-        var bagItems = slotData?.characterBagInstanceIds ?? new List<ItemInstanceId>();
+        var bagItems = slotData?.characterBagInstanceIds ?? new List<ItemInstanceID>();
         
         Debug.Log($"🔍 [GetCharacterBagV2] 슬롯 {currentSlotIndex} 가방 아이템: {bagItems.Count}개");
         
@@ -2730,7 +2730,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <param name="enhancementLevel">강화 레벨 (기본값: 0)</param>
     /// <param name="allowMailboxOnFull">가방 가득 찰 때 우편함 처리 여부 (기본값: true)</param>
     /// <returns>생성된 아이템 인스턴스 ID (실패 시 invalid ID)</returns>
-    public ItemInstanceId AddItemV2(string templateName, int enhancementLevel = 0, bool allowMailboxOnFull = true)
+    public ItemInstanceID AddItemV2(string templateName, int enhancementLevel = 0, bool allowMailboxOnFull = true)
     {
         // ⭐ 디버깅: AddItemV2 호출 추적
         Debug.Log($"═══════════════════════════════════════════════════════");
@@ -2744,19 +2744,19 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (!IsSlotSelected)
         {
             Debug.LogError("[AddItemV2] 슬롯 미선택");
-            return default(ItemInstanceId);
+            return default(ItemInstanceID);
         }
         
         if (string.IsNullOrEmpty(templateName))
         {
             Debug.LogError("[AddItemV2] 템플릿 이름이 비어있음");
-            return default(ItemInstanceId);
+            return default(ItemInstanceID);
         }
         
         if (!AccountDataManager.IsInitialized())
         {
             Debug.LogError("[AddItemV2] AccountDataManager가 초기화되지 않음");
-            return default(ItemInstanceId);
+            return default(ItemInstanceID);
         }
         
         var account = AccountDataManager.Instance;
@@ -2765,11 +2765,11 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (slotData == null)
         {
             Debug.LogError($"[AddItemV2] 슬롯 {currentSlotIndex} 데이터 없음");
-            return default(ItemInstanceId);
+            return default(ItemInstanceID);
         }
         
         // 1. AccountDataManager에 신규 인스턴스 등록
-        ItemInstanceId newId = account.RegisterNewInstance(templateName);
+        ItemInstanceID newId = account.RegisterNewInstance(templateName);
         
         // 1.5. 강화 레벨 설정 (0이 아닌 경우)
         if (enhancementLevel > 0)
@@ -2792,7 +2792,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 // 우편함으로 이동
                 account.MoveToMailbox(newId);
-                Debug.Log($"📬 [AddItemV2] 가방 가득 참 → 우편함 이동: {templateName} (ID: {newId.id})");
+                Debug.Log($"📬 [AddItemV2] 가방 가득 참 → 우편함 이동: {templateName} (ID: {newId.Value})");
             }
             else
             {
@@ -2801,13 +2801,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 account.RemoveInstance(newId);
                 
                 Debug.LogError($"❌ [AddItemV2] 가방 가득 차서 획득 실패: {templateName}");
-                return default(ItemInstanceId);
+                return default(ItemInstanceID);
             }
         }
         else
         {
             // 가방에 추가
-            Debug.Log($"📦 [AddItemV2] 가방에 추가 시작: {newId.id}");
+            Debug.Log($"📦 [AddItemV2] 가방에 추가 시작: {newId.Value}");
             slotData.characterBagInstanceIds.Add(newId);
             Debug.Log($"📦 [AddItemV2] 가방에 추가 완료: 현재 {slotData.characterBagInstanceIds.Count}개");
         }
@@ -2824,7 +2824,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 Debug.LogError($"❌ [AddItemV2] SaveSlotData 실패! 아이템 롤백: {templateName}");
                 // 가방에서 제거 (롤백)
                 slotData.characterBagInstanceIds.Remove(newId);
-                return default(ItemInstanceId);
+                return default(ItemInstanceID);
             }
             
             // 3.5. ⭐ 중요: selectedPlayerData도 업데이트 (SaveCurrentSlot 덮어쓰기 방지!)
@@ -2843,7 +2843,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             
             MarkDirty();
             
-            Debug.Log($"✅ [AddItemV2] 아이템 획득 성공: {templateName} (ID: {newId.id}, 강화: +{enhancementLevel})");
+            Debug.Log($"✅ [AddItemV2] 아이템 획득 성공: {templateName} (ID: {newId.Value}, 강화: +{enhancementLevel})");
             OnInventoryChanged?.Invoke();
             
             return newId;
@@ -2855,7 +2855,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 가방에서 제거 (롤백)
             slotData.characterBagInstanceIds.Remove(newId);
             
-            return default(ItemInstanceId);
+            return default(ItemInstanceID);
         }
     }
     
@@ -2872,10 +2872,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <param name="targetSlot">장착할 슬롯</param>
     /// <param name="onComplete">완료 콜백 (성공 여부)</param>
     /// <param name="allowMailboxOnFull">인벤토리 가득 찰 때 우편함 처리 여부</param>
-    public void EquipV2WithWarning(ItemInstanceId instanceId, EquipmentSlot targetSlot, 
+    public void EquipV2WithWarning(ItemInstanceID instanceId, EquipmentSlot targetSlot, 
                                     System.Action<bool> onComplete = null, bool allowMailboxOnFull = true)
     {
-        if (!IsSlotSelected || !instanceId.IsValid())
+        if (!IsSlotSelected || instanceId.IsEmpty)
         {
             Debug.LogError("[EquipV2WithWarning] 슬롯 미선택 또는 잘못된 인스턴스 ID");
             onComplete?.Invoke(false);
@@ -2964,10 +2964,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     /// <param name="instanceId">분해할 아이템 ID</param>
     /// <param name="onComplete">완료 콜백 (성공 여부, 획득 재료)</param>
-    public void DismantleV2WithWarning(ItemInstanceId instanceId, 
+    public void DismantleV2WithWarning(ItemInstanceID instanceId, 
         System.Action<bool, System.Collections.Generic.Dictionary<MaterialType, int>> onComplete)
     {
-        if (!instanceId.IsValid())
+        if (instanceId.IsEmpty)
         {
             Debug.LogError("[DismantleV2WithWarning] 잘못된 인스턴스 ID");
             onComplete?.Invoke(false, null);
@@ -3016,9 +3016,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     /// <param name="instanceId">분해할 아이템 ID</param>
     /// <returns>획득한 재료 목록</returns>
-    public System.Collections.Generic.Dictionary<MaterialType, int> DismantleV2(ItemInstanceId instanceId)
+    public System.Collections.Generic.Dictionary<MaterialType, int> DismantleV2(ItemInstanceID instanceId)
     {
-        if (!instanceId.IsValid())
+        if (instanceId.IsEmpty)
         {
             Debug.LogError("[DismantleV2] 잘못된 인스턴스 ID");
             return new System.Collections.Generic.Dictionary<MaterialType, int>();
@@ -3048,7 +3048,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 합성 (V2) - 경고 포함
     /// </summary>
-    public bool FuseV2WithWarning(System.Collections.Generic.List<ItemInstanceId> materialIds, System.Action<bool, ItemInstanceId> onComplete = null)
+    public bool FuseV2WithWarning(System.Collections.Generic.List<ItemInstanceID> materialIds, System.Action<bool, ItemInstanceID> onComplete = null)
     {
         if (!AccountDataManager.IsInitialized())
         {
@@ -3098,7 +3098,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 if (confirmed)
                 {
                     // 합성 실행
-                    bool success = Systems.FusionSystem.ExecuteFusion(materialIds, out ItemInstanceId resultId);
+                    bool success = Systems.FusionSystem.ExecuteFusion(materialIds, out ItemInstanceID resultId);
                     
                     if (success)
                     {
@@ -3120,7 +3120,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         else
         {
             // 3. 경고 없이 바로 합성
-            bool success = Systems.FusionSystem.ExecuteFusion(materialIds, out ItemInstanceId resultId);
+            bool success = Systems.FusionSystem.ExecuteFusion(materialIds, out ItemInstanceID resultId);
             
             if (success)
             {
@@ -3140,9 +3140,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 아이템 강화 (경고 포함)
     /// </summary>
-    public void EnhanceV2WithWarning(ItemInstanceId instanceId, System.Action<EnhancementResult> onComplete)
+    public void EnhanceV2WithWarning(ItemInstanceID instanceId, System.Action<EnhancementResult> onComplete)
     {
-        if (!instanceId.IsValid())
+        if (instanceId.IsEmpty)
         {
             Debug.LogError("[EnhanceV2WithWarning] 잘못된 인스턴스 ID");
             onComplete?.Invoke(new EnhancementResult { success = false, errorMessage = "잘못된 아이템 ID" });
@@ -3243,9 +3243,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <summary>
     /// 아이템 강화 (경고 없이 즉시 실행)
     /// </summary>
-    public EnhancementResult EnhanceV2(ItemInstanceId instanceId)
+    public EnhancementResult EnhanceV2(ItemInstanceID instanceId)
     {
-        if (!instanceId.IsValid())
+        if (instanceId.IsEmpty)
         {
             Debug.LogError("[EnhanceV2] 잘못된 인스턴스 ID");
             return new EnhancementResult { success = false, errorMessage = "잘못된 아이템 ID" };
@@ -3333,7 +3333,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         foreach (var instanceId in slotData.characterBagInstanceIds)
         {
-            if (!instanceId.IsValid()) continue;
+            if (instanceId.IsEmpty) continue;
             
             var instance = account.GetInstance(instanceId);
             if (instance == null) continue;
@@ -3397,7 +3397,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 1. 장비 전송 (기존 Phase 3.5)
         foreach (var instanceId in slotData.characterBagInstanceIds)
         {
-            if (instanceId.IsValid())
+            if (!instanceId.IsEmpty)
             {
                 if (account.TryAddToShared(instanceId))
                 {
@@ -3405,7 +3405,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ [TransferCharacterBag] 장비 전송 실패: {instanceId.id}");
+                    Debug.LogWarning($"⚠️ [TransferCharacterBag] 장비 전송 실패: {instanceId.Value}");
                 }
             }
         }

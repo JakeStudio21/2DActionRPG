@@ -8,7 +8,7 @@ using UnityEngine;
 public class ItemBindRecord
 {
     [Tooltip("아이템 인스턴스 ID")]
-    public ItemInstanceId instanceId;
+    public ItemInstanceID instanceId;
     
     [Tooltip("귀속된 캐릭터 슬롯 인덱스 (0~2)")]
     public int characterSlotIndex;

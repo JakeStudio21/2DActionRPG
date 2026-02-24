@@ -37,7 +37,7 @@ namespace Systems
         /// <summary>
         /// 아이템 분해 가능 여부 확인
         /// </summary>
-        public static bool CanDismantle(ItemInstanceId instanceId, out string reason)
+        public static bool CanDismantle(ItemInstanceID instanceId, out string reason)
         {
             reason = "";
             
@@ -69,7 +69,7 @@ namespace Systems
         /// <summary>
         /// 아이템이 장착 중인지 확인
         /// </summary>
-        private static bool IsEquipped(ItemInstanceId instanceId)
+        private static bool IsEquipped(ItemInstanceID instanceId)
         {
             if (PlayerDataManager.Instance == null) return false;
             
@@ -97,7 +97,7 @@ namespace Systems
         /// <summary>
         /// 분해 보상 계산
         /// </summary>
-        public static Dictionary<MaterialType, int> CalculateDismantleReward(ItemInstanceId instanceId)
+        public static Dictionary<MaterialType, int> CalculateDismantleReward(ItemInstanceID instanceId)
         {
             var account = AccountDataManager.Instance;
             var itemData = account.GetInstance(instanceId);
@@ -132,7 +132,7 @@ namespace Systems
         /// 아이템 분해 실행
         /// </summary>
         /// <returns>획득한 재료 목록</returns>
-        public static Dictionary<MaterialType, int> DismantleItem(ItemInstanceId instanceId)
+        public static Dictionary<MaterialType, int> DismantleItem(ItemInstanceID instanceId)
         {
             var emptyReward = new Dictionary<MaterialType, int>();
             
@@ -213,7 +213,7 @@ namespace Systems
         /// <summary>
         /// 인벤토리에서 아이템 제거 (가방 또는 계정 창고)
         /// </summary>
-        private static bool RemoveItemFromInventory(ItemInstanceId instanceId)
+        private static bool RemoveItemFromInventory(ItemInstanceID instanceId)
         {
             var account = AccountDataManager.Instance;
             var accountData = account.GetAccountData();
@@ -261,7 +261,7 @@ namespace Systems
         /// <summary>
         /// 분해 경고가 필요한지 확인
         /// </summary>
-        public static bool NeedsWarning(ItemInstanceId instanceId)
+        public static bool NeedsWarning(ItemInstanceID instanceId)
         {
             var account = AccountDataManager.Instance;
             var itemData = account.GetInstance(instanceId);

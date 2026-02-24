@@ -10,7 +10,7 @@ namespace Systems
     [System.Serializable]
     public class EnhancementWarningData
     {
-        public ItemInstanceId instanceId;
+        public ItemInstanceID instanceId;
         public string itemTemplateName;
         public ItemGrade itemGrade;
         public int currentLevel;
@@ -26,7 +26,7 @@ namespace Systems
         public string tooltipMessage;
         
         public EnhancementWarningData(
-            ItemInstanceId instanceId,
+            ItemInstanceID instanceId,
             string templateName,
             ItemGrade grade,
             int currentLevel,

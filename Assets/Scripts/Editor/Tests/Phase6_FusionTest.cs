@@ -85,7 +85,7 @@ namespace Tests
                 CreateTestSlot(0, "TestCharacter");
 
                 // D등급 반지 3개 생성
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 3; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");
@@ -98,7 +98,7 @@ namespace Tests
                 player.SaveSlotData(player.GetCurrentSlotData());
 
                 // 합성 실행
-                bool success = FusionSystem.ExecuteFusion(materials, out ItemInstanceId resultId);
+                bool success = FusionSystem.ExecuteFusion(materials, out ItemInstanceID resultId);
 
                 if (!success)
                 {
@@ -162,7 +162,7 @@ namespace Tests
                 CreateTestSlot(0, "TestCharacter");
 
                 // D등급 2개 + C등급 1개
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 2; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");
@@ -208,7 +208,7 @@ namespace Tests
                 CreateTestSlot(0, "TestCharacter");
 
                 // 반지D 2개 + 목걸이D 1개
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 2; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");
@@ -254,7 +254,7 @@ namespace Tests
                 CreateTestSlot(0, "TestCharacter");
 
                 // D등급 2개만 (3개 필요)
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 2; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");
@@ -297,7 +297,7 @@ namespace Tests
                 CreateTestSlot(0, "TestCharacter");
 
                 // D등급 반지 3개 생성 (1개는 +7 강화)
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 3; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");
@@ -354,7 +354,7 @@ namespace Tests
                 player.SaveSlotData(player.GetCurrentSlotData());
 
                 // D등급 반지 3개 생성
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 3; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");
@@ -420,7 +420,7 @@ namespace Tests
                 CreateTestSlot(0, "TestCharacter");
 
                 // D등급 반지 3개 생성 (1개는 장착)
-                var materials = new List<ItemInstanceId>();
+                var materials = new List<ItemInstanceID>();
                 for (int i = 0; i < 3; i++)
                 {
                     var itemId = account.RegisterNewInstance("ITEM_RING_NONE_D_Equipment");

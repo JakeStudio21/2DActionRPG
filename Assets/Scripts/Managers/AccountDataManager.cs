@@ -16,8 +16,8 @@ public class AccountDataManager
     private AccountData accountData;
     
     // ⭐ 캐시는 Manager에서 관리
-    private Dictionary<ItemInstanceId, ItemInstanceData> instanceCache;
-    private Dictionary<ItemInstanceId, int> bindCache; // instanceId -> characterSlotIndex
+    private Dictionary<ItemInstanceID, ItemInstanceData> instanceCache;
+    private Dictionary<ItemInstanceID, int> bindCache; // instanceId -> characterSlotIndex
     private Dictionary<MaterialType, int> materialCache; // ⭐ MaterialType enum 기반
     
     private const string ACCOUNT_SAVE_KEY = "Account";
@@ -103,7 +103,10 @@ public class AccountDataManager
         // 1. 공유 창고 개수 (sharedInventoryIds.Count)
         accountData.currentSharedInventoryCount = accountData.sharedInventoryIds.Count;
         
-        // 2. 재료 타입 이름 (materialType → materialTypeName, displayName)
+        // 2. 아이템 인스턴스 개수 (itemInstances.Count)
+        accountData.currentItemInstancesCount = accountData.itemInstances.Count;
+        
+        // 3. 재료 타입 이름 (materialType → materialTypeName, displayName)
         foreach (var material in accountData.materials)
         {
             material.materialTypeName = material.materialType.ToString(); // "WeaponFragment"
@@ -116,8 +119,8 @@ public class AccountDataManager
     /// </summary>
     private void RebuildCache()
     {
-        instanceCache = new Dictionary<ItemInstanceId, ItemInstanceData>();
-        bindCache = new Dictionary<ItemInstanceId, int>();
+        instanceCache = new Dictionary<ItemInstanceID, ItemInstanceData>();
+        bindCache = new Dictionary<ItemInstanceID, int>();
         materialCache = new Dictionary<MaterialType, int>();
         
         // 인스턴스 캐시
@@ -219,9 +222,9 @@ public class AccountDataManager
     /// <summary>
     /// 신규 아이템 인스턴스 등록
     /// </summary>
-    public ItemInstanceId RegisterNewInstance(string templateName)
+    public ItemInstanceID RegisterNewInstance(string templateName)
     {
-        var newId = ItemInstanceId.NewId();
+        var newId = ItemInstanceID.Generate();
         var instanceData = new ItemInstanceData
         {
             instanceId = newId,
@@ -236,26 +239,26 @@ public class AccountDataManager
         accountData.itemInstances.Add(instanceData);
         instanceCache[newId] = instanceData;
         
-        Debug.Log($"✨ [AccountDataManager] 신규 아이템 등록: {templateName} (ID: {newId.id})");
+        Debug.Log($"✨ [AccountDataManager] 신규 아이템 등록: {templateName} (ID: {newId.Value})");
         return newId;
     }
     
     /// <summary>
     /// 아이템 인스턴스 조회
     /// </summary>
-    public ItemInstanceData GetInstance(ItemInstanceId id)
+    public ItemInstanceData GetInstance(ItemInstanceID id)
     {
         if (instanceCache.TryGetValue(id, out var instance))
             return instance;
         
-        Debug.LogWarning($"⚠️ [AccountDataManager] 아이템 인스턴스를 찾을 수 없음: {id.id}");
+        Debug.LogWarning($"⚠️ [AccountDataManager] 아이템 인스턴스를 찾을 수 없음: {id.Value}");
         return null;
     }
     
     /// <summary>
     /// 아이템 인스턴스 삭제 (분해/합성 재료로 사용)
     /// </summary>
-    public void RemoveInstance(ItemInstanceId id)
+    public void RemoveInstance(ItemInstanceID id)
     {
         // 모든 컨테이너에서 제거
         bool wasInShared = accountData.sharedInventoryIds.Remove(id);
@@ -266,7 +269,7 @@ public class AccountDataManager
         instanceCache.Remove(id);
         bindCache.Remove(id);
         
-        Debug.Log($"🗑️ [AccountDataManager] 아이템 인스턴스 삭제: {id.id}");
+        Debug.Log($"🗑️ [AccountDataManager] 아이템 인스턴스 삭제: {id.Value}");
         
         // ⭐ 이벤트 발생: 공유 창고에 있던 아이템이면 변경 이벤트 발생
         if (wasInShared)
@@ -278,10 +281,10 @@ public class AccountDataManager
     /// <summary>
     /// ⭐ 새로운 아이템 인스턴스 생성 (상점 구매, 드롭 등)
     /// </summary>
-    public ItemInstanceId CreateInstance(string templateName, int enhancementLevel = 0)
+    public ItemInstanceID CreateInstance(string templateName, int enhancementLevel = 0)
     {
         // 새 Instance ID 생성
-        var newInstanceId = ItemInstanceId.NewId();
+        var newInstanceId = ItemInstanceID.Generate();
         
         // ItemInstanceData 생성
         var instanceData = new ItemInstanceData
@@ -297,7 +300,7 @@ public class AccountDataManager
         // 캐시에 추가
         instanceCache[newInstanceId] = instanceData;
         
-        Debug.Log($"✨ [AccountDataManager] 새 아이템 인스턴스 생성: {templateName} (ID: {newInstanceId.id.Substring(0, 8)}..., 강화: +{enhancementLevel})");
+        Debug.Log($"✨ [AccountDataManager] 새 아이템 인스턴스 생성: {templateName} (ID: {newInstanceId.Value.Substring(0, 8)}..., 강화: +{enhancementLevel})");
         
         return newInstanceId;
     }
@@ -309,7 +312,7 @@ public class AccountDataManager
     /// <summary>
     /// 계정 공유 창고에 추가
     /// </summary>
-    public bool TryAddToShared(ItemInstanceId id, int? maxSize = null)
+    public bool TryAddToShared(ItemInstanceID id, int? maxSize = null)
     {
         // ✅ maxSize가 지정되지 않으면 AccountData의 maxSharedInventorySize 사용
         int actualMaxSize = maxSize ?? accountData.maxSharedInventorySize;
@@ -317,7 +320,7 @@ public class AccountDataManager
         // 중복 체크
         if (accountData.sharedInventoryIds.Contains(id))
         {
-            Debug.LogWarning($"⚠️ [AccountDataManager] 이미 창고에 존재하는 아이템: {id.id}");
+            Debug.LogWarning($"⚠️ [AccountDataManager] 이미 창고에 존재하는 아이템: {id.Value}");
             return false;
         }
         
@@ -331,7 +334,7 @@ public class AccountDataManager
         accountData.sharedInventoryIds.Add(id);
         
         // ⭐ 이벤트 발생: 공유 창고 변경됨
-        Debug.Log($"🔔 [AccountDataManager] OnSharedInventoryChanged 이벤트 발생! (아이템 추가: {id.id})");
+        Debug.Log($"🔔 [AccountDataManager] OnSharedInventoryChanged 이벤트 발생! (아이템 추가: {id.Value})");
         OnSharedInventoryChanged?.Invoke();
         
         return true;
@@ -340,12 +343,12 @@ public class AccountDataManager
     /// <summary>
     /// 창고에서 제거
     /// </summary>
-    public bool RemoveFromShared(ItemInstanceId id)
+    public bool RemoveFromShared(ItemInstanceID id)
     {
         bool removed = accountData.sharedInventoryIds.Remove(id);
         if (removed)
         {
-            Debug.Log($"🗑️ [AccountDataManager] 창고 제거: {id.id}");
+            Debug.Log($"🗑️ [AccountDataManager] 창고 제거: {id.Value}");
             
             // ⭐ 이벤트 발생: 공유 창고 변경됨
             OnSharedInventoryChanged?.Invoke();
@@ -357,12 +360,12 @@ public class AccountDataManager
     /// ⭐ 우편함으로 이동 (창고 꽉 찼을 때)
     /// 중복 방지 + shared에서 제거하지 않음
     /// </summary>
-    public bool MoveToMailbox(ItemInstanceId id)
+    public bool MoveToMailbox(ItemInstanceID id)
     {
         // 중복 체크 (이미 mailbox에 있으면 추가 안 함)
         if (accountData.mailboxIds.Contains(id))
         {
-            Debug.LogWarning($"⚠️ [AccountDataManager] 이미 우편함에 존재하는 아이템: {id.id}");
+            Debug.LogWarning($"⚠️ [AccountDataManager] 이미 우편함에 존재하는 아이템: {id.Value}");
             return false;
         }
         
@@ -370,18 +373,18 @@ public class AccountDataManager
         
         // ✅ 단순히 mailbox에 추가만
         accountData.mailboxIds.Add(id);
-        Debug.Log($"📬 [AccountDataManager] 우편함으로 이동: {id.id}");
+        Debug.Log($"📬 [AccountDataManager] 우편함으로 이동: {id.Value}");
         return true;
     }
     
     /// <summary>
     /// 우편함에서 제거
     /// </summary>
-    public bool RemoveFromMailbox(ItemInstanceId id)
+    public bool RemoveFromMailbox(ItemInstanceID id)
     {
         bool removed = accountData.mailboxIds.Remove(id);
         if (removed)
-            Debug.Log($"📬 [AccountDataManager] 우편함 제거: {id.id}");
+            Debug.Log($"📬 [AccountDataManager] 우편함 제거: {id.Value}");
         return removed;
     }
     
@@ -392,7 +395,7 @@ public class AccountDataManager
     /// <summary>
     /// 아이템 귀속 설정
     /// </summary>
-    public void SetBind(ItemInstanceId id, int characterSlotIndex)
+    public void SetBind(ItemInstanceID id, int characterSlotIndex)
     {
         // 기존 귀속 제거
         accountData.binds.RemoveAll(b => b.instanceId == id);
@@ -408,13 +411,13 @@ public class AccountDataManager
         accountData.binds.Add(bindRecord);
         bindCache[id] = characterSlotIndex;
         
-        Debug.Log($"🔒 [AccountDataManager] 아이템 귀속: {id.id} → Slot {characterSlotIndex}");
+        Debug.Log($"🔒 [AccountDataManager] 아이템 귀속: {id.Value} → Slot {characterSlotIndex}");
     }
     
     /// <summary>
     /// 귀속 여부 확인
     /// </summary>
-    public bool IsBound(ItemInstanceId id)
+    public bool IsBound(ItemInstanceID id)
     {
         return bindCache.ContainsKey(id);
     }
@@ -422,7 +425,7 @@ public class AccountDataManager
     /// <summary>
     /// 다른 캐릭터에게 귀속되었는지 확인
     /// </summary>
-    public bool IsBoundToOther(ItemInstanceId id, int characterSlotIndex)
+    public bool IsBoundToOther(ItemInstanceID id, int characterSlotIndex)
     {
         if (bindCache.TryGetValue(id, out int boundSlot))
             return boundSlot != characterSlotIndex;
@@ -432,7 +435,7 @@ public class AccountDataManager
     /// <summary>
     /// 귀속 정보 조회
     /// </summary>
-    public (bool isBound, int characterSlotIndex) GetBindInfo(ItemInstanceId id)
+    public (bool isBound, int characterSlotIndex) GetBindInfo(ItemInstanceID id)
     {
         if (bindCache.TryGetValue(id, out int slotIndex))
             return (true, slotIndex);
@@ -442,11 +445,11 @@ public class AccountDataManager
     /// <summary>
     /// 귀속 해제 (분해 시 사용)
     /// </summary>
-    public void RemoveBind(ItemInstanceId id)
+    public void RemoveBind(ItemInstanceID id)
     {
         accountData.binds.RemoveAll(b => b.instanceId == id);
         bindCache.Remove(id);
-        Debug.Log($"🔓 [AccountDataManager] 귀속 해제: {id.id}");
+        Debug.Log($"🔓 [AccountDataManager] 귀속 해제: {id.Value}");
     }
     
     // ========================================
@@ -668,8 +671,8 @@ public class AccountDataManager
     /// </summary>
     public class ValidationResult
     {
-        public List<ItemInstanceId> orphanedItems = new List<ItemInstanceId>();      // 고아 아이템 (itemInstances에만 존재)
-        public List<ItemInstanceId> invalidReferences = new List<ItemInstanceId>();  // 무효 참조 (sharedInventoryIds/mailboxIds에만 존재)
+        public List<ItemInstanceID> orphanedItems = new List<ItemInstanceID>();      // 고아 아이템 (itemInstances에만 존재)
+        public List<ItemInstanceID> invalidReferences = new List<ItemInstanceID>();  // 무효 참조 (sharedInventoryIds/mailboxIds에만 존재)
         public List<ItemBindRecord> invalidBinds = new List<ItemBindRecord>();       // 무효 귀속 정보
         public Dictionary<string, int> duplicateInstances = new Dictionary<string, int>(); // 중복 Instance (templateName → 개수)
         public List<MaterialType> invalidMaterials = new List<MaterialType>();        // ❌ 잘못 저장된 재료 (Gold 등)
@@ -727,12 +730,12 @@ public class AccountDataManager
     /// 🧹 고아 아이템 찾기
     /// - itemInstances에는 있지만 어디에도 참조되지 않는 아이템
     /// </summary>
-    private List<ItemInstanceId> FindOrphanedItems()
+    private List<ItemInstanceID> FindOrphanedItems()
     {
-        var orphaned = new List<ItemInstanceId>();
+        var orphaned = new List<ItemInstanceID>();
         
         // 모든 유효한 참조 수집
-        var validRefs = new HashSet<ItemInstanceId>();
+        var validRefs = new HashSet<ItemInstanceID>();
         validRefs.UnionWith(accountData.sharedInventoryIds);
         validRefs.UnionWith(accountData.mailboxIds);
         
@@ -756,7 +759,7 @@ public class AccountDataManager
             {
                 orphaned.Add(instance.instanceId);
                 
-                Debug.Log($"   🗑️ 고아 아이템 발견: {instance.templateName} (ID: {instance.instanceId.id.Substring(0, 8)}...)");
+                Debug.Log($"   🗑️ 고아 아이템 발견: {instance.templateName} (ID: {instance.instanceId.Value.Substring(0, 8)}...)");
             }
         }
         
@@ -767,12 +770,12 @@ public class AccountDataManager
     /// ❌ 무효 참조 찾기
     /// - sharedInventoryIds/mailboxIds/characterBag에는 있지만 itemInstances에 없는 ID
     /// </summary>
-    private List<ItemInstanceId> FindInvalidReferences()
+    private List<ItemInstanceID> FindInvalidReferences()
     {
-        var invalidRefs = new List<ItemInstanceId>();
+        var invalidRefs = new List<ItemInstanceID>();
         
         // itemInstances의 모든 유효한 ID 수집
-        var validInstanceIds = new HashSet<ItemInstanceId>();
+        var validInstanceIds = new HashSet<ItemInstanceID>();
         foreach (var instance in accountData.itemInstances)
         {
             validInstanceIds.Add(instance.instanceId);
@@ -784,7 +787,7 @@ public class AccountDataManager
             if (!validInstanceIds.Contains(id))
             {
                 invalidRefs.Add(id);
-                Debug.LogError($"   ❌ 무효 참조 발견 (공유 창고): ID={id.id.Substring(0, 8)}... (itemInstances에 없음!)");
+                Debug.LogError($"   ❌ 무효 참조 발견 (공유 창고): ID={id.Value.Substring(0, 8)}... (itemInstances에 없음!)");
             }
         }
         
@@ -794,7 +797,7 @@ public class AccountDataManager
             if (!validInstanceIds.Contains(id))
             {
                 invalidRefs.Add(id);
-                Debug.LogError($"   ❌ 무효 참조 발견 (우편함): ID={id.id.Substring(0, 8)}... (itemInstances에 없음!)");
+                Debug.LogError($"   ❌ 무효 참조 발견 (우편함): ID={id.Value.Substring(0, 8)}... (itemInstances에 없음!)");
             }
         }
         
@@ -811,7 +814,7 @@ public class AccountDataManager
                         if (!validInstanceIds.Contains(id))
                         {
                             invalidRefs.Add(id);
-                            Debug.LogError($"   ❌ 무효 참조 발견 (캐릭터 가방 슬롯{i}): ID={id.id.Substring(0, 8)}... (itemInstances에 없음!)");
+                            Debug.LogError($"   ❌ 무효 참조 발견 (캐릭터 가방 슬롯{i}): ID={id.Value.Substring(0, 8)}... (itemInstances에 없음!)");
                         }
                     }
                 }
@@ -845,7 +848,7 @@ public class AccountDataManager
         }
         
         // 유효한 아이템 확인
-        var validItems = new HashSet<ItemInstanceId>();
+        var validItems = new HashSet<ItemInstanceID>();
         foreach (var instance in accountData.itemInstances)
         {
             validItems.Add(instance.instanceId);
@@ -873,7 +876,7 @@ public class AccountDataManager
             if (isInvalid)
             {
                 invalid.Add(bind);
-                Debug.Log($"   🔒 무효 귀속 정보: 슬롯{bind.characterSlotIndex}, ID:{bind.instanceId.id.Substring(0, 8)}... ({reason})");
+                Debug.Log($"   🔒 무효 귀속 정보: 슬롯{bind.characterSlotIndex}, ID:{bind.instanceId.Value.Substring(0, 8)}... ({reason})");
             }
         }
         
@@ -889,7 +892,7 @@ public class AccountDataManager
         var duplicates = new Dictionary<string, int>();
         
         // 모든 유효한 참조 수집 (고아 아이템 제외)
-        var validRefs = new HashSet<ItemInstanceId>();
+        var validRefs = new HashSet<ItemInstanceID>();
         validRefs.UnionWith(accountData.sharedInventoryIds);
         validRefs.UnionWith(accountData.mailboxIds);
         
@@ -1022,7 +1025,7 @@ public class AccountDataManager
     /// <summary>
     /// 🗑️ 고아 아이템 제거
     /// </summary>
-    private int RemoveOrphanedItems(List<ItemInstanceId> orphanedIds)
+    private int RemoveOrphanedItems(List<ItemInstanceID> orphanedIds)
     {
         int removed = 0;
         
@@ -1035,7 +1038,7 @@ public class AccountDataManager
                 accountData.itemInstances.Remove(instance);
                 removed++;
                 
-                Debug.Log($"      🗑️ 제거: {instance.templateName} (ID: {orphanedId.id.Substring(0, 8)}...)");
+                Debug.Log($"      🗑️ 제거: {instance.templateName} (ID: {orphanedId.Value.Substring(0, 8)}...)");
             }
             
             // 캐시에서도 제거
@@ -1052,7 +1055,7 @@ public class AccountDataManager
     /// ❌ 무효 참조 제거
     /// - sharedInventoryIds/mailboxIds/characterBag에서 invalid ID 제거
     /// </summary>
-    private int RemoveInvalidReferences(List<ItemInstanceId> invalidRefs)
+    private int RemoveInvalidReferences(List<ItemInstanceID> invalidRefs)
     {
         int removed = 0;
         
@@ -1062,14 +1065,14 @@ public class AccountDataManager
             if (accountData.sharedInventoryIds.Remove(invalidId))
             {
                 removed++;
-                Debug.Log($"      ❌ 제거 (공유 창고): ID={invalidId.id.Substring(0, 8)}...");
+                Debug.Log($"      ❌ 제거 (공유 창고): ID={invalidId.Value.Substring(0, 8)}...");
             }
             
             // 2. mailboxIds에서 제거
             if (accountData.mailboxIds.Remove(invalidId))
             {
                 removed++;
-                Debug.Log($"      ❌ 제거 (우편함): ID={invalidId.id.Substring(0, 8)}...");
+                Debug.Log($"      ❌ 제거 (우편함): ID={invalidId.Value.Substring(0, 8)}...");
             }
             
             // 3. characterBagInstanceIds에서 제거
@@ -1083,7 +1086,7 @@ public class AccountDataManager
                         if (slotData.characterBagInstanceIds.Remove(invalidId))
                         {
                             removed++;
-                            Debug.Log($"      ❌ 제거 (캐릭터 가방 슬롯{i}): ID={invalidId.id.Substring(0, 8)}...");
+                            Debug.Log($"      ❌ 제거 (캐릭터 가방 슬롯{i}): ID={invalidId.Value.Substring(0, 8)}...");
                         }
                     }
                 }
@@ -1105,7 +1108,7 @@ public class AccountDataManager
             if (accountData.binds.Remove(bind))
             {
                 removed++;
-                Debug.Log($"      🔒 제거: 슬롯{bind.characterSlotIndex}, ID:{bind.instanceId.id.Substring(0, 8)}...");
+                Debug.Log($"      🔒 제거: 슬롯{bind.characterSlotIndex}, ID:{bind.instanceId.Value.Substring(0, 8)}...");
             }
             
             // 캐시에서도 제거
@@ -1160,7 +1163,7 @@ public class AccountDataManager
         int beforeCount = accountData.itemInstances.Count;
         
         // 1. 보관창고/우편함/캐릭터 가방에 있는 Instance ID 수집 (보호 대상)
-        var protectedIds = new HashSet<ItemInstanceId>();
+        var protectedIds = new HashSet<ItemInstanceID>();
         protectedIds.UnionWith(accountData.sharedInventoryIds);
         protectedIds.UnionWith(accountData.mailboxIds);
         
@@ -1215,7 +1218,7 @@ public class AccountDataManager
             
             if (removed <= 10) // 처음 10개만 로그 출력
             {
-                Debug.Log($"   🗑️ 제거: {item.templateName} (ID: {item.instanceId.id.Substring(0, 8)}...)");
+                Debug.Log($"   🗑️ 제거: {item.templateName} (ID: {item.instanceId.Value.Substring(0, 8)}...)");
             }
         }
         

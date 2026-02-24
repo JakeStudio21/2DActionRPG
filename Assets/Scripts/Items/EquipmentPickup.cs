@@ -335,20 +335,21 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         if (PlayerDataManager.Instance != null)
         {
             // ✅ V2 시스템 사용: AddItemV2()
-            // templateName = EquipmentData의 이름 (예: "Sword_A_Equipment")
-            string templateName = currentEquipmentData.name;
+            // templateName = EquipmentData의 itemID (예: "ITEM_ARMOR_WIZARD_B")
+            // ItemTemplateResolver가 자동으로 "_Equipment" 붙은 Asset 파일을 찾아줌
+            string templateName = currentEquipmentData.itemID;
             
             Debug.Log($"🔍 [DEBUG] AddItemV2 호출 직전 - templateName: {templateName}");
             
             // V2 아이템 추가 (가방 가득 차면 우편함 처리)
-            ItemInstanceId newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
+            ItemInstanceID newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
             
-            Debug.Log($"🔍 [DEBUG] AddItemV2 호출 완료 - newItemId.IsValid(): {newItemId.IsValid()}, ID: {(newItemId.IsValid() ? newItemId.id : "INVALID")}");
+            Debug.Log($"🔍 [DEBUG] AddItemV2 호출 완료 - newItemId.IsEmpty: {newItemId.IsEmpty}, ID: {(!newItemId.IsEmpty ? newItemId.Value : "INVALID")}");
             
-            if (newItemId.IsValid())
+            if (!newItemId.IsEmpty)
             {
                 if (enableDebugLogs)
-                    Debug.Log($"🎒 [EquipmentPickup] 장비 획득 (V2): {currentEquipmentData.equipmentName} (등급: {currentRank.GetRankName()}, ID: {newItemId.id})");
+                    Debug.Log($"🎒 [EquipmentPickup] 장비 획득 (V2): {currentEquipmentData.equipmentName} (등급: {currentRank.GetRankName()}, ID: {newItemId.Value})");
                 
                 // TODO: 사운드 재생 (추후 추가)
                 
@@ -362,7 +363,7 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             else
             {
                 // ⭐ 획득 실패 (allowMailboxOnFull=false인 경우만 발생)
-                Debug.LogError($"💼 [EquipmentPickup] 아이템 획득 실패! newItemId.IsValid() = false, templateName: {templateName}, 아이템: {currentEquipmentData.equipmentName}");
+                Debug.LogError($"💼 [EquipmentPickup] 아이템 획득 실패! newItemId.IsEmpty = true, templateName: {templateName}, 아이템: {currentEquipmentData.equipmentName}");
                 
                 // 알림 메시지 표시
                 if (NotificationManager.Instance != null)

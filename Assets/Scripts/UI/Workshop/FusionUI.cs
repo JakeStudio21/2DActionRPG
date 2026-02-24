@@ -56,7 +56,7 @@ namespace UI.Workshop
         [SerializeField] private bool showDebugLogs = true;
 
         // 상태 관리
-        private List<ItemInstanceId> selectedItemIds = new List<ItemInstanceId>();
+        private List<ItemInstanceID> selectedItemIds = new List<ItemInstanceID>();
         private FusionRule fusionRule;
 
         private void Start()
@@ -118,12 +118,12 @@ namespace UI.Workshop
         /// <summary>
         /// ⭐ WorkshopInventoryUI 선택 변경 이벤트 핸들러
         /// </summary>
-        private void OnInventorySelectionChanged(List<ItemInstanceId> selectedIds)
+        private void OnInventorySelectionChanged(List<ItemInstanceID> selectedIds)
         {
             if (showDebugLogs)
                 Debug.Log($"🔔 [FusionUI] 선택 변경 이벤트: {selectedIds.Count}개");
             
-            selectedItemIds = new List<ItemInstanceId>(selectedIds);
+            selectedItemIds = new List<ItemInstanceID>(selectedIds);
             UpdateUI();
         }
 
@@ -200,9 +200,9 @@ namespace UI.Workshop
         /// <summary>
         /// 등급별 그룹핑
         /// </summary>
-        private Dictionary<ItemGrade, List<ItemInstanceId>> GroupItemsByGrade(List<ItemInstanceId> itemIds)
+        private Dictionary<ItemGrade, List<ItemInstanceID>> GroupItemsByGrade(List<ItemInstanceID> itemIds)
         {
-            var groups = new Dictionary<ItemGrade, List<ItemInstanceId>>();
+            var groups = new Dictionary<ItemGrade, List<ItemInstanceID>>();
             
             foreach (var itemId in itemIds)
             {
@@ -214,7 +214,7 @@ namespace UI.Workshop
 
                 if (!groups.ContainsKey(equipData.itemGrade))
                 {
-                    groups[equipData.itemGrade] = new List<ItemInstanceId>();
+                    groups[equipData.itemGrade] = new List<ItemInstanceID>();
                 }
 
                 groups[equipData.itemGrade].Add(itemId);
@@ -227,9 +227,9 @@ namespace UI.Workshop
         /// 등급+세부타입별로 아이템 그룹핑 (합성용)
         /// Helmet과 Armor를 구분하기 위해 WeaponType/ArmorType/AccessoryType까지 포함
         /// </summary>
-        private Dictionary<(ItemGrade grade, string detailedType), List<ItemInstanceId>> GroupItemsByGradeAndType(List<ItemInstanceId> itemIds)
+        private Dictionary<(ItemGrade grade, string detailedType), List<ItemInstanceID>> GroupItemsByGradeAndType(List<ItemInstanceID> itemIds)
         {
-            var groups = new Dictionary<(ItemGrade, string), List<ItemInstanceId>>();
+            var groups = new Dictionary<(ItemGrade, string), List<ItemInstanceID>>();
             
             foreach (var itemId in itemIds)
             {
@@ -245,7 +245,7 @@ namespace UI.Workshop
                 
                 if (!groups.ContainsKey(key))
                 {
-                    groups[key] = new List<ItemInstanceId>();
+                    groups[key] = new List<ItemInstanceID>();
                 }
 
                 groups[key].Add(itemId);
@@ -280,7 +280,7 @@ namespace UI.Workshop
         /// <summary>
         /// 등급 그룹 UI 생성
         /// </summary>
-        private void CreateGradeGroup(ItemGrade grade, List<ItemInstanceId> itemIds)
+        private void CreateGradeGroup(ItemGrade grade, List<ItemInstanceID> itemIds)
         {
             if (gradeGroupPrefab == null || selectedGroupsContainer == null)
             {
@@ -431,7 +431,7 @@ namespace UI.Workshop
         /// <summary>
         /// 합성 결과 계산 (등급+타입별 그룹 → 결과 아이템)
         /// </summary>
-        private Dictionary<string, int> CalculateFusionResults(List<ItemInstanceId> itemIds)
+        private Dictionary<string, int> CalculateFusionResults(List<ItemInstanceID> itemIds)
         {
             var results = new Dictionary<string, int>();
             
@@ -602,9 +602,9 @@ namespace UI.Workshop
                 yield break;
             }
 
-            // ⭐ 임시 ItemInstanceId 생성 (미리보기용)
+            // ⭐ 임시 ItemInstanceID 생성 (미리보기용)
             // 실제 합성 전이므로 유효한 ID는 아님
-            ItemInstanceId previewId = default;
+            ItemInstanceID previewId = default;
 
             slot.SetEquipmentData(equipData, previewId);
             
@@ -868,11 +868,24 @@ namespace UI.Workshop
         /// </summary>
         private void ExecuteFusion()
         {
+            // ⭐ 스냅샷: 현재 선택된 아이템 목록을 복사 (이벤트 체인으로 인한 손실 방지)
+            var targetItemIds = new List<ItemInstanceID>(selectedItemIds);
+            
             if (showDebugLogs)
-                Debug.Log($"⚙️ [FusionUI] 합성 실행 시작 - {selectedItemIds.Count}개");
+                Debug.Log($"⚙️ [FusionUI] 합성 실행 시작 - {targetItemIds.Count}개 (스냅샷 생성)");
 
-            // ⭐ 등급+타입별로 그룹핑
-            var gradeAndTypeGroups = GroupItemsByGradeAndType(selectedItemIds);
+            // ⭐ UI 참조 먼저 해제 (이벤트 타이밍 이슈 방지)
+            // ClearSelection() 호출 시 OnSelectionChanged 이벤트로 selectedItemIds가 비워지지만,
+            // 실제 합성 로직은 위에서 복사한 targetItemIds를 사용하므로 문제없음
+            if (workshopInventoryUI != null)
+            {
+                workshopInventoryUI.ClearSelection();
+                if (showDebugLogs)
+                    Debug.Log("🔄 [FusionUI] 선택 해제 완료 (합성 전) - selectedItemIds 비워짐");
+            }
+
+            // ⭐ 등급+타입별로 그룹핑 (스냅샷 사용)
+            var gradeAndTypeGroups = GroupItemsByGradeAndType(targetItemIds);
             var totalResults = new Dictionary<string, int>();
             int successCount = 0;
             int failCount = 0;
@@ -896,7 +909,7 @@ namespace UI.Workshop
                     var materialsForThisFusion = itemsInGroup.Skip(i * requiredCount).Take(requiredCount).ToList();
 
                     // 합성 실행
-                    bool success = FusionSystem.ExecuteFusion(materialsForThisFusion, out ItemInstanceId resultId);
+                    bool success = FusionSystem.ExecuteFusion(materialsForThisFusion, out ItemInstanceID resultId);
 
                     if (success)
                     {
@@ -936,10 +949,9 @@ namespace UI.Workshop
                 Debug.LogError("❌ [FusionUI] ResultFeedbackPopup 참조 없음! Inspector에서 연결하세요.");
             }
 
-            // ⭐ 선택 초기화 및 인벤토리 UI 갱신
+            // ⭐ 인벤토리 UI 갱신 (선택은 이미 합성 전에 해제됨)
             if (workshopInventoryUI != null)
             {
-                workshopInventoryUI.ClearSelection();
                 workshopInventoryUI.RefreshInventoryDisplay();
                 
                 if (showDebugLogs)

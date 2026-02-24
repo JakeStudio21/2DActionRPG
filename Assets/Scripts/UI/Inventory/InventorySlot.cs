@@ -58,7 +58,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     
     [Header("🛡️ 장비 데이터 (신규 시스템)")]
     [SerializeField] private EquipmentData equipmentData;
-    private ItemInstanceId itemInstanceId;  // 🆕 V2: 아이템 인스턴스 ID
+    private ItemInstanceID itemInstanceId;  // 🆕 V2: 아이템 인스턴스 ID
     
     [Header("📦 재료 데이터")]
     private MaterialType? currentMaterial = null; // 재료 타입 (null이면 장비 슬롯)
@@ -97,7 +97,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     private bool isMultiSelectMode = false;
     
     // 🆕 다중 선택 이벤트
-    public event System.Action<ItemInstanceId, bool> OnSelectionChanged;
+    public event System.Action<ItemInstanceID, bool> OnSelectionChanged;
 
     void Awake()
     {
@@ -602,7 +602,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// <summary>
     /// 장비 데이터 설정 (외부에서 호출)
     /// </summary>
-    public void SetEquipmentData(EquipmentData data, ItemInstanceId instanceId = default)
+    public void SetEquipmentData(EquipmentData data, ItemInstanceID instanceId = default)
     {
         equipmentData = data;
         itemInstanceId = instanceId;  // 🆕 V2: 인스턴스 ID 저장
@@ -657,8 +657,8 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // enhancementLevelText가 없으면 무시 (하위 호환성)
         if (enhancementLevelText == null) return;
         
-        // 장비가 없거나 ItemInstanceId가 유효하지 않으면 숨김
-        if (equipmentData == null || !itemInstanceId.IsValid())
+        // 장비가 없거나 ItemInstanceID가 유효하지 않으면 숨김
+        if (equipmentData == null || itemInstanceId.IsEmpty)
         {
             enhancementLevelText.gameObject.SetActive(false);
             return;
@@ -690,7 +690,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// 
     /// 용도:
     /// - BeforeAfterComparisonUI의 강화 프리뷰 (Before: +5 → After: +6)
-    /// - ItemInstanceId가 없는 프리뷰 아이템에 강화 레벨 표시
+    /// - ItemInstanceID가 없는 프리뷰 아이템에 강화 레벨 표시
     /// 
     /// 사용 예시:
     /// afterSlot.SetEquipmentData(previewEquipmentData);
@@ -720,7 +720,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     private int GetEnhancementLevel()
     {
-        if (!itemInstanceId.IsValid()) return 0;
+        if (itemInstanceId.IsEmpty) return 0;
         
         // AccountDataManager에서 ItemInstanceData 가져오기
         if (AccountDataManager.IsInitialized())
@@ -738,7 +738,7 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// <summary>
     /// 🆕 V2: 아이템 인스턴스 ID 가져오기
     /// </summary>
-    public ItemInstanceId GetItemInstanceId()
+    public ItemInstanceID GetItemInstanceID()
     {
         return itemInstanceId;
     }

@@ -8,7 +8,7 @@ namespace Systems
     [System.Serializable]
     public class FusionWarningData
     {
-        public List<ItemInstanceId> materialIds;
+        public List<ItemInstanceID> materialIds;
         public string targetTemplateName;
         public ItemGrade currentGrade;
         public ItemGrade nextGrade;
@@ -19,7 +19,7 @@ namespace Systems
         public string tooltipMessage;
 
         public FusionWarningData(
-            List<ItemInstanceId> materialIds,
+            List<ItemInstanceID> materialIds,
             string targetTemplateName,
             ItemGrade currentGrade,
             ItemGrade nextGrade,

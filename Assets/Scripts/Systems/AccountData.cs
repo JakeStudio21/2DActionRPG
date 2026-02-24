@@ -15,7 +15,7 @@ public class AccountData
     
     [Header("🎒 계정 공유 창고")]
     [Tooltip("모든 캐릭터가 공유하는 창고 (기본 64칸, 8x8 그리드)")]
-    public List<ItemInstanceId> sharedInventoryIds = new List<ItemInstanceId>();
+    public List<ItemInstanceID> sharedInventoryIds = new List<ItemInstanceID>();
     
     [Tooltip("보관창고 최대 크기 (확장 가능: 64 → 128 → 256)")]
     public int maxSharedInventorySize = 64; // 기본 64칸 (8열 x 8행)
@@ -25,11 +25,14 @@ public class AccountData
     
     [Header("📬 우편함 (창고 넘침 처리)")]
     [Tooltip("창고가 가득 찼을 때 임시 보관 공간")]
-    public List<ItemInstanceId> mailboxIds = new List<ItemInstanceId>();
+    public List<ItemInstanceID> mailboxIds = new List<ItemInstanceID>();
     
     [Header("📦 아이템 인스턴스 메타데이터")]
     [Tooltip("모든 아이템 인스턴스의 실제 데이터 (강화, 커스텀 이름 등)")]
     public List<ItemInstanceData> itemInstances = new List<ItemInstanceData>();
+    
+    [Tooltip("현재 아이템 인스턴스 개수 (JSON 가독성용, 자동 생성)")]
+    public int currentItemInstancesCount = 0; // itemInstances.Count
     
     [Header("🔒 귀속 정보")]
     [Tooltip("캐릭터별 아이템 귀속 정보")]
@@ -40,7 +43,7 @@ public class AccountData
     public List<MaterialStack> materials = new List<MaterialStack>();
     
     // ❌ 캐시 필드는 AccountDataManager로 이동
-    // [System.NonSerialized] private Dictionary<ItemInstanceId, ItemInstanceData> _instanceCache;
+    // [System.NonSerialized] private Dictionary<ItemInstanceID, ItemInstanceData> _instanceCache;
     
     /// <summary>
     /// 📦 보관창고 확장 가능 여부 확인

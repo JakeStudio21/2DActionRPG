@@ -63,13 +63,13 @@ namespace UI.Workshop
         [SerializeField] private WorkshopInventoryUI workshopInventoryUI;
         
         // ========== 상태 ==========
-        private ItemInstanceId selectedItemId;
+        private ItemInstanceID selectedItemId;
         private ItemInstanceData selectedItemData;
         private EquipmentData selectedEquipmentData;
-        private bool isItemSelected => selectedItemId.IsValid();
+        private bool isItemSelected => !selectedItemId.IsEmpty;
         
         // ========== 이벤트 ==========
-        public event Action<ItemInstanceId> OnItemSelected;
+        public event Action<ItemInstanceID> OnItemSelected;
         public event Action<EnhancementResult> OnEnhancementComplete;
         
         // ========================================
@@ -229,11 +229,11 @@ namespace UI.Workshop
         /// <summary>
         /// 아이템 선택 처리 (외부에서 호출)
         /// </summary>
-        public void OnSelectedItemChanged(ItemInstanceId itemId)
+        public void OnSelectedItemChanged(ItemInstanceID itemId)
         {
             selectedItemId = itemId;
             
-            if (!itemId.IsValid())
+            if (itemId.IsEmpty)
             {
                 ClearSelection();
                 return;

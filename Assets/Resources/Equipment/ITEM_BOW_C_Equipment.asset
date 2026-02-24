@@ -29,7 +29,16 @@ MonoBehaviour:
   armorType: 0
   accessoryType: 0
   equipmentSlot: 0
-  baseStats: []
+  baseStats:
+  - statId: ATK_FLAT
+    value: 4.8125
+    displayName: "\uACF5\uACA9\uB825"
+  - statId: ATK_PERCENT
+    value: 0.6015625
+    displayName: "\uACF5\uACA9\uB825 %"
+  - statId: ASPD
+    value: 0.5347222
+    displayName: "\uACF5\uACA9\uC18D\uB3C4"
   projectileId: Arrow_B
   attackRange: 8
   attackShape: 2

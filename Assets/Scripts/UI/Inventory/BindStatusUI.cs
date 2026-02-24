@@ -22,7 +22,7 @@ namespace UI.Inventory
         [SerializeField] private Color unboundColor = new Color(0.8f, 0.8f, 0.8f); // 미귀속 (회색)
         [SerializeField] private bool enableDebugLogs = false;
         
-        private ItemInstanceId _currentItemId;
+        private ItemInstanceID _currentItemId;
         private bool _isBound;
         private int _boundCharacterSlot = -1;
         
@@ -37,11 +37,11 @@ namespace UI.Inventory
         /// <summary>
         /// 아이템의 귀속 상태 업데이트
         /// </summary>
-        public void UpdateBindStatus(ItemInstanceId itemId)
+        public void UpdateBindStatus(ItemInstanceID itemId)
         {
             _currentItemId = itemId;
             
-            if (!itemId.IsValid() || !AccountDataManager.IsInitialized())
+            if (itemId.IsEmpty || !AccountDataManager.IsInitialized())
             {
                 Hide();
                 return;
@@ -95,7 +95,7 @@ namespace UI.Inventory
                 bindText.text = $"<color=#{ColorUtility.ToHtmlStringRGB(boundColor)}>🔒 {characterName}</color>";
             }
             
-            Log($"[BindStatusUI] 귀속 아이콘 표시: {_currentItemId.id.Substring(0, 8)}... → 슬롯 {_boundCharacterSlot}");
+            Log($"[BindStatusUI] 귀속 아이콘 표시: {_currentItemId.Value.Substring(0, 8)}... → 슬롯 {_boundCharacterSlot}");
         }
         
         /// <summary>

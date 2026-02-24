@@ -94,7 +94,7 @@ public static class V2InventoryValidator
     {
         if (accountData == null) return true;
         
-        var allIds = new List<ItemInstanceId>();
+        var allIds = new List<ItemInstanceID>();
         allIds.AddRange(accountData.sharedInventoryIds);
         allIds.AddRange(accountData.mailboxIds);
         
@@ -108,7 +108,7 @@ public static class V2InventoryValidator
     {
         if (slotData == null) return true;
         
-        var allIds = new List<ItemInstanceId>();
+        var allIds = new List<ItemInstanceID>();
         allIds.AddRange(slotData.characterBagInstanceIds);
         
         if (slotData.equippedRecords != null)
@@ -130,7 +130,7 @@ public static class V2InventoryValidator
     {
         if (accountData == null || allSlots == null) return true;
         
-        var accountIds = new HashSet<ItemInstanceId>();
+        var accountIds = new HashSet<ItemInstanceID>();
         accountIds.UnionWith(accountData.sharedInventoryIds);
         accountIds.UnionWith(accountData.mailboxIds);
         
@@ -269,13 +269,13 @@ public static class V2InventoryValidator
     // 헬퍼 메서드
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
-    private static bool CheckDuplicates(List<ItemInstanceId> ids, string containerName, bool throwOnError)
+    private static bool CheckDuplicates(List<ItemInstanceID> ids, string containerName, bool throwOnError)
     {
-        var seen = new HashSet<ItemInstanceId>();
+        var seen = new HashSet<ItemInstanceID>();
         
         foreach (var id in ids)
         {
-            if (!id.IsValid()) continue;
+            if (id.IsEmpty) continue;
             
             if (seen.Contains(id))
             {

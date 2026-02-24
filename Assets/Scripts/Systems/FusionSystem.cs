@@ -33,7 +33,7 @@ namespace Systems
         /// <summary>
         /// 합성 가능 여부 검증
         /// </summary>
-        public static bool CanFuse(List<ItemInstanceId> materialIds, out string reason)
+        public static bool CanFuse(List<ItemInstanceID> materialIds, out string reason)
         {
             reason = "";
 
@@ -162,7 +162,7 @@ namespace Systems
         /// <summary>
         /// 강화 경고 필요 여부 (재료 중 강화된 아이템이 있는지)
         /// </summary>
-        public static bool NeedsEnhancementWarning(List<ItemInstanceId> materialIds, out int maxEnhancementLevel)
+        public static bool NeedsEnhancementWarning(List<ItemInstanceID> materialIds, out int maxEnhancementLevel)
         {
             maxEnhancementLevel = 0;
 
@@ -184,7 +184,7 @@ namespace Systems
         /// <summary>
         /// 합성 실행
         /// </summary>
-        public static bool ExecuteFusion(List<ItemInstanceId> materialIds, out ItemInstanceId resultId)
+        public static bool ExecuteFusion(List<ItemInstanceID> materialIds, out ItemInstanceID resultId)
         {
             resultId = default;
 
@@ -208,22 +208,33 @@ namespace Systems
             ItemGrade nextGrade = Rule.GetNextGrade(baseTemplate.itemGrade);
             
             // ⭐ 결과 아이템 템플릿 이름 생성 (등급만 변경, 클래스 유지)
-            // 예: "Helmet_Warrior_D" → "Helmet_Warrior_C"
-            // 마지막 언더스코어 이후 등급 문자열 교체 (가장 안전한 방법)
+            // 예: "ITEM_ARMOR_WIZARD_B" → "ITEM_ARMOR_WIZARD_A"
             string templateName = baseItem.templateName;
-            string resultTemplateName = templateName;
             
+            // ⭐ 1단계: "_Equipment" 접미사 제거 (상점 버그로 인한 잘못된 데이터 대응)
+            // "ITEM_ARMOR_WIZARD_B_Equipment" → "ITEM_ARMOR_WIZARD_B"
+            if (templateName.EndsWith("_Equipment"))
+            {
+                templateName = templateName.Substring(0, templateName.Length - "_Equipment".Length);
+                Debug.Log($"🔧 [FusionSystem] _Equipment 접미사 제거: {baseItem.templateName} → {templateName}");
+            }
+            
+            // ⭐ 2단계: 마지막 언더스코어 이후 등급 문자열 교체
+            string resultTemplateName = templateName;
             int lastUnderscoreIndex = templateName.LastIndexOf('_');
+            
             if (lastUnderscoreIndex >= 0)
             {
-                string prefix = templateName.Substring(0, lastUnderscoreIndex + 1); // "Helmet_Warrior_"
-                resultTemplateName = prefix + nextGrade.ToString(); // "Helmet_Warrior_C"
+                string prefix = templateName.Substring(0, lastUnderscoreIndex + 1); // "ITEM_ARMOR_WIZARD_"
+                resultTemplateName = prefix + nextGrade.ToString(); // "ITEM_ARMOR_WIZARD_A"
             }
             else
             {
                 // 언더스코어가 없으면 그냥 뒤에 추가
                 resultTemplateName = templateName + "_" + nextGrade.ToString();
             }
+            
+            Debug.Log($"🔄 [FusionSystem] 합성 결과 템플릿: {baseItem.templateName} ({baseTemplate.itemGrade}) → {resultTemplateName} ({nextGrade})");
 
             try
             {
@@ -287,7 +298,7 @@ namespace Systems
         /// <summary>
         /// 인벤토리에서 아이템 제거 (내부 헬퍼)
         /// </summary>
-        private static bool RemoveItemFromInventory(ItemInstanceId instanceId)
+        private static bool RemoveItemFromInventory(ItemInstanceID instanceId)
         {
             var account = AccountDataManager.Instance;
             var accountData = account.GetAccountData();

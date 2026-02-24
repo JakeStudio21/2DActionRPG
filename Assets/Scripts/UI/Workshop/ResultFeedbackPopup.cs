@@ -493,8 +493,8 @@ namespace UI.Workshop
                 
                 if (equipData != null)
                 {
-                    // ⭐ 임시 ItemInstanceId (미리보기용)
-                    ItemInstanceId previewId = default;
+                    // ⭐ 임시 ItemInstanceID (미리보기용)
+                    ItemInstanceID previewId = default;
                     
                     slot.SetEquipmentData(equipData, previewId);
                     

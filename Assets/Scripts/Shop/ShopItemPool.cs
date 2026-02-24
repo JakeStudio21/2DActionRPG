@@ -14,11 +14,11 @@ namespace Shop
     {
         #region Fields
         
-        // 전시용 Instance 저장소 (key: templateName, value: 전시용 ItemInstanceId)
-        private Dictionary<string, ItemInstanceId> displayInstances = new Dictionary<string, ItemInstanceId>();
+        // 전시용 Instance 저장소 (key: templateName, value: 전시용 ItemInstanceID)
+        private Dictionary<string, ItemInstanceID> displayInstances = new Dictionary<string, ItemInstanceID>();
         
         // 전시용 Instance → EquipmentData 매핑 (빠른 조회용)
-        private Dictionary<ItemInstanceId, EquipmentData> displayEquipmentData = new Dictionary<ItemInstanceId, EquipmentData>();
+        private Dictionary<ItemInstanceID, EquipmentData> displayEquipmentData = new Dictionary<ItemInstanceID, EquipmentData>();
         
         // 초기화 완료 플래그
         private bool isInitialized = false;
@@ -77,9 +77,9 @@ namespace Shop
         /// <summary>
         /// 전시용 Instance 조회
         /// </summary>
-        public ItemInstanceId GetDisplayInstance(string templateName)
+        public ItemInstanceID GetDisplayInstance(string templateName)
         {
-            if (displayInstances.TryGetValue(templateName, out ItemInstanceId instanceId))
+            if (displayInstances.TryGetValue(templateName, out ItemInstanceID instanceId))
             {
                 return instanceId;
             }
@@ -91,14 +91,14 @@ namespace Shop
         /// <summary>
         /// 전시용 Instance ID로 EquipmentData 조회
         /// </summary>
-        public EquipmentData GetEquipmentData(ItemInstanceId displayInstanceId)
+        public EquipmentData GetEquipmentData(ItemInstanceID displayInstanceId)
         {
             if (displayEquipmentData.TryGetValue(displayInstanceId, out EquipmentData data))
             {
                 return data;
             }
             
-            Debug.LogWarning($"⚠️ [ShopItemPool] EquipmentData를 찾을 수 없습니다 (ID: {displayInstanceId.id})");
+            Debug.LogWarning($"⚠️ [ShopItemPool] EquipmentData를 찾을 수 없습니다 (ID: {displayInstanceId.Value})");
             return null;
         }
         
@@ -113,7 +113,7 @@ namespace Shop
         /// <summary>
         /// 구매 시 새로운 플레이어 전용 Instance 생성
         /// </summary>
-        public ItemInstanceId CreateNewInstance(string templateName)
+        public ItemInstanceID CreateNewInstance(string templateName)
         {
             if (AccountDataManager.Instance == null)
             {
@@ -124,9 +124,9 @@ namespace Shop
             // 새 Instance 생성 (플레이어 전용)
             var newInstanceId = AccountDataManager.Instance.CreateInstance(templateName);
             
-            if (newInstanceId.IsValid())
+            if (!newInstanceId.IsEmpty)
             {
-                Log($"🆕 [ShopItemPool] 새 Instance 생성: {templateName} (ID: {newInstanceId.id.Substring(0, 8)}...)");
+                Log($"🆕 [ShopItemPool] 새 Instance 생성: {templateName} (ID: {newInstanceId.Value.Substring(0, 8)}...)");
                 return newInstanceId;
             }
             else
@@ -214,10 +214,10 @@ namespace Shop
                 return true; // 스킵하되 성공으로 처리
             }
             
-            // ✅ 메모리 전용 ItemInstanceId 생성 (AccountData에 저장 안 함)
-            var displayInstanceId = new ItemInstanceId { id = System.Guid.NewGuid().ToString() };
+            // ✅ 메모리 전용 ItemInstanceID 생성 (AccountData에 저장 안 함)
+            var displayInstanceId = ItemInstanceID.Generate();
             
-            if (!displayInstanceId.IsValid())
+            if (displayInstanceId.IsEmpty)
             {
                 Debug.LogError($"❌ [ShopItemPool] 전시용 Instance ID 생성 실패: {templateName}");
                 return false;
@@ -227,7 +227,7 @@ namespace Shop
             displayInstances[templateName] = displayInstanceId;
             displayEquipmentData[displayInstanceId] = equipment;
             
-            Log($"🎁 [ShopItemPool] 전시용 Instance 생성 (메모리 전용): {equipment.equipmentName} (itemID: {templateName}, 등급: {equipment.itemGrade}, ID: {displayInstanceId.id.Substring(0, 8)}...)");
+            Log($"🎁 [ShopItemPool] 전시용 Instance 생성 (메모리 전용): {equipment.equipmentName} (itemID: {templateName}, 등급: {equipment.itemGrade}, ID: {displayInstanceId.Value.Substring(0, 8)}...)");
             
             return true;
         }

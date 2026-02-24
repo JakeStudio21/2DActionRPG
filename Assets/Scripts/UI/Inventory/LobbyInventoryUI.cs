@@ -419,7 +419,7 @@ public class LobbyInventoryUI : MonoBehaviour
 
     
     /// <summary>
-    /// 🔧 V2: 보관창고에서 직접 장비 착용 (ItemInstanceId 기반)
+    /// 🔧 V2: 보관창고에서 직접 장비 착용 (ItemInstanceID 기반)
     /// </summary>
     private bool TryEquipItem(EquipmentData equipment, int uiSlotIndex)
     {
@@ -428,21 +428,21 @@ public class LobbyInventoryUI : MonoBehaviour
         if (showDebugLogs)
             Debug.Log($"🎯 [LobbyInventoryUI] 보관창고에서 착용 시도: {equipment.equipmentName} (슬롯 인덱스: {uiSlotIndex})");
         
-        // 🆕 V2: UI 슬롯에서 ItemInstanceId 가져오기
+        // 🆕 V2: UI 슬롯에서 ItemInstanceID 가져오기
         if (uiSlotIndex < 0 || uiSlotIndex >= lobbySlots.Count)
         {
             Debug.LogError($"🔴 [LobbyInventoryUI] 잘못된 슬롯 인덱스: {uiSlotIndex}");
             return false;
         }
         
-        ItemInstanceId itemId = lobbySlots[uiSlotIndex].GetItemInstanceId();
-        if (!itemId.IsValid())
+        ItemInstanceID itemId = lobbySlots[uiSlotIndex].GetItemInstanceID();
+        if (itemId.IsEmpty)
         {
-            Debug.LogError($"🔴 [LobbyInventoryUI] 슬롯 {uiSlotIndex}에 유효한 ItemInstanceId 없음");
+            Debug.LogError($"🔴 [LobbyInventoryUI] 슬롯 {uiSlotIndex}에 유효한 ItemInstanceID 없음");
             return false;
         }
         
-        Debug.Log($"   - ItemInstanceId: {itemId.id.Substring(0, 8)}...");
+        Debug.Log($"   - ItemInstanceID: {itemId.Value.Substring(0, 8)}...");
         
         // ⭐ V2: 클래스 호환성 체크는 EquipItemFromSharedStorage()에서 처리
         // 보관창고 → 직접 장착 (단일 소스: PlayerDataManager.Instance.selectedPlayerData)
@@ -699,7 +699,7 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void TryEquipItemWithBindWarning(EquipmentData equipment, int uiSlotIndex)
     {
-        // 1. UI 슬롯에서 ItemInstanceId 가져오기
+        // 1. UI 슬롯에서 ItemInstanceID 가져오기
         if (uiSlotIndex < 0 || uiSlotIndex >= lobbySlots.Count)
         {
             Debug.LogError($"🔴 [LobbyInventoryUI] 잘못된 슬롯 인덱스: {uiSlotIndex}");
@@ -710,10 +710,10 @@ public class LobbyInventoryUI : MonoBehaviour
             return;
         }
         
-        ItemInstanceId itemId = lobbySlots[uiSlotIndex].GetItemInstanceId();
-        if (!itemId.IsValid())
+        ItemInstanceID itemId = lobbySlots[uiSlotIndex].GetItemInstanceID();
+        if (itemId.IsEmpty)
         {
-            Debug.LogError($"🔴 [LobbyInventoryUI] 슬롯 {uiSlotIndex}에 유효한 ItemInstanceId 없음");
+            Debug.LogError($"🔴 [LobbyInventoryUI] 슬롯 {uiSlotIndex}에 유효한 ItemInstanceID 없음");
             if (equipWarningText != null)
             {
                 StartCoroutine(ShowTemporaryMessage("착용 실패", Color.red, 2f));
@@ -1006,8 +1006,8 @@ public class LobbyInventoryUI : MonoBehaviour
         Debug.Log($"   - 슬롯 수: {lobbySlots?.Count ?? 0}");
         Debug.Log($"🔍 [LobbyInventoryUI] accountData 해시코드: {accountData?.GetHashCode() ?? 0}");
         
-        // 🆕 V2: ItemInstanceId → EquipmentData 변환 (ID도 함께 저장)
-        List<(EquipmentData equipment, ItemInstanceId instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceId)>();
+        // 🆕 V2: ItemInstanceID → EquipmentData 변환 (ID도 함께 저장)
+        List<(EquipmentData equipment, ItemInstanceID instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceID)>();
         
         if (sharedInventoryIds != null)
         {
@@ -1027,9 +1027,9 @@ public class LobbyInventoryUI : MonoBehaviour
                             
                             if (i < 5) // 처음 5개만 로그
                             {
-                                string idPreview = instanceId.id != null && instanceId.id.Length >= 8 
-                                    ? instanceId.id.Substring(0, 8) 
-                                    : instanceId.id;
+                                string idPreview = instanceId.Value != null && instanceId.Value.Length >= 8 
+                                    ? instanceId.Value.Substring(0, 8) 
+                                    : instanceId.Value;
                                 Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {idPreview}...)");
                             }
                         }
@@ -1040,7 +1040,7 @@ public class LobbyInventoryUI : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogWarning($"⚠️ [LobbyInventoryUI] 인스턴스 데이터 없음: {instanceId.id}");
+                        Debug.LogWarning($"⚠️ [LobbyInventoryUI] 인스턴스 데이터 없음: {instanceId.Value}");
                     }
                 }
                 catch (System.Exception ex)
@@ -1051,7 +1051,7 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
 
-        // ⭐ 슬롯 데이터 설정 (🆕 ItemInstanceId도 함께 전달)
+        // ⭐ 슬롯 데이터 설정 (🆕 ItemInstanceID도 함께 전달)
         // 중요: 재료 탭에서 비활성화된 슬롯을 복원하기 위해 명시적으로 활성화
         for (int i = 0; i < lobbySlots.Count; i++)
         {

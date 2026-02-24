@@ -59,7 +59,7 @@ namespace UI.Workshop
         private InventoryTabType currentTab = InventoryTabType.Equipment;
         private WorkshopUI.WorkshopTabType currentWorkshopTab = WorkshopUI.WorkshopTabType.Enhancement; // ⭐ 현재 공방 탭
         private List<InventorySlot> inventorySlots = new List<InventorySlot>();
-        private List<ItemInstanceId> selectedItems = new List<ItemInstanceId>();
+        private List<ItemInstanceID> selectedItems = new List<ItemInstanceID>();
         private bool isMultiSelectMode = false;
         private InventorySlot lastSelectedSlot = null; // 단일 선택 시 마지막 선택 슬롯
         
@@ -67,8 +67,8 @@ namespace UI.Workshop
         public bool IsIndividualSelectionMode { get; private set; } = false;
         
         // 이벤트
-        public event Action<List<ItemInstanceId>> OnSelectionChanged;
-        public event Action<ItemInstanceId> OnSingleItemSelected; // 단일 선택 시
+        public event Action<List<ItemInstanceID>> OnSelectionChanged;
+        public event Action<ItemInstanceID> OnSingleItemSelected; // 단일 선택 시
         
         void Awake()
         {
@@ -576,7 +576,7 @@ namespace UI.Workshop
         /// <summary>
         /// 필터링된 장비 아이템 목록 가져오기
         /// </summary>
-        private List<ItemInstanceId> GetFilteredEquipmentItems()
+        private List<ItemInstanceID> GetFilteredEquipmentItems()
         {
             var accountData = AccountDataManager.Instance.GetAccountData();
             var allItems = accountData.sharedInventoryIds;
@@ -704,7 +704,7 @@ namespace UI.Workshop
         /// <summary>
         /// 슬롯 선택 콜백
         /// </summary>
-        private void OnSlotSelectionChanged(ItemInstanceId itemId, bool selected)
+        private void OnSlotSelectionChanged(ItemInstanceID itemId, bool selected)
         {
             if (selected)
             {
@@ -822,12 +822,12 @@ namespace UI.Workshop
                     IsIndividualSelectionMode = true;
                     
                     // 이전 선택 슬롯 해제
-                    if (lastSelectedSlot != null && lastSelectedSlot.GetItemInstanceId() != itemId)
+                    if (lastSelectedSlot != null && lastSelectedSlot.GetItemInstanceID() != itemId)
                     {
                         lastSelectedSlot.SetSelected(false, notifyEvent: false);
                         
                         if (showDebugLogs)
-                            Debug.Log($"🔄 [WorkshopInventoryUI] 이전 선택 해제: {lastSelectedSlot.GetItemInstanceId()}");
+                            Debug.Log($"🔄 [WorkshopInventoryUI] 이전 선택 해제: {lastSelectedSlot.GetItemInstanceID()}");
                     }
                     
                     // 현재 슬롯 저장
@@ -900,13 +900,13 @@ namespace UI.Workshop
         }
         
         /// <summary>
-        /// ItemInstanceId로 슬롯 찾기
+        /// ItemInstanceID로 슬롯 찾기
         /// </summary>
-        private InventorySlot FindSlotByItemId(ItemInstanceId itemId)
+        private InventorySlot FindSlotByItemId(ItemInstanceID itemId)
         {
             foreach (var slot in inventorySlots)
             {
-                if (slot.GetItemInstanceId() == itemId)
+                if (slot.GetItemInstanceID() == itemId)
                 {
                     return slot;
                 }
@@ -955,6 +955,36 @@ namespace UI.Workshop
             // ⭐ 합성 탭: 선택된 아이템과 같은 등급 (+ 개별 클릭 시 같은 분류)만 밝게 표시
             if (currentWorkshopTab == WorkshopUI.WorkshopTabType.Fusion && selectedItems.Count > 0)
             {
+                // ⭐ 방어 로직: 유효하지 않은 ID를 조용히 제거 (이미 삭제된 아이템 처리)
+                var invalidIds = new List<ItemInstanceID>();
+                foreach (var id in selectedItems)
+                {
+                    var instance = AccountDataManager.Instance.GetInstance(id);
+                    if (instance == null)
+                    {
+                        invalidIds.Add(id);
+                    }
+                }
+                
+                if (invalidIds.Count > 0)
+                {
+                    foreach (var invalidId in invalidIds)
+                    {
+                        selectedItems.Remove(invalidId);
+                    }
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"🧹 [WorkshopInventoryUI] 유효하지 않은 ID {invalidIds.Count}개 제거됨");
+                    
+                    // 모든 아이템이 무효화된 경우 조기 반환
+                    if (selectedItems.Count == 0)
+                    {
+                        foreach (var slot in inventorySlots)
+                            slot.SetDimmed(false);
+                        return;
+                    }
+                }
+
                 // 첫 번째 선택 아이템의 등급 + 세부타입 기준
                 var firstSelectedId = selectedItems[0];
                 var firstItemInstance = AccountDataManager.Instance.GetInstance(firstSelectedId);
@@ -1046,7 +1076,7 @@ namespace UI.Workshop
                     if (itemData != null && itemData.itemGrade == grade)
                     {
                         slot.SetSelected(false, notifyEvent: false);
-                        selectedItems.Remove(slot.GetItemInstanceId());
+                        selectedItems.Remove(slot.GetItemInstanceID());
                     }
                 }
                 
@@ -1099,14 +1129,14 @@ namespace UI.Workshop
             }
             
             // ⭐ 1단계: 선택 가능한 아이템 수집
-            var candidateSlots = new List<(InventorySlot slot, ItemInstanceId itemId, EquipmentData equipData, int enhancementLevel)>();
+            var candidateSlots = new List<(InventorySlot slot, ItemInstanceID itemId, EquipmentData equipData, int enhancementLevel)>();
             
             foreach (var slot in inventorySlots)
             {
                 var itemData = slot.GetEquipmentData();
                 if (itemData != null && itemData.itemGrade == grade)
                 {
-                    var itemId = slot.GetItemInstanceId();
+                    var itemId = slot.GetItemInstanceID();
                     
                     // 장착 아이템 제외 옵션 체크
                     if (excludeEquipped && equippedIds.Contains(itemId))
@@ -1219,7 +1249,7 @@ namespace UI.Workshop
             UpdateSelectionUI();
             
             // ⭐ 선택 초기화 이벤트 발생 (빈 리스트)
-            OnSelectionChanged?.Invoke(new List<ItemInstanceId>());
+            OnSelectionChanged?.Invoke(new List<ItemInstanceID>());
             
             if (showDebugLogs)
                 Debug.Log("✅ [WorkshopInventoryUI] 선택 초기화 완료 - 이벤트 발생");
@@ -1228,9 +1258,9 @@ namespace UI.Workshop
         /// <summary>
         /// 선택된 아이템 목록 가져오기
         /// </summary>
-        public List<ItemInstanceId> GetSelectedItems()
+        public List<ItemInstanceID> GetSelectedItems()
         {
-            return new List<ItemInstanceId>(selectedItems);
+            return new List<ItemInstanceID>(selectedItems);
         }
         
         /// <summary>

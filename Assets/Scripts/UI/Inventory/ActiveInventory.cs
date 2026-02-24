@@ -261,9 +261,9 @@ public class ActiveInventory : MonoBehaviour
     
     /// <summary>
     /// 인게임 슬롯 클릭 이벤트 처리 (PlayerDataManager에서 호출)
-    /// V2: ItemInstanceId 추가 (인게임은 사용하지 않음)
+    /// V2: ItemInstanceID 추가 (인게임은 사용하지 않음)
     /// </summary>
-    public void OnSlotClickedForInGame(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId = default)
+    public void OnSlotClickedForInGame(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId = default)
     {
         if (showDebugLogs)
             Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 시작 =============");

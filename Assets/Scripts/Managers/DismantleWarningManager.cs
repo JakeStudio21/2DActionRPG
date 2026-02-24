@@ -70,7 +70,7 @@ namespace Managers
         /// <summary>
         /// 분해 경고 필요 여부 확인 + 표시
         /// </summary>
-        public void ShowWarningIfNeeded(ItemInstanceId instanceId, Action<bool> onComplete)
+        public void ShowWarningIfNeeded(ItemInstanceID instanceId, Action<bool> onComplete)
         {
             var account = AccountDataManager.Instance;
             var itemData = account.GetInstance(instanceId);

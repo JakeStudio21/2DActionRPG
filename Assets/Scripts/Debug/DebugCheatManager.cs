@@ -198,10 +198,10 @@ namespace DebugTools
         }
         
         /// <summary>
-        /// InstanceId 문자열 → ItemInstanceId 변환
+        /// InstanceId 문자열 → ItemInstanceID 변환
         /// GUID 문자열 형식 지원 (예: "a1b2c3d4-e5f6-...")
         /// </summary>
-        private ItemInstanceId ParseInstanceId(string text)
+        private ItemInstanceID ParseInstanceId(string text)
         {
             // "#" 접두사 제거 (선택사항)
             if (text.StartsWith("#"))
@@ -215,8 +215,8 @@ namespace DebugTools
                 throw new Exception("인스턴스 ID가 비어있습니다.");
             }
             
-            // GUID 문자열로 ItemInstanceId 생성
-            return new ItemInstanceId { id = text };
+            // GUID 문자열로 ItemInstanceID 생성
+            return ItemInstanceID.FromString(text);
         }
         
         // ========================================
@@ -251,9 +251,9 @@ namespace DebugTools
         /// <summary>
         /// 간편 강화 레벨 설정
         /// </summary>
-        public CheatResult QuickSetEnhance(ItemInstanceId instanceId, int level)
+        public CheatResult QuickSetEnhance(ItemInstanceID instanceId, int level)
         {
-            return ExecuteCommand($"setenhance {instanceId.id} {level}");
+            return ExecuteCommand($"setenhance {instanceId.Value} {level}");
         }
         
         // ========================================

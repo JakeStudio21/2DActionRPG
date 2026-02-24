@@ -29,15 +29,15 @@ namespace Systems
             public int successCount = 0;                            // 성공한 아이템 수
             public int failedCount = 0;                             // 실패한 아이템 수
             public Dictionary<MaterialType, int> totalRewards = new Dictionary<MaterialType, int>(); // 총 획득 재료
-            public List<ItemInstanceId> failedItems = new List<ItemInstanceId>(); // 실패한 아이템 ID
+            public List<ItemInstanceID> failedItems = new List<ItemInstanceID>(); // 실패한 아이템 ID
         }
         
         /// <summary>
         /// 필터 조건에 맞는 아이템 찾기
         /// </summary>
-        public static List<ItemInstanceId> FindDismantleTargets(DismantleFilter filter)
+        public static List<ItemInstanceID> FindDismantleTargets(DismantleFilter filter)
         {
-            var targets = new List<ItemInstanceId>();
+            var targets = new List<ItemInstanceID>();
             
             if (!AccountDataManager.IsInitialized())
             {
@@ -47,7 +47,7 @@ namespace Systems
             
             var account = AccountDataManager.Instance;
             var accountData = account.GetAccountData();
-            var allItems = new List<ItemInstanceId>();
+            var allItems = new List<ItemInstanceID>();
             
             // 1. 계정 창고 아이템
             allItems.AddRange(accountData.sharedInventoryIds);
@@ -81,7 +81,7 @@ namespace Systems
         /// <summary>
         /// 필터 조건 적용
         /// </summary>
-        private static bool ApplyFilter(ItemInstanceId instanceId, DismantleFilter filter)
+        private static bool ApplyFilter(ItemInstanceID instanceId, DismantleFilter filter)
         {
             var account = AccountDataManager.Instance;
             var itemData = account.GetInstance(instanceId);
@@ -127,7 +127,7 @@ namespace Systems
         /// <summary>
         /// 일괄 분해 실행
         /// </summary>
-        public static BatchDismantleResult ExecuteBatchDismantle(List<ItemInstanceId> itemIds)
+        public static BatchDismantleResult ExecuteBatchDismantle(List<ItemInstanceID> itemIds)
         {
             var result = new BatchDismantleResult
             {
@@ -168,7 +168,7 @@ namespace Systems
         /// <summary>
         /// 일괄 분해 미리보기 (실제 분해하지 않음)
         /// </summary>
-        public static Dictionary<MaterialType, int> PreviewBatchDismantle(List<ItemInstanceId> itemIds)
+        public static Dictionary<MaterialType, int> PreviewBatchDismantle(List<ItemInstanceID> itemIds)
         {
             var totalRewards = new Dictionary<MaterialType, int>();
             

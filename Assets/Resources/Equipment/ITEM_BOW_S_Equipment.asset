@@ -28,16 +28,20 @@ MonoBehaviour:
   weaponRange: 5
   armorType: 0
   accessoryType: 0
-  attackDamage: 10
-  attackSpeed: 20
+  equipmentSlot: 0
+  baseStats:
+  - statId: ATK_FLAT
+    value: 7.4375
+    displayName: "\uACF5\uACA9\uB825"
+  - statId: ATK_PERCENT
+    value: 0.9296875
+    displayName: "\uACF5\uACA9\uB825 %"
+  - statId: ASPD
+    value: 0.8263889
+    displayName: "\uACF5\uACA9\uC18D\uB3C4"
+  projectileId: Arrow_B
   attackRange: 1
   attackShape: 1
-  criticalChance: 0.3
-  criticalDamage: 2.2
-  projectileId: Arrow_B
-  defenseBonus: 0
-  speedBonus: 0
-  healthBonus: 0
   buyPrice: 20000
   sellPrice: 10000
   isLimited: 0

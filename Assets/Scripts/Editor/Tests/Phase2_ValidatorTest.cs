@@ -63,9 +63,9 @@ public static class Phase2_ValidatorTest
         {
             // 정상 케이스
             var accountData1 = new AccountData();
-            var id1 = ItemInstanceId.NewId();
-            var id2 = ItemInstanceId.NewId();
-            var id3 = ItemInstanceId.NewId();
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.Generate();
+            var id3 = ItemInstanceID.Generate();
             
             accountData1.sharedInventoryIds.Add(id1);
             accountData1.sharedInventoryIds.Add(id2);
@@ -83,7 +83,7 @@ public static class Phase2_ValidatorTest
             
             // 중복 케이스
             var accountData2 = new AccountData();
-            var dupId = ItemInstanceId.NewId();
+            var dupId = ItemInstanceID.Generate();
             
             accountData2.sharedInventoryIds.Add(dupId);
             accountData2.sharedInventoryIds.Add(dupId); // 중복!
@@ -121,9 +121,9 @@ public static class Phase2_ValidatorTest
             // 정상 케이스
             var slotData1 = PlayerSlotData.CreateDefaultSlot(0, PlayerType.Warrior);
             
-            var id1 = ItemInstanceId.NewId();
-            var id2 = ItemInstanceId.NewId();
-            var id3 = ItemInstanceId.NewId();
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.Generate();
+            var id3 = ItemInstanceID.Generate();
             
             slotData1.characterBagInstanceIds.Add(id1);
             slotData1.characterBagInstanceIds.Add(id2);
@@ -146,7 +146,7 @@ public static class Phase2_ValidatorTest
             // 중복 케이스 (가방 내부)
             var slotData2 = PlayerSlotData.CreateDefaultSlot(1, PlayerType.Assasin);
             
-            var dupId = ItemInstanceId.NewId();
+            var dupId = ItemInstanceID.Generate();
             slotData2.characterBagInstanceIds.Add(dupId);
             slotData2.characterBagInstanceIds.Add(dupId); // 중복!
             
@@ -163,7 +163,7 @@ public static class Phase2_ValidatorTest
             // 중복 케이스 (가방 ↔ 장착)
             var slotData3 = PlayerSlotData.CreateDefaultSlot(2, PlayerType.Wizard);
             
-            var crossId = ItemInstanceId.NewId();
+            var crossId = ItemInstanceID.Generate();
             slotData3.characterBagInstanceIds.Add(crossId);
             slotData3.equippedRecords.Add(new EquippedRecord 
             { 
@@ -210,9 +210,9 @@ public static class Phase2_ValidatorTest
             }
             
             // 정상 케이스: 각 컨테이너가 다른 아이템 보유
-            var accountId = ItemInstanceId.NewId();
-            var slot0Id = ItemInstanceId.NewId();
-            var slot1Id = ItemInstanceId.NewId();
+            var accountId = ItemInstanceID.Generate();
+            var slot0Id = ItemInstanceID.Generate();
+            var slot1Id = ItemInstanceID.Generate();
             
             accountData.sharedInventoryIds.Add(accountId);
             slots[0].characterBagInstanceIds.Add(slot0Id);
@@ -234,7 +234,7 @@ public static class Phase2_ValidatorTest
             Debug.Log("✅ 정상 케이스: Account와 Slot 간 중복 없음");
             
             // 중복 케이스: Account와 Slot0이 동일 아이템 보유
-            var dupId = ItemInstanceId.NewId();
+            var dupId = ItemInstanceID.Generate();
             accountData.sharedInventoryIds.Add(dupId);
             slots[0].characterBagInstanceIds.Add(dupId); // 중복!
             
@@ -278,7 +278,7 @@ public static class Phase2_ValidatorTest
             }
             
             // 정상 케이스: 귀속 정보와 실제 위치 일치
-            var boundId = ItemInstanceId.NewId();
+            var boundId = ItemInstanceID.Generate();
             slots[0].characterBagInstanceIds.Add(boundId);
             accountData.binds.Add(new ItemBindRecord 
             { 
@@ -299,7 +299,7 @@ public static class Phase2_ValidatorTest
             Debug.Log("✅ 정상 케이스: 귀속 정보와 실제 위치 일치");
             
             // 오류 케이스: 귀속 정보는 Slot 0인데 Slot 1에 존재
-            var wrongId = ItemInstanceId.NewId();
+            var wrongId = ItemInstanceID.Generate();
             slots[1].characterBagInstanceIds.Add(wrongId);
             accountData.binds.Add(new ItemBindRecord 
             { 

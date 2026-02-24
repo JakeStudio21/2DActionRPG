@@ -8,7 +8,7 @@ using UnityEngine;
 public class ItemInstanceData
 {
     [Header("🆔 고유 식별자")]
-    public ItemInstanceId instanceId;
+    public ItemInstanceID instanceId;
     
     [Header("📋 템플릿 정보")]
     [Tooltip("EquipmentData의 이름 (예: Sword_D_Equipment)")]
@@ -38,7 +38,7 @@ public class ItemInstanceData
     public override string ToString()
     {
         string name = !string.IsNullOrEmpty(customName) ? customName : templateName;
-        return $"{name} +{enhancementLevel} (ID: {instanceId.id?.Substring(0, 8)}...)";
+        return $"{name} +{enhancementLevel} (ID: {instanceId.Value?.Substring(0, 8)}...)";
     }
 }
 

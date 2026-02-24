@@ -20,11 +20,11 @@ public class Phase0_DataStructureTest : MonoBehaviour
         int passCount = 0;
         int totalCount = 9;
         
-        // Test 1: ItemInstanceId
-        if (Test1_ItemInstanceId()) passCount++;
+        // Test 1: ItemInstanceID
+        if (Test1_ItemInstanceID()) passCount++;
         
-        // Test 2: ItemInstanceId Equals/GetHashCode
-        if (Test2_ItemInstanceIdEquality()) passCount++;
+        // Test 2: ItemInstanceID Equals/GetHashCode
+        if (Test2_ItemInstanceIDEquality()) passCount++;
         
         // Test 3: ItemInstanceData
         if (Test3_ItemInstanceData()) passCount++;
@@ -57,27 +57,27 @@ public class Phase0_DataStructureTest : MonoBehaviour
     }
     
     // ========================================
-    // Test 1: ItemInstanceId 생성/유효성
+    // Test 1: ItemInstanceID 생성/유효성
     // ========================================
-    private bool Test1_ItemInstanceId()
+    private bool Test1_ItemInstanceID()
     {
-        Debug.Log("\n--- Test 1: ItemInstanceId 생성/유효성 ---");
+        Debug.Log("\n--- Test 1: ItemInstanceID 생성/유효성 ---");
         
         try
         {
             // 새 ID 생성
-            var id1 = ItemInstanceId.NewId();
-            var id2 = ItemInstanceId.NewId();
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.Generate();
             
             // 유효성 확인
-            if (!id1.IsValid())
+            if (id1.IsEmpty)
             {
                 Debug.LogError("❌ Test 1 실패: 생성된 ID가 유효하지 않음");
                 return false;
             }
             
             // 고유성 확인
-            if (id1.id == id2.id)
+            if (id1.Value == id2.Value)
             {
                 Debug.LogError("❌ Test 1 실패: 생성된 ID가 고유하지 않음");
                 return false;
@@ -89,7 +89,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
                 Debug.Log($"✅ ID2: {id2}");
             }
             
-            Debug.Log("✅ Test 1 통과: ItemInstanceId 생성/유효성");
+            Debug.Log("✅ Test 1 통과: ItemInstanceID 생성/유효성");
             return true;
         }
         catch (System.Exception e)
@@ -100,17 +100,17 @@ public class Phase0_DataStructureTest : MonoBehaviour
     }
     
     // ========================================
-    // Test 2: ItemInstanceId Equals/GetHashCode
+    // Test 2: ItemInstanceID Equals/GetHashCode
     // ========================================
-    private bool Test2_ItemInstanceIdEquality()
+    private bool Test2_ItemInstanceIDEquality()
     {
-        Debug.Log("\n--- Test 2: ItemInstanceId Equals/GetHashCode ---");
+        Debug.Log("\n--- Test 2: ItemInstanceID Equals/GetHashCode ---");
         
         try
         {
-            var id1 = ItemInstanceId.NewId();
-            var id2 = new ItemInstanceId { id = id1.id }; // 동일한 ID
-            var id3 = ItemInstanceId.NewId(); // 다른 ID
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.FromString(id1.Value); // 동일한 ID
+            var id3 = ItemInstanceID.Generate(); // 다른 ID
             
             // Equals 테스트
             if (!id1.Equals(id2))
@@ -164,7 +164,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
         
         try
         {
-            var id = ItemInstanceId.NewId();
+            var id = ItemInstanceID.Generate();
             var instanceData = new ItemInstanceData
             {
                 instanceId = id,
@@ -206,7 +206,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
         
         try
         {
-            var id = ItemInstanceId.NewId();
+            var id = ItemInstanceID.Generate();
             var record = new EquippedRecord
             {
                 slot = EquipmentSlot.MainWeapon,
@@ -243,7 +243,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
         
         try
         {
-            var id = ItemInstanceId.NewId();
+            var id = ItemInstanceID.Generate();
             var bindRecord = new ItemBindRecord
             {
                 instanceId = id,
@@ -321,8 +321,8 @@ public class Phase0_DataStructureTest : MonoBehaviour
             var accountData = new AccountData();
             
             // 테스트 데이터 추가
-            var id1 = ItemInstanceId.NewId();
-            var id2 = ItemInstanceId.NewId();
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.Generate();
             
             accountData.sharedInventoryIds.Add(id1);
             accountData.mailboxIds.Add(id2);
@@ -403,8 +403,8 @@ public class Phase0_DataStructureTest : MonoBehaviour
             };
             
             // V2 필드 추가
-            var id1 = ItemInstanceId.NewId();
-            var id2 = ItemInstanceId.NewId();
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.Generate();
             
             slotData.characterBagInstanceIds.Add(id1);
             slotData.characterBagInstanceIds.Add(id2);
@@ -459,10 +459,10 @@ public class Phase0_DataStructureTest : MonoBehaviour
         
         try
         {
-            var dict = new Dictionary<ItemInstanceId, ItemInstanceData>();
+            var dict = new Dictionary<ItemInstanceID, ItemInstanceData>();
             
-            var id1 = ItemInstanceId.NewId();
-            var id2 = ItemInstanceId.NewId();
+            var id1 = ItemInstanceID.Generate();
+            var id2 = ItemInstanceID.Generate();
             
             var data1 = new ItemInstanceData { instanceId = id1, templateName = "Item1" };
             var data2 = new ItemInstanceData { instanceId = id2, templateName = "Item2" };
@@ -485,7 +485,7 @@ public class Phase0_DataStructureTest : MonoBehaviour
             }
             
             // 동일 ID로 재생성하여 조회
-            var id1Copy = new ItemInstanceId { id = id1.id };
+            var id1Copy = ItemInstanceID.FromString(id1.Value);
             if (!dict.ContainsKey(id1Copy))
             {
                 Debug.LogError("❌ Test 9 실패: 동일 ID로 Dictionary 조회 실패 (Equals/GetHashCode 문제)");

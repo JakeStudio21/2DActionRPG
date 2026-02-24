@@ -292,7 +292,7 @@ public class V2InventoryDebugUI : MonoBehaviour
         }
     }
     
-    private void DrawItemRow(ItemInstanceId itemId, string location, System.Action onMoveClick)
+    private void DrawItemRow(ItemInstanceID itemId, string location, System.Action onMoveClick)
     {
         GUILayout.BeginHorizontal(GUI.skin.box);
         

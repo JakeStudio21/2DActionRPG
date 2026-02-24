@@ -64,9 +64,9 @@ namespace Shop
     public class ShopItemEntry
     {
         /// <summary>
-        /// 전시용 ItemInstanceId (상점 UI에 표시)
+        /// 전시용 ItemInstanceID (상점 UI에 표시)
         /// </summary>
-        public ItemInstanceId displayInstanceId;
+        public ItemInstanceID displayInstanceId;
         
         /// <summary>
         /// 장비 데이터 (ScriptableObject)
@@ -81,7 +81,7 @@ namespace Shop
         /// <summary>
         /// 생성자
         /// </summary>
-        public ShopItemEntry(ItemInstanceId displayInstanceId, EquipmentData equipmentData)
+        public ShopItemEntry(ItemInstanceID displayInstanceId, EquipmentData equipmentData)
         {
             this.displayInstanceId = displayInstanceId;
             this.equipmentData = equipmentData;
@@ -93,7 +93,7 @@ namespace Shop
         /// </summary>
         public bool IsValid()
         {
-            return displayInstanceId.IsValid() && equipmentData != null;
+            return !displayInstanceId.IsEmpty && equipmentData != null;
         }
     }
     

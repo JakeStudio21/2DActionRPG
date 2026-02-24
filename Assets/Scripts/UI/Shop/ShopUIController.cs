@@ -591,14 +591,14 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 Phase 2: 상점 구매 아이템 클릭 처리 (ItemInstanceId 기반)
+    /// 🆕 Phase 2: 상점 구매 아이템 클릭 처리 (ItemInstanceID 기반)
     /// </summary>
-    private void HandleShopBuyItemClicked(ItemInstanceId displayInstanceId)
+    private void HandleShopBuyItemClicked(ItemInstanceID displayInstanceId)
     {
         if (showDebugLogs)
-            Debug.Log($"🛒 [ShopUIController] 상점 구매 아이템 클릭 (V2): {displayInstanceId.id}");
+            Debug.Log($"🛒 [ShopUIController] 상점 구매 아이템 클릭 (V2): {displayInstanceId.Value}");
         
-        if (!displayInstanceId.IsValid())
+        if (displayInstanceId.IsEmpty)
         {
             Debug.LogError("❌ [ShopUIController] displayInstanceId가 유효하지 않습니다!");
             return;
@@ -615,7 +615,7 @@ public class ShopUIController : MonoBehaviour
         
         if (equipment == null)
         {
-            Debug.LogError($"❌ [ShopUIController] EquipmentData를 찾을 수 없습니다: {displayInstanceId.id}");
+            Debug.LogError($"❌ [ShopUIController] EquipmentData를 찾을 수 없습니다: {displayInstanceId.Value}");
             return;
         }
         
@@ -637,26 +637,26 @@ public class ShopUIController : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 V2: 인벤토리 아이템 클릭 처리 (ItemInstanceId 포함)
+    /// 🆕 V2: 인벤토리 아이템 클릭 처리 (ItemInstanceID 포함)
     /// </summary>
-    private void HandleInventoryItemClicked(EquipmentData item, int slotIndex, ItemInstanceId instanceId)
+    private void HandleInventoryItemClicked(EquipmentData item, int slotIndex, ItemInstanceID instanceId)
     {
-        if (ShopController.Instance != null && item != null && instanceId.IsValid())
+        if (ShopController.Instance != null && item != null && !instanceId.IsEmpty)
         {
             int sellPrice = ShopController.Instance.GetItemSellPrice(item.itemID);
             
-            // ❌ 구버전 제거: UI에 판매 아이템 설정 (🆕 V2: ItemInstanceId 전달)
+            // ❌ 구버전 제거: UI에 판매 아이템 설정 (🆕 V2: ItemInstanceID 전달)
             // if (shopUI != null)
             // {
             //     shopUI.SetSellItem(item, sellPrice, instanceId);
             // }
             
             if (showDebugLogs)
-                Debug.Log($"💸 [ShopUIController] 인벤토리 아이템 선택: {item.equipmentName} (슬롯: {slotIndex}, ID: {instanceId.id.Substring(0, 8)}...)");
+                Debug.Log($"💸 [ShopUIController] 인벤토리 아이템 선택: {item.equipmentName} (슬롯: {slotIndex}, ID: {instanceId.Value.Substring(0, 8)}...)");
         }
         else if (showDebugLogs)
         {
-            Debug.LogWarning($"⚠️ [ShopUIController] 잘못된 아이템 선택 (item: {item?.equipmentName ?? "null"}, ID 유효: {instanceId.IsValid()})");
+            Debug.LogWarning($"⚠️ [ShopUIController] 잘못된 아이템 선택 (item: {item?.equipmentName ?? "null"}, ID 유효: {!instanceId.IsEmpty})");
         }
     }
     

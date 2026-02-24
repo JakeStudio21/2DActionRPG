@@ -84,7 +84,7 @@ namespace UI.Popups
         private MaterialType? currentMaterial; // 📦 재료 모드용
         private ItemDetailContext currentContext;
         private int currentSlotIndex = -1; // 슬롯 인덱스 (인벤토리/장비창용)
-        private ItemInstanceId currentItemInstanceId; // V2: 아이템 인스턴스 ID (귀속 체크용)
+        private ItemInstanceID currentItemInstanceID; // V2: 아이템 인스턴스 ID (귀속 체크용)
         
         // ⭐ 원본 UI 색상 저장 (복구용)
         private Color originalPrimaryButtonTextColor;
@@ -215,7 +215,7 @@ namespace UI.Popups
         /// <summary>
         /// 팝업 표시 (컨텍스트 기반)
         /// </summary>
-        public void Show(EquipmentData data, ItemDetailContext context, int slotIndex = -1, ItemInstanceId instanceId = default)
+        public void Show(EquipmentData data, ItemDetailContext context, int slotIndex = -1, ItemInstanceID instanceId = default)
         {
             if (data == null)
             {
@@ -226,7 +226,7 @@ namespace UI.Popups
             currentItem = data;
             currentContext = context;
             currentSlotIndex = slotIndex;
-            currentItemInstanceId = instanceId; // V2: 아이템 인스턴스 ID 저장
+            currentItemInstanceID = instanceId; // V2: 아이템 인스턴스 ID 저장
             
             // UI 업데이트
             UpdateItemInfo(data);
@@ -243,7 +243,7 @@ namespace UI.Popups
                 popupPanel.SetActive(true);
             }
             
-            Log($"🎯 [ItemDetailPopup] 팝업 열기: {data.equipmentName} (컨텍스트: {context}, ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")})");
+            Log($"🎯 [ItemDetailPopup] 팝업 열기: {data.equipmentName} (컨텍스트: {context}, ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
         }
         
         /// <summary>
@@ -263,7 +263,7 @@ namespace UI.Popups
             currentMaterial = materialType;
             currentContext = ItemDetailContext.Material;
             currentSlotIndex = -1;
-            currentItemInstanceId = default;
+            currentItemInstanceID = default;
             
             // UI 업데이트
             UpdateMaterialInfo(materialData);
@@ -321,7 +321,7 @@ namespace UI.Popups
             currentItem = null;
             currentMaterial = null; // 📦 재료 상태 초기화
             currentSlotIndex = -1;
-            currentItemInstanceId = default; // V2: ItemInstanceId 초기화
+            currentItemInstanceID = default; // V2: ItemInstanceID 초기화
             
             Log("🔒 [ItemDetailPopup] 팝업 닫기 (코루틴 정지 + UI 리셋 + 가격/일괄판매 숨김)");
         }
@@ -563,9 +563,9 @@ namespace UI.Popups
         
         /// <summary>
         /// 슬롯 클릭 이벤트 핸들러
-        /// V2: ItemInstanceId 추가
+        /// V2: ItemInstanceID 추가
         /// </summary>
-        private void OnSlotClickedHandler(EquipmentData equipmentData, int slotIndex, ItemInstanceId instanceId)
+        private void OnSlotClickedHandler(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId)
         {
             // 빈 슬롯 클릭 시 무시
             if (equipmentData == null)
@@ -577,7 +577,7 @@ namespace UI.Popups
             // 컨텍스트 자동 감지
             ItemDetailContext detectedContext = DetectContext();
             
-            // 팝업 표시 (V2: ItemInstanceId 전달)
+            // 팝업 표시 (V2: ItemInstanceID 전달)
             Show(equipmentData, detectedContext, slotIndex, instanceId);
         }
         
@@ -699,7 +699,7 @@ namespace UI.Popups
         /// </summary>
         private void OnBatchSellButtonClicked()
         {
-            if (currentItem == null || !currentItemInstanceId.IsValid())
+            if (currentItem == null || currentItemInstanceID.IsEmpty)
             {
                 Debug.LogError("❌ [ItemDetailPopup] 추가할 아이템이 없습니다!");
                 return;
@@ -715,12 +715,12 @@ namespace UI.Popups
                 return;
             }
             
-            Log($"📦 [ItemDetailPopup] 일괄판매 리스트에 추가: {currentItem.equipmentName} (ID: {currentItemInstanceId.id.Substring(0, 8)}...)");
+            Log($"📦 [ItemDetailPopup] 일괄판매 리스트에 추가: {currentItem.equipmentName} (ID: {currentItemInstanceID.Value.Substring(0, 8)}...)");
             
             // TODO: BatchSellUI 열기 및 아이템 추가 (미래 구현)
             // if (BatchSellUI.Instance != null)
             // {
-            //     bool added = BatchSellUI.Instance.AddItem(currentItem, currentItemInstanceId);
+            //     bool added = BatchSellUI.Instance.AddItem(currentItem, currentItemInstanceID);
             //     if (added)
             //     {
             //         // 리스트 추가 성공 메시지 표시 (1초 후 팝업 자동 닫기)
@@ -779,20 +779,20 @@ namespace UI.Popups
             }
             
             // ⭐ 2. V2: 귀속 체크 (SS, EX, TR 등급만)
-            if (currentItemInstanceId.IsValid())
+            if (!currentItemInstanceID.IsEmpty)
             {
                 // 1. 귀속 경고가 필요한지 체크
-                if (BindWarningManager.Instance.ShouldShowWarning(currentItemInstanceId))
+                if (BindWarningManager.Instance.ShouldShowWarning(currentItemInstanceID))
                 {
                     Log($"⚠️ [ItemDetailPopup] 상위 등급 아이템 ({currentItem.itemGrade}) - 귀속 경고 팝업 표시");
                     
                     // 2. BindWarningData 생성
-                    var instanceData = AccountDataManager.Instance.GetInstance(currentItemInstanceId);
+                    var instanceData = AccountDataManager.Instance.GetInstance(currentItemInstanceID);
                     int currentSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
                     string characterName = PlayerDataManager.Instance.selectedPlayerData?.playerName ?? "Unknown";
                     
                     var warningData = new BindWarningData(
-                        currentItemInstanceId,
+                        currentItemInstanceID,
                         instanceData.templateName,
                         instanceData.enhancementLevel,
                         DetermineEquipmentSlot(currentItem),
@@ -801,7 +801,7 @@ namespace UI.Popups
                     );
                     
                     // ⭐ 로컬 변수로 데이터 캡처 (Hide() 호출 전)
-                    var capturedInstanceId = currentItemInstanceId;
+                    var capturedInstanceId = currentItemInstanceID;
                     var capturedItemName = currentItem.equipmentName;
                     
                     // ⭐ ItemDetailPopup 먼저 닫기 (BindWarningPopup과 겹치지 않도록)
@@ -839,10 +839,10 @@ namespace UI.Popups
         {
             Log($"⚔️ [ItemDetailPopup] 착용 실행: {currentItem.equipmentName}");
             
-            // V2: ItemInstanceId가 있으면 V2 API 사용
-            if (currentItemInstanceId.IsValid())
+            // V2: ItemInstanceID가 있으면 V2 API 사용
+            if (!currentItemInstanceID.IsEmpty)
             {
-                bool success = PlayerDataManager.Instance.EquipItemFromSharedStorage(currentItemInstanceId);
+                bool success = PlayerDataManager.Instance.EquipItemFromSharedStorage(currentItemInstanceID);
                 
                 if (success)
                 {
@@ -864,13 +864,13 @@ namespace UI.Popups
         /// <summary>
         /// 실제 착용 실행 (캡처된 데이터 사용, 귀속 팝업 콜백용)
         /// </summary>
-        private void ExecuteEquipItemWithCapturedData(ItemInstanceId capturedInstanceId, string itemName)
+        private void ExecuteEquipItemWithCapturedData(ItemInstanceID capturedInstanceId, string itemName)
         {
             Log($"⚔️ [ItemDetailPopup] 착용 실행 (캡처된 데이터): {itemName}");
             
-            if (!capturedInstanceId.IsValid())
+            if (capturedInstanceId.IsEmpty)
             {
-                Debug.LogError($"❌ [ItemDetailPopup] 잘못된 ItemInstanceId: {itemName}");
+                Debug.LogError($"❌ [ItemDetailPopup] 잘못된 ItemInstanceID: {itemName}");
                 return;
             }
             
@@ -914,7 +914,7 @@ namespace UI.Popups
         /// </summary>
         private bool IsItemBound()
         {
-            if (!currentItemInstanceId.IsValid())
+            if (currentItemInstanceID.IsEmpty)
                 return false;
             
             var account = AccountDataManager.Instance;
@@ -922,7 +922,7 @@ namespace UI.Popups
                 return false;
             
             // ⭐ V2 시스템: AccountDataManager의 IsBound() 사용
-            return account.IsBound(currentItemInstanceId);
+            return account.IsBound(currentItemInstanceID);
         }
         
         /// <summary>
@@ -939,13 +939,13 @@ namespace UI.Popups
             
             // ItemInstance 정보 가져오기
             var account = AccountDataManager.Instance;
-            var instance = account.GetInstance(currentItemInstanceId);
+            var instance = account.GetInstance(currentItemInstanceID);
             var playerData = PlayerDataManager.Instance;
             var slotData = playerData.GetSlotData(playerData.CurrentSlotIndex);
             
             // 경고 데이터 생성 (BindWarningData 재사용)
             var warningData = new Systems.BindWarningData(
-                currentItemInstanceId,
+                currentItemInstanceID,
                 instance.templateName,
                 instance.enhancementLevel,
                 DetermineEquipmentSlot(currentItem),
@@ -975,7 +975,7 @@ namespace UI.Popups
                     if (confirmed)
                     {
                         // 사용자 확인 → 삭제 진행
-                        ExecuteUnequipBoundItemWithCapturedData(currentItemInstanceId);
+                        ExecuteUnequipBoundItemWithCapturedData(currentItemInstanceID);
                     }
                     // 취소 시 아무것도 하지 않음 (ItemDetailPopup은 이미 닫혔음)
                 });
@@ -994,8 +994,8 @@ namespace UI.Popups
             
             EquipmentSlot targetSlot = DetermineEquipmentSlot(currentItem);
             
-            // ⭐ V2 시스템: ItemInstanceId 기반 해제
-            bool success = PlayerDataManager.Instance.UnequipItemV2(targetSlot, currentItemInstanceId);
+            // ⭐ V2 시스템: ItemInstanceID 기반 해제
+            bool success = PlayerDataManager.Instance.UnequipItemV2(targetSlot, currentItemInstanceID);
             
             if (success)
             {
@@ -1021,7 +1021,7 @@ namespace UI.Popups
             EquipmentSlot targetSlot = DetermineEquipmentSlot(currentItem);
             
             // ⭐ 귀속 아이템 삭제 (명예의 전당은 나중에)
-            bool success = PlayerDataManager.Instance.UnequipAndDeleteBoundItem(targetSlot, currentItemInstanceId);
+            bool success = PlayerDataManager.Instance.UnequipAndDeleteBoundItem(targetSlot, currentItemInstanceID);
             
             if (success)
             {
@@ -1036,7 +1036,7 @@ namespace UI.Popups
         /// <summary>
         /// ⭐ 귀속 아이템 해제 실행 (캡처된 데이터 사용)
         /// </summary>
-        private void ExecuteUnequipBoundItemWithCapturedData(ItemInstanceId capturedInstanceId)
+        private void ExecuteUnequipBoundItemWithCapturedData(ItemInstanceID capturedInstanceId)
         {
             if (PlayerDataManager.Instance == null || AccountDataManager.Instance == null)
             {
@@ -1048,7 +1048,7 @@ namespace UI.Popups
             var instance = AccountDataManager.Instance.GetInstance(capturedInstanceId);
             if (instance == null)
             {
-                Debug.LogError($"❌ [ItemDetailPopup] ItemInstance를 찾을 수 없습니다: {capturedInstanceId.id}");
+                Debug.LogError($"❌ [ItemDetailPopup] ItemInstance를 찾을 수 없습니다: {capturedInstanceId.Value}");
                 return;
             }
             
@@ -1135,7 +1135,7 @@ namespace UI.Popups
         /// </summary>
         private void SellItem()
         {
-            if (currentItem == null || !currentItemInstanceId.IsValid())
+            if (currentItem == null || currentItemInstanceID.IsEmpty)
             {
                 Debug.LogError("❌ [ItemDetailPopup] 판매할 아이템이 없습니다!");
                 return;
@@ -1151,13 +1151,13 @@ namespace UI.Popups
                 return;
             }
             
-            Log($"🏪 [ItemDetailPopup] 아이템 판매: {currentItem.equipmentName} (ID: {currentItemInstanceId.id.Substring(0, 8)}...)");
+            Log($"🏪 [ItemDetailPopup] 아이템 판매: {currentItem.equipmentName} (ID: {currentItemInstanceID.Value.Substring(0, 8)}...)");
             
             // ShopController를 통해 판매 처리
             if (ShopController.Instance != null)
             {
                 // ⭐ 판매 결과 확인
-                bool success = ShopController.Instance.TrySellItem(currentItem, currentItemInstanceId);
+                bool success = ShopController.Instance.TrySellItem(currentItem, currentItemInstanceID);
                 
                 if (success)
                 {
@@ -1185,9 +1185,9 @@ namespace UI.Popups
         {
             Log($"🏪 [ItemDetailPopup] 아이템 구매: {currentItem.equipmentName}");
             
-            if (!currentItemInstanceId.IsValid())
+            if (currentItemInstanceID.IsEmpty)
             {
-                Debug.LogError("❌ [ItemDetailPopup] currentItemInstanceId가 유효하지 않습니다!");
+                Debug.LogError("❌ [ItemDetailPopup] currentItemInstanceID가 유효하지 않습니다!");
                 return;
             }
             
@@ -1198,7 +1198,7 @@ namespace UI.Popups
             }
             
             // ShopController를 통해 구매 처리 (V2 시스템)
-            bool success = ShopController.Instance.BuyItemV2(currentItemInstanceId, out PurchaseFailReason failReason);
+            bool success = ShopController.Instance.BuyItemV2(currentItemInstanceID, out PurchaseFailReason failReason);
             
             if (success)
             {

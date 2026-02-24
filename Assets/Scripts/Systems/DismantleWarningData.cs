@@ -7,7 +7,7 @@ using UnityEngine;
 [Serializable]
 public class DismantleWarningData
 {
-    public ItemInstanceId instanceId;
+    public ItemInstanceID instanceId;
     public string itemName;
     public ItemGrade grade;
     public int enhancementLevel;
@@ -19,7 +19,7 @@ public class DismantleWarningData
     /// <summary>
     /// 일반 아이템 분해 경고 생성
     /// </summary>
-    public static DismantleWarningData CreateWarning(ItemInstanceId instanceId, string itemName, 
+    public static DismantleWarningData CreateWarning(ItemInstanceID instanceId, string itemName, 
         ItemGrade grade, int enhancementLevel, bool isBound, int boundSlotIndex)
     {
         var data = new DismantleWarningData

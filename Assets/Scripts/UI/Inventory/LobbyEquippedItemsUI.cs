@@ -251,7 +251,7 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             return;
         }
         
-        // ⭐ ReadOnly 컨텍스트로 팝업 열기 (ItemInstanceId는 필요하지 않음, 읽기 전용이므로)
+        // ⭐ ReadOnly 컨텍스트로 팝업 열기 (ItemInstanceID는 필요하지 않음, 읽기 전용이므로)
         // slotIndex는 의미 없으므로 -1 전달
         popup.Show(equipmentData, ItemDetailContext.ReadOnly, -1, default);
         
@@ -279,20 +279,20 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             return;
         }
         
-        // ⭐ ItemInstanceId 가져오기
-        ItemInstanceId instanceId = GetItemInstanceIdForSlot(slot);
+        // ⭐ ItemInstanceID 가져오기
+        ItemInstanceID instanceId = GetItemInstanceIDForSlot(slot);
         
         // ⭐ Equipment 컨텍스트로 팝업 열기
         popup.Show(equipmentData, ItemDetailContext.Equipment, -1, instanceId);
         
         if (showDebugLogs)
-            Debug.Log($"🎒 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (해제 모드, ID: {(instanceId.IsValid() ? instanceId.id.Substring(0, 8) + "..." : "없음")})");
+            Debug.Log($"🎒 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (해제 모드, ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
     }
     
     /// <summary>
-    /// ⭐ 슬롯의 ItemInstanceId 가져오기 (V2 시스템)
+    /// ⭐ 슬롯의 ItemInstanceID 가져오기 (V2 시스템)
     /// </summary>
-    private ItemInstanceId GetItemInstanceIdForSlot(EquipmentSlot slot)
+    private ItemInstanceID GetItemInstanceIDForSlot(EquipmentSlot slot)
     {
         var playerData = PlayerDataManager.Instance;
         
@@ -307,16 +307,16 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         if (equippedInstanceIds.ContainsKey(slot))
         {
             var instanceId = equippedInstanceIds[slot];
-            if (instanceId.IsValid())
+            if (!instanceId.IsEmpty)
             {
                 if (showDebugLogs)
-                    Debug.Log($"✅ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceId 찾음: {instanceId.id.Substring(0, 8)}...");
+                    Debug.Log($"✅ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceID 찾음: {instanceId.Value.Substring(0, 8)}...");
                 return instanceId;
             }
         }
         
         if (showDebugLogs)
-            Debug.LogWarning($"⚠️ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceId를 찾을 수 없습니다.");
+            Debug.LogWarning($"⚠️ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceID를 찾을 수 없습니다.");
         return default;
     }
     

@@ -38,7 +38,7 @@ public class ShopBuyPanel : MonoBehaviour
     private bool isInitialized = false;  // 🆕 초기화 완료 플래그
     
     // 이벤트: 아이템 클릭 시
-    public event System.Action<ItemInstanceId> OnItemClicked;
+    public event System.Action<ItemInstanceID> OnItemClicked;
     
     void Awake()
     {
@@ -443,10 +443,10 @@ public class ShopBuyPanel : MonoBehaviour
     /// <summary>
     /// 아이템 클릭 핸들러
     /// </summary>
-    private void HandleItemClicked(ItemInstanceId instanceId)
+    private void HandleItemClicked(ItemInstanceID instanceId)
     {
         if (showDebugLogs)
-            Debug.Log($"🛒 [ShopBuyPanel] 아이템 클릭: {instanceId.id}");
+            Debug.Log($"🛒 [ShopBuyPanel] 아이템 클릭: {instanceId.Value}");
         
         OnItemClicked?.Invoke(instanceId);
     }

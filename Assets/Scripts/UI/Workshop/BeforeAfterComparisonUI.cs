@@ -246,7 +246,7 @@ namespace UI.Workshop
         /// <summary>
         /// 강화 모드로 설정
         /// </summary>
-        public void SetupForEnhancement(ItemInstanceId itemId)
+        public void SetupForEnhancement(ItemInstanceID itemId)
         {
             // ⭐ 활성화된 슬롯만 초기화 (SetupForWorkshopTab에서 설정한 레이아웃 유지)
             ClearActiveSlots();
@@ -362,7 +362,7 @@ namespace UI.Workshop
         /// <summary>
         /// 분해 모드로 설정 (단일 아이템)
         /// </summary>
-        public void SetupForDismantle(ItemInstanceId itemId)
+        public void SetupForDismantle(ItemInstanceID itemId)
         {
             ClearAll();
             currentMode = WorkshopMode.Dismantle;
@@ -436,7 +436,7 @@ namespace UI.Workshop
         /// <summary>
         /// 분해 모드로 설정 (일괄 분해)
         /// </summary>
-        public void SetupForBatchDismantle(List<ItemInstanceId> itemIds)
+        public void SetupForBatchDismantle(List<ItemInstanceID> itemIds)
         {
             if (itemIds == null || itemIds.Count == 0)
             {
@@ -526,7 +526,7 @@ namespace UI.Workshop
         /// <summary>
         /// 합성 모드로 설정
         /// </summary>
-        public void SetupForFusion(List<ItemInstanceId> materialIds)
+        public void SetupForFusion(List<ItemInstanceID> materialIds)
         {
             if (materialIds == null || materialIds.Count < 2)
             {

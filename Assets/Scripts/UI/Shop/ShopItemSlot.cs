@@ -30,13 +30,13 @@ public class ShopItemSlot : MonoBehaviour
     
     // 이벤트
     public event Action<string> OnItemClicked;              // Legacy: itemID 기반
-    public event Action<ItemInstanceId> OnItemClickedV2;    // 🆕 V2: ItemInstanceId 기반
+    public event Action<ItemInstanceID> OnItemClickedV2;    // 🆕 V2: ItemInstanceID 기반
     
     // 현재 아이템 정보
     private EquipmentData currentEquipment;
     private string currentItemID;
     private int currentPrice;
-    private ItemInstanceId currentInstanceId;               // 🆕 V2: 전시용 ItemInstance ID
+    private ItemInstanceID currentInstanceId;               // 🆕 V2: 전시용 ItemInstance ID
     
     void Start()
     {
@@ -93,7 +93,7 @@ public class ShopItemSlot : MonoBehaviour
     public void SetEquipmentData(EquipmentData equipment)
     {
         currentEquipment = equipment;
-        currentInstanceId = default; // Legacy 모드에서는 ItemInstanceId 없음
+        currentInstanceId = default; // Legacy 모드에서는 ItemInstanceID 없음
         
         if (equipment != null)
         {
@@ -113,14 +113,14 @@ public class ShopItemSlot : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 V2: 아이템 데이터 설정 (ItemInstanceId 기반)
+    /// 🆕 V2: 아이템 데이터 설정 (ItemInstanceID 기반)
     /// </summary>
-    public void SetEquipmentDataV2(ItemInstanceId instanceId, EquipmentData equipment)
+    public void SetEquipmentDataV2(ItemInstanceID instanceId, EquipmentData equipment)
     {
         currentInstanceId = instanceId;
         currentEquipment = equipment;
         
-        if (equipment != null && instanceId.IsValid())
+        if (equipment != null && !instanceId.IsEmpty)
         {
             currentItemID = equipment.itemID;
             currentPrice = equipment.buyPrice;
@@ -129,7 +129,7 @@ public class ShopItemSlot : MonoBehaviour
             SetInteractable(true);
             
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] V2 아이템 설정 완료: {equipment.equipmentName} (ID: {instanceId.id.Substring(0, 8)}...)");
+                Debug.Log($"✅ [ShopItemSlot] V2 아이템 설정 완료: {equipment.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...)");
         }
         else
         {
@@ -308,7 +308,7 @@ public class ShopItemSlot : MonoBehaviour
         currentEquipment = null;
         currentItemID = "";
         currentPrice = 0;
-        currentInstanceId = default; // 🆕 V2: ItemInstanceId 초기화
+        currentInstanceId = default; // 🆕 V2: ItemInstanceID 초기화
         
         // UI 초기화
         if (itemIcon != null)
@@ -361,12 +361,12 @@ public class ShopItemSlot : MonoBehaviour
                 Debug.Log($"🛒 [ShopItemSlot] 상점 아이템 클릭됨: {currentEquipment.equipmentName} (ID: {currentItemID}, 가격: {currentPrice})");
             
             // V2 이벤트 우선 발생
-            if (currentInstanceId.IsValid())
+            if (!currentInstanceId.IsEmpty)
             {
                 OnItemClickedV2?.Invoke(currentInstanceId);
                 
                 if (showDebugLogs)
-                    Debug.Log($"📤 [ShopItemSlot] OnItemClickedV2 이벤트 발생 완료 (InstanceId: {currentInstanceId.id.Substring(0, 8)}...)");
+                    Debug.Log($"📤 [ShopItemSlot] OnItemClickedV2 이벤트 발생 완료 (InstanceId: {currentInstanceId.Value.Substring(0, 8)}...)");
             }
             
             // Legacy 이벤트도 발생 (하위 호환성)

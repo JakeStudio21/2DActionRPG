@@ -48,7 +48,7 @@ namespace DebugTools
             }
             
             var account = AccountDataManager.Instance;
-            var createdIds = new List<ItemInstanceId>();
+            var createdIds = new List<ItemInstanceID>();
             
             // 4. 아이템 생성 (count개)
             for (int i = 0; i < count; i++)
@@ -181,7 +181,7 @@ namespace DebugTools
         /// </summary>
         /// <param name="instanceId">아이템 인스턴스 ID</param>
         /// <param name="level">새 강화 레벨 (0~15)</param>
-        public static CheatResult SetEnhanceLevel(ItemInstanceId instanceId, int level)
+        public static CheatResult SetEnhanceLevel(ItemInstanceID instanceId, int level)
         {
             // 1. 사전 검증
             if (!AccountDataManager.IsInitialized())

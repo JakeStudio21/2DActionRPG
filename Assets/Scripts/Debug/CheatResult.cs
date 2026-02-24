@@ -24,7 +24,7 @@ namespace DebugTools
         /// <summary>
         /// 생성된 아이템 인스턴스 ID 목록 (add 명령어 전용)
         /// </summary>
-        public List<ItemInstanceId> createdInstanceIds = new List<ItemInstanceId>();
+        public List<ItemInstanceID> createdInstanceIds = new List<ItemInstanceID>();
         
         /// <summary>
         /// 추가 데이터 (확장용)
@@ -62,13 +62,13 @@ namespace DebugTools
         /// <summary>
         /// 성공 결과 + 생성된 아이템 ID 포함
         /// </summary>
-        public static CheatResult SuccessWithItems(string msg, List<ItemInstanceId> itemIds)
+        public static CheatResult SuccessWithItems(string msg, List<ItemInstanceID> itemIds)
         {
             return new CheatResult
             {
                 success = true,
                 message = msg,
-                createdInstanceIds = itemIds ?? new List<ItemInstanceId>()
+                createdInstanceIds = itemIds ?? new List<ItemInstanceID>()
             };
         }
         

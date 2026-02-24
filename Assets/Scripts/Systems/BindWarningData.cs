@@ -9,14 +9,14 @@ namespace Systems
     [System.Serializable]
     public class BindWarningData
     {
-        public ItemInstanceId itemInstanceId;
+        public ItemInstanceID itemInstanceId;
         public string itemTemplateName;
         public int enhancementLevel;
         public EquipmentSlot targetSlot;
         public int currentCharacterSlot;
         public string characterName;
         
-        public BindWarningData(ItemInstanceId itemId, string templateName, int enhancement, 
+        public BindWarningData(ItemInstanceID itemId, string templateName, int enhancement, 
                                 EquipmentSlot slot, int charSlot, string charName)
         {
             itemInstanceId = itemId;

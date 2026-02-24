@@ -214,8 +214,9 @@ namespace StageSystem
                     {
                         string rawId = itemData.ItemID;
                         
-                        // ⭐ _Equipment 접미사 자동 추가 (보상 테이블 ID → 에셋 이름 변환)
-                        string templateName = rawId.EndsWith("_Equipment") ? rawId : $"{rawId}_Equipment";
+                        // ⭐ templateName = itemID 그대로 사용 (ItemTemplateResolver가 자동으로 Asset 파일 찾음)
+                        // 예: "ITEM_ARMOR_WIZARD_B" → ItemTemplateResolver가 "Equipment/ITEM_ARMOR_WIZARD_B_Equipment" 찾아줌
+                        string templateName = rawId;
                         
                         if (enableDebugLogs)
                             Debug.Log($"🔍 [DEBUG - RewardSystem] 아이템 지급 - rawId: {rawId} → templateName: {templateName}, Amount: {itemData.Amount}");
@@ -234,9 +235,9 @@ namespace StageSystem
                         int itemSuccessCount = 0;
                         for (int i = 0; i < itemData.Amount; i++)
                         {
-                            ItemInstanceId newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
+                            ItemInstanceID newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
                             
-                            if (newItemId.IsValid())
+                            if (!newItemId.IsEmpty)
                             {
                                 successCount++;
                                 itemSuccessCount++;

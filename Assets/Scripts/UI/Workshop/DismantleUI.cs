@@ -45,7 +45,7 @@ namespace UI.Workshop
         [SerializeField] private bool showDebugLogs = true;
 
         // 상태 관리
-        private List<ItemInstanceId> selectedItemIds = new List<ItemInstanceId>();
+        private List<ItemInstanceID> selectedItemIds = new List<ItemInstanceID>();
 
         private void Start()
         {
@@ -99,12 +99,12 @@ namespace UI.Workshop
         /// <summary>
         /// ⭐ WorkshopInventoryUI 선택 변경 이벤트 핸들러
         /// </summary>
-        private void OnInventorySelectionChanged(List<ItemInstanceId> selectedIds)
+        private void OnInventorySelectionChanged(List<ItemInstanceID> selectedIds)
         {
             if (showDebugLogs)
                 Debug.Log($"🔔 [DismantleUI] 선택 변경 이벤트: {selectedIds.Count}개");
             
-            selectedItemIds = new List<ItemInstanceId>(selectedIds);
+            selectedItemIds = new List<ItemInstanceID>(selectedIds);
             UpdateUI();
         }
 
@@ -157,7 +157,7 @@ namespace UI.Workshop
                 selectedItemSummary.SetActive(true);
 
             // 1. 대표 아이템 선택 (우선순위: 등급 > 강화 > 타입)
-            ItemInstanceId representativeItemId = SelectRepresentativeItem(selectedItemIds);
+            ItemInstanceID representativeItemId = SelectRepresentativeItem(selectedItemIds);
             var account = AccountDataManager.Instance;
             ItemInstanceData instanceData = account.GetInstance(representativeItemId);
             
@@ -204,7 +204,7 @@ namespace UI.Workshop
         /// <summary>
         /// 대표 아이템 선택 (우선순위: 등급 > 강화 > 타입)
         /// </summary>
-        private ItemInstanceId SelectRepresentativeItem(List<ItemInstanceId> itemIds)
+        private ItemInstanceID SelectRepresentativeItem(List<ItemInstanceID> itemIds)
         {
             if (itemIds == null || itemIds.Count == 0)
                 return default;
@@ -213,7 +213,7 @@ namespace UI.Workshop
                 return itemIds[0];
 
             var account = AccountDataManager.Instance;
-            ItemInstanceId bestItem = itemIds[0];
+            ItemInstanceID bestItem = itemIds[0];
             var bestInstance = account.GetInstance(bestItem);
             var bestEquipData = bestInstance != null ? ItemTemplateResolver.Load(bestInstance.templateName) : null;
 
@@ -341,7 +341,7 @@ namespace UI.Workshop
         /// <summary>
         /// 다중 아이템 분해 보상 계산 (합산)
         /// </summary>
-        private Dictionary<MaterialType, int> CalculateTotalDismantleRewards(List<ItemInstanceId> itemIds)
+        private Dictionary<MaterialType, int> CalculateTotalDismantleRewards(List<ItemInstanceID> itemIds)
         {
             var totalRewards = new Dictionary<MaterialType, int>();
             

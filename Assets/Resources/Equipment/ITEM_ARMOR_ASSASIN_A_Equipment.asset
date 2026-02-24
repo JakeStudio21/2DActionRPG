@@ -30,9 +30,15 @@ MonoBehaviour:
   accessoryType: 0
   equipmentSlot: 2
   baseStats:
-  - statId: 
-    value: 0
-    displayName: 
+  - statId: DEF_FLAT
+    value: 1.875
+    displayName: "\uBC29\uC5B4\uB825"
+  - statId: HP_FLAT
+    value: 1.875
+    displayName: "\uCD5C\uB300 \uCCB4\uB825"
+  - statId: HP_REGEN
+    value: 0.3125
+    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
   projectileId: 
   attackRange: 1
   attackShape: 1
