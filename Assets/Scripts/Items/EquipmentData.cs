@@ -45,6 +45,20 @@ public class EquipmentData : ScriptableObject
     [Header("🏹 원거리 무기 전용")]
     public string projectileId;         // "ITEM_ARROW_1" 형태 (활/지팡이용)
     
+    [Header("🎲 동적 스탯 생성 (Random Stats)")]
+    [Tooltip("이 장비에 부여될 수 있는 부옵션 스탯 풀 (EquipmentGenerator가 참조)")]
+    public List<EStatType> availableSubStats = new List<EStatType>();
+    
+    [Header("⚠️ 레거시 (사용 안 함 - CSV 자동 로드)")]
+    [HideInInspector] [Tooltip("⚠️ 사용 안 함: GradeSlotBudgetWeighted.csv 참조")]
+    public float baseBudget = 100f;
+    
+    [HideInInspector] [Tooltip("⚠️ 사용 안 함: EquipmentSlotBudget.csv 참조")]
+    public float mainStatWeight = 1.0f;
+    
+    [HideInInspector] [Tooltip("⚠️ 사용 안 함: EquipmentSlotBudget.csv 참조")]
+    public float subStatWeight = 0.3f;
+    
     [Header("⚔️ 공격 사거리/형태 (비스탯 속성)")]
     [Tooltip("공격 사거리")]
     public float attackRange = 1f;

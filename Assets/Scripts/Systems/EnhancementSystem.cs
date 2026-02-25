@@ -69,6 +69,37 @@ namespace Systems
         }
         
         /// <summary>
+        /// ⭐ Stage 5: 누적 강화 배율 반환 (곡선 테이블 기반)
+        /// - EquipmentInstance.CalculateEnhancedValue()에서 호출
+        /// </summary>
+        /// <param name="curveGroupId">곡선 그룹 ID (예: CURVE_WEAPON, CURVE_ARMOR)</param>
+        /// <param name="enhanceLevel">강화 레벨 (0~15)</param>
+        /// <returns>누적 증가율 (%) (예: 7.5 = 7.5%)</returns>
+        public static float GetTotalStatBonus(string curveGroupId, int enhanceLevel)
+        {
+            if (CurveTable == null)
+            {
+                Debug.LogError("[EnhancementSystem] EnhanceCurveTableSO를 로드할 수 없습니다.");
+                return 0f;
+            }
+            
+            if (enhanceLevel <= 0)
+            {
+                return 0f;
+            }
+            
+            // 곡선 테이블에서 누적 증가율 가져오기
+            float totalBonus = CurveTable.GetTotalStatBonus(curveGroupId, enhanceLevel);
+            
+            if (totalBonus <= 0f)
+            {
+                Debug.LogWarning($"⚠️ [EnhancementSystem] 곡선 그룹을 찾을 수 없습니다: {curveGroupId}");
+            }
+            
+            return totalBonus;
+        }
+        
+        /// <summary>
         /// 강화 가능 여부 검증
         /// </summary>
         public static bool CanEnhance(ItemInstanceID instanceId, out string reason)

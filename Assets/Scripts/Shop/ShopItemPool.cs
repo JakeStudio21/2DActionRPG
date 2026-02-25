@@ -20,6 +20,12 @@ namespace Shop
         // 전시용 Instance → EquipmentData 매핑 (빠른 조회용)
         private Dictionary<ItemInstanceID, EquipmentData> displayEquipmentData = new Dictionary<ItemInstanceID, EquipmentData>();
         
+        // 🆕 동적 스탯 캐시 (메모리 전용, Lazy Generation)
+        // - 클릭한 아이템만 생성 (메모리 효율)
+        // - 동일 아이템 재클릭 시 동일 스탯 표시 (일관성)
+        // - AccountData 오염 방지 (고아 아이템 방지)
+        private Dictionary<ItemInstanceID, EquipmentInstance> dynamicStatsCache = new Dictionary<ItemInstanceID, EquipmentInstance>();
+        
         // 초기화 완료 플래그
         private bool isInitialized = false;
         
@@ -100,6 +106,57 @@ namespace Shop
             
             Debug.LogWarning($"⚠️ [ShopItemPool] EquipmentData를 찾을 수 없습니다 (ID: {displayInstanceId.Value})");
             return null;
+        }
+        
+        /// <summary>
+        /// 🆕 동적 스탯 Lazy Generation (캐시 우선)
+        /// - 팝업에서 본 스탯 = 구매 시 받을 스탯 (일관성)
+        /// - 클릭 시 생성, 재클릭 시 동일 스탯 표시
+        /// - AccountData 오염 없음 (메모리 전용 캐시)
+        /// </summary>
+        public EquipmentInstance GetOrCreateDynamicStats(ItemInstanceID displayInstanceId)
+        {
+            // 1. 캐시 확인 (이미 생성됨)
+            if (dynamicStatsCache.TryGetValue(displayInstanceId, out EquipmentInstance cachedInstance))
+            {
+                Log($"♻️ [ShopItemPool] 캐시된 동적 스탯 반환: {cachedInstance.EquipmentData.equipmentName}");
+                return cachedInstance;
+            }
+            
+            // 2. EquipmentData 조회
+            EquipmentData equipment = GetEquipmentData(displayInstanceId);
+            if (equipment == null)
+            {
+                Debug.LogError($"❌ [ShopItemPool] EquipmentData를 찾을 수 없습니다: {displayInstanceId.Value}");
+                return null;
+            }
+            
+            // 3. 동적 스탯 생성 (첫 클릭)
+            EquipmentInstance dynamicInstance = DynamicEquipmentGenerator.Generate(equipment, equipment.itemGrade);
+            
+            if (dynamicInstance == null)
+            {
+                Debug.LogError($"❌ [ShopItemPool] 동적 스탯 생성 실패: {equipment.equipmentName}");
+                return null;
+            }
+            
+            // 4. 캐시 저장 (메모리 전용)
+            dynamicStatsCache[displayInstanceId] = dynamicInstance;
+            
+            Log($"🎲 [ShopItemPool] 동적 스탯 생성 완료: {equipment.equipmentName} (주옵션: {dynamicInstance.finalMainStatValue:F1}, 부옵션: {dynamicInstance.randomSubStats.Count}개)");
+            
+            return dynamicInstance;
+        }
+        
+        /// <summary>
+        /// 🆕 동적 스탯 캐시 초기화 (상점 새로고침용)
+        /// </summary>
+        public void ClearDynamicStatsCache()
+        {
+            int cacheCount = dynamicStatsCache.Count;
+            dynamicStatsCache.Clear();
+            
+            Log($"🔄 [ShopItemPool] 동적 스탯 캐시 초기화 완료 ({cacheCount}개 제거)");
         }
         
         /// <summary>

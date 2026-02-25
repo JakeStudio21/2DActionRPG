@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using UI.Utils; // ⭐ StatFormatHelper
+using Systems; // ⭐ Stage 5: EnhancementSystem 사용
 
 public class ActiveInventory : MonoBehaviour
 {
@@ -276,8 +278,8 @@ public class ActiveInventory : MonoBehaviour
             return;
         }
         
-        // 🆕 V2: 상세 패널 표시 (인게임은 정보만, 버튼 없음)
-        ShowInGameDetailPanel(equipmentData);
+        // ⭐ 수정: V2: 상세 패널 표시 (ItemInstanceID 전달)
+        ShowInGameDetailPanel(equipmentData, instanceId);
         
         if (showDebugLogs)
         {
@@ -853,9 +855,9 @@ public class ActiveInventory : MonoBehaviour
     */
     
     /// <summary>
-    /// 🆕 인게임 상세 패널 표시 (정보만, 버튼 없음)
+    /// ⭐ 수정: 인게임 상세 패널 표시 (동적 스탯 포함)
     /// </summary>
-    private void ShowInGameDetailPanel(EquipmentData equipmentData)
+    private void ShowInGameDetailPanel(EquipmentData equipmentData, ItemInstanceID instanceId = default)
     {
         if (inGameDetailPanel == null)
         {
@@ -877,18 +879,146 @@ public class ActiveInventory : MonoBehaviour
         if (itemGradeText != null)
             itemGradeText.text = $"등급: {equipmentData.itemGrade}";
         
-        // 스탯 표시 (EquipmentData 실제 필드명 사용)
-        if (stat1Text != null)
-            stat1Text.text = $"공격력: +{equipmentData.attackDamage}";
-        
-        if (stat2Text != null)
-            stat2Text.text = $"방어력: +{equipmentData.defenseBonus}";
-        
-        if (stat3Text != null)
-            stat3Text.text = $"이동속도: +{equipmentData.speedBonus}";
+        // ⭐ 동적 스탯 표시
+        UpdateInGameDynamicStats(equipmentData, instanceId);
         
         if (showDebugLogs)
             Debug.Log($"📋 [ActiveInventory] 인게임 상세 패널 표시: {equipmentData.equipmentName}");
+    }
+    
+    /// <summary>
+    /// 🆕 인게임 동적 스탯 표시
+    /// </summary>
+    private void UpdateInGameDynamicStats(EquipmentData data, ItemInstanceID instanceId)
+    {
+        // V2: ItemInstanceID가 있으면 동적 스탯 표시
+        if (!instanceId.IsEmpty)
+        {
+            var instance = AccountDataManager.Instance?.CreateEquipmentInstance(instanceId);
+            
+            if (instance != null)
+            {
+                UpdateInGameDynamicStatsFromInstance(instance);
+                return; // 동적 스탯 표시 완료
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [ActiveInventory] EquipmentInstance 생성 실패: {instanceId.Value}");
+            }
+        }
+        
+        // Legacy: ItemInstanceID가 없으면 기존 방식
+        UpdateInGameLegacyStats(data);
+    }
+    
+    /// <summary>
+    /// 🆕 EquipmentInstance로부터 동적 스탯 표시 (인게임)
+    /// </summary>
+    private void UpdateInGameDynamicStatsFromInstance(EquipmentInstance instance)
+    {
+        // ⭐ Stage 5: 주옵션 표시 (강화 증가분 포함)
+        if (stat1Text != null)
+        {
+            EStatType mainStatType = GetMainStatTypeForInGame(instance.EquipmentData);
+            
+            if (mainStatType != EStatType.None && instance.finalMainStatValue > 0)
+            {
+                // 기본 포맷 (주황색)
+                string mainStatText = StatFormatHelper.FormatMainStat(mainStatType, instance.finalMainStatValue);
+                
+                // 강화 증가분 계산 및 표시
+                if (instance.enhanceLevel > 0)
+                {
+                    // 곡선 그룹 ID 가져오기
+                    string curveGroupId = !string.IsNullOrEmpty(instance.EquipmentData.enhancementCurveGroupId) 
+                        ? instance.EquipmentData.enhancementCurveGroupId 
+                        : "CURVE_STANDARD";
+                    
+                    // 누적 증가율 가져오기
+                    float totalBonusPercent = EnhancementSystem.GetTotalStatBonus(curveGroupId, instance.enhanceLevel);
+                    
+                    if (totalBonusPercent > 0)
+                    {
+                        // 기본값 역산
+                        float baseValue = instance.finalMainStatValue / (1f + (totalBonusPercent / 100f));
+                        float bonusValue = instance.finalMainStatValue - baseValue;
+                        
+                        // 강화 증가분 표시 (녹색)
+                        mainStatText += $" <color=#4CAF50>(+{bonusValue:F1})</color>";
+                    }
+                }
+                
+                stat1Text.text = mainStatText;
+            }
+            else
+            {
+                stat1Text.text = "";
+            }
+        }
+        
+        // 부옵션 표시 (멀티라인)
+        if (stat2Text != null)
+        {
+            if (instance.randomSubStats != null && instance.randomSubStats.Count > 0)
+            {
+                stat2Text.text = StatFormatHelper.FormatSubStats(instance.randomSubStats);
+            }
+            else
+            {
+                stat2Text.text = "";
+            }
+        }
+        
+        // 강화 레벨 표시
+        if (stat3Text != null)
+        {
+            if (instance.enhanceLevel > 0)
+            {
+                stat3Text.text = $"+{instance.enhanceLevel}"; // ⭐ 하얀색, 강화 수치만
+            }
+            else
+            {
+                stat3Text.text = "";
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 🆕 Legacy 스탯 표시 (인게임, 하위 호환)
+    /// </summary>
+    private void UpdateInGameLegacyStats(EquipmentData data)
+    {
+        if (stat1Text != null)
+            stat1Text.text = $"공격력: +{data.attackDamage}";
+        
+        if (stat2Text != null)
+            stat2Text.text = $"방어력: +{data.defenseBonus}";
+        
+        if (stat3Text != null)
+            stat3Text.text = $"이동속도: +{data.speedBonus}";
+    }
+    
+    /// <summary>
+    /// 🆕 주옵션 스탯 타입 가져오기 (인게임용)
+    /// </summary>
+    private EStatType GetMainStatTypeForInGame(EquipmentData data)
+    {
+        // StatPoolDataLoader에서 가져오기
+        string poolId = data.equipmentSlot.ToString();
+        if (StatPoolDataLoader.TryGetStatPool(poolId, out EStatType mainStat, out _))
+        {
+            return mainStat;
+        }
+        
+        // Fallback: 타입 기반 추론
+        if (data.equipmentType == EquipmentType.Weapon)
+            return EStatType.ATK_FLAT;
+        if (data.equipmentType == EquipmentType.Armor)
+            return EStatType.DEF_FLAT;
+        if (data.equipmentType == EquipmentType.Accessory)
+            return EStatType.HP_FLAT;
+        
+        return EStatType.ATK_FLAT;
     }
     
     /// <summary>

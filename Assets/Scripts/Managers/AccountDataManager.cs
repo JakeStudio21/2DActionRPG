@@ -256,6 +256,45 @@ public class AccountDataManager
     }
     
     /// <summary>
+    /// ⭐ Stage 3: ItemInstanceData를 EquipmentInstance로 변환 (동적 스탯 복원)
+    /// 장비 착용, 툴팁 표시 등에서 사용
+    /// </summary>
+    /// <param name="id">아이템 인스턴스 ID</param>
+    /// <returns>동적 스탯이 복원된 EquipmentInstance (없으면 null)</returns>
+    public EquipmentInstance CreateEquipmentInstance(ItemInstanceID id)
+    {
+        ItemInstanceData instanceData = GetInstance(id);
+        if (instanceData == null)
+        {
+            Debug.LogWarning($"[AccountDataManager] ItemInstanceData를 찾을 수 없음: {id.Value}");
+            return null;
+        }
+        
+        // EquipmentData 로드
+        EquipmentData equipData = ItemTemplateResolver.Load(instanceData.templateName);
+        if (equipData == null)
+        {
+            Debug.LogError($"[AccountDataManager] EquipmentData를 찾을 수 없음: {instanceData.templateName}");
+            return null;
+        }
+        
+        // EquipmentInstance 생성
+        var bindInfo = GetBindInfo(id);
+        EquipmentInstance instance = new EquipmentInstance(
+            id,
+            equipData,
+            instanceData.enhancementLevel,
+            bindInfo.isBound
+        );
+        
+        // ⭐ 동적 스탯 복원 (ItemInstanceData → EquipmentInstance)
+        EquipmentInstanceConverter.RestoreDynamicStats(instance, instanceData);
+        
+        Debug.Log($"✅ [AccountDataManager] EquipmentInstance 생성 완료: {equipData.equipmentName} (주옵션: {instance.finalMainStatValue}, 부옵션: {instance.randomSubStats.Count}개)");
+        return instance;
+    }
+    
+    /// <summary>
     /// 아이템 인스턴스 삭제 (분해/합성 재료로 사용)
     /// </summary>
     public void RemoveInstance(ItemInstanceID id)

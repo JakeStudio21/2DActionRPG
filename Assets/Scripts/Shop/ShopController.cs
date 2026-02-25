@@ -204,6 +204,27 @@ private void TestBuyItem()
             return false;
         }
         
+        // ⭐ Stage 3: 동적 스탯 생성 및 적용
+        EquipmentData equipData = ItemTemplateResolver.Load(templateName);
+        if (equipData != null)
+        {
+            // DynamicEquipmentGenerator로 랜덤 스탯 생성
+            EquipmentInstance dynamicInstance = DynamicEquipmentGenerator.Generate(equipData, equipData.itemGrade);
+            
+            if (dynamicInstance != null)
+            {
+                // ItemInstanceData에 동적 스탯 저장
+                ItemInstanceData instanceData = AccountDataManager.Instance.GetInstance(newItemId);
+                if (instanceData != null)
+                {
+                    EquipmentInstanceConverter.ApplyDynamicStats(instanceData, dynamicInstance);
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"🎲 [ShopController] 동적 스탯 생성 완료: 주옵션={instanceData.finalMainStatValue}, 부옵션={instanceData.randomSubStats.Count}개");
+                }
+            }
+        }
+        
         // 2. 공유 창고에 추가 (가득 차면 우편함)
         bool addedToShared = AccountDataManager.Instance.TryAddToShared(newItemId);
         
@@ -462,7 +483,18 @@ private void TestBuyItem()
             return false;
         }
         
-        // 4. 새 ItemInstance 생성 (플레이어 전용)
+        // 4. 캐시된 동적 스탯 가져오기 (팝업에서 본 스탯 = 구매 스탯)
+        EquipmentInstance cachedInstance = itemPool.GetOrCreateDynamicStats(displayInstanceId);
+        
+        if (cachedInstance == null)
+        {
+            Debug.LogError($"❌ [ShopController] 캐시된 동적 스탯을 가져올 수 없습니다: {templateName}");
+            OnTransactionFailed?.Invoke(templateName);
+            failReason = PurchaseFailReason.SystemError;
+            return false;
+        }
+        
+        // 5. 새 ItemInstance 생성 (플레이어 전용)
         var newInstanceId = itemPool.CreateNewInstance(templateName);
         if (newInstanceId.IsEmpty)
         {
@@ -472,7 +504,26 @@ private void TestBuyItem()
             return false;
         }
         
-        // 5. 계정 공유 창고에 추가
+        // ⭐ Stage 4: 캐시된 동적 스탯을 Deep Copy하여 적용 (참조 꼬임 방지)
+        // - cachedInstance.Clone()으로 완전한 복제본 생성
+        // - newInstanceId를 할당하여 새로운 인스턴스로 만듦
+        EquipmentInstance clonedInstance = cachedInstance.Clone();
+        clonedInstance.instanceId = newInstanceId; // 🔑 새 ID 할당 (Deep Copy 완성)
+        
+        if (clonedInstance != null)
+        {
+            // ItemInstanceData에 동적 스탯 저장 (복제본 사용)
+            ItemInstanceData instanceData = AccountDataManager.Instance.GetInstance(newInstanceId);
+            if (instanceData != null)
+            {
+                EquipmentInstanceConverter.ApplyDynamicStats(instanceData, clonedInstance);
+                
+                if (showDebugLogs)
+                    Debug.Log($"🎲 [ShopController] 캐시된 동적 스탯 복제 완료: 주옵션={instanceData.finalMainStatValue:F1}, 부옵션={instanceData.randomSubStats.Count}개 (원본 ID: {displayInstanceId.Value.Substring(0, 8)}... → 새 ID: {newInstanceId.Value.Substring(0, 8)}...)");
+            }
+        }
+        
+        // 6. 계정 공유 창고에 추가
         if (!AccountDataManager.Instance.TryAddToShared(newInstanceId))
         {
             Debug.LogError($"❌ [ShopController] 보관창고 추가 실패: {templateName}");
@@ -481,7 +532,7 @@ private void TestBuyItem()
             return false;
         }
         
-        // 6. 골드 차감
+        // 7. 골드 차감
         if (!PlayerDataManager.Instance.SpendGold(buyPrice))
         {
             Debug.LogError($"❌ [ShopController] 골드 차감 실패: {buyPrice}");
@@ -490,13 +541,13 @@ private void TestBuyItem()
         }
         PlayerDataManager.Instance.SaveOnMeaningfulEvent("ItemPurchased");
         
-        // 7. UI 새로고침 이벤트 발생 (보관창고 업데이트)
+        // 8. UI 새로고침 이벤트 발생 (보관창고 업데이트)
         PlayerDataManager.Instance.NotifyInventoryChanged();
         
         if (showDebugLogs)
             Debug.Log($"✅ [ShopController] 구매 성공! {templateName} (가격: {buyPrice}, ID: {newInstanceId.Value.Substring(0, 8)}...)");
         
-        // 8. 이벤트 발생
+        // 9. 이벤트 발생
         OnItemPurchased?.Invoke(templateName);
         
         return true;

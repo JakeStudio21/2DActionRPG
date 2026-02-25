@@ -2781,6 +2781,24 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             }
         }
         
+        // ⭐ Stage 3: 동적 스탯 생성 및 적용 (드롭 시스템용)
+        EquipmentData equipData = ItemTemplateResolver.Load(templateName);
+        if (equipData != null)
+        {
+            // 장비 아이템만 동적 스탯 생성
+            EquipmentInstance dynamicInstance = DynamicEquipmentGenerator.Generate(equipData, equipData.itemGrade);
+            
+            if (dynamicInstance != null)
+            {
+                ItemInstanceData instanceData = account.GetInstance(newId);
+                if (instanceData != null)
+                {
+                    EquipmentInstanceConverter.ApplyDynamicStats(instanceData, dynamicInstance);
+                    Debug.Log($"🎲 [PlayerDataManager.AddItemV2] 동적 스탯 생성 완료: 주옵션={instanceData.finalMainStatValue}, 부옵션={instanceData.randomSubStats.Count}개");
+                }
+            }
+        }
+        
         // 2. 가방 공간 확인
         Debug.Log($"🔍 [AddItemV2] 가방 상태 확인: 현재 {slotData.characterBagInstanceIds.Count}개 / 최대 {selectedPlayerData.MaxInventorySize}개");
         

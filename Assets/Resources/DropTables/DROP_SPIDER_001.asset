@@ -1,0 +1,111 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec6643a649a822444a23199755fc255b, type: 3}
+  m_Name: DROP_SPIDER_001
+  m_EditorClassIdentifier: 
+  dropGroupId: DROP_SPIDER_001
+  dropPolicy: 2
+  pickCount: 1
+  description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
+  dropEntries:
+  - itemId: MAT_WEAPON_FRAGMENT
+    rarity: 0
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_RING_NONE_D
+    rarity: 0
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_NECKLACE_NONE_D
+    rarity: 0
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_BELT_ASSASIN_D
+    rarity: 0
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_BELT_ASSASIN_C
+    rarity: 1
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_BOOTS_ASSASIN_D
+    rarity: 0
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_BOOTS_ASSASIN_C
+    rarity: 1
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_GLOVES_ASSASIN_D
+    rarity: 0
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_GLOVES_ASSASIN_C
+    rarity: 1
+    weight: 0.2
+    chance: 0.3
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  totalWeight: 1.8000002
+  totalChance: 2.6999998

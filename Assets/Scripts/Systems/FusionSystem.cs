@@ -263,6 +263,20 @@ namespace Systems
                 var resultData = account.GetInstance(resultId);
                 resultData.enhancementLevel = 0; // 강화 초기화 (이미 참조로 수정됨)
 
+                // ⭐ Stage 3: 동적 스탯 생성 및 적용
+                EquipmentData resultEquipData = ItemTemplateResolver.Load(resultTemplateName);
+                if (resultEquipData != null)
+                {
+                    // 중요: 합성 결과 등급(nextGrade) 사용, EquipmentData의 원본 등급이 아님!
+                    EquipmentInstance dynamicResult = DynamicEquipmentGenerator.Generate(resultEquipData, nextGrade);
+                    
+                    if (dynamicResult != null)
+                    {
+                        EquipmentInstanceConverter.ApplyDynamicStats(resultData, dynamicResult);
+                        Debug.Log($"🎲 [FusionSystem] 동적 스탯 생성 완료: 주옵션={resultData.finalMainStatValue}, 부옵션={resultData.randomSubStats.Count}개");
+                    }
+                }
+
                 // 4. ⭐ 결과 아이템을 계정 공유 창고에 추가 (로비 공방/보관창고에서 표시)
                 // ✅ TryAddToShared() 사용 (이벤트 발행 + 크기 체크)
                 if (!account.TryAddToShared(resultId))

@@ -1,4 +1,19 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// 부옵션 직렬화용 구조체
+/// Unity는 Dictionary를 직렬화하지 않으므로 List<SubStatSaveData>로 변환
+/// </summary>
+[System.Serializable]
+public struct SubStatSaveData
+{
+    [Tooltip("스탯 타입 (예: CRIT_RATE, ASPD)")]
+    public EStatType statType;
+    
+    [Tooltip("스탯 최종 수치 (예: 0.05, 0.10)")]
+    public float value;
+}
 
 /// <summary>
 /// 아이템 인스턴스 메타데이터
@@ -31,6 +46,13 @@ public class ItemInstanceData
     
     [Tooltip("합성으로 제작된 경우 레시피 ID (-1: 드롭/상점)")]
     public int craftedFromRecipeId = -1;
+    
+    [Header("🎲 동적 스탯 (Random Stats)")]
+    [Tooltip("등급 배율이 적용된 최종 주옵션 수치")]
+    public float finalMainStatValue = 0f;
+    
+    [Tooltip("랜덤 부옵션 리스트 (직렬화용)")]
+    public List<SubStatSaveData> randomSubStats = new List<SubStatSaveData>();
     
     /// <summary>
     /// 디버깅용 문자열 표현

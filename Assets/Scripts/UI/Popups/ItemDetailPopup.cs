@@ -4,6 +4,7 @@ using TMPro;
 using System;
 using Systems;
 using UI.Components;
+using UI.Utils; // ⭐ StatFormatHelper
 
 namespace UI.Popups
 {
@@ -331,7 +332,7 @@ namespace UI.Popups
         #region Private Methods - UI Update
         
         /// <summary>
-        /// 아이템 정보 UI 업데이트
+        /// ⭐ 수정: 아이템 정보 UI 업데이트 (동적 스탯 포함)
         /// </summary>
         private void UpdateItemInfo(EquipmentData data)
         {
@@ -361,7 +362,133 @@ namespace UI.Popups
                 itemIconGradeFrame.SetGrade(data.itemGrade);
             }
             
-            // 스탯 정보 (장비 타입별 표시)
+            // ⭐ 동적 스탯 표시 (V2 시스템)
+            UpdateDynamicStats(data);
+        }
+        
+        /// <summary>
+        /// ⭐ 수정: 동적 스탯 표시 (주옵션 + 부옵션)
+        /// - 상점 전시용: ShopItemPool 캐시 우선 (Lazy Generation)
+        /// - 보관창고용: AccountDataManager (저장된 인스턴스)
+        /// </summary>
+        private void UpdateDynamicStats(EquipmentData data)
+        {
+            // V2: ItemInstanceID가 있으면 동적 스탯 표시
+            if (!currentItemInstanceID.IsEmpty)
+            {
+                EquipmentInstance instance = null;
+                
+                // 1순위: ShopItemPool 캐시 확인 (상점 전시용)
+                if (currentContext == ItemDetailContext.Shop_Buy && ShopController.Instance?.ItemPool != null)
+                {
+                    instance = ShopController.Instance.ItemPool.GetOrCreateDynamicStats(currentItemInstanceID);
+                    
+                    if (instance != null)
+                    {
+                        Log($"🎲 [ItemDetailPopup] 상점 전시용 동적 스탯 로드 (캐시): {data.equipmentName}");
+                        UpdateDynamicStatsFromInstance(instance);
+                        return;
+                    }
+                }
+                
+                // 2순위: AccountDataManager (보관창고/장비창 등)
+                instance = AccountDataManager.Instance?.CreateEquipmentInstance(currentItemInstanceID);
+                
+                if (instance != null)
+                {
+                    Log($"📦 [ItemDetailPopup] 보관창고 동적 스탯 로드: {data.equipmentName}");
+                    UpdateDynamicStatsFromInstance(instance);
+                    return; // 동적 스탯 표시 완료
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [ItemDetailPopup] EquipmentInstance 생성 실패: {currentItemInstanceID.Value}");
+                }
+            }
+            
+            // Legacy: ItemInstanceID가 없으면 기존 방식 (하드코딩된 스탯)
+            UpdateLegacyStats(data);
+        }
+        
+        /// <summary>
+        /// 🆕 EquipmentInstance로부터 동적 스탯 표시
+        /// </summary>
+        private void UpdateDynamicStatsFromInstance(EquipmentInstance instance)
+        {
+            // ⭐ Stage 5: 주옵션 표시 (강화 증가분 포함)
+            if (stat1Text != null)
+            {
+                // StatPoolDataLoader에서 MainStat 타입 가져오기
+                EStatType mainStatType = GetMainStatType(instance.EquipmentData);
+                
+                if (mainStatType != EStatType.None && instance.finalMainStatValue > 0)
+                {
+                    // 기본 포맷 (주황색)
+                    string mainStatText = StatFormatHelper.FormatMainStat(mainStatType, instance.finalMainStatValue);
+                    
+                    // 강화 증가분 계산 및 표시
+                    if (instance.enhanceLevel > 0)
+                    {
+                        // 곡선 그룹 ID 가져오기
+                        string curveGroupId = !string.IsNullOrEmpty(instance.EquipmentData.enhancementCurveGroupId) 
+                            ? instance.EquipmentData.enhancementCurveGroupId 
+                            : "CURVE_STANDARD";
+                        
+                        // 누적 증가율 가져오기
+                        float totalBonusPercent = EnhancementSystem.GetTotalStatBonus(curveGroupId, instance.enhanceLevel);
+                        
+                        if (totalBonusPercent > 0)
+                        {
+                            // 기본값 역산: finalValue = baseValue × (1 + bonus%)
+                            // → baseValue = finalValue / (1 + bonus%)
+                            float baseValue = instance.finalMainStatValue / (1f + (totalBonusPercent / 100f));
+                            float bonusValue = instance.finalMainStatValue - baseValue;
+                            
+                            // 강화 증가분 표시 (녹색)
+                            mainStatText += $" <color=#4CAF50>(+{bonusValue:F1})</color>";
+                        }
+                    }
+                    
+                    stat1Text.text = mainStatText;
+                }
+                else
+                {
+                    stat1Text.text = "";
+                }
+            }
+            
+            // 부옵션 표시 (stat2Text에 전체 표시, 멀티라인)
+            if (stat2Text != null)
+            {
+                if (instance.randomSubStats != null && instance.randomSubStats.Count > 0)
+                {
+                    stat2Text.text = StatFormatHelper.FormatSubStats(instance.randomSubStats);
+                }
+                else
+                {
+                    stat2Text.text = "";
+                }
+            }
+            
+            // stat3Text는 비워둠 (또는 강화 레벨 표시)
+            if (stat3Text != null)
+            {
+                if (instance.enhanceLevel > 0)
+                {
+                    stat3Text.text = $"+{instance.enhanceLevel}"; // ⭐ 하얀색, 강화 수치만
+                }
+                else
+                {
+                    stat3Text.text = "";
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 🆕 Legacy 스탯 표시 (하위 호환)
+        /// </summary>
+        private void UpdateLegacyStats(EquipmentData data)
+        {
             if (stat1Text != null)
             {
                 // 무기면 공격력, 방어구면 방어력
@@ -380,6 +507,49 @@ namespace UI.Popups
             {
                 stat3Text.text = $"이동속도: +{data.speedBonus:F1}";
             }
+        }
+        
+        /// <summary>
+        /// 🆕 주옵션 스탯 타입 가져오기 (StatPoolDataLoader 또는 EquipmentData 기반)
+        /// </summary>
+        private EStatType GetMainStatType(EquipmentData data)
+        {
+            // 1순위: StatPoolDataLoader에서 가져오기
+            string poolId = data.equipmentSlot.ToString();
+            if (StatPoolDataLoader.TryGetStatPool(poolId, out EStatType mainStat, out _))
+            {
+                return mainStat;
+            }
+            
+            // 2순위: EquipmentData의 equipmentType/equipmentSlot 기반 추론
+            return InferMainStatType(data);
+        }
+        
+        /// <summary>
+        /// 🆕 주옵션 스탯 타입 추론 (Fallback)
+        /// </summary>
+        private EStatType InferMainStatType(EquipmentData data)
+        {
+            // 무기: 공격력
+            if (data.equipmentType == EquipmentType.Weapon)
+            {
+                return EStatType.ATK_FLAT;
+            }
+            
+            // 방어구: 방어력
+            if (data.equipmentType == EquipmentType.Armor)
+            {
+                return EStatType.DEF_FLAT;
+            }
+            
+            // 악세서리: 체력
+            if (data.equipmentType == EquipmentType.Accessory)
+            {
+                return EStatType.HP_FLAT;
+            }
+            
+            // 기본값: 공격력
+            return EStatType.ATK_FLAT;
         }
         
         /// <summary>
