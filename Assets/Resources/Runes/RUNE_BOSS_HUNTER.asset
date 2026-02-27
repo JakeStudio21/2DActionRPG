@@ -14,14 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runeId: RUNE_BOSS_HUNTER
   runeName: "\uBCF4\uC2A4 \uC0AC\uB0E5\uAFBC"
-  rarity: 3
+  runeType: 0
   description: "\uBCF4\uC2A4 \uBAAC\uC2A4\uD130\uC5D0\uAC8C \uAC15\uB825\uD55C \uCD94\uAC00
-    \uD53C\uD574\uB97C \uAC00\uD569\uB2C8\uB2E4.\n- \uBCF4\uC2A4\uC5D0\uAC8C +20%
-    \uD53C\uD574\n- \uBCF4\uC2A4 HP 50% \uC774\uC0C1\uC77C \uB54C +25% \uCD94\uAC00
-    \uD53C\uD574"
+    \uD53C\uD574\uB97C \uAC00\uD569\uB2C8\uB2E4.\n\n[\uC8FC\uC635\uC158 - \uD68D\uB4DD
+    \uC2DC \uC989\uC2DC \uC801\uC6A9]\n- \uBCF4\uC2A4\uC5D0\uAC8C +20% \uD53C\uD574
+    (\uB808\uBCA8\uB2F9 5% \uC99D\uAC00)\n- \uBCF4\uC2A4 HP 50% \uC774\uC0C1\uC77C
+    \uB54C +25% \uCD94\uAC00 \uD53C\uD574 (\uB808\uBCA8\uB2F9 5% \uC99D\uAC00)\n\n[\uBD80\uC635\uC158
+    - 3, 6, 9\uB808\uBCA8\uC5D0\uC11C \uB79C\uB364 \uAC1C\uBC29]\n- \uBCF4\uC2A4
+    \uBC29\uC5B4 \uBB34\uC2DC +20%\n- \uC800\uCCB4\uB825(30% \uC774\uD558) \uD53C\uD574
+    \uAC10\uC18C +25%\n- \uBCF4\uC2A4 \uC7A5\uD310 \uD53C\uD574 \uAC10\uC18C +50%"
   icon: {fileID: 0}
-  conditionalModifierIds:
-  - BOSS_DMG_UP
-  - BOSS_HP_HIGH_BONUS
+  mainStatModifierId: BOSS_DMG_UP
+  baseMaxLevel: 10
+  maxLimitBreak: 5
+  mainStatLevelGrowth: 0.05
+  subStatPool:
+  - modifierId: BOSS_IGNORE_DEF
+    weight: 30
+  - modifierId: LOW_HP_DR
+    weight: 50
+  - modifierId: BOSS_AREA_DMG_REDUCE
+    weight: 20
   obtainMethod: "\uBCF4\uC2A4 \uB4DC\uB78D"
   requiredLevel: 10
