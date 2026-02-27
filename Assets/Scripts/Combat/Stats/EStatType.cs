@@ -33,6 +33,12 @@ public enum EStatType
     // === 기타 ===
     MOVE_SPEED = 60,            // 이동속도
     EXP_GAIN_PERCENT = 70,      // 경험치 획득 증가 %
+    
+    // === Phase 1: 패시브 스킬용 추가 스탯 ===
+    DODGE_CHANCE = 80,          // 회피 확률 %
+    BLOCK_CHANCE = 81,          // 블록 확률 %
+    LIFESTEAL = 82,             // 흡혈 %
+    ARMOR_PENETRATION = 83,     // 방어구 관통 %
 }
 
 /// <summary>
@@ -61,6 +67,10 @@ public static class EStatTypeExtensions
             case "STATUS_RESIST_ALL": return EStatType.STATUS_RESIST_ALL;
             case "MOVE_SPEED": return EStatType.MOVE_SPEED;
             case "EXP_GAIN_PERCENT": return EStatType.EXP_GAIN_PERCENT;
+            case "DODGE_CHANCE": return EStatType.DODGE_CHANCE;
+            case "BLOCK_CHANCE": return EStatType.BLOCK_CHANCE;
+            case "LIFESTEAL": return EStatType.LIFESTEAL;
+            case "ARMOR_PENETRATION": return EStatType.ARMOR_PENETRATION;
             default: return EStatType.None;
         }
     }

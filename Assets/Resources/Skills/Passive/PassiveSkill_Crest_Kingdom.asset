@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c5f3943503281459a5c0edf07296a2, type: 3}
+  m_Name: PassiveSkill_Crest_Kingdom
+  m_EditorClassIdentifier: 
+  skillID: SKILL_CREST_KINGDOM
+  skillName: "\uC655\uAD6D\uC758 \uBB38\uC7A5"
+  icon: {fileID: 1501901096, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uD0C0\uB77D\uD558\uC9C0 \uC54A\uC740 \uAD73\uAC74\uD55C \uC655\uAD6D\uC758
+    \uC758\uC9C0\uB97C \uAC00\uC2B4\uC5D0 \uC0C8\uACA8, \uBB3C\uB9AC\uC801\uC778
+    \uB9F7\uC9D1\uC744 \uAC15\uD654\uD569\uB2C8\uB2E4."
+  unlockLevel: 25
+  maxLevel: 10
+  passiveType: 0
+  statModifiers:
+  - statType: 2
+    baseValue: 5
+    modifierType: 1
+  isTriggerBased: 0
+  triggerType: 0
+  triggerChance: 0
+  triggerEffectPrefab: {fileID: 0}

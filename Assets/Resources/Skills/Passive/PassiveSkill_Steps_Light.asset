@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c5f3943503281459a5c0edf07296a2, type: 3}
+  m_Name: PassiveSkill_Steps_Light
+  m_EditorClassIdentifier: 
+  skillID: SKILL_STEPS_LIGHT
+  skillName: "\uBE5B\uC758 \uC2A4\uD15D"
+  icon: {fileID: -208463621, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uC801\uC758 \uACF5\uACA9\uC774 \uB2FF\uAE30 \uC804, \uBE5B\uCC98\uB7FC
+    \uAC00\uBCBC\uC6B4 \uBAB8\uB180\uB9BC\uC73C\uB85C \uC704\uD5D8 \uC9C0\uB300\uB97C
+    \uBE60\uB974\uAC8C \uBC97\uC5B4\uB0A9\uB2C8\uB2E4."
+  unlockLevel: 55
+  maxLevel: 10
+  passiveType: 1
+  statModifiers:
+  - statType: 2
+    baseValue: 5
+    modifierType: 1
+  isTriggerBased: 0
+  triggerType: 0
+  triggerChance: 0
+  triggerEffectPrefab: {fileID: 0}

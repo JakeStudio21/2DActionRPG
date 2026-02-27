@@ -4,10 +4,10 @@ using CueSystem; // ⭐ Assasin Skill 이펙트 시스템
 
 /// <summary>
 /// 어쌔신 스킬1: Multi Arrow (다중 화살 발사)
-/// AssasinSkillData 타입만 허용하는 타입 안전 스킬
+/// Phase 1: ActiveSkillData 통합 설계로 변경
 /// BaseSkill<T> 상속으로 공통 로직 재사용
 /// </summary>
-public class AssasinSkill1 : BaseSkill<AssasinSkillData>
+public class AssasinSkill1 : BaseSkill<ActiveSkillData>
 {
     #region BaseSkill<T> 구현
     
@@ -205,7 +205,7 @@ public class AssasinSkill1 : BaseSkill<AssasinSkillData>
             direction,
             SkillData.aoeSize,
             SkillData.aoeFanAngle,
-            SkillData.damage,
+            SkillData.baseDamageMultiplier,
             SkillData.aoeDuration,
             LayerMask.GetMask("Enemy"),
             "skill.assasin.skill1.hit",  // ⭐ Hit Cue 이벤트 키

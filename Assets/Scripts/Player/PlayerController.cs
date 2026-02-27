@@ -59,6 +59,9 @@ public class PlayerController : MonoBehaviour
 
     // ⭐ 마지막 이동 방향 저장 (새로 추가)
     private Vector2 lastMoveDirection = Vector2.down; // 기본값: 북쪽
+    
+    // ⭐ Phase 4: 마지막 대시 방향 저장 (Dash용)
+    private Vector2 lastDashDirection = Vector2.right; // 기본값: 오른쪽
 
     // FixedJoystick 참조 추가
     [Header("조이스틱 입력")]
@@ -118,6 +121,9 @@ public class PlayerController : MonoBehaviour
 
         // 액션 RPG 물리 최적화
         OptimizePhysicsForActionRPG();
+        
+        // ⭐ Phase 4: 마지막 대시 방향 지속적 업데이트
+        StartCoroutine(UpdateLastDashDirectionCoroutine());
     }
 
     /// <summary>
@@ -583,12 +589,25 @@ public class PlayerController : MonoBehaviour
     {
         if (!isDashing)
         {
+            // ⭐ 대시 방향 결정 (마지막 이동 방향 사용)
+            Vector2 dashDirection;
+            if (movement.magnitude > 0.1f)
+            {
+                // 이동 중: 현재 이동 방향
+                dashDirection = movement.normalized;
+                lastDashDirection = dashDirection; // 저장
+            }
+            else
+            {
+                // 정지 상태: 마지막 저장된 방향 사용
+                dashDirection = lastDashDirection;
+            }
+            
             // ⭐ 대시 애니메이션 트리거 추가
             var animController = GetComponent<PlayerAnimationController>();
             if (animController != null)
             {
-                // 현재 이동 방향 저장 후 대시 실행
-                animController.TriggerDash(movement.normalized);
+                animController.TriggerDash(dashDirection);
             }
 
             isDashing = true;
@@ -596,7 +615,6 @@ public class PlayerController : MonoBehaviour
             myTrailRenderer.emitting = true;
             
             // ⭐ CueSystem으로 Dash 이펙트 발행
-            Vector2 dashDirection = movement.magnitude > 0.1f ? movement.normalized : Vector2.right;
             float angle = Mathf.Atan2(dashDirection.y, dashDirection.x) * Mathf.Rad2Deg + 180f;  // 뒤로 이펙트
             
             var context = new CueContext
@@ -802,5 +820,27 @@ public class PlayerController : MonoBehaviour
         return isMovementLocked || movementScale < 0.99f;
     }
 
+    #endregion
+    
+    #region ⭐ Phase 4: 대시 방향 저장 시스템
+    
+    /// <summary>
+    /// 백그라운드에서 마지막 대시 방향 지속적 업데이트
+    /// </summary>
+    private IEnumerator UpdateLastDashDirectionCoroutine()
+    {
+        while (true)
+        {
+            // 현재 이동 방향 체크
+            if (movement.magnitude > 0.1f)
+            {
+                lastDashDirection = movement.normalized;
+            }
+            
+            // 60FPS로 업데이트 (스킬 시스템과 동일)
+            yield return new WaitForSeconds(1f / 60f);
+        }
+    }
+    
     #endregion
 }

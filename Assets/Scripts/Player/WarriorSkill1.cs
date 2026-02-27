@@ -4,10 +4,10 @@ using CueSystem; // ⭐ Warrior Skill 이펙트 시스템
 
 /// <summary>
 /// 워리어 스킬1: Dash Attack (돌진 공격)
-/// WarriorSkillData 타입만 허용하는 타입 안전 스킬
+/// Phase 1: ActiveSkillData 통합 설계로 변경
 /// BaseSkill<T> 상속으로 공통 로직 재사용
 /// </summary>
-public class WarriorSkill1 : BaseSkill<WarriorSkillData>
+public class WarriorSkill1 : BaseSkill<ActiveSkillData>
 {
     #region 내부 상태
     

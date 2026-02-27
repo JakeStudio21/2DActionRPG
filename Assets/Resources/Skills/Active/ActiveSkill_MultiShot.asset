@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 179d2d3dd48692041977d244759ebcaa, type: 3}
+  m_Name: ActiveSkill_MultiShot
+  m_EditorClassIdentifier: 
+  skillID: SKILL_MULTISHOT
+  skillName: "\uAC08\uB798 \uD654\uC0B4"
+  icon: {fileID: -1033301321, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uBD80\uCC44\uAF34 \uBC1C\uC0AC\uB85C 3\uAC08\uB798\uC758 \uD558\uC580
+    \uBC14\uB78C \uADA4\uC801\uC744 \uADF8\uB9AC\uBA70 \uB0A0\uC544\uAC00\uB294 \uAE30\uBCF8\uAE30."
+  unlockLevel: 1
+  maxLevel: 10
+  requiredClass: 0
+  skillType: 0
+  isProjectile: 1
+  animTriggerName: Skill1
+  baseCooldown: 3
+  baseDamageMultiplier: 150
+  range: 8
+  effectPrefab: {fileID: 1597112295188672555, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+  hitEffectPrefab: {fileID: 3545761778305609661, guid: 6890b0fe738c5134d980dcb958edd879, type: 3}
+  aoeShape: 2
+  aoeSize: {x: 3, y: 3}
+  aoeRadius: 5
+  aoeFanAngle: 60
+  aoeDuration: 0.3
+  telegraphPrefab: {fileID: 0}
+  telegraphDuration: 0.3
+  isPiercing: 1
+  multiHitCount: 5
+  projectileCount: 3
+  projectilePrefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
+  projectileSpeed: 30
+  spreadAngle: 15
+  projectileScale: {x: 1, y: 1, z: 1}
+  projectilePoolName: Arrow_B
+  dashSpeed: 20
+  dashRange: 8
+  attackCount: 1
+  attackDelay: 0.3
+  attackRadius: 2
+  stunDuration: 1
+  dashEffectPrefab: {fileID: 0}
+  slashEffectPrefab: {fileID: 0}
+  dashEffectPoolName: DashEffect
+  slashEffectPoolName: SlashEffect

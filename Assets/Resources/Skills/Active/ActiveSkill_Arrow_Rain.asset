@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 179d2d3dd48692041977d244759ebcaa, type: 3}
+  m_Name: ActiveSkill_Arrow_Rain
+  m_EditorClassIdentifier: 
+  skillID: SKILL_ARROW_RAIN
+  skillName: "\uC18C\uB098\uAE30 \uC0AC\uACA9"
+  icon: {fileID: 189570280, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "[\uC6D0\uD615 \uBC94\uC704] \uD558\uB298\uB85C \uD654\uC0B4\uC744
+    \uC3D8\uBA74, \uC9C0\uC815\uB41C \uC6D0\uD615 \uAD6C\uC5ED\uC5D0 \uCD08\uB85D\uC0C9
+    \uADA4\uC801\uC758 \uD654\uC0B4\uBE44\uAC00 \uC3DF\uC544\uC9D1\uB2C8\uB2E4. \uBC14\uB2E5\uC5D0
+    \uB9CC\uD654\uC801\uC778 \uD759\uBA3C\uC9C0 \uC774\uD399\uD2B8\uAC00 \uD321\uD321
+    \uD130\uC9D1\uB2C8\uB2E4."
+  unlockLevel: 10
+  maxLevel: 10
+  requiredClass: 0
+  skillType: 0
+  isProjectile: 1
+  animTriggerName: Skill2
+  baseCooldown: 3
+  baseDamageMultiplier: 150
+  range: 8
+  effectPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
+  aoeShape: 2
+  aoeSize: {x: 3, y: 3}
+  aoeRadius: 5
+  aoeFanAngle: 60
+  aoeDuration: 0.3
+  telegraphPrefab: {fileID: 0}
+  telegraphDuration: 0.3
+  isPiercing: 0
+  multiHitCount: 1
+  projectileCount: 3
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 10
+  spreadAngle: 0
+  projectileScale: {x: 1, y: 1, z: 1}
+  projectilePoolName: Projectile
+  dashSpeed: 20
+  dashRange: 8
+  attackCount: 1
+  attackDelay: 0.3
+  attackRadius: 2
+  stunDuration: 1
+  dashEffectPrefab: {fileID: 0}
+  slashEffectPrefab: {fileID: 0}
+  dashEffectPoolName: DashEffect
+  slashEffectPoolName: SlashEffect

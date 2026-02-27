@@ -1,0 +1,201 @@
+﻿SkillID,Level,RequireSP,Value1,Value2,DescriptionNote
+SKILL_MULTISHOT,1,1,1.3,9.5,1레벨 데미지 130% / 쿨타임 9.5초
+SKILL_MULTISHOT,2,1,1.6,9,2레벨 데미지 160% / 쿨타임 9.0초
+SKILL_MULTISHOT,3,1,1.9,8.5,3레벨 데미지 190% / 쿨타임 8.5초
+SKILL_MULTISHOT,4,1,2.2,8,4레벨 데미지 220% / 쿨타임 8.0초
+SKILL_MULTISHOT,5,1,2.5,7.5,5레벨 데미지 250% / 쿨타임 7.5초
+SKILL_MULTISHOT,6,1,2.8,7,6레벨 데미지 280% / 쿨타임 7.0초
+SKILL_MULTISHOT,7,1,3.1,6.5,7레벨 데미지 310% / 쿨타임 6.5초
+SKILL_MULTISHOT,8,1,3.4,6,8레벨 데미지 340% / 쿨타임 6.0초
+SKILL_MULTISHOT,9,1,3.7,5.5,9레벨 데미지 370% / 쿨타임 5.5초
+SKILL_MULTISHOT,10,2,4,5,10레벨 데미지 400% / 쿨타임 5.0초 (마스터)
+SKILL_FOCUSE_STRIKE,1,1,2.5,14.5,1레벨 데미지 250% / 쿨타임 14.5초
+SKILL_FOCUSE_STRIKE,2,1,3,14,2레벨 데미지 300% / 쿨타임 14.0초
+SKILL_FOCUSE_STRIKE,3,1,3.5,13.5,3레벨 데미지 350% / 쿨타임 13.5초
+SKILL_FOCUSE_STRIKE,4,1,4,13,4레벨 데미지 400% / 쿨타임 13.0초
+SKILL_FOCUSE_STRIKE,5,1,4.5,12.5,5레벨 데미지 450% / 쿨타임 12.5초
+SKILL_FOCUSE_STRIKE,6,1,5,12,6레벨 데미지 500% / 쿨타임 12.0초
+SKILL_FOCUSE_STRIKE,7,1,5.5,11.5,7레벨 데미지 550% / 쿨타임 11.5초
+SKILL_FOCUSE_STRIKE,8,1,6,11,8레벨 데미지 600% / 쿨타임 11.0초
+SKILL_FOCUSE_STRIKE,9,1,6.5,10.5,9레벨 데미지 650% / 쿨타임 10.5초
+SKILL_FOCUSE_STRIKE,10,2,7,10,10레벨 데미지 700% / 쿨타임 10.0초 (마스터)
+SKILL_SPRIT_RESONANCE,1,1,0.05,0,1레벨 ATK% (공격력 % 증가) +5%
+SKILL_SPRIT_RESONANCE,2,1,0.1,0,2레벨 ATK% (공격력 % 증가) +10%
+SKILL_SPRIT_RESONANCE,3,1,0.15,0,3레벨 ATK% (공격력 % 증가) +15%
+SKILL_SPRIT_RESONANCE,4,1,0.2,0,4레벨 ATK% (공격력 % 증가) +20%
+SKILL_SPRIT_RESONANCE,5,1,0.3,0,5레벨 ATK% (공격력 % 증가) +30%
+SKILL_SPRIT_RESONANCE,6,1,0.35,0,6레벨 ATK% (공격력 % 증가) +35%
+SKILL_SPRIT_RESONANCE,7,1,0.4,0,7레벨 ATK% (공격력 % 증가) +40%
+SKILL_SPRIT_RESONANCE,8,1,0.45,0,8레벨 ATK% (공격력 % 증가) +45%
+SKILL_SPRIT_RESONANCE,9,1,0.5,0,9레벨 ATK% (공격력 % 증가) +50%
+SKILL_SPRIT_RESONANCE,10,2,0.6,0,10레벨 ATK% (공격력 % 증가) +60% (마스터)
+SKILL_ARROW_RAIN,1,1,1.3,9.5,1레벨 데미지 130% / 쿨타임 9.5초
+SKILL_ARROW_RAIN,2,1,1.6,9,2레벨 데미지 160% / 쿨타임 9.0초
+SKILL_ARROW_RAIN,3,1,1.9,8.5,3레벨 데미지 190% / 쿨타임 8.5초
+SKILL_ARROW_RAIN,4,1,2.2,8,4레벨 데미지 220% / 쿨타임 8.0초
+SKILL_ARROW_RAIN,5,1,2.5,7.5,5레벨 데미지 250% / 쿨타임 7.5초
+SKILL_ARROW_RAIN,6,1,2.8,7,6레벨 데미지 280% / 쿨타임 7.0초
+SKILL_ARROW_RAIN,7,1,3.1,6.5,7레벨 데미지 310% / 쿨타임 6.5초
+SKILL_ARROW_RAIN,8,1,3.4,6,8레벨 데미지 340% / 쿨타임 6.0초
+SKILL_ARROW_RAIN,9,1,3.7,5.5,9레벨 데미지 370% / 쿨타임 5.5초
+SKILL_ARROW_RAIN,10,2,4,5,10레벨 데미지 400% / 쿨타임 5.0초 (마스터)
+SKILL_EARTH_BLESSING,1,1,100,0,1레벨 HP (최대체력 Flat 증가) +100
+SKILL_EARTH_BLESSING,2,1,200,0,2레벨 HP (최대체력 Flat 증가) +200
+SKILL_EARTH_BLESSING,3,1,300,0,3레벨 HP (최대체력 Flat 증가) +300
+SKILL_EARTH_BLESSING,4,1,400,0,4레벨 HP (최대체력 Flat 증가) +400
+SKILL_EARTH_BLESSING,5,1,600,0,5레벨 HP (최대체력 Flat 증가) +600
+SKILL_EARTH_BLESSING,6,1,700,0,6레벨 HP (최대체력 Flat 증가) +700
+SKILL_EARTH_BLESSING,7,1,800,0,7레벨 HP (최대체력 Flat 증가) +800
+SKILL_EARTH_BLESSING,8,1,900,0,8레벨 HP (최대체력 Flat 증가) +900
+SKILL_EARTH_BLESSING,9,1,1000,0,9레벨 HP (최대체력 Flat 증가) +1000
+SKILL_EARTH_BLESSING,10,2,1200,0,10레벨 HP (최대체력 Flat 증가) +1200 (마스터)
+SKILL_SHADOW_TRACKER,1,1,0.05,0.05,"1레벨 MoveSpeed +5%, 보조 스탯 +5%"
+SKILL_SHADOW_TRACKER,2,1,0.1,0.1,"2레벨 MoveSpeed +10%, 보조 스탯 +10%"
+SKILL_SHADOW_TRACKER,3,1,0.15,0.15,"3레벨 MoveSpeed +15%, 보조 스탯 +15%"
+SKILL_SHADOW_TRACKER,4,1,0.2,0.2,"4레벨 MoveSpeed +20%, 보조 스탯 +20%"
+SKILL_SHADOW_TRACKER,5,1,0.3,0.3,"5레벨 MoveSpeed +30%, 보조 스탯 +30%"
+SKILL_SHADOW_TRACKER,6,1,0.35,0.35,"6레벨 MoveSpeed +35%, 보조 스탯 +35%"
+SKILL_SHADOW_TRACKER,7,1,0.4,0.4,"7레벨 MoveSpeed +40%, 보조 스탯 +40%"
+SKILL_SHADOW_TRACKER,8,1,0.45,0.45,"8레벨 MoveSpeed +45%, 보조 스탯 +45%"
+SKILL_SHADOW_TRACKER,9,1,0.5,0.5,"9레벨 MoveSpeed +50%, 보조 스탯 +50%"
+SKILL_SHADOW_TRACKER,10,2,0.6,0.6,"10레벨 MoveSpeed +60%, 보조 스탯 +60% (마스터)"
+SKILL_RAPIDMIRAGE,1,1,2.5,14.5,1레벨 데미지 250% / 쿨타임 14.5초
+SKILL_RAPIDMIRAGE,2,1,3,14,2레벨 데미지 300% / 쿨타임 14.0초
+SKILL_RAPIDMIRAGE,3,1,3.5,13.5,3레벨 데미지 350% / 쿨타임 13.5초
+SKILL_RAPIDMIRAGE,4,1,4,13,4레벨 데미지 400% / 쿨타임 13.0초
+SKILL_RAPIDMIRAGE,5,1,4.5,12.5,5레벨 데미지 450% / 쿨타임 12.5초
+SKILL_RAPIDMIRAGE,6,1,5,12,6레벨 데미지 500% / 쿨타임 12.0초
+SKILL_RAPIDMIRAGE,7,1,5.5,11.5,7레벨 데미지 550% / 쿨타임 11.5초
+SKILL_RAPIDMIRAGE,8,1,6,11,8레벨 데미지 600% / 쿨타임 11.0초
+SKILL_RAPIDMIRAGE,9,1,6.5,10.5,9레벨 데미지 650% / 쿨타임 10.5초
+SKILL_RAPIDMIRAGE,10,2,7,10,10레벨 데미지 700% / 쿨타임 10.0초 (마스터)
+SKILL_HAWKSEYE,1,1,0.05,0,1레벨 CritRate% (치명타 확률 증가) +5%
+SKILL_HAWKSEYE,2,1,0.1,0,2레벨 CritRate% (치명타 확률 증가) +10%
+SKILL_HAWKSEYE,3,1,0.15,0,3레벨 CritRate% (치명타 확률 증가) +15%
+SKILL_HAWKSEYE,4,1,0.2,0,4레벨 CritRate% (치명타 확률 증가) +20%
+SKILL_HAWKSEYE,5,1,0.3,0,5레벨 CritRate% (치명타 확률 증가) +30%
+SKILL_HAWKSEYE,6,1,0.35,0,6레벨 CritRate% (치명타 확률 증가) +35%
+SKILL_HAWKSEYE,7,1,0.4,0,7레벨 CritRate% (치명타 확률 증가) +40%
+SKILL_HAWKSEYE,8,1,0.45,0,8레벨 CritRate% (치명타 확률 증가) +45%
+SKILL_HAWKSEYE,9,1,0.5,0,9레벨 CritRate% (치명타 확률 증가) +50%
+SKILL_HAWKSEYE,10,2,0.6,0,10레벨 CritRate% (치명타 확률 증가) +60% (마스터)
+SKILL_CREST_KINGDOM,1,1,100,100,"1레벨 DEF (방어력 Flat 증가) +100, 보조 스탯 +100"
+SKILL_CREST_KINGDOM,2,1,200,200,"2레벨 DEF (방어력 Flat 증가) +200, 보조 스탯 +200"
+SKILL_CREST_KINGDOM,3,1,300,300,"3레벨 DEF (방어력 Flat 증가) +300, 보조 스탯 +300"
+SKILL_CREST_KINGDOM,4,1,400,400,"4레벨 DEF (방어력 Flat 증가) +400, 보조 스탯 +400"
+SKILL_CREST_KINGDOM,5,1,600,600,"5레벨 DEF (방어력 Flat 증가) +600, 보조 스탯 +600"
+SKILL_CREST_KINGDOM,6,1,700,700,"6레벨 DEF (방어력 Flat 증가) +700, 보조 스탯 +700"
+SKILL_CREST_KINGDOM,7,1,800,800,"7레벨 DEF (방어력 Flat 증가) +800, 보조 스탯 +800"
+SKILL_CREST_KINGDOM,8,1,900,900,"8레벨 DEF (방어력 Flat 증가) +900, 보조 스탯 +900"
+SKILL_CREST_KINGDOM,9,1,1000,1000,"9레벨 DEF (방어력 Flat 증가) +1000, 보조 스탯 +1000"
+SKILL_CREST_KINGDOM,10,2,1200,1200,"10레벨 DEF (방어력 Flat 증가) +1200, 보조 스탯 +1200 (마스터)"
+SKILL_PIERCIN_GGALE,1,1,1.3,9.5,1레벨 데미지 130% / 쿨타임 9.5초
+SKILL_PIERCIN_GGALE,2,1,1.6,9,2레벨 데미지 160% / 쿨타임 9.0초
+SKILL_PIERCIN_GGALE,3,1,1.9,8.5,3레벨 데미지 190% / 쿨타임 8.5초
+SKILL_PIERCIN_GGALE,4,1,2.2,8,4레벨 데미지 220% / 쿨타임 8.0초
+SKILL_PIERCIN_GGALE,5,1,2.5,7.5,5레벨 데미지 250% / 쿨타임 7.5초
+SKILL_PIERCIN_GGALE,6,1,2.8,7,6레벨 데미지 280% / 쿨타임 7.0초
+SKILL_PIERCIN_GGALE,7,1,3.1,6.5,7레벨 데미지 310% / 쿨타임 6.5초
+SKILL_PIERCIN_GGALE,8,1,3.4,6,8레벨 데미지 340% / 쿨타임 6.0초
+SKILL_PIERCIN_GGALE,9,1,3.7,5.5,9레벨 데미지 370% / 쿨타임 5.5초
+SKILL_PIERCIN_GGALE,10,2,4,5,10레벨 데미지 400% / 쿨타임 5.0초 (마스터)
+SKILL_RIFT_TIME,1,1,0.05,0,1레벨 CooldownReduction (쿨타임 감소) +5%
+SKILL_RIFT_TIME,2,1,0.1,0,2레벨 CooldownReduction (쿨타임 감소) +10%
+SKILL_RIFT_TIME,3,1,0.15,0,3레벨 CooldownReduction (쿨타임 감소) +15%
+SKILL_RIFT_TIME,4,1,0.2,0,4레벨 CooldownReduction (쿨타임 감소) +20%
+SKILL_RIFT_TIME,5,1,0.3,0,5레벨 CooldownReduction (쿨타임 감소) +30%
+SKILL_RIFT_TIME,6,1,0.35,0,6레벨 CooldownReduction (쿨타임 감소) +35%
+SKILL_RIFT_TIME,7,1,0.4,0,7레벨 CooldownReduction (쿨타임 감소) +40%
+SKILL_RIFT_TIME,8,1,0.45,0,8레벨 CooldownReduction (쿨타임 감소) +45%
+SKILL_RIFT_TIME,9,1,0.5,0,9레벨 CooldownReduction (쿨타임 감소) +50%
+SKILL_RIFT_TIME,10,2,0.6,0,10레벨 CooldownReduction (쿨타임 감소) +60% (마스터)
+SKILL_JUDGMENT_WEDGE,1,1,0.05,0,1레벨 CritDmg% (치명타 피해 증가) +5%
+SKILL_JUDGMENT_WEDGE,2,1,0.1,0,2레벨 CritDmg% (치명타 피해 증가) +10%
+SKILL_JUDGMENT_WEDGE,3,1,0.15,0,3레벨 CritDmg% (치명타 피해 증가) +15%
+SKILL_JUDGMENT_WEDGE,4,1,0.2,0,4레벨 CritDmg% (치명타 피해 증가) +20%
+SKILL_JUDGMENT_WEDGE,5,1,0.3,0,5레벨 CritDmg% (치명타 피해 증가) +30%
+SKILL_JUDGMENT_WEDGE,6,1,0.35,0,6레벨 CritDmg% (치명타 피해 증가) +35%
+SKILL_JUDGMENT_WEDGE,7,1,0.4,0,7레벨 CritDmg% (치명타 피해 증가) +40%
+SKILL_JUDGMENT_WEDGE,8,1,0.45,0,8레벨 CritDmg% (치명타 피해 증가) +45%
+SKILL_JUDGMENT_WEDGE,9,1,0.5,0,9레벨 CritDmg% (치명타 피해 증가) +50%
+SKILL_JUDGMENT_WEDGE,10,2,0.6,0,10레벨 CritDmg% (치명타 피해 증가) +60% (마스터)
+SKILL_SNIPER_MARK,1,1,2.5,14.5,1레벨 데미지 250% / 쿨타임 14.5초
+SKILL_SNIPER_MARK,2,1,3,14,2레벨 데미지 300% / 쿨타임 14.0초
+SKILL_SNIPER_MARK,3,1,3.5,13.5,3레벨 데미지 350% / 쿨타임 13.5초
+SKILL_SNIPER_MARK,4,1,4,13,4레벨 데미지 400% / 쿨타임 13.0초
+SKILL_SNIPER_MARK,5,1,4.5,12.5,5레벨 데미지 450% / 쿨타임 12.5초
+SKILL_SNIPER_MARK,6,1,5,12,6레벨 데미지 500% / 쿨타임 12.0초
+SKILL_SNIPER_MARK,7,1,5.5,11.5,7레벨 데미지 550% / 쿨타임 11.5초
+SKILL_SNIPER_MARK,8,1,6,11,8레벨 데미지 600% / 쿨타임 11.0초
+SKILL_SNIPER_MARK,9,1,6.5,10.5,9레벨 데미지 650% / 쿨타임 10.5초
+SKILL_SNIPER_MARK,10,2,7,10,10레벨 데미지 700% / 쿨타임 10.0초 (마스터)
+SKILL_INDOMITABLE_WILL,1,1,100,100,"1레벨 HP +100, 보조 스탯 +100"
+SKILL_INDOMITABLE_WILL,2,1,200,200,"2레벨 HP +200, 보조 스탯 +200"
+SKILL_INDOMITABLE_WILL,3,1,300,300,"3레벨 HP +300, 보조 스탯 +300"
+SKILL_INDOMITABLE_WILL,4,1,400,400,"4레벨 HP +400, 보조 스탯 +400"
+SKILL_INDOMITABLE_WILL,5,1,600,600,"5레벨 HP +600, 보조 스탯 +600"
+SKILL_INDOMITABLE_WILL,6,1,700,700,"6레벨 HP +700, 보조 스탯 +700"
+SKILL_INDOMITABLE_WILL,7,1,800,800,"7레벨 HP +800, 보조 스탯 +800"
+SKILL_INDOMITABLE_WILL,8,1,900,900,"8레벨 HP +900, 보조 스탯 +900"
+SKILL_INDOMITABLE_WILL,9,1,1000,1000,"9레벨 HP +1000, 보조 스탯 +1000"
+SKILL_INDOMITABLE_WILL,10,2,1200,1200,"10레벨 HP +1200, 보조 스탯 +1200 (마스터)"
+SKILL_EXPLOSIVE_VAULT,1,1,1.3,9.5,1레벨 데미지 130% / 쿨타임 9.5초
+SKILL_EXPLOSIVE_VAULT,2,1,1.6,9,2레벨 데미지 160% / 쿨타임 9.0초
+SKILL_EXPLOSIVE_VAULT,3,1,1.9,8.5,3레벨 데미지 190% / 쿨타임 8.5초
+SKILL_EXPLOSIVE_VAULT,4,1,2.2,8,4레벨 데미지 220% / 쿨타임 8.0초
+SKILL_EXPLOSIVE_VAULT,5,1,2.5,7.5,5레벨 데미지 250% / 쿨타임 7.5초
+SKILL_EXPLOSIVE_VAULT,6,1,2.8,7,6레벨 데미지 280% / 쿨타임 7.0초
+SKILL_EXPLOSIVE_VAULT,7,1,3.1,6.5,7레벨 데미지 310% / 쿨타임 6.5초
+SKILL_EXPLOSIVE_VAULT,8,1,3.4,6,8레벨 데미지 340% / 쿨타임 6.0초
+SKILL_EXPLOSIVE_VAULT,9,1,3.7,5.5,9레벨 데미지 370% / 쿨타임 5.5초
+SKILL_EXPLOSIVE_VAULT,10,2,4,5,10레벨 데미지 400% / 쿨타임 5.0초 (마스터)
+SKILL_MACHINE_BREAKER,1,1,0.05,0.05,"1레벨 ATK% +5%, 보조 스탯 +5%"
+SKILL_MACHINE_BREAKER,2,1,0.1,0.1,"2레벨 ATK% +10%, 보조 스탯 +10%"
+SKILL_MACHINE_BREAKER,3,1,0.15,0.15,"3레벨 ATK% +15%, 보조 스탯 +15%"
+SKILL_MACHINE_BREAKER,4,1,0.2,0.2,"4레벨 ATK% +20%, 보조 스탯 +20%"
+SKILL_MACHINE_BREAKER,5,1,0.3,0.3,"5레벨 ATK% +30%, 보조 스탯 +30%"
+SKILL_MACHINE_BREAKER,6,1,0.35,0.35,"6레벨 ATK% +35%, 보조 스탯 +35%"
+SKILL_MACHINE_BREAKER,7,1,0.4,0.4,"7레벨 ATK% +40%, 보조 스탯 +40%"
+SKILL_MACHINE_BREAKER,8,1,0.45,0.45,"8레벨 ATK% +45%, 보조 스탯 +45%"
+SKILL_MACHINE_BREAKER,9,1,0.5,0.5,"9레벨 ATK% +50%, 보조 스탯 +50%"
+SKILL_MACHINE_BREAKER,10,2,0.6,0.6,"10레벨 ATK% +60%, 보조 스탯 +60% (마스터)"
+SKILL_SPIRITKINGS_ARROW,1,1,2.5,14.5,1레벨 데미지 250% / 쿨타임 14.5초
+SKILL_SPIRITKINGS_ARROW,2,1,3,14,2레벨 데미지 300% / 쿨타임 14.0초
+SKILL_SPIRITKINGS_ARROW,3,1,3.5,13.5,3레벨 데미지 350% / 쿨타임 13.5초
+SKILL_SPIRITKINGS_ARROW,4,1,4,13,4레벨 데미지 400% / 쿨타임 13.0초
+SKILL_SPIRITKINGS_ARROW,5,1,4.5,12.5,5레벨 데미지 450% / 쿨타임 12.5초
+SKILL_SPIRITKINGS_ARROW,6,1,5,12,6레벨 데미지 500% / 쿨타임 12.0초
+SKILL_SPIRITKINGS_ARROW,7,1,5.5,11.5,7레벨 데미지 550% / 쿨타임 11.5초
+SKILL_SPIRITKINGS_ARROW,8,1,6,11,8레벨 데미지 600% / 쿨타임 11.0초
+SKILL_SPIRITKINGS_ARROW,9,1,6.5,10.5,9레벨 데미지 650% / 쿨타임 10.5초
+SKILL_SPIRITKINGS_ARROW,10,2,7,10,10레벨 데미지 700% / 쿨타임 10.0초 (마스터)
+SKILL_WINDS_EDGE,1,1,0.05,0,1레벨 ASPD (공격속도 증가) +5%
+SKILL_WINDS_EDGE,2,1,0.1,0,2레벨 ASPD (공격속도 증가) +10%
+SKILL_WINDS_EDGE,3,1,0.15,0,3레벨 ASPD (공격속도 증가) +15%
+SKILL_WINDS_EDGE,4,1,0.2,0,4레벨 ASPD (공격속도 증가) +20%
+SKILL_WINDS_EDGE,5,1,0.3,0,5레벨 ASPD (공격속도 증가) +30%
+SKILL_WINDS_EDGE,6,1,0.35,0,6레벨 ASPD (공격속도 증가) +35%
+SKILL_WINDS_EDGE,7,1,0.4,0,7레벨 ASPD (공격속도 증가) +40%
+SKILL_WINDS_EDGE,8,1,0.45,0,8레벨 ASPD (공격속도 증가) +45%
+SKILL_WINDS_EDGE,9,1,0.5,0,9레벨 ASPD (공격속도 증가) +50%
+SKILL_WINDS_EDGE,10,2,0.6,0,10레벨 ASPD (공격속도 증가) +60% (마스터)
+SKILL_STEPS_LIGHT,1,1,0.05,0,1레벨 MoveSpeed (이동속도 증가) +5%
+SKILL_STEPS_LIGHT,2,1,0.1,0,2레벨 MoveSpeed (이동속도 증가) +10%
+SKILL_STEPS_LIGHT,3,1,0.15,0,3레벨 MoveSpeed (이동속도 증가) +15%
+SKILL_STEPS_LIGHT,4,1,0.2,0,4레벨 MoveSpeed (이동속도 증가) +20%
+SKILL_STEPS_LIGHT,5,1,0.3,0,5레벨 MoveSpeed (이동속도 증가) +30%
+SKILL_STEPS_LIGHT,6,1,0.35,0,6레벨 MoveSpeed (이동속도 증가) +35%
+SKILL_STEPS_LIGHT,7,1,0.4,0,7레벨 MoveSpeed (이동속도 증가) +40%
+SKILL_STEPS_LIGHT,8,1,0.45,0,8레벨 MoveSpeed (이동속도 증가) +45%
+SKILL_STEPS_LIGHT,9,1,0.5,0,9레벨 MoveSpeed (이동속도 증가) +50%
+SKILL_STEPS_LIGHT,10,2,0.6,0,10레벨 MoveSpeed (이동속도 증가) +60% (마스터)
+SKILL_MANA_CONCENTRATION,1,1,0.1,0,1레벨 CooldownReduction (쿨타임 대폭 감소) +10%
+SKILL_MANA_CONCENTRATION,2,1,0.2,0,2레벨 CooldownReduction (쿨타임 대폭 감소) +20%
+SKILL_MANA_CONCENTRATION,3,1,0.3,0,3레벨 CooldownReduction (쿨타임 대폭 감소) +30%
+SKILL_MANA_CONCENTRATION,4,1,0.4,0,4레벨 CooldownReduction (쿨타임 대폭 감소) +40%
+SKILL_MANA_CONCENTRATION,5,1,0.6,0,5레벨 CooldownReduction (쿨타임 대폭 감소) +60%
+SKILL_MANA_CONCENTRATION,6,1,0.7,0,6레벨 CooldownReduction (쿨타임 대폭 감소) +70%
+SKILL_MANA_CONCENTRATION,7,1,0.8,0,7레벨 CooldownReduction (쿨타임 대폭 감소) +80%
+SKILL_MANA_CONCENTRATION,8,1,0.9,0,8레벨 CooldownReduction (쿨타임 대폭 감소) +90%
+SKILL_MANA_CONCENTRATION,9,1,1,0,9레벨 CooldownReduction (쿨타임 대폭 감소) +100%
+SKILL_MANA_CONCENTRATION,10,2,1.2,0,10레벨 CooldownReduction (쿨타임 대폭 감소) +120% (마스터)

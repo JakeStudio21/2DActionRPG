@@ -72,21 +72,18 @@ public class Warrior : BaseClassBehaviour
     
     #endregion
     
-    #region 🛡️ 워리어 고유 특성 (ScriptableObject 연동)
+    #region 🛡️ 워리어 고유 특성 (Phase 1: 임시 호환 속성)
     
-    // ScriptableObject에서 고유 특성 값들 가져오기 (네이밍 개선)
-    public float BlockChance => warriorData?.warriorBlockChance ?? 0.2f;
+    // ⚠️ Phase 1 임시 호환: 기존 코드와의 호환성 유지
+    // Phase 2에서 완전히 PassiveSkillData로 전환 예정
+    
+    public float BlockChance => warriorData?.warriorBlockChance ?? 0.15f;
     public float BlockDamageReduction => warriorData?.warriorBlockDamageReduction ?? 0.5f;
-    public float CounterAttackChance => warriorData?.warriorCounterAttackChance ?? 0.15f;
+    public float CounterAttackChance => warriorData?.warriorCounterAttackChance ?? 0.2f;
     public float CounterAttackDamage => warriorData?.warriorCounterAttackDamage ?? 1.3f;
     public float BerserkerThreshold => warriorData?.warriorBerserkerThreshold ?? 0.3f;
-    public float BerserkerDamageBonus => warriorData?.warriorBerserkerDamageBonus ?? 1.5f;
-    public float KnockbackResistance => warriorData?.warriorKnockbackResistance ?? 0.5f;
-    
-    // 🎮 런타임 상태 변수들 (ScriptableObject와 무관)
-    // 향후 고급 워리어 기능 구현 시 사용 예정
-    // private bool isCounterAttackReady = true;  // 반격 준비 상태 플래그 (반격 쿨다운 시스템용)
-    // private bool isBerserkerModeActive = false; // 버서커 모드 활성화 플래그 (버서커 상태 관리용)
+    public float BerserkerDamageBonus => warriorData?.warriorBerserkerDamageBonus ?? 0.5f;
+    public float KnockbackResistance => warriorData?.warriorKnockbackResistance ?? 0.3f;
     
     #endregion
     

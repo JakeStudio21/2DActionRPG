@@ -16,6 +16,7 @@ public class LobbyPanelManager : MonoBehaviour
     public GameObject shopPanel;
     public GameObject characterInfoPanel;
     public GameObject workshopPanel;        // 🆕 공방 패널
+    public GameObject skillBookPanel;       // 🆕 스킬북 패널 (Phase 3-Revision)
     
     [Header("=== 컨트롤러 참조 ===")]
     public StageSelectPanelController stageSelectPanelController;
@@ -39,7 +40,8 @@ public class LobbyPanelManager : MonoBehaviour
         if (inventoryPanel == null) Debug.LogError("[LobbyPanelManager] inventoryPanel 누락!");
         if (shopPanel == null) Debug.LogError("[LobbyPanelManager] shopPanel 누락!");
         if (characterInfoPanel == null) Debug.LogError("[LobbyPanelManager] characterInfoPanel 누락!");
-        if (workshopPanel == null) Debug.LogError("[LobbyPanelManager] workshopPanel 누락!");  // 🆕
+        if (workshopPanel == null) Debug.LogError("[LobbyPanelManager] workshopPanel 누락!");
+        if (skillBookPanel == null) Debug.LogError("[LobbyPanelManager] skillBookPanel 누락!");  // 🆕 Phase 3-Revision
         
         // 초기 활성 패널 설정 (로비)
         currentActivePanel = lobbyPanel;
@@ -166,6 +168,34 @@ public class LobbyPanelManager : MonoBehaviour
     }
     
     /// <summary>
+    /// 🆕 스킬북 패널 표시 (Phase 3-Revision)
+    /// </summary>
+    public void ShowSkillBookPanel()
+    {
+        Debug.Log("📚 [LobbyPanelManager] ShowSkillBookPanel 호출됨");
+        
+        // Cue 이벤트 발행
+        EmitButtonClickCue();
+        EmitSkillBookOpenCue();
+        
+        // 패널 전환
+        BringPanelToFront(skillBookPanel);
+        
+        // SkillBookPanelUI 초기화
+        var skillBookUI = skillBookPanel?.GetComponent<SkillBookPanelUI>();
+        if (skillBookUI != null)
+        {
+            skillBookUI.OnPanelOpened();
+        }
+        else
+        {
+            Debug.LogError("[LobbyPanelManager] SkillBookPanelUI 컴포넌트를 찾을 수 없습니다!");
+        }
+        
+        Debug.Log("[LobbyPanelManager] 스킬북 패널을 최상위로 이동 완료");
+    }
+    
+    /// <summary>
     /// 패널을 최상위로 가져오기 (Z-Order 제어)
     /// </summary>
     private void BringPanelToFront(GameObject panel)
@@ -264,6 +294,16 @@ public class LobbyPanelManager : MonoBehaviour
             actorType = ActorType.UI
         };
         CueEmitter.Emit("ui.workshop.open", "UI", context);
+    }
+    
+    private void EmitSkillBookOpenCue()
+    {
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.skillbook.open", "UI", context);
     }
     
     #endregion

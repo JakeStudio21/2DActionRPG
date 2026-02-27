@@ -1,0 +1,154 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// 액티브 스킬 전용 데이터 (통합 설계)
+/// 근거리/원거리, 투사체/즉발형 등 모든 액티브 스킬을 커버 (Phase 1)
+/// </summary>
+[CreateAssetMenu(fileName = "ActiveSkill_", menuName = "Skill System/Active Skill Data")]
+public class ActiveSkillData : BaseSkillData
+{
+    [Header("🎯 스킬 분류")]
+    [Tooltip("요구 직업 (None = 공용)")]
+    public PlayerType requiredClass = PlayerType.None;
+    
+    [Tooltip("스킬 특성 (광역기/단일기)")]
+    public ActiveSkillType skillType = ActiveSkillType.WaveClear;
+    
+    [Tooltip("투사체 발사 여부 (true: 화살/마법탄, false: 근접/즉발)")]
+    public bool isProjectile = false;
+    
+    [Tooltip("애니메이션 트리거 이름 (예: 'Skill1', 'Dash')")]
+    public string animTriggerName = "Skill1";
+    
+    [Header("⚡ 전투 수치 (기본값, 레벨 1 기준)")]
+    [Tooltip("기본 쿨다운 시간 (초)")]
+    public float baseCooldown = 2f;
+    
+    [Tooltip("기본 데미지 배율 (%) - 플레이어 공격력의 배수")]
+    public float baseDamageMultiplier = 150f; // 150% = 기본 공격력의 1.5배
+    
+    [Tooltip("사거리")]
+    public float range = 5f;
+    
+    [Header("🎭 이펙트 및 AOE")]
+    [Tooltip("스킬 이펙트 프리팹 (Cast 시점 이펙트)")]
+    public GameObject effectPrefab;
+    
+    [Tooltip("히트 이펙트 프리팹 (타격 시점 이펙트)")]
+    public GameObject hitEffectPrefab;
+    
+    [Tooltip("AOE 형태 (기존 시스템 호환)")]
+    public SkillAOEShape aoeShape = SkillAOEShape.Circle;
+    
+    [Tooltip("AOE 크기")]
+    public Vector2 aoeSize = new Vector2(3f, 3f);
+    
+    [Tooltip("AOE 반경 (Circle일 때)")]
+    public float aoeRadius = 3f;
+    
+    [Tooltip("부채꼴 각도 (Fan일 때)")]
+    public float aoeFanAngle = 90f;
+    
+    [Tooltip("AOE 지속시간")]
+    public float aoeDuration = 0.5f;
+    
+    [Header("📍 Telegraph 설정")]
+    [Tooltip("경고 텔레그래프 프리팹 (선택)")]
+    public GameObject telegraphPrefab;
+    
+    [Tooltip("텔레그래프 표시 시간")]
+    public float telegraphDuration = 0.3f;
+    
+    [Header("🎯 특수 속성")]
+    [Tooltip("관통 공격 여부")]
+    public bool isPiercing = false;
+    
+    [Tooltip("다단 히트 횟수")]
+    public int multiHitCount = 1;
+    
+    [Tooltip("발사체 개수 (투사체 스킬용) - 기본값 1")]
+    public int projectileCount = 1;
+    
+    [Header("🔄 투사체 설정 (isProjectile = true일 때 사용)")]
+    [Tooltip("투사체 프리팹 (화살, 마법탄 등)")]
+    public GameObject projectilePrefab;
+    
+    [Tooltip("투사체 속도")]
+    public float projectileSpeed = 10f;
+    
+    [Tooltip("투사체 퍼짐 각도 (다발 발사 시)")]
+    public float spreadAngle = 0f;
+    
+    [Tooltip("투사체 크기 배율")]
+    public Vector3 projectileScale = Vector3.one;
+    
+    [Tooltip("투사체 풀 이름 (오브젝트 풀링용)")]
+    public string projectilePoolName = "Projectile";
+    
+    [Header("🗡️ 근접 스킬 설정 (isProjectile = false일 때 사용)")]
+    [Tooltip("돌진 속도 (근접 돌진형 스킬용)")]
+    public float dashSpeed = 20f;
+    
+    [Tooltip("돌진 최대 거리")]
+    public float dashRange = 8f;
+    
+    [Tooltip("연속 공격 횟수")]
+    public int attackCount = 1;
+    
+    [Tooltip("각 공격 간 딜레이")]
+    public float attackDelay = 0.3f;
+    
+    [Tooltip("공격 범위 반경 (근접 판정용)")]
+    public float attackRadius = 2f;
+    
+    [Tooltip("적 기절 지속시간 (초)")]
+    public float stunDuration = 1f;
+    
+    [Header("🎭 추가 이펙트")]
+    [Tooltip("돌진 이펙트 프리팹")]
+    public GameObject dashEffectPrefab;
+    
+    [Tooltip("베기/충격 이펙트 프리팹")]
+    public GameObject slashEffectPrefab;
+    
+    [Tooltip("돌진 이펙트 풀 이름")]
+    public string dashEffectPoolName = "DashEffect";
+    
+    [Tooltip("베기 이펙트 풀 이름")]
+    public string slashEffectPoolName = "SlashEffect";
+    
+    public override SkillCategory GetSkillCategory() => SkillCategory.Active;
+}
+
+/// <summary>
+/// 액티브 스킬 타입 (기획서 기준)
+/// </summary>
+public enum ActiveSkillType
+{
+    [Tooltip("광역 클리어형 스킬")]
+    WaveClear,      // 광역기 (다수 적 처리)
+    
+    [Tooltip("단일 대상 고화력 스킬")]
+    BossBurst       // 단일기 (보스 딜링)
+}
+
+/// <summary>
+/// ActiveSkillType을 한글 문자열로 변환하는 확장 메서드
+/// </summary>
+public static class ActiveSkillTypeExtensions
+{
+    public static string ToKoreanString(this ActiveSkillType type)
+    {
+        switch (type)
+        {
+            case ActiveSkillType.WaveClear:
+                return "웨이브형";
+            case ActiveSkillType.BossBurst:
+                return "보스형";
+            default:
+                return type.ToString();
+        }
+    }
+}

@@ -691,6 +691,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         Debug.Log($"   - 레벨: {slotData.level}, 골드: {slotData.gold}");
         Debug.Log($"   - 인벤토리 아이템: {slotData.inventoryItemNames.Count}개");
         Debug.Log($"   - 장착 아이템: {slotData.equippedItemNames.Count}개");
+        Debug.Log($"   - 📚 스킬: {slotData.skills?.Count ?? 0}개, SP: {slotData.usedSP}/{slotData.totalSP}");
         
         for (int i = 0; i < Mathf.Min(slotData.inventoryItemNames.Count, 5); i++)
         {
@@ -989,6 +990,25 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             selectedPlayerData.expToNextLevel = CalculateExpToNextLevel(selectedPlayerData.currentLevel);
             OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
             leveledUp = true;
+            
+            // Phase 3.5: 레벨업 시 SP 자동 증가 (totalSP = level, 1:1 동기화)
+            var slotData = GetCurrentSlotData();
+            if (slotData != null)
+            {
+                // 순서 중요: 레벨을 먼저 업데이트하고 totalSP 설정
+                slotData.level = selectedPlayerData.currentLevel; // 슬롯 데이터 레벨 동기화
+                slotData.totalSP = slotData.level; // SP는 레벨과 1:1 동기화
+                
+                // SelectedPlayerData도 동기화 (메모리 캐시)
+                if (selectedPlayerData != null)
+                {
+                    selectedPlayerData.totalSP = slotData.totalSP;
+                    selectedPlayerData.usedSP = slotData.usedSP;
+                }
+                
+                if (showDebugLogs)
+                    Debug.Log($"💎 [PlayerDataManager] SP 자동 증가! totalSP: {slotData.totalSP}, level: {slotData.level}");
+            }
             
             if (showDebugLogs)
                 Debug.Log($"🆙 [PlayerDataManager] 레벨업! {oldLevel} → {selectedPlayerData.currentLevel}");

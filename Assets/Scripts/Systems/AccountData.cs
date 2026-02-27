@@ -42,6 +42,31 @@ public class AccountData
     [Tooltip("강화파편, 정령석 등 스택 가능한 재료")]
     public List<MaterialStack> materials = new List<MaterialStack>();
     
+    [Header("📚 스킬 & 룬 시스템 (Phase 3) - ⚠️ DEPRECATED")]
+    [System.Obsolete("Phase 3.5: 스킬 데이터는 PlayerSlotData로 이동됨. 마이그레이션 후 제거 예정.")]
+    [Tooltip("⚠️ DEPRECATED: PlayerSlotData.skills 사용")]
+    public List<SkillInstanceSaveData> skills = new List<SkillInstanceSaveData>();
+    
+    [System.Obsolete("Phase 3.5: 스킬 데이터는 PlayerSlotData로 이동됨. 마이그레이션 후 제거 예정.")]
+    [Tooltip("⚠️ DEPRECATED: PlayerSlotData.equippedActiveSkillIds 사용")]
+    public string[] equippedActiveSkillIds = new string[2];
+    
+    [System.Obsolete("Phase 3.5: 스킬 데이터는 PlayerSlotData로 이동됨. 마이그레이션 후 제거 예정.")]
+    [Tooltip("⚠️ DEPRECATED: PlayerSlotData.equippedPassiveSkillIds 사용")]
+    public string[] equippedPassiveSkillIds = new string[3];
+    
+    [System.Obsolete("Phase 3.5: SP는 PlayerSlotData로 이동됨. PlayerSlotData.totalSP 사용.")]
+    [Tooltip("⚠️ DEPRECATED: PlayerSlotData.totalSP 사용")]
+    public int totalSP = 0;
+    
+    [System.Obsolete("Phase 3.5: SP는 PlayerSlotData로 이동됨. PlayerSlotData.usedSP 사용.")]
+    [Tooltip("⚠️ DEPRECATED: PlayerSlotData.usedSP 사용")]
+    public int usedSP = 0;
+    
+    [System.Obsolete("Phase 3.5: PlayerSlotData.level 사용")]
+    [Tooltip("⚠️ DEPRECATED: PlayerSlotData.level 사용")]
+    public int currentPlayerLevel = 1;
+    
     // ❌ 캐시 필드는 AccountDataManager로 이동
     // [System.NonSerialized] private Dictionary<ItemInstanceID, ItemInstanceData> _instanceCache;
     

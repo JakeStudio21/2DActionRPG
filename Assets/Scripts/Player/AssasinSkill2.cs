@@ -4,10 +4,10 @@ using CueSystem; // ⭐ Assasin Skill 이펙트 시스템
 
 /// <summary>
 /// 어쌔신 스킬2: Power Arrow (강력한 단일 화살)
-/// AssasinSkillData 타입만 허용하는 타입 안전 스킬
+/// Phase 1: ActiveSkillData 통합 설계로 변경
 /// BaseSkill<T> 상속으로 공통 로직 재사용
 /// </summary>
-public class AssasinSkill2 : BaseSkill<AssasinSkillData>
+public class AssasinSkill2 : BaseSkill<ActiveSkillData>
 {
     // 🔧 추가: 마지막 공격 방향 저장용 필드
     private Vector2 lastAttackDirection = Vector2.right;
@@ -165,7 +165,7 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
             direction,
             SkillData.aoeSize,
             SkillData.aoeFanAngle,
-            SkillData.damage,
+            SkillData.baseDamageMultiplier,
             SkillData.aoeDuration,
             LayerMask.GetMask("Enemy"),
             "skill.assasin.skill2.hit",  // ⭐ Hit Cue 이벤트 키
@@ -416,7 +416,7 @@ public class AssasinSkill2 : BaseSkill<AssasinSkillData>
             radius: circleRadius,               // ⭐ Circle: aoeRadius 사용
             size: rectSize,                     // ⭐ Rectangle: aoeSize 사용
             angle: SkillData.aoeFanAngle,       // 부채꼴 각도
-            playerBaseDamage: Mathf.RoundToInt(SkillData.damage),
+            playerBaseDamage: Mathf.RoundToInt(SkillData.baseDamageMultiplier),
             damageMultiplier: 1.0f,
             scaleMultiplier: 1.0f,
             policy: AOEDamagePolicy.Once,       // ⭐ 즉시 1회 판정

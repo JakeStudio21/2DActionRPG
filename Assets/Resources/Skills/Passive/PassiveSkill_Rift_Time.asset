@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c5f3943503281459a5c0edf07296a2, type: 3}
+  m_Name: PassiveSkill_Rift_Time
+  m_EditorClassIdentifier: 
+  skillID: SKILL_RIFT_TIME
+  skillName: "\uC2DC\uAC04\uC758 \uD2C8\uC0C8"
+  icon: {fileID: 1228200881, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uC815\uB839\uB4E4\uC774 \uB9C8\uBC95\uC758 \uD750\uB984\uC744 \uAC00\uC18D\uC2DC\uCF1C,
+    \uC544\uCC98\uAC00 \uAC15\uB825\uD55C \uAE30\uC220(\uC561\uD2F0\uBE0C)\uC744
+    \uB354 \uC790\uC8FC \uC3DF\uC544\uBD93\uAC8C \uB3D5\uC2B5\uB2C8\uB2E4."
+  unlockLevel: 30
+  maxLevel: 10
+  passiveType: 2
+  statModifiers:
+  - statType: 2
+    baseValue: 5
+    modifierType: 1
+  isTriggerBased: 0
+  triggerType: 0
+  triggerChance: 0
+  triggerEffectPrefab: {fileID: 0}

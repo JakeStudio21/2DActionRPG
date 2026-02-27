@@ -84,6 +84,100 @@ public class AccountDataManager
         
         // 캐시 재구축
         RebuildCache();
+        
+        // Phase 3.5: 스킬 데이터 마이그레이션 (Account.json → PlayerSlotData)
+        MigrateSkillDataToSlots();
+    }
+    
+    /// <summary>
+    /// Phase 3.5: 스킬 데이터를 PlayerSlotData로 마이그레이션
+    /// 기존 Account.json의 스킬 데이터를 각 캐릭터 슬롯으로 이동
+    /// </summary>
+    private void MigrateSkillDataToSlots()
+    {
+        #pragma warning disable CS0618 // Obsolete 경고 무시
+        
+        // 마이그레이션 불필요 조건
+        if (accountData.skills == null || accountData.skills.Count == 0)
+        {
+            return; // 스킬 데이터 없음 (신규 계정 또는 이미 마이그레이션 완료)
+        }
+        
+        Debug.Log("🔄 [AccountDataManager] Phase 3.5 마이그레이션 시작: 스킬 데이터를 PlayerSlotData로 이동...");
+        Debug.Log($"   - 마이그레이션할 스킬: {accountData.skills.Count}개");
+        Debug.Log($"   - 마이그레이션할 액티브 슬롯: {accountData.equippedActiveSkillIds.Length}개");
+        Debug.Log($"   - 마이그레이션할 패시브 슬롯: {accountData.equippedPassiveSkillIds.Length}개");
+        Debug.Log($"   - 마이그레이션할 SP: {accountData.usedSP}/{accountData.totalSP}");
+        
+        if (PlayerDataManager.Instance == null)
+        {
+            Debug.LogWarning("⚠️ [AccountDataManager] PlayerDataManager가 없어 마이그레이션 건너뜀");
+            return;
+        }
+        
+        int migratedCount = 0;
+        
+        // 모든 슬롯에 동일하게 복사 (임시 방편 - 향후 클래스별 구분 필요)
+        for (int i = 0; i < 3; i++)
+        {
+            var slotData = PlayerDataManager.Instance.GetSlotData(i);
+            if (slotData != null && slotData.isSlotUsed)
+            {
+                // 이미 스킬 데이터가 있으면 스킵 (중복 마이그레이션 방지)
+                if (slotData.skills != null && slotData.skills.Count > 0)
+                {
+                    Debug.Log($"   ⏩ 슬롯 {i} ({slotData.playerName}): 이미 스킬 데이터 있음 - 스킵");
+                    continue;
+                }
+                
+                // 스킬 데이터 복사
+                slotData.skills = new List<SkillInstanceSaveData>(accountData.skills);
+                
+                // 장착 슬롯 복사
+                slotData.equippedActiveSkillIds = new string[2];
+                for (int j = 0; j < Mathf.Min(accountData.equippedActiveSkillIds.Length, 2); j++)
+                {
+                    slotData.equippedActiveSkillIds[j] = accountData.equippedActiveSkillIds[j];
+                }
+                
+                slotData.equippedPassiveSkillIds = new string[3];
+                for (int j = 0; j < Mathf.Min(accountData.equippedPassiveSkillIds.Length, 3); j++)
+                {
+                    slotData.equippedPassiveSkillIds[j] = accountData.equippedPassiveSkillIds[j];
+                }
+                
+                // SP 복사 (레벨 기반으로 재계산)
+                slotData.totalSP = slotData.level; // totalSP = level (1:1 동기화)
+                slotData.usedSP = Mathf.Min(accountData.usedSP, slotData.totalSP); // 초과하지 않도록
+                
+                // 저장
+                PlayerDataManager.Instance.SaveSlotData(slotData);
+                migratedCount++;
+                
+                Debug.Log($"   ✅ 슬롯 {i} ({slotData.playerName}): 마이그레이션 완료");
+                Debug.Log($"      - 스킬: {slotData.skills.Count}개");
+                Debug.Log($"      - SP: {slotData.usedSP}/{slotData.totalSP}");
+            }
+        }
+        
+        // 마이그레이션 완료 - Account.json에서 스킬 데이터 제거
+        if (migratedCount > 0)
+        {
+            accountData.skills.Clear();
+            accountData.equippedActiveSkillIds = new string[2];
+            accountData.equippedPassiveSkillIds = new string[3];
+            accountData.totalSP = 0;
+            accountData.usedSP = 0;
+            accountData.currentPlayerLevel = 1;
+            
+            Save();
+            
+            Debug.Log($"✅ [AccountDataManager] Phase 3.5 마이그레이션 완료!");
+            Debug.Log($"   - 마이그레이션된 슬롯: {migratedCount}개");
+            Debug.Log($"   - Account.json 스킬 데이터 정리 완료");
+        }
+        
+        #pragma warning restore CS0618
     }
     
     public void Save()
@@ -1295,12 +1389,374 @@ public class AccountDataManager
         accountData.itemInstances.Clear();
         accountData.binds.Clear();
         accountData.materials.Clear();
+        accountData.skills.Clear();
         
         instanceCache.Clear();
         bindCache.Clear();
         materialCache.Clear();
         
         Debug.Log("🧹 [AccountDataManager] 모든 계정 데이터 초기화 완료");
+    }
+    
+    // ========================================
+    // 📚 스킬 시스템 (Phase 3-Revision)
+    // ========================================
+    
+    /// <summary>
+    /// 보유 액티브 스킬 목록 반환
+    /// </summary>
+    public List<SkillInstance> GetUnlockedActiveSkills()
+    {
+        List<SkillInstance> activeSkills = new List<SkillInstance>();
+        
+        foreach (var saveData in accountData.skills)
+        {
+            SkillInstance skill = saveData.ToSkillInstance();
+            if (skill != null && skill.IsActiveSkill)
+            {
+                activeSkills.Add(skill);
+            }
+        }
+        
+        return activeSkills;
+    }
+    
+    /// <summary>
+    /// 보유 패시브 스킬 목록 반환
+    /// </summary>
+    public List<SkillInstance> GetUnlockedPassiveSkills()
+    {
+        List<SkillInstance> passiveSkills = new List<SkillInstance>();
+        
+        foreach (var saveData in accountData.skills)
+        {
+            SkillInstance skill = saveData.ToSkillInstance();
+            if (skill != null && skill.IsPassiveSkill)
+            {
+                passiveSkills.Add(skill);
+            }
+        }
+        
+        return passiveSkills;
+    }
+    
+    /// <summary>
+    /// 장착된 액티브 스킬 반환
+    /// </summary>
+    public SkillInstance GetEquippedActiveSkill(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= accountData.equippedActiveSkillIds.Length)
+            return null;
+        
+        string skillID = accountData.equippedActiveSkillIds[slotIndex];
+        if (string.IsNullOrEmpty(skillID)) return null;
+        
+        return FindSkillByID(skillID);
+    }
+    
+    /// <summary>
+    /// 장착된 패시브 스킬 반환
+    /// </summary>
+    public SkillInstance GetEquippedPassiveSkill(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= accountData.equippedPassiveSkillIds.Length)
+            return null;
+        
+        string skillID = accountData.equippedPassiveSkillIds[slotIndex];
+        if (string.IsNullOrEmpty(skillID)) return null;
+        
+        return FindSkillByID(skillID);
+    }
+    
+    /// <summary>
+    /// 스킬 ID로 SkillInstance 찾기
+    /// </summary>
+    private SkillInstance FindSkillByID(string skillID)
+    {
+        var saveData = accountData.skills.Find(s => s.skillID == skillID);
+        return saveData?.ToSkillInstance();
+    }
+    
+    /// <summary>
+    /// 스킬 레벨업 시도
+    /// </summary>
+    public bool TryUpgradeSkill(SkillInstance skill, int playerLevel)
+    {
+        if (skill == null || skill.skillData == null) return false;
+        
+        // ① 해금 조건
+        if (playerLevel < skill.skillData.unlockLevel)
+        {
+            Debug.LogWarning($"🔒 [{skill.skillData.skillName}] 해금 레벨 부족! (요구: Lv.{skill.skillData.unlockLevel}, 현재: Lv.{playerLevel})");
+            return false;
+        }
+        
+        // ② 만렙 조건
+        if (skill.IsMaxLevel)
+        {
+            Debug.LogWarning($"⚠️ [{skill.skillData.skillName}] 이미 최대 레벨입니다! (Lv.{skill.skillData.maxLevel})");
+            return false;
+        }
+        
+        // ③ SP 조건
+        int requiredSP = skill.GetRequiredSPForNextLevel();
+        int availableSP = accountData.totalSP - accountData.usedSP;
+        
+        if (availableSP < requiredSP)
+        {
+            Debug.LogWarning($"💎 [{skill.skillData.skillName}] SP 부족! (필요: {requiredSP}, 보유: {availableSP})");
+            return false;
+        }
+        
+        // 레벨업 실행
+        skill.currentLevel++;
+        accountData.usedSP += requiredSP;
+        
+        // 저장 데이터 업데이트
+        UpdateSkillSaveData(skill);
+        Save();
+        
+        Debug.Log($"✅ [{skill.skillData.skillName}] 레벨업 성공!");
+        Debug.Log($"   Lv.{skill.currentLevel - 1} → Lv.{skill.currentLevel}");
+        Debug.Log($"   소모 SP: {requiredSP}");
+        Debug.Log($"   SP 현황: {availableSP - requiredSP}/{accountData.totalSP} (사용: {accountData.usedSP})");
+        
+        return true;
+    }
+    
+    /// <summary>
+    /// 액티브 스킬 장착
+    /// </summary>
+    public bool EquipActiveSkill(SkillInstance skill, int slotIndex)
+    {
+        if (skill == null || !skill.IsActiveSkill) return false;
+        if (slotIndex < 0 || slotIndex >= accountData.equippedActiveSkillIds.Length) return false;
+        
+        // 기존 장착 스킬 해제
+        string oldSkillID = accountData.equippedActiveSkillIds[slotIndex];
+        if (!string.IsNullOrEmpty(oldSkillID))
+        {
+            UnequipSkillByID(oldSkillID);
+        }
+        
+        // 새 스킬 장착
+        skill.isEquipped = true;
+        accountData.equippedActiveSkillIds[slotIndex] = skill.skillData.skillID;
+        
+        // 저장 데이터 업데이트
+        UpdateSkillSaveData(skill);
+        Save();
+        
+        Debug.Log($"🎯 [{skill.skillData.skillName}] 액티브 슬롯 {slotIndex}에 장착됨");
+        return true;
+    }
+    
+    /// <summary>
+    /// 패시브 스킬 장착
+    /// </summary>
+    public bool EquipPassiveSkill(SkillInstance skill, int slotIndex)
+    {
+        if (skill == null || !skill.IsPassiveSkill) return false;
+        if (slotIndex < 0 || slotIndex >= accountData.equippedPassiveSkillIds.Length) return false;
+        
+        // 기존 장착 스킬 해제
+        string oldSkillID = accountData.equippedPassiveSkillIds[slotIndex];
+        if (!string.IsNullOrEmpty(oldSkillID))
+        {
+            UnequipSkillByID(oldSkillID);
+        }
+        
+        // 새 스킬 장착
+        skill.isEquipped = true;
+        accountData.equippedPassiveSkillIds[slotIndex] = skill.skillData.skillID;
+        
+        // 저장 데이터 업데이트
+        UpdateSkillSaveData(skill);
+        
+        // 패시브 스킬은 실시간 스탯 재계산 필요
+        // (로비에서는 PlayerRuntimeStats가 없으므로 인게임 진입 시 동기화)
+        
+        Save();
+        
+        Debug.Log($"🛡️ [{skill.skillData.skillName}] 패시브 슬롯 {slotIndex}에 장착됨");
+        return true;
+    }
+    
+    /// <summary>
+    /// 스킬 장착 해제
+    /// </summary>
+    public void UnequipSkill(SkillInstance skill)
+    {
+        if (skill == null) return;
+        
+        skill.isEquipped = false;
+        
+        // 슬롯에서 제거
+        if (skill.IsActiveSkill)
+        {
+            for (int i = 0; i < accountData.equippedActiveSkillIds.Length; i++)
+            {
+                if (accountData.equippedActiveSkillIds[i] == skill.skillData.skillID)
+                {
+                    accountData.equippedActiveSkillIds[i] = null;
+                }
+            }
+        }
+        else if (skill.IsPassiveSkill)
+        {
+            for (int i = 0; i < accountData.equippedPassiveSkillIds.Length; i++)
+            {
+                if (accountData.equippedPassiveSkillIds[i] == skill.skillData.skillID)
+                {
+                    accountData.equippedPassiveSkillIds[i] = null;
+                }
+            }
+        }
+        
+        // 저장 데이터 업데이트
+        UpdateSkillSaveData(skill);
+        Save();
+    }
+    
+    /// <summary>
+    /// skillID로 장착 해제
+    /// </summary>
+    private void UnequipSkillByID(string skillID)
+    {
+        var saveData = accountData.skills.Find(s => s.skillID == skillID);
+        if (saveData != null)
+        {
+            saveData.isEquipped = false;
+        }
+    }
+    
+    /// <summary>
+    /// 스킬 저장 데이터 업데이트
+    /// </summary>
+    private void UpdateSkillSaveData(SkillInstance skill)
+    {
+        if (skill == null || skill.skillData == null) return;
+        
+        var saveData = accountData.skills.Find(s => s.skillID == skill.skillData.skillID);
+        
+        if (saveData != null)
+        {
+            // 기존 데이터 업데이트
+            saveData.currentLevel = skill.currentLevel;
+            saveData.isEquipped = skill.isEquipped;
+        }
+        else
+        {
+            // 새 데이터 추가
+            accountData.skills.Add(SkillInstanceSaveData.FromSkillInstance(skill));
+        }
+    }
+    
+    /// <summary>
+    /// 빈 액티브 슬롯 찾기
+    /// </summary>
+    public int FindEmptyActiveSlot()
+    {
+        for (int i = 0; i < accountData.equippedActiveSkillIds.Length; i++)
+        {
+            if (string.IsNullOrEmpty(accountData.equippedActiveSkillIds[i]))
+                return i;
+        }
+        return -1;
+    }
+    
+    /// <summary>
+    /// 빈 패시브 슬롯 찾기
+    /// </summary>
+    public int FindEmptyPassiveSlot()
+    {
+        for (int i = 0; i < accountData.equippedPassiveSkillIds.Length; i++)
+        {
+            if (string.IsNullOrEmpty(accountData.equippedPassiveSkillIds[i]))
+                return i;
+        }
+        return -1;
+    }
+    
+    /// <summary>
+    /// SP 여유 확인
+    /// </summary>
+    public bool CanAffordSP(int amount)
+    {
+        int availableSP = accountData.totalSP - accountData.usedSP;
+        return availableSP >= amount;
+    }
+    
+    /// <summary>
+    /// 총 SP 반환
+    /// </summary>
+    public int GetTotalSP()
+    {
+        return accountData.totalSP;
+    }
+    
+    /// <summary>
+    /// 사용한 SP 반환
+    /// </summary>
+    public int GetUsedSP()
+    {
+        return accountData.usedSP;
+    }
+    
+    /// <summary>
+    /// 현재 플레이어 레벨 반환
+    /// </summary>
+    public int GetCurrentPlayerLevel()
+    {
+        return accountData.currentPlayerLevel;
+    }
+    
+    /// <summary>
+    /// SP 추가 (레벨업 시)
+    /// </summary>
+    public void AddSP(int amount)
+    {
+        accountData.totalSP += amount;
+        Save();
+        
+        Debug.Log($"💎 SP +{amount} 획득! (총: {accountData.totalSP})");
+    }
+    
+    /// <summary>
+    /// 플레이어 레벨 설정 (테스트용)
+    /// </summary>
+    public void SetPlayerLevel(int level)
+    {
+        accountData.currentPlayerLevel = level;
+        Save();
+    }
+    
+    /// <summary>
+    /// 스킬 추가 (신규 해금)
+    /// </summary>
+    public void AddSkill(BaseSkillData skillData)
+    {
+        if (skillData == null) return;
+        
+        // 이미 보유 중인지 확인
+        var existing = accountData.skills.Find(s => s.skillID == skillData.skillID);
+        if (existing != null)
+        {
+            Debug.LogWarning($"⚠️ [{skillData.skillName}] 이미 보유 중입니다.");
+            return;
+        }
+        
+        // 새 스킬 추가
+        var newSkill = new SkillInstance(skillData)
+        {
+            currentLevel = 1, // 해금 시 Lv.1
+            isEquipped = false
+        };
+        
+        accountData.skills.Add(SkillInstanceSaveData.FromSkillInstance(newSkill));
+        Save();
+        
+        Debug.Log($"✨ [{skillData.skillName}] 스킬 해금!");
     }
 }
 

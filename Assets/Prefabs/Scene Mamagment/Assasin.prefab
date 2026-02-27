@@ -435,6 +435,7 @@ GameObject:
   - component: {fileID: -5535195084605027862}
   - component: {fileID: 4620531986320996637}
   - component: {fileID: 7154712043368475352}
+  - component: {fileID: 5932016489492290845}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -690,6 +691,8 @@ MonoBehaviour:
   maxHealth: 1
   damageRecoveryTime: 1
   showDebugLogs: 1
+  healingBlockDuration: 5
+  immunityDuration: 0.5
 --- !u!114 &4451406008786218953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -829,6 +832,7 @@ MonoBehaviour:
   finalCriticalChance: 0
   finalCriticalDamage: 1.5
   finalDefense: 0
+  finalHealMultiplier: 1
   showDebugLogs: 1
 --- !u!114 &1756301324097207731
 MonoBehaviour:
@@ -904,3 +908,30 @@ MonoBehaviour:
   sortingOrderBuffer: 50
   enableDebugLogs: 0
   showDetectionGizmo: 0
+--- !u!114 &5932016489492290845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d733f0dd5ee71945abd5804040cee20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unlockedActiveSkills: []
+  unlockedPassiveSkills:
+  - skillData: {fileID: 11400000, guid: 6e80d6d133e486646a2f46299a4702d5, type: 2}
+    currentLevel: 1
+    isEquipped: 0
+    lastUsedTime: -Infinity
+  equippedActiveSkills: []
+  equippedPassiveSkills:
+  - skillData: {fileID: 11400000, guid: 6e80d6d133e486646a2f46299a4702d5, type: 2}
+    currentLevel: 1
+    isEquipped: 1
+    lastUsedTime: -Infinity
+  availableSP: 0
+  playerStats: {fileID: 0}
+  showDebugLogs: 1

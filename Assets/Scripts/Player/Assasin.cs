@@ -29,12 +29,15 @@ public class Assasin : BaseClassBehaviour
     
     #endregion
     
-    #region 🎯 어쌔신 고유 특성 (ScriptableObject 연동)
+    #region 🎯 어쌔신 고유 특성 (Phase 1: 임시 호환 속성)
     
-    // ScriptableObject에서 고유 특성 값들 가져오기 (네이밍 개선)
+    // ⚠️ Phase 1 임시 호환: 기존 코드와의 호환성 유지
+    // Phase 2에서 완전히 PassiveSkillData로 전환 예정
+    
     public float StealthDuration => assasinData?.assasinStealthDuration ?? 2f;
-    public float DodgeChance => assasinData?.assasinDodgeChance ?? 0.1f;
-    public float BackAttackBonus => assasinData?.assasinBackAttackBonus ?? 1.3f;
+    public float DodgeChance => assasinData?.assasinDodgeChance ?? 0.15f;
+    public float BackAttackBonus => assasinData?.assasinBackAttackBonus ?? 1.5f;
+    public float CriticalChanceBonus => 0.1f;
     
     // 🎮 런타임 상태 변수들 (ScriptableObject와 무관)
     private bool isStealthActive = false;  // 은신 상태 플래그

@@ -72,6 +72,22 @@ public class SelectedPlayerData : ScriptableObject
     [Header("🎯 스테이지 진행도")]
     public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
     
+    [Header("📚 스킬 & SP 시스템 (Phase 3.5)")]
+    [Tooltip("보유 중인 모든 스킬 (캐릭터별)")]
+    public List<SkillInstanceSaveData> skills = new List<SkillInstanceSaveData>();
+    
+    [Tooltip("장착된 액티브 스킬 슬롯 (2개)")]
+    public string[] equippedActiveSkillIds = new string[2];
+    
+    [Tooltip("장착된 패시브 스킬 슬롯 (3개)")]
+    public string[] equippedPassiveSkillIds = new string[3];
+    
+    [Tooltip("총 획득 SP")]
+    public int totalSP = 0;
+    
+    [Tooltip("사용한 SP")]
+    public int usedSP = 0;
+    
     // Dictionary로 변환하여 사용
     private Dictionary<EquipmentSlot, EquipmentData> _runtimeEquippedItems = null;
     public Dictionary<EquipmentSlot, EquipmentData> RuntimeEquippedItems
@@ -311,6 +327,26 @@ public class SelectedPlayerData : ScriptableObject
         
         lastPlayedStageId = slotData.lastPlayedStageId ?? "";
         
+        // ========================================
+        // 📌 스킬 & SP 시스템 (Phase 3.5)
+        // ========================================
+        skills = slotData.skills != null
+            ? new List<SkillInstanceSaveData>(slotData.skills)
+            : new List<SkillInstanceSaveData>();
+        
+        equippedActiveSkillIds = slotData.equippedActiveSkillIds != null
+            ? (string[])slotData.equippedActiveSkillIds.Clone()
+            : new string[2];
+        
+        equippedPassiveSkillIds = slotData.equippedPassiveSkillIds != null
+            ? (string[])slotData.equippedPassiveSkillIds.Clone()
+            : new string[3];
+        
+        totalSP = slotData.totalSP;
+        usedSP = slotData.usedSP;
+        
+        Debug.Log($"📚 [SelectedPlayerData] 스킬 데이터 로드: {skills.Count}개, SP: {usedSP}/{totalSP}");
+        
         SyncDictionaries();
         
         Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 완전 로드 완료");
@@ -452,6 +488,25 @@ public class SelectedPlayerData : ScriptableObject
             }
         }
         
+        // ========================================
+        // 📌 스킬 & SP 시스템 (Phase 3.5)
+        // ========================================
+        slotData.skills = this.skills != null
+            ? new List<SkillInstanceSaveData>(this.skills)
+            : new List<SkillInstanceSaveData>();
+        
+        slotData.equippedActiveSkillIds = this.equippedActiveSkillIds != null
+            ? (string[])this.equippedActiveSkillIds.Clone()
+            : new string[2];
+        
+        slotData.equippedPassiveSkillIds = this.equippedPassiveSkillIds != null
+            ? (string[])this.equippedPassiveSkillIds.Clone()
+            : new string[3];
+        
+        slotData.totalSP = this.totalSP;
+        slotData.usedSP = this.usedSP;
+        
+        Debug.Log($"💾 [SelectedPlayerData] 스킬 데이터 저장: {slotData.skills.Count}개, SP: {slotData.usedSP}/{slotData.totalSP}");
         Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
         Debug.Log($"💾 [SelectedPlayerData] V2 장비 레코드: {slotData.equippedRecords.Count}개");
         return slotData;

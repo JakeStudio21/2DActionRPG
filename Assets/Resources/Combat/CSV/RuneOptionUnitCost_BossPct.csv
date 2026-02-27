@@ -1,6 +1,7 @@
 ﻿optionId,optionName,unitCost,unitDisplay,note
-BOSS_DMG_PCT,BossDmg% (보스 피해 증가),8,+1%p,
+BOSS_DMG_PCT,보스 피해 증가,8,+1%p,
 BOSS_ATK_DMG_REDUCE_PCT,보스 공격피해 감소,14,+1%p,
 BOSS_DEF_IGNORE_PCT,보스 방어 무시,10,+1%p,
 BOSS_HEAL_BLOCK_PCT,보스 회복 차단,10,+1%p,
 BOSS_ZONE_DMG_REDUCE_PCT,보스 장판 피해 감소,12,+1%p,
+BOSS_CRIT_DMG_PCT,보스 치명타 피해 증가,20,+1%p,

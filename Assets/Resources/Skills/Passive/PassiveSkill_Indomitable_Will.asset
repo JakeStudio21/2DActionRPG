@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c5f3943503281459a5c0edf07296a2, type: 3}
+  m_Name: PassiveSkill_Indomitable_Will
+  m_EditorClassIdentifier: 
+  skillID: SKILL_INDOMITABLE_WILL
+  skillName: "\uBD88\uAD74\uC758 \uC758\uC9C0"
+  icon: {fileID: -1019743102, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uC138\uACC4\uB97C \uAD6C\uD558\uACA0\uB2E4\uB294 \uC758\uC9C0\uB85C,
+    \uCD5C\uB300 \uCCB4\uB825\uACFC \uBC29\uC5B4\uB825\uC758 \uAE30\uCD08 \uD55C\uACC4\uCE58\uB97C
+    \uB3D9\uC2DC\uC5D0 \uB04C\uC5B4\uC62C\uB9BD\uB2C8\uB2E4"
+  unlockLevel: 40
+  maxLevel: 10
+  passiveType: 1
+  statModifiers:
+  - statType: 2
+    baseValue: 5
+    modifierType: 1
+  isTriggerBased: 0
+  triggerType: 0
+  triggerChance: 0
+  triggerEffectPrefab: {fileID: 0}

@@ -12,6 +12,9 @@ public class SkillController : MonoBehaviour
     [Header("📊 스킬 시스템")]
     public SkillSet skillSet;
     
+    // 🆕 Phase 1: 런타임 스킬 참조
+    private PlayerSkillManager skillManager;
+    
     // ❌ 제거: 사용되지 않는 호환성 필드들
     /*
     [Header("⏰ 호환성 필드 (UI 시스템용)")]
@@ -24,6 +27,13 @@ public class SkillController : MonoBehaviour
     
     [Header("🔧 디버그")]
     public bool showDebugLogs = true;
+    
+    [Header("⚙️ Phase 4 설정")]
+    [Tooltip("Phase 4 새 시스템 사용 여부 (false면 기존 SkillSet 사용)")]
+    public bool usePhase4System = true;
+    
+    // ⭐ Phase 4: 마지막 공격 방향 저장 (기본공격 패턴과 동일)
+    private Vector2 lastAttackDirection = Vector2.right;
     
     /// <summary>
     /// SkillSet 프로퍼티 (기존 코드 호환성용)
@@ -43,6 +53,13 @@ public class SkillController : MonoBehaviour
 
     void Awake()
     {
+        // 🆕 Phase 1: PlayerSkillManager 참조 초기화
+        skillManager = GetComponent<PlayerSkillManager>();
+        if (skillManager == null)
+        {
+            Debug.LogWarning("⚠️ [SkillController] PlayerSkillManager가 없습니다. 기존 SkillSet 사용");
+        }
+        
         if (skillSet == null)
         {
             skillSet = new SkillSet();
@@ -74,6 +91,12 @@ public class SkillController : MonoBehaviour
         
         // ⭐ 추가: 스킬 할당 검증 강화
         StartCoroutine(VerifySkillAssignmentRoutine());
+        
+        // ⭐ Phase 4: 마지막 공격 방향 지속적 업데이트 (기본공격과 동일)
+        if (usePhase4System)
+        {
+            StartCoroutine(UpdateLastAttackDirectionCoroutine());
+        }
     }
     
     /// <summary>
@@ -99,7 +122,41 @@ public class SkillController : MonoBehaviour
     {
         Debug.Log("🔵 [SkillController] 스킬1 실행 요청");
         
-        // 🆕 Cue 이벤트 발행
+        // ⭐ Phase 4: PlayerSkillManager의 장착된 스킬 사용
+        if (usePhase4System && skillManager != null)
+        {
+            Debug.Log("✅ [SkillController] Phase 4 시스템 사용");
+            
+            var skillInstance = skillManager.GetEquippedActiveSkill(0); // 슬롯 0
+            
+            if (skillInstance == null)
+            {
+                Debug.LogWarning("⚠️ [SkillController] 스킬1 미장착");
+                return;
+            }
+            
+            Debug.Log($"📋 [SkillController] 장착된 스킬: {skillInstance.skillData.skillName}");
+            Debug.Log($"   - 현재 레벨: {skillInstance.currentLevel}");
+            Debug.Log($"   - 쿨다운 남음: {skillInstance.GetCooldownRemaining():F1}초");
+            Debug.Log($"   - CanUse: {skillInstance.CanUse()}");
+            
+            if (skillInstance.CanUse())
+            {
+                // ⭐ 새로운 스킬 실행 메서드 호출
+                ExecuteSkillFromInstance(skillInstance, 0);
+                
+                if (showDebugLogs)
+                    Debug.Log($"⚔️ [SkillController] 스킬1 실행: {skillInstance.skillData.skillName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [SkillController] 스킬1 쿨다운 ({skillInstance.GetCooldownRemaining():F1}초 남음)");
+            }
+            return;
+        }
+        
+        // Fallback: 기존 SkillSet 사용 (호환성)
+        Debug.LogWarning("🟡 [SkillController] PlayerSkillManager 없음 - 기존 SkillSet 사용");
         var context = new CueContext
         {
             position = transform.position,
@@ -111,7 +168,6 @@ public class SkillController : MonoBehaviour
         
         if (skillSet != null)
         {
-            // ⭐ 실행 전 스킬 상태 확인
             var skill = skillSet.GetSkill(0);
             if (skill != null)
             {
@@ -120,7 +176,6 @@ public class SkillController : MonoBehaviour
             else
             {
                 Debug.LogWarning("❌ [SkillController] 스킬1이 SkillSet에 없습니다!");
-                LogSkillSetInfo(); // 현재 상태 다시 확인
                 return;
             }
             
@@ -140,7 +195,41 @@ public class SkillController : MonoBehaviour
     {
         Debug.Log("🔵 [SkillController] 스킬2 실행 요청");
         
-        // 🆕 Cue 이벤트 발행  
+        // ⭐ Phase 4: PlayerSkillManager의 장착된 스킬 사용
+        if (usePhase4System && skillManager != null)
+        {
+            Debug.Log("✅ [SkillController] Phase 4 시스템 사용");
+            
+            var skillInstance = skillManager.GetEquippedActiveSkill(1); // 슬롯 1
+            
+            if (skillInstance == null)
+            {
+                Debug.LogWarning("⚠️ [SkillController] 스킬2 미장착");
+                return;
+            }
+            
+            Debug.Log($"📋 [SkillController] 장착된 스킬: {skillInstance.skillData.skillName}");
+            Debug.Log($"   - 현재 레벨: {skillInstance.currentLevel}");
+            Debug.Log($"   - 쿨다운 남음: {skillInstance.GetCooldownRemaining():F1}초");
+            Debug.Log($"   - CanUse: {skillInstance.CanUse()}");
+            
+            if (skillInstance.CanUse())
+            {
+                // ⭐ 새로운 스킬 실행 메서드 호출
+                ExecuteSkillFromInstance(skillInstance, 1);
+                
+                if (showDebugLogs)
+                    Debug.Log($"⚔️ [SkillController] 스킬2 실행: {skillInstance.skillData.skillName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [SkillController] 스킬2 쿨다운 ({skillInstance.GetCooldownRemaining():F1}초 남음)");
+            }
+            return;
+        }
+        
+        // Fallback: 기존 SkillSet 사용 (호환성)
+        Debug.LogWarning("🟡 [SkillController] PlayerSkillManager 없음 - 기존 SkillSet 사용");
         var context = new CueContext
         {
             position = transform.position,
@@ -152,7 +241,6 @@ public class SkillController : MonoBehaviour
         
         if (skillSet != null)
         {
-            // ⭐ 실행 전 스킬 상태 확인
             var skill = skillSet.GetSkill(1);
             if (skill != null)
             {
@@ -161,7 +249,6 @@ public class SkillController : MonoBehaviour
             else
             {
                 Debug.LogWarning("❌ [SkillController] 스킬2가 SkillSet에 없습니다!");
-                LogSkillSetInfo(); // 현재 상태 다시 확인
                 return;
             }
             
@@ -184,6 +271,27 @@ public class SkillController : MonoBehaviour
 
     public void OnSkillAnimationEvent(int slot)
     {
+        Debug.Log($"🎬 [SkillController] OnSkillAnimationEvent 호출 - Slot: {slot}");
+        
+        // ⭐ Phase 4: PlayerSkillManager 시스템 우선 사용
+        if (usePhase4System && skillManager != null)
+        {
+            Debug.Log($"✅ [SkillController] Phase 4 Animation Event 처리 - Slot {slot}");
+            
+            var skillInstance = skillManager.GetEquippedActiveSkill(slot);
+            if (skillInstance == null)
+            {
+                Debug.LogWarning($"⚠️ [SkillController] 슬롯 {slot}에 스킬이 장착되지 않음!");
+                return;
+            }
+            
+            // ⭐ 직접 발사 로직 실행 (애니메이션 이벤트 타이밍)
+            ExecuteSkillFromAnimationEvent(skillInstance, slot);
+            return;
+        }
+        
+        // Fallback: 기존 SkillSet 사용
+        Debug.LogWarning("🟡 [SkillController] Phase 4 시스템 비활성화 - 기존 SkillSet 사용");
         if (skillSet != null)
         {
             skillSet.OnSkillAnimationEvent(slot);
@@ -254,6 +362,389 @@ public class SkillController : MonoBehaviour
     }
     */
 
+    // ========================================
+    // ⭐ Phase 4: 런타임 스킬 실행 시스템
+    // ========================================
+    
+    /// <summary>
+    /// SkillInstance 기반 스킬 실행 (Phase 4)
+    /// </summary>
+    private void ExecuteSkillFromInstance(SkillInstance skillInstance, int slotIndex)
+    {
+        Debug.Log($"🎯 [SkillController] ExecuteSkillFromInstance 호출 - Slot: {slotIndex}");
+        
+        if (skillInstance == null || skillInstance.skillData == null)
+        {
+            Debug.LogError("❌ [SkillController] SkillInstance 또는 SkillData가 null!");
+            return;
+        }
+        
+        // ActiveSkillData로 캐스팅
+        if (!(skillInstance.skillData is ActiveSkillData activeData))
+        {
+            Debug.LogError($"❌ [SkillController] {skillInstance.skillData.skillName}은 액티브 스킬이 아닙니다!");
+            return;
+        }
+        
+        Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
+        Debug.Log($"   - isProjectile: {activeData.isProjectile}");
+        Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
+        Debug.Log($"   - effectPrefab: {(activeData.effectPrefab != null ? activeData.effectPrefab.name : "NULL")}");
+        
+        // ⭐ 쿨다운 시작
+        skillInstance.lastUsedTime = Time.time;
+        
+        // ⭐ 애니메이션 트리거 먼저 호출 (기존 시스템 호환)
+        var animationController = GetComponent<PlayerAnimationController>();
+        if (animationController != null)
+        {
+            if (slotIndex == 0)
+                animationController.TriggerSkill1();
+            else if (slotIndex == 1)
+                animationController.TriggerSkill2();
+            
+            Debug.Log($"🎬 [SkillController] 애니메이션 트리거 호출: Skill{slotIndex + 1}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [SkillController] PlayerAnimationController 없음!");
+        }
+        
+        // ⭐ 0.1초 딜레이 후 실제 발사 (애니메이션과 타이밍 맞추기)
+        StartCoroutine(DelayedSkillExecution(activeData, skillInstance, slotIndex, 0.1f));
+        
+        // Cue 이벤트 발행
+        var context = new CueContext
+        {
+            position = transform.position,
+            actorType = ActorType.Player,
+            magnitude = 1.5f
+        };
+        CueEmitter.Emit($"skill.player.skill{slotIndex + 1}", "Player", context);
+        
+        Debug.Log($"🔥 [SkillController] ExecuteSkillFromInstance 완료");
+    }
+    
+    /// <summary>
+    /// 딜레이 후 스킬 실행 (애니메이션 타이밍 맞추기)
+    /// </summary>
+    private IEnumerator DelayedSkillExecution(ActiveSkillData activeData, SkillInstance skillInstance, int slotIndex, float delay)
+    {
+        Debug.Log($"⏰ [SkillController] DelayedSkillExecution 시작 - {delay}초 대기");
+        
+        yield return new WaitForSeconds(delay);
+        
+        Debug.Log($"⏰ [SkillController] 딜레이 종료 - 스킬 발동 시작");
+        
+        // ⭐ PlayerRuntimeStats에서 최종 공격력 가져오기
+        var playerStats = GetComponent<PlayerRuntimeStats>();
+        if (playerStats == null)
+        {
+            Debug.LogError("❌ [SkillController] PlayerRuntimeStats를 찾을 수 없습니다!");
+            yield break;
+        }
+        
+        // ⭐ 데미지 계산: 플레이어 공격력 × 스킬 데미지 배율
+        float damageMultiplier = skillInstance.GetCurrentDamage(); // CSV에서 가져온 % 값 (예: 150)
+        int finalDamage = Mathf.RoundToInt(playerStats.FinalAttackDamage * (damageMultiplier / 100f));
+        
+        Debug.Log($"💥 [SkillController] {activeData.skillName} 데미지 계산:");
+        Debug.Log($"   - 플레이어 공격력: {playerStats.FinalAttackDamage:F0}");
+        Debug.Log($"   - 스킬 배율: {damageMultiplier}%");
+        Debug.Log($"   - 최종 데미지: {finalDamage}");
+        Debug.Log($"   - 쿨다운: {skillInstance.GetCurrentCooldown()}초");
+        
+        // ⭐ isProjectile 분기: 발사체 vs 즉발형 AoE
+        Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
+        
+        if (activeData.isProjectile)
+        {
+            Debug.Log("🏹 [SkillController] 발사체 모드 진입");
+            // 발사체 발사
+            FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
+        }
+        else
+        {
+            Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
+            // 즉발형 AoE 생성
+            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
+        }
+        
+        Debug.Log($"✅ [SkillController] DelayedSkillExecution 완료");
+    }
+    
+    /// <summary>
+    /// 발사체 발사 (isProjectile = true)
+    /// </summary>
+    private void FireProjectile(ActiveSkillData skillData, SkillInstance skillInstance, int damage, int slotIndex)
+    {
+        // 발사 지점 찾기
+        Transform firePoint = FindFirePoint();
+        if (firePoint == null)
+        {
+            Debug.LogError("❌ [SkillController] 발사 지점을 찾을 수 없습니다!");
+            return;
+        }
+        
+        // 조이스틱 방향 가져오기
+        Vector2 direction = GetAttackDirection();
+        
+        // 발사체 프리팹 확인
+        if (skillData.projectilePrefab == null)
+        {
+            Debug.LogError($"❌ [SkillController] {skillData.skillName}의 projectilePrefab이 null! Inspector에서 할당하세요.");
+            return;
+        }
+        
+        // GamePoolManager 확인
+        if (GamePoolManager.Instance == null)
+        {
+            Debug.LogError("❌ [SkillController] GamePoolManager가 없습니다!");
+            return;
+        }
+        
+        // 발사체 개수만큼 발사
+        int projectileCount = skillData.projectileCount;
+        float spreadAngle = skillData.spreadAngle;
+        float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float startAngle = baseAngle - (spreadAngle * (projectileCount - 1) / 2f);
+        
+        int successCount = 0;
+        
+        for (int i = 0; i < projectileCount; i++)
+        {
+            float currentAngle = startAngle + (spreadAngle * i);
+            Quaternion rotation = Quaternion.AngleAxis(currentAngle, Vector3.forward);
+            
+            // ⭐ 오브젝트 풀에서 발사체 생성 (풀 이름 = 프리팹 이름)
+            string poolName = skillData.projectilePrefab.name;
+            var projectile = GamePoolManager.Instance.SpawnFromPool(
+                poolName,
+                firePoint.position,
+                rotation
+            );
+            
+            if (projectile != null)
+            {
+                successCount++;
+                
+                // 발사체 속도 설정
+                var projectileComponent = projectile.GetComponent<Projectile>();
+                if (projectileComponent != null)
+                {
+                    projectileComponent.UpdateMoveSpeed(skillData.projectileSpeed);
+                }
+                
+                // 발사체 데미지 설정 (DamageSource 컴포넌트 사용)
+                var damageSource = projectile.GetComponent<DamageSource>();
+                if (damageSource != null)
+                {
+                    // TODO: DamageSource.SetDamage() 메서드 확인 및 적용
+                    if (showDebugLogs)
+                        Debug.Log($"🎯 [SkillController] 발사체 데미지 설정: {damage}");
+                }
+                
+                if (showDebugLogs)
+                    Debug.Log($"🏹 [SkillController] 발사체 발사 #{i + 1}: 각도 {currentAngle:F1}°, 풀: {poolName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [SkillController] 발사체 생성 실패 - 풀 '{poolName}'이 등록되지 않았을 수 있습니다!");
+            }
+        }
+        
+        // 시전 이펙트
+        if (skillData.effectPrefab != null)
+        {
+            var effect = Instantiate(skillData.effectPrefab, firePoint.position, firePoint.rotation);
+            Destroy(effect, 2f);
+            
+            if (showDebugLogs)
+                Debug.Log($"✨ [SkillController] 시전 이펙트 생성: {skillData.effectPrefab.name}");
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🏹 [SkillController] 발사 완료: {successCount}/{projectileCount}개 성공, 방향: {direction}");
+    }
+    
+    /// <summary>
+    /// 즉발형 AoE 생성 (isProjectile = false)
+    /// </summary>
+    private void SpawnInstantAOE(ActiveSkillData skillData, SkillInstance skillInstance, int damage, int slotIndex)
+    {
+        // 조이스틱 방향 가져오기
+        Vector2 direction = GetAttackDirection();
+        
+        // AoE 생성
+        SkillAOESpawner.SpawnAOE(
+            skillData.aoeShape,
+            transform.position,
+            direction,
+            skillData.aoeSize,
+            skillData.aoeFanAngle,
+            damage, // ⭐ 최종 데미지 전달
+            skillData.aoeDuration,
+            LayerMask.GetMask("Enemy"),
+            $"skill.player.skill{slotIndex + 1}.hit",
+            this
+        );
+        
+        // 시전 이펙트
+        if (skillData.effectPrefab != null)
+        {
+            Instantiate(skillData.effectPrefab, transform.position, Quaternion.identity);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [SkillController] AoE 생성: {skillData.aoeShape}, 데미지: {damage}");
+    }
+    
+    /// <summary>
+    /// ⭐ Phase 4: Animation Event에서 직접 호출 (딜레이 없이 즉시 실행)
+    /// </summary>
+    private void ExecuteSkillFromAnimationEvent(SkillInstance skillInstance, int slotIndex)
+    {
+        Debug.Log($"🎯 [SkillController] ExecuteSkillFromAnimationEvent 호출 - Slot: {slotIndex}");
+        
+        if (!(skillInstance.skillData is ActiveSkillData activeData))
+        {
+            Debug.LogError($"❌ [SkillController] {skillInstance.skillData.skillName}은 액티브 스킬이 아닙니다!");
+            return;
+        }
+        
+        Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
+        Debug.Log($"   - isProjectile: {activeData.isProjectile}");
+        Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
+        
+        // ⭐ PlayerRuntimeStats에서 최종 공격력 가져오기
+        var playerStats = GetComponent<PlayerRuntimeStats>();
+        if (playerStats == null)
+        {
+            Debug.LogError("❌ [SkillController] PlayerRuntimeStats를 찾을 수 없습니다!");
+            return;
+        }
+        
+        // ⭐ 데미지 계산
+        float damageMultiplier = skillInstance.GetCurrentDamage();
+        int finalDamage = Mathf.RoundToInt(playerStats.FinalAttackDamage * (damageMultiplier / 100f));
+        
+        Debug.Log($"💥 [SkillController] 데미지 계산:");
+        Debug.Log($"   - 플레이어 공격력: {playerStats.FinalAttackDamage:F0}");
+        Debug.Log($"   - 스킬 배율: {damageMultiplier}%");
+        Debug.Log($"   - 최종 데미지: {finalDamage}");
+        
+        // ⭐ isProjectile 분기
+        Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
+        
+        if (activeData.isProjectile)
+        {
+            Debug.Log("🏹 [SkillController] 발사체 모드 진입");
+            FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
+        }
+        else
+        {
+            Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
+            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
+        }
+        
+        Debug.Log($"✅ [SkillController] ExecuteSkillFromAnimationEvent 완료");
+    }
+    
+    /// <summary>
+    /// 발사 지점 찾기
+    /// </summary>
+    private Transform FindFirePoint()
+    {
+        // 무기의 FirePoint 찾기
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon != null)
+        {
+            Debug.Log($"🔍 [SkillController] ActiveWeapon 찾음: {activeWeapon.gameObject.name}");
+            
+            var weaponParent = activeWeapon.transform.Find("WeaponParent");
+            if (weaponParent != null)
+            {
+                Debug.Log($"🔍 [SkillController] WeaponParent 찾음");
+                
+                var firePoint = weaponParent.Find("FirePoint");
+                if (firePoint != null)
+                {
+                    Debug.Log($"✅ [SkillController] FirePoint 찾음: {firePoint.position}, Rotation: {firePoint.rotation.eulerAngles}");
+                    return firePoint;
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ [SkillController] FirePoint 자식 없음 - WeaponParent 사용");
+                    return weaponParent;
+                }
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [SkillController] WeaponParent 없음 - ActiveWeapon 사용");
+                return activeWeapon.transform;
+            }
+        }
+        
+        Debug.LogWarning("⚠️ [SkillController] ActiveWeapon 없음 - 플레이어 위치 사용");
+        // Fallback: 플레이어 위치
+        return transform;
+    }
+    
+    /// <summary>
+    /// 조이스틱 공격 방향 가져오기 (마지막 방향 기억 기능 포함)
+    /// WarriorSkill1/2와 동일한 패턴 사용
+    /// </summary>
+    private Vector2 GetAttackDirection()
+    {
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
+        {
+            Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();
+            
+            // ⭐ 조이스틱 입력이 있을 때만 마지막 방향 업데이트
+            if (joystickDir.magnitude > 0.1f)
+            {
+                lastAttackDirection = joystickDir.normalized;
+                
+                if (showDebugLogs)
+                    Debug.Log($"🎮 [SkillController] 조이스틱 방향 저장: {lastAttackDirection}");
+                
+                return lastAttackDirection;
+            }
+        }
+        
+        // ⭐ Fallback: 마지막 저장된 방향 사용
+        if (showDebugLogs)
+            Debug.Log($"🎯 [SkillController] 마지막 저장 방향 사용: {lastAttackDirection} (조이스틱 입력 없음)");
+        
+        return lastAttackDirection;
+    }
+    
+    /// <summary>
+    /// 백그라운드에서 마지막 공격 방향 지속적 업데이트 (기본공격과 동일한 방식)
+    /// </summary>
+    private IEnumerator UpdateLastAttackDirectionCoroutine()
+    {
+        while (true)
+        {
+            // ActiveWeapon에서 현재 조이스틱 방향 체크
+            var activeWeapon = FindObjectOfType<ActiveWeapon>();
+            if (activeWeapon != null && activeWeapon.attackJoystickInput != null)
+            {
+                Vector2 joystickDir = activeWeapon.attackJoystickInput.GetAttackDirection();
+                
+                // 조이스틱 입력이 있으면 마지막 방향 업데이트
+                if (joystickDir.magnitude > 0.1f)
+                {
+                    lastAttackDirection = joystickDir.normalized;
+                }
+            }
+            
+            // 60FPS로 업데이트 (기본공격과 동일한 빈도)
+            yield return new WaitForSeconds(1f / 60f);
+        }
+    }
+    
     [ContextMenu("Log SkillSet Info")]
     public void LogSkillSetInfo()
     {

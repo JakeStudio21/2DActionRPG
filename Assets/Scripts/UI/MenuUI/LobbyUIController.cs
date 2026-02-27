@@ -40,6 +40,7 @@ public class LobbyUIController : MonoBehaviour
     public Button inventoryButton;          // 🆕 기존 가방 버튼 참조 (일관성)
     public Button characterInfoButton;      //  기존 영웅 버튼 참조 (일관성)
     public Button workshopButton;           // 🆕 공방 버튼 참조
+    public Button skillBookButton;          // 🆕 스킬북 버튼 참조 (Phase 3-Revision)
     public Button quitGameButton;           // 🆕 게임 종료 버튼 추가
     
     [Header("🎬 다시보기 버튼")]  // 🆕 Phase 7 추가
@@ -627,6 +628,16 @@ public class LobbyUIController : MonoBehaviour
     {
         Debug.Log("[LobbyUIController] Workshop 버튼 클릭!");
         ShowWorkshopPanel();
+    }
+    
+    /// <summary>
+    /// 🆕 SkillBook 버튼 클릭 (Unity Editor OnClick 연결용)
+    /// Phase 3-Revision
+    /// </summary>
+    public void OnSkillBookButton()
+    {
+        Debug.Log("[LobbyUIController] SkillBook 버튼 클릭!");
+        ShowSkillBookPanel();
     }
     
     #endregion
@@ -1278,6 +1289,24 @@ public class LobbyUIController : MonoBehaviour
         }
         
         Debug.Log("[LobbyUIController] 공방 패널 표시 완료");
+    }
+    
+    /// <summary>
+    /// 🆕 스킬북 패널 표시 (Phase 3-Revision)
+    /// </summary>
+    public void ShowSkillBookPanel()
+    {
+        if (!EnsureCharacterSelected()) return;
+        
+        Debug.Log("📚 [LobbyUIController] ShowSkillBookPanel 호출됨");
+        
+        // 패널 전환 (LobbyPanelManager로 위임)
+        if (panelManager != null)
+        {
+            panelManager.ShowSkillBookPanel();
+        }
+        
+        Debug.Log("[LobbyUIController] 스킬북 패널 표시 완료");
     }
 
 

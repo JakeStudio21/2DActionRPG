@@ -188,6 +188,26 @@ public class PlayerSlotData
         }
     }
     
+    // ========================================
+    // 📚 Phase 3.5: 스킬 & SP 시스템 (캐릭터별)
+    // ========================================
+    
+    [Header("📚 스킬 & SP 시스템 (캐릭터별)")]
+    [Tooltip("보유 중인 모든 스킬 (액티브 + 패시브)")]
+    public List<SkillInstanceSaveData> skills = new List<SkillInstanceSaveData>();
+    
+    [Tooltip("장착된 액티브 스킬 슬롯 (2개, skillID 저장)")]
+    public string[] equippedActiveSkillIds = new string[2];
+    
+    [Tooltip("장착된 패시브 스킬 슬롯 (3개, skillID 저장)")]
+    public string[] equippedPassiveSkillIds = new string[3];
+    
+    [Tooltip("총 획득 SP (레벨업 시 자동 증가, totalSP = level)")]
+    public int totalSP = 0;
+    
+    [Tooltip("사용한 SP (스킬 레벨업 시 증가)")]
+    public int usedSP = 0;
+    
     /// <summary>
     /// JSON 문자열로 변환
     /// </summary>
@@ -232,11 +252,16 @@ public class PlayerSlotData
             playerName = $"Player{slotIndex + 1}",
             playerType = playerType,
             lastPlayTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            isSlotUsed = true
+            isSlotUsed = true,
+            level = 1
         };
         
         // 기본 클래스별 특성 설정
         slot.InitializeDefaultStats(playerType);
+        
+        // Phase 3.5: 기본 스킬 설정 (1레벨, 2개 액티브 스킬 자동 장착)
+        slot.InitializeDefaultSkills(playerType);
+        
         return slot;
     }
     
@@ -270,6 +295,95 @@ public class PlayerSlotData
         }
         
         SyncExtraStats();
+    }
+    
+    /// <summary>
+    /// 클래스별 기본 스킬 초기화 (Phase 3.5)
+    /// 신규 캐릭터 생성 시 호출되어 기본 액티브 스킬 2개를 해금하고 장착
+    /// </summary>
+    public void InitializeDefaultSkills(PlayerType classType)
+    {
+        // 스킬 리스트 초기화
+        if (skills == null)
+            skills = new List<SkillInstanceSaveData>();
+        else
+            skills.Clear();
+        
+        equippedActiveSkillIds = new string[2];
+        equippedPassiveSkillIds = new string[3];
+        
+        // SP 초기화 (레벨과 1:1 동기화)
+        totalSP = level;
+        usedSP = 0;
+        
+        Debug.Log($"🎯 [PlayerSlotData.InitializeDefaultSkills] SP 초기화: totalSP={totalSP}, level={level}");
+        
+        // 클래스별 기본 액티브 스킬 ID 목록
+        string[] defaultActiveSkillIds = GetDefaultActiveSkillIds(classType);
+        
+        // 기본 스킬을 Resources에서 로드하여 추가
+        foreach (string skillId in defaultActiveSkillIds)
+        {
+            if (string.IsNullOrEmpty(skillId)) continue;
+            
+            // Resources/Skills/ 하위에서 스킬 찾기
+            BaseSkillData[] allSkills = Resources.LoadAll<BaseSkillData>("Skills");
+            BaseSkillData skillData = System.Array.Find(allSkills, s => s != null && s.skillID == skillId);
+            
+            if (skillData != null)
+            {
+                // 1레벨 상태로 추가
+                var saveData = new SkillInstanceSaveData
+                {
+                    skillID = skillData.skillID,
+                    currentLevel = 1,
+                    isEquipped = true
+                };
+                skills.Add(saveData);
+                
+                Debug.Log($"✅ [PlayerSlotData] 기본 스킬 추가: {skillData.skillName} (Lv.1)");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [PlayerSlotData] 기본 스킬을 찾을 수 없습니다: {skillId}");
+            }
+        }
+        
+        // 장착 슬롯에 할당 (최대 2개)
+        for (int i = 0; i < Mathf.Min(defaultActiveSkillIds.Length, 2); i++)
+        {
+            if (!string.IsNullOrEmpty(defaultActiveSkillIds[i]))
+            {
+                equippedActiveSkillIds[i] = defaultActiveSkillIds[i];
+                Debug.Log($"🎯 [PlayerSlotData] 액티브 슬롯 {i}에 장착: {defaultActiveSkillIds[i]}");
+            }
+        }
+        
+        Debug.Log($"✅ [PlayerSlotData] {classType} 기본 스킬 초기화 완료 (총 {skills.Count}개, SP: {totalSP})");
+    }
+    
+    /// <summary>
+    /// 클래스별 기본 스킬 ID 목록 반환
+    /// </summary>
+    private string[] GetDefaultActiveSkillIds(PlayerType classType)
+    {
+        switch (classType)
+        {
+            case PlayerType.Warrior:
+                // TODO: 전사 전용 스킬 추가 시 수정
+                return new string[] { "SKILL_MULTISHOT", "SKILL_FOCUSE_STRIKE" }; // 임시: 암살자 스킬 사용
+                
+            case PlayerType.Assasin:
+                // Skill1: 광역기 (WaveClear), Skill2: 단일기 (BossBurst)
+                return new string[] { "SKILL_MULTISHOT", "SKILL_FOCUSE_STRIKE" };
+                
+            case PlayerType.Wizard:
+                // TODO: 마법사 전용 스킬 추가 시 수정
+                return new string[] { "SKILL_MULTISHOT", "SKILL_FOCUSE_STRIKE" }; // 임시: 암살자 스킬 사용
+                
+            default:
+                return new string[0];
+        }
     }
     
     // ========================================

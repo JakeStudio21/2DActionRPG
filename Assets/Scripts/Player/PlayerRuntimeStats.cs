@@ -76,6 +76,9 @@ public class PlayerRuntimeStats : MonoBehaviour
     // 🆕 Phase 4-C: ConditionalModifier 시스템 (룬 전용)
     private List<ConditionalModifier> activeConditionalModifiers = new List<ConditionalModifier>();
     
+    // 🆕 Phase 1: 패시브 스킬 스탯 보너스 (스킬 시스템 개편)
+    private Dictionary<string, List<PassiveStatBonus>> passiveSkillBonuses = new Dictionary<string, List<PassiveStatBonus>>();
+    
     private void Awake()
     {
         // 🔧 추가: 참조 초기화를 Awake에서 실행 (Start보다 먼저)
@@ -206,7 +209,10 @@ public class PlayerRuntimeStats : MonoBehaviour
         // 2단계: 장비 스탯 추가 (기존 시스템)
         ApplyEquipmentStats();
         
-        // 🆕 2.5단계: StatModifier 시스템 적용 (Phase 순서대로)
+        // 🆕 2.5단계: 패시브 스킬 스탯 적용 (Phase 1: 스킬 시스템)
+        ApplyPassiveSkillStats();
+        
+        // 🆕 2.7단계: StatModifier 시스템 적용 (Phase 순서대로)
         ApplyStatModifiers();
         
         // 3단계: 클래스 배율 적용
@@ -1208,6 +1214,144 @@ public class PlayerRuntimeStats : MonoBehaviour
                     Debug.LogWarning($"[PlayerRuntimeStats] 지원하지 않는 스탯 타입: {statType}");
                 break;
         }
+    }
+    
+    #endregion
+    
+    #region 🆕 Phase 1: 패시브 스킬 스탯 시스템 (스킬 시스템 개편)
+    
+    /// <summary>
+    /// 패시브 스킬의 스탯 보너스 추가
+    /// </summary>
+    public void AddPassiveStatBonus(string skillID, EStatType statType, float value, StatModifierType modifierType)
+    {
+        if (!passiveSkillBonuses.ContainsKey(skillID))
+        {
+            passiveSkillBonuses[skillID] = new List<PassiveStatBonus>();
+        }
+        
+        passiveSkillBonuses[skillID].Add(new PassiveStatBonus
+        {
+            statType = statType,
+            value = value,
+            modifierType = modifierType
+        });
+        
+        if (showDebugLogs)
+            Debug.Log($"📊 [PlayerRuntimeStats] 패시브 스탯 보너스 추가: {skillID} - {statType} +{value} ({modifierType})");
+    }
+    
+    /// <summary>
+    /// 특정 스킬의 패시브 보너스 제거
+    /// </summary>
+    public void RemovePassiveStatBonus(string skillID)
+    {
+        if (passiveSkillBonuses.ContainsKey(skillID))
+        {
+            int count = passiveSkillBonuses[skillID].Count;
+            passiveSkillBonuses.Remove(skillID);
+            
+            if (showDebugLogs)
+                Debug.Log($"🗑️ [PlayerRuntimeStats] 패시브 스탯 보너스 제거: {skillID} ({count}개)");
+        }
+    }
+    
+    /// <summary>
+    /// 특정 스탯의 패시브 보너스 합계 계산
+    /// </summary>
+    private float GetPassiveBonusForStat(EStatType statType, StatModifierType modifierType)
+    {
+        float total = 0f;
+        
+        foreach (var bonusList in passiveSkillBonuses.Values)
+        {
+            foreach (var bonus in bonusList)
+            {
+                if (bonus.statType == statType && bonus.modifierType == modifierType)
+                {
+                    total += bonus.value;
+                }
+            }
+        }
+        
+        return total;
+    }
+    
+    /// <summary>
+    /// 모든 패시브 스킬 스탯 적용 (ApplyEquipmentStats 이후에 호출)
+    /// 기존 EStatType 사용: ATK_FLAT, ATK_PERCENT, CRIT_RATE 등
+    /// </summary>
+    private void ApplyPassiveSkillStats()
+    {
+        if (passiveSkillBonuses.Count == 0) return;
+        
+        if (showDebugLogs)
+            Debug.Log($"🛡️ [PlayerRuntimeStats] 패시브 스킬 스탯 적용: {passiveSkillBonuses.Count}개 패시브");
+        
+        // 공격력 (가산) - ATK_FLAT
+        float atkFlat = GetPassiveBonusForStat(EStatType.ATK_FLAT, StatModifierType.Additive);
+        finalAttackDamage += atkFlat;
+        if (showDebugLogs && atkFlat > 0)
+            Debug.Log($"  ⚔️ ATK_FLAT: +{atkFlat:F2} → {finalAttackDamage:F2}");
+        
+        // 공격력 (배수) - ATK_PERCENT
+        float atkPercent = GetPassiveBonusForStat(EStatType.ATK_PERCENT, StatModifierType.Multiplicative);
+        if (atkPercent > 0)
+        {
+            finalAttackDamage *= (1f + atkPercent / 100f);
+            if (showDebugLogs)
+                Debug.Log($"  ⚔️ ATK_PERCENT: x{1f + atkPercent / 100f:F2} → {finalAttackDamage:F2}");
+        }
+        
+        // 방어력 (가산) - DEF_FLAT
+        float defFlat = GetPassiveBonusForStat(EStatType.DEF_FLAT, StatModifierType.Additive);
+        finalDefense += defFlat;
+        if (showDebugLogs && defFlat > 0)
+            Debug.Log($"  🛡️ DEF_FLAT: +{defFlat:F2} → {finalDefense:F2}");
+        
+        // 최대 체력 (가산) - HP_FLAT
+        float hpFlat = GetPassiveBonusForStat(EStatType.HP_FLAT, StatModifierType.Additive);
+        finalMaxHealth += hpFlat;
+        if (showDebugLogs && hpFlat > 0)
+            Debug.Log($"  ❤️ HP_FLAT: +{hpFlat:F0} → {finalMaxHealth:F0}");
+        
+        // 이동속도 (가산) - MOVE_SPEED
+        float moveSpeedFlat = GetPassiveBonusForStat(EStatType.MOVE_SPEED, StatModifierType.Additive);
+        finalMoveSpeed += moveSpeedFlat;
+        if (showDebugLogs && moveSpeedFlat > 0)
+            Debug.Log($"  🏃 MOVE_SPEED: +{moveSpeedFlat:F2} → {finalMoveSpeed:F2}");
+        
+        // 크리티컬 확률 (가산) - CRIT_RATE
+        float critRate = GetPassiveBonusForStat(EStatType.CRIT_RATE, StatModifierType.Additive);
+        finalCriticalChance += critRate; // 이미 소수 형태 (0.05 = 5%)
+        if (showDebugLogs && critRate > 0)
+            Debug.Log($"  🎯 CRIT_RATE: +{critRate:P2} → {finalCriticalChance:P2}");
+        
+        // 크리티컬 데미지 (가산) - CRIT_DMG
+        float critDmg = GetPassiveBonusForStat(EStatType.CRIT_DMG, StatModifierType.Additive);
+        finalCriticalDamage += critDmg;
+        if (showDebugLogs && critDmg > 0)
+            Debug.Log($"  💥 CRIT_DMG: +{critDmg:F2} → {finalCriticalDamage:F2}");
+        
+        // 공격속도 (배수) - ASPD
+        float atkSpeed = GetPassiveBonusForStat(EStatType.ASPD, StatModifierType.Multiplicative);
+        if (atkSpeed > 0)
+        {
+            finalAttackSpeed *= (1f + atkSpeed / 100f);
+            if (showDebugLogs)
+                Debug.Log($"  ⚡ ASPD: x{1f + atkSpeed / 100f:F2} → {finalAttackSpeed:F2}");
+        }
+    }
+    
+    /// <summary>
+    /// 패시브 스탯 보너스 데이터 구조
+    /// </summary>
+    [System.Serializable]
+    private class PassiveStatBonus
+    {
+        public EStatType statType;
+        public float value;
+        public StatModifierType modifierType;
     }
     
     #endregion

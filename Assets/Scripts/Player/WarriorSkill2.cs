@@ -4,10 +4,10 @@ using CueSystem; // ⭐ Warrior Skill 이펙트 시스템
 
 /// <summary>
 /// 워리어 스킬2: Ground Slam (땅을 내리쳐 원형 충격파 발생)
-/// WarriorSkillData 타입만 허용하는 타입 안전 스킬
+/// Phase 1: ActiveSkillData 통합 설계로 변경
 /// BaseSkill<T> 상속으로 공통 로직 재사용
 /// </summary>
-public class WarriorSkill2 : BaseSkill<WarriorSkillData>
+public class WarriorSkill2 : BaseSkill<ActiveSkillData>
 {
     #region 내부 상태
     

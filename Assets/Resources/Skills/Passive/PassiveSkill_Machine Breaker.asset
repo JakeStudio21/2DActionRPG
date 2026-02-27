@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c5f3943503281459a5c0edf07296a2, type: 3}
+  m_Name: PassiveSkill_Machine Breaker
+  m_EditorClassIdentifier: 
+  skillID: SKILL_MACHINE_BREAKER
+  skillName: "\uAE30\uACC4 \uD30C\uAD34\uC790"
+  icon: {fileID: -1690809764, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uAC15\uCCA0\uACFC \uD0DC\uC5FD\uC73C\uB85C \uC774\uB8E8\uC5B4\uC9C4
+    \uBA54\uCE74 \uACE8\uB818\uC758 \uCF54\uC5B4\uB97C \uC0B0\uC0B0\uC870\uAC01 \uB0B4\uAE30
+    \uC704\uD55C \uD30C\uAD34\uC801\uC778 \uC77C\uACA9\uC744 \uC900\uBE44\uD569\uB2C8\uB2E4."
+  unlockLevel: 45
+  maxLevel: 10
+  passiveType: 2
+  statModifiers:
+  - statType: 2
+    baseValue: 5
+    modifierType: 1
+  isTriggerBased: 0
+  triggerType: 0
+  triggerChance: 0
+  triggerEffectPrefab: {fileID: 0}

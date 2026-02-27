@@ -2,11 +2,12 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// 제네릭 기반 스킬 기본 클래스
-/// 각 직업별 SkillData 타입을 강제하여 타입 안전성 보장 (SRP 준수)
+/// 제네릭 기반 액티브 스킬 기본 클래스
+/// 각 직업별 ActiveSkillData 타입을 강제하여 타입 안전성 보장 (SRP 준수)
 /// 모든 스킬의 공통 로직을 Template Method Pattern으로 구현
+/// Phase 1: ActiveSkillData 기반으로 리팩토링됨
 /// </summary>
-public abstract class BaseSkill<T> : MonoBehaviour, ISkill where T : BaseSkillData
+public abstract class BaseSkill<T> : MonoBehaviour, ISkill where T : ActiveSkillData
 {
     [Header("📊 스킬 데이터")]
     [SerializeField] protected T skillData;
@@ -23,12 +24,13 @@ public abstract class BaseSkill<T> : MonoBehaviour, ISkill where T : BaseSkillDa
     
     /// <summary>
     /// 스킬 쿨다운 시간 (클래스별 배율 적용 가능)
+    /// Phase 1: ActiveSkillData의 baseCooldown 사용
     /// </summary>
     public virtual float Cooldown 
     { 
         get 
         {
-            float baseCooldown = skillData != null ? skillData.cooldown : 2f;
+            float baseCooldown = skillData != null ? skillData.baseCooldown : 2f;
             return ApplyCooldownMultiplier(baseCooldown);
         }
     }
@@ -112,9 +114,10 @@ public abstract class BaseSkill<T> : MonoBehaviour, ISkill where T : BaseSkillDa
     public bool IsOnCooldown => GetCooldownRemaining() > 0f;
     
     /// <summary>
-    /// 스킬 기본 데미지 (SkillData에서 가져옴)
+    /// 스킬 기본 데미지 배율 (SkillData에서 가져옴)
+    /// Phase 1: baseDamageMultiplier 사용 (150% = 1.5배)
     /// </summary>
-    protected virtual float BaseDamage => skillData?.damage ?? 0f;
+    protected virtual float BaseDamage => skillData?.baseDamageMultiplier ?? 100f;
     
     /// <summary>
     /// 스킬 기본 사거리 (SkillData에서 가져옴)
@@ -266,9 +269,12 @@ public abstract class BaseSkill<T> : MonoBehaviour, ISkill where T : BaseSkillDa
     
     protected virtual void Start()
     {
+        // ⭐ Phase 4: SkillData가 없어도 경고만 출력 (새 시스템에서는 사용 안 함)
         if (!ValidateSkillData())
         {
-            Debug.LogError($"❌ [{GetType().Name}] SkillData가 할당되지 않았습니다!");
+            if (showDebugLogs)
+                Debug.LogWarning($"🟡 [{GetType().Name}] SkillData 미할당 (Phase 4에서는 정상 - SkillController가 직접 관리)");
+            return; // 초기화 중단
         }
         
         // 초기화 완료 로그
