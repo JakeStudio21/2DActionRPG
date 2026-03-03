@@ -208,6 +208,17 @@ public class PlayerSlotData
     [Tooltip("사용한 SP (스킬 레벨업 시 증가)")]
     public int usedSP = 0;
     
+    // ========================================
+    // 💎 Phase 9: 룬 시스템 (캐릭터별)
+    // ========================================
+    
+    [Header("💎 룬 시스템 (캐릭터별)")]
+    [Tooltip("해금된 룬 인스턴스 (레벨, 한계돌파 상태)")]
+    public List<RuneInstanceSaveData> runes = new List<RuneInstanceSaveData>();
+    
+    [Tooltip("장착된 룬 슬롯 (3개, runeUID 저장)")]
+    public string[] equippedRuneUids = new string[3];
+    
     /// <summary>
     /// JSON 문자열로 변환
     /// </summary>

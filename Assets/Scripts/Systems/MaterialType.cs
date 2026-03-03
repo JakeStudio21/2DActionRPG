@@ -40,7 +40,17 @@ public enum MaterialType
     CraftingEssence = 20,   // 제작 정수 (합성 시 사용)
     
     // 💰 범용 재화
-    Gold = 100              // 골드
+    Gold = 100,             // 골드
+    
+    // 🔷 룬 조각 (Phase 8-1: 8종류)
+    RUNE_FRAG_RUNE_BOSS_HUNTER = 200,      // 보스 사냥꾼 룬 조각
+    RUNE_FRAG_RUNE_BOSS_DEFENDER = 201,    // 보스 철벽 룬 조각
+    RUNE_FRAG_RUNE_DEFENSE_BREAKER = 202,  // 방어 파괴자 룬 조각
+    RUNE_FRAG_RUNE_HIGH_HP_HUNTER = 203,   // 고체력 사냥꾼 룬 조각
+    RUNE_FRAG_RUNE_EXECUTIONER = 204,      // 처형자 룬 조각
+    RUNE_FRAG_RUNE_SURVIVOR = 205,         // 불굴의 생존자 룬 조각
+    RUNE_FRAG_RUNE_AREA_DEFENDER = 206,    // 장판 철벽 룬 조각
+    RUNE_FRAG_RUNE_VAMPIRE = 207           // 흡혈 룬 조각
 }
 
 /// <summary>
@@ -73,6 +83,16 @@ public static class MaterialTypeExtensions
             // 기타 재료
             MaterialType.CraftingEssence => "제작 정수",
             MaterialType.Gold => "골드",
+            
+            // 룬 조각 (Phase 8-1)
+            MaterialType.RUNE_FRAG_RUNE_BOSS_HUNTER => "보스 사냥꾼 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_BOSS_DEFENDER => "보스 철벽 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_DEFENSE_BREAKER => "방어 파괴자 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_HIGH_HP_HUNTER => "고체력 사냥꾼 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_EXECUTIONER => "처형자 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_SURVIVOR => "불굴의 생존자 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER => "장판 철벽 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_VAMPIRE => "흡혈 룬 조각",
             
             _ => "알 수 없는 재료"
         };
@@ -204,6 +224,16 @@ public static class MaterialTypeExtensions
             MaterialType.CraftingEssence => "MAT_CRAFTING_ESSENCE",
             MaterialType.Gold => "ITEM_GOLD", // 기존 골드 아이템과 호환
             
+            // 룬 조각 (Phase 8-1) - DropTable용 itemId
+            MaterialType.RUNE_FRAG_RUNE_BOSS_HUNTER => "RUNE_FRAG_RUNE_BOSS_HUNTER",
+            MaterialType.RUNE_FRAG_RUNE_BOSS_DEFENDER => "RUNE_FRAG_RUNE_BOSS_DEFENDER",
+            MaterialType.RUNE_FRAG_RUNE_DEFENSE_BREAKER => "RUNE_FRAG_RUNE_DEFENSE_BREAKER",
+            MaterialType.RUNE_FRAG_RUNE_HIGH_HP_HUNTER => "RUNE_FRAG_RUNE_HIGH_HP_HUNTER",
+            MaterialType.RUNE_FRAG_RUNE_EXECUTIONER => "RUNE_FRAG_RUNE_EXECUTIONER",
+            MaterialType.RUNE_FRAG_RUNE_SURVIVOR => "RUNE_FRAG_RUNE_SURVIVOR",
+            MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER => "RUNE_FRAG_RUNE_AREA_DEFENDER",
+            MaterialType.RUNE_FRAG_RUNE_VAMPIRE => "RUNE_FRAG_RUNE_VAMPIRE",
+            
             _ => ""
         };
     }
@@ -233,6 +263,16 @@ public static class MaterialTypeExtensions
             // 기타 재료
             "MAT_CRAFTING_ESSENCE" => MaterialType.CraftingEssence,
             "ITEM_GOLD" => MaterialType.Gold,
+            
+            // 룬 조각 (Phase 8-1) - DropTable itemId 역변환
+            "RUNE_FRAG_RUNE_BOSS_HUNTER" => MaterialType.RUNE_FRAG_RUNE_BOSS_HUNTER,
+            "RUNE_FRAG_RUNE_BOSS_DEFENDER" => MaterialType.RUNE_FRAG_RUNE_BOSS_DEFENDER,
+            "RUNE_FRAG_RUNE_DEFENSE_BREAKER" => MaterialType.RUNE_FRAG_RUNE_DEFENSE_BREAKER,
+            "RUNE_FRAG_RUNE_HIGH_HP_HUNTER" => MaterialType.RUNE_FRAG_RUNE_HIGH_HP_HUNTER,
+            "RUNE_FRAG_RUNE_EXECUTIONER" => MaterialType.RUNE_FRAG_RUNE_EXECUTIONER,
+            "RUNE_FRAG_RUNE_SURVIVOR" => MaterialType.RUNE_FRAG_RUNE_SURVIVOR,
+            "RUNE_FRAG_RUNE_AREA_DEFENDER" => MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER,
+            "RUNE_FRAG_RUNE_VAMPIRE" => MaterialType.RUNE_FRAG_RUNE_VAMPIRE,
             
             _ => MaterialType.None
         };

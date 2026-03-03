@@ -6841,6 +6841,16 @@ MonoBehaviour:
   currentChapterId: 1
   lastPlayedStageId: 
   stageProgresses: []
+  skills: []
+  equippedActiveSkillIds:
+  - 
+  - 
+  equippedPassiveSkillIds:
+  - 
+  - 
+  - 
+  totalSP: 0
+  usedSP: 0
 --- !u!1 &1112404787
 GameObject:
   m_ObjectHideFlags: 0

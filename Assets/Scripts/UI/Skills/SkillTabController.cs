@@ -25,6 +25,12 @@ public class SkillTabController : MonoBehaviour
     [Header("📖 하단: 상세 정보 패널")]
     [SerializeField] private SkillDetailPanel skillDetailPanel;
     
+    [Header("⚠️ 경고 메시지 (TopPanel 권장)")]
+    [Tooltip("슬롯이 가득 찼을 때 표시되는 경고 메시지")]
+    [SerializeField] private GameObject warningMessageObject;
+    [SerializeField] private TextMeshProUGUI warningMessageText;
+    [SerializeField] private float warningDisplayDuration = 3f;
+    
     [Header("🔗 데이터 소스")]
     private PlayerDataManager playerDataManager;
     
@@ -60,6 +66,12 @@ public class SkillTabController : MonoBehaviour
         if (skillDetailPanel != null)
         {
             skillDetailPanel.Hide();
+        }
+        
+        // 경고 메시지 초기 숨김
+        if (warningMessageObject != null)
+        {
+            warningMessageObject.SetActive(false);
         }
         
         // 장착 슬롯 초기화
@@ -236,9 +248,18 @@ public class SkillTabController : MonoBehaviour
             activeSkills.Add(skill);
         }
         
-        // 3. 정렬: 해금 레벨 낮은 순 (해금 여부와 무관하게 항상 고정 순서)
+        // 3. 정렬: 1차) 스킬 타입(WaveClear → BossBurst), 2차) 해금 레벨 낮은 순
         activeSkills.Sort((a, b) => 
         {
+            var aData = a.skillData as ActiveSkillData;
+            var bData = b.skillData as ActiveSkillData;
+            
+            // 1차 정렬: 스킬 타입 (WaveClear=0, BossBurst=1)
+            int typeCompare = aData.skillType.CompareTo(bData.skillType);
+            if (typeCompare != 0)
+                return typeCompare;
+            
+            // 2차 정렬: 해금 레벨
             return a.skillData.unlockLevel.CompareTo(b.skillData.unlockLevel);
         });
         
@@ -782,6 +803,26 @@ public class SkillTabController : MonoBehaviour
     }
     
     /// <summary>
+    /// 빈 슬롯 찾기 (SkillListItemUI에서 호출)
+    /// </summary>
+    /// <param name="isActive">true = 액티브 스킬, false = 패시브 스킬</param>
+    /// <returns>빈 슬롯 인덱스 (-1이면 슬롯이 가득 참)</returns>
+    public int FindEmptySlot(bool isActive)
+    {
+        var slotData = playerDataManager.GetCurrentSlotData();
+        if (slotData == null) return -1;
+        
+        if (isActive)
+        {
+            return FindEmptyActiveSlot(slotData);
+        }
+        else
+        {
+            return FindEmptyPassiveSlot(slotData);
+        }
+    }
+    
+    /// <summary>
     /// 탭이 활성화될 때 호출 (SkillBookPanelUI에서)
     /// </summary>
     public void OnTabActivated()
@@ -836,5 +877,45 @@ public class SkillTabController : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"🔄 [SkillTabController] SelectedPlayerData 스킬 동기화: {selectedData.skills.Count}개, SP: {selectedData.usedSP}/{selectedData.totalSP}");
+    }
+    
+    /// <summary>
+    /// 경고 메시지 표시 (슬롯이 가득 찼을 때)
+    /// </summary>
+    public void ShowWarningMessage(string message)
+    {
+        if (warningMessageObject == null || warningMessageText == null)
+        {
+            Debug.LogWarning("[SkillTabController] 경고 메시지 UI가 설정되지 않았습니다!");
+            return;
+        }
+        
+        // 기존 코루틴 중지
+        StopAllCoroutines();
+        
+        // 메시지 설정 및 표시
+        warningMessageText.text = message;
+        warningMessageObject.SetActive(true);
+        
+        // 일정 시간 후 자동 숨김
+        StartCoroutine(HideWarningMessageAfterDelay());
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"[SkillTabController] 경고 메시지: {message}");
+        }
+    }
+    
+    /// <summary>
+    /// 경고 메시지 자동 숨김 (코루틴)
+    /// </summary>
+    private System.Collections.IEnumerator HideWarningMessageAfterDelay()
+    {
+        yield return new WaitForSeconds(warningDisplayDuration);
+        
+        if (warningMessageObject != null)
+        {
+            warningMessageObject.SetActive(false);
+        }
     }
 }

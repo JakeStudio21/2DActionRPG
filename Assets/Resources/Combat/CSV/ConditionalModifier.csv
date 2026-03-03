@@ -1,9 +1,9 @@
-﻿ModifierId,DisplayName,ValueType,Unit,ApplyPhase,TargetScope,ConditionType,ConditionParam,EffectType,Value,Notes
-BOSS_DMG_UP,보스 피해 증가 %,Float,Percent,Phase3_Modifier,Self,TargetIsBoss,,DamageDealtMult,0.2,보스에게 추가 피해
-BOSS_ATK_DMG_REDUCE,보스 공격피해 감소 %,Float,Percent,Phase5_Defense,Self,TargetIsBoss,,DamageTakenReduce,0.25,보스 피해 감소
-LOW_HP_DR,체력 30% 이하 피해 감소,Float,Percent,Phase5_Defense,Self,SelfHpBelow,0.3,DamageTakenReduce,0.25,HP 30% 이하일 때
-BOSS_AREA_DMG_REDUCE,보스 장판 피해 감소 %,Float,Percent,Phase5_Defense,Self,TargetIsBossAndDamageType,AREA_GROUND,DamageTakenReduce,0.5,보스 장판 피해 감소
-BOSS_IGNORE_DEF,보스 방어 무시 %,Float,Percent,Phase5_Defense,Self,TargetIsBoss,,IgnoreDefPercent,0.2,보스 방어 무시
-BOSS_BLOCK_HEAL,보스 회복 차단 %,Float,Percent,Phase7_Post,Target,TargetIsBoss,,BlockHealingPercent,0.5,보스 회복 차단
-BOSS_HP_HIGH_BONUS,보스 체력 50% 이상 추가 피해,Float,Percent,Phase3_Modifier,Self,TargetIsBossAndHpAbove,0.5,DamageDealtMult,0.25,보스 HP 50% 이상일 때
-BOSS_DOT_LIFESTEAL,보스 피해 HP DOT 회복 초당%(흡혈),Float,Percent,Phase7_Post,Self,TargetIsBoss,,LifeStealFromDamagePerSec,0.02,보스 대상 DOT 흡혈
+﻿ModifierId,DisplayName,ValueType,Unit,ApplyPhase,TargetScope,ConditionType,ConditionParam,EffectType,Value,Description,
+BOSS_DMG_UP,보스 피해 증가 %,Float,Percent,Phase3_Modifier,Self,TargetIsBoss,,DamageDealtMult,0.2,보스에게 추가 피해,보스 몬스터에게 강력한 추가 피해를 가합니다.
+BOSS_ATK_DMG_REDUCE,보스 공격피해 감소 %,Float,Percent,Phase5_Defense,Self,TargetIsBoss,,DamageTakenReduce,0.25,보스 피해 감소,보스 몬스터로부터 받는 피해를 크게 감소시킵니다.
+LOW_HP_DR,체력 30% 이하 피해 감소,Float,Percent,Phase5_Defense,Self,SelfHpBelow,0.3,DamageTakenReduce,0.25,HP 30% 이하일 때,위기 상황에서 강력한 방어력을 발휘합니다.
+BOSS_AREA_DMG_REDUCE,보스 장판 피해 감소 %,Float,Percent,Phase5_Defense,Self,TargetIsBossAndDamageType,AREA_GROUND,DamageTakenReduce,0.5,보스 장판 피해 감소,보스의 장판 공격으로부터 안전하게 보호합니다.
+BOSS_IGNORE_DEF,보스 방어 무시 %,Float,Percent,Phase5_Defense,Self,TargetIsBoss,,IgnoreDefPercent,0.2,보스 방어 무시,보스 몬스터의 방어력을 무시하여 강력한 피해를 가합니다.
+BOSS_BLOCK_HEAL,보스 회복 차단 %,Float,Percent,Phase7_Post,Target,TargetIsBoss,,BlockHealingPercent,0.5,보스 회복 차단,보스의 회복을 차단하여 빠른 처치를 돕습니다.
+BOSS_HP_HIGH_BONUS,보스 체력 50% 이상 추가 피해,Float,Percent,Phase3_Modifier,Self,TargetIsBossAndHpAbove,0.5,DamageDealtMult,0.25,보스 HP 50% 이상일 때,체력이 높은 보스를 상대할 때 강력한 위력을 발휘합니다.
+BOSS_DOT_LIFESTEAL,보스 피해 HP DOT 회복 초당%(흡혈),Float,Percent,Phase7_Post,Self,TargetIsBoss,,LifeStealFromDamagePerSec,0.02,보스 대상 DOT 흡혈,보스에게 가한 피해의 일부를 흡수하여 체력을 회복합니다.

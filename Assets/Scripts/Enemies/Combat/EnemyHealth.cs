@@ -810,7 +810,7 @@ public class EnemyHealth : MonoBehaviour
     /// 개별 아이템 스폰 (아이템 타입별 캐시 분기)
     /// </summary>
     /// <summary>
-    /// ✨ 신규 드롭 시스템: 범용 프리팹 + 데이터 주입 방식
+    /// ✨ 신규 드롭 시스템: 범용 프리팹 + 데이터 주입 방식 [Phase 8-1: 룬 조각 지원]
     /// </summary>
     private void SpawnSingleItem(string itemId, ItemRarity rarity)
     {
@@ -822,8 +822,8 @@ public class EnemyHealth : MonoBehaviour
         {
             SpawnCurrencyItem(itemId, spawnPosition);
         }
-        // 📦 재료 아이템 (MAT_로 시작)
-        else if (itemId.StartsWith("MAT_"))
+        // 📦 재료 아이템 (MAT_로 시작) + 💎 룬 조각 (RUNE_FRAG_로 시작) [Phase 8-1]
+        else if (itemId.StartsWith("MAT_") || itemId.StartsWith("RUNE_FRAG_"))
         {
             SpawnMaterialItem(itemId, spawnPosition);
         }
@@ -924,11 +924,11 @@ public class EnemyHealth : MonoBehaviour
     }
     
     /// <summary>
-    /// 📦 재료 아이템 스폰 (MaterialPickup 사용)
+    /// 📦 재료 아이템 스폰 (MaterialPickup 사용) [Phase 8-2: MaterialDatabase 통합]
     /// </summary>
     private void SpawnMaterialItem(string itemId, Vector3 spawnPosition)
     {
-        // 1. itemId → MaterialData 직접 검색 ⭐ (JSON 외부 연동 안전)
+        // 1. itemId → MaterialData 검색 (일반 재료 & 룬 조각 통합)
         MaterialData materialData = MaterialDatabase.Instance?.GetDataById(itemId);
         
         if (materialData == null)
@@ -937,11 +937,10 @@ public class EnemyHealth : MonoBehaviour
             return;
         }
         
-        // 2. MaterialType 추출
         MaterialType materialType = materialData.materialType;
         
-        // 3. Drop_Material 프리팹 스폰 (범용 프리팹) ⭐
-        string poolTag = "Drop_Material"; // Drop_Currency, Drop_Equipment와 동일한 네이밍 규칙
+        // 2. Drop_Material 프리팹 스폰 (범용 프리팹)
+        string poolTag = "Drop_Material";
         GameObject dropObj = GamePoolManager.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
         
         if (dropObj == null)
@@ -950,7 +949,7 @@ public class EnemyHealth : MonoBehaviour
             return;
         }
         
-        // 4. 데이터 주입 ⭐
+        // 3. 데이터 주입
         MaterialPickup pickup = dropObj.GetComponent<MaterialPickup>();
         if (pickup != null)
         {

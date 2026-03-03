@@ -73,7 +73,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 330, y: 60}
+  m_SizeDelta: {x: 330, y: 65}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &7769182096791600320
 CanvasRenderer:
@@ -246,6 +246,10 @@ MonoBehaviour:
   upgradeButtonText: {fileID: 6840267446566946904}
   equipButton: {fileID: 4468576272290627669}
   equipButtonText: {fileID: 5098536733711287522}
+  typeBackgroundImage: {fileID: 194002113443984927}
+  passiveSkillColor: {r: 0.36078432, g: 0.29803923, b: 0.38431373, a: 1}
+  waveClearSkillColor: {r: 0.28235295, g: 0.40784314, b: 0.59607846, a: 1}
+  bossBurstSkillColor: {r: 0.59607846, g: 0.28235295, b: 0.30588236, a: 1}
   lockedColor: {r: 0.8962264, g: 0.8962264, b: 0.8962264, a: 1}
   unlockedColor: {r: 1, g: 1, b: 1, a: 1}
   equippedColor: {r: 1, g: 0.8, b: 0.3, a: 1}
@@ -953,7 +957,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 180, y: 40}
+  m_SizeDelta: {x: 180, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6214970600600318887
 CanvasRenderer:
@@ -1097,7 +1101,7 @@ GameObject:
   - component: {fileID: 5355512227664707100}
   - component: {fileID: 194002113443984927}
   m_Layer: 5
-  m_Name: Background
+  m_Name: BackgroundColor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1143,14 +1147,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.36078432, g: 0.29803923, b: 0.38431373, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8618db974c2d8471f8d4fbeec0f3697a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0d9c551aaca4b3243a02340d00e5f152, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1748,7 +1752,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 40}
+  m_SizeDelta: {x: 120, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1956655224054007474
 CanvasRenderer:

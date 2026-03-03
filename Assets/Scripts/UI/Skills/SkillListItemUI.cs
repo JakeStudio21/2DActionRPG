@@ -24,6 +24,16 @@ public class SkillListItemUI : MonoBehaviour
     [SerializeField] private Button equipButton;
     [SerializeField] private TextMeshProUGUI equipButtonText;
     
+    [Header("🎨 스킬 타입별 배경색")]
+    [Tooltip("스킬 타입 구분을 위한 배경 이미지 (BackgroundImage 뒤에 배치)")]
+    [SerializeField] private Image typeBackgroundImage;
+    [Tooltip("패시브 스킬 배경색 (파란색 계열)")]
+    [SerializeField] private Color passiveSkillColor = new Color(0.3f, 0.5f, 0.8f, 0.3f);
+    [Tooltip("액티브 스킬(광역기) 배경색 (빨간색 계열)")]
+    [SerializeField] private Color waveClearSkillColor = new Color(0.8f, 0.3f, 0.3f, 0.3f);
+    [Tooltip("액티브 스킬(단일기) 배경색 (주황색 계열)")]
+    [SerializeField] private Color bossBurstSkillColor = new Color(0.8f, 0.6f, 0.2f, 0.3f);
+    
     [Header("🎨 상태별 색상")]
     [SerializeField] private Color lockedColor = new Color(0.3f, 0.3f, 0.3f, 1f);
     [SerializeField] private Color unlockedColor = Color.white;
@@ -163,55 +173,76 @@ public class SkillListItemUI : MonoBehaviour
             }
         }
         
-        // 잠금 상태
-        bool isLocked = currentPlayerLevel < skillInstance.skillData.unlockLevel;
+        // 상태 구분 (3가지)
+        bool isLevelInsufficient = currentPlayerLevel < skillInstance.skillData.unlockLevel;  // 레벨 미달
+        bool isUnlockable = !isLevelInsufficient && !skillInstance.IsUnlocked;               // 레벨 도달, 해금 가능
+        bool isUnlocked = skillInstance.IsUnlocked;                                           // 해금 완료
         
         if (lockOverlay != null)
         {
-            lockOverlay.SetActive(isLocked);
+            lockOverlay.SetActive(isLevelInsufficient);
         }
         
-        // 배경 색상
-        UpdateBackgroundColor(isLocked);
+        // 배경 색상 및 Grayscale 처리
+        UpdateBackgroundColor(isLevelInsufficient, isUnlockable, isUnlocked);
         
         // 버튼 상태
-        UpdateButtonStates(isLocked);
+        UpdateButtonStates(isLevelInsufficient);
         
         if (showDebugLogs)
             Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName} UI 갱신 완료");
     }
     
     /// <summary>
-    /// 배경 색상 업데이트
+    /// 배경 색상 업데이트 (3단계 상태 처리)
     /// </summary>
-    private void UpdateBackgroundColor(bool isLocked)
+    private void UpdateBackgroundColor(bool isLevelInsufficient, bool isUnlockable, bool isUnlocked)
     {
         if (backgroundImage == null) return;
         
-        if (isLocked)
+        // 1️⃣ 레벨 미달 → 전체 Grayscale (현재와 동일)
+        if (isLevelInsufficient)
         {
             backgroundImage.color = lockedColor;
             
-            // ⭐ 전체 UI 요소 회색 처리
             if (applyGrayscaleToAllChildren && !isGrayscaleApplied)
             {
                 ApplyGrayscaleToAllChildren();
                 isGrayscaleApplied = true;
                 
                 if (showDebugLogs)
-                    Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 Prefab 회색 처리 완료 (텍스트+아이콘+배경+버튼)");
+                    Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 Grayscale (레벨 미달)");
             }
         }
-        else
+        // 2️⃣ 레벨 도달, 해금 가능 → 전체 Grayscale + UpgradeButton만 컬러 ⭐ 신규
+        else if (isUnlockable)
         {
-            // ⭐ 회색 처리 복구 (원본 색상으로)
+            backgroundImage.color = lockedColor;
+            
+            // 전체 Grayscale 적용
+            if (applyGrayscaleToAllChildren && !isGrayscaleApplied)
+            {
+                ApplyGrayscaleToAllChildren();
+                isGrayscaleApplied = true;
+            }
+            
+            // UpgradeButton만 원본 색상으로 복구 (강조)
+            RestoreUpgradeButtonColor();
+            
+            if (showDebugLogs)
+                Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 Grayscale + UpgradeButton만 컬러 (해금 가능)");
+        }
+        // 3️⃣ 해금 완료 → 전체 정상 색상 (현재와 동일)
+        else if (isUnlocked)
+        {
+            // 회색 처리 복구 (원본 색상으로)
             if (isGrayscaleApplied)
             {
                 RestoreOriginalColors();
                 isGrayscaleApplied = false;
                 
                 if (showDebugLogs)
-                    Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 원본 색상 복구 완료");
+                    Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 원본 색상 복구 (해금 완료)");
             }
             
             if (isSelected)
@@ -227,6 +258,74 @@ public class SkillListItemUI : MonoBehaviour
                 backgroundImage.color = unlockedColor;
             }
         }
+        
+        // 스킬 타입별 배경색 적용 (잠금 상태와 무관하게)
+        UpdateTypeBackgroundColor();
+    }
+    
+    /// <summary>
+    /// 스킬 타입별 배경색 적용
+    /// </summary>
+    private void UpdateTypeBackgroundColor()
+    {
+        if (typeBackgroundImage == null) return;
+        if (skillInstance == null || skillInstance.skillData == null) return;
+        
+        // 패시브 스킬
+        if (skillInstance.IsPassiveSkill)
+        {
+            typeBackgroundImage.color = passiveSkillColor;
+        }
+        // 액티브 스킬
+        else if (skillInstance.IsActiveSkill)
+        {
+            var activeData = skillInstance.skillData as ActiveSkillData;
+            if (activeData != null)
+            {
+                if (activeData.skillType == ActiveSkillType.WaveClear)
+                {
+                    typeBackgroundImage.color = waveClearSkillColor;
+                }
+                else if (activeData.skillType == ActiveSkillType.BossBurst)
+                {
+                    typeBackgroundImage.color = bossBurstSkillColor;
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// UpgradeButton만 원본 색상으로 복구 (해금 가능 상태 강조용)
+    /// </summary>
+    private void RestoreUpgradeButtonColor()
+    {
+        if (upgradeButton == null) return;
+        
+        // 버튼 배경 이미지 복구
+        var buttonImage = upgradeButton.GetComponent<Image>();
+        if (buttonImage != null)
+        {
+            // Material 복구 (Grayscale 제거)
+            if (originalImageMaterials.ContainsKey(buttonImage))
+            {
+                buttonImage.material = originalImageMaterials[buttonImage];
+            }
+            
+            // 색상 복구
+            if (originalImageColors.ContainsKey(buttonImage))
+            {
+                buttonImage.color = originalImageColors[buttonImage];
+            }
+        }
+        
+        // 버튼 텍스트 복구
+        if (upgradeButtonText != null && originalTextColors.ContainsKey(upgradeButtonText))
+        {
+            upgradeButtonText.color = originalTextColors[upgradeButtonText];
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: UpgradeButton 색상 복구 완료");
     }
     
     /// <summary>
@@ -270,17 +369,17 @@ public class SkillListItemUI : MonoBehaviour
         // 장착 버튼
         if (equipButton != null)
         {
-            bool canEquip = skillInstance.IsUnlocked && !isLocked;
-            equipButton.interactable = canEquip;
+            bool canInteract = skillInstance.IsUnlocked && !isLocked;
+            equipButton.interactable = canInteract;
             
             if (equipButtonText != null)
             {
                 if (skillInstance.isEquipped)
-                    equipButtonText.text = "장착중";
+                    equipButtonText.text = "해제하기";
                 else if (!skillInstance.IsUnlocked)
                     equipButtonText.text = "미해금";
                 else
-                    equipButtonText.text = "장착";
+                    equipButtonText.text = "장착하기";
             }
         }
     }
@@ -319,18 +418,46 @@ public class SkillListItemUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 장착 버튼 클릭 (Phase 3-Revision: 우측 리스트에서 바로 처리)
+    /// 장착 버튼 클릭 (장착하기 / 해제하기)
     /// </summary>
     private void OnEquipButtonClicked()
     {
         if (skillInstance == null || !skillInstance.IsUnlocked) return;
+        if (tabController == null) return;
         
-        if (tabController != null)
+        // 이미 장착된 스킬 → 해제
+        if (skillInstance.isEquipped)
         {
+            tabController.UnequipSkill(skillInstance);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔓 [SkillListItemUI] {skillInstance.skillData.skillName} 해제 시도");
+        }
+        // 미장착 스킬 → 장착 시도 (슬롯 체크)
+        else
+        {
+            bool isActive = skillInstance.IsActiveSkill;
+            
+            // 빈 슬롯 확인
+            int emptySlotIndex = tabController.FindEmptySlot(isActive);
+            
+            // 슬롯이 모두 찼으면 경고 메시지 표시
+            if (emptySlotIndex < 0)
+            {
+                string skillTypeName = isActive ? "액티브 스킬" : "패시브 스킬";
+                tabController.ShowWarningMessage($"⚠️ {skillTypeName} 슬롯이 가득 찼습니다!\n먼저 {skillTypeName}을 해제해주세요.");
+                
+                if (showDebugLogs)
+                    Debug.LogWarning($"⚠️ [SkillListItemUI] {skillInstance.skillData.skillName} 장착 실패: {skillTypeName} 슬롯이 가득 참!");
+                
+                return;
+            }
+            
+            // 빈 슬롯에 장착
             tabController.EquipSkill(skillInstance);
             
             if (showDebugLogs)
-                Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 장착 시도");
+                Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 장착 시도 (빈 슬롯: {emptySlotIndex})");
         }
     }
     

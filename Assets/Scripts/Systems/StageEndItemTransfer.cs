@@ -169,6 +169,7 @@ public class StageEndItemTransfer : MonoBehaviour
         Log($"✅ 재료 전송 완료: {matTransferred}종류");
     }
     
+    
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // 헬퍼 메서드
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -201,6 +202,7 @@ public class StageEndItemTransfer : MonoBehaviour
 
 /// <summary>
 /// 스테이지 종료 아이템 전송 결과
+/// Phase 8-1: 룬 조각 카운터 추가
 /// </summary>
 [System.Serializable]
 public class TransferResult

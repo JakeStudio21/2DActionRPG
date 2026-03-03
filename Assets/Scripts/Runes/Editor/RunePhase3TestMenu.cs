@@ -6,12 +6,43 @@ using System.Linq;
 /// <summary>
 /// 룬 시스템 Phase 3 테스트 메뉴
 /// ⚙️ Unity Editor 메뉴에서 클릭만으로 레벨업/한계돌파 테스트 가능
+/// ⚠️ Phase 6 업데이트: 파편 소모 방식으로 변경
 /// 
 /// 메뉴 위치: Tools/Rune System/Test Phase 3/...
 /// </summary>
 public class RunePhase3TestMenu : Editor
 {
     private const string MENU_ROOT = "Tools/Rune System/Test Phase 3/";
+    
+    // Phase 6.5 호환성: 테스트용 기본 룬 ID
+    private const string DEFAULT_TEST_RUNE_ID = "RUNE_BOSS_HUNTER";
+    
+    /// <summary>
+    /// [Phase 6.5 호환] 테스트용 조각 개수 조회
+    /// </summary>
+    private static int GetTestFragments()
+    {
+        var inventory = RuneInventoryManager.Instance;
+        return inventory.GetFragmentCount(DEFAULT_TEST_RUNE_ID);
+    }
+    
+    /// <summary>
+    /// [Phase 6.5 호환] 테스트용 조각 설정
+    /// </summary>
+    private static void SetTestFragments(int amount)
+    {
+        var inventory = RuneInventoryManager.Instance;
+        int current = inventory.GetFragmentCount(DEFAULT_TEST_RUNE_ID);
+        
+        if (current < amount)
+        {
+            inventory.AddFragments(DEFAULT_TEST_RUNE_ID, amount - current);
+        }
+        else if (current > amount)
+        {
+            inventory.TryConsumeFragments(DEFAULT_TEST_RUNE_ID, current - amount);
+        }
+    }
     
     #region 1. 레벨업 테스트
     
@@ -181,7 +212,7 @@ public class RunePhase3TestMenu : Editor
     
     #region 2. 한계돌파 테스트
     
-    [MenuItem(MENU_ROOT + "2-1. 한계돌파 테스트 (자동)")]
+    [MenuItem(MENU_ROOT + "2-1. 한계돌파 테스트 (자동) [Phase 6: 파편 소모]")]
     public static void Test_LimitBreakAuto()
     {
         if (!Application.isPlaying)
@@ -190,39 +221,24 @@ public class RunePhase3TestMenu : Editor
             return;
         }
         
-        Debug.Log("========== 테스트 2-1: 한계돌파 테스트 (자동) ==========");
+        Debug.Log("========== 테스트 2-1: 한계돌파 테스트 (파편 소모) ==========");
         
         var allRunes = RuneInventoryManager.Instance.GetAllRunes();
+        var inventoryManager = RuneInventoryManager.Instance;
         
-        if (allRunes.Count < 2)
+        if (allRunes.Count < 1)
         {
-            Debug.LogWarning("⚠️ 한계돌파 테스트를 위해서는 최소 2개 이상의 룬이 필요합니다.");
-            Debug.LogWarning("💡 Tip: Phase 2 메뉴의 '1-3. 룬 3개 추가'를 실행해주세요.");
+            Debug.LogWarning("⚠️ 한계돌파 테스트를 위해서는 최소 1개 이상의 룬이 필요합니다.");
             return;
         }
         
-        // 1. 같은 종류의 룬 찾기
-        var groupedRunes = allRunes
-            .GroupBy(r => r.baseDataId)
-            .Where(g => g.Count() >= 2)
-            .FirstOrDefault();
-        
-        if (groupedRunes == null)
-        {
-            Debug.LogWarning("⚠️ 같은 종류의 룬이 2개 이상 없습니다.");
-            Debug.LogWarning("💡 Tip: Phase 2 메뉴의 '1-3. 룬 3개 추가 (보스 사냥꾼)'을 실행해주세요.");
-            return;
-        }
-        
-        var runeList = groupedRunes.ToList();
-        RuneInstance baseRune = runeList[0];
-        RuneInstance materialRune = runeList[1];
+        RuneInstance baseRune = allRunes[0];
         
         Debug.Log($"베이스 룬: {baseRune}");
-        Debug.Log($"재료 룬: {materialRune}");
+        Debug.Log($"현재 룬 파편: {GetTestFragments()}개");
         Debug.Log($"\n[1단계] 베이스 룬을 최대 레벨까지 레벨업...");
         
-        // 2. 베이스 룬을 최대 레벨까지 레벨업
+        // 1. 베이스 룬을 최대 레벨까지 레벨업
         int levelUpCount = 0;
         while (baseRune.CanLevelUp())
         {
@@ -242,11 +258,8 @@ public class RunePhase3TestMenu : Editor
         
         Debug.Log($"\n[2단계] 한계돌파 시도...");
         
-        // 3. 한계돌파 실행
-        var limitBreakResult = RuneEnhanceManager.Instance.TryLimitBreak(
-            baseRune.instanceUID,
-            materialRune.instanceUID
-        );
+        // 2. 한계돌파 실행 (파편 200개 소모)
+        var limitBreakResult = RuneEnhanceManager.Instance.TryLimitBreak(baseRune.instanceUID);
         
         Debug.Log($"\n결과: {limitBreakResult}");
         
@@ -255,13 +268,14 @@ public class RunePhase3TestMenu : Editor
             Debug.Log($"✅ 한계돌파 성공!");
             Debug.Log($"  한계돌파: {baseRune.currentLimitBreak}");
             Debug.Log($"  최대 레벨: Lv.{baseRune.GetCurrentMaxLevel()}");
-            Debug.Log($"  재료 룬 소모됨");
+            Debug.Log($"  소모된 파편: 200개");
+            Debug.Log($"  남은 파편: {GetTestFragments()}개");
         }
         
         Debug.Log("==========================================");
     }
     
-    [MenuItem(MENU_ROOT + "2-2. 한계돌파 5회 연속 (최대 레벨 15 달성)")]
+    [MenuItem(MENU_ROOT + "2-2. 한계돌파 5회 연속 (최대 레벨 15 달성) [Phase 6: 파편 소모]")]
     public static void Test_LimitBreak5Times()
     {
         if (!Application.isPlaying)
@@ -270,30 +284,32 @@ public class RunePhase3TestMenu : Editor
             return;
         }
         
-        Debug.Log("========== 테스트 2-2: 한계돌파 5회 연속 (최대 레벨 15 달성) ==========");
+        Debug.Log("========== 테스트 2-2: 한계돌파 5회 연속 (파편 소모) ==========");
         
-        // 1. 같은 종류의 룬 6개 찾기 (베이스 1 + 재료 5)
         var allRunes = RuneInventoryManager.Instance.GetAllRunes();
+        var inventoryManager = RuneInventoryManager.Instance;
         
-        var groupedRunes = allRunes
-            .GroupBy(r => r.baseDataId)
-            .Where(g => g.Count() >= 6)
-            .FirstOrDefault();
-        
-        if (groupedRunes == null)
+        if (allRunes.Count < 1)
         {
-            Debug.LogWarning("⚠️ 같은 종류의 룬이 6개 이상 필요합니다.");
-            Debug.LogWarning("💡 Tip: Phase 2 메뉴의 '1-3. 룬 3개 추가'를 여러 번 실행해주세요.");
+            Debug.LogWarning("⚠️ 한계돌파 테스트를 위해서는 최소 1개 이상의 룬이 필요합니다.");
             return;
         }
         
-        var runeList = groupedRunes.ToList();
-        RuneInstance baseRune = runeList[0];
+        RuneInstance baseRune = allRunes[0];
         
         Debug.Log($"베이스 룬: {baseRune}");
-        Debug.Log($"재료 룬: {runeList.Count - 1}개\n");
+        Debug.Log($"현재 룬 파편: {GetTestFragments()}개");
+        Debug.Log($"필요한 파편: 1000개 (한계돌파 5회 × 200개)\n");
         
-        // 2. 베이스 룬을 최대 레벨까지 레벨업
+        // 파편 체크
+        if (GetTestFragments() < 1000)
+        {
+            Debug.LogWarning($"⚠️ 룬 파편이 부족합니다! (보유: {GetTestFragments()}개 / 필요: 1000개)");
+            Debug.LogWarning("💡 Tip: Phase 6 메뉴의 '💎 룬 파편 초기화 (1000개)'를 실행해주세요.");
+            return;
+        }
+        
+        // 1. 베이스 룬을 최대 레벨까지 레벨업
         Debug.Log("[1단계] 베이스 룬을 최대 레벨까지 레벨업...");
         while (baseRune.CanLevelUp())
         {
@@ -301,25 +317,21 @@ public class RunePhase3TestMenu : Editor
         }
         Debug.Log($"  레벨업 완료: Lv.{baseRune.currentLevel}\n");
         
-        // 3. 한계돌파 5회 실행
+        // 2. 한계돌파 5회 실행
         Debug.Log("[2단계] 한계돌파 5회 연속...");
         int successCount = 0;
         
-        for (int i = 1; i <= 5 && i < runeList.Count; i++)
+        for (int i = 1; i <= 5; i++)
         {
-            RuneInstance materialRune = runeList[i];
-            
             Debug.Log($"\n  [{i}회차] 한계돌파 시도...");
             
-            var result = RuneEnhanceManager.Instance.TryLimitBreak(
-                baseRune.instanceUID,
-                materialRune.instanceUID
-            );
+            var result = RuneEnhanceManager.Instance.TryLimitBreak(baseRune.instanceUID);
             
             if (result == RuneEnhanceManager.LimitBreakResult.Success)
             {
                 successCount++;
                 Debug.Log($"    ✅ 성공! 한계돌파: {baseRune.currentLimitBreak}, 최대 레벨: Lv.{baseRune.GetCurrentMaxLevel()}");
+                Debug.Log($"    남은 파편: {GetTestFragments()}개");
                 
                 // 새로 늘어난 레벨까지 레벨업
                 while (baseRune.CanLevelUp())
@@ -341,6 +353,7 @@ public class RunePhase3TestMenu : Editor
         Debug.Log($"  최종 레벨: Lv.{baseRune.currentLevel}");
         Debug.Log($"  최종 최대 레벨: Lv.{baseRune.GetCurrentMaxLevel()}");
         Debug.Log($"  부옵션: {baseRune.allocatedSubStatModifierIds.Count}개");
+        Debug.Log($"  남은 파편: {GetTestFragments()}개");
         
         if (baseRune.GetCurrentMaxLevel() == 15)
         {
@@ -400,7 +413,7 @@ public class RunePhase3TestMenu : Editor
         Debug.Log("==========================================");
     }
     
-    [MenuItem(MENU_ROOT + "3-2. 예외 처리 테스트 (다른 종류 룬 한계돌파)")]
+    [MenuItem(MENU_ROOT + "3-2. [Deprecated] 예외 처리 테스트 (Phase 6: 재료 룬 제거됨)")]
     public static void Test_LimitBreakDifferentType()
     {
         if (!Application.isPlaying)
@@ -409,50 +422,12 @@ public class RunePhase3TestMenu : Editor
             return;
         }
         
-        Debug.Log("========== 테스트 3-2: 예외 처리 (다른 종류 룬 한계돌파) ==========");
-        
-        var allRunes = RuneInventoryManager.Instance.GetAllRunes();
-        
-        if (allRunes.Count < 2)
-        {
-            Debug.LogWarning("⚠️ 최소 2개 이상의 룬이 필요합니다.");
-            return;
-        }
-        
-        // 서로 다른 종류의 룬 찾기
-        RuneInstance rune1 = null;
-        RuneInstance rune2 = null;
-        
-        for (int i = 0; i < allRunes.Count - 1; i++)
-        {
-            if (allRunes[i].baseDataId != allRunes[i + 1].baseDataId)
-            {
-                rune1 = allRunes[i];
-                rune2 = allRunes[i + 1];
-                break;
-            }
-        }
-        
-        if (rune1 == null || rune2 == null)
-        {
-            Debug.LogWarning("⚠️ 서로 다른 종류의 룬이 없습니다.");
-            Debug.LogWarning("💡 Tip: Phase 2 메뉴로 다른 종류의 룬을 추가해주세요.");
-            return;
-        }
-        
-        Debug.Log($"베이스 룬: {rune1}");
-        Debug.Log($"재료 룬: {rune2}");
-        Debug.Log($"\n한계돌파 시도...");
-        
-        var result = RuneEnhanceManager.Instance.TryLimitBreak(rune1.instanceUID, rune2.instanceUID);
-        
-        Debug.Log($"결과: {result}");
-        
-        if (result == RuneEnhanceManager.LimitBreakResult.DifferentRuneType)
-        {
-            Debug.Log("✅ 예외 처리 정상 작동! (다른 종류의 룬)");
-        }
-        
+        Debug.Log("========== [Deprecated] 이 테스트는 Phase 6에서 제거되었습니다 ==========");
+        Debug.Log("⚠️ Phase 6 변경: 한계돌파에 재료 룬이 필요하지 않습니다.");
+        Debug.Log("⚠️ 이제 룬 파편 200개만 있으면 한계돌파 가능합니다.");
+        Debug.Log("\n💡 대신 다음 테스트를 사용하세요:");
+        Debug.Log("  - 2-1. 한계돌파 테스트 (자동) [Phase 6: 파편 소모]");
+        Debug.Log("  - 2-2. 한계돌파 5회 연속 [Phase 6: 파편 소모]");
         Debug.Log("==========================================");
     }
     
@@ -476,7 +451,7 @@ public class RunePhase3TestMenu : Editor
     
     #region 5. 통합 시나리오
     
-    [MenuItem(MENU_ROOT + "5. 🎯 전체 시나리오 테스트 (레벨업+한계돌파)")]
+    [MenuItem(MENU_ROOT + "5. 🎯 전체 시나리오 테스트 [Phase 6: 파편 소모]")]
     public static void Test_FullEnhanceScenario()
     {
         if (!Application.isPlaying)
@@ -486,40 +461,35 @@ public class RunePhase3TestMenu : Editor
         }
         
         Debug.Log("========================================");
-        Debug.Log("🎯 전체 강화 시나리오 테스트 시작");
+        Debug.Log("🎯 전체 강화 시나리오 테스트 시작 (Phase 6: 파편 시스템)");
         Debug.Log("========================================\n");
         
         // 1. 초기 상태
         Debug.Log("[1단계] 초기 상태 확인");
-        int runeCount = RuneInventoryManager.Instance.GetRuneCount();
-        Debug.Log($"  현재 룬 개수: {runeCount}개\n");
+        var inventoryManager = RuneInventoryManager.Instance;
+        int runeCount = inventoryManager.GetRuneCount();
+        Debug.Log($"  현재 룬 개수: {runeCount}개");
+        Debug.Log($"  현재 룬 파편: {GetTestFragments()}개\n");
         
-        if (runeCount < 6)
+        if (runeCount < 1)
         {
-            Debug.LogWarning("⚠️ 충분한 룬이 없습니다. 최소 6개 필요 (베이스 1 + 재료 5)");
-            Debug.LogWarning("💡 Tip: Phase 2 메뉴의 '1-3. 룬 3개 추가'를 여러 번 실행해주세요.");
+            Debug.LogWarning("⚠️ 룬이 없습니다. 최소 1개 필요");
             return;
         }
         
-        // 2. 같은 종류의 룬 찾기
-        Debug.Log("[2단계] 같은 종류의 룬 검색");
-        var allRunes = RuneInventoryManager.Instance.GetAllRunes();
-        var groupedRunes = allRunes
-            .GroupBy(r => r.baseDataId)
-            .Where(g => g.Count() >= 6)
-            .FirstOrDefault();
-        
-        if (groupedRunes == null)
+        if (GetTestFragments() < 1200)
         {
-            Debug.LogWarning("⚠️ 같은 종류의 룬이 6개 이상 없습니다.");
+            Debug.LogWarning($"⚠️ 룬 파편이 부족합니다! (보유: {GetTestFragments()}개 / 필요: 약 1200개)");
+            Debug.LogWarning("💡 Tip: Phase 6 메뉴의 '💎 룬 파편 초기화 (1000개)'를 실행 후 추가 파편을 획득하세요.");
             return;
         }
         
-        var runeList = groupedRunes.ToList();
-        RuneInstance baseRune = runeList[0];
+        // 2. 룬 선택
+        Debug.Log("[2단계] 룬 선택");
+        var allRunes = inventoryManager.GetAllRunes();
+        RuneInstance baseRune = allRunes[0];
         
-        Debug.Log($"  베이스 룬: {baseRune.baseData.runeName}");
-        Debug.Log($"  재료 룬: {runeList.Count - 1}개\n");
+        Debug.Log($"  베이스 룬: {baseRune.baseData.runeName}\n");
         
         // 3. 9레벨까지 레벨업 (부옵션 3개 획득)
         Debug.Log("[3단계] 9레벨까지 레벨업 (부옵션 획득 테스트)");
@@ -550,16 +520,13 @@ public class RunePhase3TestMenu : Editor
         }
         Debug.Log($"  레벨: Lv.{baseRune.currentLevel} / {baseRune.GetCurrentMaxLevel()}\n");
         
-        // 5. 한계돌파 5회
-        Debug.Log("[5단계] 한계돌파 5회 → 최대 레벨 15 달성");
+        // 5. 한계돌파 5회 (파편 소모)
+        Debug.Log("[5단계] 한계돌파 5회 → 최대 레벨 15 달성 (파편 소모)");
         int limitBreakCount = 0;
         
-        for (int i = 1; i <= 5 && i < runeList.Count; i++)
+        for (int i = 1; i <= 5; i++)
         {
-            var result = RuneEnhanceManager.Instance.TryLimitBreak(
-                baseRune.instanceUID,
-                runeList[i].instanceUID
-            );
+            var result = RuneEnhanceManager.Instance.TryLimitBreak(baseRune.instanceUID);
             
             if (result == RuneEnhanceManager.LimitBreakResult.Success)
             {
@@ -571,10 +538,16 @@ public class RunePhase3TestMenu : Editor
                     RuneEnhanceManager.Instance.TryLevelUp(baseRune.instanceUID);
                 }
             }
+            else
+            {
+                Debug.LogWarning($"  한계돌파 실패 ({i}회차): {result}");
+                break;
+            }
         }
         
         Debug.Log($"  한계돌파 {limitBreakCount}회 성공");
-        Debug.Log($"  최종 레벨: Lv.{baseRune.currentLevel}\n");
+        Debug.Log($"  최종 레벨: Lv.{baseRune.currentLevel}");
+        Debug.Log($"  남은 파편: {GetTestFragments()}개\n");
         
         // 6. 최종 결과
         Debug.Log("[6단계] 최종 결과");
@@ -582,6 +555,7 @@ public class RunePhase3TestMenu : Editor
         Debug.Log($"  레벨: Lv.{baseRune.currentLevel} / {baseRune.GetCurrentMaxLevel()}");
         Debug.Log($"  한계돌파: {baseRune.currentLimitBreak}/5");
         Debug.Log($"  부옵션: {baseRune.allocatedSubStatModifierIds.Count}개");
+        Debug.Log($"  남은 파편: {GetTestFragments()}개");
         
         if (baseRune.allocatedSubStatModifierIds.Count > 0)
         {

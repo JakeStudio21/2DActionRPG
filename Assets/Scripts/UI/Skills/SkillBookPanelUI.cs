@@ -147,14 +147,15 @@ public class SkillBookPanelUI : MonoBehaviour
                 {
                     runeSubPanel.SetActive(true);
                     
-                    // TODO: Phase 4 이후 RuneTabController 초기화
+                    // RuneInventoryUI는 OnEnable()에서 자동으로 RefreshInventory() 호출
+                    // 별도의 컨트롤러 초기화 불필요
                     
                     if (showDebugLogs)
-                        Debug.Log("🔮 [SkillBookPanelUI] 룬 패널 활성화 (미구현)");
+                        Debug.Log("🔮 [SkillBookPanelUI] 룬 패널 활성화");
                 }
                 else
                 {
-                    Debug.LogWarning("⚠️ [SkillBookPanelUI] 룬 패널은 아직 구현되지 않았습니다.");
+                    Debug.LogWarning("⚠️ [SkillBookPanelUI] 룬 패널이 연결되지 않았습니다.");
                 }
                 break;
         }

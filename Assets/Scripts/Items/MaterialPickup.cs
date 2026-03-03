@@ -112,30 +112,33 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
     #region Private Methods
     
     /// <summary>
-    /// 재료 아이콘 업데이트
+    /// 재료 아이콘 업데이트 (Phase 8-2: MaterialDatabase 통합)
     /// </summary>
     private void UpdateIcon()
     {
-        var materialData = MaterialDatabase.Instance.GetData(materialType);
+        // MaterialDatabase에서 통합 처리 (일반 재료 & 룬 조각)
+        var materialData = MaterialDatabase.Instance?.GetData(materialType);
         if (materialData != null && materialData.icon != null && spriteRenderer != null)
         {
             spriteRenderer.sprite = materialData.icon;
             spriteRenderer.color = Color.white;
+            return;
         }
-        else
+        
+        // 아이콘을 찾을 수 없는 경우: 기본 색상으로 표시
+        if (spriteRenderer != null)
         {
-            // 기본 아이콘 (색상으로 구분)
-            if (spriteRenderer != null)
+            Color iconColor = materialType.GetMaterialGrade() switch
             {
-                Color iconColor = materialType.GetMaterialGrade() switch
-                {
-                    "파편" => new Color(0.7f, 0.7f, 0.7f), // 회색 (Common)
-                    "결정" => new Color(0.3f, 0.9f, 0.3f), // 초록 (Uncommon)
-                    "코어" => new Color(0.3f, 0.6f, 1f),   // 파랑 (Rare)
-                    _ => Color.white
-                };
-                spriteRenderer.color = iconColor;
-            }
+                "파편" => new Color(0.7f, 0.7f, 0.7f), // 회색 (Common)
+                "결정" => new Color(0.3f, 0.9f, 0.3f), // 초록 (Uncommon)
+                "코어" => new Color(0.3f, 0.6f, 1f),   // 파랑 (Rare)
+                _ => Color.white
+            };
+            spriteRenderer.color = iconColor;
+            
+            if (showDebugLogs)
+                Debug.Log($"📦 [MaterialPickup] 기본 색상 적용: {materialType}");
         }
     }
     

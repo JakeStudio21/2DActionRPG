@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// </summary>
 public class Phase5_DismantleTest
 {
-    [MenuItem("Tools/Phase 5 Test")]
+    [MenuItem("Tools/Dismantle System/Phase 5 - Dismantle Test")]
     public static void RunPhase5Test()
     {
         RunAllTests();
@@ -646,7 +646,7 @@ public class Phase5_DismantleTest
 /// </summary>
 public static class Phase5TestMenu
 {
-    [MenuItem("Tools/Phase 5 Test")]
+    [MenuItem("Tools/Dismantle System/Run All Dismantle Tests")]
     public static void RunPhase5Test()
     {
         Phase5_DismantleTest.RunPhase5Test();

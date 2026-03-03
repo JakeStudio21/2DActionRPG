@@ -69,9 +69,13 @@ public class RuneInventoryManager : MonoBehaviour
     private List<RuneInstance> runeInventory = new List<RuneInstance>();
     
     /// <summary>
-    /// PlayerPrefs 저장 키
+    /// PlayerPrefs 저장 키 (⚠️ Phase 9: PlayerSlotData로 이동됨)
     /// </summary>
+    [System.Obsolete("Phase 9: 룬 데이터는 PlayerSlotData로 이동됨")]
     private const string SAVE_KEY = "RuneInventory_SaveData";
+    
+    [System.Obsolete("Phase 9: 룬 조각은 AccountData.materials로 이동됨")]
+    private const string FRAGMENTS_SAVE_KEY = "RuneFragments_SaveData";
     
     #endregion
     
@@ -103,8 +107,8 @@ public class RuneInventoryManager : MonoBehaviour
     {
         Debug.Log("[RuneInventoryManager] 초기화");
         
-        // 자동 로드 시도 (필요시 주석 처리 가능)
-        LoadInventory();
+        // Phase 9: PlayerSlotData에서 자동 로드
+        // LoadInventory는 PlayerSlotDataManager에서 호출됨
     }
     
     #endregion
@@ -533,6 +537,100 @@ public class RuneInventoryManager : MonoBehaviour
     
     #endregion
     
+    #region 룬 조각 관리 (Phase 9: AccountData Material 연동)
+    
+    /// <summary>
+    /// [Phase 9] 특정 룬의 조각 개수 조회 - AccountData Material 연동
+    /// </summary>
+    public int GetFragmentCount(string runeId)
+    {
+        // runeId (예: "RUNE_BOSS_HUNTER") → MaterialType (예: RUNE_FRAG_RUNE_BOSS_HUNTER)
+        string materialId = $"RUNE_FRAG_{runeId}";
+        MaterialType materialType = MaterialTypeExtensions.FromItemId(materialId);
+        
+        if (materialType == MaterialType.None)
+        {
+            Debug.LogWarning($"[RuneInventoryManager] GetFragmentCount: MaterialType 변환 실패: {materialId}");
+            return 0;
+        }
+        
+        // AccountData에서 실제 보유량 조회
+        return AccountDataManager.Instance?.GetMaterialCount(materialType) ?? 0;
+    }
+    
+    /// <summary>
+    /// [Phase 9] 특정 룬의 조각 추가 - AccountData Material 연동
+    /// ⚠️ Obsolete: 직접 사용하지 말고 StageEndItemTransfer가 자동 처리
+    /// </summary>
+    [System.Obsolete("Phase 9: AccountData Material 시스템이 자동 처리함")]
+    public void AddFragments(string runeId, int amount)
+    {
+        Debug.LogWarning($"[RuneInventoryManager] AddFragments는 Obsolete입니다. AccountData Material 시스템이 자동 처리합니다.");
+    }
+    
+    /// <summary>
+    /// [Phase 9] 룬 조각 획득 (드롭 시스템 연동용)
+    /// ⚠️ Obsolete: AccountData Material 시스템이 자동 처리
+    /// </summary>
+    [System.Obsolete("Phase 9: 드롭 시스템이 AccountData Material로 직접 저장함")]
+    public void AddRuneFragment(string runeId, int amount)
+    {
+        Debug.LogWarning($"[RuneInventoryManager] AddRuneFragment는 Obsolete입니다. 드롭 시스템이 AccountData Material로 직접 저장합니다.");
+    }
+    
+    /// <summary>
+    /// [Phase 9] 특정 룬의 조각 소모 시도 - AccountData Material 연동
+    /// </summary>
+    public bool TryConsumeFragments(string runeId, int amount)
+    {
+        // runeId → MaterialType 변환
+        string materialId = $"RUNE_FRAG_{runeId}";
+        MaterialType materialType = MaterialTypeExtensions.FromItemId(materialId);
+        
+        if (materialType == MaterialType.None)
+        {
+            Debug.LogWarning($"[RuneInventoryManager] TryConsumeFragments: MaterialType 변환 실패: {materialId}");
+            return false;
+        }
+        
+        // AccountData에서 실제 소모
+        bool success = AccountDataManager.Instance?.RemoveMaterial(materialType, amount) ?? false;
+        
+        if (success)
+        {
+            Debug.Log($"[RuneInventoryManager] 조각 소모: {runeId} -{amount}개 (남은 개수: {GetFragmentCount(runeId)}개)");
+            OnInventoryChanged?.Invoke(); // UI 갱신
+        }
+        else
+        {
+            int currentCount = GetFragmentCount(runeId);
+            Debug.LogWarning($"[RuneInventoryManager] 조각 부족: {runeId} (보유: {currentCount}개, 필요: {amount}개)");
+        }
+        
+        return success;
+    }
+    
+    /// <summary>
+    /// [Phase 9] 모든 룬 조각 정보 반환 - AccountData Material 기반
+    /// </summary>
+    public Dictionary<string, int> GetAllFragments()
+    {
+        var result = new Dictionary<string, int>();
+        
+        // Resources/Runes 폴더에서 모든 RuneData 로드
+        var allRunes = Resources.LoadAll<RuneData>("Runes");
+        
+        foreach (var runeData in allRunes)
+        {
+            int count = GetFragmentCount(runeData.runeId);
+            result[runeData.runeId] = count;
+        }
+        
+        return result;
+    }
+    
+    #endregion
+    
     #region 디버그
     
     /// <summary>
@@ -558,6 +656,40 @@ public class RuneInventoryManager : MonoBehaviour
         }
         
         Debug.Log("====================================================");
+    }
+    
+    #endregion
+    
+    #region 디버그 & 테스트 (Phase 8-1)
+    
+    /// <summary>
+    /// [ContextMenu] 테스트용 룬 조각 획득 (보스 사냥꾼 +100)
+    /// </summary>
+    [ContextMenu("테스트: 보스 사냥꾼 조각 +100")]
+    private void DebugAddBossHunterFragments()
+    {
+        const string testRuneId = "RUNE_BOSS_HUNTER";
+        const int testAmount = 100;
+        
+        AddRuneFragment(testRuneId, testAmount);
+        
+        Debug.Log($"[DEBUG] {testRuneId} 조각 {testAmount}개 추가 완료!");
+    }
+    
+    /// <summary>
+    /// [ContextMenu] 테스트용 모든 룬 조각 +50
+    /// </summary>
+    [ContextMenu("테스트: 모든 룬 조각 +50")]
+    private void DebugAddAllFragments()
+    {
+        var allFragments = GetAllFragments();
+        
+        foreach (var runeId in allFragments.Keys)
+        {
+            AddRuneFragment(runeId, 50);
+        }
+        
+        Debug.Log($"[DEBUG] 모든 룬 조각 50개씩 추가 완료! (총 {allFragments.Count}종류)");
     }
     
     #endregion

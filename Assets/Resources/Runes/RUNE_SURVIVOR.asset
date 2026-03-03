@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e245e09812985f48b862383e2b014b1, type: 3}
+  m_Name: RUNE_SURVIVOR
+  m_EditorClassIdentifier: 
+  runeId: RUNE_SURVIVOR
+  runeName: "\uBD88\uAD74\uC758 \uC0DD\uC874\uC790"
+  runeType: 4
+  description: "[\uC8FC\uC635\uC158 - \uD68D\uB4DD \uC2DC \uC989\uC2DC \uC801\uC6A9]\n-
+    \uCCB4\uB825 30% \uC774\uD558\uC77C \uB54C \uD53C\uD574 \uAC10\uC18C +25% (\uB808\uBCA8\uB2F9
+    5% \uC99D\uAC00)\n\n[\uBD80\uC635\uC158 - 3, 6, 9\uB808\uBCA8\uC5D0\uC11C \uB79C\uB364
+    \uAC1C\uBC29]\n- \uBCF4\uC2A4 \uD53C\uD574 HP DOT \uD68C\uBCF5 \uCD08\uB2F9 +2%\n-
+    \uBCF4\uC2A4\uB85C\uBD80\uD130 \uBC1B\uB294 \uD53C\uD574 -30%\n- \uBCF4\uC2A4
+    \uC7A5\uD310 \uD53C\uD574 \uAC10\uC18C +50%"
+  icon: {fileID: -252992741, guid: 11b430e2c3c2759488c031132e5c3e24, type: 3}
+  mainStatModifierId: LOW_HP_DR
+  baseMaxLevel: 10
+  maxLimitBreak: 5
+  mainStatLevelGrowth: 0.05
+  subStatPool:
+  - modifierId: BOSS_DOT_LIFESTEAL
+    weight: 35
+  - modifierId: BOSS_ATK_DMG_REDUCE
+    weight: 35
+  - modifierId: BOSS_AREA_DMG_REDUCE
+    weight: 30
+  obtainMethod: "\uBCF4\uC2A4 \uB4DC\uB86D"
+  requiredLevel: 10

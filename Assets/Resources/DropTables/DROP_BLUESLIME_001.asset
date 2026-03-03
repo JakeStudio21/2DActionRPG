@@ -67,8 +67,18 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_GLOVES_ASSASIN_EX
-    rarity: 4
+  - itemId: RUNE_FRAG_RUNE_AREA_DEFENDER
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: RUNE_FRAG_RUNE_BOSS_DEFENDER
+    rarity: 0
     weight: 0.2
     chance: 0.3
     minQuantity: 1
@@ -77,5 +87,65 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  totalWeight: 1.2
-  totalChance: 1.8
+  - itemId: RUNE_FRAG_RUNE_BOSS_HUNTER
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: RUNE_FRAG_RUNE_DEFENSE_BREAKER
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: RUNE_FRAG_RUNE_EXECUTIONER
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: RUNE_FRAG_RUNE_HIGH_HP_HUNTER
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: RUNE_FRAG_RUNE_SURVIVOR
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: RUNE_FRAG_RUNE_VAMPIRE
+    rarity: 0
+    weight: 10
+    chance: 0.3
+    minQuantity: 50
+    maxQuantity: 60
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  totalWeight: 71.2
+  totalChance: 3.8999996

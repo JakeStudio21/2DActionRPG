@@ -11,12 +11,14 @@ public class PlayerDebugTools : EditorWindow
     private int goldToAdd = 1000;
     private int levelToSet = 1;
     private int spToAdd = 10;
+    private int runeFragmentToAdd = 100; // 🔷 룬 조각 추가 개수
+    private int materialToAdd = 100; // 📦 강화 재료 추가 개수
     
     [MenuItem("Tools/Player/🎮 플레이어 디버그 도구")]
     public static void ShowWindow()
     {
         var window = GetWindow<PlayerDebugTools>("플레이어 디버그");
-        window.minSize = new Vector2(400, 500);
+        window.minSize = new Vector2(400, 750); // 높이 증가 (600→750, 재료 섹션 추가)
     }
     
     void OnGUI()
@@ -184,12 +186,180 @@ public class PlayerDebugTools : EditorWindow
         GUILayout.Space(10);
         
         // ========================================
+        // 룬 조각 추가 (Phase 9: AccountData Material 연동)
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("🔷 룬 조각 추가 (8종류)", EditorStyles.boldLabel);
+        runeFragmentToAdd = EditorGUILayout.IntField("추가할 개수", runeFragmentToAdd);
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("공격형 룬 조각 (4종)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("보스 사냥꾼"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_BOSS_HUNTER, runeFragmentToAdd);
+            Debug.Log($"✅ 보스 사냥꾼 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        if (GUILayout.Button("방어 파괴자"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_DEFENSE_BREAKER, runeFragmentToAdd);
+            Debug.Log($"✅ 방어 파괴자 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("고체력 사냥꾼"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_HIGH_HP_HUNTER, runeFragmentToAdd);
+            Debug.Log($"✅ 고체력 사냥꾼 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        if (GUILayout.Button("처형자"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_EXECUTIONER, runeFragmentToAdd);
+            Debug.Log($"✅ 처형자 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("생존형 룬 조각 (3종)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("보스 철벽"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_BOSS_DEFENDER, runeFragmentToAdd);
+            Debug.Log($"✅ 보스 철벽 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        if (GUILayout.Button("불굴의 생존자"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_SURVIVOR, runeFragmentToAdd);
+            Debug.Log($"✅ 불굴의 생존자 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("장판 철벽"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER, runeFragmentToAdd);
+            Debug.Log($"✅ 장판 철벽 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("유틸리티 룬 조각 (1종)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("흡혈 룬"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_VAMPIRE, runeFragmentToAdd);
+            Debug.Log($"✅ 흡혈 룬 조각 {runeFragmentToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("빠른 추가", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("모든 룬 조각 +100"))
+        {
+            AddAllRuneFragments(100);
+        }
+        if (GUILayout.Button("모든 룬 조각 +1000"))
+        {
+            AddAllRuneFragments(1000);
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
+        // 강화 재료 추가 (9종류)
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("📦 강화 재료 추가 (9종류)", EditorStyles.boldLabel);
+        materialToAdd = EditorGUILayout.IntField("추가할 개수", materialToAdd);
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("⚔️ 무기 재료 (3종)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("무기 파편 (D/C/B)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.WeaponFragment, materialToAdd);
+            Debug.Log($"✅ 무기 강화 파편 {materialToAdd}개 추가!");
+        }
+        if (GUILayout.Button("무기 결정 (A/S/SS)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.WeaponCrystal, materialToAdd);
+            Debug.Log($"✅ 무기 강화 결정 {materialToAdd}개 추가!");
+        }
+        if (GUILayout.Button("무기 코어 (EX/TR)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.WeaponCore, materialToAdd);
+            Debug.Log($"✅ 무기 강화 코어 {materialToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("🛡️ 방어구 재료 (3종)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("방어구 파편 (D/C/B)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.ArmorFragment, materialToAdd);
+            Debug.Log($"✅ 방어구 강화 파편 {materialToAdd}개 추가!");
+        }
+        if (GUILayout.Button("방어구 결정 (A/S/SS)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.ArmorCrystal, materialToAdd);
+            Debug.Log($"✅ 방어구 강화 결정 {materialToAdd}개 추가!");
+        }
+        if (GUILayout.Button("방어구 코어 (EX/TR)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.ArmorCore, materialToAdd);
+            Debug.Log($"✅ 방어구 강화 코어 {materialToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("💍 악세사리 재료 (3종)", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("악세사리 파편 (D/C/B)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryFragment, materialToAdd);
+            Debug.Log($"✅ 악세사리 강화 파편 {materialToAdd}개 추가!");
+        }
+        if (GUILayout.Button("악세사리 결정 (A/S/SS)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryCrystal, materialToAdd);
+            Debug.Log($"✅ 악세사리 강화 결정 {materialToAdd}개 추가!");
+        }
+        if (GUILayout.Button("악세사리 코어 (EX/TR)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryCore, materialToAdd);
+            Debug.Log($"✅ 악세사리 강화 코어 {materialToAdd}개 추가!");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("빠른 추가", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("모든 강화 재료 +100"))
+        {
+            AddAllMaterials(100);
+        }
+        if (GUILayout.Button("모든 강화 재료 +1000"))
+        {
+            AddAllMaterials(1000);
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
         // 저장
         // ========================================
         EditorGUILayout.BeginVertical("box");
         if (GUILayout.Button("💾 현재 상태 저장", GUILayout.Height(30)))
         {
             PlayerDataManager.Instance.SaveCurrentSlot();
+            AccountDataManager.Instance.Save(); // 룬 조각도 저장
             Debug.Log("✅ 현재 슬롯 저장 완료!");
         }
         EditorGUILayout.EndVertical();
@@ -222,5 +392,56 @@ public class PlayerDebugTools : EditorWindow
     private static int CalculateExpForLevel(int level)
     {
         return 100 + (level - 1) * 50; // 기본 100 + 레벨당 50씩 증가
+    }
+    
+    /// <summary>
+    /// 모든 룬 조각 일괄 추가
+    /// </summary>
+    private void AddAllRuneFragments(int amount)
+    {
+        if (AccountDataManager.Instance == null)
+        {
+            Debug.LogError("❌ AccountDataManager를 찾을 수 없습니다!");
+            return;
+        }
+        
+        // 8종류 룬 조각 추가
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_BOSS_HUNTER, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_BOSS_DEFENDER, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_DEFENSE_BREAKER, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_HIGH_HP_HUNTER, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_EXECUTIONER, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_SURVIVOR, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_VAMPIRE, amount);
+        
+        AccountDataManager.Instance.Save();
+        Debug.Log($"✅ 모든 룬 조각 {amount}개씩 추가 완료! (총 8종류)");
+    }
+    
+    /// <summary>
+    /// 모든 강화 재료 일괄 추가
+    /// </summary>
+    private void AddAllMaterials(int amount)
+    {
+        if (AccountDataManager.Instance == null)
+        {
+            Debug.LogError("❌ AccountDataManager를 찾을 수 없습니다!");
+            return;
+        }
+        
+        // 9종류 강화 재료 추가
+        AccountDataManager.Instance.AddMaterial(MaterialType.WeaponFragment, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.WeaponCrystal, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.WeaponCore, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.ArmorFragment, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.ArmorCrystal, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.ArmorCore, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryFragment, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryCrystal, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryCore, amount);
+        
+        AccountDataManager.Instance.Save();
+        Debug.Log($"✅ 모든 강화 재료 {amount}개씩 추가 완료! (총 9종류)");
     }
 }
