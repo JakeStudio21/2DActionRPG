@@ -32,7 +32,7 @@ public enum StatusEffectType
     Poison,  // 독: 지속 데미지
     Slow,    // 둔화: 이동속도 감소
     Burn,    // 화상: 화염 지속 데미지
-    Stun     // 기절: 일시적 행동 불가
+    Bind     // 속박: 이동 불가
 }
 
 /// <summary>

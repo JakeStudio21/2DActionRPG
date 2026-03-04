@@ -35,8 +35,10 @@ MonoBehaviour:
   aoeDuration: 1
   aoeShape: 0
   aoeScale: 1
-  onHitEffects: []
-  effectChances: []
+  onHitEffects:
+  - {fileID: 0}
+  effectChances:
+  - 1
   attackStartEffect: {fileID: 7502250425806291784, guid: 12e330c74502aea48b17b19156dec2a1, type: 3}
   hitEffect: {fileID: 1625881847255917415, guid: 29f50b9dfdc1356418ffb92dec9be2a6, type: 3}
   attackSound: {fileID: 0}

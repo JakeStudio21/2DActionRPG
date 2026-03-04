@@ -15,7 +15,7 @@ MonoBehaviour:
   effectName: "\uB3C5"
   effectType: 1
   description: "\uC9C0\uC18D\uC801\uC73C\uB85C \uCCB4\uB825\uC744 \uAC10\uC18C\uC2DC\uD0B5\uB2C8\uB2E4"
-  duration: 5
+  duration: 18
   tickInterval: 1
   effectValue: 2
   degradeOverTime: 0
@@ -24,6 +24,7 @@ MonoBehaviour:
   maxStacks: 3
   removalCondition: 0
   applyEffect: {fileID: 0}
-  persistentEffect: {fileID: 0}
+  persistentEffect: {fileID: 4912645067155827441, guid: 44f735cd62c3ead4aa4de43669143479, type: 3}
   removeEffect: {fileID: 0}
+  effectOffset: {x: 0, y: -0.5, z: 0}
   applySound: {fileID: 0}

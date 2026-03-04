@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe34b0cf919df1941b8cd9d3d2a6652d, type: 3}
-  m_Name: StunEffect
+  m_Name: BindEffect
   m_EditorClassIdentifier: 
-  effectName: "\uAE30\uC808"
+  effectName: "\uC18D\uBC15"
   effectType: 4
-  description: "\uC77C\uC2DC\uC801\uC73C\uB85C \uD589\uB3D9\uC744 \uBD88\uAC00\uB2A5\uD558\uAC8C
+  description: "\uC77C\uC2DC\uC801\uC73C\uB85C \uC774\uB3D9\uC744 \uBD88\uAC00\uB2A5\uD558\uAC8C
     \uD569\uB2C8\uB2E4"
-  duration: 2
+  duration: 5
   tickInterval: 0
   effectValue: 1
   degradeOverTime: 0
@@ -24,7 +24,8 @@ MonoBehaviour:
   stackable: 0
   maxStacks: 3
   removalCondition: 0
-  applyEffect: {fileID: 0}
-  persistentEffect: {fileID: 0}
+  applyEffect: {fileID: 3545761778305609661, guid: 6890b0fe738c5134d980dcb958edd879, type: 3}
+  persistentEffect: {fileID: 7364043808024623643, guid: 917fd61b4bd63994a80cf289542582f3, type: 3}
   removeEffect: {fileID: 0}
+  effectOffset: {x: 0, y: -1, z: 0}
   applySound: {fileID: 0}

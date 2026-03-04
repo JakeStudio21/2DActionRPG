@@ -436,6 +436,7 @@ GameObject:
   - component: {fileID: 4620531986320996637}
   - component: {fileID: 7154712043368475352}
   - component: {fileID: 5932016489492290845}
+  - component: {fileID: 3289187088691961757}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -723,6 +724,7 @@ MonoBehaviour:
   skillSet:
     showDebugLogs: 1
   showDebugLogs: 1
+  usePhase4System: 1
 --- !u!114 &-2556596448130641449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -932,6 +934,27 @@ MonoBehaviour:
     currentLevel: 1
     isEquipped: 1
     lastUsedTime: -Infinity
-  availableSP: 0
+  totalSP: 0
+  usedSP: 0
+  currentPlayerLevel: 1
   playerStats: {fileID: 0}
   showDebugLogs: 1
+--- !u!114 &3289187088691961757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c3fbdace4774b340a221148aed6b199, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poisonResistance: 0.5
+  burnResistance: 0
+  bindResistance: 0
+  slowResistance: 0
+  bleedResistance: 0
+  stunResistance: 0
+  enableDebugLogs: 1

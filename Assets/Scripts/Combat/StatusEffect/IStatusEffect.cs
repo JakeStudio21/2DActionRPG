@@ -49,5 +49,13 @@ public interface IStatusEffect
     /// <param name="newDuration">새로 추가될 지속시간</param>
     /// <param name="newValue">새로 추가될 효과 값</param>
     void RefreshOrStack(float newDuration, float newValue);
+    
+    /// <summary>
+    /// 🛡️ Phase 1: 저항력 적용
+    /// 피격자의 저항 수치에 따라 상태이상 지속시간을 감소시킴
+    /// </summary>
+    /// <param name="resistance">저항 수치 (0.0 ~ 1.0, 1.0 = 100% 저항)</param>
+    /// <returns>true: 완전 저항 (효과 무효화), false: 부분 저항 (지속시간 감소 후 효과 적용)</returns>
+    bool ApplyResistance(float resistance);
 }
 

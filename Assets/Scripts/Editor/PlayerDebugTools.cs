@@ -13,12 +13,16 @@ public class PlayerDebugTools : EditorWindow
     private int spToAdd = 10;
     private int runeFragmentToAdd = 100; // 🔷 룬 조각 추가 개수
     private int materialToAdd = 100; // 📦 강화 재료 추가 개수
+    private string stageIdToComplete = "CH01_ST01"; // 🎯 완료할 스테이지 ID
+    
+    // 스크롤 위치 저장 (모바일 고려)
+    private Vector2 scrollPosition;
     
     [MenuItem("Tools/Player/🎮 플레이어 디버그 도구")]
     public static void ShowWindow()
     {
         var window = GetWindow<PlayerDebugTools>("플레이어 디버그");
-        window.minSize = new Vector2(400, 750); // 높이 증가 (600→750, 재료 섹션 추가)
+        window.minSize = new Vector2(400, 800); // 높이 증가 (750→800, 스테이지 클리어 섹션 추가)
     }
     
     void OnGUI()
@@ -44,6 +48,11 @@ public class PlayerDebugTools : EditorWindow
             EditorGUILayout.HelpBox("❌ 슬롯 데이터를 불러올 수 없습니다!", MessageType.Error);
             return;
         }
+        
+        // ========================================
+        // 📜 스크롤 시작 (모바일 고려)
+        // ========================================
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
         
         // 현재 상태 표시
         EditorGUILayout.BeginVertical("box");
@@ -353,6 +362,51 @@ public class PlayerDebugTools : EditorWindow
         GUILayout.Space(10);
         
         // ========================================
+        // 🎯 스테이지 클리어 (해금 안된 스테이지도 가능)
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("🎯 스테이지 클리어 (디버그)", EditorStyles.boldLabel);
+        
+        // 스테이지 ID 입력
+        stageIdToComplete = EditorGUILayout.TextField("스테이지 ID", stageIdToComplete);
+        
+        EditorGUILayout.Space(5);
+        EditorGUILayout.HelpBox("예시: CH01_ST01, CH01_ST02, CH02_ST01 등\n해금되지 않은 스테이지도 클리어 처리 가능합니다.", MessageType.Info);
+        
+        // 클리어 버튼
+        if (GUILayout.Button($"🎯 {stageIdToComplete} 스테이지 클리어", GUILayout.Height(30)))
+        {
+            CompleteStageDebug(stageIdToComplete);
+        }
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("빠른 클리어", EditorStyles.miniBoldLabel);
+        
+        // 챕터 1 빠른 클리어
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("CH01_ST01 클리어")) CompleteStageDebug("CH01_ST01");
+        if (GUILayout.Button("CH01_ST02 클리어")) CompleteStageDebug("CH01_ST02");
+        if (GUILayout.Button("CH01_ST03 클리어")) CompleteStageDebug("CH01_ST03");
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("CH01_ST05 클리어")) CompleteStageDebug("CH01_ST05");
+        if (GUILayout.Button("CH01_ST10 클리어")) CompleteStageDebug("CH01_ST10");
+        EditorGUILayout.EndHorizontal();
+        
+        // 챕터 2 빠른 클리어
+        EditorGUILayout.Space(5);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("CH02_ST01 클리어")) CompleteStageDebug("CH02_ST01");
+        if (GUILayout.Button("CH02_ST05 클리어")) CompleteStageDebug("CH02_ST05");
+        if (GUILayout.Button("CH02_ST10 클리어")) CompleteStageDebug("CH02_ST10");
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
         // 저장
         // ========================================
         EditorGUILayout.BeginVertical("box");
@@ -363,6 +417,11 @@ public class PlayerDebugTools : EditorWindow
             Debug.Log("✅ 현재 슬롯 저장 완료!");
         }
         EditorGUILayout.EndVertical();
+        
+        // ========================================
+        // 📜 스크롤 종료
+        // ========================================
+        EditorGUILayout.EndScrollView();
     }
     
     private void SetLevel(int level)
@@ -443,5 +502,50 @@ public class PlayerDebugTools : EditorWindow
         
         AccountDataManager.Instance.Save();
         Debug.Log($"✅ 모든 강화 재료 {amount}개씩 추가 완료! (총 9종류)");
+    }
+    
+    /// <summary>
+    /// 스테이지 강제 클리어 (해금 안된 스테이지도 가능)
+    /// </summary>
+    private void CompleteStageDebug(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId))
+        {
+            Debug.LogError("❌ 스테이지 ID가 비어있습니다!");
+            return;
+        }
+        
+        // StageProgressManager 확인
+        if (StageSystem.StageProgressManager.Instance == null)
+        {
+            Debug.LogError("❌ StageProgressManager를 찾을 수 없습니다!");
+            return;
+        }
+        
+        var progressManager = StageSystem.StageProgressManager.Instance;
+        
+        // 1단계: 스테이지 해금 (해금되지 않은 경우)
+        if (!progressManager.IsStageUnlocked(stageId))
+        {
+            progressManager.UnlockStage(stageId);
+            Debug.Log($"🔓 스테이지 {stageId} 강제 해금!");
+        }
+        
+        // 2단계: 스테이지 클리어
+        if (!progressManager.IsStageCompleted(stageId))
+        {
+            progressManager.CompleteStage(stageId, completionTime: 60f, isFirstClear: true);
+            Debug.Log($"✅ 스테이지 {stageId} 클리어 처리 완료!");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ 스테이지 {stageId}는 이미 클리어된 상태입니다.");
+        }
+        
+        // 3단계: 저장
+        PlayerDataManager.Instance.SaveCurrentSlot();
+        AccountDataManager.Instance.Save();
+        
+        Debug.Log($"🎯 [디버그 도구] {stageId} 스테이지 클리어 처리 완료!");
     }
 }

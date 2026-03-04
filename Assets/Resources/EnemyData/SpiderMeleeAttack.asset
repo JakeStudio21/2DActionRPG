@@ -39,7 +39,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
   effectChances:
   - 1
-  attackStartEffect: {fileID: 0}
+  attackStartEffect: {fileID: 4912645067155827441, guid: 54beec8f69623fe42ba4b6be69924631, type: 3}
   hitEffect: {fileID: 0}
   attackSound: {fileID: 0}
   hitSound: {fileID: 0}

@@ -155,8 +155,8 @@ public class MeleeAttack : BaseAttackBehaviour
                 // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
                 playerHealth.TakeDamage(result, transform);
                 
-                // ⚙️ Phase 4-C: TODO - 상태이상 적용은 나중에 구현
-                // 면역 체크는 PlayerHealth.TakeDamage()에서 이미 처리됨
+                // 🛡️ Phase 1: 상태이상 적용 (저항 시스템 적용됨)
+                ApplyStatusEffects(playerHealth, hitCollider.transform);
                 
                 // ⭐ 새 시스템: 이펙트 및 사운드
                 PlayHitEffectsAndSounds(hitCollider.transform.position, result.isCritical);

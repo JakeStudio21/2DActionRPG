@@ -152,6 +152,54 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
+  - tag: MON_BLUESLIME_001
+    prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: MON_GRAPE_001
+    prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: MON_BEETLE_001
+    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_LADYBUG_001
+    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_PLANTS_001
+    prefab: {fileID: 3235174918318939483, guid: c40cffd48c2084e458aa480204ffdcda, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_SPIDER_001
+    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_BEAR_001
+    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_MUSHROOM_001
+    prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   - tag: StraightProjectile
     prefab: {fileID: 6830296691463287077, guid: 83ae11102c63fd94594904bd0df3e079, type: 3}
     size: 10
@@ -242,12 +290,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
-  - tag: MuzzleFlash
-    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 5
   - tag: Drop_Currency
     prefab: {fileID: 1576404571005045479, guid: 7fe62c09751caef408fd9673cc872e47, type: 3}
     size: 10
@@ -302,6 +344,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: MuzzleFlash
+    prefab: {fileID: 3545761778305609661, guid: dffbd3c7045c51a4d9fd04cb16637144, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   - tag: Fx_Equipment_SS
     prefab: {fileID: 7111470932628664318, guid: ef2c97bf37403af4a81d85d189f8455c, type: 3}
     size: 5
@@ -320,41 +368,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
-  - tag: MON_LADYBUG_001
-    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
+  - tag: Fx_StatusEffect_Poison
+    prefab: {fileID: 4912645067155827441, guid: 44f735cd62c3ead4aa4de43669143479, type: 3}
     size: 5
     preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_PLANTS_001
-    prefab: {fileID: 3235174918318939483, guid: c40cffd48c2084e458aa480204ffdcda, type: 3}
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_StatusEffect_Bind
+    prefab: {fileID: 7364043808024623643, guid: 917fd61b4bd63994a80cf289542582f3, type: 3}
     size: 5
     preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_SPIDER_001
-    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_BEAR_001
-    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_MUSHROOM_001
-    prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_BEETLE_001
-    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 0

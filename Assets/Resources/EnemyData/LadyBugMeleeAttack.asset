@@ -36,7 +36,7 @@ MonoBehaviour:
   aoeShape: 0
   aoeScale: 1
   onHitEffects:
-  - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
+  - {fileID: 11400000, guid: 619d3ad8f9925de46937a365061b0eaa, type: 2}
   effectChances:
   - 1
   attackStartEffect: {fileID: 0}

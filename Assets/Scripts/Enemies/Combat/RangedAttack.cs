@@ -302,6 +302,9 @@ public class RangedAttack : BaseAttackBehaviour
         // 발사
         arcProjectile.LaunchToTarget(targetPosition);
         
+        // 🛡️ Phase 1: 공격자 설정 (상태이상 적용용)
+        arcProjectile.SetAttacker(this);
+        
         // AttackData 기반 설정
         if (attackData != null)
         {
@@ -331,6 +334,9 @@ public class RangedAttack : BaseAttackBehaviour
         
         // 발사
         straightProjectile.SetDirection(direction);
+        
+        // 🛡️ Phase 1: 공격자 설정 (상태이상 적용용)
+        straightProjectile.SetAttacker(this);
         
         // AttackData 기반 설정
         if (attackData != null)

@@ -227,9 +227,9 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
     #region ⭐ 새 시스템: 상태이상 관리
     
     /// <summary>
-    /// 상태이상 효과 적용
+    /// 상태이상 효과 적용 (발사체에서도 호출 가능하도록 public)
     /// </summary>
-    protected void ApplyStatusEffects(PlayerHealth targetHealth, Transform targetTransform)
+    public void ApplyStatusEffects(PlayerHealth targetHealth, Transform targetTransform)
     {
         if (attackData == null || targetHealth == null) return;
         

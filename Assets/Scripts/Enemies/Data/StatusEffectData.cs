@@ -52,6 +52,9 @@ public class StatusEffectData : ScriptableObject
     [Tooltip("상태이상 제거 시 이펙트")]
     [SerializeField] private GameObject removeEffect;
     
+    [Tooltip("이펙트 스폰 위치 오프셋 (타겟 기준)")]
+    [SerializeField] private Vector3 effectOffset = new Vector3(0f, 0.5f, 0f);
+    
     [Tooltip("상태이상 적용 사운드")]
     [SerializeField] private AudioClip applySound;
 
@@ -70,6 +73,7 @@ public class StatusEffectData : ScriptableObject
     public GameObject ApplyEffect => applyEffect;
     public GameObject PersistentEffect => persistentEffect;
     public GameObject RemoveEffect => removeEffect;
+    public Vector3 EffectOffset => effectOffset;
     public AudioClip ApplySound => applySound;
 
     /// <summary>
@@ -108,7 +112,7 @@ public class StatusEffectData : ScriptableObject
     /// </summary>
     public bool IsInstantEffect()
     {
-        return effectType == StatusEffectType.Stun || tickInterval <= 0f;
+        return effectType == StatusEffectType.Bind || tickInterval <= 0f;
     }
 
     /// <summary>
@@ -158,9 +162,9 @@ public class StatusEffectData : ScriptableObject
                 effectValue = Mathf.Clamp01(effectValue); // 둔화는 0~1 범위
                 break;
                 
-            case StatusEffectType.Stun:
-                tickInterval = 0f; // 기절은 즉시 적용
-                stackable = false; // 기절은 중첩 불가
+            case StatusEffectType.Bind:
+                tickInterval = 0f; // 속박은 즉시 적용
+                stackable = false; // 속박은 중첩 불가
                 break;
         }
     }

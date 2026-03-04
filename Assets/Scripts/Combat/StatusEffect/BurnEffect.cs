@@ -16,6 +16,10 @@ public class BurnEffect : BaseStatusEffect
     private float tickInterval; // 틱 간격 (초)
     private float lastTickTime; // 마지막 틱 시간
     
+    // 🎨 틱 이펙트
+    private GameObject tickEffectPrefab;
+    private Vector3 effectOffset;  // 이펙트 스폰 위치 오프셋
+    
     #endregion
     
     #region 생성자
@@ -27,11 +31,15 @@ public class BurnEffect : BaseStatusEffect
     /// <param name="duration">지속 시간 (초)</param>
     /// <param name="damagePerTick">틱당 데미지</param>
     /// <param name="tickInterval">틱 간격 (초, 기본값 1초)</param>
-    public BurnEffect(GameObject target, float duration, float damagePerTick, float tickInterval = 1.0f)
+    /// <param name="tickEffect">틱마다 재생할 이펙트</param>
+    /// <param name="offset">이펙트 스폰 위치 오프셋 (타겟 기준)</param>
+    public BurnEffect(GameObject target, float duration, float damagePerTick, float tickInterval = 1.0f, GameObject tickEffect = null, Vector3 offset = default)
         : base(EStatusEffectType.Burn, target, duration, damagePerTick)
     {
         this.tickInterval = tickInterval;
         this.lastTickTime = 0f;
+        this.tickEffectPrefab = tickEffect;
+        this.effectOffset = offset == default ? new Vector3(0f, 0.5f, 0f) : offset;
         
         // 대상 컴포넌트 캐싱
         if (target != null)
@@ -134,6 +142,33 @@ public class BurnEffect : BaseStatusEffect
             
             if (enableDebugLogs)
                 Debug.Log($"🔥 [BurnEffect] 몬스터 {target.name} 화상 틱 데미지: {damage}");
+        }
+        
+        // 🎨 틱 이펙트 재생
+        PlayTickEffect();
+    }
+    
+    /// <summary>
+    /// 🎨 틱마다 재생되는 이펙트
+    /// </summary>
+    private void PlayTickEffect()
+    {
+        if (tickEffectPrefab == null || target == null)
+            return;
+        
+        Vector3 spawnPosition = target.transform.position + effectOffset;
+        
+        if (GamePoolManager.Instance != null)
+        {
+            GameObject effectObj = GamePoolManager.Instance.SpawnFromPool(
+                tickEffectPrefab.name,
+                spawnPosition,
+                Quaternion.identity);
+        }
+        else
+        {
+            GameObject effectObj = Object.Instantiate(tickEffectPrefab, spawnPosition, Quaternion.identity);
+            Object.Destroy(effectObj, 2f);
         }
     }
     

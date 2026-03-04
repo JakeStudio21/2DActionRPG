@@ -18,6 +18,11 @@ public class SlowEffect : BaseStatusEffect
     private float reducedAmount; // 실제로 감소된 속도값
     private bool wasSlowApplied;
     
+    // 🎨 이펙트 관리
+    private GameObject persistentEffectPrefab;  // 지속 이펙트 (둔화 표시)
+    private GameObject _currentVisual;  // 현재 지속 이펙트 인스턴스
+    private Vector3 effectOffset;  // 이펙트 스폰 위치 오프셋
+    
     #endregion
     
     #region 생성자
@@ -28,9 +33,14 @@ public class SlowEffect : BaseStatusEffect
     /// <param name="target">적용 대상 (플레이어 또는 몬스터)</param>
     /// <param name="duration">지속 시간 (초)</param>
     /// <param name="slowAmount">감소 비율 (0.3 = 30% 감소)</param>
-    public SlowEffect(GameObject target, float duration, float slowAmount)
+    /// <param name="persistentEffect">지속 중 표시할 이펙트</param>
+    /// <param name="offset">이펙트 스폰 위치 오프셋 (타겟 기준)</param>
+    public SlowEffect(GameObject target, float duration, float slowAmount, GameObject persistentEffect = null, Vector3 offset = default)
         : base(EStatusEffectType.Slow, target, duration, slowAmount)
     {
+        this.persistentEffectPrefab = persistentEffect;
+        this.effectOffset = offset == default ? new Vector3(0f, 0.5f, 0f) : offset;
+        
         // 대상 컴포넌트 캐싱
         if (target != null)
         {
@@ -63,6 +73,9 @@ public class SlowEffect : BaseStatusEffect
         
         // value는 감소 비율 (0.3 = 30% 감소)
         float slowPercent = Mathf.Clamp01(value);
+        
+        // 🎨 지속 이펙트 생성
+        SpawnPersistentEffect();
         
         // 🧑 플레이어 처리
         if (playerStats != null)
@@ -117,6 +130,9 @@ public class SlowEffect : BaseStatusEffect
         if (target == null || !wasSlowApplied)
             return;
         
+        // 🎨 지속 이펙트 제거
+        DestroyPersistentEffect();
+        
         // 🧑 플레이어 복구
         if (playerStats != null)
         {
@@ -161,6 +177,63 @@ public class SlowEffect : BaseStatusEffect
         {
             // 더 약한 둔화는 지속시간만 갱신
             base.RefreshOrStack(newDuration, newValue);
+        }
+    }
+    
+    #endregion
+    
+    #region 이펙트 재생
+    
+    /// <summary>
+    /// 🎨 지속 이펙트 생성 (1회만)
+    /// </summary>
+    private void SpawnPersistentEffect()
+    {
+        if (persistentEffectPrefab == null || target == null)
+            return;
+        
+        if (_currentVisual)
+            return; // 이미 존재하면 스킵
+        
+        Vector3 spawnPosition = target.transform.position + effectOffset;
+        
+        if (GamePoolManager.Instance != null)
+        {
+            _currentVisual = GamePoolManager.Instance.SpawnFromPool(
+                persistentEffectPrefab.name,
+                spawnPosition,
+                Quaternion.identity);
+        }
+        else
+        {
+            _currentVisual = Object.Instantiate(persistentEffectPrefab, spawnPosition, Quaternion.identity);
+        }
+        
+        // 대상 따라다니기
+        if (_currentVisual != null)
+        {
+            _currentVisual.transform.SetParent(target.transform);
+            _currentVisual.transform.localPosition = effectOffset;
+        }
+    }
+    
+    /// <summary>
+    /// 🎨 지속 이펙트 제거
+    /// </summary>
+    private void DestroyPersistentEffect()
+    {
+        if (_currentVisual)
+        {
+            if (GamePoolManager.Instance != null && persistentEffectPrefab != null)
+            {
+                GamePoolManager.Instance.ReturnToPool(persistentEffectPrefab.name, _currentVisual);
+            }
+            else
+            {
+                Object.Destroy(_currentVisual);
+            }
+            
+            _currentVisual = null;
         }
     }
     

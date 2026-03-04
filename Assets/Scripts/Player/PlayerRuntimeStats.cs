@@ -487,7 +487,7 @@ public class PlayerRuntimeStats : MonoBehaviour
     {
         // 최소/최대값 제한
         finalAttackDamage = Mathf.Max(1f, finalAttackDamage);
-        finalMoveSpeed = Mathf.Clamp(finalMoveSpeed, 0.5f, 20f);
+        finalMoveSpeed = Mathf.Clamp(finalMoveSpeed, 0.3f, 20f);
         finalMaxHealth = Mathf.Max(1f, finalMaxHealth);
         finalAttackSpeed = Mathf.Clamp(finalAttackSpeed, 0.1f, 5f);
         finalCriticalChance = Mathf.Clamp01(finalCriticalChance);

@@ -32,6 +32,9 @@ public class ArcProjectile : MonoBehaviour
     // 풀링 관리
     private bool isReturningToPool = false;
     
+    // 🛡️ Phase 1: 상태이상 적용용
+    private BaseAttackBehaviour attacker = null;
+    
     // 컴포넌트
     private Rigidbody2D rb;
     private CircleCollider2D circleCollider;
@@ -107,6 +110,17 @@ public class ArcProjectile : MonoBehaviour
     public void SetArcHeight(float height)
     {
         arcHeight = height;
+    }
+    
+    /// <summary>
+    /// 🛡️ Phase 1: 공격자 설정 (상태이상 적용용)
+    /// </summary>
+    public void SetAttacker(BaseAttackBehaviour attackerBehaviour)
+    {
+        attacker = attackerBehaviour;
+        
+        if (showDebugLogs && attacker != null)
+            Debug.Log($"🎯 [ArcProjectile] 공격자 설정: {attacker.gameObject.name}");
     }
     
     /// <summary>
@@ -200,6 +214,15 @@ public class ArcProjectile : MonoBehaviour
             if (playerCollider.TryGetComponent(out PlayerHealth playerHealth))
             {
                 playerHealth.TakeDamage(projectileDamage, transform);
+                
+                // 🛡️ Phase 1: 상태이상 적용 (저항 시스템 적용됨)
+                if (attacker != null)
+                {
+                    attacker.ApplyStatusEffects(playerHealth, playerCollider.transform);
+                    
+                    if (showDebugLogs)
+                        Debug.Log($"☠️ [ArcProjectile] 상태이상 적용 시도 (공격자: {attacker.gameObject.name})");
+                }
                 
                 if (showDebugLogs)
                     Debug.Log($"💥 [ArcProjectile] 플레이어에게 {projectileDamage} 데미지!");
