@@ -86,6 +86,9 @@ public class EnemyData : ScriptableObject
     [Tooltip("기본 경험치 보상 (레벨 스케일링 적용)")]
     [SerializeField] private int baseExpReward = 25;
     
+    [Tooltip("🎁 Phase 2: 보스 처치 보상 (보스만 할당, 일반 몬스터는 null)")]
+    [SerializeField] private BossRewardData bossReward;
+    
     [Header("🎁 드롭 시스템")]
     [Tooltip("드롭 그룹 ID (DropTable 참조용)")]
     [SerializeField] private string dropGroupId = "";
@@ -144,6 +147,9 @@ public class EnemyData : ScriptableObject
     // ⭐ 새 드롭 시스템 Properties
     public string DropGroupId => dropGroupId;
     public int DropRolls => dropRolls;
+    
+    // 🎁 Phase 2: 보스 보상 시스템
+    public BossRewardData BossReward => bossReward;
 
     public PatrolTuning PatrolTuning => patrolTuning;
 

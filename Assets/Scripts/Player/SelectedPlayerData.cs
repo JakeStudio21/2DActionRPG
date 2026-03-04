@@ -34,7 +34,7 @@ public class SelectedPlayerData : ScriptableObject
     [SerializeField] private List<EquipmentSlot> equippedIdSlotKeys = new List<EquipmentSlot>();
     [SerializeField] private List<ItemInstanceID> equippedIdSlotValues = new List<ItemInstanceID>();
     
-    public int maxInventorySize = 16; // 인게임 캐릭터 가방 크기 (고정)
+    public int maxInventorySize = 48; // 인게임 캐릭터 가방 크기 (고정)
     
     [Header("🎯 런타임 클래스 특성")]
     public int classLevel = 1;
@@ -87,6 +87,13 @@ public class SelectedPlayerData : ScriptableObject
     
     [Tooltip("사용한 SP")]
     public int usedSP = 0;
+    
+    [Header("🛡️ 상태이상 저항 시스템 (Phase 2)")]
+    [Tooltip("상태이상 저항 스탯 (보스 보상으로 획득)")]
+    public List<ResistanceSaveData> resistanceStats = new List<ResistanceSaveData>();
+    
+    [Tooltip("보스 최초 클리어 여부 확인용 (보스 ID 저장)")]
+    public List<string> clearedBossIds = new List<string>();
     
     // Dictionary로 변환하여 사용
     private Dictionary<EquipmentSlot, EquipmentData> _runtimeEquippedItems = null;
@@ -347,6 +354,17 @@ public class SelectedPlayerData : ScriptableObject
         
         Debug.Log($"📚 [SelectedPlayerData] 스킬 데이터 로드: {skills.Count}개, SP: {usedSP}/{totalSP}");
         
+        // 🛡️ Phase 2: 상태이상 저항 시스템
+        resistanceStats = slotData.resistanceStats != null 
+            ? new List<ResistanceSaveData>(slotData.resistanceStats) 
+            : new List<ResistanceSaveData>();
+        
+        clearedBossIds = slotData.clearedBossIds != null 
+            ? new List<string>(slotData.clearedBossIds) 
+            : new List<string>();
+        
+        Debug.Log($"🛡️ [SelectedPlayerData] 저항 데이터 로드: {resistanceStats.Count}개, 클리어 보스: {clearedBossIds.Count}개");
+        
         SyncDictionaries();
         
         Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 완전 로드 완료");
@@ -507,6 +525,29 @@ public class SelectedPlayerData : ScriptableObject
         slotData.usedSP = this.usedSP;
         
         Debug.Log($"💾 [SelectedPlayerData] 스킬 데이터 저장: {slotData.skills.Count}개, SP: {slotData.usedSP}/{slotData.totalSP}");
+        
+        // ========================================
+        // 📌 상태이상 저항 시스템 (Phase 2) - 안전한 저장
+        // ========================================
+        try
+        {
+            slotData.resistanceStats = this.resistanceStats != null
+                ? new List<ResistanceSaveData>(this.resistanceStats)
+                : new List<ResistanceSaveData>();
+            
+            slotData.clearedBossIds = this.clearedBossIds != null
+                ? new List<string>(this.clearedBossIds)
+                : new List<string>();
+            
+            Debug.Log($"🛡️ [SelectedPlayerData] 저항 데이터 저장: {slotData.resistanceStats.Count}개, 클리어 보스: {slotData.clearedBossIds.Count}개");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"❌ [SelectedPlayerData] 저항 데이터 저장 실패: {ex.Message}");
+            slotData.resistanceStats = new List<ResistanceSaveData>();
+            slotData.clearedBossIds = new List<string>();
+        }
+        
         Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
         Debug.Log($"💾 [SelectedPlayerData] V2 장비 레코드: {slotData.equippedRecords.Count}개");
         return slotData;

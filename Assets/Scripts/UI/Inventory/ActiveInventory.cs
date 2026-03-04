@@ -16,7 +16,10 @@ public class ActiveInventory : MonoBehaviour
 
     [Header("🎒 인벤토리 연동")]
     [SerializeField] private bool useDynamicInventory = true; // 동적 인벤토리 사용 여부
-    [SerializeField] private int maxDisplaySlots = 16; // 표시할 최대 슬롯 수
+    [SerializeField] private int maxDisplaySlots = 48; // 표시할 최대 슬롯 수 (16→48 확장)
+    [SerializeField] private ScrollRect scrollRect; // ⭐ ScrollView 컴포넌트 참조
+    [SerializeField] private Transform slotContainer; // ⭐ 슬롯 컨테이너 (ScrollView → Viewport → Content)
+    [SerializeField] private GameObject slotPrefab; // ⭐ 슬롯 프리팹 (동적 생성용)
     
     [Header("🎯 인게임 상세 패널 UI (정보만)")]
     [SerializeField] private GameObject inGameDetailPanel; // 🆕 인게임 상세 패널
@@ -35,6 +38,9 @@ public class ActiveInventory : MonoBehaviour
     #pragma warning restore 0414
 
     private PlayerControls playerControls;
+    
+    // ⭐ 동적 생성된 슬롯 캐시
+    private List<InventorySlot> activeSlots = new List<InventorySlot>();
 
     private void Awake() {
         playerControls = new PlayerControls();
@@ -71,7 +77,10 @@ public class ActiveInventory : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
-        // PlayerDataManager 인벤토리 연동 초기화
+        // ⭐ 1단계: 슬롯 동적 생성
+        SetupSlots();
+        
+        // ⭐ 2단계: PlayerDataManager 인벤토리 연동 초기화
         StartCoroutine(InitializeInventoryConnection());
         
         yield return new WaitForSeconds(0.2f); // UI 업데이트 대기
@@ -84,6 +93,54 @@ public class ActiveInventory : MonoBehaviour
         Debug.Log("✅ [ActiveInventory] 모든 초기화 완료 - 이벤트 발행됨");
     }
 
+    /// <summary>
+    /// ⭐ 슬롯 동적 생성 (LobbyInventoryUI 패턴 적용)
+    /// </summary>
+    private void SetupSlots()
+    {
+        if (slotContainer == null)
+        {
+            Debug.LogError("❌ [ActiveInventory] slotContainer가 할당되지 않았습니다!");
+            return;
+        }
+        
+        if (slotPrefab == null)
+        {
+            Debug.LogError("❌ [ActiveInventory] slotPrefab이 할당되지 않았습니다!");
+            return;
+        }
+        
+        // 기존 슬롯들 정리
+        foreach (Transform child in slotContainer)
+        {
+            if (Application.isPlaying)
+                Destroy(child.gameObject);
+            else
+                DestroyImmediate(child.gameObject);
+        }
+        activeSlots.Clear();
+        
+        // 새 슬롯들 동적 생성
+        for (int i = 0; i < maxDisplaySlots; i++)
+        {
+            GameObject slotObject = Instantiate(slotPrefab, slotContainer);
+            slotObject.name = $"ActiveInventorySlot_{i}";
+            
+            InventorySlot slot = slotObject.GetComponent<InventorySlot>();
+            if (slot != null)
+            {
+                slot.ClearSlot(); // 빈 슬롯으로 초기화
+                activeSlots.Add(slot);
+            }
+            else
+            {
+                Debug.LogError($"❌ [ActiveInventory] 슬롯 프리팹에 InventorySlot 컴포넌트가 없습니다!");
+            }
+        }
+        
+        Debug.Log($"✅ [ActiveInventory] {activeSlots.Count}개 슬롯 동적 생성 완료 (최대: {maxDisplaySlots})");
+    }
+    
     /// <summary>
     /// PlayerDataManager와 인벤토리 연동 초기화 (지연 갱신 지원)
     /// </summary>
@@ -195,14 +252,23 @@ public class ActiveInventory : MonoBehaviour
         
         Debug.Log($"📊 [ActiveInventory] 통합 가방 상태: 장비 {equipments.Count}개, 재료 {slotData?.characterBagMaterials.Count ?? 0}개 (총 {displayItems.Count}개)");
         
-        // 3. 슬롯에 표시
-        int displayedCount = 0;
-        for (int i = 0; i < transform.childCount && i < maxDisplaySlots; i++)
+        // 3. 슬롯에 표시 (동적 생성된 activeSlots 사용)
+        if (activeSlots.Count == 0)
         {
-            Transform slotTransform = transform.GetChild(i);
-            InventorySlot slot = slotTransform.GetComponent<InventorySlot>();
+            Debug.LogWarning("⚠️ [ActiveInventory] activeSlots가 비어있습니다. SetupSlots()가 호출되지 않았을 수 있습니다.");
+            return;
+        }
+        
+        int displayedCount = 0;
+        for (int i = 0; i < activeSlots.Count && i < maxDisplaySlots; i++)
+        {
+            InventorySlot slot = activeSlots[i];
             
-            if (slot == null) continue;
+            if (slot == null)
+            {
+                Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {i}가 null입니다!");
+                continue;
+            }
             
             if (i < displayItems.Count)
             {

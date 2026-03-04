@@ -642,9 +642,21 @@ public class StageManager : MonoBehaviour
             OnStageCompleted?.Invoke(stageConfig, success);
             
             // 성공 시 보상 처리 및 진행도 저장
+            StageResultData resultData = new StageResultData(success, 0, 0); // 기본값
+            
             if (success)
             {
-                ProcessStageRewards(clearTime);
+                // 보상 처리 및 결과 저장
+                var rewardResult = ProcessStageRewards(clearTime);
+                
+                // RewardResult → StageResultData 변환
+                resultData = StageResultData.FromRewardResult(rewardResult, true);
+                
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"📦 [StageManager] StageResultData 생성: 골드 {resultData.goldReward}, EXP {resultData.expReward}, 아이템 {resultData.itemRewards.Count}개");
+                }
+                
                 SaveStageProgress(clearTime);
                 
                 // 🎒 Phase 3.5: 스테이지 종료 시 V2 가방 아이템을 계정 창고로 자동 이동
@@ -704,16 +716,16 @@ public class StageManager : MonoBehaviour
                                 Debug.Log($"🎬 [StageManager] 스테이지 클리어 컷신 재생 예약: {stageConfig.clearCutsceneId}");
                             
                             // 클리어 컷신은 ResultPopup 표시 전에 재생
-                            StartCoroutine(PlayClearCutsceneAndShowResult());
+                            StartCoroutine(PlayClearCutsceneAndShowResult(resultData));
                             return; // FSMStageController 호출은 컷신 종료 후 처리
                         }
                     }
                 }
                 
-                // FSMStageController에 승리 알림
+                // FSMStageController에 승리 알림 (보상 데이터 포함)
                 if (FSMStageController.Instance != null)
                 {
-                    FSMStageController.Instance.TriggerVictory();
+                    FSMStageController.Instance.TriggerVictory(resultData);
                 }
             }
             else
@@ -729,7 +741,7 @@ public class StageManager : MonoBehaviour
         /// <summary>
         /// 🎬 Phase 4: 클리어 컷신 재생 후 결과 표시
         /// </summary>
-        private IEnumerator PlayClearCutsceneAndShowResult()
+        private IEnumerator PlayClearCutsceneAndShowResult(StageResultData resultData)
         {
             if (enableDebugLogs)
                 Debug.Log($"🎬 [StageManager] 클리어 컷신 재생 시작: {stageConfig.clearCutsceneId}");
@@ -743,30 +755,40 @@ public class StageManager : MonoBehaviour
             if (enableDebugLogs)
                 Debug.Log($"🎬 [StageManager] 클리어 컷신 종료, 결과 화면 표시");
             
-            // 컷신 종료 후 FSMStageController에 승리 알림
+            // 컷신 종료 후 FSMStageController에 승리 알림 (보상 데이터 포함)
             if (FSMStageController.Instance != null)
             {
-                FSMStageController.Instance.TriggerVictory();
+                FSMStageController.Instance.TriggerVictory(resultData);
             }
         }
         
         /// <summary>
         /// 스테이지 보상 처리
         /// </summary>
-        private void ProcessStageRewards(float clearTime)
+        private RewardSystem.RewardResult ProcessStageRewards(float clearTime)
         {
             if (RewardSystem.Instance == null)
             {
                 Debug.LogWarning("[StageManager] RewardSystem이 없습니다. 보상 처리를 건너뜁니다.");
-                return;
+                return new RewardSystem.RewardResult(); // 빈 결과 반환
             }
             
             // 진행도 확인하여 첫 클리어 여부 판단
-            bool isFirstClear = false;
+            bool isFirstClear = true; // ⭐ 기본값: 첫 클리어 (progress가 없으면 첫 진입)
+            
             if (StageProgressManager.Instance != null)
             {
-                var progress = StageProgressManager.Instance.GetStageProgress(stageConfig.StageID);
-                isFirstClear = progress != null && !progress.isFirstClearRewarded;
+                // ⭐ 스테이지 완료 기록이 있으면 재클리어
+                isFirstClear = !StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
+                
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"🎁 [StageManager] 보상 판정 - 스테이지: {stageConfig.StageID}, 첫 클리어: {isFirstClear}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ [StageManager] StageProgressManager가 없어 첫 클리어로 간주합니다.");
             }
             
             // 보상 처리
@@ -776,6 +798,8 @@ public class StageManager : MonoBehaviour
             {
                 Debug.Log($"🎁 [StageManager] 보상 처리 완료: 골드 {rewardResult.Gold}, EXP {rewardResult.Exp}");
             }
+            
+            return rewardResult;
         }
         
         /// <summary>

@@ -2882,7 +2882,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             MarkDirty();
             
             Debug.Log($"✅ [AddItemV2] 아이템 획득 성공: {templateName} (ID: {newId.Value}, 강화: +{enhancementLevel})");
-            OnInventoryChanged?.Invoke();
+            
+            // ⭐ 이벤트 발생 (가방에 추가된 경우만 OnCharacterBagChanged)
+            if (!bagFull)
+            {
+                OnCharacterBagChanged?.Invoke(); // ⭐ 인게임 가방 UI 갱신
+            }
+            OnInventoryChanged?.Invoke(); // ⭐ 기존 호환성 유지
             
             return newId;
         }

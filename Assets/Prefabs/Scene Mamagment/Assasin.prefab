@@ -951,7 +951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3fbdace4774b340a221148aed6b199, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  poisonResistance: 0.5
+  poisonResistance: 0
   burnResistance: 0
   bindResistance: 0
   slowResistance: 0

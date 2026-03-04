@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -103,10 +104,22 @@ public class Boss_ForestElemental : BaseEnemy
     {
         ApplyBossForestElementalSpecificSettings();
         
-        // ⭐ StageManager에 보스 스폰 알림
-        NotifyBossSpawned();
-        
         Debug.Log($"[Boss_ForestElemental] {gameObject.name} Start 초기화 완료");
+        
+        // ⭐ StageManager에 보스 스폰 알림 (모든 초기화 완료 후 마지막에 호출!)
+        // 코루틴으로 1프레임 대기 후 호출하여 BaseEnemy.Start() 완전 완료 보장
+        StartCoroutine(NotifyBossSpawnedAfterFrame());
+    }
+    
+    /// <summary>
+    /// ⭐ 1프레임 대기 후 보스 스폰 알림 (타이밍 이슈 해결)
+    /// </summary>
+    private IEnumerator NotifyBossSpawnedAfterFrame()
+    {
+        // 1프레임 대기 → BaseEnemy.Start() 완전 완료
+        yield return null;
+        
+        NotifyBossSpawned();
     }
     
     /// <summary>

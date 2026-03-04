@@ -30,7 +30,3 @@ MonoBehaviour:
     Amount: 1
     DropRate: 0.3
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_GOLD_COIN
-    Amount: 1000
-    DropRate: 1
-    ItemPrefab: {fileID: 0}

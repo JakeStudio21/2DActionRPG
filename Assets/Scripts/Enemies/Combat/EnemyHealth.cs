@@ -609,6 +609,31 @@ public class EnemyHealth : MonoBehaviour
             string bossId = GetBossId();
             Debug.Log($"[EnemyHealth] 보스 처치: {bossId}");
             
+            // 🎁 Phase 2: 보스 처치 보상 지급
+            if (BossRewardManager.Instance != null && baseEnemy != null && baseEnemy.EnemyData != null && baseEnemy.EnemyData.BossReward != null)
+            {
+                var rewardData = baseEnemy.EnemyData.BossReward;
+                
+                // 유효성 검증
+                if (rewardData.IsValid())
+                {
+                    BossRewardManager.Instance.GrantBossFirstClearReward(
+                        rewardData.bossId,
+                        rewardData.rewardType,
+                        rewardData.rewardAmount
+                    );
+                }
+                else
+                {
+                    Debug.LogWarning($"[EnemyHealth] 보스 보상 데이터가 유효하지 않음: {rewardData.name}");
+                }
+            }
+            else if (BossRewardManager.Instance == null)
+            {
+                Debug.LogWarning($"[EnemyHealth] BossRewardManager.Instance가 null입니다!");
+            }
+            // baseEnemy.EnemyData.BossReward가 null이면 보상 없음 (정상, 로그 불필요)
+            
             // FSMStageController가 자동으로 승리 조건 체크함
         }
 

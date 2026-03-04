@@ -137,6 +137,16 @@ public class LobbyInitializer : MonoBehaviour
             Debug.LogError("   - StageProgressManager: ❌ 없음");
         }
         
+        // BossRewardManager 상태 (Phase 2)
+        if (BossRewardManager.Instance != null)
+        {
+            Debug.Log("   - BossRewardManager: ✅ 존재");
+        }
+        else
+        {
+            Debug.LogError("   - BossRewardManager: ❌ 없음");
+        }
+        
         // PlayerDataManager 상태
         if (PlayerDataManager.Instance != null)
         {

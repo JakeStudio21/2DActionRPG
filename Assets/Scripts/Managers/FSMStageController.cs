@@ -203,7 +203,7 @@ public class FSMStageController : Singleton<FSMStageController>
     /// <summary>
     /// ⭐ 추가: Victory 상태 전환 및 팝업 표시
     /// </summary>
-    public void TriggerVictory()
+    public void TriggerVictory(StageResultData resultData)
     {
         if (victoryTriggered) return; // 중복 방지
 
@@ -213,21 +213,30 @@ public class FSMStageController : Singleton<FSMStageController>
         
         Debug.Log("[FSMStageController] Victory! 미션 완료");
         
-        // Victory 팝업 표시
-        StartCoroutine(ShowVictoryPopupRoutine());
+        // Victory 팝업 표시 (보상 데이터 포함)
+        StartCoroutine(ShowVictoryPopupRoutine(resultData));
+    }
+    
+    /// <summary>
+    /// ⭐ Legacy 메서드: 하위 호환성 유지 (보상 데이터 없음)
+    /// </summary>
+    public void TriggerVictory()
+    {
+        TriggerVictory(new StageResultData(true, 0, 0));
     }
 
     /// <summary>
     /// ⭐ 추가: Victory 팝업 표시 코루틴
     /// </summary>
-    private IEnumerator ShowVictoryPopupRoutine()
+    private IEnumerator ShowVictoryPopupRoutine(StageResultData resultData)
     {
         yield return new WaitForSeconds(0.5f); // 보스 죽음 연출 대기
         
         var resultPopup = FindObjectOfType<ResultPopupController>();
         if (resultPopup != null)
         {
-            resultPopup.Show(true); // Victory
+            resultPopup.ShowVictory(resultData); // Victory + 보상 데이터 전달
+            Debug.Log($"[FSMStageController] Victory 팝업 표시 완료 (골드: {resultData.goldReward}, EXP: {resultData.expReward})");
         }
         else
         {

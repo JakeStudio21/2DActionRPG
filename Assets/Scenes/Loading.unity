@@ -6851,6 +6851,8 @@ MonoBehaviour:
   - 
   totalSP: 0
   usedSP: 0
+  resistanceStats: []
+  clearedBossIds: []
 --- !u!1 &1112404787
 GameObject:
   m_ObjectHideFlags: 0

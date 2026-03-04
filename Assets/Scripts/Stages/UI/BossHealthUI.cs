@@ -59,8 +59,9 @@ public class BossHealthUI : MonoBehaviour
         private Coroutine shakeCoroutine;
         private Vector3 originalPosition;
         
-        private void Start()
+        private void Awake()
         {
+            // ⭐ Awake로 변경: 비활성화 상태에서도 컴포넌트 찾기 실행
             // 컴포넌트 자동 찾기
             if (bossNameText == null)
                 bossNameText = GetComponentInChildren<TextMeshProUGUI>();
@@ -74,7 +75,7 @@ public class BossHealthUI : MonoBehaviour
             // 원본 위치 저장
             originalPosition = transform.localPosition;
             
-            // 초기 비활성화
+            // ⭐ 초기 비활성화 필수! (보스 스폰 전까지 숨김)
             gameObject.SetActive(false);
         }
         
@@ -94,7 +95,7 @@ public class BossHealthUI : MonoBehaviour
             
             currentBoss = bossObject;
             bossHealth = bossObject.GetComponent<EnemyHealth>();
-            phaseController = bossObject.GetComponent<BossPhaseController>(); // ⭐ 추가
+            phaseController = bossObject.GetComponent<BossPhaseController>();
             
             if (bossHealth == null)
             {
@@ -107,19 +108,30 @@ public class BossHealthUI : MonoBehaviour
             {
                 // 페이즈 변경 이벤트 구독
                 phaseController.OnPhaseChanged += OnPhaseChanged;
-                currentPhase = phaseController.CurrentPhaseIndex + 1; // 인덱스는 0부터, 표시는 1부터
+                currentPhase = phaseController.CurrentPhaseIndex + 1;
                 
                 if (enableDebugLogs)
                     Debug.Log($"🐲 [BossHealthUI] BossPhaseController 연결, Phase {currentPhase}");
             }
             
-            // 보스 정보 설정
-            bossName = bossObject.name;
+            // ⭐ 보스 정보 설정 - EnemyData의 enemyName 우선 사용
+            // NotifyBossSpawned()가 1프레임 대기 후 호출되므로 EnemyData 로드 완료 보장!
+            BaseEnemy baseEnemy = bossObject.GetComponent<BaseEnemy>();
+            if (baseEnemy != null && baseEnemy.EnemyData != null)
+            {
+                bossName = baseEnemy.EnemyData.EnemyName; // ⭐ EnemyData의 한글 이름 사용
+                Debug.Log($"🐲 [BossHealthUI] EnemyData 이름 사용: {bossName}");
+            }
+            else
+            {
+                bossName = bossObject.name; // Fallback: GameObject 이름
+                Debug.LogWarning($"⚠️ [BossHealthUI] BaseEnemy 또는 EnemyData가 없어서 GameObject 이름 사용: {bossName}");
+            }
+            
             maxHealth = bossHealth.MaxHealth;
             currentHealth = bossHealth.CurrentHealth;
             
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [BossHealthUI] 보스 정보: {bossName}, HP: {currentHealth}/{maxHealth}");
+            Debug.Log($"🐲 [BossHealthUI] 보스 정보 설정 완료 - 이름: {bossName}, HP: {currentHealth}/{maxHealth}");
             
             // UI 활성화
             gameObject.SetActive(true);
@@ -193,14 +205,20 @@ public class BossHealthUI : MonoBehaviour
         /// </summary>
         private string GetLocalizedBossName(string englishName)
         {
-            // Clone 제거
+            // Clone 제거 + 인스턴스 번호 제거 (예: _0, _1, _2)
             englishName = englishName.Replace("(Clone)", "").Trim();
+            
+            // ⭐ 정규식으로 _숫자 접미사 제거 (예: Boss_ForestElemental_0 → Boss_ForestElemental)
+            englishName = System.Text.RegularExpressions.Regex.Replace(englishName, @"_\d+$", "");
             
             // 보스 이름 매핑
             switch (englishName)
             {
                 case "Boss_SandElemental":
                     return "사막의 정령";
+                
+                case "Boss_ForestElemental":
+                    return "숲의 정령";
                 
                 case "Boss_FireDragon":
                     return "화염 드래곤";
@@ -224,9 +242,14 @@ public class BossHealthUI : MonoBehaviour
         {
             if (bossNameText != null)
             {
-                // ⭐ 한글 이름으로 변환
-                string displayName = GetLocalizedBossName(bossName);
-                bossNameText.text = displayName;
+                // ⭐ EnemyData에서 이미 한글 이름을 가져왔으므로 그대로 사용
+                bossNameText.text = bossName;
+                
+                Debug.Log($"🐲 [BossHealthUI] 보스 이름 표시: {bossName}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ [BossHealthUI] bossNameText가 null입니다! 보스 이름을 표시할 수 없습니다.");
             }
         }
         

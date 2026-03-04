@@ -54,6 +54,12 @@ public class PlayerResistanceStats : MonoBehaviour
         InitializeResistances();
     }
     
+    private void Start()
+    {
+        // 🛡️ Phase 2: 게임 시작 시 저장된 저항 데이터 자동 로드
+        LoadFromPlayerData();
+    }
+    
     // 🔧 Phase 1: Update() 제거 - 성능 최적화 (매 프레임 동기화 불필요)
     // Inspector 값 변경은 OnValidate()에서 자동 처리됨
     
@@ -300,6 +306,71 @@ public class PlayerResistanceStats : MonoBehaviour
         
         if (enableDebugLogs)
             Debug.Log($"🛡️ [PlayerResistanceStats] 저항 데이터 로드 완료 ({data.Count}개)");
+    }
+    
+    #endregion
+    
+    #region Phase 2: 저장/로드 시스템
+    
+    /// <summary>
+    /// 🛡️ Phase 2: PlayerData에서 저항 데이터 로드
+    /// </summary>
+    public void LoadFromPlayerData()
+    {
+        var playerData = PlayerDataManager.Instance?.selectedPlayerData;
+        if (playerData == null)
+        {
+            Debug.LogWarning("[PlayerResistanceStats] selectedPlayerData가 null입니다!");
+            return;
+        }
+        
+        if (playerData.resistanceStats == null || playerData.resistanceStats.Count == 0)
+        {
+            if (enableDebugLogs)
+                Debug.Log("🛡️ [PlayerResistanceStats] 저장된 저항 데이터 없음 (신규 캐릭터)");
+            return;
+        }
+        
+        // List<ResistanceSaveData> → Dictionary 변환
+        foreach (var data in playerData.resistanceStats)
+        {
+            SetResistance(data.type, data.value);
+        }
+        
+        // Inspector에도 반영
+        SyncDictionaryToInspector();
+        
+        if (enableDebugLogs)
+            Debug.Log($"🛡️ [PlayerResistanceStats] 저항 데이터 로드 완료: {playerData.resistanceStats.Count}개");
+    }
+    
+    /// <summary>
+    /// 🛡️ Phase 2: 현재 저항 데이터를 PlayerData에 저장
+    /// </summary>
+    public void SaveToPlayerData()
+    {
+        var playerData = PlayerDataManager.Instance?.selectedPlayerData;
+        if (playerData == null)
+        {
+            Debug.LogWarning("[PlayerResistanceStats] selectedPlayerData가 null입니다!");
+            return;
+        }
+        
+        // Dictionary → List<ResistanceSaveData> 변환
+        playerData.resistanceStats.Clear();
+        foreach (var kvp in resistances)
+        {
+            if (kvp.Value > 0f) // 0보다 큰 값만 저장 (최적화)
+            {
+                playerData.resistanceStats.Add(new ResistanceSaveData(kvp.Key, kvp.Value));
+            }
+        }
+        
+        if (enableDebugLogs)
+            Debug.Log($"🛡️ [PlayerResistanceStats] 저항 데이터 저장 완료: {playerData.resistanceStats.Count}개");
+        
+        // 디스크 저장
+        PlayerDataManager.Instance.SaveOnMeaningfulEvent("ResistanceStatsUpdated");
     }
     
     #endregion

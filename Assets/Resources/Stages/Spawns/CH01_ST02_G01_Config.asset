@@ -30,9 +30,3 @@ MonoBehaviour:
     IsBoss: 0
     LevelOffset: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: BOSSMON_FORESTELEMENTAL_001
-    Count: 1
-    SpawnCount: 0.3
-    IsBoss: 1
-    LevelOffset: 0
-    MonsterPrefab: {fileID: 0}

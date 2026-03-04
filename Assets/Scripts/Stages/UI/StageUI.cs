@@ -43,8 +43,8 @@ namespace StageSystem
             InitializeUI();
             SubscribeToStageEvents();
             
-            // 임시 보스 테스트 (5초 후 실행)
-            StartCoroutine(TestBossUI());
+            // ⭐ 테스트 함수 비활성화 (실제 보스 스폰 시스템 사용)
+            // StartCoroutine(TestBossUI());
         }
         
         /// <summary>

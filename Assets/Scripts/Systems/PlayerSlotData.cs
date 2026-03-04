@@ -64,10 +64,10 @@ public class PlayerSlotData
     // Dictionary<string, string> equippedItemNames = new Dictionary<string, string>(); // 기존 삭제
     [SerializeField] private List<string> equippedSlotKeys = new List<string>();
     [SerializeField] private List<string> equippedSlotValues = new List<string>();
-    public int maxInventorySize = 16;
+    public int maxInventorySize = 48;
     
     [Header("🎒 V2 인벤토리 & 장비 (병행)")]
-    [Tooltip("인게임 가방 - 장비 (16칸, 캐릭터 전용)")]
+    [Tooltip("인게임 가방 - 장비 (48칸, 캐릭터 전용)")]
     public List<ItemInstanceID> characterBagInstanceIds = new List<ItemInstanceID>();
     
     [Tooltip("인게임 가방 - 재료 (임시 저장, 스테이지 클리어 시 자동 전송)")]
@@ -207,6 +207,17 @@ public class PlayerSlotData
     
     [Tooltip("사용한 SP (스킬 레벨업 시 증가)")]
     public int usedSP = 0;
+    
+    // ========================================
+    // 🛡️ Phase 2: 상태이상 저항 시스템
+    // ========================================
+    
+    [Header("🛡️ 상태이상 저항 시스템")]
+    [Tooltip("상태이상 저항 스탯 (보스 보상으로 획득)")]
+    public List<ResistanceSaveData> resistanceStats = new List<ResistanceSaveData>();
+    
+    [Tooltip("보스 최초 클리어 여부 확인용 (보스 ID 저장)")]
+    public List<string> clearedBossIds = new List<string>();
     
     // ========================================
     // 💎 Phase 9: 룬 시스템 (캐릭터별)
@@ -497,5 +508,21 @@ public class PlayerSlotData
     public override string ToString()
     {
         return $"Slot[{slotIndex}] {playerName}({playerType}) Lv.{level} Gold:{gold} Used:{isSlotUsed} Stats:{ExtraStats.Count}";
+    }
+}
+
+/// <summary>
+/// 상태이상 저항 저장 데이터 (JsonUtility 호환)
+/// </summary>
+[System.Serializable]
+public struct ResistanceSaveData
+{
+    public EStatusEffectType type;
+    public float value;
+    
+    public ResistanceSaveData(EStatusEffectType type, float value)
+    {
+        this.type = type;
+        this.value = value;
     }
 }
