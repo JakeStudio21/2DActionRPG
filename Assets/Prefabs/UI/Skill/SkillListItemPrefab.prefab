@@ -709,7 +709,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -845,7 +845,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1176,6 +1176,7 @@ GameObject:
   - component: {fileID: 8524660646900622289}
   - component: {fileID: 5351320163156060850}
   - component: {fileID: 7455270132855200379}
+  - component: {fileID: 1852557684443486667}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1297,6 +1298,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1852557684443486667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7444049216402071880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67fb38ab36ff8b4cb1e3982c5c25b59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonType: 0
+  scaleTarget: {fileID: 7493587034188507955}
+  autoCreateScaleTarget: 1
+  scaleDuration: 0.1
+  scaleAmount: 0.95
+  utilityScaleAmount: 0.97
+  punchScale: 0.1
+  enableClickDelay: 1
+  effectDelayTime: 0.2
+  useAutoCueKey: 1
+  customCueKey: 
+  showDebugLogs: 1
 --- !u!1 &7789676302845348721
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,7 +1381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
