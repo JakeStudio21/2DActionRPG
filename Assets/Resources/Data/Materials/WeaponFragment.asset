@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a8cc4a7e44e3f4bbc96700d9172fa2, type: 3}
   m_Name: WeaponFragment
   m_EditorClassIdentifier: 
+  materialId: MAT_WEAPON_FRAGMENT
   materialType: 1
   displayName: "\uBB34\uAE30 \uAC15\uD654 \uD30C\uD3B8"
   icon: {fileID: 21300000, guid: 1682bb85447144e4eb58ba40dcf49af1, type: 3}

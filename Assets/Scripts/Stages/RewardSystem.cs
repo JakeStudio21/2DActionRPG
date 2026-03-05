@@ -241,6 +241,7 @@ namespace StageSystem
                             {
                                 successCount++;
                                 itemSuccessCount++;
+                                result.ItemInstanceIds.Add(newItemId);  // ⭐ 추가: 생성된 인스턴스 ID 저장
                             }
                             else
                             {
@@ -304,6 +305,7 @@ namespace StageSystem
             public int Gold;
             public int Exp;
             public List<DropItemData> Items = new List<DropItemData>();
+            public List<ItemInstanceID> ItemInstanceIds = new List<ItemInstanceID>();  // ⭐ 추가: 생성된 아이템 인스턴스 ID 목록
             public bool IsFirstClear;
             public float ClearTime;
         }

@@ -198,15 +198,28 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             if (showDebugLogs)
                 Debug.Log($"📦 [InventorySlot] 재료 클릭: {currentMaterial.Value.GetDisplayName()}");
             
-            // 재료 상세 패널 열기
-            var itemDetailPopup = FindObjectOfType<UI.Popups.ItemDetailPopup>();
-            if (itemDetailPopup != null)
+            // 🆕 인게임 환경 체크
+            var activeInventory = GetComponentInParent<ActiveInventory>();
+            if (activeInventory != null)
             {
-                itemDetailPopup.ShowMaterialDetail(currentMaterial.Value);
+                // 인게임: ActiveInventory의 ShowInGameDetailPanel 호출
+                activeInventory.ShowInGameDetailPanel(currentMaterial.Value);
+                
+                if (showDebugLogs)
+                    Debug.Log("🎮 [InventorySlot] 인게임 재료 패널 열기");
             }
             else
             {
-                Debug.LogWarning("⚠️ [InventorySlot] ItemDetailPopup을 찾을 수 없습니다!");
+                // 로비: ItemDetailPopup 사용
+                var itemDetailPopup = FindObjectOfType<UI.Popups.ItemDetailPopup>();
+                if (itemDetailPopup != null)
+                {
+                    itemDetailPopup.ShowMaterialDetail(currentMaterial.Value);
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ [InventorySlot] ItemDetailPopup을 찾을 수 없습니다!");
+                }
             }
             
             return;

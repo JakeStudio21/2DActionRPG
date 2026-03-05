@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 using UI.Utils; // ⭐ StatFormatHelper
+using UI.Components; // ⭐ ItemIconGradeFrame
 using Systems; // ⭐ Stage 5: EnhancementSystem 사용
 
 public class ActiveInventory : MonoBehaviour
@@ -24,6 +25,7 @@ public class ActiveInventory : MonoBehaviour
     [Header("🎯 인게임 상세 패널 UI (정보만)")]
     [SerializeField] private GameObject inGameDetailPanel; // 🆕 인게임 상세 패널
     [SerializeField] private Image detailItemIcon;
+    [SerializeField] private ItemIconGradeFrame detailItemIconGradeFrame; // 🆕 등급별 테두리
     [SerializeField] private TMP_Text itemNameText;
     [SerializeField] private TMP_Text itemGradeText;
     [SerializeField] private TMP_Text stat1Text;
@@ -215,14 +217,15 @@ public class ActiveInventory : MonoBehaviour
         // 1. 통합 표시 아이템 목록 생성
         var displayItems = new List<InventoryDisplayItem>();
         
-        // 1-1. 장비 아이템 추가
-        var equipments = PlayerDataManager.Instance.GetCharacterBagItems();
-        foreach (var equip in equipments)
+        // 1-1. 장비 아이템 추가 (ItemInstanceID 포함)
+        var equipments = PlayerDataManager.Instance.GetCharacterBagItemsWithIds();
+        foreach (var (equip, instanceId) in equipments)
         {
             displayItems.Add(new InventoryDisplayItem
             {
                 type = ItemDisplayType.Equipment,
                 equipmentData = equip,
+                itemInstanceId = instanceId,  // ⭐ ItemInstanceID 저장
                 sortOrder = 1 // 장비가 먼저
             });
         }
@@ -276,9 +279,9 @@ public class ActiveInventory : MonoBehaviour
                 
                 if (item.type == ItemDisplayType.Equipment)
                 {
-                    slot.SetEquipmentData(item.equipmentData);
+                    slot.SetEquipmentData(item.equipmentData, item.itemInstanceId);  // ⭐ ItemInstanceID 전달
                     if (showDebugLogs)
-                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: 장비 - {item.equipmentData.equipmentName}");
+                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: 장비 - {item.equipmentData.equipmentName} (ID: {(!item.itemInstanceId.IsEmpty ? item.itemInstanceId.Value.Substring(0, 8) + "..." : "없음")})");
                 }
                 else if (item.type == ItemDisplayType.Material)
                 {
@@ -306,6 +309,7 @@ public class ActiveInventory : MonoBehaviour
     {
         public ItemDisplayType type;
         public EquipmentData equipmentData;
+        public ItemInstanceID itemInstanceId;  // ⭐ 추가: 동적 스탯 로드용
         public MaterialStack materialStack;
         public int sortOrder;
         
@@ -945,6 +949,12 @@ public class ActiveInventory : MonoBehaviour
         if (itemGradeText != null)
             itemGradeText.text = $"등급: {equipmentData.itemGrade}";
         
+        // 🆕 등급별 테두리 적용
+        if (detailItemIconGradeFrame != null)
+        {
+            detailItemIconGradeFrame.SetGrade(equipmentData.itemGrade);
+        }
+        
         // ⭐ 동적 스탯 표시
         UpdateInGameDynamicStats(equipmentData, instanceId);
         
@@ -969,11 +979,15 @@ public class ActiveInventory : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"⚠️ [ActiveInventory] EquipmentInstance 생성 실패: {instanceId.Value}");
+                if (showDebugLogs)
+                    Debug.LogWarning($"⚠️ [ActiveInventory] EquipmentInstance 생성 실패: {instanceId.Value} → baseStats 표시");
+                // ⭐ Fallback: 동적 스탯 실패 시 baseStats 표시
+                UpdateInGameLegacyStats(data);
+                return;
             }
         }
         
-        // Legacy: ItemInstanceID가 없으면 기존 방식
+        // ⭐ ItemInstanceID 없음: baseStats 기반 표시
         UpdateInGameLegacyStats(data);
     }
     
@@ -1050,18 +1064,156 @@ public class ActiveInventory : MonoBehaviour
     }
     
     /// <summary>
-    /// 🆕 Legacy 스탯 표시 (인게임, 하위 호환)
+    /// 🆕 baseStats 기반 스탯 표시 (V2 시스템 호환)
     /// </summary>
     private void UpdateInGameLegacyStats(EquipmentData data)
     {
-        if (stat1Text != null)
-            stat1Text.text = $"공격력: +{data.attackDamage}";
+        Debug.Log($"🔍 [ActiveInventory] UpdateInGameLegacyStats 시작");
+        Debug.Log($"   아이템: {data.equipmentName}");
+        Debug.Log($"   타입: {data.equipmentType}");
+        Debug.Log($"   슬롯: {data.equipmentSlot}");
+        Debug.Log($"   baseStats: {(data.baseStats != null ? data.baseStats.Count.ToString() : "null")}개");
         
-        if (stat2Text != null)
-            stat2Text.text = $"방어력: +{data.defenseBonus}";
+        // ⭐ baseStats 내용 상세 출력
+        if (data.baseStats != null && data.baseStats.Count > 0)
+        {
+            for (int i = 0; i < data.baseStats.Count; i++)
+            {
+                var stat = data.baseStats[i];
+                Debug.Log($"   baseStats[{i}]: statId={stat.statId}, value={stat.value}, displayName={stat.displayName}");
+            }
+        }
         
-        if (stat3Text != null)
-            stat3Text.text = $"이동속도: +{data.speedBonus}";
+        Debug.Log($"   stat1Text: {(stat1Text != null ? "연결됨" : "null")}");
+        Debug.Log($"   stat2Text: {(stat2Text != null ? "연결됨" : "null")}");
+        Debug.Log($"   stat3Text: {(stat3Text != null ? "연결됨" : "null")}");
+        
+        // ⭐ V2 시스템: baseStats에서 스탯 읽기
+        if (data.baseStats != null && data.baseStats.Count > 0)
+        {
+            // 주옵션 찾기 (첫 번째 스탯이 주옵션으로 간주)
+            ItemStat mainStat = data.baseStats[0];
+            EStatType mainStatType = ConvertStatIdToStatType(mainStat.statId);
+            
+            Debug.Log($"🔍 주옵션: statId={mainStat.statId}, type={mainStatType}, value={mainStat.value}");
+            
+            if (stat1Text != null && mainStatType != EStatType.None)
+            {
+                string mainStatText = StatFormatHelper.FormatMainStat(mainStatType, mainStat.value);
+                stat1Text.text = mainStatText;
+                Debug.Log($"✅ Stat1 설정: {mainStatText}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ Stat1 설정 실패: stat1Text={stat1Text != null}, mainStatType={mainStatType}");
+            }
+            
+            // 부옵션 표시 (나머지 스탯들을 멀티라인으로)
+            if (stat2Text != null)
+            {
+                if (data.baseStats.Count > 1)
+                {
+                    // 두 번째 스탯부터 부옵션으로 간주
+                    var subStats = new System.Text.StringBuilder();
+                    for (int i = 1; i < data.baseStats.Count; i++)
+                    {
+                        ItemStat subStat = data.baseStats[i];
+                        EStatType subStatType = ConvertStatIdToStatType(subStat.statId);
+                        string subStatText = StatFormatHelper.FormatMainStat(subStatType, subStat.value);
+                        
+                        if (i > 1) subStats.AppendLine(); // 두 번째 줄부터 줄바꿈
+                        subStats.Append(subStatText);
+                        
+                        Debug.Log($"🔍 부옵션[{i}]: statId={subStat.statId}, type={subStatType}, value={subStat.value}");
+                    }
+                    
+                    stat2Text.text = subStats.ToString();
+                    Debug.Log($"✅ Stat2 설정: {data.baseStats.Count - 1}개 부옵션");
+                }
+                else
+                {
+                    stat2Text.text = "";
+                    Debug.Log($"ℹ️ Stat2: 부옵션 없음");
+                }
+            }
+            
+            if (stat3Text != null)
+            {
+                stat3Text.text = ""; // 강화 레벨은 Instance가 없으면 비워둠
+                Debug.Log($"ℹ️ Stat3: 강화 레벨 없음");
+            }
+        }
+        else
+        {
+            // Legacy: baseStats 없으면 기존 필드 사용 (하위 호환)
+            Debug.LogWarning($"⚠️ [ActiveInventory] {data.equipmentName}: baseStats 없음 또는 비어있음");
+            
+            // Legacy: baseStats 없으면 기존 필드 사용 (하위 호환)
+            if (showDebugLogs)
+                Debug.LogWarning($"⚠️ [ActiveInventory] {data.equipmentName}: baseStats 없음, Legacy 필드 사용");
+            
+            if (stat1Text != null)
+            {
+                // 무기면 공격력, 방어구면 방어력
+                if (data.IsWeapon)
+                {
+                    stat1Text.text = $"공격력: +{data.attackDamage}";
+                    Debug.Log($"✅ Stat1 (Legacy): 공격력: +{data.attackDamage}");
+                }
+                else
+                {
+                    stat1Text.text = $"방어력: +{data.defenseBonus}";
+                    Debug.Log($"✅ Stat1 (Legacy): 방어력: +{data.defenseBonus}");
+                }
+            }
+            
+            if (stat2Text != null)
+            {
+                stat2Text.text = $"체력: +{data.healthBonus}";
+                Debug.Log($"✅ Stat2 (Legacy): 체력: +{data.healthBonus}");
+            }
+            
+            if (stat3Text != null)
+            {
+                stat3Text.text = $"이동속도: +{data.speedBonus:F1}";
+                Debug.Log($"✅ Stat3 (Legacy): 이동속도: +{data.speedBonus:F1}");
+            }
+        }
+        
+        Debug.Log($"🏁 [ActiveInventory] UpdateInGameLegacyStats 완료");
+    }
+    
+    /// <summary>
+    /// 🆕 StatId 문자열 → EStatType 변환
+    /// </summary>
+    private EStatType ConvertStatIdToStatType(string statId)
+    {
+        switch (statId)
+        {
+            case "ATK_FLAT": return EStatType.ATK_FLAT;
+            case "ATK_PERCENT": return EStatType.ATK_PERCENT;
+            case "ASPD": return EStatType.ASPD;
+            case "CRIT_RATE": return EStatType.CRIT_RATE;
+            case "CRIT_DMG": return EStatType.CRIT_DMG;
+            case "DEF_FLAT": return EStatType.DEF_FLAT;
+            case "HP_FLAT": return EStatType.HP_FLAT;
+            case "HP_REGEN": return EStatType.HP_REGEN;
+            case "MOVE_SPEED": return EStatType.MOVE_SPEED;
+            case "MS": return EStatType.MOVE_SPEED; // Alias
+            case "SKILL_DMG_PERCENT": return EStatType.SKILL_DMG_PERCENT;
+            case "COOLDOWN_REDUCTION": return EStatType.COOLDOWN_REDUCTION;
+            case "DAMAGE_REDUCTION_PERCENT": return EStatType.DAMAGE_REDUCTION_PERCENT;
+            case "STATUS_RESIST_ALL": return EStatType.STATUS_RESIST_ALL;
+            case "EXP_GAIN_PERCENT": return EStatType.EXP_GAIN_PERCENT;
+            case "DODGE_CHANCE": return EStatType.DODGE_CHANCE;
+            case "BLOCK_CHANCE": return EStatType.BLOCK_CHANCE;
+            case "LIFESTEAL": return EStatType.LIFESTEAL;
+            case "ARMOR_PENETRATION": return EStatType.ARMOR_PENETRATION;
+            default:
+                if (showDebugLogs)
+                    Debug.LogWarning($"⚠️ [ActiveInventory] 알 수 없는 StatId: {statId}");
+                return EStatType.None;
+        }
     }
     
     /// <summary>
@@ -1085,6 +1237,103 @@ public class ActiveInventory : MonoBehaviour
             return EStatType.HP_FLAT;
         
         return EStatType.ATK_FLAT;
+    }
+    
+    /// <summary>
+    /// 🆕 재료 상세 패널 표시 (인게임용)
+    /// </summary>
+    public void ShowInGameDetailPanel(MaterialType materialType)
+    {
+        var materialData = MaterialDatabase.Instance?.GetData(materialType);
+        if (materialData == null)
+        {
+            Debug.LogError($"❌ [ActiveInventory] MaterialData를 찾을 수 없습니다: {materialType}");
+            return;
+        }
+        
+        if (inGameDetailPanel == null)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("⚠️ [ActiveInventory] 인게임 상세 패널이 설정되지 않았습니다");
+            return;
+        }
+        
+        // 패널 활성화
+        inGameDetailPanel.SetActive(true);
+        
+        // 재료 정보 표시
+        UpdateInGameMaterialInfo(materialData);
+        
+        if (showDebugLogs)
+            Debug.Log($"📦 [ActiveInventory] 인게임 재료 패널 표시: {materialData.displayName}");
+    }
+    
+    /// <summary>
+    /// 🆕 재료 정보 UI 업데이트 (인게임용)
+    /// </summary>
+    private void UpdateInGameMaterialInfo(MaterialData data)
+    {
+        // 재료 아이콘
+        if (detailItemIcon != null && data.icon != null)
+        {
+            detailItemIcon.sprite = data.icon;
+            detailItemIcon.color = Color.white;
+        }
+        
+        // 재료 이름
+        if (itemNameText != null)
+        {
+            itemNameText.text = data.displayName;
+        }
+        
+        // 재료 등급 (MaterialRarity → 한글)
+        if (itemGradeText != null)
+        {
+            string rarityText = data.rarity switch
+            {
+                MaterialRarity.Common => "일반",
+                MaterialRarity.Uncommon => "고급",
+                MaterialRarity.Rare => "희귀",
+                MaterialRarity.Epic => "영웅",
+                MaterialRarity.Legendary => "전설",
+                _ => "알 수 없음"
+            };
+            itemGradeText.text = $"등급: {rarityText}";
+        }
+        
+        // 🆕 등급별 테두리 (MaterialRarity → ItemGrade 매핑)
+        if (detailItemIconGradeFrame != null)
+        {
+            ItemGrade mappedGrade = data.rarity switch
+            {
+                MaterialRarity.Common => ItemGrade.C,
+                MaterialRarity.Uncommon => ItemGrade.B,
+                MaterialRarity.Rare => ItemGrade.A,
+                MaterialRarity.Epic => ItemGrade.S,
+                MaterialRarity.Legendary => ItemGrade.EX,
+                _ => ItemGrade.D
+            };
+            detailItemIconGradeFrame.SetGrade(mappedGrade);
+        }
+        
+        // 보유 수량
+        if (stat1Text != null)
+        {
+            int count = AccountDataManager.Instance?.GetMaterialCount(data.materialType) ?? 0;
+            stat1Text.text = $"보유: {count}개";
+        }
+        
+        // 사용처
+        if (stat2Text != null)
+        {
+            stat2Text.text = $"사용처: {data.usageHint}";
+        }
+        
+        // 획득처
+        if (stat3Text != null)
+        {
+            stat3Text.text = $"획득처: {data.obtainHint}";
+        }
     }
     
     /// <summary>

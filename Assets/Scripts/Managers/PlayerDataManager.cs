@@ -3393,6 +3393,36 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     }
     
     /// <summary>
+    /// 🆕 캐릭터 가방의 장비 아이템 + ItemInstanceID 가져오기
+    /// </summary>
+    public List<(EquipmentData equipment, ItemInstanceID instanceId)> GetCharacterBagItemsWithIds()
+    {
+        var slotData = GetCurrentSlotData();
+        if (slotData == null) return new List<(EquipmentData, ItemInstanceID)>();
+        
+        var bagItems = new List<(EquipmentData, ItemInstanceID)>();
+        var account = AccountDataManager.Instance;
+        
+        if (account == null) return bagItems;
+        
+        foreach (var instanceId in slotData.characterBagInstanceIds)
+        {
+            if (instanceId.IsEmpty) continue;
+            
+            var instance = account.GetInstance(instanceId);
+            if (instance == null) continue;
+            
+            var template = ItemTemplateResolver.Load(instance.templateName);
+            if (template != null)
+            {
+                bagItems.Add((template, instanceId));  // ⭐ ItemInstanceID도 함께 반환!
+            }
+        }
+        
+        return bagItems;
+    }
+    
+    /// <summary>
     /// 캐릭터 가방 초기화 (로비 복귀 시)
     /// </summary>
     public void ClearCharacterBag()

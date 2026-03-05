@@ -298,15 +298,15 @@ public class ResultPopupController : MonoBehaviour
                     
                     if (equipmentData != null)
                     {
-                        // 아이템 데이터 설정 (등급 자동 표시!)
-                        inventorySlot.SetEquipmentData(equipmentData, ItemInstanceID.Empty);
+                        // ⭐ 아이템 데이터 설정 (ItemInstanceID 전달로 동적 스탯 지원!)
+                        inventorySlot.SetEquipmentData(equipmentData, itemReward.instanceId);
                         
                         // ⭐ 등장 애니메이션 (페이드 인 + 스케일 업)
                         AnimateItemSlot(slotObj, slotIndex);
                         
                         if (enableDebugLogs)
                         {
-                            Debug.Log($"✅ [ResultPopupController] 아이템 슬롯 생성: {itemReward.itemId} (등급: {equipmentData.itemGrade})");
+                            Debug.Log($"✅ [ResultPopupController] 아이템 슬롯 생성: {itemReward.itemId} (등급: {equipmentData.itemGrade}, ID: {(!itemReward.instanceId.IsEmpty ? itemReward.instanceId.Value.Substring(0, 8) + "..." : "없음")})");
                         }
                         
                         slotIndex++; // 다음 슬롯 인덱스
