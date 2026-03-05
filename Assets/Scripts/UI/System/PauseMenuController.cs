@@ -8,6 +8,7 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private GameObject pauseMenuPanel;
     [SerializeField] private Button returnToLobbyButton;
     [SerializeField] private Button continueButton;
+    [SerializeField] private ResultPopupController resultPopupController; // 🆕 ResultPopupController 참조
     
     private void Start()
     {
@@ -53,24 +54,32 @@ public class PauseMenuController : MonoBehaviour
     // '로비로 이동' 버튼에 연결됩니다.
     void ReturnToLobby()
     {
-        StartCoroutine(ReturnToLobbyRoutine());
-    }
-
-    IEnumerator ReturnToLobbyRoutine()
-    {
-        Time.timeScale = 1f; // 시간을 다시 흐르게 합니다.
-
-        // 🔧 의미 있는 이벤트: 로비 복귀 → 저장
+        // Time.timeScale 복구 (게임이 멈춰있던 상태를 복원)
+        Time.timeScale = 1f;
+        
+        // 🔧 의미 있는 이벤트: 게임 포기 → 저장
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
         {
-            PlayerDataManager.Instance.SaveOnMeaningfulEvent("PauseMenu_ReturnToLobby");
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("PauseMenu_ForfeitGame");
         }
-
-        // ✅ Unity가 자동으로 오브젝트를 정리하므로 수동 파괴 제거
-        // 씬 전환 시 모든 오브젝트는 자동으로 정리됨
         
-        yield return new WaitForEndOfFrame();
-
-        SceneManager.LoadScene("Lobby");
+        // 일시정지 메뉴 닫기
+        if (pauseMenuPanel != null)
+        {
+            pauseMenuPanel.SetActive(false);
+        }
+        
+        // 🆕 패배 화면 표시 (Result_Defeat)
+        if (resultPopupController != null)
+        {
+            resultPopupController.ShowDefeat();
+            Debug.Log("💀 [PauseMenuController] 게임 포기 → 패배 화면 표시");
+        }
+        else
+        {
+            Debug.LogError("❌ [PauseMenuController] ResultPopupController가 할당되지 않았습니다! 바로 로비로 이동합니다.");
+            // Fallback: ResultPopupController가 없으면 바로 로비 이동
+            SceneManager.LoadScene("Lobby");
+        }
     }
 } 

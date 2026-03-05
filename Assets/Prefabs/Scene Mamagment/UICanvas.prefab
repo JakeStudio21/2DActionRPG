@@ -24122,6 +24122,7 @@ MonoBehaviour:
   pauseMenuPanel: {fileID: 2501711031870759492}
   returnToLobbyButton: {fileID: 3857233161695910005}
   continueButton: {fileID: 8307947441804059996}
+  resultPopupController: {fileID: 4946589791398110378}
 --- !u!1 &3128926248301085185
 GameObject:
   m_ObjectHideFlags: 0
