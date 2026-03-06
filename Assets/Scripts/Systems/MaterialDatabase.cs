@@ -31,7 +31,7 @@ public class MaterialDatabase : ScriptableObject
     }
     
     [Header("📦 재료 데이터베이스")]
-    [Tooltip("모든 재료 데이터 목록 (9개)")]
+    [Tooltip("모든 재료 데이터 목록 (21개: 9개 기본 재료 + 8개 룬 조각 + 4개 정령의 정수)")]
     public List<MaterialData> materials = new List<MaterialData>();
     
     private Dictionary<MaterialType, MaterialData> _cache;

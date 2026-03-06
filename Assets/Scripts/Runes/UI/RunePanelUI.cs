@@ -118,7 +118,8 @@ public class RunePanelUI : MonoBehaviour
     
     private void OnEnable()
     {
-        RefreshUI();
+        // ⚠️ Phase 6.5: OnEnable에서 자동 초기화 제거
+        // SkillBookPanelUI에서 명시적으로 OnTabActivated() 호출하도록 변경
         
         // 경고 메시지 초기 숨김
         if (warningMessageObject != null)
@@ -141,6 +142,35 @@ public class RunePanelUI : MonoBehaviour
         {
             Debug.Log("[RunePanelUI] 패널 활성화");
         }
+    }
+    
+    /// <summary>
+    /// 탭 활성화 시 호출 (외부에서 - SkillBookPanelUI)
+    /// Phase 6.5: 명시적 초기화 방식으로 변경
+    /// </summary>
+    public void OnTabActivated()
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log("🔮 [RunePanelUI] 탭 활성화 - RefreshUI() 호출");
+        }
+        
+        RefreshUI();
+    }
+    
+    /// <summary>
+    /// 탭 비활성화 시 호출 (외부에서 - SkillBookPanelUI)
+    /// Phase 6.5: 명시적 정리 방식으로 변경
+    /// </summary>
+    public void OnTabDeactivated()
+    {
+        if (showDebugLogs)
+        {
+            Debug.Log("🔮 [RunePanelUI] 탭 비활성화");
+        }
+        
+        // 필요한 정리 작업
+        currentSelectedItem = null;
     }
     
     private void OnDisable()

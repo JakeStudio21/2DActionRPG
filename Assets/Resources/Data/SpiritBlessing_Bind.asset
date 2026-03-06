@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12c518ababb397f4fa48979dba86f4ce, type: 3}
+  m_Name: SpiritBlessing_Bind
+  m_EditorClassIdentifier: 
+  targetEffectType: 1
+  blessingName: "\uC232\uC758 \uC815\uB839\uC758 \uAC00\uD638"
+  blessingIcon: {fileID: 542092396, guid: 19d5a365988e4dc4e8fa86bb4865934d, type: 3}
+  description: "\uAE4A\uC740 \uACF3\uC5D0\uC11C \uAFC8\uD2C0\uB300\uB294 \uC545\uC758
+    \uAE30\uC6B4\uC744 \uC53B\uC5B4\uB0B4\uACE0, \uC815\uB839\uC774 \uB0B4\uB9AC\uB294
+    \uB530\uB73B\uD55C \uAC00\uD638\uB97C \uBC1B\uC2B5\uB2C8\uB2E4."
+  incrementPerLevel: 0.03
+  maxResistance: 1
+  costPerLevel: 10
+  currencyName: "\uC815\uD654\uC758 \uC774\uC2AC"

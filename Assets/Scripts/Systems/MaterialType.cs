@@ -50,7 +50,13 @@ public enum MaterialType
     RUNE_FRAG_RUNE_EXECUTIONER = 204,      // 처형자 룬 조각
     RUNE_FRAG_RUNE_SURVIVOR = 205,         // 불굴의 생존자 룬 조각
     RUNE_FRAG_RUNE_AREA_DEFENDER = 206,    // 장판 철벽 룬 조각
-    RUNE_FRAG_RUNE_VAMPIRE = 207           // 흡혈 룬 조각
+    RUNE_FRAG_RUNE_VAMPIRE = 207,          // 흡혈 룬 조각
+    
+    // 🌟 정령의 정수 (Phase 9: 4종류, 저항 시스템 재료)
+    SPIRIT_ESSENCE_FOREST = 300,   // 숲의 정수 (속박 저항용, Bind Resistance)
+    SPIRIT_ESSENCE_FLAME = 301,    // 불꽃의 정수 (화상 저항용, Burn Resistance)
+    SPIRIT_ESSENCE_EARTH = 302,    // 대지의 정수 (중독 저항용, Poison Resistance)
+    SPIRIT_ESSENCE_WATER = 303     // 물결의 정수 (둔화 저항용, Slow Resistance)
 }
 
 /// <summary>
@@ -93,6 +99,12 @@ public static class MaterialTypeExtensions
             MaterialType.RUNE_FRAG_RUNE_SURVIVOR => "불굴의 생존자 룬 조각",
             MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER => "장판 철벽 룬 조각",
             MaterialType.RUNE_FRAG_RUNE_VAMPIRE => "흡혈 룬 조각",
+            
+            // 정령의 정수 (Phase 9)
+            MaterialType.SPIRIT_ESSENCE_FOREST => "숲의 정수",
+            MaterialType.SPIRIT_ESSENCE_FLAME => "불꽃의 정수",
+            MaterialType.SPIRIT_ESSENCE_EARTH => "대지의 정수",
+            MaterialType.SPIRIT_ESSENCE_WATER => "물결의 정수",
             
             _ => "알 수 없는 재료"
         };

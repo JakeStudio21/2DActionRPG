@@ -52,7 +52,12 @@ public class PlayerDebugTools : EditorWindow
         // ========================================
         // 📜 스크롤 시작 (모바일 고려)
         // ========================================
-        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+        scrollPosition = EditorGUILayout.BeginScrollView(
+            scrollPosition, 
+            false, // 가로 스크롤바 없음
+            true,  // 세로 스크롤바 항상 표시
+            GUILayout.ExpandHeight(true)
+        );
         
         // 현재 상태 표시
         EditorGUILayout.BeginVertical("box");
@@ -362,6 +367,57 @@ public class PlayerDebugTools : EditorWindow
         GUILayout.Space(10);
         
         // ========================================
+        // 정령의 정수 추가 (4종류) - Phase 9: 저항 시스템
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("🌟 정령의 정수 추가 (4종류)", EditorStyles.boldLabel);
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("정령의 가호 (저항 시스템) 재료", EditorStyles.miniBoldLabel);
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("🌳 숲의 정수 (속박)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_FOREST, materialToAdd);
+            Debug.Log($"✅ 숲의 정수 {materialToAdd}개 추가! (속박 저항용)");
+        }
+        if (GUILayout.Button("🔥 불꽃의 정수 (화상)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_FLAME, materialToAdd);
+            Debug.Log($"✅ 불꽃의 정수 {materialToAdd}개 추가! (화상 저항용)");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("🌍 대지의 정수 (중독)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_EARTH, materialToAdd);
+            Debug.Log($"✅ 대지의 정수 {materialToAdd}개 추가! (중독 저항용)");
+        }
+        if (GUILayout.Button("💧 물결의 정수 (둔화)"))
+        {
+            AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_WATER, materialToAdd);
+            Debug.Log($"✅ 물결의 정수 {materialToAdd}개 추가! (둔화 저항용)");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space(5);
+        GUILayout.Label("빠른 추가", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("모든 정령의 정수 +100"))
+        {
+            AddAllSpiritEssences(100);
+        }
+        if (GUILayout.Button("모든 정령의 정수 +1000"))
+        {
+            AddAllSpiritEssences(1000);
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
         // 🎯 스테이지 클리어 (해금 안된 스테이지도 가능)
         // ========================================
         EditorGUILayout.BeginVertical("box");
@@ -502,6 +558,27 @@ public class PlayerDebugTools : EditorWindow
         
         AccountDataManager.Instance.Save();
         Debug.Log($"✅ 모든 강화 재료 {amount}개씩 추가 완료! (총 9종류)");
+    }
+    
+    /// <summary>
+    /// 모든 정령의 정수 일괄 추가 (Phase 9: 저항 시스템)
+    /// </summary>
+    private void AddAllSpiritEssences(int amount)
+    {
+        if (AccountDataManager.Instance == null)
+        {
+            Debug.LogError("❌ AccountDataManager를 찾을 수 없습니다!");
+            return;
+        }
+        
+        // 4종류 정령의 정수 추가
+        AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_FOREST, amount);  // 숲의 정수 (속박 저항)
+        AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_FLAME, amount);   // 불꽃의 정수 (화상 저항)
+        AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_EARTH, amount);   // 대지의 정수 (중독 저항)
+        AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_WATER, amount);   // 물결의 정수 (둔화 저항)
+        
+        AccountDataManager.Instance.Save();
+        Debug.Log($"✅ 모든 정령의 정수 {amount}개씩 추가 완료! (총 4종류)");
     }
     
     /// <summary>

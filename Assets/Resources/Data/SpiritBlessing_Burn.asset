@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12c518ababb397f4fa48979dba86f4ce, type: 3}
+  m_Name: SpiritBlessing_Burn
+  m_EditorClassIdentifier: 
+  targetEffectType: 11
+  blessingName: "\uBD88\uC758 \uC815\uB839\uC758 \uAC00\uD638"
+  blessingIcon: {fileID: -343033899, guid: 19d5a365988e4dc4e8fa86bb4865934d, type: 3}
+  description: "\uC791\uC5F4\uD558\uB294 \uBD88\uAF43\uC758 \uC815\uB839\uC774 \uB0B4\uB9AC\uB294
+    \uAC00\uD638\uC785\uB2C8\uB2E4.\r\n\uD654\uC0C1\uC758 \uACE0\uD1B5\uC744 \uB2EC\uB798\uC8FC\uACE0,
+    \uC7AC\uC0DD\uC758 \uD798\uC744 \uBD80\uC5EC\uD569\uB2C8\uB2E4.\r\n"
+  incrementPerLevel: 0.03
+  maxResistance: 1
+  costPerLevel: 10
+  currencyName: "\uC815\uD654\uC758 \uC774\uC2AC"

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12c518ababb397f4fa48979dba86f4ce, type: 3}
+  m_Name: SpiritBlessing_Poison
+  m_EditorClassIdentifier: 
+  targetEffectType: 10
+  blessingName: "\uB3C5\uC758 \uC815\uB839\uC758 \uAC00\uD638"
+  blessingIcon: {fileID: -914273912, guid: 19d5a365988e4dc4e8fa86bb4865934d, type: 3}
+  description: "\uC5B4\uB460 \uC18D\uC5D0\uC11C \uAE68\uC5B4\uB09C \uC815\uB839\uC774
+    \uB0B4\uB9AC\uB294 \uAC00\uD638\uC785\uB2C8\uB2E4.\r\n\uB3C5\uC758 \uAE30\uC6B4\uC744
+    \uC911\uD654\uC2DC\uCF1C, \uCCB4\uB0B4\uC5D0\uC11C \uBE60\uB974\uAC8C \uBC30\uCD9C\uD569\uB2C8\uB2E4.\n"
+  incrementPerLevel: 0.03
+  maxResistance: 1
+  costPerLevel: 10
+  currencyName: "\uC815\uD654\uC758 \uC774\uC2AC"

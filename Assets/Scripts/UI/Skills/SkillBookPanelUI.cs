@@ -15,27 +15,33 @@ public class SkillBookPanelUI : MonoBehaviour
     /// </summary>
     public enum SkillBookTabType
     {
-        Skill,      // 스킬 탭
-        Rune        // 룬 탭 (Phase 4 이후)
+        Skill,              // 스킬 탭
+        SpiritStone,        // 정령 수호석 탭 (기존 Rune)
+        SpiritBlessing      // 정령의 가호 탭 (Phase 2: Resistance System)
     }
     
     [Header("📑 탭 버튼")]
     [SerializeField] private Button skillTabButton;
-    [SerializeField] private Button runeTabButton;
+    [SerializeField] private Button spiritStoneTabButton;       // 기존 runeTabButton
+    [SerializeField] private Button spiritBlessingTabButton;    // 🆕 신규 추가
     
     [Header("📑 탭 텍스트")]
     [SerializeField] private TMP_Text skillTabText;
-    [SerializeField] private TMP_Text runeTabText;
+    [SerializeField] private TMP_Text spiritStoneTabText;       // 기존 runeTabText
+    [SerializeField] private TMP_Text spiritBlessingTabText;    // 🆕 신규 추가
     
     [Header("📦 서브 패널")]
     [SerializeField] private GameObject skillSubPanel;
-    [SerializeField] private GameObject runeSubPanel;
+    [SerializeField] private GameObject spiritStoneSubPanel;    // 기존 runeSubPanel
+    [SerializeField] private GameObject spiritBlessingSubPanel; // 🆕 신규 추가
     
     [Header("🔘 공통 버튼")]
     [SerializeField] private Button closeButton;
     
     [Header("🎮 탭 컨트롤러")]
     [SerializeField] private SkillTabController skillTabController;
+    [SerializeField] private RunePanelUI runePanelUI;                                  // 정령 수호석 탭
+    [SerializeField] private SpiritBlessingTabController spiritBlessingTabController;  // 정령의 가호 탭
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
@@ -80,15 +86,26 @@ public class SkillBookPanelUI : MonoBehaviour
             Debug.LogError("🔴 [SkillBookPanelUI] skillTabButton이 null입니다!");
         }
         
-        if (runeTabButton != null)
+        if (spiritStoneTabButton != null)
         {
-            runeTabButton.onClick.AddListener(() => SwitchTab(SkillBookTabType.Rune));
+            spiritStoneTabButton.onClick.AddListener(() => SwitchTab(SkillBookTabType.SpiritStone));
             if (showDebugLogs)
-                Debug.Log("✅ [SkillBookPanelUI] 룬 탭 버튼 이벤트 연결");
+                Debug.Log("✅ [SkillBookPanelUI] 정령 수호석 탭 버튼 이벤트 연결");
         }
         else
         {
-            Debug.LogError("🔴 [SkillBookPanelUI] runeTabButton이 null입니다!");
+            Debug.LogError("🔴 [SkillBookPanelUI] spiritStoneTabButton이 null입니다!");
+        }
+        
+        if (spiritBlessingTabButton != null)
+        {
+            spiritBlessingTabButton.onClick.AddListener(() => SwitchTab(SkillBookTabType.SpiritBlessing));
+            if (showDebugLogs)
+                Debug.Log("✅ [SkillBookPanelUI] 정령의 가호 탭 버튼 이벤트 연결");
+        }
+        else
+        {
+            Debug.LogError("🔴 [SkillBookPanelUI] spiritBlessingTabButton이 null입니다!");
         }
         
         // 닫기 버튼 이벤트
@@ -142,20 +159,55 @@ public class SkillBookPanelUI : MonoBehaviour
                 }
                 break;
                 
-            case SkillBookTabType.Rune:
-                if (runeSubPanel != null)
+            case SkillBookTabType.SpiritStone:
+                if (spiritStoneSubPanel != null)
                 {
-                    runeSubPanel.SetActive(true);
+                    spiritStoneSubPanel.SetActive(true);
                     
-                    // RuneInventoryUI는 OnEnable()에서 자동으로 RefreshInventory() 호출
-                    // 별도의 컨트롤러 초기화 불필요
+                    // RunePanelUI 명시적 초기화
+                    if (runePanelUI != null)
+                    {
+                        runePanelUI.OnTabActivated();
+                        if (showDebugLogs)
+                            Debug.Log("🔮 [SkillBookPanelUI] 정령 수호석 탭 컨트롤러 초기화 완료");
+                    }
+                    else
+                    {
+                        Debug.LogError("🔴 [SkillBookPanelUI] RunePanelUI 참조가 null입니다!");
+                    }
                     
                     if (showDebugLogs)
-                        Debug.Log("🔮 [SkillBookPanelUI] 룬 패널 활성화");
+                        Debug.Log("🔮 [SkillBookPanelUI] 정령 수호석 패널 활성화");
                 }
                 else
                 {
-                    Debug.LogWarning("⚠️ [SkillBookPanelUI] 룬 패널이 연결되지 않았습니다.");
+                    Debug.LogWarning("⚠️ [SkillBookPanelUI] 정령 수호석 패널이 연결되지 않았습니다.");
+                }
+                break;
+                
+            case SkillBookTabType.SpiritBlessing:
+                if (spiritBlessingSubPanel != null)
+                {
+                    spiritBlessingSubPanel.SetActive(true);
+                    
+                    // SpiritBlessingTabController 명시적 초기화
+                    if (spiritBlessingTabController != null)
+                    {
+                        spiritBlessingTabController.OnTabActivated();
+                        if (showDebugLogs)
+                            Debug.Log("🌟 [SkillBookPanelUI] 정령의 가호 탭 컨트롤러 초기화 완료");
+                    }
+                    else
+                    {
+                        Debug.LogError("🔴 [SkillBookPanelUI] SpiritBlessingTabController 참조가 null입니다!");
+                    }
+                    
+                    if (showDebugLogs)
+                        Debug.Log("🌟 [SkillBookPanelUI] 정령의 가호 패널 활성화");
+                }
+                else
+                {
+                    Debug.LogWarning("⚠️ [SkillBookPanelUI] 정령의 가호 패널이 연결되지 않았습니다.");
                 }
                 break;
         }
@@ -175,8 +227,11 @@ public class SkillBookPanelUI : MonoBehaviour
         if (skillSubPanel != null)
             skillSubPanel.SetActive(false);
         
-        if (runeSubPanel != null)
-            runeSubPanel.SetActive(false);
+        if (spiritStoneSubPanel != null)
+            spiritStoneSubPanel.SetActive(false);
+        
+        if (spiritBlessingSubPanel != null)
+            spiritBlessingSubPanel.SetActive(false);
     }
     
     /// <summary>
@@ -192,12 +247,20 @@ public class SkillBookPanelUI : MonoBehaviour
             skillTabText.color = color;
         }
         
-        // 룬 탭
-        if (runeTabText != null)
+        // 정령 수호석 탭
+        if (spiritStoneTabText != null)
         {
-            Color color = runeTabText.color;
-            color.a = (currentTab == SkillBookTabType.Rune) ? 1.0f : 0.5f;
-            runeTabText.color = color;
+            Color color = spiritStoneTabText.color;
+            color.a = (currentTab == SkillBookTabType.SpiritStone) ? 1.0f : 0.5f;
+            spiritStoneTabText.color = color;
+        }
+        
+        // 정령의 가호 탭
+        if (spiritBlessingTabText != null)
+        {
+            Color color = spiritBlessingTabText.color;
+            color.a = (currentTab == SkillBookTabType.SpiritBlessing) ? 1.0f : 0.5f;
+            spiritBlessingTabText.color = color;
         }
         
         if (showDebugLogs)
@@ -248,6 +311,16 @@ public class SkillBookPanelUI : MonoBehaviour
         if (skillTabController != null)
         {
             skillTabController.OnTabDeactivated();
+        }
+        
+        if (runePanelUI != null)
+        {
+            runePanelUI.OnTabDeactivated();
+        }
+        
+        if (spiritBlessingTabController != null)
+        {
+            spiritBlessingTabController.OnTabDeactivated();
         }
     }
     

@@ -681,6 +681,69 @@ public class SelectedPlayerData : ScriptableObject
     {
         return $"Slot[{selectedSlotIndex}] {playerName}({selectedPlayerType}) Lv.{currentLevel} Gold:{currentGold} Inv:{CurrentInventorySize}/{MaxInventorySize}";
     }
+    
+    // ========================================
+    // 🛡️ Phase 2: 저항 시스템 헬퍼 메서드 (UI용)
+    // ========================================
+    
+    /// <summary>
+    /// 특정 상태이상에 대한 저항값 가져오기 (로비 UI용)
+    /// </summary>
+    /// <param name="type">상태이상 타입</param>
+    /// <returns>저항값 (0.0 ~ 1.0)</returns>
+    public float GetResistanceStat(EStatusEffectType type)
+    {
+        if (resistanceStats == null || resistanceStats.Count == 0)
+            return 0f;
+        
+        // List에서 해당 타입 찾기
+        foreach (var data in resistanceStats)
+        {
+            if (data.type == type)
+                return data.value;
+        }
+        
+        return 0f;
+    }
+    
+    /// <summary>
+    /// 특정 상태이상에 대한 저항값 추가/증가 (로비 UI용)
+    /// </summary>
+    /// <param name="type">상태이상 타입</param>
+    /// <param name="amount">추가할 저항값 (음수 가능, 최종값은 0.0~1.0로 클램핑)</param>
+    public void AddResistanceStat(EStatusEffectType type, float amount)
+    {
+        // resistanceStats 초기화
+        if (resistanceStats == null)
+        {
+            resistanceStats = new List<ResistanceSaveData>();
+        }
+        
+        // 기존 데이터 찾기
+        int index = -1;
+        for (int i = 0; i < resistanceStats.Count; i++)
+        {
+            if (resistanceStats[i].type == type)
+            {
+                index = i;
+                break;
+            }
+        }
+        
+        if (index >= 0)
+        {
+            // 기존 데이터 업데이트
+            var resistData = resistanceStats[index];
+            float newValue = Mathf.Clamp01(resistData.value + amount);
+            resistanceStats[index] = new ResistanceSaveData(type, newValue);
+        }
+        else
+        {
+            // 새 데이터 추가
+            float newValue = Mathf.Clamp01(amount);
+            resistanceStats.Add(new ResistanceSaveData(type, newValue));
+        }
+    }
 }
 
 /// <summary>
