@@ -72,6 +72,13 @@ public class SelectedPlayerData : ScriptableObject
     [Header("🎯 스테이지 진행도")]
     public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
     
+    [Header("🏰 던전 진행도 (Phase 1)")]
+    [Tooltip("클리어한 던전 ID 목록")]
+    public List<string> clearedDungeons = new List<string>();
+    
+    [Tooltip("던전별 상세 진행도")]
+    public List<StageSystem.DungeonProgress> dungeonProgresses = new List<StageSystem.DungeonProgress>();
+    
     [Header("📚 스킬 & SP 시스템 (Phase 3.5)")]
     [Tooltip("보유 중인 모든 스킬 (캐릭터별)")]
     public List<SkillInstanceSaveData> skills = new List<SkillInstanceSaveData>();
@@ -289,9 +296,27 @@ public class SelectedPlayerData : ScriptableObject
         // ========================================
         // 📌 스테이지 진행도
         // ========================================
-        stageProgresses = slotData.stageProgresses != null
-            ? new List<StageSystem.StageProgress>(slotData.stageProgresses)
-            : new List<StageSystem.StageProgress>();
+        if (slotData.stageProgresses != null)
+        {
+            // 🏰 Phase 1: 던전 ID 필터링 (던전은 dungeonProgresses에만 저장)
+            stageProgresses = new List<StageSystem.StageProgress>();
+            foreach (var progress in slotData.stageProgresses)
+            {
+                // 던전이 아닌 경우만 추가
+                if (!StageSystem.StageIdValidator.IsDungeon(progress.stageId))
+                {
+                    stageProgresses.Add(progress);
+                }
+                else
+                {
+                    Debug.Log($"🏰 [SelectedPlayerData] 던전 ID({progress.stageId})를 stageProgresses에서 제외합니다.");
+                }
+            }
+        }
+        else
+        {
+            stageProgresses = new List<StageSystem.StageProgress>();
+        }
         
         // ========================================
         // 📌 챕터 진행도 (Phase 1 근본 해결)
@@ -299,6 +324,17 @@ public class SelectedPlayerData : ScriptableObject
         clearedChapters = slotData.clearedChapters != null
             ? new List<int>(slotData.clearedChapters)
             : new List<int>();
+        
+        // ========================================
+        // 🏰 던전 진행도 (Phase 1)
+        // ========================================
+        clearedDungeons = slotData.clearedDungeons != null
+            ? new List<string>(slotData.clearedDungeons)
+            : new List<string>();
+        
+        dungeonProgresses = slotData.dungeonProgresses != null
+            ? new List<StageSystem.DungeonProgress>(slotData.dungeonProgresses)
+            : new List<StageSystem.DungeonProgress>();
         
         // ========================================
         // 📌 컷신 시청 여부 (Phase 7 준비)
@@ -433,9 +469,23 @@ public class SelectedPlayerData : ScriptableObject
         // ========================================
         // 📌 스테이지 진행도 (Full Dump)
         // ========================================
-        slotData.stageProgresses = this.stageProgresses != null
-            ? new List<StageSystem.StageProgress>(this.stageProgresses)
-            : new List<StageSystem.StageProgress>();
+        if (this.stageProgresses != null)
+        {
+            // 🏰 Phase 1: 던전 ID 필터링 (던전은 dungeonProgresses에만 저장)
+            slotData.stageProgresses = new List<StageSystem.StageProgress>();
+            foreach (var progress in this.stageProgresses)
+            {
+                // 던전이 아닌 경우만 저장
+                if (!StageSystem.StageIdValidator.IsDungeon(progress.stageId))
+                {
+                    slotData.stageProgresses.Add(progress);
+                }
+            }
+        }
+        else
+        {
+            slotData.stageProgresses = new List<StageSystem.StageProgress>();
+        }
         
         // ========================================
         // 📌 챕터 진행도 (Phase 1 근본 해결)
@@ -443,6 +493,17 @@ public class SelectedPlayerData : ScriptableObject
         slotData.clearedChapters = this.clearedChapters != null
             ? new List<int>(this.clearedChapters)
             : new List<int>();
+        
+        // ========================================
+        // 🏰 던전 진행도 (Phase 1)
+        // ========================================
+        slotData.clearedDungeons = this.clearedDungeons != null
+            ? new List<string>(this.clearedDungeons)
+            : new List<string>();
+        
+        slotData.dungeonProgresses = this.dungeonProgresses != null
+            ? new List<StageSystem.DungeonProgress>(this.dungeonProgresses)
+            : new List<StageSystem.DungeonProgress>();
         
         // ========================================
         // 📌 컷신 시청 여부 (Phase 7 준비)

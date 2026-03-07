@@ -62,6 +62,20 @@ namespace StageSystem
     }
     
     /// <summary>
+    /// 🏰 던전 카테고리 (Phase 1)
+    /// </summary>
+    [System.Serializable]
+    public enum DungeonCategory
+    {
+        None,               // 카테고리 없음
+        DailyBoss,          // 데일리 보스 던전
+        WeeklyRaid,         // 주간 레이드
+        MaterialFarm,       // 재료 파밍 던전
+        GoldFarm,           // 골드 파밍 던전
+        ExpFarm             // 경험치 파밍 던전
+    }
+    
+    /// <summary>
     /// 스테이지 ID 네이밍 규칙 상수
     /// </summary>
     public static class StageIdConstants
@@ -74,5 +88,21 @@ namespace StageSystem
         public const int STAGE_ID_LENGTH = 3;    // 001, 002, 003
         public const int WAVE_ID_LENGTH = 2;     // 01, 02, 03
         public const int GROUP_ID_LENGTH = 2;    // 01, 02, 03
+    }
+    
+    /// <summary>
+    /// 🏰 던전 ID 네이밍 규칙 상수 (Phase 1)
+    /// </summary>
+    public static class DungeonIdConstants
+    {
+        public const string DUNGEON_PREFIX = "DG";       // DG01, DG02
+        public const int DUNGEON_ID_MIN_LENGTH = 4;     // DG01 (최소 4자)
+        
+        // 던전 카테고리별 Prefix (선택)
+        public const string DAILY_BOSS_PREFIX = "DG_DAILY_";     // DG_DAILY_FOREST_BIND
+        public const string WEEKLY_RAID_PREFIX = "DG_WEEKLY_";   // DG_WEEKLY_DRAGON
+        public const string MATERIAL_PREFIX = "DG_MAT_";         // DG_MAT_CRYSTAL
+        public const string GOLD_PREFIX = "DG_GOLD_";            // DG_GOLD_CAVE
+        public const string EXP_PREFIX = "DG_EXP_";              // DG_EXP_TOWER
     }
 }

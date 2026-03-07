@@ -28,6 +28,13 @@ public class PlayerSlotData
     [Header("🎯 스테이지 진행도")]
     public List<StageSystem.StageProgress> stageProgresses = new List<StageSystem.StageProgress>();
     
+    [Header("🏰 던전 진행도 (Phase 1)")]
+    [Tooltip("클리어한 던전 ID 목록")]
+    public List<string> clearedDungeons = new List<string>();
+    
+    [Tooltip("던전별 상세 진행도")]
+    public List<StageSystem.DungeonProgress> dungeonProgresses = new List<StageSystem.DungeonProgress>();
+    
     [Header("✅ Phase 0: 챕터 진행도")]
     [Tooltip("클리어한 챕터 목록 (1~5)")]
     public List<int> clearedChapters = new List<int>();

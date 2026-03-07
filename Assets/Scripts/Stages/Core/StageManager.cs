@@ -778,12 +778,26 @@ public class StageManager : MonoBehaviour
             
             if (StageProgressManager.Instance != null)
             {
-                // ⭐ 스테이지 완료 기록이 있으면 재클리어
-                isFirstClear = !StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
-                
-                if (enableDebugLogs)
+                // 🏰 Phase 1: 던전 vs 스테이지 구분
+                if (StageSystem.StageIdValidator.IsDungeon(stageConfig.StageID))
                 {
-                    Debug.Log($"🎁 [StageManager] 보상 판정 - 스테이지: {stageConfig.StageID}, 첫 클리어: {isFirstClear}");
+                    // ⭐ 던전 클리어 기록 확인
+                    isFirstClear = !StageProgressManager.Instance.IsDungeonCleared(stageConfig.StageID);
+                    
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"🎁 [StageManager] 보상 판정 - 던전: {stageConfig.StageID}, 첫 클리어: {isFirstClear}");
+                    }
+                }
+                else
+                {
+                    // ⭐ 스테이지 완료 기록 확인
+                    isFirstClear = !StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
+                    
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"🎁 [StageManager] 보상 판정 - 스테이지: {stageConfig.StageID}, 첫 클리어: {isFirstClear}");
+                    }
                 }
             }
             else
@@ -810,23 +824,47 @@ public class StageManager : MonoBehaviour
             if (StageProgressManager.Instance != null)
             {
                 int clearTimeInt = Mathf.RoundToInt(clearTime);
-                StageProgressManager.Instance.CompleteStage(stageConfig.StageID, clearTimeInt);
                 
-                if (enableDebugLogs)
+                // 🏰 Phase 1: 첫 클리어 여부 판단 (ProcessStageRewards와 동일 로직)
+                bool isFirstClear = true;
+                
+                if (StageSystem.StageIdValidator.IsDungeon(stageConfig.StageID))
                 {
-                    Debug.Log($"💾 [StageManager] 진행도 저장: {stageConfig.StageID} - {clearTimeInt}초");
+                    // 던전 클리어 기록 확인
+                    isFirstClear = !StageProgressManager.Instance.IsDungeonCleared(stageConfig.StageID);
+                    
+                    // 던전 진행도 저장 (CompleteDungeon 내부에서 isFirstClearRewarded 설정)
+                    StageProgressManager.Instance.CompleteDungeon(stageConfig.StageID, clearTimeInt);
+                    
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"💾 [StageManager] 🏰 던전 진행도 저장: {stageConfig.StageID} - {clearTimeInt}초 (첫 클리어: {isFirstClear})");
+                    }
+                }
+                else
+                {
+                    // 스테이지 완료 기록 확인
+                    isFirstClear = !StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
+                    
+                    // 스테이지 진행도 저장 (isFirstClear 전달)
+                    StageProgressManager.Instance.CompleteStage(stageConfig.StageID, clearTimeInt, isFirstClear);
+                    
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"💾 [StageManager] 스테이지 진행도 저장: {stageConfig.StageID} - {clearTimeInt}초 (첫 클리어: {isFirstClear})");
+                    }
                 }
             }
         }
         
         /// <summary>
-        /// StageConfig 로드
+        /// StageConfig 로드 (챕터 스테이지 + 던전 지원)
         /// </summary>
         private StageConfig LoadStageConfig(string stageId)
         {
             StageConfig config = null;
             
-            // ✅ Phase 6: 챕터 기반 경로만 사용 (CH01_ST01, CH02_ST05 등)
+            // ✅ Phase 6: 챕터 기반 경로 (CH01_ST01, CH02_ST05 등)
             if (StageSystem.StageIdValidator.IsValidChapterStageId(stageId))
             {
                 string path = $"Stages/Configs/Chapters/{stageId}_Config";
@@ -841,10 +879,25 @@ public class StageManager : MonoBehaviour
                     Debug.Log($"[StageManager] StageConfig 로드 성공: {path} -> {config.StageName}");
                 }
             }
+            // 🏰 Phase 1: 던전 경로 (DG01_SB01, DG_DAILY_FOREST_BIND 등)
+            else if (StageSystem.StageIdValidator.IsValidDungeonId(stageId))
+            {
+                string path = $"Stages/Configs/Dungeons/{stageId}_Config";
+                config = Resources.Load<StageConfig>(path);
+                
+                if (config == null)
+                {
+                    Debug.LogError($"[StageManager] DungeonConfig 로드 실패: {path}");
+                }
+                else if (enableDebugLogs)
+                {
+                    Debug.Log($"[StageManager] 🏰 DungeonConfig 로드 성공: {path} -> {config.StageName}");
+                }
+            }
             else
             {
                 Debug.LogError($"[StageManager] 잘못된 StageID 형식: {stageId}");
-                Debug.LogError($"[StageManager] CH##_ST## 형식만 지원됩니다 (예: CH01_ST01)");
+                Debug.LogError($"[StageManager] 지원 형식: CH##_ST## (스테이지) 또는 DG##_XX## (던전)");
             }
             
             return config;

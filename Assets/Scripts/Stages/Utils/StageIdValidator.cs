@@ -158,6 +158,113 @@ namespace StageSystem
             return -1;
         }
         
+        // ========================================
+        // 🏰 Phase 1: 던전 ID 검증 시스템
+        // ========================================
+        
+        /// <summary>
+        /// 던전 ID 유효성 검사 (DG01, DG01_SB01, DG_DAILY_FOREST_BIND 등)
+        /// </summary>
+        public static bool IsValidDungeonId(string dungeonId)
+        {
+            if (string.IsNullOrEmpty(dungeonId)) return false;
+            if (!dungeonId.StartsWith("DG")) return false;
+            
+            // 최소 길이 체크 (DG01 = 4자)
+            if (dungeonId.Length < 4) return false;
+            
+            // DG01, DG02 형식 (간단한 번호)
+            if (Regex.IsMatch(dungeonId, @"^DG\d{2}$"))
+            {
+                return true;
+            }
+            
+            // DG01_SB01 형식 (던전번호_서브타입번호) ⭐ 추가
+            if (Regex.IsMatch(dungeonId, @"^DG\d{2}_[A-Z]{2}\d{2}$"))
+            {
+                return true;
+            }
+            
+            // DG_DAILY_FOREST_BIND 형식 (의미있는 이름)
+            if (Regex.IsMatch(dungeonId, @"^DG_[A-Z_]+$"))
+            {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// 던전인지 확인 (ID 앞부분이 DG로 시작)
+        /// </summary>
+        public static bool IsDungeon(string stageId)
+        {
+            return !string.IsNullOrEmpty(stageId) && stageId.StartsWith("DG");
+        }
+        
+        /// <summary>
+        /// 던전 번호 추출 (DG01 → 1, DG99 → 99)
+        /// </summary>
+        public static int ExtractDungeonNumber(string dungeonId)
+        {
+            if (!IsValidDungeonId(dungeonId)) return -1;
+            
+            // DG01 형식인 경우
+            if (Regex.IsMatch(dungeonId, @"^DG\d{2}$"))
+            {
+                string numberPart = dungeonId.Substring(2, 2);
+                if (int.TryParse(numberPart, out int number))
+                {
+                    return number;
+                }
+            }
+            
+            return -1;
+        }
+        
+        /// <summary>
+        /// 던전 카테고리 추출 (DG_DAILY_FOREST_BIND → "DAILY")
+        /// </summary>
+        public static string ExtractDungeonCategory(string dungeonId)
+        {
+            if (!IsValidDungeonId(dungeonId)) return null;
+            
+            // DG_DAILY_FOREST_BIND 형식인 경우
+            if (dungeonId.StartsWith("DG_"))
+            {
+                string[] parts = dungeonId.Split('_');
+                if (parts.Length >= 2)
+                {
+                    return parts[1]; // "DAILY"
+                }
+            }
+            
+            return null;
+        }
+        
+        /// <summary>
+        /// 던전 Wave ID 유효성 검사 (DG01_WAVE_01)
+        /// </summary>
+        public static bool IsValidDungeonWaveId(string waveId)
+        {
+            if (string.IsNullOrEmpty(waveId)) return false;
+            if (!waveId.StartsWith("DG")) return false;
+            
+            // DG01_WAVE_01 형식
+            if (Regex.IsMatch(waveId, @"^DG\d{2}_WAVE_\d{2}$"))
+            {
+                return true;
+            }
+            
+            // DG_DAILY_FOREST_BIND_WAVE_01 형식
+            if (Regex.IsMatch(waveId, @"^DG_[A-Z_]+_WAVE_\d{2}$"))
+            {
+                return true;
+            }
+            
+            return false;
+        }
+        
         /// <summary>
         /// CSV 데이터 참조 무결성 검증
         /// </summary>

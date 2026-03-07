@@ -80,16 +80,26 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// 모든 스테이지 설정 로드
+        /// 모든 스테이지 설정 로드 (챕터 스테이지 + 던전)
         /// </summary>
         private void LoadAllStageConfigs()
         {
             allStageConfigs = new List<StageConfig>();
-            StageConfig[] configs = Resources.LoadAll<StageConfig>("Stages/Configs");
-            allStageConfigs.AddRange(configs);
+            
+            // 챕터 스테이지 로드
+            StageConfig[] chapterConfigs = Resources.LoadAll<StageConfig>("Stages/Configs/Chapters");
+            allStageConfigs.AddRange(chapterConfigs);
+            
+            // 🏰 던전 로드
+            StageConfig[] dungeonConfigs = Resources.LoadAll<StageConfig>("Stages/Configs/Dungeons");
+            allStageConfigs.AddRange(dungeonConfigs);
             
             if (enableDebugLogs)
-                Debug.Log($"[StageProgressManager] {allStageConfigs.Count}개 스테이지 설정 로드됨");
+            {
+                int chapterCount = chapterConfigs.Length;
+                int dungeonCount = dungeonConfigs.Length;
+                Debug.Log($"[StageProgressManager] 스테이지 {chapterCount}개, 던전 {dungeonCount}개 로드 완료 (총 {allStageConfigs.Count}개)");
+            }
         }
         
         /// <summary>
@@ -158,6 +168,13 @@ namespace StageSystem
         /// </summary>
         public void CompleteStage(string stageId, float completionTime = 0f, bool isFirstClear = false)
         {
+            // 🏰 Phase 1: 던전은 CompleteDungeon()으로 처리해야 함
+            if (StageIdValidator.IsDungeon(stageId))
+            {
+                Debug.LogWarning($"⚠️ [StageProgressManager] 던전({stageId})은 CompleteStage()가 아닌 CompleteDungeon()을 사용해야 합니다!");
+                return;
+            }
+            
             if (progressCache.ContainsKey(stageId))
             {
                 var progress = progressCache[stageId];
@@ -165,11 +182,15 @@ namespace StageSystem
                 
                 if (completionTime > 0)
                 {
-                    progress.CompleteStage((int)completionTime);
+                    progress.CompleteStage((int)completionTime, isFirstClear); // ⭐ isFirstClear 전달
                 }
                 
                 if (enableDebugLogs)
+                {
                     Debug.Log($"[StageProgressManager] 스테이지 완료: {stageId}");
+                    Debug.Log($"   - 첫 클리어: {isFirstClear}");
+                    Debug.Log($"   - 첫 클리어 보상 지급: {progress.isFirstClearRewarded}");
+                }
                 
                 CheckAutoUnlocks();
                 
@@ -567,6 +588,85 @@ namespace StageSystem
                     // ✅ 추가: 변경사항 저장
                     PlayerDataManager.Instance.SaveCurrentSlot();
                 }
+            }
+        }
+        
+        // ========================================
+        // 🏰 Phase 1: 던전 진행도 관리
+        // ========================================
+        
+        /// <summary>
+        /// 던전 클리어 여부 확인
+        /// </summary>
+        public bool IsDungeonCleared(string dungeonId)
+    {
+        var playerData = PlayerDataManager.Instance?.selectedPlayerData;
+        if (playerData == null) return false;
+        
+        return playerData.clearedDungeons.Contains(dungeonId);
+        }
+        
+        /// <summary>
+        /// 던전 진행도 가져오기 (없으면 null)
+        /// </summary>
+        public DungeonProgress GetDungeonProgress(string dungeonId)
+        {
+            var playerData = PlayerDataManager.Instance?.selectedPlayerData;
+            if (playerData == null) return null;
+            
+            return playerData.dungeonProgresses.Find(p => p.dungeonId == dungeonId);
+        }
+        
+        /// <summary>
+        /// 던전 완료 기록
+        /// </summary>
+        public void CompleteDungeon(string dungeonId, int clearTime)
+        {
+            var playerData = PlayerDataManager.Instance?.selectedPlayerData;
+            if (playerData == null)
+            {
+                Debug.LogError("[StageProgressManager] PlayerDataManager 또는 selectedPlayerData가 null입니다!");
+                return;
+            }
+            
+            // 첫 클리어 체크
+            bool isFirstClear = !playerData.clearedDungeons.Contains(dungeonId);
+            
+            if (isFirstClear)
+            {
+                playerData.clearedDungeons.Add(dungeonId);
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎉 [StageProgressManager] 🏰 던전 첫 클리어: {dungeonId}");
+            }
+            
+            // DungeonProgress 업데이트
+            var progress = playerData.dungeonProgresses.Find(p => p.dungeonId == dungeonId);
+            
+            if (progress == null)
+            {
+                // 새로운 진행도 생성
+                progress = new DungeonProgress(dungeonId);
+                playerData.dungeonProgresses.Add(progress);
+            }
+            
+            // 클리어 기록
+            progress.RecordClear(clearTime, isFirstClear); // ⭐ isFirstClear 전달
+            
+            // 저장
+            PlayerDataManager.Instance.MarkDirty();
+            PlayerDataManager.Instance.SaveOnMeaningfulEvent("DungeonCompleted");
+            
+            // 이벤트 발행 (기존 OnStageCompleted 재사용)
+            OnStageCompleted?.Invoke(dungeonId, isFirstClear);
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log($"✅ [StageProgressManager] 🏰 던전 완료 기록: {dungeonId}");
+                Debug.Log($"   - 클리어 횟수: {progress.clearCount}");
+                Debug.Log($"   - 최단 시간: {progress.bestClearTime}초");
+                Debug.Log($"   - 첫 클리어: {isFirstClear}");
+                Debug.Log($"   - 첫 클리어 보상 지급: {progress.isFirstClearRewarded}");
             }
         }
     }

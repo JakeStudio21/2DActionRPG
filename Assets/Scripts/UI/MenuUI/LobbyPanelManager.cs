@@ -12,6 +12,7 @@ public class LobbyPanelManager : MonoBehaviour
     [Header("=== 패널 참조 ===")]
     public GameObject lobbyPanel;
     public GameObject stageSelectPanel;
+    public GameObject dungeonSelectPanel;   // 🏰 던전 선택 패널 (Phase 1)
     public GameObject inventoryPanel;
     public GameObject shopPanel;
     public GameObject characterInfoPanel;
@@ -20,6 +21,7 @@ public class LobbyPanelManager : MonoBehaviour
     
     [Header("=== 컨트롤러 참조 ===")]
     public StageSelectPanelController stageSelectPanelController;
+    public DungeonSelectPanelController dungeonSelectPanelController; // 🏰 던전 컨트롤러 (Phase 1)
     
     // 이벤트
     public event Action OnPanelChanged;
@@ -37,6 +39,7 @@ public class LobbyPanelManager : MonoBehaviour
         // 패널 검증
         if (lobbyPanel == null) Debug.LogError("[LobbyPanelManager] lobbyPanel 누락!");
         if (stageSelectPanel == null) Debug.LogError("[LobbyPanelManager] stageSelectPanel 누락!");
+        if (dungeonSelectPanel == null) Debug.LogError("[LobbyPanelManager] dungeonSelectPanel 누락!"); // 🏰 Phase 1
         if (inventoryPanel == null) Debug.LogError("[LobbyPanelManager] inventoryPanel 누락!");
         if (shopPanel == null) Debug.LogError("[LobbyPanelManager] shopPanel 누락!");
         if (characterInfoPanel == null) Debug.LogError("[LobbyPanelManager] characterInfoPanel 누락!");
@@ -137,6 +140,33 @@ public class LobbyPanelManager : MonoBehaviour
         }
         
         Debug.Log("[LobbyPanelManager] 스테이지 선택 패널을 최상위로 이동 완료");
+    }
+    
+    /// <summary>
+    /// 🏰 던전 선택 패널 표시 (Phase 1)
+    /// </summary>
+    public void ShowDungeonSelectPanel()
+    {
+        Debug.Log("🏰 [LobbyPanelManager] ShowDungeonSelectPanel 호출됨");
+        
+        // Cue 이벤트 발행
+        EmitButtonClickCue();
+        EmitDungeonOpenCue();
+        
+        // 패널 전환
+        BringPanelToFront(dungeonSelectPanel);
+        
+        // DungeonSelectPanelController로 위임
+        if (dungeonSelectPanelController != null)
+        {
+            dungeonSelectPanelController.ShowPanel();
+        }
+        else
+        {
+            Debug.LogError("[LobbyPanelManager] dungeonSelectPanelController가 null입니다!");
+        }
+        
+        Debug.Log("[LobbyPanelManager] 던전 선택 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -304,6 +334,16 @@ public class LobbyPanelManager : MonoBehaviour
             actorType = ActorType.UI
         };
         CueEmitter.Emit("ui.skillbook.open", "UI", context);
+    }
+    
+    private void EmitDungeonOpenCue()
+    {
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.dungeon.open", "UI", context);
     }
     
     #endregion

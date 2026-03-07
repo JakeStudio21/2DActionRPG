@@ -41,6 +41,7 @@ public class LobbyUIController : MonoBehaviour
     public Button characterInfoButton;      //  기존 영웅 버튼 참조 (일관성)
     public Button workshopButton;           // 🆕 공방 버튼 참조
     public Button skillBookButton;          // 🆕 스킬북 버튼 참조 (Phase 3-Revision)
+    public Button dungeonButton;            // 🏰 던전 버튼 참조 (Phase 1)
     public Button quitGameButton;           // 🆕 게임 종료 버튼 추가
     
     [Header("🎬 다시보기 버튼")]  // 🆕 Phase 7 추가
@@ -84,6 +85,19 @@ public class LobbyUIController : MonoBehaviour
         {
             panelManager.stageSelectPanelController.OnPlayButtonClicked += OnStagePlayButtonClicked;
             panelManager.stageSelectPanelController.OnBackButtonClicked += OnStageBackButtonClicked;
+        }
+        
+        // 🏰 DungeonSelectPanelController 이벤트 구독 (Phase 1)
+        if (panelManager != null && panelManager.dungeonSelectPanelController != null)
+        {
+            panelManager.dungeonSelectPanelController.OnDungeonPlayButtonClicked += OnDungeonPlayButtonClicked;
+            panelManager.dungeonSelectPanelController.OnDungeonBackButtonClicked += OnDungeonBackButtonClicked;
+        }
+        
+        // 🏰 던전 버튼 이벤트 연결 (Phase 1)
+        if (dungeonButton != null)
+        {
+            dungeonButton.onClick.AddListener(OnDungeonButtonClicked);
         }
         
         Debug.Log("✅ [LobbyUIController] Start() 완료");
@@ -135,6 +149,13 @@ public class LobbyUIController : MonoBehaviour
         {
             stageSelectPanelController.OnPlayButtonClicked -= OnStagePlayButtonClicked;
             stageSelectPanelController.OnBackButtonClicked -= OnStageBackButtonClicked;
+        }
+        
+        // 🏰 DungeonSelectPanelController 이벤트 구독 해제 (Phase 1)
+        if (panelManager != null && panelManager.dungeonSelectPanelController != null)
+        {
+            panelManager.dungeonSelectPanelController.OnDungeonPlayButtonClicked -= OnDungeonPlayButtonClicked;
+            panelManager.dungeonSelectPanelController.OnDungeonBackButtonClicked -= OnDungeonBackButtonClicked;
         }
     }
     
@@ -290,6 +311,78 @@ public class LobbyUIController : MonoBehaviour
         
         // 게임 씬으로 이동
         GameManager.Instance.LoadGameScene(sceneName);
+    }
+    
+    // ========================================
+    // 🏰 Phase 1: 던전 관련 핸들러
+    // ========================================
+    
+    /// <summary>
+    /// 던전 버튼 클릭 처리
+    /// </summary>
+    public void OnDungeonButtonClicked()
+    {
+        Debug.Log("[LobbyUIController] 🏰 Dungeon 버튼 클릭!");
+        
+        // 캐릭터 선택 체크
+        if (!EnsureCharacterSelected()) return;
+        
+        // 던전 선택 패널 표시
+        if (panelManager != null)
+        {
+            panelManager.ShowDungeonSelectPanel();
+        }
+        else
+        {
+            Debug.LogError("[LobbyUIController] panelManager가 없습니다!");
+        }
+    }
+    
+    /// <summary>
+    /// DungeonSelectPanelController의 Play 버튼 이벤트 핸들러
+    /// </summary>
+    private void OnDungeonPlayButtonClicked(string sceneName)
+    {
+        if (string.IsNullOrEmpty(sceneName))
+        {
+            Debug.LogError("[LobbyUIController] 🏰 sceneName이 비어있습니다!");
+            return;
+        }
+        
+        if (GameManager.Instance == null)
+        {
+            Debug.LogError("[LobbyUIController] 🏰 GameManager가 없습니다!");
+            return;
+        }
+        
+        // 플레이어 데이터 확인
+        var playerData = GameManager.Instance.selectedPlayerData;
+        if (playerData == null || playerData.selectedPlayerType == PlayerType.None)
+        {
+            Debug.LogError("[LobbyUIController] 🏰 플레이어 클래스가 선택되지 않았습니다!");
+            OnBackToCharacterSelect();
+            return;
+        }
+        
+        Debug.Log($"[LobbyUIController] 🏰 던전 입장: {sceneName}");
+        Debug.Log($"[LobbyUIController] 🏰 플레이어 정보: {playerData.selectedPlayerType}");
+        
+        // 던전 씬으로 이동
+        GameManager.Instance.LoadGameScene(sceneName);
+    }
+    
+    /// <summary>
+    /// DungeonSelectPanelController의 Back 버튼 이벤트 핸들러
+    /// </summary>
+    private void OnDungeonBackButtonClicked()
+    {
+        Debug.Log("[LobbyUIController] 🏰 던전 선택에서 로비로 돌아갑니다.");
+        
+        // 로비 패널로 전환
+        if (panelManager != null)
+        {
+            panelManager.ShowLobbyPanel();
+        }
     }
     
     /// <summary>

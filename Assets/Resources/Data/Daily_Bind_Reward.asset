@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 183e12d3287ad2f4397282cb5fa168d9, type: 3}
-  m_Name: Boss_Bind_Reward
+  m_Name: Daily_Bind_Reward
   m_EditorClassIdentifier: 
-  bossId: BOSSMON_FORESTELEMENTAL_001
-  bossName: "\uC232\uC758\uC815\uB839"
+  bossId: DAILYMON_FORESTELEMENTAL_001
+  bossName: "\uC794\uC7AC\uAC00 \uB0A8\uC740 \uC232\uC758 \uC815\uB839"
   rewardType: 1
   rewardAmount: 0.3
   rewardDescription: "\uC18D\uBC15 \uC800\uD56D 30% \uD68D\uB4DD!"

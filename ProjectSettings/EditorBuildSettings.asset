@@ -179,4 +179,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Ingame_Loading.unity
     guid: 8dba45ed3c6f43348a5b40be468ed000
+  - enabled: 1
+    path: Assets/Scenes/Dungeons/DG01_SB01.unity
+    guid: 949e8644071b7c14bb0e0817f14a278e
   m_configObjects: {}

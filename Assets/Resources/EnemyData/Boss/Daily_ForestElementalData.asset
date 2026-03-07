@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cf8da4842bbdfe4a8ed2554b616879f, type: 3}
-  m_Name: Boss_ForestElementalData
+  m_Name: Daily_ForestElementalData
   m_EditorClassIdentifier: 
-  enemyId: BOSSMON_FORESTELEMENTAL_001
-  enemyName: "\uC232\uC758\uC815\uB839"
+  enemyId: DAILYMON_FORESTELEMENTAL_001
+  enemyName: "\uC794\uC7AC\uAC00 \uB0A8\uC740 \uC232\uC758 \uC815\uB839"
   enemyType: 2
-  description: "\"\uAC15\uD654\uB41C \uC232\uC815\uB839\""
+  description: "\uC794\uC7AC\uAC00 \uB0A8\uC740 \uC232\uC758 \uC815\uB839"
   baseHealth: 3000
   baseDefense: 15
   baseMoveSpeed: 3
@@ -40,10 +40,10 @@ MonoBehaviour:
   immuneEffects: 00000000
   isBoss: 1
   isMiniBoss: 0
-  bossId: BOSSMON_FORESTELEMENTAL_001
+  bossId: DAILYMON_FORESTELEMENTAL_001
   baseGoldReward: 20
   baseExpReward: 40
-  bossReward: {fileID: 11400000, guid: fa635396fb029ad45bc3be7d344a0891, type: 2}
+  bossReward: {fileID: 11400000, guid: 9399ef889bbed29439deaef123269be4, type: 2}
   dropGroupId: 
   dropRolls: 1
   patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

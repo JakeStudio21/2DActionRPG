@@ -52,7 +52,7 @@ namespace StageSystem
         /// <summary>
         /// 스테이지 완료 처리
         /// </summary>
-        public void CompleteStage(int clearTime)
+        public void CompleteStage(int clearTime, bool isFirstClear = false)
         {
             isCompleted = true;
             clearCount++;
@@ -62,6 +62,12 @@ namespace StageSystem
             if (clearTime < bestClearTime)
             {
                 bestClearTime = clearTime;
+            }
+            
+            // 🏰 Phase 1: 첫 클리어 보상 지급 여부 기록
+            if (isFirstClear)
+            {
+                isFirstClearRewarded = true;
             }
         }
         
