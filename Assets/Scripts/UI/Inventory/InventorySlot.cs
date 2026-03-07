@@ -885,25 +885,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 아이콘 설정
         if (itemIconImage != null)
         {
-            // ⭐ GameObject 계층 구조 전체 활성화 (부모까지)
-            Transform current = itemIconImage.transform;
-            while (current != null && current != transform)
-            {
-                if (!current.gameObject.activeSelf)
-                {
-                    Debug.LogWarning($"⚠️ [InventorySlot] 비활성화된 부모 발견: {current.name} → 활성화!");
-                    current.gameObject.SetActive(true);
-                }
-                current = current.parent;
-            }
-            
-            Debug.Log($"🔍 [InventorySlot] SetupMaterial() 이미지 설정:\n" +
-                     $"   슬롯: {gameObject.name}\n" +
-                     $"   재료: {materialStack.materialType.GetDisplayName()}\n" +
-                     $"   itemIconImage.enabled: {itemIconImage.enabled} → True\n" +
-                     $"   itemIconImage.gameObject.activeSelf: {itemIconImage.gameObject.activeSelf}\n" +
-                     $"   ⭐ 부모(EffectTarget?) activeSelf: {itemIconImage.transform.parent?.gameObject.activeSelf}");
-            
             itemIconImage.sprite = data.icon;
             itemIconImage.enabled = true;
             itemIconImage.color = Color.white;

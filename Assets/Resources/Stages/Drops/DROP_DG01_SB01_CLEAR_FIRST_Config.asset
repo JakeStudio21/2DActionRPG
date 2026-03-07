@@ -19,18 +19,14 @@ MonoBehaviour:
   Exp: 100
   Items:
   - ItemID: RUNE_FRAG_RUNE_DEFENSE_BREAKER
-    Amount: 1
+    Amount: 2
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: RUNE_FRAG_RUNE_BOSS_HUNTER
-    Amount: 1
+  - ItemID: SPIRIT_ESSENCE_EARTH
+    Amount: 10
     DropRate: 1
     ItemPrefab: {fileID: 0}
   - ItemID: MAT_WEAPON_FRAGMENT
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WARRIOR_B
-    Amount: 1
+    Amount: 3
     DropRate: 1
     ItemPrefab: {fileID: 0}

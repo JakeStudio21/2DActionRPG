@@ -191,7 +191,7 @@ namespace StageSystem
                 OnExpRewarded?.Invoke(result.Exp);
             }
             
-            // 아이템 지급 (V2 시스템 사용)
+            // 아이템 지급 (V2 시스템 사용 - 장비 + 재료)
             if (result.Items.Count > 0)
             {
                 if (enableDebugLogs)
@@ -206,63 +206,87 @@ namespace StageSystem
                     Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                 }
                 
-                if (PlayerDataManager.Instance != null)
+                if (PlayerDataManager.Instance != null && AccountDataManager.Instance != null)
                 {
-                    int successCount = 0;
-                    int skippedCount = 0;
+                    int equipmentCount = 0;
+                    int materialCount = 0;
+                    int unknownCount = 0;
+                    
                     foreach (var itemData in result.Items)
                     {
                         string rawId = itemData.ItemID;
                         
-                        // ⭐ templateName = itemID 그대로 사용 (ItemTemplateResolver가 자동으로 Asset 파일 찾음)
-                        // 예: "ITEM_ARMOR_WIZARD_B" → ItemTemplateResolver가 "Equipment/ITEM_ARMOR_WIZARD_B_Equipment" 찾아줌
+                        // ⭐ 1단계: 장비 아이템 확인
                         string templateName = rawId;
-                        
-                        if (enableDebugLogs)
-                            Debug.Log($"🔍 [DEBUG - RewardSystem] 아이템 지급 - rawId: {rawId} → templateName: {templateName}, Amount: {itemData.Amount}");
-                        
-                        // ⭐ 장비 아이템인지 확인 (V2 시스템은 장비 전용)
                         var equipmentData = ItemTemplateResolver.Load(templateName);
-                        if (equipmentData == null)
-                        {
-                            if (enableDebugLogs)
-                                Debug.LogWarning($"⚠️ [RewardSystem] 장비 아이템이 아니므로 V2 시스템 건너뜀: {rawId}");
-                            skippedCount++;
-                            continue;
-                        }
                         
-                        // ⭐ 장비 아이템: Amount만큼 개별 인스턴스 생성
-                        int itemSuccessCount = 0;
-                        for (int i = 0; i < itemData.Amount; i++)
+                        if (equipmentData != null)
                         {
-                            ItemInstanceID newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
-                            
-                            if (!newItemId.IsEmpty)
+                            // ✅ 장비 아이템: Amount만큼 개별 인스턴스 생성
+                            int itemSuccessCount = 0;
+                            for (int i = 0; i < itemData.Amount; i++)
                             {
-                                successCount++;
-                                itemSuccessCount++;
-                                result.ItemInstanceIds.Add(newItemId);  // ⭐ 추가: 생성된 인스턴스 ID 저장
+                                ItemInstanceID newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
+                                
+                                if (!newItemId.IsEmpty)
+                                {
+                                    equipmentCount++;
+                                    itemSuccessCount++;
+                                    result.ItemInstanceIds.Add(newItemId);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning($"⚠️ [RewardSystem] 장비 지급 실패: {rawId} (#{i+1}/{itemData.Amount})");
+                                }
+                            }
+                            
+                            if (itemSuccessCount > 0 && enableDebugLogs)
+                            {
+                                Debug.Log($"🎁 [RewardSystem] 장비 지급 완료: {rawId} x{itemSuccessCount}");
+                            }
+                        }
+                        else
+                        {
+                            // ⭐ 2단계: 재료 아이템 확인 (MaterialDatabase)
+                            var materialData = MaterialDatabase.Instance?.GetDataById(rawId);
+                            
+                            if (materialData != null)
+                            {
+                                // ✅ 재료 아이템: AccountDataManager.AddMaterial() 호출
+                                AccountDataManager.Instance.AddMaterial(materialData.materialType, itemData.Amount);
+                                materialCount += itemData.Amount;
+                                
+                                // ⭐ UI 표시용 MaterialRewards에 추가
+                                var materialStack = new MaterialStack
+                                {
+                                    materialType = materialData.materialType,
+                                    count = itemData.Amount
+                                };
+                                result.MaterialRewards.Add(materialStack);
+                                
+                                if (enableDebugLogs)
+                                {
+                                    Debug.Log($"🎁 [RewardSystem] 재료 지급 완료: {materialData.displayName} x{itemData.Amount} (MaterialType: {materialData.materialType})");
+                                }
                             }
                             else
                             {
-                                Debug.LogWarning($"⚠️ [RewardSystem] 아이템 지급 실패: {rawId} (#{i+1}/{itemData.Amount})");
+                                // ❌ 알 수 없는 아이템
+                                unknownCount++;
+                                Debug.LogWarning($"⚠️ [RewardSystem] 알 수 없는 아이템 (장비도 재료도 아님): {rawId}");
                             }
-                        }
-                        
-                        if (itemSuccessCount > 0)
-                        {
-                            Debug.Log($"🎁 [RewardSystem] 아이템 지급 완료 (V2): {rawId} x{itemSuccessCount}");
                         }
                     }
                     
-                    if (successCount > 0 || skippedCount > 0)
+                    // 최종 요약 로그
+                    if (enableDebugLogs)
                     {
-                        Debug.Log($"🎁 [RewardSystem] 아이템 지급 완료: 장비 {successCount}개 성공, 기타 {skippedCount}개 건너뜀");
+                        Debug.Log($"🎁 [RewardSystem] 아이템 지급 완료: 장비 {equipmentCount}개, 재료 {materialCount}개, 미확인 {unknownCount}개");
                     }
                 }
                 else
                 {
-                    Debug.LogWarning("⚠️ [RewardSystem] PlayerDataManager를 찾을 수 없어 아이템 지급 실패");
+                    Debug.LogWarning("⚠️ [RewardSystem] PlayerDataManager 또는 AccountDataManager를 찾을 수 없어 아이템 지급 실패");
                 }
                 OnItemsRewarded?.Invoke(result.Items);
             }
@@ -305,7 +329,8 @@ namespace StageSystem
             public int Gold;
             public int Exp;
             public List<DropItemData> Items = new List<DropItemData>();
-            public List<ItemInstanceID> ItemInstanceIds = new List<ItemInstanceID>();  // ⭐ 추가: 생성된 아이템 인스턴스 ID 목록
+            public List<ItemInstanceID> ItemInstanceIds = new List<ItemInstanceID>();  // ⭐ 생성된 장비 인스턴스 ID 목록
+            public List<MaterialStack> MaterialRewards = new List<MaterialStack>();    // ⭐ 지급된 재료 목록 (UI 표시용)
             public bool IsFirstClear;
             public float ClearTime;
         }

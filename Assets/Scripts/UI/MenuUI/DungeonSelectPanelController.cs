@@ -549,12 +549,113 @@ public class DungeonSelectPanelController : MonoBehaviour
         if (waveCountText != null)
             waveCountText.text = $"웨이브: {config.WaveCount}개";
         
+        // ⭐ 보상 미리보기 (FirstClearDropTable + RepeatClearDropTable 기반)
         if (rewardPreviewText != null)
-            rewardPreviewText.text = "보상: 속박저항 정수 x1~3\n골드 300~500";
+        {
+            string rewardPreview = GenerateRewardPreview(config);
+            rewardPreviewText.text = rewardPreview;
+        }
         
         // Play 버튼 활성화
         if (playButton != null)
             playButton.interactable = true;
+    }
+    
+    /// <summary>
+    /// 보상 미리보기 텍스트 생성
+    /// </summary>
+    private string GenerateRewardPreview(StageConfig config)
+    {
+        List<string> rewardLines = new List<string>();
+        
+        // 🏅 첫 클리어 보상
+        if (config.FirstClearDropTable != null)
+        {
+            rewardLines.Add("【첫 클리어 보상】");
+            
+            // 골드
+            if (config.FirstClearDropTable.Gold > 0)
+            {
+                rewardLines.Add($"  • 골드: {config.FirstClearDropTable.Gold}");
+            }
+            
+            // 경험치
+            if (config.FirstClearDropTable.Exp > 0)
+            {
+                rewardLines.Add($"  • 경험치: {config.FirstClearDropTable.Exp}");
+            }
+            
+            // 아이템 (장비 + 재료)
+            if (config.FirstClearDropTable.Items != null && config.FirstClearDropTable.Items.Count > 0)
+            {
+                foreach (var item in config.FirstClearDropTable.Items)
+                {
+                    string itemName = GetItemDisplayName(item.ItemID);
+                    int dropPercent = Mathf.RoundToInt(item.DropRate * 100);
+                    rewardLines.Add($"  • {itemName} x{item.Amount} ({dropPercent}%)");
+                }
+            }
+        }
+        
+        // 🔄 반복 클리어 보상
+        if (config.RepeatClearDropTable != null)
+        {
+            rewardLines.Add("\n【반복 클리어 보상】");
+            
+            // 골드
+            if (config.RepeatClearDropTable.Gold > 0)
+            {
+                rewardLines.Add($"  • 골드: {config.RepeatClearDropTable.Gold}");
+            }
+            
+            // 경험치
+            if (config.RepeatClearDropTable.Exp > 0)
+            {
+                rewardLines.Add($"  • 경험치: {config.RepeatClearDropTable.Exp}");
+            }
+            
+            // 아이템 (장비 + 재료)
+            if (config.RepeatClearDropTable.Items != null && config.RepeatClearDropTable.Items.Count > 0)
+            {
+                foreach (var item in config.RepeatClearDropTable.Items)
+                {
+                    string itemName = GetItemDisplayName(item.ItemID);
+                    int dropPercent = Mathf.RoundToInt(item.DropRate * 100);
+                    rewardLines.Add($"  • {itemName} x{item.Amount} ({dropPercent}%)");
+                }
+            }
+        }
+        
+        // 보상이 없으면 기본 텍스트
+        if (rewardLines.Count == 0)
+        {
+            return "보상 정보가 없습니다.";
+        }
+        
+        return string.Join("\n", rewardLines);
+    }
+    
+    /// <summary>
+    /// 아이템 ID → 표시 이름 변환
+    /// </summary>
+    private string GetItemDisplayName(string itemId)
+    {
+        // 1. 장비 아이템 확인
+        var equipmentData = ItemTemplateResolver.Load(itemId);
+        if (equipmentData != null)
+        {
+            return equipmentData.equipmentName;
+        }
+        
+        // 2. 재료 아이템 확인
+        var materialData = MaterialDatabase.Instance?.GetDataById(itemId);
+        if (materialData != null)
+        {
+            return materialData.displayName;
+        }
+        
+        // 3. 알 수 없는 아이템
+        return itemId;
     }
     
     /// <summary>

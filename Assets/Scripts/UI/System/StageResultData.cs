@@ -13,16 +13,18 @@ public struct StageResultData
     public int goldReward;
     public int expReward;
     public List<ItemRewardData> itemRewards;
+    public List<MaterialStack> materialRewards;  // ⭐ 재료 보상 추가
     
     /// <summary>
     /// 생성자
     /// </summary>
-    public StageResultData(bool victory, int gold, int exp, List<ItemRewardData> items = null)
+    public StageResultData(bool victory, int gold, int exp, List<ItemRewardData> items = null, List<MaterialStack> materials = null)
     {
         isVictory = victory;
         goldReward = gold;
         expReward = exp;
         itemRewards = items ?? new List<ItemRewardData>();
+        materialRewards = materials ?? new List<MaterialStack>();  // ⭐ 재료 초기화
     }
     
     /// <summary>
@@ -64,7 +66,8 @@ public struct StageResultData
             victory,
             rewardResult.Gold,
             rewardResult.Exp,
-            convertedItems
+            convertedItems,
+            rewardResult.MaterialRewards  // ⭐ 재료 보상 전달
         );
     }
 }
