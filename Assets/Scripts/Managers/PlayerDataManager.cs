@@ -107,6 +107,17 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnFirstClearRewardClaimed?.Invoke(stageId);
     }
     
+    /// <summary>
+    /// 레벨 변경 이벤트 발생 (외부 호출용 - 디버그 도구 등) ✅
+    /// </summary>
+    public void TriggerLevelChanged(int newLevel)
+    {
+        OnLevelChanged?.Invoke(newLevel);
+        
+        if (showDebugLogs)
+            Debug.Log($"🆙 [PlayerDataManager] 레벨 변경 이벤트 발생: Lv.{newLevel}");
+    }
+    
     // 접근자 프로퍼티 (AccountDataManager 위임 - V2 계정 공유 골드)
     public int CurrentGold => AccountDataManager.Instance?.CurrentGold ?? 0;
     public int CurrentLevel => selectedPlayerData != null ? selectedPlayerData.CurrentLevel : 1;

@@ -180,6 +180,15 @@ EditorBuildSettings:
     path: Assets/Scenes/Ingame_Loading.unity
     guid: 8dba45ed3c6f43348a5b40be468ed000
   - enabled: 1
-    path: Assets/Scenes/Dungeons/DG01_SB01.unity
+    path: Assets/Scenes/Dungeons/DG01_SB01_BIND.unity
     guid: 949e8644071b7c14bb0e0817f14a278e
+  - enabled: 1
+    path: Assets/Scenes/Dungeons/DG01_SB02_POISON.unity
+    guid: 32a37ec25db16574aa7d27c4ea297c32
+  - enabled: 1
+    path: Assets/Scenes/Dungeons/DG01_SB03_SLOW.unity
+    guid: ec54717a830a7334cb58d1bc86a59ead
+  - enabled: 1
+    path: Assets/Scenes/Dungeons/DG01_SB04_BURN.unity
+    guid: 318f286bfd32b5d4fa7a60d242c32351
   m_configObjects: {}

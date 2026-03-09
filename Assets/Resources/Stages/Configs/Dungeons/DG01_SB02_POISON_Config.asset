@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 153144396f289ac4eb89594c7dbaef9e, type: 3}
+  m_Name: DG01_SB02_POISON_Config
+  m_EditorClassIdentifier: 
+  StageID: DG01_SB02_POISON
+  StageName: "\uC18D\uBC15\uC800\uD56D \uC815\uC218 \uB358\uC804"
+  SceneName: DG01_SB02_POISON
+  BackgroundType: 1
+  IsDungeon: 1
+  chapterId: 0
+  stageIndexInChapter: 0
+  chapterStartCutsceneId: 
+  enterCutsceneId: 
+  clearCutsceneId: 
+  isReplaySkipCutscene: 1
+  RequiredLevel: 10
+  UnlockCondition: AlwaysUnlocked
+  unlockData:
+    IsAlwaysUnlocked: 1
+    RequiredStageId: 
+  WaveCount: 2
+  Victory: 1
+  StageBaseLevel: 10
+  hasTimeLimit: 0
+  TimeLimitSec: 0
+  FirstClearDropGroupId: 
+  RepeatClearDropGroupId: 
+  BGMPath: 
+  Description: "\uB3C5\uC800\uD56D \uC815\uC218\uB97C \uD68D\uB4DD\uD560 \uC218 \uC788\uB294
+    \uB370\uC77C\uB9AC \uBCF4\uC2A4 \uB358\uC804\uC785\uB2C8\uB2E4."
+  WaveConfigs:
+  - {fileID: 11400000, guid: 0689d1606ae254d43814d529f026add0, type: 2}
+  - {fileID: 11400000, guid: 2cf6112b762d40d44b30ebab1dcdaaba, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: bf6bdc0a20fbc1247b2c3d7e0b4959e0, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: 87dbd7fbb76166f4e9f7b2cacb2dd6c1, type: 2}

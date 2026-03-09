@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: caebb815a80113343a9fcac2e9ae1631, type: 3}
-  m_Name: DROP_DG01_SB01_CLEAR_REPEAT_Config
+  m_Name: DROP_DG01_SB03_SLOW_CLEAR_FIRST_Config
   m_EditorClassIdentifier: 
-  DropGroupID: DROP_DG01_SB01_CLEAR_REPEAT
-  StageID: DROP_DG01
-  GroupType: 1
-  Gold: 100
-  Exp: 20
+  DropGroupID: DROP_DG01_SB03_SLOW_CLEAR_FIRST
+  StageID: DG01_SB03_SLOW
+  GroupType: 0
+  Gold: 350
+  Exp: 100
   Items:
-  - ItemID: RUNE_FRAG_RUNE_BOSS_HUNTER
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
   - ItemID: RUNE_FRAG_RUNE_DEFENSE_BREAKER
-    Amount: 1
+    Amount: 3
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WARRIOR_B
-    Amount: 1
+  - ItemID: SPIRIT_ESSENCE_EARTH
+    Amount: 3
+    DropRate: 1
+    ItemPrefab: {fileID: 0}
+  - ItemID: MAT_WEAPON_FRAGMENT
+    Amount: 3
     DropRate: 1
     ItemPrefab: {fileID: 0}

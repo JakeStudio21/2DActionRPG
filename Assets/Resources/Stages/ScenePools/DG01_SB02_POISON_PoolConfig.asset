@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d5c2c97dcdef204bb74147c1a125ee8, type: 3}
-  m_Name: DG01_SB01_PoolConfig
+  m_Name: DG01_SB02_POISON_PoolConfig
   m_EditorClassIdentifier: 
-  sceneName: DG01_SB01
+  sceneName: DG01_SB02_POISON
   requiredPools:
   - tag: Arrow_B
     prefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}

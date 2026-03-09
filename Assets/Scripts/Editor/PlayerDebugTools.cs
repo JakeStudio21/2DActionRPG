@@ -185,6 +185,9 @@ public class PlayerDebugTools : EditorWindow
             if (selectedData != null)
                 selectedData.totalSP = slotData.totalSP;
             
+            // ✅ 레벨 변경 이벤트 발생 (던전 UI 등이 구독 중)
+            PlayerDataManager.Instance.TriggerLevelChanged(levelToSet);
+            
             PlayerDataManager.Instance.SaveCurrentSlot();
             Debug.Log($"✅ 레벨이 {levelToSet}로 설정됨! (SP: {slotData.totalSP})");
         }
@@ -488,6 +491,9 @@ public class PlayerDebugTools : EditorWindow
         selectedData.currentLevel = level;
         selectedData.currentExp = 0;
         selectedData.expToNextLevel = CalculateExpForLevel(level);
+        
+        // ✅ 레벨 변경 이벤트 발생 (던전 UI 등이 구독 중)
+        PlayerDataManager.Instance.TriggerLevelChanged(level);
         
         slotData.level = level;
         slotData.exp = 0;

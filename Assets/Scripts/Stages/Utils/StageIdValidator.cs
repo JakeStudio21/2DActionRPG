@@ -179,8 +179,9 @@ namespace StageSystem
                 return true;
             }
             
-            // DG01_SB01 형식 (던전번호_서브타입번호) ⭐ 추가
-            if (Regex.IsMatch(dungeonId, @"^DG\d{2}_[A-Z]{2}\d{2}$"))
+            // DG01_SB01 또는 DG01_SB01_BIND 형식 (던전번호_서브타입번호_속성) ⭐ 확장
+            // 예: DG01_SB01, DG01_SB01_BIND, DG01_SB02_POISON, DG01_SB03_SLOW, DG01_SB04_BURN
+            if (Regex.IsMatch(dungeonId, @"^DG\d{2}_[A-Z]{2}\d{2}(_[A-Z]+)?$"))
             {
                 return true;
             }

@@ -246,6 +246,12 @@ public static class MaterialTypeExtensions
             MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER => "RUNE_FRAG_RUNE_AREA_DEFENDER",
             MaterialType.RUNE_FRAG_RUNE_VAMPIRE => "RUNE_FRAG_RUNE_VAMPIRE",
             
+            // 정령의 정수 (Phase 9) - DropTable용 itemId ⭐
+            MaterialType.SPIRIT_ESSENCE_FOREST => "SPIRIT_ESSENCE_FOREST",
+            MaterialType.SPIRIT_ESSENCE_FLAME => "SPIRIT_ESSENCE_FLAME",
+            MaterialType.SPIRIT_ESSENCE_EARTH => "SPIRIT_ESSENCE_EARTH",
+            MaterialType.SPIRIT_ESSENCE_WATER => "SPIRIT_ESSENCE_WATER",
+            
             _ => ""
         };
     }
@@ -285,6 +291,12 @@ public static class MaterialTypeExtensions
             "RUNE_FRAG_RUNE_SURVIVOR" => MaterialType.RUNE_FRAG_RUNE_SURVIVOR,
             "RUNE_FRAG_RUNE_AREA_DEFENDER" => MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER,
             "RUNE_FRAG_RUNE_VAMPIRE" => MaterialType.RUNE_FRAG_RUNE_VAMPIRE,
+            
+            // 정령의 정수 (Phase 9) - DropTable itemId 역변환 ⭐
+            "SPIRIT_ESSENCE_FOREST" => MaterialType.SPIRIT_ESSENCE_FOREST,
+            "SPIRIT_ESSENCE_FLAME" => MaterialType.SPIRIT_ESSENCE_FLAME,
+            "SPIRIT_ESSENCE_EARTH" => MaterialType.SPIRIT_ESSENCE_EARTH,
+            "SPIRIT_ESSENCE_WATER" => MaterialType.SPIRIT_ESSENCE_WATER,
             
             _ => MaterialType.None
         };

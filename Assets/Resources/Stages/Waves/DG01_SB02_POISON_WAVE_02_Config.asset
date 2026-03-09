@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 365ff0eb4e0d17a4ebc5abc9d5bd3e1a, type: 3}
-  m_Name: DG01_SB01_WAVE_02_Config
+  m_Name: DG01_SB02_POISON_WAVE_02_Config
   m_EditorClassIdentifier: 
-  WaveID: DG01_SB01_WAVE_02
-  StageID: CH01_ST10
+  WaveID: DG01_SB02_POISON_WAVE_02
+  StageID: DG01_SB02_POISON
   WaveIndex: 1
   StartCondition: 1
   WaveDelaySec: 2
@@ -25,4 +25,4 @@ MonoBehaviour:
   SimpleMobWaveData: {fileID: 0}
   SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
-  - {fileID: 11400000, guid: fdcf243061e3f884f95bcee639f0a864, type: 2}
+  - {fileID: 11400000, guid: 8697c82dad7ec394f99d0fb4402a3018, type: 2}

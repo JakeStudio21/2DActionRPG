@@ -414,7 +414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonType: 0
-  scaleTarget: {fileID: 3048577275723437963}
+  scaleTarget: {fileID: 604002820521166202}
   autoCreateScaleTarget: 1
   scaleDuration: 0.1
   scaleAmount: 0.9

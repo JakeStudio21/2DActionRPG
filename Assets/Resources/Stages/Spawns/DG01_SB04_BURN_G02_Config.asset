@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c8815f4e37c1064b8ba4adc333291d9, type: 3}
-  m_Name: DG01_SB01_G02_Config
+  m_Name: DG01_SB04_BURN_G02_Config
   m_EditorClassIdentifier: 
-  SpawnGroupID: DG01_SB01_G02
-  WaveID: DG01_SB01_WAVE_02
+  SpawnGroupID: DG01_SB04_BURN_G02
+  WaveID: DG01_SB04_BURN_WAVE_02
   SpawnDelaySec: 0
   RepeatCount: 1
   RepeatIntervalSec: 0
