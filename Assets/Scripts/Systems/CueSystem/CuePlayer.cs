@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
 
@@ -41,8 +42,44 @@ namespace CueSystem
         {
             base.Awake();
             
+            // 씬 전환 이벤트 구독
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            
             if (showDebugLogs)
                 Debug.Log("🎵 [CuePlayer] 초기화 완료 - 직참조 차단 활성화");
+        }
+        
+        protected override void OnDestroy()
+        {
+            // 씬 전환 이벤트 구독 해제
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            
+            base.OnDestroy();
+        }
+        
+        /// <summary>
+        /// 🧹 씬 전환 시 파괴된 VFX/SFX 참조 정리
+        /// </summary>
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            CleanupNullReferences();
+            
+            if (showDebugLogs)
+                Debug.Log($"🧹 [CuePlayer] 씬 전환 감지: {scene.name} - null 참조 정리 완료");
+        }
+        
+        /// <summary>
+        /// 🧹 null 참조 정리 (씬 전환으로 파괴된 오브젝트들)
+        /// </summary>
+        private void CleanupNullReferences()
+        {
+            int vfxRemoved = _activeVFX.RemoveAll(obj => obj == null);
+            int sfxRemoved = _activeSFX.RemoveAll(source => source == null);
+            
+            if (showDebugLogs && (vfxRemoved > 0 || sfxRemoved > 0))
+            {
+                Debug.Log($"🧹 [CuePlayer] null 참조 제거: VFX {vfxRemoved}개, SFX {sfxRemoved}개");
+            }
         }
         
         private void Update()

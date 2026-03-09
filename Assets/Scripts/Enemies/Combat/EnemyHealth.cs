@@ -281,9 +281,6 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 체력바 업데이트
         UpdateHealthBar();
         
-        // ✅ 🎵 Cue 시스템 추가 - 피격 이펙트 발행
-        EmitHitCues(damage);
-        
         // FSM 기반 Hit/Die 상태 전환 (IEnemy 구현 몬스터만)
         IEnemy enemyFSM = GetComponent<IEnemy>();
         
@@ -393,10 +390,10 @@ public class EnemyHealth : MonoBehaviour
         // 5️⃣ 체력바 업데이트
         UpdateHealthBar();
         
-        // 6️⃣ Cue 시스템 추가 - 피격 이펙트 발행
-        EmitHitCues(result.finalDamage);
+        // 5-1️⃣ 🎨 Hit 스파크 이펙트 발행 (피격자 책임)
+        EmitHitEffect(result.hitPosition, result.isCritical, result.attackerGrade);
         
-        // 7️⃣ 🛡️ Phase 4-C: 면역 처리
+        // 6️⃣ 🛡️ Phase 4-C: 면역 처리
         if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
         {
             // 면역 정보 저장 (StatusEffectManager에서 참조)
@@ -1079,60 +1076,37 @@ public class EnemyHealth : MonoBehaviour
     }
     
     /// <summary>
-    /// 🎵 피격 이펙트 Cue 발행
+    /// 🎨 피격 이펙트 발행 (피격자 책임)
+    /// 공격자가 전달한 위치/등급 정보로 자신의 도메인에서 이펙트 발행
     /// </summary>
-    private void EmitHitCues(int damage)
+    private void EmitHitEffect(Vector3 hitPosition, bool isCritical, ItemGrade attackerGrade)
     {
-        try
-        {
-            // 크리티컬 판정 (임시: 데미지가 높으면 크리티컬로 간주)
-            int maxHealth = MaxHealth; // ✅ 수정: GetMaxHealth() → MaxHealth
-            bool isCritical = damage >= (maxHealth * 0.3f); // 최대 체력의 30% 이상이면 크리티컬
-            
-            // CueContext 생성
-            var context = new CueSystem.CueContext
-            {
-                position = transform.position,
-                rotation = transform.rotation,
-                normal = Vector3.up,
-                facingDir = GetHitDirection(),
-                follow = null,
-                actorType = CueSystem.ActorType.Enemy,
-                surfaceType = CueSystem.SurfaceType.Flesh, // 적은 기본적으로 살점
-                magnitude = (float)damage / maxHealth, // 데미지 비율로 강도 결정
-                isCritical = isCritical,
-                scale = isCritical ? 1.3f : 1.0f,
-                damage = damage
-            };
-            
-            // 이벤트 키 결정
-            string eventKey = isCritical ? "hit.enemy.critical" : "hit.enemy.normal";
-            
-            // Cue 발행
-            bool success = CueSystem.CueEmitter.Emit(eventKey, "Enemy", context);
-            
-            Debug.Log($"🎵 [EnemyHealth] 피격 Cue 발행: {eventKey} (데미지: {damage}) → {(success ? "성공" : "실패")}");
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"🔴 [EnemyHealth] 피격 Cue 발행 오류: {ex.Message}");
-        }
-    }
-    
-    /// <summary>
-    /// 🧭 피격 방향 계산
-    /// </summary>
-    private Vector2 GetHitDirection()
-    {
-        // 플레이어 방향에서 오는 피격으로 가정
-        var player = FindObjectOfType<PlayerController>();
-        if (player != null)
-        {
-            Vector2 direction = (transform.position - player.transform.position).normalized;
-            return direction;
-        }
+        // 🎯 등급 그룹 판정: SS, EX, TR = 고급 / 나머지 = 일반
+        bool isHighGrade = attackerGrade == ItemGrade.SS || 
+                           attackerGrade == ItemGrade.EX || 
+                           attackerGrade == ItemGrade.TR;
         
-        return Vector2.up; // 기본값
+        // 키 생성
+        string eventKey;
+        if (isHighGrade)
+            eventKey = isCritical ? "hit.enemy.critical_high" : "hit.enemy.normal_high";
+        else
+            eventKey = isCritical ? "hit.enemy.critical" : "hit.enemy.normal";
+        
+        var context = new CueSystem.CueContext
+        {
+            position = hitPosition,
+            rotation = transform.rotation,
+            actorType = CueSystem.ActorType.Enemy,  // ⭐ 자신의 도메인
+            magnitude = isCritical ? 1.5f : 1.0f,
+            isCritical = isCritical,
+            surfaceType = CueSystem.SurfaceType.Flesh
+        };
+        
+        // ⭐ "Enemy" 도메인으로 발행 → Enemy_enemy_base.asset에서 찾음
+        bool success = CueSystem.CueEmitter.Emit(eventKey, "Enemy", context);
+        
+        Debug.Log($"🎨 [EnemyHealth] Hit 이펙트 발행: {eventKey} (등급: {attackerGrade}, 크리티컬: {isCritical}) → {success}");
     }
     
     #endregion

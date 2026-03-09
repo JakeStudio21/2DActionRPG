@@ -67,6 +67,10 @@ public static class CombatFormula
         // ⚙️ Phase 4-C: Phase 7 후처리 시스템
         public float lifeStealAmount;         // 흡혈량 (가한 데미지 × 흡혈 비율)
         public float healingBlockPercent;     // 회복 차단 비율 (0.0~1.0)
+        
+        // ⭐ 피격 이펙트 정보 (피격자가 발행할 수 있도록)
+        public Vector3 hitPosition;           // 피격 지점 (이펙트 발행 위치)
+        public ItemGrade attackerGrade;       // 공격자 무기/발사체 등급
     }
     
     #endregion

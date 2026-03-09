@@ -17,9 +17,6 @@ public class PlayerSkillAOEDamage : MonoBehaviour
     [SerializeField] private LayerMask enemyLayerMask = 1 << 6; // Enemy layer (기본값 6)
     [SerializeField] private bool damageOnce = true; // 한 번만 데미지 (기본값 true)
     
-    [Header("Cue System")]
-    [SerializeField] private string hitCueEventKey = ""; // 예: "skill.warrior.skill1.hit"
-    [SerializeField] private bool emitHitCue = true; // Hit Cue 발행 여부
     
     [Header("Debug")]
     [SerializeField] private bool showDebugLogs = true;
@@ -83,22 +80,6 @@ public class PlayerSkillAOEDamage : MonoBehaviour
     /// <summary>
     /// Hit Cue 이벤트 키 설정
     /// </summary>
-    public void SetHitCueEventKey(string eventKey)
-    {
-        hitCueEventKey = eventKey;
-        
-        if (showDebugLogs)
-            Debug.Log($"[PlayerSkillAOEDamage] Hit Cue 이벤트 키 설정: {hitCueEventKey}");
-    }
-    
-    /// <summary>
-    /// Hit Cue 발행 여부 설정
-    /// </summary>
-    public void SetEmitHitCue(bool emit)
-    {
-        emitHitCue = emit;
-    }
-    
     #endregion
     
     #region Collision Detection
@@ -150,6 +131,10 @@ public class PlayerSkillAOEDamage : MonoBehaviour
             
             var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
             
+            // ⭐ 피격 이펙트 정보 추가 (피격자가 발행할 수 있도록)
+            result.hitPosition = other.transform.position;
+            result.attackerGrade = GetSkillWeaponGrade();  // 현재 무기 등급 사용
+            
             // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
             enemyHealth.TakeDamage(result, transform);
             
@@ -159,40 +144,9 @@ public class PlayerSkillAOEDamage : MonoBehaviour
             // 중복 데미지 방지용 추가
             hitEnemies.Add(other);
             
-            // Hit Cue 발행
-            if (emitHitCue && !string.IsNullOrEmpty(hitCueEventKey))
-            {
-                EmitHitCue(other.transform.position, result.isCritical);
-            }
-            
             if (showDebugLogs)
                 Debug.Log($"💥 [PlayerSkillAOEDamage] {other.name}에게 {result.finalDamage} 데미지! (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack})");
         }
-    }
-    
-    #endregion
-    
-    #region Hit Cue System
-    
-    /// <summary>
-    /// Hit Cue 발행 (몬스터 타격 이펙트)
-    /// </summary>
-    private void EmitHitCue(Vector3 hitPosition, bool isCritical = false)
-    {
-        var context = new CueContext
-        {
-            position = hitPosition,
-            rotation = Quaternion.identity,
-            actorType = ActorType.Player,
-            magnitude = isCritical ? 2.0f : 1.3f,
-            isCritical = isCritical,
-            surfaceType = SurfaceType.Flesh // 몬스터 타격
-        };
-        
-        bool cueSuccess = CueEmitter.Emit(hitCueEventKey, "Player", context);
-        
-        if (showDebugLogs)
-            Debug.Log($"💥 [PlayerSkillAOEDamage] Hit Cue 발행 ({hitCueEventKey}, 위치: {hitPosition}, 크리티컬: {isCritical}) → {cueSuccess}");
     }
     
     #endregion
@@ -213,6 +167,23 @@ public class PlayerSkillAOEDamage : MonoBehaviour
         }
         
         return 0f;
+    }
+    
+    /// <summary>
+    /// 스킬 사용 시 현재 무기 등급 가져오기
+    /// </summary>
+    private ItemGrade GetSkillWeaponGrade()
+    {
+        var activeWeapon = FindObjectOfType<ActiveWeapon>();
+        if (activeWeapon?.CurrentActiveWeapon == null) return ItemGrade.C;
+        
+        var weaponComponent = activeWeapon.CurrentActiveWeapon as IWeapon;
+        if (weaponComponent == null) return ItemGrade.C;
+        
+        var equipmentData = weaponComponent.GetEquipmentData();
+        if (equipmentData == null) return ItemGrade.C;
+        
+        return equipmentData.itemGrade;
     }
     
     /// <summary>
@@ -280,8 +251,6 @@ public class PlayerSkillAOEDamage : MonoBehaviour
         info += $"Damage Amount: {damageAmount}\n";
         info += $"Enemy LayerMask: {enemyLayerMask.value}\n";
         info += $"Damage Once: {damageOnce}\n";
-        info += $"Hit Cue Event Key: {hitCueEventKey}\n";
-        info += $"Emit Hit Cue: {emitHitCue}\n";
         info += $"Hit Enemies Count: {hitEnemies.Count}\n";
         
         Debug.Log(info);

@@ -137,10 +137,8 @@ public static class SkillAOESpawner
         var skillAOE = aoe.AddComponent<PlayerSkillAOEDamage>();
         skillAOE.SetDamage((int)damage);
         skillAOE.SetEnemyLayerMask(targetLayer);
-        skillAOE.SetHitCueEventKey(hitCueEventKey);
-        skillAOE.SetEmitHitCue(true);
         
-        Debug.Log($"💥 [SkillAOESpawner] PlayerSkillAOEDamage 설정: 데미지={damage}, Hit Cue={hitCueEventKey}");
+        Debug.Log($"💥 [SkillAOESpawner] PlayerSkillAOEDamage 설정: 데미지={damage}");
     }
     
     /// <summary>

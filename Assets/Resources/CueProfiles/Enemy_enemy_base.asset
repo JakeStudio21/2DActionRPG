@@ -61,7 +61,7 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uBCF4\uC2A4 \uC0AC\uB9DD"
-  - vfxId: HitEffect
+  - vfxId: HitEnemyNormal
     poolKey: Fx_Hit_ImpactDust_Fire
     duration: 2
     offset: {x: 0, y: 0, z: 0}
@@ -70,7 +70,25 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uD53C\uACA9"
-  - vfxId: CritHitEffect
+  - vfxId: HitEnemyNormalHigh
+    poolKey: Fx_Hit_ImpactDust_Fire
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC77C\uBC18 \uD53C\uACA9"
+  - vfxId: HitEnemyCritacal
+    poolKey: Fx_CritHit_ImpactDust_Red
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
+  - vfxId: HitEnemyCritacalHigh
     poolKey: Fx_CritHit_ImpactDust_Red
     duration: 2
     offset: {x: 0, y: 0, z: 0}
@@ -88,6 +106,15 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
+  - vfxId: PlayerHitVFX
+    poolKey: Fx_PlayerHit_Spark_White
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 VFX"
   sfxCatalog:
   - sfxId: SwordHit
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
@@ -226,7 +253,16 @@ MonoBehaviour:
     note: "\uBCF4\uC2A4 \uC0AC\uB9DD"
   - eventKey: hit.enemy.normal
     vfxIds:
-    - HitEffect
+    - HitEnemyNormal
+    sfxIds:
+    - HitSound
+    priority: 1
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uC77C\uBC18 \uD53C\uACA9"
+  - eventKey: hit.enemy.normal_high
+    vfxIds:
+    - HitEnemyNormalHigh
     sfxIds:
     - HitSound
     priority: 1
@@ -235,7 +271,16 @@ MonoBehaviour:
     note: "\uC77C\uBC18 \uD53C\uACA9"
   - eventKey: hit.enemy.critical
     vfxIds:
-    - CritHitEffect
+    - HitEnemyCritacal
+    sfxIds:
+    - CritHitSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 80
+    note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
+  - eventKey: hit.enemy.critical_high
+    vfxIds:
+    - HitEnemyCritacalHigh
     sfxIds:
     - CritHitSound
     priority: 3

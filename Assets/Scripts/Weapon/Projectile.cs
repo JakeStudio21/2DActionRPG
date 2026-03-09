@@ -126,44 +126,19 @@ public class Projectile : MonoBehaviour
                 (enemyHealth && !isEnemyProjectile) ||
                 (simpleMob && !isEnemyProjectile)) // 🆕
             {
-                // 데미지를 입히는 로직을 PlayerHealth와 EnemyHealth의 OnCollision/OnTrigger가 담당하도록 변경합니다.
-                // Projectile은 시각 효과와 소멸만 처리합니다.
-                
                 // EnemyDamage 컴포넌트에서 데미지 값을 가져와서 적용
                 EnemyDamage enemyDamage = GetComponent<EnemyDamage>();
                 if (player && isEnemyProjectile && enemyDamage != null) {
                     // 적 발사체 → 플레이어 피격
-                    player.TakeDamage(enemyDamage.damageAmount, transform);
+                    // ⭐ 피격 위치 정보 전달 (피격자가 이펙트 발행)
+                    player.TakeDamage(enemyDamage.damageAmount, transform, transform.position);
                 }
                 // ✅ 플레이어 발사체는 DamageSource.cs가 데미지를 처리하므로 여기서는 Skip
-                // else if (enemyHealth && !isEnemyProjectile) {
-                //     // DamageSource.cs가 이미 데미지를 적용함
-                // }
-
-                // 🔑 VFX 생성 (Fallback)
-                if (particleOnHitPrefabVFX != null)
-                {
-                    GamePoolManager.Instance.SpawnFromPool(particleOnHitPrefabVFX.name, transform.position, transform.rotation);
-                }
-                else
-                {
-                    Debug.LogWarning($"[Projectile] particleOnHitPrefabVFX가 할당되지 않음: {gameObject.name}");
-                }
 
                 // 🔑 한 번만 반환
                 ReturnProjectileToPool();
                 
             } else if (!other.isTrigger && indestructible) {
-                // 🔑 VFX 생성
-                if (particleOnHitPrefabVFX != null)
-                {
-                    GamePoolManager.Instance.SpawnFromPool(particleOnHitPrefabVFX.name, transform.position, transform.rotation);
-                }
-                else
-                {
-                    Debug.LogWarning($"[Projectile] particleOnHitPrefabVFX가 할당되지 않음: {gameObject.name}");
-                }
-                
                 // 🔑 한 번만 반환
                 ReturnProjectileToPool();
             }
@@ -422,75 +397,6 @@ public class Projectile : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"🏹 [Projectile] 초기화: 등급={grade}, 타입={type}");
-    }
-    
-    /// <summary>
-    /// 🎨 히트 이펙트 발행 (등급별)
-    /// </summary>
-    private void EmitHitEffectCue(Vector3 hitPosition)
-    {
-        // 등급별 히트 이벤트 키 생성
-        string eventKey = GetHitEffectEventKey();
-        float magnitude = GetHitMagnitudeByGrade();
-        
-        var context = new CueContext
-        {
-            position = hitPosition,
-            rotation = transform.rotation,
-            actorType = ActorType.Player,
-            magnitude = magnitude,
-            isCritical = false, // 크리티컬은 별도 판정
-            surfaceType = SurfaceType.Default
-        };
-        
-        bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
-        
-        if (showDebugLogs)
-            Debug.Log($"💥 [Projectile] Hit Effect Cue 발행: {eventKey} (등급: {projectileGrade}, 강도: {magnitude}) → {cueSuccess}");
-    }
-    
-    /// <summary>
-    /// 등급별 히트 이벤트 키
-    /// </summary>
-    private string GetHitEffectEventKey()
-    {
-        // 무기 타입 문자열
-        string weaponTypeStr = weaponType == WeaponType.Bow ? "arrow" : 
-                               weaponType == WeaponType.Magic ? "magic" : 
-                               "ranged";
-        
-        // 등급별 이벤트 키
-        switch (projectileGrade)
-        {
-            case ItemGrade.S:
-                return $"hit.player.{weaponTypeStr}_s";
-            case ItemGrade.A:
-                return $"hit.player.{weaponTypeStr}_a";
-            case ItemGrade.B:
-                return $"hit.player.{weaponTypeStr}_b";
-            case ItemGrade.C:
-                return $"hit.player.{weaponTypeStr}_c";
-            case ItemGrade.D:
-                return $"hit.player.{weaponTypeStr}_d";
-            default:
-                return "hit.player.normal"; // fallback
-        }
-    }
-    
-    /// <summary>
-    /// 등급별 히트 이펙트 강도
-    /// </summary>
-    private float GetHitMagnitudeByGrade()
-    {
-        switch (projectileGrade)
-        {
-            case ItemGrade.S: return 2.5f;
-            case ItemGrade.A: return 1.8f;
-            case ItemGrade.B: return 1.3f;
-            case ItemGrade.C: return 1.0f;
-            case ItemGrade.D: return 0.7f;
-            default: return 1.0f;
-        }
     }
     
     #endregion

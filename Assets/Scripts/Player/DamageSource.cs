@@ -108,11 +108,12 @@ public class DamageSource : MonoBehaviour
         
         var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
         
+        // ⭐ 피격 이펙트 정보 추가 (피격자가 발행할 수 있도록)
+        result.hitPosition = other.transform.position;
+        result.attackerGrade = GetCurrentWeaponGrade();
+        
         // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
         enemyHealth.TakeDamage(result, transform);
-        
-        // ⭐ Phase 1-1: 히트 이펙트 Cue 발행
-        EmitHitEffectCue(other.transform.position);
         
         // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만 공격자가 처리)
         ApplyLifeStealOnly(result);
@@ -158,10 +159,8 @@ public class DamageSource : MonoBehaviour
         var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
         
         // SimpleMob에 데미지 적용 (기본 int 데미지만 지원)
+        // ⚠️ SimpleMob은 DamageResult를 지원하지 않으므로 기존 방식 유지
         simpleMob.TakeDamage(result.finalDamage);
-        
-        // 히트 이펙트
-        EmitHitEffectCue(other.transform.position);
         
         // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만)
         ApplyLifeStealOnly(result);
@@ -313,96 +312,29 @@ public class DamageSource : MonoBehaviour
     #region ⭐ Phase 1-1: 히트 이펙트 시스템
     
     /// <summary>
-    /// 💥 히트 이펙트 Cue 발행 (등급별)
+    /// 현재 무기 등급 가져오기
     /// </summary>
-    private void EmitHitEffectCue(Vector3 hitPosition)
-    {
-        // 등급별 히트 이벤트 키 생성
-        string eventKey = GetHitEffectEventKey();
-        float magnitude = GetHitMagnitudeByGrade();
-        
-        var context = new CueContext
-        {
-            position = hitPosition,
-            rotation = transform.rotation,
-            actorType = ActorType.Player,
-            magnitude = magnitude,
-            surfaceType = SurfaceType.Default
-        };
-        
-        bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
-        
-        if (showDebugLogs)
-            Debug.Log($"💥 [DamageSource] Hit Cue 발행: {eventKey} (강도: {magnitude}) → {cueSuccess}");
-    }
-    
-    /// <summary>
-    /// 무기 등급에 따른 히트 이벤트 키 생성
-    /// </summary>
-    private string GetHitEffectEventKey()
+    private ItemGrade GetCurrentWeaponGrade()
     {
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon?.CurrentActiveWeapon == null)
         {
-            return "hit.player.normal"; // 기본값
+            return ItemGrade.C; // 기본값
         }
         
         var weaponComponent = activeWeapon.CurrentActiveWeapon as IWeapon;
         if (weaponComponent == null)
         {
-            return "hit.player.normal";
+            return ItemGrade.C;
         }
         
         var equipmentData = weaponComponent.GetEquipmentData();
         if (equipmentData == null)
         {
-            return "hit.player.normal";
+            return ItemGrade.C;
         }
         
-        // 무기 타입 확인 (근접 vs 원거리)
-        string weaponTypeKey = equipmentData.WeaponType == WeaponType.Sword ? "melee" : "ranged";
-        
-        // 등급별 이벤트 키 매핑
-        switch (equipmentData.itemGrade)
-        {
-            case ItemGrade.S:
-                return $"hit.player.{weaponTypeKey}_s";
-            case ItemGrade.A:
-                return $"hit.player.{weaponTypeKey}_a";
-            case ItemGrade.B:
-                return $"hit.player.{weaponTypeKey}_b";
-            case ItemGrade.C:
-                return $"hit.player.{weaponTypeKey}_c";
-            case ItemGrade.D:
-                return $"hit.player.{weaponTypeKey}_d";
-            default:
-                return "hit.player.normal"; // fallback
-        }
-    }
-    
-    /// <summary>
-    /// 등급별 히트 이펙트 강도
-    /// </summary>
-    private float GetHitMagnitudeByGrade()
-    {
-        var activeWeapon = FindObjectOfType<ActiveWeapon>();
-        if (activeWeapon?.CurrentActiveWeapon == null) return 1.0f;
-        
-        var weaponComponent = activeWeapon.CurrentActiveWeapon as IWeapon;
-        if (weaponComponent == null) return 1.0f;
-        
-        var equipmentData = weaponComponent.GetEquipmentData();
-        if (equipmentData == null) return 1.0f;
-        
-        switch (equipmentData.itemGrade)
-        {
-            case ItemGrade.S: return 2.5f;  // S등급: 2.5배 강도
-            case ItemGrade.A: return 1.8f;  // A등급: 1.8배
-            case ItemGrade.B: return 1.3f;  // B등급: 1.3배
-            case ItemGrade.C: return 1.0f;  // C등급: 기본
-            case ItemGrade.D: return 0.7f;  // D등급: 0.7배
-            default: return 1.0f;
-        }
+        return equipmentData.itemGrade;
     }
     
     #endregion

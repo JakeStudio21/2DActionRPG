@@ -217,21 +217,56 @@ public class PlayerHealth : MonoBehaviour
         StartCoroutine(DamageRecoveryRoutine());
         StartCoroutine(QuickHitRecoveryRoutine());
         CheckIfPlayerDeath();
-
-        // 🆕 Cue 이벤트 발행
-        var context = new CueContext
-        {
-            position = transform.position,
-            rotation = transform.rotation,
-            normal = (transform.position - hitTransform.position).normalized,
-            actorType = ActorType.Player,
-            magnitude = damageAmount / 10f,
-            damage = damageAmount
-        };
+    }
+    
+    /// <summary>
+    /// 기본 데미지 받기 (위치 정보 포함 - 적 발사체용)
+    /// </summary>
+    public void TakeDamage(int damageAmount, Transform hitTransform, Vector3 hitPosition)
+    {
+        if (!canTakeDamage) { return; }
         
-        // 크리티컬 여부는 추후 확장 가능
-        string eventKey = "hit.player.normal";
-        CueEmitter.Emit(eventKey, "Player", context);
+        // 애니메이션 및 효과
+        if (playerAnimationController != null)
+        {
+            playerAnimationController.OnHitStart();
+        }
+
+        // 넉백
+        if (knockback != null)
+        {
+            knockback.GetKnockedBack(hitTransform, knockback.DefaultKnockBackThrust);
+        }
+        
+        // Flash 효과
+        if (flash != null)
+        {
+            StartCoroutine(flash.FlashRoutine());
+        }
+        
+        // HP 차감
+        canTakeDamage = false;
+        currentHealth -= damageAmount;
+        
+        // 🎨 Hit 스파크 이펙트 발행 (피격자 책임)
+        EmitHitEffect(hitPosition, false, ItemGrade.C);  // 적 발사체는 등급 구분 없음
+        
+        // 데미지 넘버 표시
+        if (DamageNumberManager.Instance != null)
+        {
+            DamageNumberManager.Instance.ShowDamage(
+                transform.position, 
+                damageAmount, 
+                isPlayer: true, 
+                targetTransform: transform
+            );
+        }
+        
+        UpdateUI();
+        
+        StartCoroutine(DamageRecoveryRoutine());
+        StartCoroutine(QuickHitRecoveryRoutine());
+        CheckIfPlayerDeath();
     }
     
     /// <summary>
@@ -306,26 +341,39 @@ public class PlayerHealth : MonoBehaviour
         // 🔟 사망 체크
         CheckIfPlayerDeath();
 
-        // 1️⃣1️⃣ Cue 이벤트 발행
-        var context = new CueContext
-        {
-            position = transform.position,
-            rotation = transform.rotation,
-            normal = (transform.position - hitTransform.position).normalized,
-            actorType = ActorType.Player,
-            magnitude = result.finalDamage / 10f,
-            damage = result.finalDamage,
-            isCritical = result.isCritical
-        };
-        
-        // 크리티컬 여부 반영
-        string eventKey = result.isCritical ? "hit.player.critical" : "hit.player.normal";
-        CueEmitter.Emit(eventKey, "Player", context);
+        // 1️⃣1️⃣ 🎨 Hit 스파크 이펙트 발행 (피격자 책임)
+        EmitHitEffect(result.hitPosition, result.isCritical, result.attackerGrade);
         
         if (showDebugLogs)
         {
             Debug.Log($"💥 [PlayerHealth] {result.finalDamage} 데미지 받음 (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) ({currentHealth}/{maxHealth})");
         }
+    }
+    
+    /// <summary>
+    /// 🎨 피격 이펙트 발행 (피격자 책임)
+    /// 공격자가 전달한 위치/등급 정보로 자신의 도메인에서 이펙트 발행
+    /// </summary>
+    private void EmitHitEffect(Vector3 hitPosition, bool isCritical, ItemGrade attackerGrade)
+    {
+        // 적 공격은 등급 구분 없음
+        string eventKey = isCritical ? "hit.player.critical" : "hit.player.normal";
+        
+        var context = new CueContext
+        {
+            position = hitPosition,
+            rotation = transform.rotation,
+            actorType = ActorType.Player,  // ⭐ 자신의 도메인
+            magnitude = isCritical ? 1.5f : 1.0f,
+            isCritical = isCritical,
+            surfaceType = SurfaceType.Flesh
+        };
+        
+        // ⭐ "Player" 도메인으로 발행 → Player_player_base.asset에서 찾음
+        bool success = CueEmitter.Emit(eventKey, "Player", context);
+        
+        if (showDebugLogs)
+            Debug.Log($"🎨 [PlayerHealth] Hit 이펙트 발행: {eventKey} (크리티컬: {isCritical}) → {success}");
     }
 
     private void CheckIfPlayerDeath() {

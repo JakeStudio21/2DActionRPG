@@ -14631,10 +14631,10 @@ GameObject:
   - component: {fileID: 2577128210693631520}
   - component: {fileID: 1667091747660218827}
   - component: {fileID: 2222554710495419758}
-  - component: {fileID: 5677822794353440308}
   - component: {fileID: 6689866782567799827}
   - component: {fileID: 8813411787559020723}
   - component: {fileID: -72455256398735164}
+  - component: {fileID: 5918898709646160063}
   m_Layer: 0
   m_Name: Arrow_B
   m_TagString: Untagged
@@ -14651,7 +14651,7 @@ Transform:
   m_GameObject: {fileID: 4149642069968341746}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.53, y: 1.15, z: 0}
+  m_LocalPosition: {x: 11.25, y: 4.75, z: 0}
   m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -14886,18 +14886,6 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
---- !u!210 &5677822794353440308
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4149642069968341746}
-  m_Enabled: 1
-  m_SortingLayerID: 1855332111
-  m_SortingLayer: 3
-  m_SortingOrder: 2
-  m_SortAtRoot: 1
 --- !u!114 &6689866782567799827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14980,6 +14968,18 @@ MonoBehaviour:
   roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
   detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
+--- !u!210 &5918898709646160063
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4149642069968341746}
+  m_Enabled: 1
+  m_SortingLayerID: 1325618135
+  m_SortingLayer: 5
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
 --- !u!1 &5025094156019291721
 GameObject:
   m_ObjectHideFlags: 0
