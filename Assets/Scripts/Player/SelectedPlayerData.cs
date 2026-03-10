@@ -102,6 +102,15 @@ public class SelectedPlayerData : ScriptableObject
     [Tooltip("보스 최초 클리어 여부 확인용 (보스 ID 저장)")]
     public List<string> clearedBossIds = new List<string>();
     
+    // ========================================
+    // ⚡ 콘텐츠 입장 제한 시스템
+    // ========================================
+    // ⭐ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
+    // - AccountData.currentStamina
+    // - AccountData.lastStaminaUpdateTime
+    // - AccountData.dailyDungeonTickets
+    // - AccountData.dungeonCategoryEntries
+    
     // Dictionary로 변환하여 사용
     private Dictionary<EquipmentSlot, EquipmentData> _runtimeEquippedItems = null;
     public Dictionary<EquipmentSlot, EquipmentData> RuntimeEquippedItems
@@ -401,6 +410,8 @@ public class SelectedPlayerData : ScriptableObject
         
         Debug.Log($"🛡️ [SelectedPlayerData] 저항 데이터 로드: {resistanceStats.Count}개, 클리어 보스: {clearedBossIds.Count}개");
         
+        // ⚡ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
+        
         SyncDictionaries();
         
         Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 완전 로드 완료");
@@ -609,6 +620,8 @@ public class SelectedPlayerData : ScriptableObject
             slotData.clearedBossIds = new List<string>();
         }
         
+        // ⚡ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
+        
         Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
         Debug.Log($"💾 [SelectedPlayerData] V2 장비 레코드: {slotData.equippedRecords.Count}개");
         return slotData;
@@ -723,6 +736,8 @@ public class SelectedPlayerData : ScriptableObject
         lastPlayedStageId = "";
         pendingCutsceneId = null;
         pendingChapterId = 0;
+        
+        // ⚡ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
         
         SyncDictionaries();
     }

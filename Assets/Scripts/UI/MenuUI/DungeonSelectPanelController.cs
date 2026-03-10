@@ -33,8 +33,11 @@ public class DungeonSelectPanelController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI dungeonDescriptionText;
     [SerializeField] private TextMeshProUGUI recommendedLevelText;
     [SerializeField] private TextMeshProUGUI waveCountText;
-    [SerializeField] private TextMeshProUGUI rewardPreviewText;
     [SerializeField] private Button playButton;
+    
+    [Header("Dungeon Layer - 입장 횟수 표시")]
+    [Tooltip("DungeonLayer 안에 두면 카테고리 진입 시 바로 표시됨")]
+    [SerializeField] private TextMeshProUGUI ticketPreviewText;
     
     [Header("Background Images")]
     [SerializeField] private Sprite categoryBg_DailyBoss;    // 데일리 보스 배경
@@ -49,6 +52,9 @@ public class DungeonSelectPanelController : MonoBehaviour
     
     [Header("Debug")]
     [SerializeField] private bool enableDebugLogs = true;
+    
+    [Header("⚡ 경고 팝업")]
+    [SerializeField] private ContentEntryWarningPopup warningPopup; // 입장 제한 경고 팝업
     
     // 이벤트 ⭐
     public System.Action<string> OnDungeonPlayButtonClicked; // sceneName 전달
@@ -170,6 +176,32 @@ public class DungeonSelectPanelController : MonoBehaviour
             if (enableDebugLogs)
                 Debug.Log("[DungeonSelect] 패널 표시");
         }
+    }
+    
+    /// <summary>
+    /// Play 버튼 클릭 처리
+    /// ⚡ Phase D-Revision: 검증은 LobbyUIController에서 수행, 여기서는 단순 이벤트 발행만
+    /// </summary>
+    private void OnPlayButtonClicked()
+    {
+        if (string.IsNullOrEmpty(selectedDungeonId))
+        {
+            Debug.LogWarning("[DungeonSelect] 던전을 선택해주세요!");
+            return;
+        }
+        
+        var config = LoadDungeonConfig(selectedDungeonId);
+        if (config == null)
+        {
+            Debug.LogError($"[DungeonSelect] DungeonConfig를 찾을 수 없습니다: {selectedDungeonId}");
+            return;
+        }
+        
+        if (enableDebugLogs)
+            Debug.Log($"[DungeonSelect] 🏰 던전 입장 이벤트 발행: {selectedDungeonId} -> {config.SceneName}");
+        
+        // 이벤트 발행 (LobbyUIController에서 검증 및 씬 이동 처리)
+        OnDungeonPlayButtonClicked?.Invoke(config.SceneName);
     }
     
     /// <summary>
@@ -499,6 +531,9 @@ public class DungeonSelectPanelController : MonoBehaviour
                 Debug.Log($"[DungeonSelect] DungeonLayer 활성화 (카테고리: {categoryId})");
         }
         
+        // ⚡ 입장 횟수 표시 (DungeonLayer 열릴 때 바로 표시)
+        UpdateTicketPreviewText(categoryId);
+        
         // 기존 버튼 제거
         if (dungeonListContainer != null)
         {
@@ -587,6 +622,9 @@ public class DungeonSelectPanelController : MonoBehaviour
                 buttonUI.SetLocked(false);
                 buttonUI.SetInteractable(true);
                 
+                // ⚡ 입장 횟수 표시 설정
+                // ⚡ Phase D-Revision: 입장 횟수는 개별 버튼에 표시하지 않고 정보 패널(ticketPreviewText)에만 표시
+                
                 if (buttonUI.button != null)
                 {
                     buttonUI.button.onClick.AddListener(() => OnDungeonSelected(dungeonInfo.dungeonId));
@@ -626,6 +664,31 @@ public class DungeonSelectPanelController : MonoBehaviour
                 }
             }
         }
+    }
+    
+    /// <summary>
+    /// ⚡ 입장 횟수 텍스트 갱신 (DungeonLayer 열릴 때 / 던전 선택 시)
+    /// </summary>
+    private void UpdateTicketPreviewText(string categoryId)
+    {
+        if (ticketPreviewText == null || ContentEntryManager.Instance == null)
+            return;
+        
+        int remainCount = ContentEntryManager.Instance.GetRemainDailyCount(categoryId);
+        int tickets = ContentEntryManager.Instance.GetTicketCount();
+        
+        string entryInfo = $"<color=#FFFF00>오늘 남은 입장 횟수   {remainCount} / 3</color>\n";
+        
+        if (tickets > 0)
+        {
+            entryInfo += $"보유 티켓: <color=#00FF00>{tickets}장</color>";
+        }
+        else
+        {
+            entryInfo += $"보유 티켓: <color=#888888>0장</color>";
+        }
+        
+        ticketPreviewText.text = entryInfo;
     }
     
     /// <summary>
@@ -673,12 +736,9 @@ public class DungeonSelectPanelController : MonoBehaviour
         if (waveCountText != null)
             waveCountText.text = $"웨이브: {config.WaveCount}개";
         
-        // ⭐ 보상 미리보기 (던전 버튼에 이미 표시되므로 생략 가능)
-        // 필요하다면 간단한 텍스트만 표시
-        if (rewardPreviewText != null)
-        {
-            rewardPreviewText.text = "보상 아이템은 던전 버튼에 표시됩니다.";
-        }
+        // ⚡ 입장 횟수 표시 (던전 선택 시에도 갱신)
+        string categoryId = ContentEntryManager.GetCategoryIdFromDungeonId(dungeonId);
+        UpdateTicketPreviewText(categoryId);
         
         // Play 버튼 활성화
         if (playButton != null)
@@ -863,30 +923,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         return rewards;
     }
     
-    /// <summary>
-    /// Play 버튼 클릭 처리
-    /// </summary>
-    private void OnPlayButtonClicked()
-    {
-        if (string.IsNullOrEmpty(selectedDungeonId))
-        {
-            Debug.LogWarning("[DungeonSelect] 던전을 선택해주세요!");
-            return;
-        }
-        
-        var config = LoadDungeonConfig(selectedDungeonId);
-        if (config == null)
-        {
-            Debug.LogError($"[DungeonSelect] DungeonConfig를 찾을 수 없습니다: {selectedDungeonId}");
-            return;
-        }
-        
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 🏰 던전 입장 이벤트 발행: {selectedDungeonId} -> {config.SceneName}");
-        
-        // 이벤트 발행 (LobbyUIController가 처리) ⭐
-        OnDungeonPlayButtonClicked?.Invoke(config.SceneName);
-    }
     
     /// <summary>
     /// 플레이어 레벨 변경 이벤트 핸들러 (정석 방식) ✅

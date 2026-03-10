@@ -194,6 +194,9 @@ public class StageManager : MonoBehaviour
             totalEnemyKillCount = 0;
             isBossKilled = false; // ✅ 보스 처치 플래그 초기화
             
+            // ⚡ Phase D-Revision: 입장 시점에 즉시 재화 차감 (로비 검증 통과 전제)
+            ConsumeStageEntryCost();
+            
             // ⭐ 0단계: 캐릭터 가방 초기화 (인게임 전용 임시 저장소)
             if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
             {
@@ -646,6 +649,8 @@ public class StageManager : MonoBehaviour
             
             if (success)
             {
+                // ⚡ Phase D-Revision: 재화 차감은 InitializeStage()에서 이미 완료
+                
                 // 보상 처리 및 결과 저장
                 var rewardResult = ProcessStageRewards(clearTime);
                 
@@ -1786,6 +1791,43 @@ public class StageManager : MonoBehaviour
         
         // 아이템 전송 실행
         transfer.TransferItemsToAccount();
+    }
+    
+    #endregion
+    
+    #region ⚡ 콘텐츠 입장 제한 시스템 (Phase D-Revision)
+    
+    /// <summary>
+    /// 스테이지 입장 재화 실제 차감 (입장 시점에 즉시 호출)
+    /// ⚡ Phase D-Revision: 로비에서 검증 완료 전제, 입장 시 무조건 차감
+    /// </summary>
+    private void ConsumeStageEntryCost()
+    {
+        if (stageConfig == null || ContentEntryManager.Instance == null)
+            return;
+        
+        // 일반 스테이지: 스태미나 차감
+        if (!stageConfig.IsDungeon)
+        {
+            int requiredStamina = stageConfig.requiredStamina;
+            ContentEntryManager.Instance.ConsumeStamina(requiredStamina);
+            
+            if (enableDebugLogs)
+                Debug.Log($"⚡ [StageManager] 스태미나 차감 완료: {stageConfig.StageID} (-{requiredStamina})");
+        }
+        // 던전: 카테고리 입장 횟수 차감
+        else
+        {
+            // StageConfig의 categoryId 먼저 확인, 없으면 자동 추출
+            string categoryId = !string.IsNullOrEmpty(stageConfig.categoryId) 
+                ? stageConfig.categoryId 
+                : ContentEntryManager.GetCategoryIdFromDungeonId(stageConfig.StageID);
+            
+            ContentEntryManager.Instance.ConsumeDungeonEntry(categoryId);
+            
+            if (enableDebugLogs)
+                Debug.Log($"🏰 [StageManager] 던전 카테고리 입장 횟수 차감 완료: {stageConfig.StageID} (카테고리: {categoryId})");
+        }
     }
     
     #endregion

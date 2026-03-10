@@ -43,6 +43,16 @@ namespace StageSystem
         public string UnlockCondition;
         [SerializeField] private UnlockConditionData unlockData;
         
+    [Header("⚡ 입장 재화 (콘텐츠 입장 제한 시스템)")]
+    [Tooltip("일반 스테이지 입장 시 소모되는 스태미나\n" +
+             "던전(IsDungeon=true)인 경우 이 값은 무시되고 일일 횟수 제한이 적용됩니다.")]
+    public int requiredStamina = 5;
+    
+    [Tooltip("던전 카테고리 ID (던전인 경우에만 필요)\n" +
+             "예: Daily_Boss_Dungeon (정령의 가호 던전 4개 공유)\n" +
+             "이 값이 비어있으면 dungeonId로부터 자동 추출됩니다.")]
+    public string categoryId = "";
+        
         [Header("게임플레이")]
         public int WaveCount;
         public VictoryCondition Victory;

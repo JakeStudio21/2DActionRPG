@@ -42,6 +42,22 @@ public class AccountData
     [Tooltip("강화파편, 정령석 등 스택 가능한 재료")]
     public List<MaterialStack> materials = new List<MaterialStack>();
     
+    [Header("⚡ 스태미나 (계정 공유)")]
+    [Tooltip("일반 스테이지 입장 재화 (최대 50)")]
+    public int currentStamina = 50;
+    
+    [Tooltip("마지막 스태미나 회복 시간 (yyyy-MM-dd HH:mm:ss 형식)\n" +
+             "스태미나가 MAX 미만으로 떨어질 때 기록 시작, MAX 도달 시 빈 문자열로 초기화")]
+    public string lastStaminaUpdateTime = "";
+    
+    [Header("🏰 던전 카테고리별 입장 제한 (계정 공유)")]
+    [Tooltip("BM으로 구매한 추가 던전 티켓")]
+    public int dailyDungeonTickets = 0;
+    
+    [Tooltip("카테고리별 입장 기록 (날짜별 플레이 횟수)\n" +
+             "예: '정령의 가호 던전' 카테고리 전체 3회 제한")]
+    public List<CategoryEntryData> dungeonCategoryEntries = new List<CategoryEntryData>();
+    
     [Header("📚 스킬 & 룬 시스템 (Phase 3) - ⚠️ DEPRECATED")]
     [System.Obsolete("Phase 3.5: 스킬 데이터는 PlayerSlotData로 이동됨. 마이그레이션 후 제거 예정.")]
     [Tooltip("⚠️ DEPRECATED: PlayerSlotData.skills 사용")]
@@ -114,7 +130,35 @@ public class AccountData
     /// </summary>
     public override string ToString()
     {
-        return $"AccountData: Items={itemInstances.Count}, Shared={sharedInventoryIds.Count}/{maxSharedInventorySize}, Mailbox={mailboxIds.Count}, Binds={binds.Count}, Materials={materials.Count}";
+        return $"AccountData: Items={itemInstances.Count}, Shared={sharedInventoryIds.Count}/{maxSharedInventorySize}, Mailbox={mailboxIds.Count}, Binds={binds.Count}, Materials={materials.Count}, Stamina={currentStamina}/50";
+    }
+}
+
+/// <summary>
+/// 던전 카테고리별 입장 기록 데이터 (JsonUtility 호환)
+/// </summary>
+[System.Serializable]
+public class CategoryEntryData
+{
+    [Tooltip("카테고리 ID (예: Daily_Boss_Dungeon)")]
+    public string categoryId = "";
+    
+    [Tooltip("마지막 플레이 날짜 (yyyy-MM-dd 형식)")]
+    public string lastPlayedDate = "";
+    
+    [Tooltip("오늘 카테고리 전체 플레이 횟수 (0~3)\n" +
+             "예: 정령의 가호 던전 4개 합쳐서 3회 제한")]
+    public int dailyPlayCount = 0;
+    
+    public CategoryEntryData()
+    {
+    }
+    
+    public CategoryEntryData(string categoryId)
+    {
+        this.categoryId = categoryId;
+        this.lastPlayedDate = System.DateTime.Now.ToString("yyyy-MM-dd");
+        this.dailyPlayCount = 0;
     }
 }
 

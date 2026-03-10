@@ -237,6 +237,15 @@ public class PlayerSlotData
     [Tooltip("장착된 룬 슬롯 (3개, runeUID 저장)")]
     public string[] equippedRuneUids = new string[3];
     
+    // ========================================
+    // ⚡ 콘텐츠 입장 제한 시스템
+    // ========================================
+    // ⭐ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
+    // - AccountData.currentStamina
+    // - AccountData.lastStaminaUpdateTime
+    // - AccountData.dailyDungeonTickets
+    // - AccountData.dungeonCategoryEntries
+    
     /// <summary>
     /// JSON 문자열로 변환
     /// </summary>

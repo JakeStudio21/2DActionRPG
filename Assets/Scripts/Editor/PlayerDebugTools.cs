@@ -14,6 +14,8 @@ public class PlayerDebugTools : EditorWindow
     private int runeFragmentToAdd = 100; // 🔷 룬 조각 추가 개수
     private int materialToAdd = 100; // 📦 강화 재료 추가 개수
     private string stageIdToComplete = "CH01_ST01"; // 🎯 완료할 스테이지 ID
+    private int staminaToAdd = 10; // ⚡ 스태미나 추가량
+    private int dungeonTicketToAdd = 5; // 🎫 던전 티켓 추가량
     
     // 스크롤 위치 저장 (모바일 고려)
     private Vector2 scrollPosition;
@@ -22,7 +24,7 @@ public class PlayerDebugTools : EditorWindow
     public static void ShowWindow()
     {
         var window = GetWindow<PlayerDebugTools>("플레이어 디버그");
-        window.minSize = new Vector2(400, 800); // 높이 증가 (750→800, 스테이지 클리어 섹션 추가)
+        window.minSize = new Vector2(400, 900); // 높이 증가 (스태미나/던전 티켓 섹션 추가)
     }
     
     void OnGUI()
@@ -67,6 +69,23 @@ public class PlayerDebugTools : EditorWindow
         EditorGUILayout.LabelField("경험치", $"{PlayerDataManager.Instance.selectedPlayerData.currentExp}/{PlayerDataManager.Instance.selectedPlayerData.expToNextLevel}");
         EditorGUILayout.LabelField("골드", $"{AccountDataManager.Instance.CurrentGold}G");
         EditorGUILayout.LabelField("SP", $"{slotData.usedSP}/{slotData.totalSP}");
+        
+        int currentStamina = 0;
+        int maxStamina = 50;
+        int ticketCount = 0;
+        if (ContentEntryManager.Instance != null)
+        {
+            currentStamina = ContentEntryManager.Instance.GetCurrentStamina();
+            maxStamina = ContentEntryManager.Instance.GetMaxStamina();
+            ticketCount = ContentEntryManager.Instance.GetTicketCount();
+        }
+        else if (AccountDataManager.Instance != null)
+        {
+            var acc = AccountDataManager.Instance.GetAccountData();
+            if (acc != null) { currentStamina = acc.currentStamina; ticketCount = acc.dailyDungeonTickets; }
+        }
+        EditorGUILayout.LabelField("스태미나", $"{currentStamina}/{maxStamina}");
+        EditorGUILayout.LabelField("던전 티켓", $"{ticketCount}장");
         EditorGUILayout.EndVertical();
         
         GUILayout.Space(10);
@@ -111,6 +130,71 @@ public class PlayerDebugTools : EditorWindow
         if (GUILayout.Button("골드 +10000")) AccountDataManager.Instance.AddGold(10000);
         if (GUILayout.Button("골드 +100000")) AccountDataManager.Instance.AddGold(100000);
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
+        // 스태미나 추가 (계정 공유)
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("⚡ 스태미나 추가", EditorStyles.boldLabel);
+        staminaToAdd = EditorGUILayout.IntField("추가할 스태미나", staminaToAdd);
+        
+        if (AccountDataManager.Instance != null)
+        {
+            var acc = AccountDataManager.Instance.GetAccountData();
+            if (acc != null)
+            {
+                if (GUILayout.Button($"스태미나 +{staminaToAdd} 추가"))
+                {
+                    acc.currentStamina = Mathf.Min(50, acc.currentStamina + staminaToAdd);
+                    if (acc.currentStamina >= 50)
+                        acc.lastStaminaUpdateTime = "";
+                    AccountDataManager.Instance.Save();
+                    Debug.Log($"✅ 스태미나 {staminaToAdd} 추가됨! (현재: {acc.currentStamina}/50)");
+                }
+                
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("+5")) AddStamina(5);
+                if (GUILayout.Button("+10")) AddStamina(10);
+                if (GUILayout.Button("MAX(50)")) { acc.currentStamina = 50; acc.lastStaminaUpdateTime = ""; AccountDataManager.Instance.Save(); Debug.Log("✅ 스태미나 MAX(50) 설정!"); }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("AccountDataManager가 없습니다.", MessageType.Warning);
+        }
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
+        // 던전 입장 티켓 추가 (계정 공유)
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("🎫 던전 입장 티켓 추가", EditorStyles.boldLabel);
+        dungeonTicketToAdd = EditorGUILayout.IntField("추가할 티켓", dungeonTicketToAdd);
+        
+        if (ContentEntryManager.Instance != null)
+        {
+            if (GUILayout.Button($"티켓 +{dungeonTicketToAdd} 추가"))
+            {
+                ContentEntryManager.Instance.AddDungeonTickets(dungeonTicketToAdd);
+                Debug.Log($"✅ 던전 티켓 {dungeonTicketToAdd}장 추가됨!");
+            }
+            
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("+5")) ContentEntryManager.Instance.AddDungeonTickets(5);
+            if (GUILayout.Button("+10")) ContentEntryManager.Instance.AddDungeonTickets(10);
+            if (GUILayout.Button("+50")) ContentEntryManager.Instance.AddDungeonTickets(50);
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("ContentEntryManager가 없습니다. (게임 실행 후 로비에서 사용 가능)", MessageType.Warning);
+        }
         EditorGUILayout.EndVertical();
         
         GUILayout.Space(10);
@@ -481,6 +565,19 @@ public class PlayerDebugTools : EditorWindow
         // 📜 스크롤 종료
         // ========================================
         EditorGUILayout.EndScrollView();
+    }
+    
+    private void AddStamina(int amount)
+    {
+        if (AccountDataManager.Instance == null) return;
+        var acc = AccountDataManager.Instance.GetAccountData();
+        if (acc == null) return;
+        
+        acc.currentStamina = Mathf.Min(50, acc.currentStamina + amount);
+        if (acc.currentStamina >= 50)
+            acc.lastStaminaUpdateTime = "";
+        AccountDataManager.Instance.Save();
+        Debug.Log($"✅ 스태미나 +{amount} 추가! (현재: {acc.currentStamina}/50)");
     }
     
     private void SetLevel(int level)

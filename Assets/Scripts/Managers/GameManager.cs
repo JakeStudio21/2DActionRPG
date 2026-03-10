@@ -96,6 +96,14 @@ public class GameManager : Singleton<GameManager>
         base.Awake(); // Singleton 로직 실행
         if (instance != this) return; // 중복 생성시 초기화 중단
         
+        // ⚡ ContentEntryManager 자동 생성 (없으면)
+        if (ContentEntryManager.Instance == null)
+        {
+            GameObject contentEntryObj = new GameObject("ContentEntryManager");
+            contentEntryObj.AddComponent<ContentEntryManager>();
+            Debug.Log("⚡ [GameManager] ContentEntryManager 자동 생성");
+        }
+        
         // 🆕 추가: PlayerDataManager 데이터 변경 리스너
         PlayerDataManager.OnSelectedPlayerDataChanged += OnPlayerDataChanged;
         PlayerDataManager.OnPlayerGoldChanged += OnPlayerGoldChanged;

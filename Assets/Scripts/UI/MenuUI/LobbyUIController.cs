@@ -48,6 +48,20 @@ public class LobbyUIController : MonoBehaviour
     public Button replayIntroButton;        // 🆕 인트로 다시보기 버튼
     public Button replayTutorialButton;     // 🆕 튜토리얼 다시보기 버튼
     
+    [Header("⚡ 스태미나 UI (콘텐츠 입장 제한)")]
+    [Tooltip("스태미나 아이콘 이미지 (UI에서 준비됨)")]
+    public Image staminaIconImage;
+    
+    [Tooltip("스태미나 텍스트 (예: 45 / 50)")]
+    public TextMeshProUGUI staminaText;
+    
+    [Tooltip("스태미나 회복 타이머 텍스트 (예: 다음 회복: 03:45)")]
+    public TextMeshProUGUI staminaTimerText;
+    
+    [Tooltip("입장 제한 경고 팝업 (PopupCanvas 하위에 두면 Panel_Stage/Panel_Dungeon 구분 없이 공통 사용)\n" +
+             "Inspector 미연결 시 PopupCanvas에서 자동 검색")]
+    public ContentEntryWarningPopup entryWarningPopup;
+    
     // 🗑️ [Phase 6-Pre 삭제] 스테이지 관련 필드들 - StageSelectPanelController로 이동
     
     [Header("=== 🎯 스테이지 선택 패널 컨트롤러 ===")]
@@ -99,6 +113,9 @@ public class LobbyUIController : MonoBehaviour
         {
             dungeonButton.onClick.AddListener(OnDungeonButtonClicked);
         }
+        
+        // ⚡ 스태미나 UI 갱신 시작 (1초마다)
+        InvokeRepeating(nameof(UpdateStaminaUI), 0f, 1f);
         
         Debug.Log("✅ [LobbyUIController] Start() 완료");
     }
@@ -306,6 +323,12 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
+        // ⚡ Phase D-Revision: 스태미나 검증 (일반 스테이지)
+        if (!ValidateStageEntry(sceneName))
+        {
+            return; // 검증 실패 시 씬 이동 취소
+        }
+        
         Debug.Log($"[LobbyUIController] 게임 시작: {sceneName}");
         Debug.Log($"[LobbyUIController] 플레이어 정보: {playerData.selectedPlayerType}");
         
@@ -362,6 +385,12 @@ public class LobbyUIController : MonoBehaviour
             Debug.LogError("[LobbyUIController] 🏰 플레이어 클래스가 선택되지 않았습니다!");
             OnBackToCharacterSelect();
             return;
+        }
+        
+        // ⚡ Phase D-Revision: 던전 카테고리 입장 횟수 검증
+        if (!ValidateDungeonEntry(sceneName))
+        {
+            return; // 검증 실패 시 씬 이동 취소
         }
         
         Debug.Log($"[LobbyUIController] 🏰 던전 입장: {sceneName}");
@@ -1589,6 +1618,213 @@ public class LobbyUIController : MonoBehaviour
         {
             Debug.LogError("[LobbyUIController] GameManager가 없습니다!");
         }
+    }
+    
+    #endregion
+    
+    #region ⚡ Phase D: 스태미나 UI 갱신
+    
+    /// <summary>
+    /// 스태미나 UI 업데이트 (1초마다 호출)
+    /// </summary>
+    private void UpdateStaminaUI()
+    {
+        if (ContentEntryManager.Instance == null)
+            return;
+        
+        // 스태미나 텍스트 갱신 (⚡ 45 / 50)
+        if (staminaText != null)
+        {
+            int current = ContentEntryManager.Instance.GetCurrentStamina();
+            int max = ContentEntryManager.Instance.GetMaxStamina();
+            staminaText.text = $"{current} / {max}";
+        }
+        
+        // 회복 타이머 텍스트 갱신 (다음 회복: 03:45)
+        if (staminaTimerText != null)
+        {
+            int current = ContentEntryManager.Instance.GetCurrentStamina();
+            int max = ContentEntryManager.Instance.GetMaxStamina();
+            
+            // MAX인 경우 타이머 숨김
+            if (current >= max)
+            {
+                staminaTimerText.text = "MAX";
+                staminaTimerText.color = new Color(0.5f, 1f, 0.5f); // 연한 초록색
+            }
+            else
+            {
+                int remainSeconds = ContentEntryManager.Instance.GetSecondsUntilNextRecovery();
+                int minutes = remainSeconds / 60;
+                int seconds = remainSeconds % 60;
+                
+                staminaTimerText.text = $"다음 회복: {minutes:D2}:{seconds:D2}";
+                staminaTimerText.color = Color.white;
+            }
+        }
+    }
+    
+    #endregion
+    
+    #region ⚡ Phase D-Revision: 로비 입장 검증 (씬 이동 전)
+    
+    /// <summary>
+    /// 입장 제한 경고 팝업 참조 (PopupCanvas 공통 팝업)
+    /// Inspector 연결 우선, 없으면 씬에서 자동 검색
+    /// </summary>
+    private ContentEntryWarningPopup GetEntryWarningPopup()
+    {
+        if (entryWarningPopup != null)
+            return entryWarningPopup;
+        
+        // PopupCanvas에 있는 팝업 자동 검색 (비활성 포함)
+        entryWarningPopup = FindObjectOfType<ContentEntryWarningPopup>(true);
+        return entryWarningPopup;
+    }
+    
+    /// <summary>
+    /// 일반 스테이지 입장 검증 (스태미나)
+    /// </summary>
+    private bool ValidateStageEntry(string sceneName)
+    {
+        if (ContentEntryManager.Instance == null)
+        {
+            Debug.LogWarning("⚠️ [LobbyUIController] ContentEntryManager가 없어 검증을 건너뜁니다.");
+            return true; // Fallback: 매니저 없으면 통과
+        }
+        
+        // sceneName으로부터 StageConfig 로드
+        var stageConfig = LoadStageConfigFromSceneName(sceneName);
+        if (stageConfig == null)
+        {
+            Debug.LogError($"❌ [LobbyUIController] StageConfig 로드 실패: {sceneName}");
+            return false;
+        }
+        
+        // 스태미나 검증
+        int requiredStamina = stageConfig.requiredStamina;
+        if (!ContentEntryManager.Instance.CanConsumeStamina(requiredStamina))
+        {
+            // 스태미나 부족 경고 팝업 (PopupCanvas 공통 팝업)
+            var popup = GetEntryWarningPopup();
+            if (popup != null)
+            {
+                int current = ContentEntryManager.Instance.GetCurrentStamina();
+                popup.ShowStaminaInsufficient(requiredStamina, current);
+            }
+            else
+            {
+                // Fallback: 팝업이 연결되지 않은 경우 에디터 다이얼로그 표시
+                int current = ContentEntryManager.Instance.GetCurrentStamina();
+                int max = ContentEntryManager.Instance.GetMaxStamina();
+                
+                Debug.LogError($"⚡ [LobbyUIController] 스태미나 부족!\n" +
+                              $"필요: {requiredStamina}, 보유: {current}/{max}\n" +
+                              $"⚠️ PopupCanvas에 ContentEntryWarningPopup이 있는지 확인해주세요.");
+                
+                #if UNITY_EDITOR
+                UnityEditor.EditorUtility.DisplayDialog(
+                    "스태미나 부족", 
+                    $"스태미나가 부족합니다!\n\n필요: {requiredStamina}\n보유: {current}/{max}", 
+                    "확인");
+                #endif
+            }
+            
+            return false;
+        }
+        
+        Debug.Log($"⚡ [LobbyUIController] 스태미나 검증 통과: {sceneName} (필요: {requiredStamina})");
+        return true;
+    }
+    
+    /// <summary>
+    /// 던전 입장 검증 (카테고리 입장 횟수)
+    /// </summary>
+    private bool ValidateDungeonEntry(string sceneName)
+    {
+        if (ContentEntryManager.Instance == null)
+        {
+            Debug.LogWarning("⚠️ [LobbyUIController] ContentEntryManager가 없어 검증을 건너뜁니다.");
+            return true; // Fallback: 매니저 없으면 통과
+        }
+        
+        // sceneName으로부터 StageConfig 로드
+        var stageConfig = LoadStageConfigFromSceneName(sceneName);
+        if (stageConfig == null)
+        {
+            Debug.LogError($"❌ [LobbyUIController] 🏰 StageConfig 로드 실패: {sceneName}");
+            return false;
+        }
+        
+        // StageConfig의 categoryId 먼저 확인, 없으면 자동 추출
+        string categoryId = !string.IsNullOrEmpty(stageConfig.categoryId) 
+            ? stageConfig.categoryId 
+            : ContentEntryManager.GetCategoryIdFromDungeonId(stageConfig.StageID);
+        
+        // 카테고리 입장 횟수 검증
+        if (!ContentEntryManager.Instance.CanEnterDailyDungeon(categoryId))
+        {
+            // 던전 입장 횟수 소진 경고 팝업 (PopupCanvas 공통 팝업)
+            var popup = GetEntryWarningPopup();
+            if (popup != null)
+            {
+                int remainCount = ContentEntryManager.Instance.GetRemainDailyCount(categoryId);
+                int tickets = ContentEntryManager.Instance.GetTicketCount();
+                string categoryDisplayName = ContentEntryManager.GetCategoryDisplayNameForPopup(categoryId);
+                popup.ShowDungeonEntryLimit(categoryDisplayName, remainCount, tickets);
+            }
+            else
+            {
+                // Fallback: 팝업이 연결되지 않은 경우 에디터 다이얼로그 표시
+                int remainCount = ContentEntryManager.Instance.GetRemainDailyCount(categoryId);
+                int tickets = ContentEntryManager.Instance.GetTicketCount();
+                
+                string categoryDisplayName = ContentEntryManager.GetCategoryDisplayNameForPopup(categoryId);
+                
+                Debug.LogError($"🏰 [LobbyUIController] 던전 입장 횟수 소진!\n" +
+                              $"카테고리: {categoryDisplayName}\n" +
+                              $"기본 횟수: {remainCount}/3, 티켓: {tickets}장\n" +
+                              $"⚠️ PopupCanvas에 ContentEntryWarningPopup이 있는지 확인해주세요.");
+                
+                #if UNITY_EDITOR
+                UnityEditor.EditorUtility.DisplayDialog(
+                    "입장 횟수 소진", 
+                    $"{categoryDisplayName} 입장 횟수를 모두 소진했습니다!\n\n기본 횟수: {remainCount}/3\n보유 티켓: {tickets}장", 
+                    "확인");
+                #endif
+            }
+            
+            return false;
+        }
+        
+        Debug.Log($"🏰 [LobbyUIController] 던전 입장 검증 통과: {sceneName} (카테고리: {categoryId})");
+        return true;
+    }
+    
+    /// <summary>
+    /// sceneName으로부터 StageConfig 로드
+    /// </summary>
+    private StageSystem.StageConfig LoadStageConfigFromSceneName(string sceneName)
+    {
+        // SceneName은 일반적으로 StageID와 동일 (예: CH01_ST01)
+        string stageId = sceneName;
+        
+        StageSystem.StageConfig config = null;
+        
+        // 챕터 스테이지 경로
+        if (StageSystem.StageIdValidator.IsValidChapterStageId(stageId))
+        {
+            string path = $"Stages/Configs/Chapters/{stageId}_Config";
+            config = Resources.Load<StageSystem.StageConfig>(path);
+        }
+        // 던전 경로
+        else if (StageSystem.StageIdValidator.IsValidDungeonId(stageId))
+        {
+            string path = $"Stages/Configs/Dungeons/{stageId}_Config";
+            config = Resources.Load<StageSystem.StageConfig>(path);
+        }
+        
+        return config;
     }
     
     #endregion
