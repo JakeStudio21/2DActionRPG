@@ -823,7 +823,7 @@ public class RangedAttack : BaseAttackBehaviour
             string eventKey = "attack.ranged.fire";
             
             // Cue 발행
-            bool success = CueEmitter.Emit(eventKey, "Enemy", context);
+            bool success = CueEmitter.Emit(eventKey, cueEmitDomain, context);
             
             Debug.Log($"🎵 [RangedAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }

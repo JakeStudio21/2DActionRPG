@@ -28,8 +28,8 @@ MonoBehaviour:
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
-  effectPrefab: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
+  castCueKey: skill.Snipers_Mark.cast
+  aoeCueKey: skill.Snipers_Mark.aoe
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -51,7 +51,3 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
-  dashEffectPrefab: {fileID: 0}
-  slashEffectPrefab: {fileID: 0}
-  dashEffectPoolName: DashEffect
-  slashEffectPoolName: SlashEffect

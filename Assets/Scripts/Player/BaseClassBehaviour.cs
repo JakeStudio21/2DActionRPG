@@ -36,6 +36,32 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     
     #endregion
     
+    #region ⭐ CueProfile 설정
+    
+    [Header("🎵 클래스 전용 CueProfile (비워두면 Player_player_base 사용)")]
+    [SerializeField] private CueSystem.CueProfile cueProfile;
+    
+    /// <summary>
+    /// 클래스가 활성화될 때 "Player" 도메인을 이 클래스의 프로필로 교체 등록.
+    /// cueProfile이 null이면 CueRegistry 기본값(Player_player_base)을 그대로 사용.
+    /// </summary>
+    private void InitializeCueProfile()
+    {
+        if (cueProfile == null) return;
+        if (CueSystem.CueRegistry.Instance == null)
+        {
+            Debug.LogWarning($"⚠️ [BaseClass] {ClassName} CueRegistry가 없어 CueProfile 등록 불가");
+            return;
+        }
+        
+        CueSystem.CueRegistry.Instance.RegisterProfile("Player", cueProfile);
+        
+        if (showDebugLogs)
+            Debug.Log($"🎵 [BaseClass] {ClassName} CueProfile 등록 완료: {cueProfile.profileId}");
+    }
+    
+    #endregion
+    
     #region ⭐ [Phase C] 다중 클래스 관리 설정
     
     [Header("🎯 다중 클래스 관리 (첫 번째 클래스에서만 설정)")]
@@ -543,6 +569,9 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     public virtual void SetActive(bool active)
     {
         isActive = active;
+        
+        if (active)
+            InitializeCueProfile();
         
         if (showDebugLogs)
             Debug.Log($"🔄 [BaseClass] {ClassName} 클래스 활성화 상태: {(active ? "활성화" : "비활성화")}");

@@ -124,7 +124,9 @@ public class BurnEffect : BaseStatusEffect
             lifeStealAmount = 0,
             healingBlockPercent = 0f,
             hasImmunity = false,
-            resistedEffects = ""
+            resistedEffects = "",
+            hitPosition = target.transform.position,
+            sourceType = CombatFormula.DamageSourceType.DOT_Burn
         };
         
         // 🧑 플레이어에게 틱 데미지

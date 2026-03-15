@@ -380,5 +380,53 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: Arrow_Piercing_Gale
+    prefab: {fileID: 4149642069968341746, guid: 97e6aa982e89be742ac8139f544f0edd, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: FX_PF_Fire_Projectile
+    prefab: {fileID: 1597112295188672555, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Projectile_Single_Nature
+    prefab: {fileID: 8417769874834129646, guid: ce791cb78057fbb4183c45aa8ec1f975, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_PlayerDot_Spark_White
+    prefab: {fileID: 8683933021285538514, guid: 9a4fd47bf3eebec45b5923331c592d50, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Projectile_Normal_Nature
+    prefab: {fileID: 8417769874834129646, guid: e10cc2efc9bec3940abff51ce712fe9f, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: FX_Projectile_Multishot_Nature
+    prefab: {fileID: 8417769874834129646, guid: 4c245f30e2ecb114e8b35c9d7c72d3b5, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_MultiShot
+    prefab: {fileID: 4149642069968341746, guid: 0a84f1d8bd39b7144a2cfdb00bbede9e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_Focused_Strike
+    prefab: {fileID: 4149642069968341746, guid: 8dbc088b579da204990a31aa5fb11bd4, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 1

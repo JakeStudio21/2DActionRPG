@@ -380,5 +380,29 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: Arrow_Piercing_Gale
+    prefab: {fileID: 4149642069968341746, guid: 97e6aa982e89be742ac8139f544f0edd, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: FX_Projectile_Multishot_Nature
+    prefab: {fileID: 8417769874834129646, guid: 4c245f30e2ecb114e8b35c9d7c72d3b5, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_Focused_Strike
+    prefab: {fileID: 4149642069968341746, guid: 8dbc088b579da204990a31aa5fb11bd4, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 20
+  - tag: Arrow_MultiShot
+    prefab: {fileID: 4149642069968341746, guid: 0a84f1d8bd39b7144a2cfdb00bbede9e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 1

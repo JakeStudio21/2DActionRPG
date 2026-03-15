@@ -74,6 +74,9 @@ public class PlayerSkillManager : MonoBehaviour
         
         // 장착된 패시브 스탯 적용
         ApplyAllPassiveStats();
+        
+        // 장착된 스킬의 VFX 풀 사전 확보
+        WarmupEquippedSkillEffects();
     }
     
     /// <summary>
@@ -306,6 +309,72 @@ public class PlayerSkillManager : MonoBehaviour
     
     // ===== 패시브 스탯 적용 (핵심) =====
     
+    #region 🔥 VFX Warm-up
+
+    /// <summary>
+    /// 장착된 액티브 스킬의 castCueKey / aoeCueKey를 CueRegistry로 해석해
+    /// 사용될 VFX 풀을 GamePoolManager에 사전 확보한다.
+    /// 로비에서 스킬을 선택한 뒤 인게임 진입 시 자동 호출됨.
+    /// </summary>
+    public void WarmupEquippedSkillEffects()
+    {
+        if (GamePoolManager.Instance == null)
+        {
+            Debug.LogWarning("⚠️ [PlayerSkillManager] GamePoolManager 없음 — Warm-up 건너뜀");
+            return;
+        }
+        if (CueSystem.CueRegistry.Instance == null)
+        {
+            Debug.LogWarning("⚠️ [PlayerSkillManager] CueRegistry 없음 — Warm-up 건너뜀");
+            return;
+        }
+
+        var poolKeys = new System.Collections.Generic.HashSet<string>();
+
+        foreach (var skillInstance in equippedActiveSkills)
+        {
+            if (skillInstance?.skillData is ActiveSkillData activeData)
+            {
+                GatherVfxPoolKeys(activeData.castCueKey, poolKeys);
+                GatherVfxPoolKeys(activeData.aoeCueKey, poolKeys);
+            }
+        }
+
+        if (poolKeys.Count == 0)
+        {
+            if (showDebugLogs)
+                Debug.Log("🔥 [PlayerSkillManager] Warm-up 대상 VFX 풀 없음 (castCueKey/aoeCueKey 미설정)");
+            return;
+        }
+
+        foreach (var key in poolKeys)
+        {
+            // 이미 존재하는 풀을 3개 추가 확보 (ScenePoolConfig에 등록된 경우)
+            GamePoolManager.Instance.ExpandPool(key, 3);
+            if (showDebugLogs)
+                Debug.Log($"🔥 [PlayerSkillManager] VFX 풀 Warm-up: {key}");
+        }
+    }
+
+    /// <summary>
+    /// CueRegistry에서 이벤트 키를 해석해 필요한 VFX poolKey 목록을 수집한다.
+    /// </summary>
+    private void GatherVfxPoolKeys(string cueEventKey, System.Collections.Generic.HashSet<string> result)
+    {
+        if (string.IsNullOrEmpty(cueEventKey)) return;
+
+        var slot = CueSystem.CueRegistry.Instance.Resolve("Player", cueEventKey);
+        if (slot == null || slot.IsEmpty) return;
+
+        foreach (var vfxCue in slot.vfxCues)
+        {
+            if (!string.IsNullOrEmpty(vfxCue.poolKey))
+                result.Add(vfxCue.poolKey);
+        }
+    }
+
+    #endregion
+
     /// <summary>
     /// 장착된 모든 패시브 스킬의 스탯 보너스를 PlayerRuntimeStats에 적용
     /// </summary>

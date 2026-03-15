@@ -23,11 +23,11 @@ MonoBehaviour:
   maxLevel: 60
   baseDefense: 5
   defenseGainPerLevel: 1
-  baseCritRate: 1
+  baseCritRate: 0.05
   baseCritDamage: 1.3
-  baseAttackSpeed: 1
+  baseAttackSpeed: 50
   baseMoveSpeed: 3.5
-  baseDashSpeed: 8
+  baseDashSpeed: 20
   healMultiplier: 1
   baseKnockbackThrust: 3
   knockbackTime: 0.2

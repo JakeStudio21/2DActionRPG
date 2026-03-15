@@ -389,7 +389,7 @@ public class SkillController : MonoBehaviour
         Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
         Debug.Log($"   - isProjectile: {activeData.isProjectile}");
         Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
-        Debug.Log($"   - effectPrefab: {(activeData.effectPrefab != null ? activeData.effectPrefab.name : "NULL")}");
+        Debug.Log($"   - castCueKey: {(string.IsNullOrEmpty(activeData.castCueKey) ? "없음(fallback)" : activeData.castCueKey)}");
         
         // ⭐ 쿨다운 시작
         skillInstance.lastUsedTime = Time.time;
@@ -413,14 +413,17 @@ public class SkillController : MonoBehaviour
         // ⭐ 0.1초 딜레이 후 실제 발사 (애니메이션과 타이밍 맞추기)
         StartCoroutine(DelayedSkillExecution(activeData, skillInstance, slotIndex, 0.1f));
         
-        // Cue 이벤트 발행
-        var context = new CueContext
+        // castCueKey 미설정 시 generic 키로 fallback (레거시 SO 대응)
+        if (string.IsNullOrEmpty(activeData.castCueKey))
         {
-            position = transform.position,
-            actorType = ActorType.Player,
-            magnitude = 1.5f
-        };
-        CueEmitter.Emit($"skill.player.skill{slotIndex + 1}", "Player", context);
+            var context = new CueContext
+            {
+                position = transform.position,
+                actorType = ActorType.Player,
+                magnitude = 1.5f
+            };
+            CueEmitter.Emit($"skill.player.skill{slotIndex + 1}", "Player", context);
+        }
         
         Debug.Log($"🔥 [SkillController] ExecuteSkillFromInstance 완료");
     }
@@ -454,19 +457,23 @@ public class SkillController : MonoBehaviour
         Debug.Log($"   - 최종 데미지: {finalDamage}");
         Debug.Log($"   - 쿨다운: {skillInstance.GetCurrentCooldown()}초");
         
-        // ⭐ isProjectile 분기: 발사체 vs 즉발형 AoE
+        // ⭐ VFX 발행 — isProjectile(데미지 방식)과 무관하게 skillType 기반으로 결정
+        Vector2 vfxDir = GetAttackDirection();
+        Transform vfxFirePoint = FindFirePoint();
+        Vector3 vfxPos = vfxFirePoint != null ? vfxFirePoint.position : transform.position;
+        EmitSkillCues(activeData, vfxDir, vfxPos);
+        
+        // ⭐ isProjectile 분기: 발사체 vs 즉발형 AoE (데미지 처리만 담당)
         Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
         
         if (activeData.isProjectile)
         {
             Debug.Log("🏹 [SkillController] 발사체 모드 진입");
-            // 발사체 발사
             FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
         }
         else
         {
             Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
-            // 즉발형 AoE 생성
             SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
         }
         
@@ -553,16 +560,6 @@ public class SkillController : MonoBehaviour
             }
         }
         
-        // 시전 이펙트
-        if (skillData.effectPrefab != null)
-        {
-            var effect = Instantiate(skillData.effectPrefab, firePoint.position, firePoint.rotation);
-            Destroy(effect, 2f);
-            
-            if (showDebugLogs)
-                Debug.Log($"✨ [SkillController] 시전 이펙트 생성: {skillData.effectPrefab.name}");
-        }
-        
         if (showDebugLogs)
             Debug.Log($"🏹 [SkillController] 발사 완료: {successCount}/{projectileCount}개 성공, 방향: {direction}");
     }
@@ -589,12 +586,6 @@ public class SkillController : MonoBehaviour
             this
         );
         
-        // 시전 이펙트
-        if (skillData.effectPrefab != null)
-        {
-            Instantiate(skillData.effectPrefab, transform.position, Quaternion.identity);
-        }
-        
         if (showDebugLogs)
             Debug.Log($"💥 [SkillController] AoE 생성: {skillData.aoeShape}, 데미지: {damage}");
     }
@@ -615,6 +606,7 @@ public class SkillController : MonoBehaviour
         Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
         Debug.Log($"   - isProjectile: {activeData.isProjectile}");
         Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
+        Debug.Log($"   - castCueKey: {(string.IsNullOrEmpty(activeData.castCueKey) ? "없음(fallback)" : activeData.castCueKey)}");
         
         // ⭐ PlayerRuntimeStats에서 최종 공격력 가져오기
         var playerStats = GetComponent<PlayerRuntimeStats>();
@@ -632,6 +624,12 @@ public class SkillController : MonoBehaviour
         Debug.Log($"   - 플레이어 공격력: {playerStats.FinalAttackDamage:F0}");
         Debug.Log($"   - 스킬 배율: {damageMultiplier}%");
         Debug.Log($"   - 최종 데미지: {finalDamage}");
+        
+        // ⭐ VFX 발행 — DelayedSkillExecution과 동일한 방식
+        Vector2 vfxDir = GetAttackDirection();
+        Transform vfxFirePoint = FindFirePoint();
+        Vector3 vfxPos = vfxFirePoint != null ? vfxFirePoint.position : transform.position;
+        EmitSkillCues(activeData, vfxDir, vfxPos);
         
         // ⭐ isProjectile 분기
         Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
@@ -690,6 +688,47 @@ public class SkillController : MonoBehaviour
         return transform;
     }
     
+    /// <summary>
+    /// 스킬 VFX 발행 — skillType 기반으로 castCueKey / aoeCueKey 결정
+    /// isProjectile(데미지 방식)과 완전히 분리되어 있음:
+    ///   WaveClear(광역기) → castCueKey + aoeCueKey 모두 발행
+    ///   BossBurst(단일기) → castCueKey 만 발행 (aoeCueKey 불필요)
+    /// </summary>
+    private void EmitSkillCues(ActiveSkillData skillData, Vector2 direction, Vector3 emitPos)
+    {
+        if (string.IsNullOrEmpty(skillData.castCueKey)) return;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        var castCtx = new CueContext
+        {
+            position = emitPos,
+            rotation = Quaternion.Euler(0f, 0f, angle),
+            actorType = ActorType.Player,
+            magnitude = 1.0f
+        };
+        CueEmitter.Emit(skillData.castCueKey, "Player", castCtx);
+
+        if (showDebugLogs)
+            Debug.Log($"✨ [SkillController] Cast Cue: {skillData.castCueKey} ({skillData.skillType})");
+
+        // aoeCueKey는 WaveClear(광역기)일 때만 발행
+        if (skillData.skillType == ActiveSkillType.WaveClear && !string.IsNullOrEmpty(skillData.aoeCueKey))
+        {
+            var aoeCtx = new CueContext
+            {
+                position = emitPos,
+                rotation = Quaternion.Euler(0f, 0f, angle),
+                actorType = ActorType.Player,
+                magnitude = 2.0f
+            };
+            CueEmitter.Emit(skillData.aoeCueKey, "Player", aoeCtx);
+
+            if (showDebugLogs)
+                Debug.Log($"✨ [SkillController] AOE Cue: {skillData.aoeCueKey}");
+        }
+    }
+
     /// <summary>
     /// 조이스틱 공격 방향 가져오기 (마지막 방향 기억 기능 포함)
     /// WarriorSkill1/2와 동일한 패턴 사용

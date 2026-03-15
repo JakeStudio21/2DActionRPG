@@ -16,69 +16,6 @@ MonoBehaviour:
   domain: Player
   baseProfile: {fileID: 0}
   vfxCatalog:
-  - vfxId: PlayerVFX
-    poolKey: PlayerVFX
-    duration: 1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8"
-  - vfxId: PlayerMeleeVFX
-    poolKey: FX_PF_Electricity_Slash_01
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uADFC\uC811 \uACF5\uACA9 VFX"
-  - vfxId: PlayerRangedVFX
-    poolKey: MuzzleFlash
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9 VFX"
-  - vfxId: Skill1VFX
-    poolKey: MultiArrowEffect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.2, y: 1.2, z: 1.2}
-    followTarget: 0
-    priority: 55
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1 VFX"
-  - vfxId: Skill2VFX
-    poolKey: PowerArrowEffect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 60
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2 VFX"
-  - vfxId: PlayerDeathVFX
-    poolKey: Fx_PlayerDeath
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 80
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD VFX"
-  - vfxId: PlayerHealVFX
-    poolKey: Fx_PlayerHeal
-    duration: -1
-    offset: {x: 0, y: 0.5, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 1
-    priority: 50
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 VFX"
   - vfxId: SwordSlash
     poolKey: Slash_Effect
     duration: -1
@@ -88,26 +25,8 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "C\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
-  - vfxId: AttackPlayerNormal
-    poolKey: Fx_Hit_ImpactDust_Fire
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "S\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: AttackPlayerNormalHigh
-    poolKey: Fx_Hit_ImpactDust_Fire
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "S\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: AttackPlayerCritical
-    poolKey: Fx_CritHit_ImpactDust_Red
+  - vfxId: AttackPlayerMelee
+    poolKey: FX_Melee_Slash_Electricity
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -115,153 +34,15 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "C \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: AttackPlayerCriticalHigh
-    poolKey: Fx_CritHit_ImpactDust_Red
-    duration: -1
+  - vfxId: AttackPlayerRanged
+    poolKey: Fx_Projectile_Normal_Nature
+    duration: 2
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "C \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
-  - vfxId: BowMuzzle
-    poolKey: MuzzleFlash
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
+    followTarget: 1
     priority: 50
     cooldown: 0
     note: "C \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
-  - vfxId: WarriorSkill1Cast
-    poolKey: WarriorDashEffect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 1
-    priority: 65
-    cooldown: 0
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uB3CC\uC9C4 \uBCA0\uAE70 \uC2DC\uC804
-      (\uCE90\uB9AD\uD130 \uCD94\uC801)"
-  - vfxId: WarriorSkill1AOE
-    poolKey: WarriorSlashAreaEffect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 70
-    cooldown: 0
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uC9C1\uC0AC\uAC01\uD615 \uBC94\uC704
-      \uACF5\uACA9"
-  - vfxId: WarriorSkill1Hit
-    poolKey: Fx_Hit_ImpactDust_Fire
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.3, y: 1.3, z: 1.3}
-    followTarget: 0
-    priority: 60
-    cooldown: 0
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uBAAC\uC2A4\uD130 \uD0C0\uACA9"
-  - vfxId: WarriorSkill2Cast
-    poolKey: Shockwave_Slash_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 2, y: 2, z: 2}
-    followTarget: 0
-    priority: 75
-    cooldown: 0
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uB54C \uB0B4\uB9AC\uCE58\uAE30"
-  - vfxId: WarriorSkill2AOE
-    poolKey: Shockwave_AOE_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 80
-    cooldown: 0
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uCDA9\uACA9\uD30C \uD655\uC0B0"
-  - vfxId: WarriorSkill2Hit
-    poolKey: Fx_Hit_ImpactDust_Fire
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uBAAC\uC2A4\uD130 \uD0C0\uACA9"
-  - vfxId: AssasinSkill1Cast
-    poolKey: MuzzleFlash_C
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uC774\uD399\uD2B8 \uC2DC\uC804"
-  - vfxId: AssasinSkill1Hit
-    poolKey: Fx_Hit_ImpactDust_Fire
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uBAAC\uC2A4\uD130 \uD0C0\uACA9"
-  - vfxId: AssasinSkill1AOE
-    poolKey: ArrowCone_AOE_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uBAAC\uC2A4\uD130 \uD0C0\uACA9 \uBD80\uCC44\uAF34\uBC94\uC704"
-  - vfxId: AssasinSkill2Cast
-    poolKey: MuzzleFlash_C
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2  \uC774\uD399\uD2B8 \uC2DC\uC804"
-  - vfxId: AssasinSkill2Hit
-    poolKey: Fx_Hit_ImpactDust_Fire
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.5, y: 1.5, z: 1.5}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2 \uBAAC\uC2A4\uD130 \uD0C0\uACA9"
-  - vfxId: AssasinSkill2AOE
-    poolKey: ExplosionCircle_AOE_Effect
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 65
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2 \uC6D0\uD615\uD0C0\uACA9\uBC94\uC704"
-  - vfxId: PlayerDashEffect
-    poolKey: Fx_PlayerDash
-    duration: 0.3
-    offset: {x: 0, y: -0.3, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 1
-    priority: 50
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC774\uD399\uD2B8 (\uCE90\uB9AD\uD130
-      \uCD94\uC801)"
-  - vfxId: WallHitEffect
-    poolKey: Fx_WallDust
-    duration: -1
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    priority: 50
-    cooldown: 0
-    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
   - vfxId: HitPlayerNormal
     poolKey: Fx_PlayerHit_Spark_White
     duration: -1
@@ -280,18 +61,63 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
-  sfxCatalog:
-  - sfxId: PlayerSFX
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
-    pitch: 1
-    loop: 0
-    is3D: 0
-    maxDistance: 0
+  - vfxId: HitPlayerDotBurn
+    poolKey: Fx_PlayerDot_Spark_White
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
     priority: 50
     cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8\uC74C"
-  - sfxId: PlayerMeleeSound
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
+  - vfxId: HitPlayerDotPoison
+    poolKey: Fx_PlayerDot_Spark_White
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
+  - vfxId: PlayerDeathVFX
+    poolKey: Fx_PlayerDeath
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 2, y: 2, z: 2}
+    followTarget: 0
+    priority: 80
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD VFX"
+  - vfxId: PlayerHealVFX
+    poolKey: Fx_PlayerHeal
+    duration: -1
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 VFX"
+  - vfxId: PlayerDashEffect
+    poolKey: Fx_PlayerDash
+    duration: 0.3
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 1
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC774\uD399\uD2B8 (\uCE90\uB9AD\uD130
+      \uCD94\uC801)"
+  - vfxId: WallHitEffect
+    poolKey: Fx_WallDust
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 50
+    cooldown: 0
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
+  sfxCatalog:
+  - sfxId: AttackPlayerMeleeSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
@@ -301,7 +127,7 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uADFC\uC811 \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
-  - sfxId: PlayerRangedSound
+  - sfxId: AttackPlayerRangedSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
@@ -311,37 +137,7 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uC6D0\uAC70\uB9AC \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
-  - sfxId: PlayerCritSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.9
-    pitch: 1.2
-    loop: 0
-    is3D: 0
-    maxDistance: 50
-    priority: 60
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
-  - sfxId: Skill1Sound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
-    pitch: 1
-    loop: 0
-    is3D: 0
-    maxDistance: 50
-    priority: 55
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1 \uC0AC\uC6B4\uB4DC"
-  - sfxId: Skill2Sound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.9
-    pitch: 1.1
-    loop: 0
-    is3D: 0
-    maxDistance: 50
-    priority: 60
-    cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2 \uC0AC\uC6B4\uB4DC"
-  - sfxId: PlayerHitSound
+  - sfxId: HitPlayerSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
@@ -351,16 +147,16 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 \uC0AC\uC6B4\uB4DC"
-  - sfxId: PlayerCritHitSound
+  - sfxId: HitPlayerDotSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
-    pitch: 1.3
+    volume: 0.6
+    pitch: 1.2
     loop: 0
     is3D: 0
     maxDistance: 50
-    priority: 60
+    priority: 50
     cooldown: 0
-    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9 \uC0AC\uC6B4\uB4DC"
+    note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 \uC0AC\uC6B4\uB4DC"
   - sfxId: PlayerDeathSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 1
@@ -381,6 +177,26 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 \uC0AC\uC6B4\uB4DC"
+  - sfxId: PlayerDashSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.9
+    pitch: 1.2
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
+  - sfxId: WallHitSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8\uC74C"
   entries:
   - eventKey: test.effect
     vfxIds:
@@ -391,60 +207,60 @@ MonoBehaviour:
     cameraShakePreset: Light
     timeStopMs: 25
     note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8"
-  - eventKey: skill.player.skill1
+  - eventKey: attack.player.melee
     vfxIds:
-    - Skill1VFX
+    - AttackPlayerMelee
     sfxIds:
-    - Skill1Sound
-    priority: 3
-    cameraShakePreset: Medium
-    timeStopMs: 50
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC1"
-  - eventKey: skill.player.skill2
-    vfxIds:
-    - Skill2VFX
-    sfxIds:
-    - Skill2Sound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uD50C\uB808\uC774\uC5B4 \uC2A4\uD0AC2"
-  - eventKey: attack.player.normal
-    vfxIds:
-    - AttackPlayerNormal
-    sfxIds:
-    - PlayerHitSound
-    priority: 2
-    cameraShakePreset: Light
-    timeStopMs: 40
-    note: "\uD50C\uB808\uC774\uC5B4 \uC77C\uBC18 \uD53C\uACA9"
-  - eventKey: attack.player.normal.high
-    vfxIds:
-    - AttackPlayerNormalHigh
-    sfxIds:
-    - PlayerCritHitSound
-    priority: 3
-    cameraShakePreset: Medium
-    timeStopMs: 80
-    note: "\uD50C\uB808\uC774\uC5B4 \uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
-  - eventKey: attack.player.critical
-    vfxIds:
-    - AttackPlayerCritical
-    sfxIds:
-    - PlayerHealSound
+    - AttackPlayerMeleeSound
     priority: 3
     cameraShakePreset: Medium
     timeStopMs: 35
-    note: "\"S\uB4F1\uAE09 \uD65C \uBC1C\uC0AC\""
-  - eventKey: attack.player.critical.high
+    note: "Warrior\uACF5\uACA9"
+  - eventKey: attack.player.ranged
     vfxIds:
-    - AttackPlayerCriticalHigh
+    - AttackPlayerRanged
     sfxIds:
-    - PlayerHealSound
+    - AttackPlayerRangedSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 25
+    note: "\uD50C\uB808\uC774\uC5B4 \uD65C \uBC1C\uC0AC \uBA38\uC990 \uD50C\uB798\uC2DC"
+  - eventKey: hit.player.normal
+    vfxIds:
+    - HitPlayerNormal
+    sfxIds:
+    - HitPlayerSound
     priority: 3
     cameraShakePreset: Heavy
     timeStopMs: 60
-    note: "\"S\uB4F1\uAE09 \uADFC\uC811 \uD788\uD2B8\""
+    note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
+  - eventKey: hit.player.critical
+    vfxIds:
+    - HitPlayerCritical
+    sfxIds:
+    - HitPlayerSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 60
+    note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
+  - eventKey: hit.player.dot.burn
+    vfxIds:
+    - HitPlayerDotBurn
+    sfxIds:
+    - HitPlayerDotSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
+  - eventKey: hit.player.dot.poison
+    vfxIds:
+    - HitPlayerDotPoison
+    sfxIds:
+    - HitPlayerDotSound
+    priority: 2
+    cameraShakePreset: Light
+    timeStopMs: 20
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
   - eventKey: death.player
     vfxIds:
     - PlayerDeathVFX
@@ -463,137 +279,11 @@ MonoBehaviour:
     cameraShakePreset: Light
     timeStopMs: 30
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5"
-  - eventKey: hit.player.normal
-    vfxIds:
-    - HitPlayerNormal
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 60
-    note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
-  - eventKey: hit.player.critical
-    vfxIds:
-    - HitPlayerCritical
-    sfxIds:
-    - PlayerHealSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 60
-    note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
-  - eventKey: skill.warrior.skill1.cast
-    vfxIds:
-    - WarriorSkill1Cast
-    sfxIds:
-    - PlayerMeleeSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 60
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uC2DC\uC804 \uC774\uD399\uD2B8"
-  - eventKey: skill.warrior.skill1.aoe
-    vfxIds:
-    - WarriorSkill1AOE
-    sfxIds:
-    - PlayerMeleeSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uBC94\uC704 \uACF5\uACA9 \uC774\uD399\uD2B8"
-  - eventKey: skill.warrior.skill1.hit
-    vfxIds:
-    - WarriorSkill1Hit
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Medium
-    timeStopMs: 50
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC1 \uBAAC\uC2A4\uD130 \uD0C0\uACA9 \uC774\uD399\uD2B8"
-  - eventKey: skill.warrior.skill2.cast
-    vfxIds:
-    - WarriorSkill2Cast
-    sfxIds:
-    - PlayerMeleeSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 100
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uC2DC\uC804 \uC774\uD399\uD2B8"
-  - eventKey: skill.warrior.skill2.aoe
-    vfxIds:
-    - WarriorSkill2AOE
-    sfxIds:
-    - PlayerMeleeSound
-    priority: 4
-    cameraShakePreset: Heavy
-    timeStopMs: 120
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uCDA9\uACA9\uD30C \uD655\uC0B0 \uC774\uD399\uD2B8"
-  - eventKey: skill.warrior.skill2.hit
-    vfxIds:
-    - WarriorSkill2Hit
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC6CC\uB9AC\uC5B4 \uC2A4\uD0AC2 \uBAAC\uC2A4\uD130 \uD0C0\uACA9 \uC774\uD399\uD2B8"
-  - eventKey: skill.assasin.skill1.cast
-    vfxIds:
-    - AssasinSkill1Cast
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uC2DC\uC804 \uC774\uD399\uD2B8"
-  - eventKey: skill.assasin.skill1.hit
-    vfxIds:
-    - AssasinSkill1Hit
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uBAAC\uC2A4\uD130 \uD0C0\uACA9 \uC774\uD399\uD2B8"
-  - eventKey: skill.assasin.skill1.aoe
-    vfxIds:
-    - AssasinSkill1AOE
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC1 \uBAAC\uC2A4\uD130 \uD0C0\uACA9 \uBD80\uCC44\uAF34\uBC94\uC704"
-  - eventKey: skill.assasin.skill2.cast
-    vfxIds:
-    - AssasinSkill2Cast
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2  \uC774\uD399\uD2B8 \uC2DC\uC804"
-  - eventKey: skill.assasin.skill2.hit
-    vfxIds:
-    - AssasinSkill2Hit
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2 \uBAAC\uC2A4\uD130 \uD0C0\uACA9"
-  - eventKey: skill.assasin.skill2.aoe
-    vfxIds:
-    - AssasinSkill2AOE
-    sfxIds:
-    - PlayerHitSound
-    priority: 3
-    cameraShakePreset: Heavy
-    timeStopMs: 80
-    note: "\uC5B4\uC314\uC2E0 \uC2A4\uD0AC2 \uC6D0\uD615\uD0C0\uACA9\uBC94\uC704"
   - eventKey: player.dash.start
     vfxIds:
     - PlayerDashEffect
     sfxIds:
-    - PlayerMeleeSound
+    - PlayerDashSound
     priority: 3
     cameraShakePreset: None
     timeStopMs: 0
@@ -602,7 +292,7 @@ MonoBehaviour:
     vfxIds:
     - WallHitEffect
     sfxIds:
-    - PlayerHitSound
+    - WallHitSound
     priority: 2
     cameraShakePreset: Light
     timeStopMs: 20

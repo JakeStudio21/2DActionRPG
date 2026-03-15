@@ -122,34 +122,12 @@ public class Bow : MonoBehaviour, IWeapon
     }
     
     /// <summary>
-    /// 무기 등급에 따른 원거리 공격 이벤트 키
+    /// 원거리 공격 이벤트 키 반환 — player_base 단일 프로파일 관리 방식
+    /// 등급 차이는 magnitude로 전달
     /// </summary>
     private string GetRangedAttackEventKey()
     {
-        if (equipmentData == null)
-        {
-            return "attack.player.ranged"; // 기본값
-        }
-        
-        // 무기 타입 확인 (Bow vs Staff)
-        string weaponTypeKey = equipmentData.WeaponType == WeaponType.Bow ? "bow" : "staff";
-        
-        // 등급별 이벤트 키 매핑
-        switch (equipmentData.itemGrade)
-        {
-            case ItemGrade.S:
-                return $"attack.player.ranged.{weaponTypeKey}_s";
-            case ItemGrade.A:
-                return $"attack.player.ranged.{weaponTypeKey}_a";
-            case ItemGrade.B:
-                return $"attack.player.ranged.{weaponTypeKey}_b";
-            case ItemGrade.C:
-                return $"attack.player.ranged.{weaponTypeKey}_c";
-            case ItemGrade.D:
-                return $"attack.player.ranged.{weaponTypeKey}_d";
-            default:
-                return "attack.player.ranged"; // fallback
-        }
+        return "attack.player.ranged";
     }
     
     /// <summary>

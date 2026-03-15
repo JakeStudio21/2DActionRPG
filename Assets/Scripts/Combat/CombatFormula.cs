@@ -35,6 +35,17 @@ public static class CombatFormula
     }
     
     /// <summary>
+    /// 피격 이펙트 분기용 데미지 출처 타입
+    /// </summary>
+    public enum DamageSourceType
+    {
+        Normal = 0,     // 일반 근접/원거리 타격
+        Critical = 1,   // 크리티컬 타격
+        DOT_Burn = 2,   // 화상 틱 데미지
+        DOT_Poison = 3  // 중독 틱 데미지
+    }
+
+    /// <summary>
     /// 데미지 계산 결과
     /// ⚙️ Phase 4: ConditionalModifier 적용 결과 추가
     /// </summary>
@@ -71,6 +82,7 @@ public static class CombatFormula
         // ⭐ 피격 이펙트 정보 (피격자가 발행할 수 있도록)
         public Vector3 hitPosition;           // 피격 지점 (이펙트 발행 위치)
         public ItemGrade attackerGrade;       // 공격자 무기/발사체 등급
+        public DamageSourceType sourceType;   // 이펙트 분기용 데미지 출처 타입
     }
     
     #endregion
@@ -306,6 +318,7 @@ public static class CombatFormula
         }
         combatCtx.isCritical = isCritical; // CombatContext 업데이트
         result.isCritical = isCritical;
+        result.sourceType = isCritical ? DamageSourceType.Critical : DamageSourceType.Normal;
         result.damageAfterStep5 = damage;
         
         if (EnableDetailedLogs && isCritical)

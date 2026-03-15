@@ -26,8 +26,8 @@ MonoBehaviour:
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
-  effectPrefab: {fileID: 1597112295188672555, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
-  hitEffectPrefab: {fileID: 3545761778305609661, guid: 6890b0fe738c5134d980dcb958edd879, type: 3}
+  castCueKey: skill.MultiShot.cast
+  aoeCueKey: 
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -37,8 +37,8 @@ MonoBehaviour:
   telegraphDuration: 0.3
   isPiercing: 1
   multiHitCount: 5
-  projectileCount: 3
-  projectilePrefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
+  projectileCount: 5
+  projectilePrefab: {fileID: 4149642069968341746, guid: 0a84f1d8bd39b7144a2cfdb00bbede9e, type: 3}
   projectileSpeed: 30
   spreadAngle: 15
   projectileScale: {x: 1, y: 1, z: 1}
@@ -49,7 +49,3 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
-  dashEffectPrefab: {fileID: 0}
-  slashEffectPrefab: {fileID: 0}
-  dashEffectPoolName: DashEffect
-  slashEffectPoolName: SlashEffect

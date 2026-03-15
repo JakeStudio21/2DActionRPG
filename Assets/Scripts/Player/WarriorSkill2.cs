@@ -219,14 +219,18 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         if (showDebugLogs)
             Debug.Log($"⚡ [WarriorSkill2] 차징 시작 ({chargeTime}초)");
         
-        // 차징 이펙트 생성
-        if (SkillData.effectPrefab != null)
+        // 차징 이펙트 — castCueKey 기반 CueSystem 경유
+        if (!string.IsNullOrEmpty(SkillData.castCueKey))
         {
-            currentChargeEffect = GamePoolManager.Instance?.SpawnFromPool(
-                SkillData.effectPrefab.name + "_Charge",
-                transform.position,
-                transform.rotation
-            );
+            var ctx = new CueSystem.CueContext
+            {
+                position = transform.position,
+                rotation = transform.rotation,
+                actorType = ActorType.Player,
+                magnitude = 1.5f,
+                follow = transform
+            };
+            CueSystem.CueEmitter.Emit(SkillData.castCueKey, "Player", ctx);
         }
         
         // 차징 사운드 재생

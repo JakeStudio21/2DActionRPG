@@ -16,85 +16,312 @@ MonoBehaviour:
   domain: Player
   baseProfile: {fileID: 11400000, guid: 1970a8983fce55b449e7de0795a13329, type: 2}
   vfxCatalog:
-  - vfxId: AssasinBowVFX
-    poolKey: AssasinBowEffect
-    duration: -1
+  - vfxId: SkillArrowRainCast
+    poolKey: FX_PF_Fire_Projectile
+    duration: 3
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     priority: 50
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9 VFX"
-  - vfxId: MultiArrowVFX
+  - vfxId: SkillArrowRainAoe
     poolKey: MultiArrowBurst
     duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.3, y: 1.3, z: 1.3}
+    scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     priority: 60
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0 VFX"
-  - vfxId: PowerArrowVFX
+  - vfxId: ExplosiveVaultCast
     poolKey: PowerArrowCharge
     duration: -1
     offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1.8, y: 1.8, z: 1.8}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: ExplosiveVaultAoe
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: FocusedStrikeCast
+    poolKey: Fx_Projectile_Single_Nature
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: FocusedStrikeAoe
+    poolKey: Fx_Projectile_Single_Nature
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: MultiShotCast
+    poolKey: FX_Projectile_Multishot_Nature
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: MultiShotAoe
+    poolKey: FX_Projectile_Multishot_Nature
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: PiercingGaleCast
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: PiercingGaleAoe
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: RapidMirageCast
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: RapidMirageAoe
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: SnipersMarkCast
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: SnipersMarkAoe
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: SpiritKingsArrowCast
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: SpiritKingsArrowAoe
+    poolKey: PowerArrowCharge
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
   sfxCatalog:
-  - sfxId: AssasinBowSound
+  - sfxId: SkillCastSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.7
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 50
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9 \uC0AC\uC6B4\uB4DC"
-  - sfxId: MultiArrowSound
+  - sfxId: SkillAoeSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 50
     priority: 60
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0 \uC0AC\uC6B4\uB4DC"
-  - sfxId: PowerArrowSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.9
-    pitch: 1.1
-    is3D: 0
-    maxDistance: 50
-    priority: 70
-    cooldown: 0
-    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 \uC0AC\uC6B4\uB4DC"
   entries:
-  - eventKey: attack.player.ranged
+  - eventKey: skill.Arrow_Rain.cast
     vfxIds:
-    - AssasinBowVFX
+    - SkillArrowRainCast
     sfxIds:
-    - AssasinBowSound
-    priority: 2
-    cameraShakePreset: Light
-    timeStopMs: 25
-    note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9"
-  - eventKey: skill.player.skill1
-    vfxIds:
-    - MultiArrowVFX
-    sfxIds:
-    - MultiArrowSound
+    - SkillCastSound
     priority: 3
     cameraShakePreset: Medium
     timeStopMs: 40
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0"
-  - eventKey: skill.player.skill2
+  - eventKey: skill.Arrow_Rain.aoe
     vfxIds:
-    - PowerArrowVFX
+    - SkillArrowRainAoe
     sfxIds:
-    - PowerArrowSound
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Medium
+    timeStopMs: 40
+    note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0"
+  - eventKey: skill.Explosive_Vault.cast
+    vfxIds:
+    - ExplosiveVaultCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Explosive_Vault.aoe
+    vfxIds:
+    - ExplosiveVaultAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Focused_Strike.cast
+    vfxIds:
+    - FocusedStrikeCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Focused_Strike.aoe
+    vfxIds:
+    - FocusedStrikeAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.MultiShot.cast
+    vfxIds:
+    - MultiShotCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.MultiShot.aoe
+    vfxIds:
+    - MultiShotAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Piercing_Gale.cast
+    vfxIds:
+    - PiercingGaleCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Piercing_Gale.aoe
+    vfxIds:
+    - PiercingGaleAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.RapidMirage.cast
+    vfxIds:
+    - RapidMirageCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.RapidMirage.aoe
+    vfxIds:
+    - RapidMirageAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Snipers_Mark.cast
+    vfxIds:
+    - SnipersMarkCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.Snipers_Mark.aoe
+    vfxIds:
+    - SnipersMarkAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.SpiritKings_Arrow.cast
+    vfxIds:
+    - SpiritKingsArrowCast
+    sfxIds:
+    - SkillCastSound
+    priority: 3
+    cameraShakePreset: Heavy
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.SpiritKings_Arrow.aoe
+    vfxIds:
+    - SpiritKingsArrowAoe
+    sfxIds:
+    - SkillAoeSound
     priority: 3
     cameraShakePreset: Heavy
     timeStopMs: 70

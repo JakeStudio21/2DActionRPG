@@ -28,8 +28,8 @@ MonoBehaviour:
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
-  effectPrefab: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
+  castCueKey: skill.Focused_Strike.cast
+  aoeCueKey: 
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -39,8 +39,8 @@ MonoBehaviour:
   telegraphDuration: 0.3
   isPiercing: 0
   multiHitCount: 1
-  projectileCount: 3
-  projectilePrefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
+  projectileCount: 1
+  projectilePrefab: {fileID: 4149642069968341746, guid: 8dbc088b579da204990a31aa5fb11bd4, type: 3}
   projectileSpeed: 10
   spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
@@ -51,7 +51,3 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
-  dashEffectPrefab: {fileID: 0}
-  slashEffectPrefab: {fileID: 0}
-  dashEffectPoolName: DashEffect
-  slashEffectPoolName: SlashEffect

@@ -195,6 +195,7 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 2.5
   basicHealthBarPrefab: {fileID: 6935039637879996987, guid: 5a00e731311f6bb468729f7447fa1753, type: 3}
+  immunityDuration: 0.5
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,6 +302,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: e56da1fe6f885604daface3676f7a6bd, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  cueProfile: {fileID: 11400000, guid: 31af7c715b27a60439ab610f2b11307a, type: 2}
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 0

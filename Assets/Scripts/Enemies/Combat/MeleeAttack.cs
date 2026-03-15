@@ -55,9 +55,25 @@ public class MeleeAttack : BaseAttackBehaviour
 
     protected override void OnAttack()
     {
-        // 근접 공격 전용 로직 (현재는 애니메이션 이벤트에서 처리)
-        // 필요하다면 즉시 공격 로직을 여기에 추가 가능
         Debug.Log($"[MeleeAttack] {gameObject.name} - 근접 공격 준비 완료");
+
+        // 공격자 책임: 스윙 모션 이펙트 (평타/크리티컬 무관)
+        // transform.right는 flipX 방식 방향 전환에 영향받지 않으므로
+        // EnemyAnimationController.currentDirection(실제 facing 방향)을 사용
+        Vector2 facing = animationController != null ? animationController.GetCurrentDirection() : Vector2.right;
+        if (facing.magnitude < 0.1f) facing = Vector2.right;
+        float angle = Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg;
+        Quaternion facingRotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
+        var swingContext = new CueSystem.CueContext
+        {
+            position  = transform.position,
+            rotation  = facingRotation,
+            facingDir = facing,
+            actorType = CueSystem.ActorType.Enemy,
+            magnitude = 1.0f
+        };
+        CueSystem.CueEmitter.Emit("attack.melee.swing", cueEmitDomain, swingContext);
     }
     
     /// <summary>
@@ -111,10 +127,7 @@ public class MeleeAttack : BaseAttackBehaviour
         Vector2 attackOrigin = GetAttackOrigin();
         
         Debug.Log($"[MeleeAttack] 공격 실행 - 범위: {currentRange:F1}, 데미지: {currentDamage}, 원점: {attackOrigin}");
-        
-        // ✅ 🎵 Cue 시스템 추가 - 이 줄을 추가하세요!
-        EmitAttackCues(attackOrigin, false); // 일단 false로 설정
-        
+
         // ⭐ 개선된 히트 감지 (각도 고려)
         List<Collider2D> hitTargets = GetHitTargets(attackOrigin, currentRange);
         
@@ -151,15 +164,16 @@ public class MeleeAttack : BaseAttackBehaviour
                 };
                 
                 var result = CombatFormula.CalculateEnemyToPlayerDamage(ctx);
+
+                // 피격 위치 세팅 → PlayerHealth.EmitHitEffect()에서 CueSystem으로 처리
+                result.hitPosition = hitCollider.transform.position;
                 
                 // ⚔️ Phase 4-C: DamageResult 통째로 전달 (피격자가 면역/회복차단 처리)
+                // 피격자 책임: hit.player.normal / hit.player.critical 이펙트는 PlayerHealth가 발행
                 playerHealth.TakeDamage(result, transform);
                 
                 // 🛡️ Phase 1: 상태이상 적용 (저항 시스템 적용됨)
                 ApplyStatusEffects(playerHealth, hitCollider.transform);
-                
-                // ⭐ 새 시스템: 이펙트 및 사운드
-                PlayHitEffectsAndSounds(hitCollider.transform.position, result.isCritical);
                 
                 Debug.Log($"[MeleeAttack] {gameObject.name}이 플레이어에게 {result.finalDamage} 데미지를 입혔습니다. {(result.isCritical ? "(크리티컬!)" : "")}");
                 break; // 한 번에 하나의 플레이어만 타격
@@ -371,13 +385,12 @@ public class MeleeAttack : BaseAttackBehaviour
             
             // 이벤트 키 결정
             string eventKey = context.isCritical ? "attack.melee.crit" : "attack.melee.hit";
-            string domain = "Enemy";
             
             // ✅ 디버깅: 발행 전 정보
-            Debug.Log($"🔍 [MeleeAttack] 발행 시도 - 도메인: '{domain}', 키: '{eventKey}'");
+            Debug.Log($"🔍 [MeleeAttack] 발행 시도 - 도메인: '{cueEmitDomain}', 키: '{eventKey}'");
             
             // Cue 발행
-            bool success = CueEmitter.Emit(eventKey, domain, context);
+            bool success = CueEmitter.Emit(eventKey, cueEmitDomain, context);
             
             Debug.Log($"🎵 [MeleeAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }

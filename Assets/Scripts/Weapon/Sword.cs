@@ -298,31 +298,11 @@ public class Sword : MonoBehaviour, IWeapon
     #region ⭐ Phase 1-1: 등급별 이펙트 시스템
     
     /// <summary>
-    /// 무기 등급에 따른 근접 공격 이벤트 키 생성
+    /// 근접 공격 이벤트 키 반환 — 단일 키로 통일 (등급 강도는 magnitude로 전달)
     /// </summary>
     private string GetMeleeAttackEventKey()
     {
-        if (equipmentData == null)
-        {
-            return "attack.player.melee"; // 기본값
-        }
-        
-        // 등급별 이벤트 키 매핑
-        switch (equipmentData.itemGrade)
-        {
-            case ItemGrade.S:
-                return "attack.player.melee.sword_s";
-            case ItemGrade.A:
-                return "attack.player.melee.sword_a";
-            case ItemGrade.B:
-                return "attack.player.melee.sword_b";
-            case ItemGrade.C:
-                return "attack.player.melee.sword_c";
-            case ItemGrade.D:
-                return "attack.player.melee.sword_d";
-            default:
-                return "attack.player.melee"; // fallback
-        }
+        return "attack.player.melee";
     }
     
     /// <summary>

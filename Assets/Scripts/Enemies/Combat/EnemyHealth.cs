@@ -1064,8 +1064,9 @@ public class EnemyHealth : MonoBehaviour
             // 이벤트 키 결정 (보스 vs 일반)
             string eventKey = IsBoss() ? "death.enemy.boss" : "death.enemy.normal";
             
-            // Cue 발행
-            bool success = CueSystem.CueEmitter.Emit(eventKey, "Enemy", context);
+            // 몬스터별 전용 도메인 사용 (없으면 공통 "Enemy")
+            string domain = baseEnemy?.CueEmitDomain ?? "Enemy";
+            bool success = CueSystem.CueEmitter.Emit(eventKey, domain, context);
             
             Debug.Log($"🎵 [EnemyHealth] 사망 Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }
@@ -1103,8 +1104,9 @@ public class EnemyHealth : MonoBehaviour
             surfaceType = CueSystem.SurfaceType.Flesh
         };
         
-        // ⭐ "Enemy" 도메인으로 발행 → Enemy_enemy_base.asset에서 찾음
-        bool success = CueSystem.CueEmitter.Emit(eventKey, "Enemy", context);
+        // 몬스터별 전용 도메인 사용 (없으면 공통 "Enemy")
+        string domain = baseEnemy?.CueEmitDomain ?? "Enemy";
+        bool success = CueSystem.CueEmitter.Emit(eventKey, domain, context);
         
         Debug.Log($"🎨 [EnemyHealth] Hit 이펙트 발행: {eventKey} (등급: {attackerGrade}, 크리티컬: {isCritical}) → {success}");
     }

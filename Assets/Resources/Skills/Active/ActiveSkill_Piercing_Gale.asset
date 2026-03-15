@@ -29,8 +29,8 @@ MonoBehaviour:
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
-  effectPrefab: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
+  castCueKey: skill.Piercing_Gale.cast
+  aoeCueKey: skill.Piercing_Gale.aoe
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -38,21 +38,17 @@ MonoBehaviour:
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
   telegraphDuration: 0.3
-  isPiercing: 0
+  isPiercing: 1
   multiHitCount: 1
-  projectileCount: 3
-  projectilePrefab: {fileID: 0}
-  projectileSpeed: 10
+  projectileCount: 1
+  projectilePrefab: {fileID: 4149642069968341746, guid: 97e6aa982e89be742ac8139f544f0edd, type: 3}
+  projectileSpeed: 20
   spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
-  projectilePoolName: Projectile
+  projectilePoolName: Arrow_Piercing_Gale
   dashSpeed: 20
   dashRange: 8
   attackCount: 1
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
-  dashEffectPrefab: {fileID: 0}
-  slashEffectPrefab: {fileID: 0}
-  dashEffectPoolName: DashEffect
-  slashEffectPoolName: SlashEffect

@@ -44,6 +44,12 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
     // 공통 상태 변수
     protected bool canAttack = true;
     
+    /// <summary>
+    /// CueEmitter 도메인 키 — BaseEnemy.CueEmitDomain에서 동기화.
+    /// 전용 프로필이 없으면 "Enemy" (공통 프로필 사용).
+    /// </summary>
+    protected string cueEmitDomain = "Enemy";
+    
     #endregion
 
     #region ⭐ 새 시스템: Public Properties (데이터 우선순위 적용)
@@ -68,8 +74,11 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         animationController = GetComponent<EnemyAnimationController>();
-        baseEnemy = GetComponent<BaseEnemy>(); // ⭐ BaseEnemy 참조 획득
+        baseEnemy = GetComponentInParent<BaseEnemy>(); // ⭐ BaseEnemy 참조 획득
         canAttack = true;
+        
+        // 🎵 CueEmitter 도메인 동기화 (BaseEnemy에서 결정된 도메인 사용)
+        cueEmitDomain = baseEnemy?.CueEmitDomain ?? "Enemy";
         
         // ⭐ 새 시스템: 데이터 기반 초기화
         InitializeAttackDataSystem();

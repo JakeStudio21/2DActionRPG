@@ -158,10 +158,17 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
             }
         }
         
-        // 이펙트 생성
-        if (SkillData.effectPrefab != null)
+        // 시전 이펙트 — castCueKey 기반 CueSystem 경유
+        if (!string.IsNullOrEmpty(SkillData.castCueKey))
         {
-            SpawnEffect(SkillData.effectPrefab, firePoint.position, firePoint.rotation);
+            var ctx = new CueSystem.CueContext
+            {
+                position = firePoint.position,
+                rotation = firePoint.rotation,
+                actorType = ActorType.Player,
+                magnitude = 1.0f
+            };
+            CueSystem.CueEmitter.Emit(SkillData.castCueKey, "Player", ctx);
         }
         
         // ⭐ Phase 3: AOE 생성 (부채꼴)

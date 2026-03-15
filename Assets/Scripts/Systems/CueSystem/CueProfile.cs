@@ -144,47 +144,49 @@ namespace CueSystem
         }
         
         /// <summary>
-        /// 상속 체인을 고려한 머지 캐시 구축
+        /// 상속 체인을 고려한 머지 캐시 구축 (자식 우선 Replace 방식)
+        /// 자식 프로필이 키를 정의하면 부모 정의를 완전히 교체 (additive 아님)
         /// </summary>
         private void BuildMergedCache()
         {
             _mergedCache = new Dictionary<string, CueSlot>();
             
-            // 1. 상속 체인 수집 (순환 참조 방지)
+            // 1. 상속 체인 수집: [자식, 부모, 조부모, ...] 순서
             var profileChain = CollectProfileChain();
             
-            // 2. 역순으로 엔트리 머지 (부모 → 자식 순)
-            // ✅ 수정: Reverse() 대신 역순 인덱스 사용
-            for (int i = profileChain.Count - 1; i >= 0; i--)
+            // 2. 자식 → 부모 순으로 처리. 이미 자식이 정의한 키는 부모가 덮어쓰지 않음 (Replace 의미론)
+            foreach (var profile in profileChain)
             {
-                var profile = profileChain[i];
                 foreach (var entry in profile.entries)
                 {
-                    if (!_mergedCache.ContainsKey(entry.eventKey))
-                        _mergedCache[entry.eventKey] = new CueSlot();
-                        
-                    var slot = _mergedCache[entry.eventKey];
+                    // 이미 상위 우선순위(자식) 프로필이 이 키를 정의했으면 스킵
+                    if (_mergedCache.ContainsKey(entry.eventKey))
+                        continue;
                     
-                    // VFX 추가
+                    var slot = new CueSlot();
+                    
+                    // VFX 구성
                     foreach (var vfxId in entry.vfxIds)
                     {
                         var vfx = GetVFXCue(vfxId);
-                        if (vfx != null && !slot.vfxCues.Any(v => v.vfxId == vfxId))
+                        if (vfx != null)
                             slot.vfxCues.Add(vfx);
                     }
                     
-                    // SFX 추가  
+                    // SFX 구성
                     foreach (var sfxId in entry.sfxIds)
                     {
                         var sfx = GetSFXCue(sfxId);
-                        if (sfx != null && !slot.sfxCues.Any(s => s.sfxId == sfxId))
+                        if (sfx != null)
                             slot.sfxCues.Add(sfx);
                     }
                     
-                    // 메타데이터 업데이트 (자식이 우선)
+                    // 메타데이터
                     slot.priority = entry.priority;
                     slot.cameraShakePreset = entry.cameraShakePreset;
                     slot.timeStopMs = entry.timeStopMs;
+                    
+                    _mergedCache[entry.eventKey] = slot;
                 }
             }
         }

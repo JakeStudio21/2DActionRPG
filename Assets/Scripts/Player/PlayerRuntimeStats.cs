@@ -558,18 +558,25 @@ public class PlayerRuntimeStats : MonoBehaviour
     /// </summary>
     private void SyncWithOtherComponents()
     {
-        // PlayerController 동기화
+        // PlayerController 동기화 (이동속도)
         var playerController = FindObjectOfType<PlayerController>();
         if (playerController != null)
         {
             playerController.SyncWithRuntimeStats();
         }
         
-        // PlayerHealth 동기화
+        // PlayerHealth 동기화 (최대 체력)
         var playerHealth = FindObjectOfType<PlayerHealth>();
         if (playerHealth != null)
         {
             playerHealth.SyncWithRuntimeStats();
+        }
+        
+        // PlayerAnimationController 동기화 (공격속도 — ASPD 배율 재계산)
+        var animController = FindObjectOfType<PlayerAnimationController>();
+        if (animController != null)
+        {
+            animController.SyncWithRuntimeStats();
         }
         
         if (showDebugLogs)

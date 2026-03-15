@@ -32,13 +32,14 @@ public class ActiveSkillData : BaseSkillData
     [Tooltip("사거리")]
     public float range = 5f;
     
-    [Header("🎭 이펙트 및 AOE")]
-    [Tooltip("스킬 이펙트 프리팹 (Cast 시점 이펙트)")]
-    public GameObject effectPrefab;
+    [Header("🎵 CueSystem 이벤트 키 (VFX/SFX 연결)")]
+    [Tooltip("시전 이펙트 키 (예: skill.assasin.multi_arrow.cast)\n비어 있으면 player_base의 generic 키로 fallback")]
+    public string castCueKey;
     
-    [Tooltip("히트 이펙트 프리팹 (타격 시점 이펙트)")]
-    public GameObject hitEffectPrefab;
+    [Tooltip("AOE 범위 이펙트 키 (예: skill.assasin.multi_arrow.aoe)\n즉발형(isProjectile=false)에서 AOE 시각화에 사용")]
+    public string aoeCueKey;
     
+    [Header("🎭 AOE 설정")]
     [Tooltip("AOE 형태 (기존 시스템 호환)")]
     public SkillAOEShape aoeShape = SkillAOEShape.Circle;
     
@@ -105,19 +106,6 @@ public class ActiveSkillData : BaseSkillData
     
     [Tooltip("적 기절 지속시간 (초)")]
     public float stunDuration = 1f;
-    
-    [Header("🎭 추가 이펙트")]
-    [Tooltip("돌진 이펙트 프리팹")]
-    public GameObject dashEffectPrefab;
-    
-    [Tooltip("베기/충격 이펙트 프리팹")]
-    public GameObject slashEffectPrefab;
-    
-    [Tooltip("돌진 이펙트 풀 이름")]
-    public string dashEffectPoolName = "DashEffect";
-    
-    [Tooltip("베기 이펙트 풀 이름")]
-    public string slashEffectPoolName = "SlashEffect";
     
     public override SkillCategory GetSkillCategory() => SkillCategory.Active;
 }

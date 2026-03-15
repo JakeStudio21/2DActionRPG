@@ -612,7 +612,8 @@ public class PlayerController : MonoBehaviour
 
             isDashing = true;
             moveSpeed += dashspeed;
-            myTrailRenderer.emitting = true;
+            if (myTrailRenderer != null)
+                myTrailRenderer.emitting = true;
             
             // ⭐ CueSystem으로 Dash 이펙트 발행
             float angle = Mathf.Atan2(dashDirection.y, dashDirection.x) * Mathf.Rad2Deg + 180f;  // 뒤로 이펙트
@@ -651,11 +652,12 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator EndDashRoutine()
     {
-        float dashTime = .2f;
-        float dashCD = .25f;
+        float dashTime = .35f;
+        float dashCD = 1f;
         yield return new WaitForSecondsRealtime(dashTime);
         moveSpeed = startingMoveSpeed;
-        myTrailRenderer.emitting = false;
+        if (myTrailRenderer != null)
+            myTrailRenderer.emitting = false;
         
         yield return new WaitForSecondsRealtime(dashCD);
         isDashing = false;

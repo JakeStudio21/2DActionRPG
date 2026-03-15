@@ -141,10 +141,17 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             Debug.LogError($"❌ [AssasinSkill2] Power Arrow 생성 실패! 풀: {poolName}");
         }
         
-        // 강력한 발사 이펙트 생성
-        if (SkillData.effectPrefab != null)
+        // 시전 이펙트 — castCueKey 기반 CueSystem 경유
+        if (!string.IsNullOrEmpty(SkillData.castCueKey))
         {
-            SpawnEffect(SkillData.effectPrefab, firePoint.position, firePoint.rotation);
+            var ctx = new CueSystem.CueContext
+            {
+                position = firePoint.position,
+                rotation = firePoint.rotation,
+                actorType = ActorType.Player,
+                magnitude = 1.5f
+            };
+            CueSystem.CueEmitter.Emit(SkillData.castCueKey, "Player", ctx);
         }
         
         // 추가 파워 이펙트 (muzzle flash 등)

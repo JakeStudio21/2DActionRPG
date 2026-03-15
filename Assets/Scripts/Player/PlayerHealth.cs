@@ -249,7 +249,7 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damageAmount;
         
         // 🎨 Hit 스파크 이펙트 발행 (피격자 책임)
-        EmitHitEffect(hitPosition, false, ItemGrade.C);  // 적 발사체는 등급 구분 없음
+        EmitHitEffect(hitPosition, CombatFormula.DamageSourceType.Normal, ItemGrade.C);
         
         // 데미지 넘버 표시
         if (DamageNumberManager.Instance != null)
@@ -342,7 +342,7 @@ public class PlayerHealth : MonoBehaviour
         CheckIfPlayerDeath();
 
         // 1️⃣1️⃣ 🎨 Hit 스파크 이펙트 발행 (피격자 책임)
-        EmitHitEffect(result.hitPosition, result.isCritical, result.attackerGrade);
+        EmitHitEffect(result.hitPosition, result.sourceType, result.attackerGrade);
         
         if (showDebugLogs)
         {
@@ -354,26 +354,32 @@ public class PlayerHealth : MonoBehaviour
     /// 🎨 피격 이펙트 발행 (피격자 책임)
     /// 공격자가 전달한 위치/등급 정보로 자신의 도메인에서 이펙트 발행
     /// </summary>
-    private void EmitHitEffect(Vector3 hitPosition, bool isCritical, ItemGrade attackerGrade)
+    private void EmitHitEffect(Vector3 hitPosition, CombatFormula.DamageSourceType sourceType, ItemGrade attackerGrade)
     {
-        // 적 공격은 등급 구분 없음
-        string eventKey = isCritical ? "hit.player.critical" : "hit.player.normal";
-        
+        string eventKey = sourceType switch
+        {
+            CombatFormula.DamageSourceType.Critical  => "hit.player.critical",
+            CombatFormula.DamageSourceType.DOT_Burn  => "hit.player.dot.burn",
+            CombatFormula.DamageSourceType.DOT_Poison => "hit.player.dot.poison",
+            _                                         => "hit.player.normal"
+        };
+
+        bool isCritical = sourceType == CombatFormula.DamageSourceType.Critical;
+
         var context = new CueContext
         {
             position = hitPosition,
             rotation = transform.rotation,
-            actorType = ActorType.Player,  // ⭐ 자신의 도메인
+            actorType = ActorType.Player,
             magnitude = isCritical ? 1.5f : 1.0f,
             isCritical = isCritical,
             surfaceType = SurfaceType.Flesh
         };
         
-        // ⭐ "Player" 도메인으로 발행 → Player_player_base.asset에서 찾음
         bool success = CueEmitter.Emit(eventKey, "Player", context);
         
         if (showDebugLogs)
-            Debug.Log($"🎨 [PlayerHealth] Hit 이펙트 발행: {eventKey} (크리티컬: {isCritical}) → {success}");
+            Debug.Log($"🎨 [PlayerHealth] Hit 이펙트 발행: {eventKey} → {success}");
     }
 
     private void CheckIfPlayerDeath() {

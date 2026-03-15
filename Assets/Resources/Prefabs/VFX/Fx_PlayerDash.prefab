@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 1121811668834169521}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7071065, z: -0, w: 0.7071072}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -223,7 +223,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
+      maxColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 0.78431374}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5079,7 +5079,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f339ec7fb15aed64ca49edfcbb3792ce, type: 2}
+  - {fileID: 2100000, guid: 460f3168467028c4e8de87165b0eb3d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5159,7 +5159,7 @@ Transform:
   m_GameObject: {fileID: 1296819768456728417}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -5354,8 +5354,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.9716981, g: 0.67200893, b: 0.5821022, a: 1}
-      maxColor: {r: 1, g: 0.858326, b: 0.7028302, a: 1}
+      minColor: {r: 0.9716981, g: 0.67200893, b: 0.5821022, a: 0.59607846}
+      maxColor: {r: 1, g: 0.858326, b: 0.7028302, a: 0.59607846}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5736,7 +5736,7 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 30
+    maxNumParticles: 10
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 1
     rotation3D: 0
@@ -7207,7 +7207,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: -0.01
-      minScalar: -50
+      minScalar: -40
       maxCurve:
         serializedVersion: 2
         m_Curve:

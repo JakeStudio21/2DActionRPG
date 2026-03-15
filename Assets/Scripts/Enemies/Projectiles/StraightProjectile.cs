@@ -194,9 +194,6 @@ public class StraightProjectile : MonoBehaviour
             };
             
             CueSystem.CueEmitter.Emit("projectile.hit.wall", "Enemy", context);
-            
-            // 기존 이펙트도 재생 (Fallback)
-            PlayHitEffect();
             ReturnToPool();
             return;
         }
@@ -206,7 +203,8 @@ public class StraightProjectile : MonoBehaviour
         {
             if (other.TryGetComponent(out PlayerHealth playerHealth))
             {
-                playerHealth.TakeDamage(projectileDamage, transform);
+                // hitPosition 전달 → PlayerHealth.EmitHitEffect()가 CueSystem으로 처리
+                playerHealth.TakeDamage(projectileDamage, transform, transform.position);
                 
                 // 🛡️ Phase 1: 상태이상 적용 (저항 시스템 적용됨)
                 if (attacker != null)
@@ -220,7 +218,6 @@ public class StraightProjectile : MonoBehaviour
                 if (showDebugLogs)
                     Debug.Log($"💥 [StraightProjectile] 플레이어에게 {projectileDamage} 데미지!");
                 
-                PlayHitEffect();
                 ReturnToPool();
                 return;
             }
@@ -232,33 +229,19 @@ public class StraightProjectile : MonoBehaviour
         {
             if (showDebugLogs)
                 Debug.Log($"🧱 [StraightProjectile] Indestructible 장애물 충돌: {other.gameObject.name}");
-            
-            PlayHitEffect();
+
+            var context = new CueSystem.CueContext
+            {
+                position = transform.position,
+                rotation = transform.rotation,
+                normal = (transform.position - other.transform.position).normalized,
+                facingDir = transform.right,
+                actorType = CueSystem.ActorType.Enemy,
+                surfaceType = CueSystem.SurfaceType.Stone,
+                magnitude = 1.0f
+            };
+            CueSystem.CueEmitter.Emit("projectile.hit.wall", "Enemy", context);
             ReturnToPool();
-        }
-    }
-    
-    /// <summary>
-    /// Hit 이펙트 재생
-    /// </summary>
-    private void PlayHitEffect()
-    {
-        if (hitEffectPrefab != null)
-        {
-            if (GamePoolManager.Instance != null)
-            {
-                GameObject effect = GamePoolManager.Instance.SpawnFromPool(
-                    hitEffectPrefab.name, 
-                    transform.position, 
-                    transform.rotation);
-                
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [StraightProjectile] Hit 이펙트 재생: {hitEffectPrefab.name}");
-            }
-            else
-            {
-                Instantiate(hitEffectPrefab, transform.position, transform.rotation);
-            }
         }
     }
     

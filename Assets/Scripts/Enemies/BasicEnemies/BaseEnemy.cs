@@ -33,6 +33,37 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget
 
     #endregion
 
+    #region 🎵 CueSystem 전용 프로필
+
+    [Header("🎵 Cue 프로필 (선택)")]
+    [Tooltip("전용 이펙트가 필요할 때 할당. 비워두면 공통 Enemy 프로필 사용.")]
+    [SerializeField] private CueSystem.CueProfile cueProfile;
+
+    /// <summary>
+    /// 이 몬스터의 CueEmitter 도메인 키.
+    /// cueProfile이 할당되면 "Enemy_{enemyId}", 없으면 "Enemy" (공통).
+    /// </summary>
+    public string CueEmitDomain { get; private set; } = "Enemy";
+
+    /// <summary>
+    /// CueProfile 등록 — Awake 이후 EnemyData가 준비된 시점에 호출
+    /// </summary>
+    protected void InitializeCueProfile()
+    {
+        if (cueProfile == null) return;
+
+        string id = enemyData != null && !string.IsNullOrEmpty(enemyData.EnemyId)
+            ? enemyData.EnemyId
+            : gameObject.name;
+
+        CueEmitDomain = $"Enemy_{id}";
+        CueSystem.CueRegistry.Instance.RegisterProfile(CueEmitDomain, cueProfile);
+
+        Debug.Log($"🎵 [BaseEnemy] {gameObject.name} CueProfile 등록: 도메인={CueEmitDomain}");
+    }
+
+    #endregion
+
     // IEnemy 인터페이스 구현 (공통)
     public EnemyAnimationController AnimationController { get; private set; }
     public EnemyFSMController FSMController { get; private set; }
@@ -262,6 +293,10 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget
         }
         
         StartCoroutine(FindPlayerCoroutine());
+        
+        // 🎵 CueProfile 등록 (InitializeAttackSystem 보다 먼저 실행해야 cueEmitDomain이 올바르게 동기화됨)
+        InitializeCueProfile();
+        
         InitializeAttackSystem();
         
         // 추가 시작 로직 (하위 클래스에서 구현)

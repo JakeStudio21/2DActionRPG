@@ -51,6 +51,7 @@ public class PlayerAnimationController : MonoBehaviour
     private bool isAttacking = false;
     private bool canAttack = true;
     private float attackCooldown = 1f;
+    private float baseWeaponCooldown = 1f; // 무기 원본 쿨다운 (ASPD 배율 적용 전)
     
     // ⭐ 기본적인 상태 추적만 유지
     private int currentAttackSequence = 0;
@@ -841,13 +842,38 @@ public class PlayerAnimationController : MonoBehaviour
     }
     
     /// <summary>
-    /// 무기 변경 시 쿨다운 업데이트
+    /// 무기 변경 시 쿨다운 업데이트 (ActiveWeapon이 호출)
+    /// 원본 weaponCooldown을 보관한 뒤 ASPD 배율을 적용해 최종 쿨다운 재계산
     /// </summary>
     public void UpdateWeaponCooldown(float newCooldown)
     {
-        attackCooldown = newCooldown;
+        baseWeaponCooldown = newCooldown;
+        RecalculateAttackCooldown();
+    }
+
+    /// <summary>
+    /// PlayerRuntimeStats 스탯 변경 시 공격 쿨다운 재동기화 (PlayerRuntimeStats가 호출)
+    /// </summary>
+    public void SyncWithRuntimeStats()
+    {
+        RecalculateAttackCooldown();
+    }
+
+    /// <summary>
+    /// 실제 공격 쿨다운 계산 — baseWeaponCooldown / FinalAttackSpeed
+    /// 이 한 곳에서만 attackCooldown 값을 결정
+    /// </summary>
+    private void RecalculateAttackCooldown()
+    {
+        var runtimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        float atkSpeed = (runtimeStats != null && runtimeStats.FinalAttackSpeed > 0f)
+            ? runtimeStats.FinalAttackSpeed
+            : 1f;
+
+        attackCooldown = baseWeaponCooldown / atkSpeed;
+
         if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 무기 쿨다운 업데이트: {attackCooldown}초");
+            Debug.Log($"🔵 [PlayerAnimationController] 공격 쿨다운 재계산: 무기기본={baseWeaponCooldown:F3}s / ASPD={atkSpeed:F2} = {attackCooldown:F3}s");
     }
     
     /// <summary>
