@@ -457,11 +457,40 @@ public class SkillController : MonoBehaviour
         Debug.Log($"   - 최종 데미지: {finalDamage}");
         Debug.Log($"   - 쿨다운: {skillInstance.GetCurrentCooldown()}초");
         
+        // 공격 방향 및 위치 (Telegraph + VFX + AOE 공통 사용)
+        Vector2 attackDir = GetAttackDirection();
+        Transform firePoint = FindFirePoint();
+        Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
+        
+        // ⭐ Telegraph — 프리팹이 설정된 경우 표시 후 대기
+        if (activeData.telegraphPrefab != null && activeData.telegraphDuration > 0f)
+        {
+            Vector3 telegraphPos = CalculateTelegraphSpawnPos(skillPos, attackDir, activeData.telegraphOffset);
+            Quaternion telegraphRot = CalculateTelegraphRotation(activeData.aoeShape, attackDir);
+            GameObject telegraphObj = Instantiate(activeData.telegraphPrefab, telegraphPos, telegraphRot);
+            
+            var telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
+            if (telegraph != null)
+            {
+                telegraph.InitializeForPlayer(
+                    shape: ConvertToAOEShapeType(activeData.aoeShape),
+                    position: telegraphPos,
+                    radius: activeData.aoeRadius,
+                    size: activeData.aoeSize,
+                    angle: activeData.aoeFanAngle,
+                    displayDuration: activeData.telegraphDuration,
+                    forward: (Vector3)attackDir
+                );
+            }
+            
+            if (showDebugLogs)
+                Debug.Log($"📍 [SkillController] Telegraph 표시: {activeData.aoeShape}, offset={activeData.telegraphOffset}, pos={telegraphPos}, {activeData.telegraphDuration}초 대기");
+            
+            yield return new WaitForSeconds(activeData.telegraphDuration);
+        }
+        
         // ⭐ VFX 발행 — isProjectile(데미지 방식)과 무관하게 skillType 기반으로 결정
-        Vector2 vfxDir = GetAttackDirection();
-        Transform vfxFirePoint = FindFirePoint();
-        Vector3 vfxPos = vfxFirePoint != null ? vfxFirePoint.position : transform.position;
-        EmitSkillCues(activeData, vfxDir, vfxPos);
+        EmitSkillCues(activeData, attackDir, skillPos);
         
         // ⭐ isProjectile 분기: 발사체 vs 즉발형 AoE (데미지 처리만 담당)
         Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
@@ -478,6 +507,44 @@ public class SkillController : MonoBehaviour
         }
         
         Debug.Log($"✅ [SkillController] DelayedSkillExecution 완료");
+    }
+    
+    /// <summary>
+    /// 공격 방향 기준 Telegraph 스폰 위치 계산 (offset 적용)
+    /// X: 전방 거리, Y: 측면 거리 (우측 양수)
+    /// </summary>
+    private Vector3 CalculateTelegraphSpawnPos(Vector3 origin, Vector2 direction, Vector2 offset)
+    {
+        if (offset == Vector2.zero) return origin;
+        Vector2 forward = direction.normalized;
+        Vector2 right = new Vector2(-forward.y, forward.x);
+        return origin + (Vector3)(forward * offset.x) + (Vector3)(right * offset.y);
+    }
+
+    /// <summary>
+    /// AOE shape별 Telegraph 회전 계산
+    /// Circle: Fixed(identity), Fan/Rectangle: Follow(공격 방향)
+    /// </summary>
+    private Quaternion CalculateTelegraphRotation(SkillAOEShape shape, Vector2 direction)
+    {
+        if (shape == SkillAOEShape.Circle)
+            return Quaternion.identity;
+        
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        return Quaternion.Euler(0f, 0f, angle);
+    }
+    
+    /// <summary>
+    /// SkillAOEShape → AOEShapeType 변환 (TelegraphIndicator 호환)
+    /// </summary>
+    private AOEShapeType ConvertToAOEShapeType(SkillAOEShape shape)
+    {
+        switch (shape)
+        {
+            case SkillAOEShape.Fan:       return AOEShapeType.Triangle;
+            case SkillAOEShape.Rectangle: return AOEShapeType.Rectangle;
+            default:                      return AOEShapeType.Circle;
+        }
     }
     
     /// <summary>
@@ -565,33 +632,54 @@ public class SkillController : MonoBehaviour
     }
     
     /// <summary>
-    /// 즉발형 AoE 생성 (isProjectile = false)
+    /// 즉발형 AoE 생성 (isProjectile = false) — DamageArea 기반
     /// </summary>
     private void SpawnInstantAOE(ActiveSkillData skillData, SkillInstance skillInstance, int damage, int slotIndex)
     {
-        // 조이스틱 방향 가져오기
         Vector2 direction = GetAttackDirection();
-        
-        // AoE 생성
-        SkillAOESpawner.SpawnAOE(
-            skillData.aoeShape,
-            transform.position,
-            direction,
-            skillData.aoeSize,
-            skillData.aoeFanAngle,
-            damage, // ⭐ 최종 데미지 전달
-            skillData.aoeDuration,
-            LayerMask.GetMask("Enemy"),
-            $"skill.player.skill{slotIndex + 1}.hit",
-            this
+        Transform firePoint = FindFirePoint();
+        Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
+
+        // DamageArea 프리팹 로드 (보스/엘리트와 동일한 경로)
+        GameObject damageAreaPrefab = Resources.Load<GameObject>("Prefabs/VFX/DamageArea");
+        if (damageAreaPrefab == null)
+        {
+            Debug.LogError("❌ [SkillController] DamageArea 프리팹을 찾을 수 없습니다! 경로: Resources/Prefabs/VFX/DamageArea");
+            return;
+        }
+
+        GameObject damageAreaGO = Instantiate(damageAreaPrefab);
+        DamageArea damageArea = damageAreaGO.GetComponent<DamageArea>();
+        if (damageArea == null)
+        {
+            Debug.LogError("❌ [SkillController] DamageArea 컴포넌트가 없습니다!");
+            Destroy(damageAreaGO);
+            return;
+        }
+
+        // SkillAOEShape → AOEShapeType 변환 후 플레이어용 초기화
+        AOEShapeType shapeType = ConvertToAOEShapeType(skillData.aoeShape);
+        damageArea.InitializeForPlayer(
+            shape: shapeType,
+            origin: skillPos,
+            forward: (Vector3)direction,
+            radius: skillData.aoeRadius,
+            size: skillData.aoeSize,
+            angle: skillData.aoeFanAngle,
+            playerBaseDamage: damage,
+            policy: AOEDamagePolicy.Once
         );
-        
+
+        // 스킬 지속시간 + 여유시간 후 제거
+        Destroy(damageAreaGO, skillData.aoeDuration + 0.5f);
+
         if (showDebugLogs)
-            Debug.Log($"💥 [SkillController] AoE 생성: {skillData.aoeShape}, 데미지: {damage}");
+            Debug.Log($"💥 [SkillController] DamageArea 생성: {skillData.aoeShape} → {shapeType}, 방향: {direction}, 데미지: {damage}");
     }
     
     /// <summary>
-    /// ⭐ Phase 4: Animation Event에서 직접 호출 (딜레이 없이 즉시 실행)
+    /// ⭐ Phase 4: Animation Event에서 직접 호출
+    /// telegraphPrefab이 있으면 코루틴으로 telegraph → 대기 → 발사, 없으면 즉시 발사
     /// </summary>
     private void ExecuteSkillFromAnimationEvent(SkillInstance skillInstance, int slotIndex)
     {
@@ -605,8 +693,8 @@ public class SkillController : MonoBehaviour
         
         Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
         Debug.Log($"   - isProjectile: {activeData.isProjectile}");
-        Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
-        Debug.Log($"   - castCueKey: {(string.IsNullOrEmpty(activeData.castCueKey) ? "없음(fallback)" : activeData.castCueKey)}");
+        Debug.Log($"   - telegraphPrefab: {(activeData.telegraphPrefab != null ? activeData.telegraphPrefab.name : "NULL")}");
+        Debug.Log($"   - telegraphDuration: {activeData.telegraphDuration}");
         
         // ⭐ PlayerRuntimeStats에서 최종 공격력 가져오기
         var playerStats = GetComponent<PlayerRuntimeStats>();
@@ -620,18 +708,68 @@ public class SkillController : MonoBehaviour
         float damageMultiplier = skillInstance.GetCurrentDamage();
         int finalDamage = Mathf.RoundToInt(playerStats.FinalAttackDamage * (damageMultiplier / 100f));
         
-        Debug.Log($"💥 [SkillController] 데미지 계산:");
-        Debug.Log($"   - 플레이어 공격력: {playerStats.FinalAttackDamage:F0}");
-        Debug.Log($"   - 스킬 배율: {damageMultiplier}%");
-        Debug.Log($"   - 최종 데미지: {finalDamage}");
+        Debug.Log($"💥 [SkillController] 데미지 계산: {finalDamage}");
         
-        // ⭐ VFX 발행 — DelayedSkillExecution과 동일한 방식
-        Vector2 vfxDir = GetAttackDirection();
-        Transform vfxFirePoint = FindFirePoint();
-        Vector3 vfxPos = vfxFirePoint != null ? vfxFirePoint.position : transform.position;
-        EmitSkillCues(activeData, vfxDir, vfxPos);
+        // telegraph가 있으면 코루틴, 없으면 즉시 실행
+        if (activeData.telegraphPrefab != null && activeData.telegraphDuration > 0f)
+        {
+            StartCoroutine(ExecuteWithTelegraph(activeData, skillInstance, finalDamage, slotIndex));
+        }
+        else
+        {
+            FireSkillImmediate(activeData, skillInstance, finalDamage, slotIndex);
+        }
+    }
+    
+    /// <summary>
+    /// Telegraph 표시 후 스킬 발사 (코루틴)
+    /// </summary>
+    private IEnumerator ExecuteWithTelegraph(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
+    {
+        Vector2 attackDir = GetAttackDirection();
+        Transform firePoint = FindFirePoint();
+        Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
         
-        // ⭐ isProjectile 분기
+        // Telegraph 생성 (offset 적용)
+        Vector3 telegraphPos = CalculateTelegraphSpawnPos(skillPos, attackDir, activeData.telegraphOffset);
+        Quaternion telegraphRot = CalculateTelegraphRotation(activeData.aoeShape, attackDir);
+        GameObject telegraphObj = Instantiate(activeData.telegraphPrefab, telegraphPos, telegraphRot);
+        
+        var telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
+        if (telegraph != null)
+        {
+            telegraph.InitializeForPlayer(
+                shape: ConvertToAOEShapeType(activeData.aoeShape),
+                position: telegraphPos,
+                radius: activeData.aoeRadius,
+                size: activeData.aoeSize,
+                angle: activeData.aoeFanAngle,
+                displayDuration: activeData.telegraphDuration,
+                forward: (Vector3)attackDir
+            );
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"📍 [SkillController] Telegraph 표시 (AnimEvent): {activeData.aoeShape}, offset={activeData.telegraphOffset}, pos={telegraphPos}, {activeData.telegraphDuration}초 대기");
+        
+        yield return new WaitForSeconds(activeData.telegraphDuration);
+        
+        FireSkillImmediate(activeData, skillInstance, finalDamage, slotIndex);
+    }
+    
+    /// <summary>
+    /// VFX + 데미지 즉시 발사 (telegraph 없을 때 또는 telegraph 대기 후)
+    /// </summary>
+    private void FireSkillImmediate(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
+    {
+        Vector2 attackDir = GetAttackDirection();
+        Transform firePoint = FindFirePoint();
+        Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
+        
+        // VFX 발행
+        EmitSkillCues(activeData, attackDir, skillPos);
+        
+        // isProjectile 분기
         Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
         
         if (activeData.isProjectile)
@@ -645,7 +783,7 @@ public class SkillController : MonoBehaviour
             SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
         }
         
-        Debug.Log($"✅ [SkillController] ExecuteSkillFromAnimationEvent 완료");
+        Debug.Log($"✅ [SkillController] FireSkillImmediate 완료");
     }
     
     /// <summary>
@@ -704,6 +842,7 @@ public class SkillController : MonoBehaviour
         {
             position = emitPos,
             rotation = Quaternion.Euler(0f, 0f, angle),
+            facingDir = direction,
             actorType = ActorType.Player,
             magnitude = 1.0f
         };
@@ -719,6 +858,7 @@ public class SkillController : MonoBehaviour
             {
                 position = emitPos,
                 rotation = Quaternion.Euler(0f, 0f, angle),
+                facingDir = direction,
                 actorType = ActorType.Player,
                 magnitude = 2.0f
             };

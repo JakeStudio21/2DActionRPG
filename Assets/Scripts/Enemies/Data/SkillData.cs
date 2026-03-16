@@ -97,6 +97,9 @@ public class SkillData : ScriptableObject
     
     [Tooltip("텔레그래프 색상")]
     [SerializeField] private Color telegraphColor = new Color(1f, 0f, 0f, 0.5f); // 반투명 빨간색
+    
+    [Tooltip("텔레그래프 위치 오프셋 (공격 방향 기준)\nX: 전방 거리 (양수 = 앞, 음수 = 뒤)\nY: 측면 거리 (양수 = 우측, 음수 = 좌측)")]
+    [SerializeField] private Vector2 telegraphOffset = Vector2.zero;
 
     [Header("🎨 이펙트")]
     [Tooltip("캐스팅 시작 이펙트 (몬스터 주변)")]
@@ -181,6 +184,7 @@ public class SkillData : ScriptableObject
     public GameObject TelegraphPrefab => telegraphPrefab;
     public float TelegraphDuration => telegraphDuration;
     public Color TelegraphColor => telegraphColor;
+    public Vector2 TelegraphOffset => telegraphOffset;
     public GameObject CastEffect => castEffect;
     public GameObject AoeEffect => aoeEffect;
     public GameObject HitEffect => hitEffect;

@@ -167,9 +167,37 @@ namespace CueSystem
                 }
             }
             
-            // 위치 계산
+            // facingDir 폴백: facingDir가 없는 호출처(SkillController 등)를 위해 rotation에서 유도
+            Vector2 facing = context.facingDir.magnitude > 0.1f
+                ? context.facingDir
+                : (Vector2)(context.rotation * Vector3.right);
+
+            bool facingLeft = facing.x < 0f;
+
+            // offset 위치는 rotationMode와 무관하게 항상 공격 방향 기준으로 계산
+            // (rotationMode는 VFX 오브젝트의 시각적 회전만 결정)
             Vector3 spawnPos = context.position + context.rotation * vfxCue.offset;
-            Quaternion spawnRot = context.rotation;
+
+            // rotationMode — VFX 오브젝트 자체의 회전만 결정
+            Quaternion spawnRot;
+            switch (vfxCue.rotationMode)
+            {
+                case VFXRotationMode.Fixed:
+                    // 비주얼 회전 완전 고정 (바닥 장판, 원형 AOE 등 방향 무관 이펙트)
+                    spawnRot = Quaternion.identity;
+                    break;
+
+                case VFXRotationMode.HorizontalFlip:
+                    // 왼쪽 공격 시 Y축 180° 반전 (메테오·비대칭 AOE 등 오른쪽 기준 이펙트)
+                    // scale.x=-1 대신 Y축 회전을 사용해 파티클·자식 스케일 오염 방지
+                    spawnRot = facingLeft ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+                    break;
+
+                default: // Follow
+                    // 공격 방향 그대로 상속 (화살, 파이어볼 등 방향성 이펙트)
+                    spawnRot = context.rotation;
+                    break;
+            }
             
             // 🔒 내부 전용 스폰 (직참조 차단)
             var vfxObj = GamePoolWrapper.InternalSpawnFromPool(vfxCue.poolKey, spawnPos, spawnRot);

@@ -121,8 +121,8 @@ public class BossAOESkill : MonoBehaviour
         Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
         SpawnAOEEffectAtCenter(skillEntry, effectPosition, targetDirection);
         
-        // 데미지 판정 실행
-        damageArea.PerformDamage();
+        // ⭐ PerformDamage()는 Initialize() → ExecuteDamagePolicy() 내부에서 이미 호출됨
+        // 여기서 다시 호출하면 Once 정책 기준 데미지가 2회 적용되므로 제거
         
         // ⭐ Phase 3: AOE 지속시간 후 제거 (Tick/Window 정책 대응)
         // aoeDuration + 여유시간(0.5초)을 주어 정책이 완전히 실행되도록 보장

@@ -31,17 +31,18 @@ MonoBehaviour:
   range: 8
   castCueKey: skill.Arrow_Rain.cast
   aoeCueKey: skill.Arrow_Rain.aoe
-  aoeShape: 2
-  aoeSize: {x: 3, y: 3}
-  aoeRadius: 5
+  aoeShape: 0
+  aoeSize: {x: 6, y: 6}
+  aoeRadius: 6
   aoeFanAngle: 60
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
-  telegraphDuration: 0.3
+  telegraphDuration: 1
+  telegraphOffset: {x: 6, y: 0}
   isPiercing: 0
   multiHitCount: 1
-  projectileCount: 3
-  projectilePrefab: {fileID: 0}
+  projectileCount: 1
+  projectilePrefab: {fileID: 4149642069968341746, guid: 117d6b0786fe28d45a44ff16cd88f302, type: 3}
   projectileSpeed: 10
   spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}

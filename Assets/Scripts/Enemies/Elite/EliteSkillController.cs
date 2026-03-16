@@ -399,8 +399,16 @@ public class EliteSkillController : MonoBehaviour
     {
         if (currentSkill == null || currentSkill.TelegraphPrefab == null) return;
         
-        // ⭐ Phase 3: Origin 위치에 생성 (보스 방식과 동일)
+        // telegraphOffset이 설정된 경우: forward/right 방향 기준 오프셋 적용
+        // telegraphOffset == Vector2.zero인 경우: 기존 AdjustTelegraphPositionForCenterMode() 로직으로 fallback
         Vector3 spawnPosition = cachedOrigin;
+        Vector2 offset = currentSkill.TelegraphOffset;
+        if (offset != Vector2.zero)
+        {
+            Vector2 forward = ((Vector2)cachedTargetDirection).normalized;
+            Vector2 right = new Vector2(-forward.y, forward.x);
+            spawnPosition += (Vector3)(forward * offset.x) + (Vector3)(right * offset.y);
+        }
         
         // ⭐ Phase 6: 회전 적용 (보스와 동일하게 cachedTargetDirection 기반)
         Quaternion rotation = CalculateTelegraphRotation();
@@ -426,8 +434,9 @@ public class EliteSkillController : MonoBehaviour
         {
             indicator.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
             
-            // ⭐ Phase 3: Center Mode에 따라 Telegraph 위치 조정 (DamageArea와 동일)
-            AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
+            // telegraphOffset == zero인 경우만 기존 CenterMode 방식으로 fallback (하위 호환성)
+            if (currentSkill.TelegraphOffset == Vector2.zero)
+                AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
             
             if (enableDebugLogs)
             {
@@ -442,8 +451,9 @@ public class EliteSkillController : MonoBehaviour
             {
                 indicatorMesh.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
                 
-                // ⭐ Phase 3: Center Mode에 따라 Telegraph 위치 조정 (DamageArea와 동일)
-                AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
+                // telegraphOffset == zero인 경우만 기존 CenterMode 방식으로 fallback (하위 호환성)
+                if (currentSkill.TelegraphOffset == Vector2.zero)
+                    AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
                 
                 if (enableDebugLogs)
                 {
@@ -631,8 +641,8 @@ public class EliteSkillController : MonoBehaviour
             Debug.Log($"   - DamageArea와 VFX 위치 동기화 완료! (Left Pivot 보정 적용)");
         }
         
-        // 데미지 판정 실행
-        damageArea.PerformDamage();
+        // ⭐ PerformDamage()는 Initialize() → ExecuteDamagePolicy() 내부에서 이미 호출됨
+        // 여기서 다시 호출하면 Once 정책 기준 데미지가 2회 적용되므로 제거
         
         // ⭐ Phase 3: AOE 지속시간 후 제거 (Tick/Window 정책 대응)
         // aoeDuration + 여유시간(0.5초)을 주어 정책이 완전히 실행되도록 보장
@@ -924,22 +934,18 @@ public class EliteSkillController : MonoBehaviour
     {
         // Cast 시작 시점에 저장한 방향 사용 (Telegraph와 실제 스킬 싱크 맞춤)
         Vector3 direction = cachedTargetDirection;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         
-        // AOE 형태별 회전 처리
+        // Circle: Fixed(회전 불필요), Fan/Rectangle: Follow(공격 방향)
         switch (currentSkill.AoeShape)
         {
             case AOEShapeType.Circle:
-                // ⭐ 원형도 플레이어 방향 적용 (메테오 등 방향성 이펙트 지원)
-                return Quaternion.Euler(0, 0, angle);
+                return Quaternion.identity;
             
             case AOEShapeType.Triangle:
             case AOEShapeType.Rectangle:
-                // 삼각형(Fan)/직사각형: 플레이어 방향
-                return Quaternion.Euler(0, 0, angle);
-            
             default:
-                return Quaternion.Euler(0, 0, angle);
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                return Quaternion.Euler(0f, 0f, angle);
         }
     }
 

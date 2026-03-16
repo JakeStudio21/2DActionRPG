@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 507309305805102008}
   - component: {fileID: 5211488974049482479}
   - component: {fileID: 3765800727767382200}
+  - component: {fileID: -4932067162203504823}
   m_Layer: 6
   m_Name: Elite_SandGolem
   m_TagString: Enemy
@@ -194,6 +195,7 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 6935039637879996987, guid: 30280503994122d4fb0a396f9d9db5de, type: 3}
   healthBarOffsetY: 6
   basicHealthBarPrefab: {fileID: 0}
+  immunityDuration: 0.5
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,6 +373,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 0463628152ba53843830e0c7f8f95f1a, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  cueProfile: {fileID: 0}
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
@@ -472,6 +475,23 @@ NavMeshAgent:
   m_BaseOffset: 1.44
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!114 &-4932067162203504823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 358a4c46f0299994083ed3d5cd7498b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerType: 0
+  defaultSprite: {fileID: 21300000, guid: 711e54b18d920433a89247353713f9a8, type: 3}
+  arrowSprite: {fileID: 21300000, guid: 0fdf4afe84c9c4e3f9c07b2c567d565b, type: 3}
+  markerColor: {r: 1, g: 1, b: 1, a: 1}
+  isOutOfBounds: 0
 --- !u!1 &5935677080312344865
 GameObject:
   m_ObjectHideFlags: 0

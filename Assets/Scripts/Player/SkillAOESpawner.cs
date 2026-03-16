@@ -144,9 +144,14 @@ public static class SkillAOESpawner
     /// <summary>
     /// 비주얼 이펙트 추가 (간단한 디버그 표시)
     /// ⭐ Transform.localScale로 콜라이더와 비주얼 동시 조절
+    /// Telegraph 프리팹이 X축 45° 회전(아이소메트릭)으로 제작되어 있으므로
+    /// 데미지 콜라이더도 동일 비율(cos45° ≈ 0.7071)로 Y축을 눌러 일치시킴
     /// </summary>
     private static void AddVisualEffect(GameObject aoe, SkillAOEShape shape, Vector2 size)
     {
+        // Telegraph X축 45° 회전의 시각적 Y 압축 비율: cos(45°) = √2/2 ≈ 0.7071
+        const float IsometricYRatio = 0.7071f;
+        
         // 간단한 SpriteRenderer 추가 (반투명 표시)
         var spriteRenderer = aoe.AddComponent<SpriteRenderer>();
         
@@ -163,21 +168,24 @@ public static class SkillAOESpawner
         {
             case SkillAOEShape.Circle:
                 // CircleCollider: radius=0.5 (지름 1) → size.x로 스케일
-                aoe.transform.localScale = new Vector3(size.x * 2f, size.x * 2f, 1f);
-                Debug.Log($"🔵 [SkillAOESpawner] Circle Scale 설정: {size.x * 2f} (반지름 {size.x})");
+                // Y를 IsometricYRatio로 눌러 Telegraph 아이소메트릭 타원과 일치
+                aoe.transform.localScale = new Vector3(size.x * 2f, size.x * 2f * IsometricYRatio, 1f);
+                Debug.Log($"🔵 [SkillAOESpawner] Circle Scale 설정: X={size.x * 2f}, Y={size.x * 2f * IsometricYRatio:F3} (아이소메트릭 비율 {IsometricYRatio})");
                 break;
                 
             case SkillAOEShape.Rectangle:
             case SkillAOEShape.Line:
                 // BoxCollider: size=1×1 → size.x, size.y로 스케일
-                aoe.transform.localScale = new Vector3(size.x, size.y, 1f);
-                Debug.Log($"🔲 [SkillAOESpawner] Rectangle Scale 설정: ({size.x}, {size.y})");
+                // Y를 IsometricYRatio로 눌러 Telegraph 아이소메트릭 직사각형과 일치
+                aoe.transform.localScale = new Vector3(size.x, size.y * IsometricYRatio, 1f);
+                Debug.Log($"🔲 [SkillAOESpawner] Rectangle Scale 설정: X={size.x}, Y={size.y * IsometricYRatio:F3} (아이소메트릭 비율 {IsometricYRatio})");
                 break;
                 
             case SkillAOEShape.Fan:
                 // PolygonCollider: radius=1 → size.x로 스케일
-                aoe.transform.localScale = new Vector3(size.x, size.x, 1f);
-                Debug.Log($"🌀 [SkillAOESpawner] Fan Scale 설정: {size.x}");
+                // Y를 IsometricYRatio로 눌러 Telegraph 아이소메트릭 부채꼴과 일치
+                aoe.transform.localScale = new Vector3(size.x, size.x * IsometricYRatio, 1f);
+                Debug.Log($"🌀 [SkillAOESpawner] Fan Scale 설정: X={size.x}, Y={size.x * IsometricYRatio:F3} (아이소메트릭 비율 {IsometricYRatio})");
                 break;
         }
         

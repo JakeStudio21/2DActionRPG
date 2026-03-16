@@ -4,6 +4,22 @@ using System.Collections.Generic;
 namespace CueSystem
 {
     /// <summary>
+    /// 이펙트 오브젝트에 적용할 회전 처리 방식
+    /// Follow   : context.rotation 그대로 상속 (화살, 파이어볼 등 방향성 이펙트)
+    /// Fixed    : 항상 Quaternion.identity — 바닥 장판처럼 방향 무관한 이펙트
+    /// HorizontalFlip : X방향만 보고 좌우 반전(Y축 180°) — 메테오·비대칭 AOE처럼
+    ///            오른쪽 기준으로 만들어진 이펙트를 왼쪽 공격 시 자연스럽게 뒤집을 때 사용.
+    ///            scale.x=-1 대신 Y축 회전을 쓰는 이유: 파티클·자식 오브젝트에 음수 스케일이
+    ///            전파되면 충돌체·소팅·파티클 방향이 꼬이는 버그를 방지하기 위함.
+    /// </summary>
+    public enum VFXRotationMode
+    {
+        Follow,
+        Fixed,
+        HorizontalFlip
+    }
+
+    /// <summary>
     /// 🎵 VFX Cue 데이터 (단일 비주얼 이펙트)
     /// </summary>
     [System.Serializable]
@@ -18,6 +34,9 @@ namespace CueSystem
         public Vector3 offset = Vector3.zero;
         public Vector3 scale = Vector3.one;
         public bool followTarget = false;  // 타겟 따라다니기
+        
+        [Header("🔄 회전 처리")]
+        public VFXRotationMode rotationMode = VFXRotationMode.Follow;
         
         [Header("🎮 게임플레이")]
         public int priority = 50;         // 우선순위 (0~100)

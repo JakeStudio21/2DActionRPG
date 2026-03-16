@@ -17,20 +17,22 @@ MonoBehaviour:
   baseProfile: {fileID: 11400000, guid: 1970a8983fce55b449e7de0795a13329, type: 2}
   vfxCatalog:
   - vfxId: SkillArrowRainCast
-    poolKey: FX_PF_Fire_Projectile
+    poolKey: WarriorSlashAreaEffect
     duration: 3
-    offset: {x: 0, y: 0, z: 0}
+    offset: {x: 6, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 2
     priority: 50
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9 VFX"
   - vfxId: SkillArrowRainAoe
-    poolKey: MultiArrowBurst
+    poolKey: Fx_AOE_ArrowRain_Nature
     duration: -1
-    offset: {x: 0, y: 0, z: 0}
+    offset: {x: 6, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 1
     priority: 60
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0 VFX"
@@ -40,6 +42,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -49,6 +52,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -58,6 +62,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -67,6 +72,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -76,6 +82,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -85,6 +92,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -94,6 +102,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -103,6 +112,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -112,6 +122,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -121,6 +132,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -130,6 +142,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -139,6 +152,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -148,6 +162,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
@@ -157,6 +172,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"

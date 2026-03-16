@@ -428,5 +428,23 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: Fx_AOE_ArrowRain_Nature
+    prefab: {fileID: 1851157920771873509, guid: 77da7451b9bfb014db0328827255a147, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ArrowRain
+    prefab: {fileID: 4149642069968341746, guid: 117d6b0786fe28d45a44ff16cd88f302, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: WarriorSlashAreaEffect
+    prefab: {fileID: 3156866507962234106, guid: c37d9a12995e3d5458ca015d30db56df, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 1

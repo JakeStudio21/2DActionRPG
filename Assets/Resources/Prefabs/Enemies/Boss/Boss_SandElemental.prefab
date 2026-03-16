@@ -30,6 +30,7 @@ GameObject:
   - component: {fileID: -6743165854896849057}
   - component: {fileID: -7579856380117773579}
   - component: {fileID: -207883506805998640}
+  - component: {fileID: -6330058761899472109}
   m_Layer: 6
   m_Name: Boss_SandElemental
   m_TagString: Enemy
@@ -197,6 +198,7 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 6
   basicHealthBarPrefab: {fileID: 0}
+  immunityDuration: 0.5
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -405,6 +407,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 47f1c635cc2b91b43abab5cd8581f492, type: 2}
   growthProfile: {fileID: 11400000, guid: 73e684708e02e3b49ae3d3894e85378a, type: 2}
   currentLevel: 1
+  cueProfile: {fileID: 0}
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
@@ -542,6 +545,23 @@ NavMeshAgent:
   m_BaseOffset: 1.44
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!114 &-6330058761899472109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 358a4c46f0299994083ed3d5cd7498b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerType: 0
+  defaultSprite: {fileID: 21300000, guid: 711e54b18d920433a89247353713f9a8, type: 3}
+  arrowSprite: {fileID: 21300000, guid: 0fdf4afe84c9c4e3f9c07b2c567d565b, type: 3}
+  markerColor: {r: 1, g: 1, b: 1, a: 1}
+  isOutOfBounds: 0
 --- !u!1 &3912020419606282628
 GameObject:
   m_ObjectHideFlags: 0

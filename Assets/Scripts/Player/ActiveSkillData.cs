@@ -62,6 +62,9 @@ public class ActiveSkillData : BaseSkillData
     [Tooltip("텔레그래프 표시 시간")]
     public float telegraphDuration = 0.3f;
     
+    [Tooltip("텔레그래프 위치 오프셋 (공격 방향 기준)\nX: 전방 거리 (양수 = 앞, 음수 = 뒤)\nY: 측면 거리 (양수 = 우측, 음수 = 좌측)")]
+    public Vector2 telegraphOffset = Vector2.zero;
+    
     [Header("🎯 특수 속성")]
     [Tooltip("관통 공격 여부")]
     public bool isPiercing = false;

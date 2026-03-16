@@ -136,6 +136,21 @@ public class TelegraphIndicator : MonoBehaviour
         // 위치 설정
         transform.position = adjustedPosition;
         
+        // shape별 회전 설정 (Instantiate 시 rotation이 없는 레거시 경로 보완)
+        // Circle: Fixed(identity), Fan/Rectangle: Follow(forward 방향)
+        if (forward != Vector3.zero)
+        {
+            if (shape == AOEShapeType.Circle)
+            {
+                transform.rotation = Quaternion.identity;
+            }
+            else
+            {
+                float rotAngle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.Euler(0f, 0f, rotAngle);
+            }
+        }
+        
         // ⭐ 색상 설정
         Color baseColor = (casterType == AOECasterType.Enemy) ? enemyTelegraphColor : playerTelegraphColor;
         this.targetAlpha = baseColor.a; // ⭐ 목표 알파값 저장
