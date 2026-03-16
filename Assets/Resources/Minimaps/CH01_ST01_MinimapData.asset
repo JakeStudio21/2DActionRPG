@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20d39468664b7a54bab28970551be5ac, type: 3}
+  m_Name: CH01_ST01_MinimapData
+  m_EditorClassIdentifier: 
+  mapSprite: {fileID: 21300000, guid: db351cb537ee41949b49678d96f7b230, type: 3}
+  worldMin: {x: -10.75, y: -79.75}
+  worldMax: {x: 187.75, y: 118.75}

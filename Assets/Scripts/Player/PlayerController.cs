@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     public bool FacingLeft { get { return facingLeft; } }
     public Vector2 Movement { get { return movement; } }
 
+    /// <summary>미니맵 마커 회전에 사용할 플레이어 이동 방향 (정규화된 벡터)</summary>
+    public Vector2 FacingDirection { get; private set; } = Vector2.down;
+
     [SerializeField] private float moveSpeed = 1f;
     [SerializeField] private float dashspeed = 4f;
     [SerializeField] private TrailRenderer myTrailRenderer;
@@ -385,6 +388,10 @@ public class PlayerController : MonoBehaviour
 
         // ✅ 핵심 개선: 즉각적인 속도 적용 (관성 완전 제거)
         rb.velocity = targetVelocity;
+
+        // 미니맵 마커 방향 갱신
+        if (targetVelocity.sqrMagnitude > 0.01f)
+            FacingDirection = targetVelocity.normalized;
 
         // ✅ 추가: 물리 드래그 동적 조정 (더 반응적으로)
         rb.drag = movement.sqrMagnitude > 0.01f ? 0f : 15f; // 이동 중: 드래그 0, 정지 시: 높은 드래그

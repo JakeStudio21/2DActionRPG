@@ -102,7 +102,16 @@ public class PlayerSpawner : MonoBehaviour
         yield return null;
         
         Debug.Log("[PlayerSpawner] 플레이어 후처리 시작");
-        
+
+        // 미니맵 시스템에 플레이어 참조 주입
+        // MinimapManager.Start()는 플레이어 스폰 전에 실행되므로 여기서 직접 전달한다.
+        if (MinimapManager.Instance != null && spawnedPlayer != null)
+        {
+            var playerController = spawnedPlayer.GetComponent<PlayerController>();
+            MinimapManager.Instance.SetPlayer(spawnedPlayer.transform, playerController);
+            Debug.Log("[PlayerSpawner] MinimapManager에 플레이어 참조 주입 완료");
+        }
+
         // 🆕 핵심 수정: PlayerDataManager에 현재 캐릭터 타입 설정
         if (PlayerDataManager.Instance != null && GameManager.Instance?.selectedPlayerData != null)
         {
