@@ -19,7 +19,7 @@ MonoBehaviour:
   - vfxId: SkillArrowRainCast
     poolKey: WarriorSlashAreaEffect
     duration: 3
-    offset: {x: 6, y: 0, z: 0}
+    offset: {x: 8, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     rotationMode: 2
@@ -29,7 +29,7 @@ MonoBehaviour:
   - vfxId: SkillArrowRainAoe
     poolKey: Fx_AOE_ArrowRain_Nature
     duration: -1
-    offset: {x: 6, y: 0, z: 0}
+    offset: {x: 8, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     rotationMode: 1

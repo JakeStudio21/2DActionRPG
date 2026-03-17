@@ -140,9 +140,6 @@ public class PlayerAnimationController : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"🟢 [PlayerAnimationController] SkillController 찾음: {skillController.name}");
             
-            // ⭐ 제거: SkillController에서 쿨다운 시간 가져오기
-            // skill1Cooldown = skillController.CooldownTime;
-            
             // ⭐ 새로운 방식: 기본값 사용 또는 SkillSet에서 조회
             var skill1 = skillController.SkillSet?.GetSkill(0);
             if (skill1 != null)
@@ -151,6 +148,10 @@ public class PlayerAnimationController : MonoBehaviour
                 if (showDebugLogs)
                     Debug.Log($"🎯 [PlayerAnimationController] 스킬1 쿨다운: {skill1Cooldown}초");
             }
+
+            // 스킬 실행 완료 이벤트 구독 (중복 방지 — -= 후 +=)
+            skillController.OnSkillExecutionComplete -= HandleSkillExecutionComplete;
+            skillController.OnSkillExecutionComplete += HandleSkillExecutionComplete;
         }
         
         // 초기 Animation Parameters 설정
@@ -665,17 +666,16 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnSkill1Complete()
     {
-        // Animation Parameters 리셋
         if (HasParameter(animator, "isSkill1"))
             animator.SetBool(IS_SKILL1_HASH, false);
         
-        // 스킬1 이동 제한 해제
-        if (playerController != null)
+        // Telegraph/Effect 딜레이가 진행 중이면 이동 해제를 SkillController 이벤트에 위임
+        bool skillPending = skillController != null && skillController.IsSkillPendingExecution;
+        if (!skillPending && playerController != null)
         {
             playerController.RestoreNormalMovement();
         }
         
-        // 스킬1 쿨다운 시작
         StartCoroutine(Skill1CooldownRoutine());
     }
     
@@ -718,17 +718,16 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnSkill2Complete()
     {
-        // Animation Parameters 리셋
         if (HasParameter(animator, "isSkill2"))
             animator.SetBool(IS_SKILL2_HASH, false);
         
-        // 스킬2 이동 제한 해제
-        if (playerController != null)
+        // Telegraph/Effect 딜레이가 진행 중이면 이동 해제를 SkillController 이벤트에 위임
+        bool skillPending = skillController != null && skillController.IsSkillPendingExecution;
+        if (!skillPending && playerController != null)
         {
             playerController.RestoreNormalMovement();
         }
         
-        // 스킬2 쿨다운 시작
         StartCoroutine(Skill2CooldownRoutine());
     }
     
@@ -931,6 +930,13 @@ public class PlayerAnimationController : MonoBehaviour
                 animator.SetBool(IS_SKILL2_HASH, false);
                 Debug.Log("🟡 [PlayerAnimationController] 스킬2 중단됨");
             }
+
+            // ⭐ 스킬 실행 중(Telegraph/딜레이 대기 포함)이면 강제 취소 → 이동 해제 이벤트 발행
+            if (skillController != null && skillController.IsSkillPendingExecution)
+            {
+                skillController.CancelSkillExecution();
+                Debug.Log("🟡 [PlayerAnimationController] 피격으로 스킬 실행 취소됨");
+            }
             
             // ⭐ 피격 상태 시작
             if (HasParameter(animator, "isHit"))
@@ -1035,6 +1041,25 @@ public class PlayerAnimationController : MonoBehaviour
             Debug.Log($"   IsHit (Animator): {animator.GetBool(IS_HIT_HASH)}"); // ⭐ 피격 상태 추가
         Debug.Log($"   Has Weapon: {activeWeapon?.CurrentActiveWeapon != null}");
         Debug.Log($"   Has SkillController: {skillController != null}"); // ⭐ 추가
+    }
+
+    private void OnDestroy()
+    {
+        if (skillController != null)
+            skillController.OnSkillExecutionComplete -= HandleSkillExecutionComplete;
+    }
+
+    /// <summary>
+    /// SkillController.OnSkillExecutionComplete 수신 — 이동 해제 처리
+    /// slotIndex == -1 은 취소(피격 등)를 의미
+    /// </summary>
+    private void HandleSkillExecutionComplete(int slotIndex)
+    {
+        if (playerController != null)
+            playerController.RestoreNormalMovement();
+
+        if (showDebugLogs)
+            Debug.Log($"✅ [PlayerAnimationController] 스킬 실행 완료 수신 (슬롯 {slotIndex}) → 이동 해제");
     }
 
     void Update()

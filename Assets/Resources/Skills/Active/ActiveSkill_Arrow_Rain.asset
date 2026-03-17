@@ -33,12 +33,14 @@ MonoBehaviour:
   aoeCueKey: skill.Arrow_Rain.aoe
   aoeShape: 0
   aoeSize: {x: 6, y: 6}
-  aoeRadius: 6
+  aoeRadius: 4
   aoeFanAngle: 60
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
-  telegraphDuration: 1
-  telegraphOffset: {x: 6, y: 0}
+  telegraphDuration: 0.5
+  telegraphOffset: {x: 8, y: 0}
+  castEffectDelay: 0
+  aoeEffectDelay: 0.3
   isPiercing: 0
   multiHitCount: 1
   projectileCount: 1

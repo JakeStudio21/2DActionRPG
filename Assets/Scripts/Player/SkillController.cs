@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 using CueSystem;
 
 /// <summary>
@@ -34,6 +35,15 @@ public class SkillController : MonoBehaviour
     
     // ⭐ Phase 4: 마지막 공격 방향 저장 (기본공격 패턴과 동일)
     private Vector2 lastAttackDirection = Vector2.right;
+    
+    // ─── 스킬 실행 상태 ───────────────────────────────────────────────────
+    /// <summary>Telegraph 대기 또는 Effect 딜레이가 진행 중인지 여부 (PlayerAnimationController가 참조)</summary>
+    public bool IsSkillPendingExecution { get; private set; }
+    
+    /// <summary>스킬 실행 완전 완료 시 발행 (slotIndex, -1 = 취소)</summary>
+    public event Action<int> OnSkillExecutionComplete;
+    
+    private Coroutine activeSkillCoroutine;
     
     /// <summary>
     /// SkillSet 프로퍼티 (기존 코드 호환성용)
@@ -457,56 +467,20 @@ public class SkillController : MonoBehaviour
         Debug.Log($"   - 최종 데미지: {finalDamage}");
         Debug.Log($"   - 쿨다운: {skillInstance.GetCurrentCooldown()}초");
         
-        // 공격 방향 및 위치 (Telegraph + VFX + AOE 공통 사용)
-        Vector2 attackDir = GetAttackDirection();
-        Transform firePoint = FindFirePoint();
-        Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
-        
-        // ⭐ Telegraph — 프리팹이 설정된 경우 표시 후 대기
+        // 실행 플래그 설정 후 Telegraph/Effect 코루틴에 위임
+        IsSkillPendingExecution = true;
+
         if (activeData.telegraphPrefab != null && activeData.telegraphDuration > 0f)
         {
-            Vector3 telegraphPos = CalculateTelegraphSpawnPos(skillPos, attackDir, activeData.telegraphOffset);
-            Quaternion telegraphRot = CalculateTelegraphRotation(activeData.aoeShape, attackDir);
-            GameObject telegraphObj = Instantiate(activeData.telegraphPrefab, telegraphPos, telegraphRot);
-            
-            var telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
-            if (telegraph != null)
-            {
-                telegraph.InitializeForPlayer(
-                    shape: ConvertToAOEShapeType(activeData.aoeShape),
-                    position: telegraphPos,
-                    radius: activeData.aoeRadius,
-                    size: activeData.aoeSize,
-                    angle: activeData.aoeFanAngle,
-                    displayDuration: activeData.telegraphDuration,
-                    forward: (Vector3)attackDir
-                );
-            }
-            
-            if (showDebugLogs)
-                Debug.Log($"📍 [SkillController] Telegraph 표시: {activeData.aoeShape}, offset={activeData.telegraphOffset}, pos={telegraphPos}, {activeData.telegraphDuration}초 대기");
-            
-            yield return new WaitForSeconds(activeData.telegraphDuration);
-        }
-        
-        // ⭐ VFX 발행 — isProjectile(데미지 방식)과 무관하게 skillType 기반으로 결정
-        EmitSkillCues(activeData, attackDir, skillPos);
-        
-        // ⭐ isProjectile 분기: 발사체 vs 즉발형 AoE (데미지 처리만 담당)
-        Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
-        
-        if (activeData.isProjectile)
-        {
-            Debug.Log("🏹 [SkillController] 발사체 모드 진입");
-            FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
+            activeSkillCoroutine = StartCoroutine(ExecuteWithTelegraph(activeData, skillInstance, finalDamage, slotIndex));
         }
         else
         {
-            Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
-            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
+            activeSkillCoroutine = StartCoroutine(ExecuteSkillEffects(activeData, skillInstance, finalDamage, slotIndex));
         }
-        
-        Debug.Log($"✅ [SkillController] DelayedSkillExecution 완료");
+
+        if (showDebugLogs)
+            Debug.Log($"✅ [SkillController] DelayedSkillExecution → 코루틴 위임 완료");
     }
     
     /// <summary>
@@ -710,31 +684,43 @@ public class SkillController : MonoBehaviour
         
         Debug.Log($"💥 [SkillController] 데미지 계산: {finalDamage}");
         
-        // telegraph가 있으면 코루틴, 없으면 즉시 실행
+        // 스킬 실행 시작 — 이동 잠금 연장 플래그
+        IsSkillPendingExecution = true;
+
         if (activeData.telegraphPrefab != null && activeData.telegraphDuration > 0f)
         {
-            StartCoroutine(ExecuteWithTelegraph(activeData, skillInstance, finalDamage, slotIndex));
+            activeSkillCoroutine = StartCoroutine(ExecuteWithTelegraph(activeData, skillInstance, finalDamage, slotIndex));
         }
         else
         {
-            FireSkillImmediate(activeData, skillInstance, finalDamage, slotIndex);
+            activeSkillCoroutine = StartCoroutine(ExecuteSkillEffects(activeData, skillInstance, finalDamage, slotIndex));
         }
     }
     
     /// <summary>
     /// Telegraph 표시 후 스킬 발사 (코루틴)
+    /// ① castEffectDelay → Cast Effect
+    /// ② Telegraph 스폰 + telegraphDuration 대기
+    /// ③ aoeEffectDelay → AOE Effect + Damage
     /// </summary>
     private IEnumerator ExecuteWithTelegraph(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
     {
         Vector2 attackDir = GetAttackDirection();
         Transform firePoint = FindFirePoint();
         Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
-        
-        // Telegraph 생성 (offset 적용)
+
+        // ① Cast Effect 딜레이
+        if (activeData.castEffectDelay > 0f)
+            yield return new WaitForSeconds(activeData.castEffectDelay);
+
+        // ② Cast Effect 발동
+        EmitCastCue(activeData, attackDir, skillPos);
+
+        // ③ Telegraph 스폰
         Vector3 telegraphPos = CalculateTelegraphSpawnPos(skillPos, attackDir, activeData.telegraphOffset);
         Quaternion telegraphRot = CalculateTelegraphRotation(activeData.aoeShape, attackDir);
         GameObject telegraphObj = Instantiate(activeData.telegraphPrefab, telegraphPos, telegraphRot);
-        
+
         var telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
         if (telegraph != null)
         {
@@ -748,42 +734,101 @@ public class SkillController : MonoBehaviour
                 forward: (Vector3)attackDir
             );
         }
-        
+
         if (showDebugLogs)
-            Debug.Log($"📍 [SkillController] Telegraph 표시 (AnimEvent): {activeData.aoeShape}, offset={activeData.telegraphOffset}, pos={telegraphPos}, {activeData.telegraphDuration}초 대기");
-        
+            Debug.Log($"📍 [SkillController] Telegraph 표시: {activeData.aoeShape}, {activeData.telegraphDuration}초 대기");
+
+        // ④ Telegraph Duration 대기
         yield return new WaitForSeconds(activeData.telegraphDuration);
-        
-        FireSkillImmediate(activeData, skillInstance, finalDamage, slotIndex);
+
+        // ⑤ AOE Effect 딜레이
+        if (activeData.aoeEffectDelay > 0f)
+            yield return new WaitForSeconds(activeData.aoeEffectDelay);
+
+        // ⑥ AOE Effect + Damage 발동
+        EmitAOECue(activeData, attackDir, skillPos);
+
+        if (activeData.isProjectile)
+            FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
+        else
+            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
+
+        // ⑦ 완료 처리 (이동 해제 이벤트 발행)
+        CompleteSkillExecution(slotIndex);
     }
-    
+
     /// <summary>
-    /// VFX + 데미지 즉시 발사 (telegraph 없을 때 또는 telegraph 대기 후)
+    /// Telegraph 없이 Effect 딜레이만 적용하는 스킬 실행 코루틴
+    /// ① castEffectDelay → Cast Effect
+    /// ② aoeEffectDelay  → AOE Effect + Damage
     /// </summary>
-    private void FireSkillImmediate(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
+    private IEnumerator ExecuteSkillEffects(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
     {
         Vector2 attackDir = GetAttackDirection();
         Transform firePoint = FindFirePoint();
         Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
-        
-        // VFX 발행
-        EmitSkillCues(activeData, attackDir, skillPos);
-        
-        // isProjectile 분기
-        Debug.Log($"🔀 [SkillController] isProjectile 분기: {activeData.isProjectile}");
-        
+
+        // ① Cast Effect 딜레이
+        if (activeData.castEffectDelay > 0f)
+            yield return new WaitForSeconds(activeData.castEffectDelay);
+
+        // ② Cast Effect 발동
+        EmitCastCue(activeData, attackDir, skillPos);
+
+        // ③ AOE Effect 딜레이
+        if (activeData.aoeEffectDelay > 0f)
+            yield return new WaitForSeconds(activeData.aoeEffectDelay);
+
+        // ④ AOE Effect + Damage 발동
+        EmitAOECue(activeData, attackDir, skillPos);
+
         if (activeData.isProjectile)
         {
-            Debug.Log("🏹 [SkillController] 발사체 모드 진입");
+            if (showDebugLogs) Debug.Log("🏹 [SkillController] 발사체 모드 진입");
             FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
         }
         else
         {
-            Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
+            if (showDebugLogs) Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
             SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
         }
-        
-        Debug.Log($"✅ [SkillController] FireSkillImmediate 완료");
+
+        // ⑤ 완료 처리 (이동 해제 이벤트 발행)
+        CompleteSkillExecution(slotIndex);
+    }
+
+    /// <summary>
+    /// 스킬 실행 완료 — 플래그 해제 + 이동 해제 이벤트 발행
+    /// </summary>
+    private void CompleteSkillExecution(int slotIndex)
+    {
+        IsSkillPendingExecution = false;
+        activeSkillCoroutine = null;
+        OnSkillExecutionComplete?.Invoke(slotIndex);
+
+        if (showDebugLogs)
+            Debug.Log($"✅ [SkillController] 스킬 실행 완료 — 슬롯 {slotIndex}, 이동 해제 이벤트 발행");
+    }
+
+    /// <summary>
+    /// 스킬 실행 강제 취소 (피격/사망 시 PlayerAnimationController가 호출)
+    /// 진행 중인 코루틴을 중단하고 이동 해제 이벤트를 강제 발행
+    /// </summary>
+    public void CancelSkillExecution()
+    {
+        if (!IsSkillPendingExecution) return;
+
+        if (activeSkillCoroutine != null)
+        {
+            StopCoroutine(activeSkillCoroutine);
+            activeSkillCoroutine = null;
+        }
+
+        IsSkillPendingExecution = false;
+        OnSkillExecutionComplete?.Invoke(-1); // -1 = 취소
+
+        if (showDebugLogs)
+            Debug.Log("⚠️ [SkillController] 스킬 실행 취소 — 이동 해제 이벤트 강제 발행");
     }
     
     /// <summary>
@@ -827,18 +872,14 @@ public class SkillController : MonoBehaviour
     }
     
     /// <summary>
-    /// 스킬 VFX 발행 — skillType 기반으로 castCueKey / aoeCueKey 결정
-    /// isProjectile(데미지 방식)과 완전히 분리되어 있음:
-    ///   WaveClear(광역기) → castCueKey + aoeCueKey 모두 발행
-    ///   BossBurst(단일기) → castCueKey 만 발행 (aoeCueKey 불필요)
+    /// Cast Effect VFX 발행 (castCueKey)
     /// </summary>
-    private void EmitSkillCues(ActiveSkillData skillData, Vector2 direction, Vector3 emitPos)
+    private void EmitCastCue(ActiveSkillData skillData, Vector2 direction, Vector3 emitPos)
     {
         if (string.IsNullOrEmpty(skillData.castCueKey)) return;
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-        var castCtx = new CueContext
+        var ctx = new CueContext
         {
             position = emitPos,
             rotation = Quaternion.Euler(0f, 0f, angle),
@@ -846,27 +887,33 @@ public class SkillController : MonoBehaviour
             actorType = ActorType.Player,
             magnitude = 1.0f
         };
-        CueEmitter.Emit(skillData.castCueKey, "Player", castCtx);
+        CueEmitter.Emit(skillData.castCueKey, "Player", ctx);
 
         if (showDebugLogs)
             Debug.Log($"✨ [SkillController] Cast Cue: {skillData.castCueKey} ({skillData.skillType})");
+    }
 
-        // aoeCueKey는 WaveClear(광역기)일 때만 발행
-        if (skillData.skillType == ActiveSkillType.WaveClear && !string.IsNullOrEmpty(skillData.aoeCueKey))
+    /// <summary>
+    /// AOE Effect VFX 발행 (aoeCueKey) — WaveClear 스킬에서만 사용
+    /// </summary>
+    private void EmitAOECue(ActiveSkillData skillData, Vector2 direction, Vector3 emitPos)
+    {
+        if (skillData.skillType != ActiveSkillType.WaveClear) return;
+        if (string.IsNullOrEmpty(skillData.aoeCueKey)) return;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        var ctx = new CueContext
         {
-            var aoeCtx = new CueContext
-            {
-                position = emitPos,
-                rotation = Quaternion.Euler(0f, 0f, angle),
-                facingDir = direction,
-                actorType = ActorType.Player,
-                magnitude = 2.0f
-            };
-            CueEmitter.Emit(skillData.aoeCueKey, "Player", aoeCtx);
+            position = emitPos,
+            rotation = Quaternion.Euler(0f, 0f, angle),
+            facingDir = direction,
+            actorType = ActorType.Player,
+            magnitude = 2.0f
+        };
+        CueEmitter.Emit(skillData.aoeCueKey, "Player", ctx);
 
-            if (showDebugLogs)
-                Debug.Log($"✨ [SkillController] AOE Cue: {skillData.aoeCueKey}");
-        }
+        if (showDebugLogs)
+            Debug.Log($"✨ [SkillController] AOE Cue: {skillData.aoeCueKey}");
     }
 
     /// <summary>

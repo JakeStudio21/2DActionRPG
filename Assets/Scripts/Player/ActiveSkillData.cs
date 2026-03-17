@@ -65,6 +65,13 @@ public class ActiveSkillData : BaseSkillData
     [Tooltip("텔레그래프 위치 오프셋 (공격 방향 기준)\nX: 전방 거리 (양수 = 앞, 음수 = 뒤)\nY: 측면 거리 (양수 = 우측, 음수 = 좌측)")]
     public Vector2 telegraphOffset = Vector2.zero;
     
+    [Header("⏱️ 이펙트 타이밍")]
+    [Tooltip("Animation Event 이후 Cast Effect 발동까지의 지연 (초)\n0 = 즉시 발동")]
+    public float castEffectDelay = 0f;
+    
+    [Tooltip("Telegraph 종료 이후 AOE Effect/데미지 발동까지의 추가 지연 (초)\nTelegraph 없는 스킬: Cast Effect 이후 지연\n0 = 즉시 발동")]
+    public float aoeEffectDelay = 0f;
+    
     [Header("🎯 특수 속성")]
     [Tooltip("관통 공격 여부")]
     public bool isPiercing = false;
