@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CueSystem;
 
 /// <summary>
 /// ⭐ AOE 시전자 타입 (CueSystem.ActorType과 구분)
@@ -54,9 +55,8 @@ public class DamageArea : MonoBehaviour
     [SerializeField] private bool checkWallBlocking = true;     // AOE도 벽 차단 체크
     [SerializeField] private LayerMask wallLayer;               // Wall Layer (런타임 자동 설정)
     
-    [Header("🎨 이펙트")]
-    [SerializeField] private GameObject hitEffect;              // 피격 이펙트
-    [SerializeField] private float shakeIntensity = 0f;         // 스크린 셰이크 강도
+    [Header("🎵 CueSystem")]
+    [SerializeField] private string hitCueKey;                  // 피격 연출 키 (VFX/SFX/Shake 통합)
     
     [Header("🎮 디버그")]
     [SerializeField] private bool enableDebugLogs = false;  // ⭐ 릴리즈용: false (테스트 시 true로 변경)
@@ -213,9 +213,8 @@ public class DamageArea : MonoBehaviour
             targetLayerMask = playerLayer;
         }
         
-        // 이펙트 설정
-        hitEffect = skillData.HitEffect;
-        shakeIntensity = skillData.ShakeIntensity;
+        // CueSystem 키 설정
+        hitCueKey = skillData.HitCueKey;
         
         // ⭐ Phase 3: SkillData에서 Window/Tick 정책 정보 복사
         // (damagePolicy는 Initialize()에서 이미 설정되었지만, duration/interval은 여기서 설정)
@@ -329,23 +328,22 @@ public class DamageArea : MonoBehaviour
             // ⭐ ApplyDamageToTarget 호출 (Player/Enemy 자동 판별)
             ApplyDamageToTarget(hit);
             hitCount++;
+            
+            // 🎵 피격 대상 위치에 타격 연출 발동 (CueSystem 위임)
+            if (!string.IsNullOrEmpty(hitCueKey))
+            {
+                string hitDomain = casterType == AOECasterType.Player ? "Player" : "Enemy";
+                CueEmitter.Emit(hitCueKey, hitDomain, new CueContext { position = hit.transform.position });
+                
+                if (enableDebugLogs)
+                    Debug.Log($"🎵 [DamageArea] Emit: key={hitCueKey}, domain={hitDomain}, pos={hit.transform.position}");
+            }
         }
         
         // 🧱 벽 차단 통계 로그
         if (enableDebugLogs && (blockedCount > 0 || hitCount > 0))
         {
             Debug.Log($"📊 [DamageArea] 결과: {hitCount}개 타격, {blockedCount}개 벽에 막힘");
-        }
-        
-        
-        // 스크린 셰이크 (한 번만)
-        if (shakeIntensity > 0f && processedTargets.Count > 0)
-        {
-            // TODO: 스크린 셰이크 구현
-            if (enableDebugLogs)
-            {
-                Debug.Log($"   - 스크린 셰이크: {shakeIntensity}");
-            }
         }
     }
     
@@ -378,9 +376,8 @@ public class DamageArea : MonoBehaviour
         centerOffset = skillData.AoeCenterOffset;
         damageMultiplier = skillData.DamageMultiplier;
         
-        // 이펙트 설정
-        hitEffect = skillData.HitEffect;
-        shakeIntensity = skillData.ShakeIntensity;
+        // CueSystem 키 설정
+        hitCueKey = skillData.HitCueKey;
         
         // ⭐ 정책 설정
         damagePolicy = policy;
@@ -429,7 +426,7 @@ public class DamageArea : MonoBehaviour
         float damageMultiplier = 1.0f,
         float scaleMultiplier = 1.0f,
         AOEDamagePolicy policy = AOEDamagePolicy.Once,
-        GameObject hitEffectPrefab = null)
+        string hitCueKey = null)
     {
         // 개별 파라미터로 직접 설정
         this.aoeShape = shape;
@@ -441,8 +438,6 @@ public class DamageArea : MonoBehaviour
         this.baseDamage = playerBaseDamage;
         this.damageMultiplier = damageMultiplier;
         this.scaleMultiplier = scaleMultiplier;
-        this.hitEffect = hitEffectPrefab;
-        
         // ⭐ Rectangle AOE 자동 처리: 플레이어 앞쪽으로 생성
         if (shape == AOEShapeType.Rectangle)
         {
@@ -458,7 +453,7 @@ public class DamageArea : MonoBehaviour
             this.centerOffset = 0f;
         }
         
-        this.shakeIntensity = 0f;
+        this.hitCueKey = hitCueKey;
         this.skillData = null; // SkillData 없음
         
         // ⭐ 정책 설정
@@ -630,12 +625,6 @@ public class DamageArea : MonoBehaviour
                 Debug.LogWarning($"✅ [DamageArea] PlayerHealth 발견! 데미지 적용: {finalDamage}");
                 
                 playerHealth.TakeDamage(finalDamage, baseEnemy != null ? baseEnemy.transform : transform);
-                
-                if (hitEffect != null)
-                {
-                    GameObject effect = Instantiate(hitEffect, hit.transform.position, Quaternion.identity);
-                    Destroy(effect, 2f);
-                }
             }
             else
             {
@@ -652,12 +641,6 @@ public class DamageArea : MonoBehaviour
                 
                 // ⭐ EnemyHealth.TakeDamage는 1개 인자만 받음
                 enemyHealth.TakeDamage(finalDamage);
-                
-                if (hitEffect != null)
-                {
-                    GameObject effect = Instantiate(hitEffect, hit.transform.position, Quaternion.identity);
-                    Destroy(effect, 2f);
-                }
             }
             else
             {
@@ -836,18 +819,6 @@ public class DamageArea : MonoBehaviour
         Transform damageSource = baseEnemy != null ? baseEnemy.transform : transform;
         playerHealth.TakeDamage(finalDamage, damageSource);
         
-        // Hit 이펙트
-        if (hitEffect != null)
-        {
-            GameObject effect = Instantiate(hitEffect, player.transform.position, Quaternion.identity);
-            Destroy(effect, 2f);
-        }
-        
-        // Screen Shake
-        if (shakeIntensity > 0f)
-        {
-            TriggerScreenShake(shakeIntensity);
-        }
     }
     
     /// <summary>
@@ -864,17 +835,6 @@ public class DamageArea : MonoBehaviour
         }
         
         return 10;  // Fallback
-    }
-    
-    /// <summary>
-    /// Screen Shake 트리거
-    /// </summary>
-    private void TriggerScreenShake(float intensity)
-    {
-        if (ScreenShakeManager.Instance != null)
-        {
-            ScreenShakeManager.Instance.ShakeScreen(intensity);
-        }
     }
     
     /// <summary>

@@ -23,13 +23,14 @@ MonoBehaviour:
   maxLevel: 10
   requiredClass: 0
   skillType: 0
-  isProjectile: 1
+  isProjectile: 0
   animTriggerName: Skill1
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
   castCueKey: skill.Explosive_Vault.cast
   aoeCueKey: skill.Explosive_Vault.aoe
+  hitCueKey: 
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -37,6 +38,9 @@ MonoBehaviour:
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
   telegraphDuration: 0.3
+  telegraphOffset: {x: 0, y: 0}
+  castEffectDelay: 0
+  aoeEffectDelay: 0
   isPiercing: 0
   multiHitCount: 1
   projectileCount: 3

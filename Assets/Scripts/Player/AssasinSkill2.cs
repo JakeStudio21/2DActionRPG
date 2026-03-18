@@ -426,8 +426,8 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             playerBaseDamage: Mathf.RoundToInt(SkillData.baseDamageMultiplier),
             damageMultiplier: 1.0f,
             scaleMultiplier: 1.0f,
-            policy: AOEDamagePolicy.Once,       // ⭐ 즉시 1회 판정
-            hitEffectPrefab: null               // ⭐ Hit Cue는 별도 처리
+            policy: AOEDamagePolicy.Once,
+            hitCueKey: SkillData.hitCueKey
         );
         
         // DamageArea는 즉시 판정 후 제거

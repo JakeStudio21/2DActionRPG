@@ -397,7 +397,7 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
             damageMultiplier: 1.0f,
             scaleMultiplier: 1.0f,
             policy: AOEDamagePolicy.Once,
-            hitEffectPrefab: null
+            hitCueKey: SkillData.hitCueKey
         );
         
         // DamageArea GameObject는 0.5초 후 자동 삭제

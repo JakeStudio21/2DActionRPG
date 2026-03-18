@@ -183,7 +183,7 @@ namespace CueSystem
                     
                     // 메타데이터
                     slot.priority = entry.priority;
-                    slot.cameraShakePreset = entry.cameraShakePreset;
+                    slot.shakeData = entry.shakeData;
                     slot.timeStopMs = entry.timeStopMs;
                     
                     _mergedCache[entry.eventKey] = slot;

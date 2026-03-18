@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using CueSystem;
 
 /// <summary>
 /// 보스 돌진 스킬 패턴
@@ -228,15 +229,9 @@ public class BossDashSkill : MonoBehaviour
             Debug.Log($"[BossDashSkill] 플레이어 피격: {skillDamage} 데미지");
         }
         
-        // Hit 이펙트
-        if (skill.HitEffect != null)
-        {
-            GameObject hitEffect = Instantiate(skill.HitEffect, player.transform.position, Quaternion.identity);
-            Destroy(hitEffect, 2f);
-        }
-        
-        // Screen Shake
-        TriggerScreenShake(skill.ShakeIntensity);
+        // 타격 연출 — CueSystem 위임
+        if (!string.IsNullOrEmpty(skill.HitCueKey))
+            CueEmitter.Emit(skill.HitCueKey, baseEnemy != null ? baseEnemy.CueEmitDomain : "Enemy", new CueContext { position = player.transform.position });
     }
     
     /// <summary>
@@ -252,15 +247,5 @@ public class BossDashSkill : MonoBehaviour
         return Vector3.down;
     }
     
-    /// <summary>
-    /// Screen Shake 트리거
-    /// </summary>
-    private void TriggerScreenShake(float intensity)
-    {
-        if (ScreenShakeManager.Instance != null)
-        {
-            ScreenShakeManager.Instance.ShakeScreen(intensity);
-        }
-    }
 }
 

@@ -278,6 +278,9 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 피격 이벤트 발생 (튜토리얼용)
         OnTakeDamageEvent?.Invoke();
         
+        // 🎨 피격 이펙트 발행 (피격자 책임) — DamageResult 없이 호출 시 기본값 사용
+        EmitHitEffect(transform.position, isCritical: false, attackerGrade: ItemGrade.C);
+        
         // ⭐ 체력바 업데이트
         UpdateHealthBar();
         

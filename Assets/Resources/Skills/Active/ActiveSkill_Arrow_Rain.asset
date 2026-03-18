@@ -24,23 +24,24 @@ MonoBehaviour:
   maxLevel: 10
   requiredClass: 0
   skillType: 0
-  isProjectile: 1
-  animTriggerName: Skill2
+  isProjectile: 0
+  animTriggerName: Skill1
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
   castCueKey: skill.Arrow_Rain.cast
   aoeCueKey: skill.Arrow_Rain.aoe
+  hitCueKey: 
   aoeShape: 0
-  aoeSize: {x: 6, y: 6}
+  aoeSize: {x: 8, y: 8}
   aoeRadius: 4
   aoeFanAngle: 60
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
-  telegraphDuration: 0.5
+  telegraphDuration: 0.2
   telegraphOffset: {x: 8, y: 0}
   castEffectDelay: 0
-  aoeEffectDelay: 0.3
+  aoeEffectDelay: 0.5
   isPiercing: 0
   multiHitCount: 1
   projectileCount: 1

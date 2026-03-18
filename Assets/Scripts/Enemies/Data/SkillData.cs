@@ -107,9 +107,6 @@ public class SkillData : ScriptableObject
     
     [Tooltip("AOE 공격 이펙트 (폭발, 충격파 등)")]
     [SerializeField] private GameObject aoeEffect;
-    
-    [Tooltip("플레이어 타격 이펙트")]
-    [SerializeField] private GameObject hitEffect;
 
     [Header("🔊 사운드")]
     [Tooltip("캐스팅 시작 사운드")]
@@ -117,13 +114,10 @@ public class SkillData : ScriptableObject
     
     [Tooltip("스킬 발동 사운드 (폭발음, 충격음 등)")]
     [SerializeField] private AudioClip skillSound;
-    
-    [Tooltip("플레이어 타격 사운드")]
-    [SerializeField] private AudioClip hitSound;
 
-    [Header("📳 스크린 셰이크")]
-    [Tooltip("스크린 셰이크 강도 (0.5=약함, 1.0=보통, 2.0=강함)")]
-    [SerializeField] private float shakeIntensity = 0.5f;
+    [Header("🎵 CueSystem 이벤트 키")]
+    [Tooltip("타격 이펙트 키 (예: skill.boss_dash.hit)\n비어 있으면 타격 연출 없음")]
+    [SerializeField] private string hitCueKey;
 
     [Header("🎮 추가 설정")]
     [Tooltip("스킬 사용 가능 최소 거리")]
@@ -187,11 +181,9 @@ public class SkillData : ScriptableObject
     public Vector2 TelegraphOffset => telegraphOffset;
     public GameObject CastEffect => castEffect;
     public GameObject AoeEffect => aoeEffect;
-    public GameObject HitEffect => hitEffect;
     public AudioClip CastSound => castSound;
     public AudioClip SkillSound => skillSound;
-    public AudioClip HitSound => hitSound;
-    public float ShakeIntensity => shakeIntensity;
+    public string HitCueKey => hitCueKey;
     public float MinRange => minRange;
     public float MaxRange => maxRange;
     public bool StopMovingWhileCasting => stopMovingWhileCasting;
@@ -247,9 +239,6 @@ public class SkillData : ScriptableObject
         minRange = Mathf.Max(0f, minRange);
         maxRange = Mathf.Max(minRange, maxRange);
         
-        // 스크린 셰이크 검증
-        shakeIntensity = Mathf.Max(0f, shakeIntensity);
-        
         // ⭐ Phase 3: 데미지 정책 검증
         aoeDuration = Mathf.Max(0.1f, aoeDuration);
         aoeTickInterval = Mathf.Max(0.1f, aoeTickInterval);
@@ -287,7 +276,7 @@ public class SkillData : ScriptableObject
         
         info += $"Range: {minRange}~{maxRange}\n";
         info += $"Telegraph: {telegraphDuration}s\n";
-        info += $"Shake: {shakeIntensity}\n";
+        info += $"HitCueKey: {(string.IsNullOrEmpty(hitCueKey) ? "없음" : hitCueKey)}\n";
         info += $"Policy: {aoeDamagePolicy}"; // ⭐ Phase 3: 정책 정보
         
         if (aoeDamagePolicy == AOEDamagePolicy.Window)

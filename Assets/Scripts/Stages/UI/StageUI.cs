@@ -25,6 +25,10 @@ namespace StageSystem
         [Header("승리 조건 표시")]
         [SerializeField] private TextMeshProUGUI victoryConditionText;
         
+        [Header("⚙️ 설정 버튼")]
+        [Tooltip("HUD의 설정 버튼 (OnClick에서 OnSettingsButtonClicked 연결)")]
+        [SerializeField] private SettingsUIController settingsUIController;
+
         [Header("디버그")]
         [SerializeField] private bool enableDebugLogs = true;
         
@@ -307,6 +311,22 @@ namespace StageSystem
             if (victoryConditionPanel != null) victoryConditionPanel.SetActive(false);
         }
         
+        // ───────────────────────────────────────────
+        //  HUD 버튼 핸들러
+        // ───────────────────────────────────────────
+
+        /// <summary>
+        /// HUD 설정 버튼 OnClick에 연결.
+        /// 게임을 일시정지하고 설정 패널을 열어준다.
+        /// </summary>
+        public void OnSettingsButtonClicked()
+        {
+            if (settingsUIController != null)
+                settingsUIController.Open(SettingsOpenMode.FromHUD);
+            else
+                Debug.LogWarning("[StageUI] SettingsUIController가 연결되지 않았습니다.");
+        }
+
         // 공개 속성
         public StageConfig CurrentStage => currentStage;
         public bool IsInitialized => isInitialized;

@@ -1,75 +1,101 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 인게임 일시정지 흐름 컨트롤러
+///
+/// ■ 책임 범위 (SRP)
+///   - Time.timeScale 일시정지 / 재개 권한을 단독 보유
+///   - PauseMenuPanel 활성/비활성 전환
+///
+/// ■ 동작 흐름
+///   QuitButton
+///     └─ ShowPauseMenu()  → timeScale=0, PauseMenuPanel ON
+///          ├─ [계속하기]  → ContinuePlaying()  → timeScale=1, PauseMenuPanel OFF
+///          └─ [로비]      → ReturnToLobby()    → timeScale=1, 패배 화면
+///
+/// ■ 설정(Settings)은 HUD의 설정 버튼 → StageUI.OnSettingsButtonClicked()로 독립 처리
+/// </summary>
 public class PauseMenuController : MonoBehaviour
 {
+    // ───────────────────────────────────────────
+    //  Inspector 슬롯
+    // ───────────────────────────────────────────
+
+    [Header("🎮 PauseMenu 패널")]
     [SerializeField] private GameObject pauseMenuPanel;
-    [SerializeField] private Button returnToLobbyButton;
+
+    [Header("🔘 버튼")]
     [SerializeField] private Button continueButton;
-    [SerializeField] private ResultPopupController resultPopupController; // 🆕 ResultPopupController 참조
-    
+    [SerializeField] private Button returnToLobbyButton;
+
+    [Header("🔗 연결 컨트롤러")]
+    [SerializeField] private ResultPopupController resultPopupController;
+
+    // ───────────────────────────────────────────
+    //  Unity Lifecycle
+    // ───────────────────────────────────────────
+
     private void Start()
     {
-        // 처음에는 팝업을 숨겨둡니다.
         if (pauseMenuPanel != null)
-        {
             pauseMenuPanel.SetActive(false);
-        }
         else
-        {
-            Debug.LogError("[PauseMenuController] pauseMenuPanel이 null입니다!");
-        }
+            Debug.LogError("[PauseMenuController] pauseMenuPanel이 연결되지 않았습니다!");
 
-        // 각 버튼에 함수를 연결합니다.
-        if (returnToLobbyButton != null)
-            returnToLobbyButton.onClick.AddListener(ReturnToLobby);
-        else
-            Debug.LogWarning("[PauseMenuController] returnToLobbyButton이 null입니다!");
-            
         if (continueButton != null)
             continueButton.onClick.AddListener(ContinuePlaying);
         else
-            Debug.LogWarning("[PauseMenuController] continueButton이 null입니다!");
+            Debug.LogWarning("[PauseMenuController] continueButton이 연결되지 않았습니다!");
+
+        if (returnToLobbyButton != null)
+            returnToLobbyButton.onClick.AddListener(ReturnToLobby);
+        else
+            Debug.LogWarning("[PauseMenuController] returnToLobbyButton이 연결되지 않았습니다!");
     }
 
-    // 이 함수는 인게임 UI의 '나가기' 버튼에 연결됩니다.
+    // ───────────────────────────────────────────
+    //  공개 API
+    // ───────────────────────────────────────────
+
+    /// <summary>
+    /// 인게임 종료 버튼에 연결. 게임 일시정지 + PauseMenuPanel 표시.
+    /// </summary>
     public void ShowPauseMenu()
     {
-        Time.timeScale = 0f; // 게임을 멈춥니다.
+        Time.timeScale = 0f;
         pauseMenuPanel.SetActive(true);
     }
 
-    // '계속 플레이' 버튼에 연결됩니다.
-    void ContinuePlaying()
+    // ───────────────────────────────────────────
+    //  버튼 핸들러
+    // ───────────────────────────────────────────
+
+    /// <summary>계속하기 — timeScale 복구 + PauseMenu 닫기</summary>
+    private void ContinuePlaying()
     {
-        Time.timeScale = 1f; // 게임을 다시 시작합니다.
+        Time.timeScale = 1f;
         pauseMenuPanel.SetActive(false);
+
         var playerController = FindObjectOfType<PlayerController>();
-        playerController.ReEnableControls();
-        CameraController.Instance.SetPlayerCameraFollow(); // 카메라 추적 재설정
+        if (playerController != null)
+            playerController.ReEnableControls();
+
+        CameraController.Instance.SetPlayerCameraFollow();
     }
 
-    // '로비로 이동' 버튼에 연결됩니다.
-    void ReturnToLobby()
+    /// <summary>로비로 이동 — timeScale 복구 + 저장 + 패배 화면</summary>
+    private void ReturnToLobby()
     {
-        // Time.timeScale 복구 (게임이 멈춰있던 상태를 복원)
         Time.timeScale = 1f;
-        
-        // 🔧 의미 있는 이벤트: 게임 포기 → 저장
+
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
-        {
             PlayerDataManager.Instance.SaveOnMeaningfulEvent("PauseMenu_ForfeitGame");
-        }
-        
-        // 일시정지 메뉴 닫기
+
         if (pauseMenuPanel != null)
-        {
             pauseMenuPanel.SetActive(false);
-        }
-        
-        // 🆕 패배 화면 표시 (Result_Defeat)
+
         if (resultPopupController != null)
         {
             resultPopupController.ShowDefeat();
@@ -77,9 +103,8 @@ public class PauseMenuController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("❌ [PauseMenuController] ResultPopupController가 할당되지 않았습니다! 바로 로비로 이동합니다.");
-            // Fallback: ResultPopupController가 없으면 바로 로비 이동
+            Debug.LogError("[PauseMenuController] ResultPopupController가 연결되지 않았습니다! 로비로 직행합니다.");
             SceneManager.LoadScene("Lobby");
         }
     }
-} 
+}

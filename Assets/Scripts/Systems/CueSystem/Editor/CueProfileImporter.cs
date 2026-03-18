@@ -452,7 +452,6 @@ namespace CueSystem.Editor
                 entry.vfxIds = GetStringValue(entryRow, "vfx_ids").Split(';').Select(id => id.Trim()).Where(id => !string.IsNullOrEmpty(id)).ToList();
                 entry.sfxIds = GetStringValue(entryRow, "sfx_ids").Split(';').Select(id => id.Trim()).Where(id => !string.IsNullOrEmpty(id)).ToList();
                 entry.priority = GetIntValue(entryRow, "priority", 50);
-                entry.cameraShakePreset = GetStringValue(entryRow, "camera_shake_preset");
                 entry.timeStopMs = GetIntValue(entryRow, "time_stop_ms", 0);
                 entry.note = GetStringValue(entryRow, "note");
                 

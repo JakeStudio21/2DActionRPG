@@ -39,6 +39,9 @@ public class ActiveSkillData : BaseSkillData
     [Tooltip("AOE 범위 이펙트 키 (예: skill.assasin.multi_arrow.aoe)\n즉발형(isProjectile=false)에서 AOE 시각화에 사용")]
     public string aoeCueKey;
     
+    [Tooltip("타격 이펙트 키 (예: skill.assasin.multi_arrow.hit)\n피격 대상 위치에 VFX/SFX/Shake를 발동시킴\n비어 있으면 타격 연출 없음")]
+    public string hitCueKey;
+    
     [Header("🎭 AOE 설정")]
     [Tooltip("AOE 형태 (기존 시스템 호환)")]
     public SkillAOEShape aoeShape = SkillAOEShape.Circle;

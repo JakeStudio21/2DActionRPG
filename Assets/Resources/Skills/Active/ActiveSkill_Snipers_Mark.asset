@@ -30,6 +30,7 @@ MonoBehaviour:
   range: 8
   castCueKey: skill.Snipers_Mark.cast
   aoeCueKey: skill.Snipers_Mark.aoe
+  hitCueKey: 
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -37,6 +38,9 @@ MonoBehaviour:
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
   telegraphDuration: 0.3
+  telegraphOffset: {x: 0, y: 0}
+  castEffectDelay: 0
+  aoeEffectDelay: 0
   isPiercing: 0
   multiHitCount: 1
   projectileCount: 3

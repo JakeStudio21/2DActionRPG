@@ -19,17 +19,17 @@ MonoBehaviour:
   - vfxId: SkillArrowRainCast
     poolKey: WarriorSlashAreaEffect
     duration: 3
-    offset: {x: 8, y: 0, z: 0}
+    offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
-    rotationMode: 2
+    rotationMode: 3
     priority: 50
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD65C \uACF5\uACA9 VFX"
   - vfxId: SkillArrowRainAoe
     poolKey: Fx_AOE_ArrowRain_Nature
     duration: -1
-    offset: {x: 8, y: 0, z: 0}
+    offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
     rotationMode: 1
@@ -204,7 +204,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0"
   - eventKey: skill.Arrow_Rain.aoe
@@ -213,7 +217,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 1
+      intensity: 0.6
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0"
   - eventKey: skill.Explosive_Vault.cast
@@ -222,7 +230,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Explosive_Vault.aoe
@@ -231,7 +243,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Focused_Strike.cast
@@ -240,7 +256,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Focused_Strike.aoe
@@ -249,7 +269,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.MultiShot.cast
@@ -258,7 +282,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.MultiShot.aoe
@@ -267,7 +295,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Piercing_Gale.cast
@@ -276,7 +308,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Piercing_Gale.aoe
@@ -285,7 +321,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.RapidMirage.cast
@@ -294,7 +334,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.RapidMirage.aoe
@@ -303,7 +347,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Snipers_Mark.cast
@@ -312,7 +360,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.Snipers_Mark.aoe
@@ -321,7 +373,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.SpiritKings_Arrow.cast
@@ -330,7 +386,11 @@ MonoBehaviour:
     sfxIds:
     - SkillCastSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: skill.SpiritKings_Arrow.aoe
@@ -339,7 +399,11 @@ MonoBehaviour:
     sfxIds:
     - SkillAoeSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   description: "\uC5B4\uC314\uC2E0 \uC804\uC6A9 \uD504\uB85C\uD544"

@@ -136,15 +136,27 @@ namespace CueSystem
                 if (!PlaySFX(sfxCue, context, domain))
                     sfxSuccess = false;
             }
-            
-            // 5. 쿨다운 설정
+
+            // 5. 스크린 셰이크 — CueEntry에 설정된 shakeData 적용
+            if (slot.shakeData != null && slot.shakeData.useShake)
+            {
+                if (ScreenShakeManager.Instance != null)
+                    ScreenShakeManager.Instance.PlayShake(slot.shakeData);
+                else if (showDebugLogs)
+                    Debug.LogWarning("⚠️ [CuePlayer] ScreenShakeManager 인스턴스 없음 — shakeData 무시됨");
+            }
+
+            // 6. 쿨다운 설정
             float cooldown = CalculateCooldown(slot);
             SetCooldown(fullKey, cooldown);
             
             _totalPlayed++;
             
             if (showDebugLogs && (vfxSuccess || sfxSuccess))
-                Debug.Log($"🎵 [CuePlayer] 재생: {fullKey} (VFX: {slot.vfxCues.Count}, SFX: {slot.sfxCues.Count})");
+            {
+                bool shook = slot.shakeData != null && slot.shakeData.useShake;
+                Debug.Log($"🎵 [CuePlayer] 재생: {fullKey} (VFX: {slot.vfxCues.Count}, SFX: {slot.sfxCues.Count}, Shake: {shook})");
+            }
             
             return vfxSuccess || sfxSuccess;
         }
@@ -191,6 +203,25 @@ namespace CueSystem
                     // 왼쪽 공격 시 Y축 180° 반전 (메테오·비대칭 AOE 등 오른쪽 기준 이펙트)
                     // scale.x=-1 대신 Y축 회전을 사용해 파티클·자식 스케일 오염 방지
                     spawnRot = facingLeft ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+                    break;
+
+                case VFXRotationMode.FollowFlip:
+                    // 공격 방향 상속 + 왼쪽 공격 시 Y-flip
+                    // facing.x < 0 기준: 상하 방향(≈0)은 Flip 없음으로 처리
+                    //
+                    // [원리] 왼쪽 방향(zAngle > 90°)에서 단순 Y-flip을 적용하면
+                    // 반대 방향(5시)으로 발사됨. 올바른 처리는:
+                    //   mirroredAngle = 180° - zAngle  (Y축 기준 각도 반사)
+                    //   R_y(180°) * R_z(mirroredAngle) → 정확히 원래 방향으로 발사 + 시각 반전
+                    if (facingLeft)
+                    {
+                        float zAngle = Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg;
+                        spawnRot = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(0f, 0f, 180f - zAngle);
+                    }
+                    else
+                    {
+                        spawnRot = context.rotation;
+                    }
                     break;
 
                 default: // Follow

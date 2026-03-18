@@ -26,11 +26,6 @@ public class BarricadeFeedbackManager : MonoBehaviour
     private const float CONSECUTIVE_RESET_TIME = 1f; // 리셋 시간
     
     // ========================================
-    // 카메라 참조
-    // ========================================
-    private CameraShake cameraShake;
-    
-    // ========================================
     // 초기화
     // ========================================
     private void Awake()
@@ -43,14 +38,6 @@ public class BarricadeFeedbackManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-            return;
-        }
-        
-        // CameraShake 찾기
-        cameraShake = FindObjectOfType<CameraShake>();
-        if (cameraShake == null)
-        {
-            Debug.LogWarning("[BarricadeFeedbackManager] CameraShake를 찾을 수 없습니다. 카메라 흔들림 기능이 비활성화됩니다.");
         }
     }
     
@@ -64,20 +51,19 @@ public class BarricadeFeedbackManager : MonoBehaviour
     
     public void ShakeCamera(float intensity, float duration, float cooldown)
     {
-        if (!CanShakeCamera(cooldown))
-        {
-            return;
-        }
-        
+        if (!CanShakeCamera(cooldown)) return;
+
         lastCameraShakeTime = Time.time;
-        
-        if (cameraShake != null)
+
+        if (ScreenShakeManager.Instance != null)
         {
-            cameraShake.Shake(intensity, duration);
-        }
-        else
-        {
-            Debug.LogWarning("[BarricadeFeedbackManager] CameraShake가 없어 흔들림을 실행할 수 없습니다.");
+            ScreenShakeManager.Instance.PlayShake(new ShakeData
+            {
+                useShake  = true,
+                intensity = intensity,
+                duration  = duration,
+                delay     = 0f
+            });
         }
     }
     

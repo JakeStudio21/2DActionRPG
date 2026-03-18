@@ -5,18 +5,22 @@ namespace CueSystem
 {
     /// <summary>
     /// 이펙트 오브젝트에 적용할 회전 처리 방식
-    /// Follow   : context.rotation 그대로 상속 (화살, 파이어볼 등 방향성 이펙트)
-    /// Fixed    : 항상 Quaternion.identity — 바닥 장판처럼 방향 무관한 이펙트
-    /// HorizontalFlip : X방향만 보고 좌우 반전(Y축 180°) — 메테오·비대칭 AOE처럼
+    /// Follow        : context.rotation 그대로 상속 (화살, 파이어볼 등 방향성 이펙트)
+    /// Fixed         : 항상 Quaternion.identity — 바닥 장판처럼 방향 무관한 이펙트
+    /// HorizontalFlip: X방향만 보고 좌우 반전(Y축 180°) — 메테오·비대칭 AOE처럼
     ///            오른쪽 기준으로 만들어진 이펙트를 왼쪽 공격 시 자연스럽게 뒤집을 때 사용.
     ///            scale.x=-1 대신 Y축 회전을 쓰는 이유: 파티클·자식 오브젝트에 음수 스케일이
     ///            전파되면 충돌체·소팅·파티클 방향이 꼬이는 버그를 방지하기 위함.
+    /// FollowFlip    : Follow(회전 상속) + HorizontalFlip(좌방향 Y축 180°) 합산.
+    ///            방향을 따라가면서 왼쪽 공격 시에만 추가로 뒤집힘.
+    ///            상하 방향(facing.x ≈ 0)은 오른쪽(Flip 없음)으로 처리됨.
     /// </summary>
     public enum VFXRotationMode
     {
         Follow,
         Fixed,
-        HorizontalFlip
+        HorizontalFlip,
+        FollowFlip
     }
 
     /// <summary>
@@ -88,7 +92,7 @@ namespace CueSystem
         
         [Header("🎮 추가 효과")]
         public int priority = 50;         // 우선순위
-        public string cameraShakePreset;  // 카메라 쉐이크 프리셋
+        public ShakeData shakeData;       // 카메라 진동 설정
         public int timeStopMs = 0;        // 히트스톱 시간 (밀리초)
         
         [Header("📝 메타데이터")]
@@ -103,7 +107,7 @@ namespace CueSystem
         public List<VFXCue> vfxCues = new List<VFXCue>();
         public List<SFXCue> sfxCues = new List<SFXCue>();
         public int priority = 50;
-        public string cameraShakePreset;
+        public ShakeData shakeData;
         public int timeStopMs = 0;
         
         public bool IsEmpty => vfxCues.Count == 0 && sfxCues.Count == 0;

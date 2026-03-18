@@ -607,13 +607,10 @@ public class SkillController : MonoBehaviour
     
     /// <summary>
     /// 즉발형 AoE 생성 (isProjectile = false) — DamageArea 기반
+    /// aoeOrigin: Telegraph/AOE VFX와 동일한 타격 위치 (telegraphOffset 적용된 값을 호출부에서 전달)
     /// </summary>
-    private void SpawnInstantAOE(ActiveSkillData skillData, SkillInstance skillInstance, int damage, int slotIndex)
+    private void SpawnInstantAOE(ActiveSkillData skillData, SkillInstance skillInstance, int damage, int slotIndex, Vector3 aoeOrigin, Vector2 attackDir)
     {
-        Vector2 direction = GetAttackDirection();
-        Transform firePoint = FindFirePoint();
-        Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
-
         // DamageArea 프리팹 로드 (보스/엘리트와 동일한 경로)
         GameObject damageAreaPrefab = Resources.Load<GameObject>("Prefabs/VFX/DamageArea");
         if (damageAreaPrefab == null)
@@ -635,20 +632,21 @@ public class SkillController : MonoBehaviour
         AOEShapeType shapeType = ConvertToAOEShapeType(skillData.aoeShape);
         damageArea.InitializeForPlayer(
             shape: shapeType,
-            origin: skillPos,
-            forward: (Vector3)direction,
+            origin: aoeOrigin,
+            forward: (Vector3)attackDir,
             radius: skillData.aoeRadius,
             size: skillData.aoeSize,
             angle: skillData.aoeFanAngle,
             playerBaseDamage: damage,
-            policy: AOEDamagePolicy.Once
+            policy: AOEDamagePolicy.Once,
+            hitCueKey: skillData.hitCueKey
         );
 
         // 스킬 지속시간 + 여유시간 후 제거
         Destroy(damageAreaGO, skillData.aoeDuration + 0.5f);
 
         if (showDebugLogs)
-            Debug.Log($"💥 [SkillController] DamageArea 생성: {skillData.aoeShape} → {shapeType}, 방향: {direction}, 데미지: {damage}");
+            Debug.Log($"💥 [SkillController] DamageArea 생성: {skillData.aoeShape} → {shapeType}, Origin={aoeOrigin}, 방향: {attackDir}, 데미지: {damage}");
     }
     
     /// <summary>
@@ -745,13 +743,13 @@ public class SkillController : MonoBehaviour
         if (activeData.aoeEffectDelay > 0f)
             yield return new WaitForSeconds(activeData.aoeEffectDelay);
 
-        // ⑥ AOE Effect + Damage 발동
-        EmitAOECue(activeData, attackDir, skillPos);
+        // ⑥ AOE Effect + Damage 발동 — telegraphPos 기준으로 통일
+        EmitAOECue(activeData, attackDir, telegraphPos);
 
         if (activeData.isProjectile)
             FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
         else
-            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
+            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex, telegraphPos, attackDir);
 
         // ⑦ 완료 처리 (이동 해제 이벤트 발행)
         CompleteSkillExecution(slotIndex);
@@ -779,8 +777,9 @@ public class SkillController : MonoBehaviour
         if (activeData.aoeEffectDelay > 0f)
             yield return new WaitForSeconds(activeData.aoeEffectDelay);
 
-        // ④ AOE Effect + Damage 발동
-        EmitAOECue(activeData, attackDir, skillPos);
+        // ④ AOE Effect + Damage 발동 — telegraphOffset 적용 위치로 통일
+        Vector3 aoeOrigin = CalculateTelegraphSpawnPos(skillPos, attackDir, activeData.telegraphOffset);
+        EmitAOECue(activeData, attackDir, aoeOrigin);
 
         if (activeData.isProjectile)
         {
@@ -790,7 +789,7 @@ public class SkillController : MonoBehaviour
         else
         {
             if (showDebugLogs) Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
-            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex);
+            SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex, aoeOrigin, attackDir);
         }
 
         // ⑤ 완료 처리 (이동 해제 이벤트 발행)

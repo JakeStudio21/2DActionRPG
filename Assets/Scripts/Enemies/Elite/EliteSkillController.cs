@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CueSystem;
 
 /// <summary>
 /// 엘리트 몬스터 스킬 컨트롤러
@@ -757,15 +758,9 @@ public class EliteSkillController : MonoBehaviour
             Debug.Log($"[EliteSkillController] 플레이어 피격: {skillDamage} 데미지 (기본: {baseDamage}, 배율: {currentSkill.DamageMultiplier}x)");
         }
         
-        // Hit 이펙트
-        if (currentSkill.HitEffect != null)
-        {
-            GameObject hitEffect = Instantiate(currentSkill.HitEffect, player.transform.position, Quaternion.identity);
-            Destroy(hitEffect, 2f);
-        }
-        
-        // Screen Shake
-        TriggerScreenShake(currentSkill.ShakeIntensity);
+        // 타격 연출 — CueSystem 위임
+        if (!string.IsNullOrEmpty(currentSkill.HitCueKey))
+            CueEmitter.Emit(currentSkill.HitCueKey, baseEnemy != null ? baseEnemy.CueEmitDomain : "Enemy", new CueContext { position = player.transform.position });
     }
 
     /// <summary>
@@ -790,17 +785,6 @@ public class EliteSkillController : MonoBehaviour
         }
         
         return fanHits.ToArray();
-    }
-
-    /// <summary>
-    /// Screen Shake 트리거
-    /// </summary>
-    private void TriggerScreenShake(float intensity)
-    {
-        if (ScreenShakeManager.Instance != null)
-        {
-            ScreenShakeManager.Instance.ShakeScreen(intensity);
-        }
     }
 
     #endregion
