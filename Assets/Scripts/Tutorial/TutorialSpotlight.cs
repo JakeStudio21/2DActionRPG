@@ -58,7 +58,7 @@ public class TutorialSpotlight : MonoBehaviour
         // UI 타겟 자동 탐색
         if (joystickTarget == null)
         {
-            GameObject joystickObj = GameObject.Find("Fixed Joystick");
+            GameObject joystickObj = GameObject.Find("Dynamic Joystick");
             if (joystickObj != null)
             {
                 joystickTarget = joystickObj.GetComponent<RectTransform>();

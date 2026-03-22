@@ -14,7 +14,7 @@ public class GameControl : Singleton<GameControl>
     [SerializeField] private bool enableMouseInput = true;
 
     [Header("조이스틱 참조")]
-    [SerializeField] private FixedJoystick movementJoystick;
+    [SerializeField] private DynamicJoystick movementJoystick;
     [SerializeField] private AttackJoystickInput attackJoystick;
 
     // 입력 상태
@@ -74,7 +74,7 @@ public class GameControl : Singleton<GameControl>
             // 이동 조이스틱 찾기
             if (movementJoystick == null)
             {
-                movementJoystick = FindObjectOfType<FixedJoystick>();
+                movementJoystick = FindObjectOfType<DynamicJoystick>();
             }
 
             // 공격 조이스틱 찾기

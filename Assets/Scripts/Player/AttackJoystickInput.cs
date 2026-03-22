@@ -17,7 +17,7 @@ public class AttackJoystickInput : MonoBehaviour
         // ⭐ 조이스틱 연결 상태 실시간 체크 (1초마다)
         if ((!joystickFound || attackJoystick == null) && Time.frameCount % 60 == 0)
         {
-            var joystickInScene = FindObjectOfType<FixedJoystick>();
+            var joystickInScene = FindObjectOfType<DynamicJoystick>();
             if (joystickInScene != null)
             {
                 attackJoystick = joystickInScene;
@@ -36,7 +36,7 @@ public class AttackJoystickInput : MonoBehaviour
 
         while (!joystickFound && elapsed < timeout)
         {
-            attackJoystick = FindObjectOfType<FixedJoystick>();
+            attackJoystick = FindObjectOfType<DynamicJoystick>();
             if (attackJoystick != null)
             {
                 joystickFound = true;

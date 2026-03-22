@@ -327,7 +327,7 @@ public class GameManager : Singleton<GameManager>
             }
             
             // 조이스틱이 제대로 연결되었는지 확인
-            var joystick = FindObjectOfType<FixedJoystick>();
+            var joystick = FindObjectOfType<DynamicJoystick>();
             if (joystick != null && playerController != null)
             {
                 Debug.Log("[GameManager] 조이스틱 재연결 성공!");

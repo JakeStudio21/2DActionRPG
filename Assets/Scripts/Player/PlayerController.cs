@@ -66,9 +66,9 @@ public class PlayerController : MonoBehaviour
     // ⭐ Phase 4: 마지막 대시 방향 저장 (Dash용)
     private Vector2 lastDashDirection = Vector2.right; // 기본값: 오른쪽
 
-    // FixedJoystick 참조 추가
+    // DynamicJoystick 참조
     [Header("조이스틱 입력")]
-    public FixedJoystick fixedJoystick;
+    public DynamicJoystick fixedJoystick;
     private bool joystickFound = false;
 
     // 무기/스킬별 레벨 통합 관리
@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour
 
         while (!joystickFound && elapsed < timeout)
         {
-            fixedJoystick = FindObjectOfType<FixedJoystick>();
+            fixedJoystick = FindObjectOfType<DynamicJoystick>();
             if (fixedJoystick != null)
             {
                 joystickFound = true;
@@ -212,7 +212,7 @@ public class PlayerController : MonoBehaviour
         {
             if ((!joystickFound || fixedJoystick == null) && Time.frameCount % 60 == 0)
             {
-                var joystickInScene = FindObjectOfType<FixedJoystick>();
+                var joystickInScene = FindObjectOfType<DynamicJoystick>();
                 if (joystickInScene != null)
                 {
                     Debug.Log("[PlayerController] Update에서 조이스틱 재연결 시도");
@@ -267,7 +267,7 @@ public class PlayerController : MonoBehaviour
                 Debug.LogWarning($"[PlayerController] 조이스틱 없음 - joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick}");
 
                 // ⭐ 추가: 실제 씬에 조이스틱이 있는지 확인
-                var joystickInScene = FindObjectOfType<FixedJoystick>();
+                var joystickInScene = FindObjectOfType<DynamicJoystick>();
                 Debug.Log($"[PlayerController] 씬에 조이스틱 존재 여부: {joystickInScene != null}");
 
                 // ⭐ 씬에 조이스틱이 있는데 연결 안된 경우 강제 재연결
