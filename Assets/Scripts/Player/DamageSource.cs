@@ -22,6 +22,10 @@ public class DamageSource : MonoBehaviour
     private Warrior warrior;
     private Assasin assasin;
     
+    // 스킬 데미지 오버라이드 (투사체형 액티브 스킬용)
+    private int _skillDamageOverride = 0;
+    private bool _hasSkillDamage = false;
+    
     private void Start() 
     {
         InitializeReferences();
@@ -83,22 +87,42 @@ public class DamageSource : MonoBehaviour
         float critChance = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalChance : 0f;
         float critDamage = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalDamage : 1.5f;
         
+        // 스킬 데미지 오버라이드 여부에 따라 baseAttack 결정
+        float baseAttack = _hasSkillDamage ? _skillDamageOverride : GetCurrentBaseDamage();
+        
+        // Step 3 동적 플래그 평가: Warrior 버서커 모드 여부를 호출부에서 직접 판단하여 전달
+        // IPlayerClass 타입 캐스트 대신 런타임 상태 플래그로 CombatFormula에 전달
+        bool isBerserkerState = EvaluateBerserkerState();
+        
         if (showDebugLogs)
+        {
             Debug.Log($"🎯 [DamageSource] 크리티컬 확률: {critChance:P2} (치명 데미지: {critDamage:F2}x)");
+            if (_hasSkillDamage)
+                Debug.Log($"🏹 [DamageSource] 스킬 데미지 적용: {_skillDamageOverride} (FinalAttackDamage × 스킬배율 사전 계산)");
+            if (isBerserkerState)
+                Debug.Log($"🔥 [DamageSource] 버서커 상태 감지 → isBerserkerState = true (Step 3 +50%)");
+        }
         
         var ctx = new CombatFormula.AttackContext
         {
-            baseAttack = GetCurrentBaseDamage(),
+            baseAttack = baseAttack,
             attackerClass = GetComponent<IPlayerClass>(),
             targetDefense = GetTargetDefense(other),
             targetTransform = other.transform,
             attackerTransform = transform,
-            isSkillAttack = false,
+            isSkillAttack = _hasSkillDamage,
             skillMultiplier = 1.0f,
             criticalChance = critChance,
             criticalMultiplier = critDamage,
             isPlayerAttack = true,
             attackerLevel = GetPlayerLevel(),
+            isBerserkerState = isBerserkerState,
+            
+            // Step 5: 스탯 기반 방어구 관통률
+            armorPenetration = playerRuntimeStats != null ? playerRuntimeStats.FinalArmorPenetration : 0f,
+            // Phase 7: 스탯 기반 기본 흡혈률 + 오버킬 방지용 타격 전 적 현재 체력
+            lifeStealPercent = playerRuntimeStats != null ? playerRuntimeStats.FinalLifeSteal : 0f,
+            targetCurrentHp = Mathf.Max(0, enemyHealth.CurrentHealth),
             
             // ⚙️ Phase 4: ConditionalModifier용 필드
             target = other.GetComponent<IEnemyTarget>(),
@@ -119,7 +143,7 @@ public class DamageSource : MonoBehaviour
         ApplyLifeStealOnly(result);
         
         if (showDebugLogs)
-            Debug.Log($"💥 [DamageSource] 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) → {other.name}");
+            Debug.Log($"💥 [DamageSource] 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}, 스킬: {_hasSkillDamage}) → {other.name}");
     }
     
     /// <summary>
@@ -135,20 +159,30 @@ public class DamageSource : MonoBehaviour
             return;
         }
         
+        float baseAttack = _hasSkillDamage ? _skillDamageOverride : GetCurrentBaseDamage();
+        bool isBerserkerState = EvaluateBerserkerState();
+        
         // ⚔️ CombatFormula 데미지 계산
         var ctx = new CombatFormula.AttackContext
         {
-            baseAttack = GetCurrentBaseDamage(),
+            baseAttack = baseAttack,
             attackerClass = GetComponent<IPlayerClass>(),
             targetDefense = 0f, // SimpleMob은 방어력 없음
             targetTransform = other.transform,
             attackerTransform = transform,
-            isSkillAttack = false,
+            isSkillAttack = _hasSkillDamage,
             skillMultiplier = 1.0f,
+            isBerserkerState = isBerserkerState,
             criticalChance = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalChance : 0f,
             criticalMultiplier = playerRuntimeStats != null ? playerRuntimeStats.FinalCriticalDamage : 1.5f,
             isPlayerAttack = true,
             attackerLevel = GetPlayerLevel(),
+            
+            // Step 5: 스탯 기반 방어구 관통률
+            armorPenetration = playerRuntimeStats != null ? playerRuntimeStats.FinalArmorPenetration : 0f,
+            // Phase 7: 스탯 기반 기본 흡혈률 + 오버킬 방지용 타격 전 적 현재 체력
+            lifeStealPercent = playerRuntimeStats != null ? playerRuntimeStats.FinalLifeSteal : 0f,
+            targetCurrentHp = Mathf.Max(0, simpleMob.CurrentHealth),
             
             // ⚙️ Phase 4: ConditionalModifier용 필드
             target = null, // SimpleMob은 IEnemyTarget 미구현
@@ -167,6 +201,19 @@ public class DamageSource : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"💥 [DamageSource] SimpleMob 데미지: {result.finalDamage} → {other.name}");
+    }
+    
+    /// <summary>
+    /// 🔥 Step 3 동적 플래그 평가: Warrior 버서커 모드 활성 여부
+    /// CombatFormula는 IPlayerClass에 의존하지 않고 이 bool 플래그만 받는다.
+    /// 새로운 동적 조건(ex. 특정 버프 발동)이 생길 경우 이 메서드에서만 추가하면 된다.
+    /// </summary>
+    private bool EvaluateBerserkerState()
+    {
+        if (warrior == null || !warrior.IsActiveClass)
+            return false;
+        
+        return warrior.IsInBerserkerMode();
     }
     
     /// <summary>
@@ -307,6 +354,29 @@ public class DamageSource : MonoBehaviour
     public void RefreshReferences()
     {
         InitializeReferences();
+    }
+    
+    /// <summary>
+    /// 🏹 투사체형 액티브 스킬 전용: 사전 계산된 스킬 데미지를 주입
+    /// SkillController에서 FinalAttackDamage × 스킬배율을 계산한 값을 전달
+    /// 크리티컬/방어력 감소는 CombatFormula에서 이 값 기준으로 정상 적용됨
+    /// </summary>
+    public void SetSkillDamage(int preCalculatedDamage)
+    {
+        _skillDamageOverride = preCalculatedDamage;
+        _hasSkillDamage = true;
+        
+        if (showDebugLogs)
+            Debug.Log($"🏹 [DamageSource] 스킬 데미지 설정: {preCalculatedDamage}");
+    }
+    
+    /// <summary>
+    /// 오브젝트 풀 반환 시 스킬 데미지 오버라이드 초기화
+    /// </summary>
+    public void ClearSkillDamage()
+    {
+        _skillDamageOverride = 0;
+        _hasSkillDamage = false;
     }
     
     #region ⭐ Phase 1-1: 히트 이펙트 시스템
@@ -490,6 +560,10 @@ public class DamageSource : MonoBehaviour
         {
             int healAmount = Mathf.RoundToInt(amount);
             playerHealth.HealPlayerAmount(healAmount);
+            
+            // 흡혈 회복 숫자 표시: 플레이어 머리 위에 표시 (+N, 초록색)
+            if (DamageNumberManager.Instance != null)
+                DamageNumberManager.Instance.ShowHealNumber(playerHealth.transform.position, healAmount, playerHealth.transform);
             
             if (showDebugLogs)
                 Debug.Log($"💚 [DamageSource] 흡혈: {healAmount} HP 회복");

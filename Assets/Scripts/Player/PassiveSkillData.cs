@@ -13,8 +13,8 @@ public class PassiveSkillData : BaseSkillData
     [Tooltip("패시브 카테고리 (전투/생존/특화)")]
     public PassiveSkillType passiveType = PassiveSkillType.Combat;
     
-    [Header("📊 스탯 효과")]
-    [Tooltip("이 패시브가 적용하는 스탯 보너스 목록")]
+    [Header("📊 스탯 효과 (참조용)")]
+    [Tooltip("인스펙터 확인용. 실제 스탯 타입과 수치는 SkillLevelData.csv의 StatType1/StatType2가 단독 진실 소스입니다.")]
     public List<PassiveStatModifier> statModifiers = new List<PassiveStatModifier>();
     
     [Header("⚡ 특수 효과 (선택)")]
@@ -34,15 +34,13 @@ public class PassiveSkillData : BaseSkillData
     public override SkillCategory GetSkillCategory() => SkillCategory.Passive;
     
     /// <summary>
-    /// 특정 레벨에서의 스탯 보너스 계산
+    /// SO 기반 폴백 계산 (CSV에 해당 스킬 행이 없을 때만 사용)
+    /// 정상 상태에서는 SkillLevelData.csv의 값이 우선됩니다.
     /// </summary>
     public float GetStatValueAtLevel(EStatType statType, int level)
     {
         var modifier = statModifiers.Find(m => m.statType == statType);
         if (modifier == null) return 0f;
-        
-        // 임시: 레벨당 선형 증가
-        // Phase 2에서 CSV 곡선으로 교체 예정
         return modifier.baseValue * level;
     }
 }
@@ -84,19 +82,20 @@ public static class PassiveSkillTypeExtensions
 }
 
 /// <summary>
-/// 패시브 스탯 보정 데이터
-/// 기존 EStatType (Combat/Stats/EStatType.cs) 사용
+/// 패시브 스탯 보정 데이터 (SO 인스펙터 표시용)
+/// 실제 런타임 수치는 SkillLevelData.csv가 단독 진실 소스입니다.
+/// statType / baseValue 는 CSV 미등록 스킬의 폴백 또는 인스펙터 참조용으로만 사용하세요.
 /// </summary>
 [System.Serializable]
 public class PassiveStatModifier
 {
-    [Tooltip("영향을 주는 스탯 타입 (ATK_FLAT, CRIT_RATE 등)")]
+    [Tooltip("영향을 주는 스탯 타입 (CSV의 StatType1/StatType2와 일치시킬 것)")]
     public EStatType statType;
     
-    [Tooltip("레벨 1 기준 기본 증가량")]
+    [Tooltip("CSV 미등록 시 폴백 기준값 (레벨 1 기준). 정상 플로우에서는 사용되지 않음")]
     public float baseValue;
     
-    [Tooltip("적용 방식 (가산/배수)")]
+    [Tooltip("적용 방식 — 현재는 GetModifierType()이 statType 기반으로 자동 결정하므로 참조 전용")]
     public StatModifierType modifierType = StatModifierType.Additive;
 }
 

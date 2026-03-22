@@ -91,24 +91,26 @@ public class SkillStateBehaviour : StateMachineBehaviour
     {
         Debug.Log($"🚪 [SkillStateBehaviour] {skillType} State 종료 - 최종 진행도: {stateInfo.normalizedTime:F3}");
         
-        // 🔒 안전장치: State 종료 시 Complete가 호출되지 않았다면 강제 호출
+        var pac = animator.GetComponent<PlayerAnimationController>();
+        
+        // 80% 미도달 상태로 종료 시: 쿨다운·애니 파라미터 정리 + 이동 강제 해제
+        // (피격·취소 등 비정상 중단 안전망)
         if (!skillCompleteTriggered)
         {
             Debug.LogWarning($"⚠️ [SkillStateBehaviour] State 종료 전 강제 {skillType} 완료 호출");
             
-            var playerAnimationController = animator.GetComponent<PlayerAnimationController>();
-            if (playerAnimationController != null)
+            if (pac != null)
             {
                 switch (skillType)
                 {
-                    case SkillType.Skill1:
-                        playerAnimationController.OnSkill1Complete();
-                        break;
-                    case SkillType.Skill2:
-                        playerAnimationController.OnSkill2Complete();
-                        break;
+                    case SkillType.Skill1: pac.OnSkill1Complete(); break;
+                    case SkillType.Skill2: pac.OnSkill2Complete(); break;
                 }
+                // 비정상 중단: Effect Delay 코루틴이 완료되지 않을 수 있으므로 강제 해제
+                pac.ForceSkillMovementRelease();
             }
         }
+        // 정상 완료(80% 도달 후 State Exit)면 이동을 건드리지 않음
+        // → dual-handshake가 Effect Delay 대기를 올바르게 유지함
     }
 }

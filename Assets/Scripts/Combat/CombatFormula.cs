@@ -16,17 +16,27 @@ public static class CombatFormula
     /// </summary>
     public struct AttackContext
     {
-        public float baseAttack;              // Step 1: 기본 공격력
-        public IPlayerClass attackerClass;    // Step 3, 4, 5: 클래스 효과용 (null 가능)
-        public float targetDefense;           // Step 6: 대상 방어력
+        public float baseAttack;              // Step 1: 기본 공격력 (PlayerRuntimeStats.FinalAttackDamage — 클래스 배율 포함)
+        public IPlayerClass attackerClass;    // Step 4, 5: 백어택·백어택 배율 판정용 (null 가능) / Step 3의 클래스 고유 배율은 PlayerRuntimeStats에서 처리
+        public float targetDefense;           // Step 5: 대상 방어력
         public Transform targetTransform;     // Step 4: 백어택 각도 판정용
         public Transform attackerTransform;   // Step 4: 백어택 각도 판정용
         public bool isSkillAttack;            // Step 2: 스킬 여부
         public float skillMultiplier;         // Step 2: 스킬 배율 (기본 1.0)
-        public float criticalChance;          // Step 5: 크리티컬 확률
-        public float criticalMultiplier;      // Step 5: 크리티컬 배율
+        public float criticalChance;          // Step 6: 크리티컬 확률
+        public float criticalMultiplier;      // Step 6: 크리티컬 배율
         public bool isPlayerAttack;           // 플레이어 공격 = true, 몬스터 = false
-        public int attackerLevel;             // Step 6: 공격자 레벨 (Dynamic K 계산용)
+        public int attackerLevel;             // Step 5: 공격자 레벨 (Dynamic K 계산용)
+        
+        // Step 3: 런타임 동적 상태 플래그 (호출부에서 평가 후 전달)
+        public bool isBerserkerState;         // Warrior 버서커 모드 활성 여부 (HP 30% 이하)
+        
+        // Step 5: 스탯 기반 정적 관통률 (PlayerRuntimeStats.FinalArmorPenetration)
+        public float armorPenetration;        // 방어구 관통률 (0.0~1.0, 조건부 defenseIgnore와 합산됨)
+        
+        // Phase 7: 스탯 기반 기본 흡혈률 (PlayerRuntimeStats.FinalLifeSteal)
+        public float lifeStealPercent;        // 기본 흡혈률 (0.0~1.0, 룬 흡혈 효과와 누적됨)
+        public int targetCurrentHp;           // 오버킬 흡혈 방지용 타격 전 적 현재 체력 (0이면 체크 생략)
         
         // ⚙️ Phase 4: ConditionalModifier용 추가 필드
         public IEnemyTarget target;           // 피격자 (보스/엘리트 구분용)
@@ -58,8 +68,8 @@ public static class CombatFormula
         public float damageAfterStep2;        // Step 2: 스킬 배율 적용 후
         public float damageAfterStep3;        // Step 3: 증폭 배율 적용 후
         public float damageAfterStep4;        // Step 4: 백어택 적용 후
-        public float damageAfterStep5;        // Step 5: 크리티컬 적용 후
-        public float damageAfterStep6;        // Step 6: 방어력 감소 후
+        public float damageAfterStep5;        // Step 5: 방어력 감소 후
+        public float damageAfterStep6;        // Step 6: 크리티컬 적용 후
         
         // 판정 결과
         public bool isCritical;               // 크리티컬 발생 여부
@@ -121,9 +131,26 @@ public static class CombatFormula
     private static float DefenseConstantPerLevel => Config != null ? Config.defenseConstantPerLevel : 10f;
     
     /// <summary>
+    /// 에디터 전용 임시 강제 로그 플래그 (StatDebugOverrideWindow에서 토글, 빌드 제외)
+    /// CombatFormulaConfig를 변경하지 않으므로 에셋이 더럽혀지지 않는다.
+    /// </summary>
+#if UNITY_EDITOR
+    public static bool _forceDetailedLog = false;
+#endif
+    
+    /// <summary>
     /// 상세 로그 활성화 여부
     /// </summary>
-    private static bool EnableDetailedLogs => Config != null ? Config.enableDetailedLogs : false;
+    private static bool EnableDetailedLogs
+    {
+        get
+        {
+#if UNITY_EDITOR
+            if (_forceDetailedLog) return true;
+#endif
+            return Config != null ? Config.enableDetailedLogs : false;
+        }
+    }
     
     #endregion
     
@@ -166,8 +193,8 @@ public static class CombatFormula
         if (EnableDetailedLogs)
             Debug.Log($"[CombatFormula] Step 2: 스킬 배율 ({ctx.skillMultiplier}x) = {damage:F1}");
         
-        // Step 3: 증폭 배율 (1버킷)
-        damage = ApplyMultiplicativeBonus(damage, ctx.attackerClass);
+        // Step 3: 증폭 배율 (런타임 동적 보너스만 — 클래스 고유 배율은 PlayerRuntimeStats에서 처리됨)
+        damage = ApplyMultiplicativeBonus(damage, ctx.isBerserkerState);
         
         // ⚙️ Phase 3: 조건부 모디파이어 적용 (DamageDealtMult 등)
         var (modifiedDamage, conditionsPhase3) = ApplyConditionalModifiers(damage, combatCtx, phase: 3, EEffectType.DamageDealtMult);
@@ -200,7 +227,25 @@ public static class CombatFormula
         if (EnableDetailedLogs && isBackAttack)
             Debug.Log($"[CombatFormula] Step 4: 백어택! = {damage:F1}");
         
-        // Step 5: 크리티컬
+        // Step 5: 방어력 감소 (관통 먼저 적용)
+        // ⚙️ Phase 5: 조건부 방어 무시 + 스탯 기반 방어구 관통 합산
+        float defenseIgnore = GetConditionalDefenseIgnore(combatCtx);
+        float totalPenetration = Mathf.Clamp01(ctx.armorPenetration + defenseIgnore);
+        float effectiveDefense = ctx.targetDefense * (1f - totalPenetration);
+        
+        float defenseReduction = CalculateDefenseReduction(effectiveDefense, ctx.attackerLevel);
+        damage = ApplyDefenseReduction(damage, defenseReduction);
+        result.defenseReduction = defenseReduction;
+        result.damageAfterStep5 = damage;
+        
+        if (EnableDetailedLogs)
+        {
+            if (totalPenetration > 0)
+                Debug.Log($"[CombatFormula] Step 5: 관통 합산 — 스탯 {ctx.armorPenetration*100:F1}% + 조건부 {defenseIgnore*100:F1}% = {totalPenetration*100:F1}% → 유효 방어력 {effectiveDefense:F1}");
+            Debug.Log($"[CombatFormula] Step 5: 방어력 감소 (Dynamic K, Lv{ctx.attackerLevel}) ({defenseReduction*100:F1}%) = {damage:F1}");
+        }
+        
+        // Step 6: 크리티컬 (방어 관통 후 유효 데미지에 배율 적용)
         // ⚙️ Phase 4: 조건부 크리티컬 확률 보너스 적용
         float finalCritChance = ctx.criticalChance + GetConditionalCritBonus(combatCtx);
         bool isCritical = RollCritical(finalCritChance);
@@ -222,35 +267,21 @@ public static class CombatFormula
         
         combatCtx.isCritical = isCritical; // CombatContext 업데이트
         result.isCritical = isCritical;
-        result.damageAfterStep5 = damage;
-        
-        if (EnableDetailedLogs && isCritical)
-            Debug.Log($"[CombatFormula] Step 5: 크리티컬! (조건부 포함) ({ctx.criticalMultiplier}x) = {damage:F1}");
-        
-        // Step 6: 방어력 감소
-        // ⚙️ Phase 5: 조건부 방어 무시 적용
-        float defenseIgnore = GetConditionalDefenseIgnore(combatCtx);
-        float effectiveDefense = ctx.targetDefense * (1f - defenseIgnore);
-        
-        float defenseReduction = CalculateDefenseReduction(effectiveDefense, ctx.attackerLevel);
-        damage = ApplyDefenseReduction(damage, defenseReduction);
-        result.defenseReduction = defenseReduction;
         result.damageAfterStep6 = damage;
         
-        if (EnableDetailedLogs)
-        {
-            if (defenseIgnore > 0)
-                Debug.Log($"[CombatFormula] Step 6: 방어 무시 {defenseIgnore*100:F1}% → 유효 방어력 {effectiveDefense:F1}");
-            Debug.Log($"[CombatFormula] Step 6: 방어력 감소 (Dynamic K, Lv{ctx.attackerLevel}) ({defenseReduction*100:F1}%) = {damage:F1}");
-        }
+        if (EnableDetailedLogs && isCritical)
+            Debug.Log($"[CombatFormula] Step 6: 크리티컬! (조건부 포함) ({ctx.criticalMultiplier}x) = {damage:F1}");
         
         // 최종 데미지 확정
         result.finalDamage = FinalizeDamage(damage);
         result.totalMultiplier = result.damageAfterStep1 > 0 ? damage / result.damageAfterStep1 : 1f;
         result.appliedConditions = appliedConditions?.ToString() ?? "";
         
-        // ⚙️ Phase 7: 후처리 (흡혈, 회복 차단)
-        var (lifeStealAmount, healingBlockPercent) = ApplyPostDamageEffects(result.finalDamage, combatCtx, phase: 7);
+        // ⚙️ Phase 7: 후처리 (흡혈, 회복 차단) — 오버킬 방지: Mathf.Min(targetCurrentHp, finalDamage)
+        int lifeStealBasis = (ctx.targetCurrentHp > 0)
+            ? Mathf.Min(ctx.targetCurrentHp, result.finalDamage)
+            : result.finalDamage;
+        var (lifeStealAmount, healingBlockPercent) = ApplyPostDamageEffects(lifeStealBasis, combatCtx, phase: 7, ctx.lifeStealPercent);
         result.lifeStealAmount = lifeStealAmount;
         result.healingBlockPercent = healingBlockPercent;
         
@@ -260,7 +291,7 @@ public static class CombatFormula
             if (!string.IsNullOrEmpty(result.appliedConditions))
                 Debug.Log($"[CombatFormula] 적용된 조건: {result.appliedConditions}");
             if (lifeStealAmount > 0)
-                Debug.Log($"[CombatFormula] Phase 7: 흡혈 {lifeStealAmount:F1}");
+                Debug.Log($"[CombatFormula] Phase 7: 흡혈 {lifeStealAmount:F1} (기준 HP {lifeStealBasis} — 기본 {ctx.lifeStealPercent*100:F1}% 포함)");
             if (healingBlockPercent > 0)
                 Debug.Log($"[CombatFormula] Phase 7: 회복 차단 {healingBlockPercent * 100:F0}%");
         }
@@ -310,21 +341,7 @@ public static class CombatFormula
         result.damageAfterStep3 = damage;
         result.damageAfterStep4 = damage;
         
-        // Step 5: 크리티컬
-        bool isCritical = RollCritical(ctx.criticalChance);
-        if (isCritical)
-        {
-            damage = ApplyCritical(damage, ctx.criticalMultiplier);
-        }
-        combatCtx.isCritical = isCritical; // CombatContext 업데이트
-        result.isCritical = isCritical;
-        result.sourceType = isCritical ? DamageSourceType.Critical : DamageSourceType.Normal;
-        result.damageAfterStep5 = damage;
-        
-        if (EnableDetailedLogs && isCritical)
-            Debug.Log($"[CombatFormula] Step 5: 크리티컬! ({ctx.criticalMultiplier}x) = {damage:F1}");
-        
-        // Step 6: 방어력 감소 (플레이어 방어력)
+        // Step 5: 방어력 감소 (플레이어 방어력)
         float defenseReduction = CalculateDefenseReduction(ctx.targetDefense, ctx.attackerLevel);
         damage = ApplyDefenseReduction(damage, defenseReduction);
         
@@ -339,14 +356,28 @@ public static class CombatFormula
         }
         
         result.defenseReduction = defenseReduction;
-        result.damageAfterStep6 = damage;
+        result.damageAfterStep5 = damage;
         
         if (EnableDetailedLogs)
         {
-            Debug.Log($"[CombatFormula] Step 6: 방어력 감소 ({defenseReduction*100:F1}%) = {damage:F1}");
+            Debug.Log($"[CombatFormula] Step 5: 방어력 감소 ({defenseReduction*100:F1}%) = {damage:F1}");
             if (!string.IsNullOrEmpty(conditionsPhase5))
-                Debug.Log($"[CombatFormula] Step 6: 조건부 피해 감소 적용 = {damage:F1}");
+                Debug.Log($"[CombatFormula] Step 5: 조건부 피해 감소 적용 = {damage:F1}");
         }
+        
+        // Step 6: 크리티컬 (방어 이후 유효 데미지에 배율 적용)
+        bool isCritical = RollCritical(ctx.criticalChance);
+        if (isCritical)
+        {
+            damage = ApplyCritical(damage, ctx.criticalMultiplier);
+        }
+        combatCtx.isCritical = isCritical; // CombatContext 업데이트
+        result.isCritical = isCritical;
+        result.sourceType = isCritical ? DamageSourceType.Critical : DamageSourceType.Normal;
+        result.damageAfterStep6 = damage;
+        
+        if (EnableDetailedLogs && isCritical)
+            Debug.Log($"[CombatFormula] Step 6: 크리티컬! ({ctx.criticalMultiplier}x) = {damage:F1}");
         
         // Step 7: 블록 판정 (Warrior 전용) - PlayerHealth에서 처리하므로 여기서는 스킵
         // 이유: 블록은 피격자(PlayerHealth)에서 처리하는 것이 구조상 자연스러움
@@ -357,8 +388,8 @@ public static class CombatFormula
         result.totalMultiplier = result.damageAfterStep1 > 0 ? damage / result.damageAfterStep1 : 1f;
         result.appliedConditions = appliedConditions?.ToString() ?? "";
         
-        // ⚙️ Phase 7: 후처리 (흡혈, 회복 차단) - 몬스터가 플레이어를 공격할 때도 적용 가능 (예: 엘리트 몬스터 흡혈)
-        var (lifeStealAmount, healingBlockPercent) = ApplyPostDamageEffects(result.finalDamage, combatCtx, phase: 7);
+        // ⚙️ Phase 7: 후처리 (흡혈, 회복 차단) - 몬스터는 스탯 기반 기본 흡혈 없음 (0f)
+        var (lifeStealAmount, healingBlockPercent) = ApplyPostDamageEffects(result.finalDamage, combatCtx, phase: 7, baseLifeStealPercent: 0f);
         result.lifeStealAmount = lifeStealAmount;
         result.healingBlockPercent = healingBlockPercent;
         
@@ -392,34 +423,30 @@ public static class CombatFormula
     }
     
     /// <summary>
-    /// Step 3: 증폭 배율 적용 (1버킷 - 모두 합산)
+    /// Step 3: 증폭 배율 적용 (런타임 동적 보너스만 합산)
+    /// 
+    /// 클래스 고유 기본 배율(AttackPowerMultiplier)은 PlayerRuntimeStats.ApplyClassMultipliers()에서
+    /// FinalAttackDamage에 이미 반영되므로 여기서는 절대 다시 더하지 않는다.
+    /// 이 메서드는 타격 순간에만 결정되는 조건부·동적 보너스만 처리한다.
     /// </summary>
-    private static float ApplyMultiplicativeBonus(float damage, IPlayerClass playerClass)
+    private static float ApplyMultiplicativeBonus(float damage, bool isBerserkerState)
     {
-        if (playerClass == null)
-            return damage;
-        
         float bonusTotal = 0f;
         
-        // 1. 클래스 기본 배율
-        float classMultiplier = playerClass.AttackPowerMultiplier - 1f; // 1.2 → 0.2 (20%)
-        bonusTotal += classMultiplier;
-        
-        // 2. Warrior 버서커 모드 (체력 30% 이하)
-        if (playerClass.ClassName == "Warrior")
+        // Warrior 버서커 모드: HP 30% 이하일 때 +50% (런타임 조건부 동적 보너스)
+        if (isBerserkerState)
         {
-            var warrior = playerClass as Warrior;
-            if (warrior != null && warrior.IsInBerserkerMode())
-            {
-                bonusTotal += 0.5f; // +50%
-                
-                if (EnableDetailedLogs)
-                    Debug.Log($"[CombatFormula] 버서커 모드 활성화! (+50%)");
-            }
+            bonusTotal += 0.5f;
+            
+            if (EnableDetailedLogs)
+                Debug.Log($"[CombatFormula] Step 3: 버서커 모드 활성화! (+50%)");
         }
         
-        // 3. [확장 예정] 룬 시스템, 버프 등
+        // [확장 예정] 룬 시스템, 시간제한 버프 등 타격 순간 동적 보너스
         // TODO: ICombatModifier 인터페이스 구현 시 추가
+        
+        if (bonusTotal == 0f)
+            return damage;
         
         // 최종 적용: damage × (1 + bonusTotal)
         return damage * (1f + bonusTotal);
@@ -774,55 +801,52 @@ public static class CombatFormula
     /// <param name="finalDamage">최종 데미지</param>
     /// <param name="context">전투 컨텍스트</param>
     /// <param name="phase">Phase 번호 (7 = Post)</param>
+    /// <param name="baseLifeStealPercent">스탯창 기반 기본 흡혈률 (PlayerRuntimeStats.FinalLifeSteal). 룬 효과와 누적됨.</param>
     /// <returns>(lifeStealAmount: 흡혈량, healingBlockPercent: 회복 차단 비율)</returns>
-    private static (float lifeStealAmount, float healingBlockPercent) ApplyPostDamageEffects(int finalDamage, CombatContext context, int phase)
+    private static (float lifeStealAmount, float healingBlockPercent) ApplyPostDamageEffects(
+        int finalDamage, CombatContext context, int phase, float baseLifeStealPercent = 0f)
     {
-        // PlayerRuntimeStats에서 활성 조건부 모디파이어 가져오기
-        var playerStats = UnityEngine.Object.FindObjectOfType<PlayerRuntimeStats>();
-        if (playerStats == null)
-        {
-            return (0f, 0f);
-        }
-        
-        var activeModifiers = playerStats.GetActiveConditionalModifiers();
-        if (activeModifiers == null || activeModifiers.Count == 0)
-        {
-            return (0f, 0f);
-        }
-        
-        // Phase 7 후처리 모디파이어 필터링
-        var postModifiers = activeModifiers
-            .Where(m => m.applyPhase == phase)
-            .ToList();
-        
-        if (postModifiers.Count == 0)
-        {
-            return (0f, 0f);
-        }
-        
-        float lifeStealPercent = 0f;
+        // 스탯 기반 기본 흡혈률을 출발점으로 설정 (룬 효과와 누적)
+        float lifeStealPercent = baseLifeStealPercent;
         float healingBlockPercent = 0f;
         
-        foreach (var modifier in postModifiers)
+        if (EnableDetailedLogs && baseLifeStealPercent > 0)
+            Debug.Log($"[CombatFormula] Phase 7: 스탯 기반 기본 흡혈률 {baseLifeStealPercent*100:F1}% 적용 시작");
+        
+        // PlayerRuntimeStats에서 활성 조건부 모디파이어 가져오기
+        var playerStats = UnityEngine.Object.FindObjectOfType<PlayerRuntimeStats>();
+        if (playerStats != null)
         {
-            if (!modifier.IsConditionMet(context))
-                continue;
-            
-            switch (modifier.effectType)
+            var activeModifiers = playerStats.GetActiveConditionalModifiers();
+            if (activeModifiers != null && activeModifiers.Count > 0)
             {
-                case EEffectType.LifeStealFromDamagePerSec:
-                    // 흡혈: 가한 데미지의 N%를 회복
-                    lifeStealPercent += modifier.value;
-                    break;
+                // Phase 7 후처리 모디파이어 필터링
+                var postModifiers = activeModifiers
+                    .Where(m => m.applyPhase == phase)
+                    .ToList();
                 
-                case EEffectType.BlockHealingPercent:
-                    // 회복 차단: 대상의 회복 효과를 N% 차단
-                    healingBlockPercent += modifier.value;
-                    break;
+                foreach (var modifier in postModifiers)
+                {
+                    if (!modifier.IsConditionMet(context))
+                        continue;
+                    
+                    switch (modifier.effectType)
+                    {
+                        case EEffectType.LifeStealFromDamagePerSec:
+                            // 룬 흡혈: 스탯 기반 흡혈률에 누적
+                            lifeStealPercent += modifier.value;
+                            break;
+                        
+                        case EEffectType.BlockHealingPercent:
+                            // 회복 차단: 대상의 회복 효과를 N% 차단
+                            healingBlockPercent += modifier.value;
+                            break;
+                    }
+                }
             }
         }
         
-        // 흡혈량 계산
+        // 흡혈량 계산 (스탯 기반 + 룬 효과 합산)
         float lifeStealAmount = finalDamage * lifeStealPercent;
         
         // 회복 차단 비율 제한 (최대 100%)

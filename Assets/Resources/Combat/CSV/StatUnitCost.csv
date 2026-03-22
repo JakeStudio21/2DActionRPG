@@ -3,7 +3,7 @@ ATK_FLAT,ATK (공격력 Flat),1,ATK +1,기준 단가
 ATK_PERCENT,ATK% (공격력 %),8,+1%p,곱연산이라 비쌈
 ASPD,ASPD (공속 %),9,+1%p,DPS 직결
 CRIT_RATE,CritRate% (치확),10,+1%p,강력 옵션
-CRIT_DMG,CritDmg% (치피),0.8,+1%p,10%p 단위로 가격 책정 (예: +20%p면 16)
+CRIT_DMG,CritDmg% (치피),4,+1%p,10%p 단위로 가격 책정 (예: +20%p면 16)
 SKILL_DMG_PERCENT,SkillDmg% (스킬 피해 증가),9,+1%p,스킬에만 적용이라 ATK%보다 약간 낮게
 COOLDOWN_REDUCTION,CooldownReduction (쿨감),14,+1%p,체감/효율 큼
 DEF_FLAT,DEF (방어력 Flat),1,DEF +1,"시작은 1, 탱킹 과하면 0.8~0.6으로 조정"
@@ -11,5 +11,9 @@ HP_FLAT,HP (최대체력 Flat),0.1,HP +1,예시 기준
 HP_REGEN,HPRegen (체력회복),60,초당 HP +1%p,단위 고정 필요 (초당 최대체력% 회복)
 DAMAGE_REDUCTION_PERCENT,DamageReduction% (피해감소),18,+1%p,최상급 생존
 STATUS_RESIST_ALL,StatusResist (상태이상 저항),6,+1%p,면역보다 약함
-MOVE_SPEED,MoveSpeed (이속),12,+1%p,유틸 최상급
+MOVE_SPEED,MoveSpeed (이속),2,+1%p,유틸 최상급
 EXP_GAIN_PERCENT,ExpGain% (경험치 증가),2,+1%p,비전투 성장(싸게)
+LIFESTEAL,LifeSteal% (흡혈),12,+1%p,피해량 X%를 HP 회복. 공격+생존 복합 효과. MOVE_SPEED(12)와 동급
+ARMOR_PENETRATION,ArmorPen% (방어 관통),14,+1%p,적 방어력 X% 무시. 고방어 적에게 강력. COOLDOWN_REDUCTION(14)과 동급
+DODGE_CHANCE,DodgeChance% (회피 확률),15,+1%p,X% 확률 피해 완전 무효화. 강력하지만 확률성이므로 DAMAGE_REDUCTION(18)보다 낮게 책정
+BLOCK_CHANCE,BlockChance% (블록 확률),10,+1%p,X% 확률 피해 50% 감소. DODGE보다 약하므로 CRIT_RATE(10)와 동급

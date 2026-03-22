@@ -26,6 +26,9 @@ public class PlayerHealth : MonoBehaviour
     
     // ✅ PlayerUIController 참조 추가
     private PlayerUIController playerUIController;
+    
+    // 생존/유틸 스탯용 PlayerRuntimeStats 참조
+    private PlayerRuntimeStats playerRuntimeStats;
 
     // ❌ 제거: const string HEALTH_SLIDER_TEXT = "Health Slider";
     const string TOWN_TEXT = "Stage_001";
@@ -71,6 +74,14 @@ public class PlayerHealth : MonoBehaviour
             
         // ✅ PlayerUIController 참조 획득
         playerUIController = FindObjectOfType<PlayerUIController>();
+        
+        // PlayerRuntimeStats 캐싱 (생존/유틸 스탯 소비용)
+        playerRuntimeStats = GetComponentInParent<PlayerRuntimeStats>();
+        if (playerRuntimeStats == null)
+            playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        
+        // HP 재생 코루틴 시작 (FinalHpRegen > 0 일 때만 실제 치유 발생)
+        StartCoroutine(HpRegenCoroutine());
             
         Debug.Log("🔧 [PlayerHealth] 기본 초기화 완료 (체력은 BaseClassBehaviour에서 설정 예정)");
     }
@@ -177,6 +188,9 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void TakeDamage(int damageAmount, Transform hitTransform) {
         if (!canTakeDamage) { return; }
+        
+        // 방어 메커니즘: Dodge → Block → DamageReduction
+        if (ApplyDefensiveMechanics(ref damageAmount)) return;
 
         if (playerAnimationController != null)
         {
@@ -226,6 +240,9 @@ public class PlayerHealth : MonoBehaviour
     {
         if (!canTakeDamage) { return; }
         
+        // 방어 메커니즘: Dodge → Block → DamageReduction
+        if (ApplyDefensiveMechanics(ref damageAmount)) return;
+        
         // 애니메이션 및 효과
         if (playerAnimationController != null)
         {
@@ -274,6 +291,10 @@ public class PlayerHealth : MonoBehaviour
     /// </summary>
     public void TakeDamage(CombatFormula.DamageResult result, Transform hitTransform) {
         if (!canTakeDamage) { return; }
+        
+        // 방어 메커니즘: Dodge → Block → DamageReduction (DamageResult 기반)
+        int incomingDamage = result.finalDamage;
+        if (ApplyDefensiveMechanics(ref incomingDamage)) return;
 
         // 1️⃣ 🛡️ Phase 4-C: 면역 체크 (상태이상 차단)
         if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
@@ -316,9 +337,9 @@ public class PlayerHealth : MonoBehaviour
             StartCoroutine(flash.FlashRoutine());
         }
         
-        // 6️⃣ 실제 HP 차감
+        // 6️⃣ 실제 HP 차감 (방어 메커니즘 적용 후의 incomingDamage 사용)
         canTakeDamage = false;
-        currentHealth -= result.finalDamage;
+        currentHealth -= incomingDamage;
         
         // 7️⃣ 데미지 넘버 표시 (Phase 4-C: DamageResult 통합 - 크리티컬, 면역 연출 포함)
         if (DamageNumberManager.Instance != null)
@@ -346,7 +367,7 @@ public class PlayerHealth : MonoBehaviour
         
         if (showDebugLogs)
         {
-            Debug.Log($"💥 [PlayerHealth] {result.finalDamage} 데미지 받음 (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) ({currentHealth}/{maxHealth})");
+            Debug.Log($"💥 [PlayerHealth] {incomingDamage} 데미지 받음 (원본: {result.finalDamage}, 크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) ({currentHealth}/{maxHealth})");
         }
     }
     
@@ -585,6 +606,79 @@ public class PlayerHealth : MonoBehaviour
         {
             Debug.Log($"✅ [PlayerHealth] 회복 차단 디버프 해제");
         }
+    }
+    
+    #endregion
+
+    #region 💚 HP 재생 & 방어 메커니즘
+    
+    /// <summary>
+    /// 초당 체력 회복 코루틴 (PlayerRuntimeStats.FinalHpRegen)
+    /// </summary>
+    private IEnumerator HpRegenCoroutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+            
+            // 늦은 바인딩: Start()에서 못 찾았을 경우 재시도
+            if (playerRuntimeStats == null)
+                playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+            
+            if (isDead) continue;
+            if (playerRuntimeStats == null) continue;
+            
+            float regenValue = playerRuntimeStats.FinalHpRegen;
+            if (regenValue <= 0f) continue;
+            
+            int healAmount = Mathf.RoundToInt(regenValue);
+            if (healAmount <= 0) continue;
+            
+            HealPlayerAmount(healAmount);
+            
+            if (showDebugLogs)
+                Debug.Log($"💚 [PlayerHealth] HP 재생: +{healAmount} ({currentHealth}/{maxHealth})");
+        }
+    }
+    
+    /// <summary>
+    /// 방어 메커니즘 적용 (Dodge → Block → DamageReduction).
+    /// 회피 성공 시 true 반환(호출부에서 즉시 return), 아니면 damage를 in-place 수정 후 false 반환.
+    /// </summary>
+    private bool ApplyDefensiveMechanics(ref int damage)
+    {
+        if (playerRuntimeStats == null) return false;
+        
+        // 1순위: 회피
+        float dodgeChance = playerRuntimeStats.FinalDodgeChance;
+        if (dodgeChance > 0f && Random.Range(0f, 1f) < dodgeChance)
+        {
+            if (showDebugLogs)
+                Debug.Log($"💨 [PlayerHealth] 회피 성공! (회피율 {dodgeChance:P1})");
+            DamageNumberManager.Instance?.ShowDodgeText(transform.position, transform);
+            return true;
+        }
+        
+        // 2순위: 블록 (50% 피해 감소)
+        float blockChance = playerRuntimeStats.FinalBlockChance;
+        if (blockChance > 0f && Random.Range(0f, 1f) < blockChance)
+        {
+            damage = Mathf.RoundToInt(damage * 0.5f);
+            if (showDebugLogs)
+                Debug.Log($"🛑 [PlayerHealth] 블록 성공! 피해 50% 감소 → {damage} (블록율 {blockChance:P1})");
+            DamageNumberManager.Instance?.ShowBlockText(transform.position, transform);
+        }
+        
+        // 3순위: 피해 감소
+        float reduction = playerRuntimeStats.FinalDamageReduction;
+        if (reduction > 0f)
+        {
+            damage = Mathf.RoundToInt(damage * (1f - reduction));
+            if (showDebugLogs)
+                Debug.Log($"🛡️ [PlayerHealth] 피해 감소 {reduction:P1} 적용 → {damage}");
+        }
+        
+        return false;
     }
     
     #endregion

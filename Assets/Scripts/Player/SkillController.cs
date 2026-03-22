@@ -16,6 +16,9 @@ public class SkillController : MonoBehaviour
     // 🆕 Phase 1: 런타임 스킬 참조
     private PlayerSkillManager skillManager;
     
+    // 스탯 스킬 보너스 참조 (캐싱)
+    private PlayerRuntimeStats playerRuntimeStats;
+    
     // ❌ 제거: 사용되지 않는 호환성 필드들
     /*
     [Header("⏰ 호환성 필드 (UI 시스템용)")]
@@ -36,9 +39,38 @@ public class SkillController : MonoBehaviour
     // ⭐ Phase 4: 마지막 공격 방향 저장 (기본공격 패턴과 동일)
     private Vector2 lastAttackDirection = Vector2.right;
     
+    // 스킬 트리거 시점에 캡처한 방향 — 이후 조이스틱 변경에 영향받지 않음
+    private Vector2 lockedSkillDirection = Vector2.right;
+    
     // ─── 스킬 실행 상태 ───────────────────────────────────────────────────
     /// <summary>Telegraph 대기 또는 Effect 딜레이가 진행 중인지 여부 (PlayerAnimationController가 참조)</summary>
     public bool IsSkillPendingExecution { get; private set; }
+    
+    /// <summary>
+    /// 슬롯 인덱스에 장착된 스킬의 CDR 반영 유효 쿨다운 반환
+    /// PlayerAnimationController에서 CooldownRoutine 시작 전 호출용
+    /// </summary>
+    public float GetEffectiveCooldown(int slotIndex)
+    {
+        if (skillManager != null)
+        {
+            var skillInstance = skillManager.GetEquippedActiveSkill(slotIndex);
+            if (skillInstance != null)
+            {
+                float csvCooldown = skillInstance.GetCurrentCooldown();
+                
+                // 미해금(currentLevel=0)이면 999f 반환 — 쿨다운 갱신 하지 않음
+                if (csvCooldown >= 999f) return -1f;
+                
+                float cdr = playerRuntimeStats != null ? playerRuntimeStats.FinalCooldownReduction : 0f;
+                float effective = csvCooldown * (1f - cdr);
+                if (showDebugLogs)
+                    Debug.Log($"⏱️ [SkillController] Slot{slotIndex} 유효 쿨다운: {csvCooldown:F1}s × (1 - {cdr:P0}) = {effective:F1}s");
+                return Mathf.Max(0.1f, effective);
+            }
+        }
+        return -1f; // 폴백: PlayerAnimationController의 기존 값 유지
+    }
     
     /// <summary>스킬 실행 완전 완료 시 발행 (slotIndex, -1 = 취소)</summary>
     public event Action<int> OnSkillExecutionComplete;
@@ -66,9 +98,18 @@ public class SkillController : MonoBehaviour
         // 🆕 Phase 1: PlayerSkillManager 참조 초기화
         skillManager = GetComponent<PlayerSkillManager>();
         if (skillManager == null)
+            skillManager = GetComponentInParent<PlayerSkillManager>();
+        if (skillManager == null)
+            skillManager = FindObjectOfType<PlayerSkillManager>();
+        if (skillManager == null)
         {
-            Debug.LogWarning("⚠️ [SkillController] PlayerSkillManager가 없습니다. 기존 SkillSet 사용");
+            Debug.LogWarning("⚠️ [SkillController] PlayerSkillManager를 찾을 수 없습니다. 기존 SkillSet 사용");
         }
+        
+        // 스탯 캐싱 (스킬 피해/쿨다운 감소용)
+        playerRuntimeStats = GetComponent<PlayerRuntimeStats>();
+        if (playerRuntimeStats == null)
+            playerRuntimeStats = GetComponentInParent<PlayerRuntimeStats>();
         
         if (skillSet == null)
         {
@@ -401,8 +442,16 @@ public class SkillController : MonoBehaviour
         Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
         Debug.Log($"   - castCueKey: {(string.IsNullOrEmpty(activeData.castCueKey) ? "없음(fallback)" : activeData.castCueKey)}");
         
-        // ⭐ 쿨다운 시작
+        // ⭐ 쿨다운 시작 (CDR 적용: lastUsedTime 역산으로 실효 쿨다운 단축)
         skillInstance.lastUsedTime = Time.time;
+        if (playerRuntimeStats != null && playerRuntimeStats.FinalCooldownReduction > 0f)
+        {
+            float baseCooldown = skillInstance.GetCurrentCooldown();
+            float cdrReduction = baseCooldown * playerRuntimeStats.FinalCooldownReduction;
+            skillInstance.lastUsedTime = Time.time - cdrReduction;
+            if (showDebugLogs)
+                Debug.Log($"⏱️ [SkillController] CDR 적용: {baseCooldown:F1}s → {baseCooldown - cdrReduction:F1}s ({playerRuntimeStats.FinalCooldownReduction:P1} 감소)");
+        }
         
         // ⭐ 애니메이션 트리거 먼저 호출 (기존 시스템 호환)
         var animationController = GetComponent<PlayerAnimationController>();
@@ -449,21 +498,24 @@ public class SkillController : MonoBehaviour
         
         Debug.Log($"⏰ [SkillController] 딜레이 종료 - 스킬 발동 시작");
         
-        // ⭐ PlayerRuntimeStats에서 최종 공격력 가져오기
-        var playerStats = GetComponent<PlayerRuntimeStats>();
-        if (playerStats == null)
+        // ⭐ PlayerRuntimeStats 참조 확인 (Awake 캐싱 우선, 없으면 재탐색)
+        if (playerRuntimeStats == null)
+            playerRuntimeStats = GetComponent<PlayerRuntimeStats>();
+        if (playerRuntimeStats == null)
         {
             Debug.LogError("❌ [SkillController] PlayerRuntimeStats를 찾을 수 없습니다!");
             yield break;
         }
         
-        // ⭐ 데미지 계산: 플레이어 공격력 × 스킬 데미지 배율
-        float damageMultiplier = skillInstance.GetCurrentDamage(); // CSV에서 가져온 % 값 (예: 150)
-        int finalDamage = Mathf.RoundToInt(playerStats.FinalAttackDamage * (damageMultiplier / 100f));
+        // ⭐ 데미지 계산: 플레이어 공격력 × 스킬 배율 × 스킬 피해 증가 보너스
+        float damageMultiplier = skillInstance.GetCurrentDamage(); // CSV에서 가져온 배율 값 (예: 1.3 = 130%)
+        float skillDmgBonus = 1f + playerRuntimeStats.FinalSkillDamageBonus;
+        int finalDamage = Mathf.RoundToInt(playerRuntimeStats.FinalAttackDamage * damageMultiplier * skillDmgBonus);
         
         Debug.Log($"💥 [SkillController] {activeData.skillName} 데미지 계산:");
-        Debug.Log($"   - 플레이어 공격력: {playerStats.FinalAttackDamage:F0}");
-        Debug.Log($"   - 스킬 배율: {damageMultiplier}%");
+        Debug.Log($"   - 플레이어 공격력: {playerRuntimeStats.FinalAttackDamage:F0}");
+        Debug.Log($"   - 스킬 배율: {damageMultiplier:F2}x ({damageMultiplier * 100f:F0}%)");
+        Debug.Log($"   - 스킬 피해 보너스: x{skillDmgBonus:F2} ({playerRuntimeStats.FinalSkillDamageBonus:P1})");
         Debug.Log($"   - 최종 데미지: {finalDamage}");
         Debug.Log($"   - 쿨다운: {skillInstance.GetCurrentCooldown()}초");
         
@@ -534,8 +586,8 @@ public class SkillController : MonoBehaviour
             return;
         }
         
-        // 조이스틱 방향 가져오기
-        Vector2 direction = GetAttackDirection();
+        // 스킬 트리거 시점에 잠긴 방향 사용 (이후 조이스틱 변경 무시)
+        Vector2 direction = lockedSkillDirection;
         
         // 발사체 프리팹 확인
         if (skillData.projectilePrefab == null)
@@ -583,13 +635,17 @@ public class SkillController : MonoBehaviour
                     projectileComponent.UpdateMoveSpeed(skillData.projectileSpeed);
                 }
                 
-                // 발사체 데미지 설정 (DamageSource 컴포넌트 사용)
+                // 발사체 데미지 설정 (스킬 배율이 적용된 값을 DamageSource에 주입)
                 var damageSource = projectile.GetComponent<DamageSource>();
                 if (damageSource != null)
                 {
-                    // TODO: DamageSource.SetDamage() 메서드 확인 및 적용
+                    damageSource.SetSkillDamage(damage);
                     if (showDebugLogs)
-                        Debug.Log($"🎯 [SkillController] 발사체 데미지 설정: {damage}");
+                        Debug.Log($"🎯 [SkillController] 발사체 스킬 데미지 설정 완료: {damage}");
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [SkillController] 발사체 '{poolName}'에 DamageSource 컴포넌트가 없습니다!");
                 }
                 
                 if (showDebugLogs)
@@ -668,19 +724,48 @@ public class SkillController : MonoBehaviour
         Debug.Log($"   - telegraphPrefab: {(activeData.telegraphPrefab != null ? activeData.telegraphPrefab.name : "NULL")}");
         Debug.Log($"   - telegraphDuration: {activeData.telegraphDuration}");
         
-        // ⭐ PlayerRuntimeStats에서 최종 공격력 가져오기
-        var playerStats = GetComponent<PlayerRuntimeStats>();
-        if (playerStats == null)
+        // ⭐ PlayerRuntimeStats 참조 확인 (Awake 캐싱 우선, 없으면 재탐색)
+        if (playerRuntimeStats == null)
+            playerRuntimeStats = GetComponent<PlayerRuntimeStats>();
+        if (playerRuntimeStats == null)
         {
             Debug.LogError("❌ [SkillController] PlayerRuntimeStats를 찾을 수 없습니다!");
             return;
         }
         
-        // ⭐ 데미지 계산
-        float damageMultiplier = skillInstance.GetCurrentDamage();
-        int finalDamage = Mathf.RoundToInt(playerStats.FinalAttackDamage * (damageMultiplier / 100f));
+        // ⭐ 쿨다운 시작 — CSV 값 기준, CDR 반영 후 PlayerAnimationController 동기화
+        skillInstance.lastUsedTime = Time.time;
+        float csvCooldown = skillInstance.GetCurrentCooldown();
+        float effectiveCooldown = csvCooldown;
+        if (playerRuntimeStats != null && playerRuntimeStats.FinalCooldownReduction > 0f)
+        {
+            float cdrReduction = csvCooldown * playerRuntimeStats.FinalCooldownReduction;
+            skillInstance.lastUsedTime = Time.time - cdrReduction;
+            effectiveCooldown = csvCooldown - cdrReduction;
+            if (showDebugLogs)
+                Debug.Log($"⏱️ [SkillController] AnimEvent CDR 적용: {csvCooldown:F1}s → {effectiveCooldown:F1}s ({playerRuntimeStats.FinalCooldownReduction:P1} 감소)");
+        }
         
-        Debug.Log($"💥 [SkillController] 데미지 계산: {finalDamage}");
+        // PlayerAnimationController의 skill 쿨다운을 CSV 값으로 동기화 (하드코딩 2f/3f 대체)
+        var animController = GetComponent<PlayerAnimationController>();
+        if (animController != null)
+        {
+            if (slotIndex == 0)
+                animController.UpdateSkill1Cooldown(effectiveCooldown);
+            else if (slotIndex == 1)
+                animController.UpdateSkill2Cooldown(effectiveCooldown);
+            
+            if (showDebugLogs)
+                Debug.Log($"⏱️ [SkillController] Skill{slotIndex + 1} AnimController 쿨다운 동기화: {effectiveCooldown:F1}s");
+        }
+        
+        // ⭐ 데미지 계산: 플레이어 공격력 × 스킬 배율 × 스킬 피해 증가 보너스
+        float damageMultiplier = skillInstance.GetCurrentDamage(); // CSV에서 가져온 배율 값 (예: 1.3 = 130%)
+        float skillDmgBonus = 1f + playerRuntimeStats.FinalSkillDamageBonus;
+        int finalDamage = Mathf.RoundToInt(playerRuntimeStats.FinalAttackDamage * damageMultiplier * skillDmgBonus);
+        
+        if (showDebugLogs)
+            Debug.Log($"💥 [SkillController] AnimEvent 데미지 계산: {finalDamage} (배율 {damageMultiplier:F2}x, 스킬 보너스 x{skillDmgBonus:F2})");
         
         // 스킬 실행 시작 — 이동 잠금 연장 플래그
         IsSkillPendingExecution = true;
@@ -703,7 +788,7 @@ public class SkillController : MonoBehaviour
     /// </summary>
     private IEnumerator ExecuteWithTelegraph(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
     {
-        Vector2 attackDir = GetAttackDirection();
+        Vector2 attackDir = lockedSkillDirection;
         Transform firePoint = FindFirePoint();
         Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
 
@@ -762,7 +847,7 @@ public class SkillController : MonoBehaviour
     /// </summary>
     private IEnumerator ExecuteSkillEffects(ActiveSkillData activeData, SkillInstance skillInstance, int finalDamage, int slotIndex)
     {
-        Vector2 attackDir = GetAttackDirection();
+        Vector2 attackDir = lockedSkillDirection;
         Transform firePoint = FindFirePoint();
         Vector3 skillPos = firePoint != null ? firePoint.position : transform.position;
 
@@ -919,6 +1004,17 @@ public class SkillController : MonoBehaviour
     /// 조이스틱 공격 방향 가져오기 (마지막 방향 기억 기능 포함)
     /// WarriorSkill1/2와 동일한 패턴 사용
     /// </summary>
+    /// <summary>
+    /// 스킬 트리거 시점에 현재 방향을 lockedSkillDirection에 저장.
+    /// PlayerAnimationController.StartSkillMovement()에서 호출.
+    /// </summary>
+    public void LockCurrentSkillDirection()
+    {
+        lockedSkillDirection = GetAttackDirection();
+        if (showDebugLogs)
+            Debug.Log($"🔒 [SkillController] 스킬 방향 잠금: {lockedSkillDirection}");
+    }
+
     private Vector2 GetAttackDirection()
     {
         var activeWeapon = FindObjectOfType<ActiveWeapon>();

@@ -137,16 +137,26 @@ public class EquipmentInstance
         
         string source = $"{EquipmentData.equipmentName}+{enhanceLevel}";
         
-        // ===== baseStats 루프 (동적 처리) =====
+        // finalMainStatValue가 있으면 주옵션 타입을 미리 파악하여 baseStats 루프에서 중복 방지
+        EStatType dynamicMainStatType = finalMainStatValue > 0f ? GetMainStatType() : EStatType.None;
+        
+        // ===== baseStats 루프 (보조 스탯 처리) =====
         foreach (var stat in EquipmentData.baseStats)
         {
-            if (stat.value <= 0) continue; // 0 이하 스킵
+            if (stat.value <= 0) continue;
             
             // 1. StatId → EStatType 변환
             EStatType statType = ConvertStatIdToEnum(stat.statId);
             if (statType == EStatType.None)
             {
                 Debug.LogWarning($"[EquipmentInstance] 알 수 없는 StatId: {stat.statId}");
+                continue;
+            }
+            
+            // finalMainStatValue가 있으면 동일 타입의 baseStats 값은 스킵 (동적 값으로 대체됨)
+            if (dynamicMainStatType != EStatType.None && statType == dynamicMainStatType)
+            {
+                Debug.Log($"[EquipmentInstance] baseStats '{statType}' 스킵 → finalMainStatValue로 대체");
                 continue;
             }
             

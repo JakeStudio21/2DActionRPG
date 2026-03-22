@@ -44,6 +44,7 @@ public class SimpleMob : MonoBehaviour
     protected string poolTag;
     
     public bool IsDead => isDead;
+    public int CurrentHealth => currentHealth;
     public Transform PlayerTransform => playerTransform;
     
     /// <summary>

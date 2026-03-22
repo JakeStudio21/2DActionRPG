@@ -149,25 +149,27 @@ public class SkillInstance
     
     /// <summary>
     /// 특정 스탯에 대한 패시브 보너스 값
-    /// Phase 2: CSV SkillLevelData.Value1 사용
+    /// CSV의 StatType1/StatType2와 매핑하여 올바른 value 반환
     /// </summary>
     public float GetPassiveStatValue(EStatType statType)
     {
-        // ⚠️ 미해금 방어
-        if (currentLevel <= 0) return 0f; // 미해금 스킬은 보너스 0
+        if (currentLevel <= 0) return 0f;
         
         if (skillData is PassiveSkillData passiveData)
         {
-            // CSV에서 레벨별 값 가져오기
             var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo(skillData.skillID, currentLevel);
             
-            if (levelInfo.level > 0) // CSV 데이터 존재
+            if (levelInfo.level > 0)
             {
-                // Value1 = 스탯 보너스 값
-                return levelInfo.value1;
+                // StatType1 매핑
+                if (levelInfo.StatType1 == statType) return levelInfo.value1;
+                // StatType2 매핑 (이중 스탯 패시브)
+                if (levelInfo.StatType2 == statType) return levelInfo.value2;
+                // 해당 스탯이 CSV에 없는 경우
+                return 0f;
             }
             
-            // CSV 데이터 없으면 기본 계산식 사용
+            // CSV 데이터 없으면 SO 폴백
             return passiveData.GetStatValueAtLevel(statType, currentLevel);
         }
         return 0f;

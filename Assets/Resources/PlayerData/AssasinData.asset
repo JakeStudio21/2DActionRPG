@@ -16,7 +16,7 @@ MonoBehaviour:
   playerType: 2
   classIcon: {fileID: 0}
   description: 
-  baseMaxHealth: 200
+  baseMaxHealth: 100
   hpGainPerLevel: 20
   baseLevelAttackPower: 4
   maxLevelTargetAttackPower: 1000
@@ -25,9 +25,9 @@ MonoBehaviour:
   defenseGainPerLevel: 1
   baseCritRate: 0.05
   baseCritDamage: 1.3
-  baseAttackSpeed: 50
-  baseMoveSpeed: 3.5
-  baseDashSpeed: 20
+  baseAttackSpeed: 1
+  baseMoveSpeed: 4.5
+  baseDashSpeed: 8
   healMultiplier: 1
   baseKnockbackThrust: 3
   knockbackTime: 0.2

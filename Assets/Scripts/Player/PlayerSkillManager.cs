@@ -308,7 +308,24 @@ public class PlayerSkillManager : MonoBehaviour
     }
     
     // ===== 패시브 스탯 적용 (핵심) =====
-    
+
+    /// <summary>
+    /// EStatType에 따른 StatModifierType 결정
+    /// Percent 단위 스탯은 Multiplicative, 나머지는 Additive
+    /// </summary>
+    private StatModifierType GetModifierType(EStatType statType)
+    {
+        switch (statType)
+        {
+            case EStatType.ATK_PERCENT:
+            case EStatType.ASPD:
+            case EStatType.MOVE_SPEED:
+                return StatModifierType.Multiplicative;
+            default:
+                return StatModifierType.Additive;
+        }
+    }
+
     #region 🔥 VFX Warm-up
 
     /// <summary>
@@ -377,6 +394,7 @@ public class PlayerSkillManager : MonoBehaviour
 
     /// <summary>
     /// 장착된 모든 패시브 스킬의 스탯 보너스를 PlayerRuntimeStats에 적용
+    /// CSV의 StatType1/StatType2를 단독 진실 소스로 사용
     /// </summary>
     public void ApplyAllPassiveStats()
     {
@@ -386,34 +404,41 @@ public class PlayerSkillManager : MonoBehaviour
             return;
         }
         
-        // 기존 패시브 스탯 초기화
         ClearPassiveStats();
         
-        // 장착된 패시브 스킬만 적용
         foreach (var passive in equippedPassiveSkills)
         {
             if (passive == null || !passive.IsUnlocked) continue;
+            if (!(passive.skillData is PassiveSkillData)) continue;
             
-            var modifiers = passive.GetAllStatModifiers();
-            foreach (var modifier in modifiers)
+            string skillID = passive.skillData.skillID;
+            var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo(skillID, passive.currentLevel);
+            
+            if (levelInfo.level <= 0)
             {
-                float value = passive.GetPassiveStatValue(modifier.statType);
-                
-                // PlayerRuntimeStats에 보너스 적용
-                playerStats.AddPassiveStatBonus(
-                    passive.skillData.skillID, 
-                    modifier.statType, 
-                    value, 
-                    modifier.modifierType
-                );
-                
+                Debug.LogWarning($"⚠️ [{passive.skillData.skillName}] CSV 데이터 없음 (Lv.{passive.currentLevel})");
+                continue;
+            }
+            
+            // StatType1 적용
+            EStatType st1 = levelInfo.StatType1;
+            if (st1 != EStatType.None)
+            {
+                playerStats.AddPassiveStatBonus(skillID, st1, levelInfo.value1, GetModifierType(st1));
                 if (showDebugLogs)
-                    Debug.Log($"📊 패시브 [{passive.skillData.skillName}] 적용: " +
-                             $"{modifier.statType} +{value} ({modifier.modifierType})");
+                    Debug.Log($"📊 패시브 [{passive.skillData.skillName}] {st1} +{levelInfo.value1}");
+            }
+            
+            // StatType2 적용 (이중 스탯 패시브)
+            EStatType st2 = levelInfo.StatType2;
+            if (st2 != EStatType.None)
+            {
+                playerStats.AddPassiveStatBonus(skillID, st2, levelInfo.value2, GetModifierType(st2));
+                if (showDebugLogs)
+                    Debug.Log($"📊 패시브 [{passive.skillData.skillName}] {st2} +{levelInfo.value2}");
             }
         }
         
-        // 최종 스탯 재계산
         playerStats.RecalculateAllStats();
     }
     

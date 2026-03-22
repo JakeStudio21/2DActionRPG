@@ -52,6 +52,7 @@ public class PlayerAnimationController : MonoBehaviour
     private bool canAttack = true;
     private float attackCooldown = 1f;
     private float baseWeaponCooldown = 1f; // 무기 원본 쿨다운 (ASPD 배율 적용 전)
+    private float attackCooldownStartTime = -999f; // Radial용 쿨다운 시작 시각
     
     // ⭐ 기본적인 상태 추적만 유지
     private int currentAttackSequence = 0;
@@ -69,11 +70,13 @@ public class PlayerAnimationController : MonoBehaviour
     private bool isSkill1 = false;
     private bool canSkill1 = true;
     private float skill1Cooldown = 2f;
+    private float skill1CooldownStartTime = -999f; // Radial용 쿨다운 시작 시각
     
     // ⭐ 스킬2 상태 추적 추가 (신규)
     private bool isSkill2 = false;
     private bool canSkill2 = true;
     private float skill2Cooldown = 3f; // 스킬2는 조금 더 긴 쿨다운
+    private float skill2CooldownStartTime = -999f; // Radial용 쿨다운 시작 시각
     
     // ⭐ Dash 상태 추적 추가 (E8 방식)
     private bool isDashing = false;
@@ -88,6 +91,14 @@ public class PlayerAnimationController : MonoBehaviour
     
     // ⭐ 피격 상태 추적 추가
     private bool isHit = false;
+    
+    // ─── SkillMovementState ───────────────────────────────────────────────────
+    // 이동 해제 권한을 단일 경로(TryReleaseSkillMovement)에 집중.
+    // 애니메이션 완료(80%)와 이펙트 완료 둘 다 true 일 때만 해제.
+    private bool isSkillMovementActive = false;
+    private bool isSkillAnimDone       = false;
+    private bool isSkillEffectDone     = false;
+    // ─────────────────────────────────────────────────────────────────────────
     
     void Start()
     {
@@ -247,8 +258,8 @@ public class PlayerAnimationController : MonoBehaviour
                 var weapon = activeWeapon.CurrentActiveWeapon as IWeapon;
                 if (weapon != null)
                 {
-                    attackCooldown = weapon.GetEquipmentData().WeaponCooldown;  // GetWeaponInfo() → GetEquipmentData()
-                    Debug.Log($"🟢 [PlayerAnimationController] 무기 쿨다운 설정: {attackCooldown}초");
+                    UpdateWeaponCooldown(weapon.GetEquipmentData().WeaponCooldown);
+                    Debug.Log($"🟢 [PlayerAnimationController] 무기 쿨다운 설정: {attackCooldown}초 (baseWeaponCooldown={baseWeaponCooldown:F3}s, ASPD 재계산 완료)");
                 }
             }
             
@@ -315,6 +326,7 @@ public class PlayerAnimationController : MonoBehaviour
         // 내부 상태 업데이트
         isAttacking = true;
         canAttack = false;
+        attackCooldownStartTime = Time.time;
         
         if (showDebugLogs)
             Debug.Log($"🟢 [PlayerAnimationController] 공격 트리거 실행: BasicAttack (시퀀스 #{currentAttackSequence})");
@@ -333,16 +345,20 @@ public class PlayerAnimationController : MonoBehaviour
         // ⭐ 튜토리얼용 스킬 사용 이벤트 발생
         OnSkill1Used?.Invoke();
         
-        // 스킬1 가능 여부 확인 (BaseSkill의 CanUse로 대체)
-        if (skillController != null)
+        // 쿨다운 게이트: canSkill1이 주 게이트 (Skill1CooldownRoutine이 관리)
+        if (!canSkill1)
         {
-            var skill1 = skillController.SkillSet?.GetSkill(0);
-            if (skill1 != null && !skill1.CanUse())
-            {
-                if (showDebugLogs)
-                    Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 쿨다운 중입니다!");
-                return false;
-            }
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 쿨다운 중입니다!");
+            return false;
+        }
+        
+        // 이동 잠금 게이트: 다른 스킬 애니메이션이 이동을 점유 중이면 발동 불가
+        if (isSkillMovementActive)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 불가 — 이미 스킬 이동 잠금 진행 중!");
+            return false;
         }
         
         // Animation Parameters 설정
@@ -354,13 +370,7 @@ public class PlayerAnimationController : MonoBehaviour
             if (HasParameter(animator, "Skill1"))
             {
                 animator.SetTrigger(SKILL1_TRIGGER_HASH);
-                
-                // 🆕 스킬1 이동 제한 적용 (완전정지)
-                if (playerController != null)
-                {
-                    playerController.ApplyAttackMovementRestriction(PlayerAttackType.Skill);
-                    Debug.Log("⚔️ [TriggerSkill1] 스킬1 이동 제한 적용 (완전정지)");
-                }
+                StartSkillMovement();
             }
             else
             {
@@ -373,11 +383,12 @@ public class PlayerAnimationController : MonoBehaviour
             return false;
         }
         
-        // ❌ 제거: 중복 쿨다운 시작
-        // StartCoroutine(Skill1CooldownRoutine());
+        // 스킬 발동 즉시 canSkill1 = false → Skill1CooldownRoutine 완료 전까지 재발동 불가
+        canSkill1 = false;
+        skill1CooldownStartTime = Time.time;
         
         if (showDebugLogs)
-            Debug.Log($"🟢 [PlayerAnimationController] 스킬1 트리거 실행!");
+            Debug.Log($"🟢 [PlayerAnimationController] 스킬1 트리거 실행! (canSkill1 = false)");
         
         return true;
     }
@@ -393,16 +404,20 @@ public class PlayerAnimationController : MonoBehaviour
         // ⭐ 튜토리얼용 스킬 사용 이벤트 발생
         OnSkill2Used?.Invoke();
         
-        // 스킬2 가능 여부 확인 (BaseSkill의 CanUse로 대체)
-        if (skillController != null)
+        // 쿨다운 게이트: canSkill2가 주 게이트 (Skill2CooldownRoutine이 관리)
+        if (!canSkill2)
         {
-            var skill2 = skillController.SkillSet?.GetSkill(1);
-            if (skill2 != null && !skill2.CanUse())
-            {
-                if (showDebugLogs)
-                    Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 쿨다운 중입니다!");
-                return false;
-            }
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 쿨다운 중입니다!");
+            return false;
+        }
+        
+        // 이동 잠금 게이트: 다른 스킬 애니메이션이 이동을 점유 중이면 발동 불가
+        if (isSkillMovementActive)
+        {
+            if (showDebugLogs)
+                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 불가 — 이미 스킬 이동 잠금 진행 중!");
+            return false;
         }
         
         // Animation Parameters 설정
@@ -414,13 +429,7 @@ public class PlayerAnimationController : MonoBehaviour
             if (HasParameter(animator, "Skill2"))
             {
                 animator.SetTrigger(SKILL2_TRIGGER_HASH);
-                
-                // 🆕 스킬2 이동 제한 적용 (완전정지)
-                if (playerController != null)
-                {
-                    playerController.ApplyAttackMovementRestriction(PlayerAttackType.Skill);
-                    Debug.Log("⚔️ [TriggerSkill2] 스킬2 이동 제한 적용 (완전정지)");
-                }
+                StartSkillMovement();
             }
             else
             {
@@ -433,11 +442,12 @@ public class PlayerAnimationController : MonoBehaviour
             return false;
         }
         
-        // ❌ 제거: 중복 쿨다운 시작
-        // StartCoroutine(Skill2CooldownRoutine());
+        // 스킬 발동 즉시 canSkill2 = false → Skill2CooldownRoutine 완료 전까지 재발동 불가
+        canSkill2 = false;
+        skill2CooldownStartTime = Time.time;
         
         if (showDebugLogs)
-            Debug.Log($"🟢 [PlayerAnimationController] 스킬2 트리거 실행!");
+            Debug.Log($"🟢 [PlayerAnimationController] 스킬2 트리거 실행! (canSkill2 = false)");
         
         return true;
     }
@@ -530,14 +540,14 @@ public class PlayerAnimationController : MonoBehaviour
             Debug.LogError($"[PlayerAnimationController] Animator Parameter 접근 중 오류: {e.Message}");
         }
         
-        // ⭐ 글로벌 쿨다운과 스킬2 활성 상태 추가 체크
+        // 스킬 이동 잠금 중이면 다른 스킬 발동 불가 (isSkillMovementActive가 실제 상태 반영)
         bool result = !animatorIsAttacking && !animatorIsSkill1 && !animatorIsSkill2 && 
                      !animatorIsHit && hasSkillController && canSkill1 && 
-                     globalCooldownReady && !isAnySkillActive;
+                     globalCooldownReady && !isSkillMovementActive;
         
         if (showDebugLogs && !result && Time.frameCount % 60 == 0)
         {
-            Debug.Log($"🟡 [PlayerAnimationController] 스킬1 불가능 - globalCooldownReady: {globalCooldownReady}, isAnySkillActive: {isAnySkillActive}");
+            Debug.Log($"🟡 [PlayerAnimationController] 스킬1 불가능 - globalCooldownReady: {globalCooldownReady}, isSkillMovementActive: {isSkillMovementActive}");
         }
         
         return result;
@@ -573,14 +583,14 @@ public class PlayerAnimationController : MonoBehaviour
             Debug.LogError($"[PlayerAnimationController] Animator Parameter 접근 중 오류: {e.Message}");
         }
         
-        // ⭐ 글로벌 쿨다운과 스킬1 활성 상태 추가 체크
+        // 스킬 이동 잠금 중이면 다른 스킬 발동 불가 (isSkillMovementActive가 실제 상태 반영)
         bool result = !animatorIsAttacking && !animatorIsSkill1 && !animatorIsSkill2 && 
                      !animatorIsHit && hasSkillController && canSkill2 && 
-                     globalCooldownReady && !isAnySkillActive;
+                     globalCooldownReady && !isSkillMovementActive;
         
         if (showDebugLogs && !result && Time.frameCount % 60 == 0)
         {
-            Debug.Log($"🟡 [PlayerAnimationController] 스킬2 불가능 - globalCooldownReady: {globalCooldownReady}, isAnySkillActive: {isAnySkillActive}");
+            Debug.Log($"🟡 [PlayerAnimationController] 스킬2 불가능 - globalCooldownReady: {globalCooldownReady}, isSkillMovementActive: {isSkillMovementActive}");
         }
         
         return result;
@@ -669,11 +679,15 @@ public class PlayerAnimationController : MonoBehaviour
         if (HasParameter(animator, "isSkill1"))
             animator.SetBool(IS_SKILL1_HASH, false);
         
-        // Telegraph/Effect 딜레이가 진행 중이면 이동 해제를 SkillController 이벤트에 위임
-        bool skillPending = skillController != null && skillController.IsSkillPendingExecution;
-        if (!skillPending && playerController != null)
+        // 애니메이션 완료 신호 — 이동 해제는 TryReleaseSkillMovement에서 결정
+        NotifySkillAnimDone();
+        
+        // 쿨다운 루틴 시작 전 CSV 기반 유효 쿨다운 동기화
+        if (skillController != null)
         {
-            playerController.RestoreNormalMovement();
+            float effective = skillController.GetEffectiveCooldown(0);
+            if (effective > 0f)
+                UpdateSkill1Cooldown(effective);
         }
         
         StartCoroutine(Skill1CooldownRoutine());
@@ -721,11 +735,15 @@ public class PlayerAnimationController : MonoBehaviour
         if (HasParameter(animator, "isSkill2"))
             animator.SetBool(IS_SKILL2_HASH, false);
         
-        // Telegraph/Effect 딜레이가 진행 중이면 이동 해제를 SkillController 이벤트에 위임
-        bool skillPending = skillController != null && skillController.IsSkillPendingExecution;
-        if (!skillPending && playerController != null)
+        // 애니메이션 완료 신호 — 이동 해제는 TryReleaseSkillMovement에서 결정
+        NotifySkillAnimDone();
+        
+        // 쿨다운 루틴 시작 전 CSV 기반 유효 쿨다운 동기화
+        if (skillController != null)
         {
-            playerController.RestoreNormalMovement();
+            float effective = skillController.GetEffectiveCooldown(1);
+            if (effective > 0f)
+                UpdateSkill2Cooldown(effective);
         }
         
         StartCoroutine(Skill2CooldownRoutine());
@@ -788,10 +806,15 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     private IEnumerator AttackCooldownRoutine()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 공격 쿨다운 시작: {attackCooldown}초");
+        // TriggerAttack() 시점(attackCooldownStartTime)부터 경과된 시간을 빼서
+        // Radial 표시와 canAttack 해제 시점을 동기화
+        float elapsed = Time.time - attackCooldownStartTime;
+        float remaining = Mathf.Max(0f, attackCooldown - elapsed);
         
-        yield return new WaitForSeconds(attackCooldown);
+        if (showDebugLogs)
+            Debug.Log($"🔵 [PlayerAnimationController] 공격 쿨다운 남은 시간: {remaining:F2}초 (전체 {attackCooldown:F2}초, 이미 경과 {elapsed:F2}초)");
+        
+        yield return new WaitForSeconds(remaining);
         
         canAttack = true;
         isAttacking = false;
@@ -805,15 +828,18 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     private IEnumerator Skill1CooldownRoutine()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 스킬1 쿨다운 시작: {skill1Cooldown}초");
+        // TriggerSkill1() 시점(skill1CooldownStartTime)부터 경과된 시간을 빼서
+        // Radial 표시와 canSkill1 해제 시점을 동기화
+        float elapsed = Time.time - skill1CooldownStartTime;
+        float remaining = Mathf.Max(0f, skill1Cooldown - elapsed);
         
-        yield return new WaitForSeconds(skill1Cooldown);
+        if (showDebugLogs)
+            Debug.Log($"🔵 [PlayerAnimationController] 스킬1 쿨다운 남은 시간: {remaining:F2}초 (전체 {skill1Cooldown:F2}초, 이미 경과 {elapsed:F2}초)");
+        
+        yield return new WaitForSeconds(remaining);
         
         canSkill1 = true;
         isSkill1 = false;
-        
-        // ⭐ 글로벌 스킬 상태 리셋
         isAnySkillActive = false;
         
         if (showDebugLogs)
@@ -825,15 +851,16 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     private IEnumerator Skill2CooldownRoutine()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 스킬2 쿨다운 시작: {skill2Cooldown}초");
+        float elapsed = Time.time - skill2CooldownStartTime;
+        float remaining = Mathf.Max(0f, skill2Cooldown - elapsed);
         
-        yield return new WaitForSeconds(skill2Cooldown);
+        if (showDebugLogs)
+            Debug.Log($"🔵 [PlayerAnimationController] 스킬2 쿨다운 남은 시간: {remaining:F2}초 (전체 {skill2Cooldown:F2}초, 이미 경과 {elapsed:F2}초)");
+        
+        yield return new WaitForSeconds(remaining);
         
         canSkill2 = true;
         isSkill2 = false;
-        
-        // ⭐ 글로벌 스킬 상태 리셋
         isAnySkillActive = false;
         
         if (showDebugLogs)
@@ -852,9 +879,25 @@ public class PlayerAnimationController : MonoBehaviour
 
     /// <summary>
     /// PlayerRuntimeStats 스탯 변경 시 공격 쿨다운 재동기화 (PlayerRuntimeStats가 호출)
+    /// baseWeaponCooldown을 현재 장착 무기에서 다시 읽어 ASPD 재계산
     /// </summary>
     public void SyncWithRuntimeStats()
     {
+        // 현재 장착 무기의 WeaponCooldown으로 baseWeaponCooldown 동기화 (초기화 순서 문제 방지)
+        if (activeWeapon == null)
+            activeWeapon = FindObjectOfType<ActiveWeapon>();
+        
+        if (activeWeapon?.CurrentWeaponData != null)
+        {
+            float weaponCooldown = activeWeapon.CurrentWeaponData.WeaponCooldown;
+            if (baseWeaponCooldown != weaponCooldown)
+            {
+                baseWeaponCooldown = weaponCooldown;
+                if (showDebugLogs)
+                    Debug.Log($"🔵 [PlayerAnimationController] SyncWithRuntimeStats: baseWeaponCooldown 동기화 → {baseWeaponCooldown:F3}s");
+            }
+        }
+        
         RecalculateAttackCooldown();
     }
 
@@ -893,6 +936,60 @@ public class PlayerAnimationController : MonoBehaviour
         skill2Cooldown = newCooldown;
         if (showDebugLogs)
             Debug.Log($"🔵 [PlayerAnimationController] 스킬2 쿨다운 업데이트: {skill2Cooldown}초");
+    }
+    
+    // ===== Radial UI용 쿨다운 정보 공개 메서드 =====
+    
+    /// <summary>
+    /// 기본공격 Radial용: (잔여시간, 총쿨다운) 반환.
+    /// 쿨다운 중이 아니면 remaining = 0.
+    /// </summary>
+    public void GetAttackCooldownInfo(out float remaining, out float total)
+    {
+        total = attackCooldown > 0f ? attackCooldown : 1f;
+        if (canAttack)
+        {
+            remaining = 0f;
+        }
+        else
+        {
+            float elapsed = Time.time - attackCooldownStartTime;
+            remaining = Mathf.Max(0f, total - elapsed);
+        }
+    }
+    
+    /// <summary>
+    /// 스킬1 Radial용: (잔여시간, 총쿨다운) 반환.
+    /// </summary>
+    public void GetSkill1CooldownInfo(out float remaining, out float total)
+    {
+        total = skill1Cooldown > 0f ? skill1Cooldown : 1f;
+        if (canSkill1)
+        {
+            remaining = 0f;
+        }
+        else
+        {
+            float elapsed = Time.time - skill1CooldownStartTime;
+            remaining = Mathf.Max(0f, total - elapsed);
+        }
+    }
+    
+    /// <summary>
+    /// 스킬2 Radial용: (잔여시간, 총쿨다운) 반환.
+    /// </summary>
+    public void GetSkill2CooldownInfo(out float remaining, out float total)
+    {
+        total = skill2Cooldown > 0f ? skill2Cooldown : 1f;
+        if (canSkill2)
+        {
+            remaining = 0f;
+        }
+        else
+        {
+            float elapsed = Time.time - skill2CooldownStartTime;
+            remaining = Mathf.Max(0f, total - elapsed);
+        }
     }
     
     /// <summary>
@@ -1055,11 +1152,72 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     private void HandleSkillExecutionComplete(int slotIndex)
     {
-        if (playerController != null)
-            playerController.RestoreNormalMovement();
+        // 이펙트 완료 신호 — 이동 해제는 TryReleaseSkillMovement에서 결정
+        NotifySkillEffectDone();
 
         if (showDebugLogs)
-            Debug.Log($"✅ [PlayerAnimationController] 스킬 실행 완료 수신 (슬롯 {slotIndex}) → 이동 해제");
+            Debug.Log($"✅ [PlayerAnimationController] 스킬 이펙트 완료 수신 (슬롯 {slotIndex}) → effectDone=true");
+    }
+
+    // =========================================================================
+    // SkillMovementState — 이동 해제 단일 권한 메서드
+    // =========================================================================
+
+    /// <summary>스킬 트리거 시 호출 — 방향 잠금 + 플래그 리셋 + 이동 잠금</summary>
+    public void StartSkillMovement()
+    {
+        // 트리거 시점의 조이스틱 방향을 고정 — 이후 변경에 영향받지 않음
+        if (skillController != null)
+            skillController.LockCurrentSkillDirection();
+
+        isSkillMovementActive = true;
+        isSkillAnimDone       = false;
+        isSkillEffectDone     = false;
+        if (playerController != null)
+            playerController.ApplyAttackMovementRestriction(PlayerAttackType.Skill);
+        if (showDebugLogs)
+            Debug.Log("⚔️ [SkillMovement] 잠금 시작 — 방향 고정, animDone=false, effectDone=false");
+    }
+
+    /// <summary>애니메이션 80% 도달 시 SkillStateBehaviour → OnSkill1/2Complete 경유하여 호출</summary>
+    public void NotifySkillAnimDone()
+    {
+        isSkillAnimDone = true;
+        if (showDebugLogs)
+            Debug.Log($"🎬 [SkillMovement] animDone=true (effectDone={isSkillEffectDone})");
+        TryReleaseSkillMovement();
+    }
+
+    /// <summary>이펙트 코루틴 완료 시 HandleSkillExecutionComplete 경유하여 호출</summary>
+    public void NotifySkillEffectDone()
+    {
+        isSkillEffectDone = true;
+        if (showDebugLogs)
+            Debug.Log($"✅ [SkillMovement] effectDone=true (animDone={isSkillAnimDone})");
+        TryReleaseSkillMovement();
+    }
+
+    /// <summary>피격/취소/State 강제 종료 시 호출 — 두 플래그를 강제로 true 처리</summary>
+    public void ForceSkillMovementRelease()
+    {
+        if (!isSkillMovementActive) return;
+        isSkillAnimDone   = true;
+        isSkillEffectDone = true;
+        if (showDebugLogs)
+            Debug.Log("🔓 [SkillMovement] 강제 해제 (피격/취소/State Exit)");
+        TryReleaseSkillMovement();
+    }
+
+    /// <summary>단일 해제 게이트 — animDone && effectDone 둘 다 true 일 때만 RestoreNormalMovement 호출</summary>
+    private void TryReleaseSkillMovement()
+    {
+        if (!isSkillMovementActive) return;
+        if (!isSkillAnimDone || !isSkillEffectDone) return;
+        isSkillMovementActive = false;
+        if (playerController != null)
+            playerController.RestoreNormalMovement();
+        if (showDebugLogs)
+            Debug.Log("🔓 [SkillMovement] 이동 해제 — animDone && effectDone 충족");
     }
 
     void Update()

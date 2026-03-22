@@ -1763,7 +1763,7 @@ GameObject:
   - component: {fileID: 426178946}
   m_Layer: 0
   m_Name: PlayerRuntimeStats
-  m_TagString: Untagged
+  m_TagString: MustBeDisabled
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1788,6 +1788,16 @@ MonoBehaviour:
   finalCriticalDamage: 1.5
   finalDefense: 0
   finalHealMultiplier: 1
+  finalSkillDamageBonus: 0
+  finalCooldownReduction: 0
+  finalDamageReduction: 0
+  finalHpRegen: 0
+  finalLifeSteal: 0
+  finalArmorPenetration: 0
+  finalDodgeChance: 0
+  finalBlockChance: 0
+  finalExpGainBonus: 0
+  finalStatusResist: 0
   showDebugLogs: 1
 --- !u!4 &426178947
 Transform:
@@ -62545,7 +62555,7 @@ GameObject:
   - component: {fileID: 558358959}
   m_Layer: 0
   m_Name: MinimapManager
-  m_TagString: Untagged
+  m_TagString: MustBeDisabled
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

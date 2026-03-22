@@ -463,37 +463,6 @@ public class Assasin : BaseClassBehaviour
     #endregion
 
     /// <summary>
-    /// 회피 판정 (피격 시 호출) - ⭐ 최우선 추가
-    /// </summary>
-    public bool TryDodge()
-    {
-        if (Random.Range(0f, 1f) < DodgeChance) // 이제 ScriptableObject에서 관리
-        {
-            if (showDebugLogs)
-                Debug.Log($"💨 [Assasin] 회피 성공! 확률: {DodgeChance * 100:F1}%"); // 이제 ScriptableObject에서 관리
-            
-            // 회피 이펙트 생성 (옵션)
-            if (GamePoolManager.Instance != null)
-            {
-                var dodgeEffect = GamePoolManager.Instance.SpawnFromPool("Dodge Effect", transform.position, Quaternion.identity);
-                if (dodgeEffect != null)
-                {
-                    // 회피 이펙트는 연한 파란색으로 설정
-                    var spriteRenderer = dodgeEffect.GetComponent<SpriteRenderer>();
-                    if (spriteRenderer != null)
-                    {
-                        spriteRenderer.color = Color.cyan;
-                    }
-                }
-            }
-            
-            return true;
-        }
-        
-        return false;
-    }
-
-    /// <summary>
     /// 크리티컬 판정 포함 데미지 계산 (BaseClassBehaviour 오버라이드 확장) - ⭐ 최우선 추가
     /// </summary>
     public override float GetModifiedDamage(float baseDamage)

@@ -79,6 +79,7 @@ public class DamageArea : MonoBehaviour
     // 내부 상태
     private SkillData skillData;
     private BaseEnemy baseEnemy;
+    private PlayerRuntimeStats playerRuntimeStats;  // 플레이어 AOE 데미지 계산용
     private Vector3 calculatedCenter;  // 계산된 Center 위치
     private float spawnTime;  // 생성 시간 (Gizmos 표시 시간 제어용)
     private HashSet<Collider2D> hitTargets = new HashSet<Collider2D>(); // Once/Window용 중복 방지
@@ -383,6 +384,9 @@ public class DamageArea : MonoBehaviour
         damagePolicy = policy;
         casterType = AOECasterType.Player;
         
+        // PlayerRuntimeStats 참조 (CombatFormula용)
+        playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        
         // ⭐ 타겟 레이어: Enemy
         int enemyLayer = LayerMask.GetMask("Enemy");
         if (enemyLayer == 0)
@@ -405,6 +409,7 @@ public class DamageArea : MonoBehaviour
             Debug.Log($"   - Policy: {policy}");
             Debug.Log($"   - Base Damage: {playerBaseDamage}");
             Debug.Log($"   - Damage Multiplier: {damageMultiplier}x");
+            Debug.Log($"   - PlayerRuntimeStats: {(playerRuntimeStats != null ? "연결됨" : "❌ 없음")}");
         }
         
         // ⭐ 정책 실행
@@ -460,6 +465,9 @@ public class DamageArea : MonoBehaviour
         damagePolicy = policy;
         casterType = AOECasterType.Player;
         
+        // PlayerRuntimeStats 참조 (CombatFormula용)
+        playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
+        
         // ⭐ 타겟 레이어: Enemy
         int enemyLayer = LayerMask.GetMask("Enemy");
         
@@ -479,6 +487,7 @@ public class DamageArea : MonoBehaviour
         if (enableDebugLogs)
         {
             Debug.Log($"✅ [DamageArea] 플레이어 {shape} AOE 생성 (Policy: {policy}, Damage: {playerBaseDamage})");
+            Debug.Log($"   - PlayerRuntimeStats: {(playerRuntimeStats != null ? "연결됨" : "❌ 없음")}");
         }
         
         // ⭐ 정책 실행
@@ -612,9 +621,10 @@ public class DamageArea : MonoBehaviour
     /// </summary>
     private void ApplyDamageToTarget(Collider2D hit)
     {
-        int finalDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
+        int rawDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
         
-        Debug.LogWarning($"🔥 [DamageArea] ApplyDamageToTarget 호출: {hit.name}, CasterType={casterType}, Damage={finalDamage}");
+        if (enableDebugLogs)
+            Debug.Log($"🔥 [DamageArea] ApplyDamageToTarget: {hit.name}, CasterType={casterType}, RawDamage={rawDamage}");
         
         if (casterType == AOECasterType.Enemy)
         {
@@ -622,9 +632,10 @@ public class DamageArea : MonoBehaviour
             PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                Debug.LogWarning($"✅ [DamageArea] PlayerHealth 발견! 데미지 적용: {finalDamage}");
+                if (enableDebugLogs)
+                    Debug.Log($"✅ [DamageArea] PlayerHealth 발견! 데미지 적용: {rawDamage}");
                 
-                playerHealth.TakeDamage(finalDamage, baseEnemy != null ? baseEnemy.transform : transform);
+                playerHealth.TakeDamage(rawDamage, baseEnemy != null ? baseEnemy.transform : transform);
             }
             else
             {
@@ -633,20 +644,121 @@ public class DamageArea : MonoBehaviour
         }
         else if (casterType == AOECasterType.Player)
         {
-            // Player → Enemy
+            // SimpleMob 체크
+            SimpleMob simpleMob = hit.GetComponent<SimpleMob>();
+            if (simpleMob != null && !simpleMob.IsDead)
+            {
+                ApplyPlayerAOEToSimpleMob(simpleMob, hit, rawDamage);
+                return;
+            }
+            
+            // EnemyHealth → CombatFormula 경유
             EnemyHealth enemyHealth = hit.GetComponent<EnemyHealth>();
             if (enemyHealth != null)
             {
-                Debug.LogWarning($"✅ [DamageArea] EnemyHealth 발견! 데미지 적용: {finalDamage}");
-                
-                // ⭐ EnemyHealth.TakeDamage는 1개 인자만 받음
-                enemyHealth.TakeDamage(finalDamage);
+                ApplyPlayerAOEToEnemy(enemyHealth, hit, rawDamage);
             }
             else
             {
                 Debug.LogError($"❌ [DamageArea] EnemyHealth 없음! Target: {hit.name}");
             }
         }
+    }
+    
+    /// <summary>
+    /// 플레이어 AOE → EnemyHealth: CombatFormula를 거쳐 크리티컬/방어력 감소 적용
+    /// baseDamage는 SkillController에서 FinalAttackDamage × 스킬배율로 사전 계산된 값
+    /// </summary>
+    private void ApplyPlayerAOEToEnemy(EnemyHealth enemyHealth, Collider2D hit, int preCalculatedDamage)
+    {
+        if (playerRuntimeStats == null)
+        {
+            Debug.LogWarning("⚠️ [DamageArea] PlayerRuntimeStats 없음 - Fallback(CombatFormula 미적용)");
+            enemyHealth.TakeDamage(preCalculatedDamage);
+            return;
+        }
+        
+        var baseEnemy = hit.GetComponent<BaseEnemy>();
+        float defense = baseEnemy != null ? baseEnemy.GetScaledDefense() : 0f;
+        
+        var ctx = new CombatFormula.AttackContext
+        {
+            baseAttack = preCalculatedDamage,
+            attackerClass = null,
+            targetDefense = defense,
+            targetTransform = hit.transform,
+            attackerTransform = transform,
+            isSkillAttack = true,
+            skillMultiplier = 1.0f,
+            criticalChance = playerRuntimeStats.FinalCriticalChance,
+            criticalMultiplier = playerRuntimeStats.FinalCriticalDamage,
+            isPlayerAttack = true,
+            attackerLevel = playerRuntimeStats.CurrentLevel,
+            // 스킬 AOE는 발동 시점에 버서커 상태를 평가할 수 없으므로 false 고정
+            // (스킬 발동 시점에 SkillController에서 평가 후 DamageArea에 전달하도록 추후 개선 가능)
+            isBerserkerState = false,
+            armorPenetration = playerRuntimeStats.FinalArmorPenetration,
+            lifeStealPercent = playerRuntimeStats.FinalLifeSteal,
+            target = hit.GetComponent<IEnemyTarget>(),
+            selfHpPercent = 1.0f,
+            targetHpPercent = GetAOETargetHpPercent(hit)
+        };
+        
+        var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+        result.hitPosition = hit.transform.position;
+        
+        enemyHealth.TakeDamage(result, transform);
+        
+        if (enableDebugLogs)
+            Debug.Log($"💥 [DamageArea] AOE 스킬 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}) → {hit.name}");
+    }
+    
+    /// <summary>
+    /// 플레이어 AOE → SimpleMob: CombatFormula 적용 후 int 데미지 전달
+    /// </summary>
+    private void ApplyPlayerAOEToSimpleMob(SimpleMob simpleMob, Collider2D hit, int preCalculatedDamage)
+    {
+        if (playerRuntimeStats == null)
+        {
+            simpleMob.TakeDamage(preCalculatedDamage);
+            return;
+        }
+        
+        var ctx = new CombatFormula.AttackContext
+        {
+            baseAttack = preCalculatedDamage,
+            attackerClass = null,
+            targetDefense = 0f,
+            targetTransform = hit.transform,
+            attackerTransform = transform,
+            isSkillAttack = true,
+            skillMultiplier = 1.0f,
+            criticalChance = playerRuntimeStats.FinalCriticalChance,
+            criticalMultiplier = playerRuntimeStats.FinalCriticalDamage,
+            isPlayerAttack = true,
+            attackerLevel = playerRuntimeStats.CurrentLevel,
+            isBerserkerState = false,
+            armorPenetration = playerRuntimeStats.FinalArmorPenetration,
+            lifeStealPercent = playerRuntimeStats.FinalLifeSteal,
+            target = null,
+            selfHpPercent = 1.0f,
+            targetHpPercent = 1.0f
+        };
+        
+        var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+        simpleMob.TakeDamage(result.finalDamage);
+        
+        if (enableDebugLogs)
+            Debug.Log($"💥 [DamageArea] AOE 스킬 SimpleMob 데미지: {result.finalDamage} → {hit.name}");
+    }
+    
+    /// <summary>
+    /// AOE 대상 HP 비율 가져오기 (조건부 모디파이어용)
+    /// </summary>
+    private float GetAOETargetHpPercent(Collider2D hit)
+    {
+        var enemyTarget = hit.GetComponent<IEnemyTarget>();
+        return enemyTarget != null ? enemyTarget.GetCurrentHpPercent() : 1.0f;
     }
     
     #endregion

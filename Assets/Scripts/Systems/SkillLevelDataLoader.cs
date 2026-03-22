@@ -47,6 +47,7 @@ public class SkillLevelDataLoader : MonoBehaviour
     
     /// <summary>
     /// CSV 파싱 및 캐싱
+    /// 컬럼 순서: SkillID, Level, RequireSP, StatType1, Value1, StatType2, Value2, DescriptionNote
     /// </summary>
     private void LoadSkillLevelData()
     {
@@ -70,18 +71,21 @@ public class SkillLevelDataLoader : MonoBehaviour
             if (string.IsNullOrEmpty(line)) continue;
             
             string[] values = line.Split(',');
-            if (values.Length < 5) continue;
+            // StatType1/StatType2 포함 최소 7컬럼 필요
+            if (values.Length < 7) continue;
             
             try
             {
                 SkillLevelInfo info = new SkillLevelInfo
                 {
-                    skillID = values[0].Trim(),
-                    level = int.Parse(values[1].Trim()),
-                    requireSP = int.Parse(values[2].Trim()),
-                    value1 = float.Parse(values[3].Trim()),
-                    value2 = float.Parse(values[4].Trim()),
-                    description = values.Length > 5 ? values[5].Trim() : ""
+                    skillID      = values[0].Trim(),
+                    level        = int.Parse(values[1].Trim()),
+                    requireSP    = int.Parse(values[2].Trim()),
+                    statType1Raw = values[3].Trim(),
+                    value1       = float.Parse(values[4].Trim()),
+                    statType2Raw = values[5].Trim(),
+                    value2       = float.Parse(values[6].Trim()),
+                    description  = values.Length > 7 ? values[7].Trim() : ""
                 };
                 
                 // 캐시에 추가
@@ -152,19 +156,40 @@ public class SkillLevelDataLoader : MonoBehaviour
 
 /// <summary>
 /// 스킬 레벨 정보 구조체
+/// CSV 컬럼: SkillID, Level, RequireSP, StatType1, Value1, StatType2, Value2, DescriptionNote
 /// </summary>
 [System.Serializable]
 public struct SkillLevelInfo
 {
-    public string skillID;      // 스킬 고유 ID
-    public int level;           // 레벨
-    public int requireSP;       // 이 레벨에 도달하기 위해 필요한 SP
-    public float value1;        // 주 수치 (액티브: 데미지%, 패시브: 스탯 보너스)
-    public float value2;        // 부 수치 (액티브: 쿨다운, 패시브: 미사용)
-    public string description;  // 설명
-    
+    public string skillID;       // 스킬 고유 ID
+    public int    level;         // 레벨
+    public int    requireSP;     // 이 레벨에 도달하기 위해 필요한 SP
+
+    // StatType1: 패시브=EStatType 문자열(ATK_PERCENT 등), 액티브=DMG_MULT
+    public string statType1Raw;
+    public float  value1;
+
+    // StatType2: 패시브=EStatType 문자열 또는 None, 액티브=COOLDOWN
+    public string statType2Raw;
+    public float  value2;
+
+    public string description;
+
+    /// <summary>StatType1을 EStatType으로 파싱. 액티브 전용 레이블(DMG_MULT 등)은 None 반환</summary>
+    public EStatType StatType1 => ParseStatType(statType1Raw);
+
+    /// <summary>StatType2를 EStatType으로 파싱. None 또는 COOLDOWN이면 None 반환</summary>
+    public EStatType StatType2 => ParseStatType(statType2Raw);
+
+    private static EStatType ParseStatType(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return EStatType.None;
+        if (System.Enum.TryParse<EStatType>(raw, out var result)) return result;
+        return EStatType.None;
+    }
+
     public override string ToString()
     {
-        return $"[{skillID} Lv.{level}] SP:{requireSP}, Value1:{value1}, Value2:{value2}";
+        return $"[{skillID} Lv.{level}] SP:{requireSP} | {statType1Raw}:{value1} / {statType2Raw}:{value2}";
     }
 }

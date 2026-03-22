@@ -299,28 +299,6 @@ public class Warrior : BaseClassBehaviour
     }
     
     /// <summary>
-    /// 블록 판정 (피격 시 호출)
-    /// </summary>
-    public bool TryBlock()
-    {
-        if (Random.Range(0f, 1f) < BlockChance)
-        {
-            if (showDebugLogs)
-                Debug.Log($"🛡️ [Warrior] 블록 성공! 데미지 {BlockDamageReduction * 100}% 감소");
-            
-            // 반격 판정
-            if (Random.Range(0f, 1f) < CounterAttackChance)
-            {
-                TriggerCounterAttack();
-            }
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /// <summary>
     /// 반격 실행 - ⭐ [Phase B] 실제 데미지 적용 개선
     /// </summary>
     private void TriggerCounterAttack()

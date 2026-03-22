@@ -987,6 +987,16 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (amount <= 0) return;
         
+        // EXP_GAIN_PERCENT 스탯 적용
+        var runtimeStats = UnityEngine.Object.FindObjectOfType<PlayerRuntimeStats>();
+        if (runtimeStats != null && runtimeStats.FinalExpGainBonus > 0f)
+        {
+            int bonusExp = Mathf.RoundToInt(amount * runtimeStats.FinalExpGainBonus);
+            amount += bonusExp;
+            if (showDebugLogs)
+                Debug.Log($"⭐ [PlayerDataManager] 경험치 보너스 +{runtimeStats.FinalExpGainBonus:P1} 적용: +{bonusExp} → 총 {amount}");
+        }
+        
         int oldLevel = selectedPlayerData.currentLevel;
         
         selectedPlayerData.currentExp += amount;

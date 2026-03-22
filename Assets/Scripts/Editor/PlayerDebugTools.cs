@@ -16,6 +16,7 @@ public class PlayerDebugTools : EditorWindow
     private string stageIdToComplete = "CH01_ST01"; // 🎯 완료할 스테이지 ID
     private int staminaToAdd = 10; // ⚡ 스태미나 추가량
     private int dungeonTicketToAdd = 5; // 🎫 던전 티켓 추가량
+    private string debugEquipItemId = ""; // ⚔️ 획득할 장비 아이템 ID (예: ITEM_BOW_ARCHER_TR)
     
     // 스크롤 위치 저장 (모바일 고려)
     private Vector2 scrollPosition;
@@ -550,6 +551,24 @@ public class PlayerDebugTools : EditorWindow
         GUILayout.Space(10);
         
         // ========================================
+        // ⚔️ 장비 획득 (디버그)
+        // ========================================
+        EditorGUILayout.BeginVertical("box");
+        GUILayout.Label("⚔️ 장비 획득 (디버그)", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("예시: ITEM_BOW_D / ITEM_BOW_TR\n상점 구매와 동일한 경로 — 계정 공유 창고에 저장됩니다.", MessageType.Info);
+        
+        EditorGUILayout.BeginHorizontal();
+        debugEquipItemId = EditorGUILayout.TextField("아이템 ID", debugEquipItemId);
+        if (GUILayout.Button("획득", GUILayout.Width(60)))
+        {
+            AcquireEquipmentForDebug(debugEquipItemId);
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+        
+        GUILayout.Space(10);
+        
+        // ========================================
         // 저장
         // ========================================
         EditorGUILayout.BeginVertical("box");
@@ -684,6 +703,82 @@ public class PlayerDebugTools : EditorWindow
         Debug.Log($"✅ 모든 정령의 정수 {amount}개씩 추가 완료! (총 4종류)");
     }
     
+    /// <summary>
+    /// 장비 디버그 획득 — 상점 구매와 동일한 경로로 계정 공유 창고에 저장
+    /// RegisterNewInstance → DynamicEquipmentGenerator → TryAddToShared → Save
+    /// </summary>
+    private void AcquireEquipmentForDebug(string itemId)
+    {
+        Debug.Log($"[장비 획득] 버튼 클릭됨. 입력 ID: '{itemId}'");
+
+        if (string.IsNullOrWhiteSpace(itemId))
+        {
+            Debug.LogError("❌ [장비 획득] 아이템 ID가 비어있습니다.");
+            return;
+        }
+
+        if (AccountDataManager.Instance == null)
+        {
+            Debug.LogError("❌ [장비 획득] AccountDataManager를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 1. 인스턴스 등록 (itemInstances)
+        var newId = AccountDataManager.Instance.RegisterNewInstance(itemId);
+        if (newId.IsEmpty)
+        {
+            Debug.LogError($"❌ [장비 획득] 인스턴스 등록 실패: '{itemId}'");
+            return;
+        }
+
+        // 2. 동적 스탯 생성 (주옵션 + 부옵션)
+        EquipmentData equipData = ItemTemplateResolver.Load(itemId);
+        if (equipData != null)
+        {
+            EquipmentInstance dynamicInstance = DynamicEquipmentGenerator.Generate(equipData, equipData.itemGrade);
+            if (dynamicInstance != null)
+            {
+                ItemInstanceData instanceData = AccountDataManager.Instance.GetInstance(newId);
+                if (instanceData != null)
+                    EquipmentInstanceConverter.ApplyDynamicStats(instanceData, dynamicInstance);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [장비 획득] EquipmentData 로드 실패: '{itemId}' — 동적 스탯 없이 등록됩니다.");
+        }
+
+        // 3. 계정 공유 창고에 추가 (sharedInventoryIds) — 창고 가득 시 우편함
+        bool addedToShared = AccountDataManager.Instance.TryAddToShared(newId);
+        if (!addedToShared)
+        {
+            AccountDataManager.Instance.MoveToMailbox(newId);
+            Debug.LogWarning($"⚠️ [장비 획득] 공유 창고가 가득 찼습니다. 우편함으로 전송: '{itemId}'");
+        }
+
+        // 4. 저장
+        AccountDataManager.Instance.Save();
+
+        // 5. UI 갱신 이벤트 발생 (LobbyInventoryController, ShopUIController 등 구독자 일괄 갱신)
+        PlayerDataManager.Instance?.TriggerInventoryChanged();
+
+        // 6. 결과 로그
+        var saved = AccountDataManager.Instance.GetInstance(newId);
+        int subCount = saved?.randomSubStats?.Count ?? 0;
+        string destination = addedToShared ? "공유 창고" : "우편함";
+        Debug.Log($"✅ [장비 획득] 성공: {itemId} → {destination}\n" +
+                  $"   주옵션: {saved?.finalMainStatValue:F1} | 부옵션: {subCount}개");
+
+        if (saved?.randomSubStats != null)
+        {
+            for (int i = 0; i < saved.randomSubStats.Count; i++)
+            {
+                var sub = saved.randomSubStats[i];
+                Debug.Log($"   부옵션 [{i + 1}] {sub.statType}: {sub.value:F3}");
+            }
+        }
+    }
+
     /// <summary>
     /// 스테이지 강제 클리어 (해금 안된 스테이지도 가능)
     /// </summary>

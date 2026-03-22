@@ -144,13 +144,20 @@ public class ActiveWeapon : MonoBehaviour
     /// </summary>
     private void NotifyWeaponChanged(EquipmentData weaponData)
     {
-        // PlayerAnimationController에 쿨다운 정보 전달
+        // PlayerAnimationController 참조가 없으면 씬 전체에서 검색 (초기화 순서 문제 대응)
+        if (playerAnimationController == null)
+            playerAnimationController = FindObjectOfType<PlayerAnimationController>();
+        
         if (playerAnimationController != null)
         {
             playerAnimationController.UpdateWeaponCooldown(weaponData.WeaponCooldown);
             
             if (showDebugLogs)
                 Debug.Log($"📢 [ActiveWeapon] PlayerAnimationController에 쿨다운 전달: {weaponData.WeaponCooldown}초");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [ActiveWeapon] PlayerAnimationController를 찾을 수 없어 쿨다운 전달 실패");
         }
     }
     

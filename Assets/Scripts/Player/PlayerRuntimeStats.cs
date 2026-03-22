@@ -16,6 +16,9 @@ public class PlayerRuntimeStats : MonoBehaviour
     [Header("📊 최종 계산된 스탯 (읽기 전용)")]
     [SerializeField] private float finalAttackDamage = 10f;
     [SerializeField] private float finalMoveSpeed = 4f;
+    
+    // 이동속도 퍼센트 보너스 단리 합산용 (장비 + 패시브 + StatModifier 모두 여기에 누적 후 한 번에 적용)
+    private float moveSpeedPercentBonus = 0f;
     [SerializeField] private float finalMaxHealth = 200f;
     [SerializeField] private float finalAttackSpeed = 1f;
     [SerializeField] private float finalCriticalChance = 0f;
@@ -23,6 +26,18 @@ public class PlayerRuntimeStats : MonoBehaviour
     [SerializeField] private float finalDefense = 0f;
     [SerializeField] private float finalHealMultiplier = 1.0f;  // 🆕 회복 효율
     
+    [Header("📊 특수 스탯 (10종 확장)")]
+    [SerializeField] private float finalSkillDamageBonus = 0f;      // 스킬 피해 증가 (소수, 0.1 = 10%)
+    [SerializeField] private float finalCooldownReduction = 0f;     // 쿨다운 감소 (소수, cap 0.5)
+    [SerializeField] private float finalDamageReduction = 0f;       // 받는 피해 감소 (소수, cap 0.8)
+    [SerializeField] private float finalHpRegen = 0f;               // 초당 체력 회복 (HP/sec)
+    [SerializeField] private float finalLifeSteal = 0f;             // 흡혈 (소수, 0.1 = 10%)
+    [SerializeField] private float finalArmorPenetration = 0f;      // 방어구 관통 (소수, 0.1 = 10%)
+    [SerializeField] private float finalDodgeChance = 0f;           // 회피 확률 (소수, cap 1.0)
+    [SerializeField] private float finalBlockChance = 0f;           // 블록 확률 (소수, cap 1.0)
+    [SerializeField] private float finalExpGainBonus = 0f;          // 경험치 획득 증가 (소수, 0.1 = 10%)
+    [SerializeField] private float finalStatusResist = 0f;          // 상태이상 저항 (소수, cap 1.0)
+
     [Header("🔗 데이터 연결")]
     [SerializeField] private bool showDebugLogs = true;
     
@@ -35,6 +50,136 @@ public class PlayerRuntimeStats : MonoBehaviour
     public float FinalCriticalDamage => finalCriticalDamage;
     public float FinalDefense => finalDefense;
     public float FinalHealMultiplier => finalHealMultiplier;  // 🆕 회복 효율
+    
+    // 특수 스탯 프로퍼티 (10종)
+    public float FinalSkillDamageBonus => finalSkillDamageBonus;
+    public float FinalCooldownReduction => finalCooldownReduction;
+    public float FinalDamageReduction => finalDamageReduction;
+    public float FinalHpRegen => finalHpRegen;
+    public float FinalLifeSteal => finalLifeSteal;
+    public float FinalArmorPenetration => finalArmorPenetration;
+    public float FinalDodgeChance => finalDodgeChance;
+    public float FinalBlockChance => finalBlockChance;
+    public float FinalExpGainBonus => finalExpGainBonus;
+    public float FinalStatusResist => finalStatusResist;
+    
+#if UNITY_EDITOR
+    // ─── 🔧 DEBUG: 임시 오버라이드 (에디터 전용, 빌드 제외, 저장 안됨) ───────
+    
+    /// <summary>
+    /// StatDebugOverrideWindow에서 전달하는 임시 스탯 보너스 구조체.
+    /// 빌드 시 완전히 제거됩니다.
+    /// </summary>
+    public struct DebugStatBonus
+    {
+        public float atkFlat;       // ATK_FLAT 직접 가산
+        public float atkPercent;    // ATK_PERCENT — 플랫 합산 후 곱연산
+        public float maxHp;
+        public float defense;
+        public float moveSpeed;
+        public float atkSpeed;
+        public float critChance;
+        public float critDmg;
+        public float healMult;
+        public float skillDmg;
+        public float cdr;
+        public float dmgRed;
+        public float hpRegen;
+        public float lifeSteal;
+        public float armorPen;
+        public float dodge;
+        public float block;
+        public float expGain;
+        public float statusResist;
+    }
+    
+    private DebugStatBonus _debugBonus;
+    
+    /// <summary>디버그 보너스 설정 후 즉시 재계산 — StatDebugOverrideWindow에서 호출</summary>
+    public void SetDebugBonus(DebugStatBonus bonus)
+    {
+        _debugBonus = bonus;
+        RecalculateAllStats();
+    }
+    
+    /// <summary>현재 적용 중인 디버그 보너스 반환 — 에디터 창 값 동기화용</summary>
+    public DebugStatBonus GetDebugBonus() => _debugBonus;
+    
+    /// <summary>디버그 보너스 전체 초기화 후 재계산</summary>
+    public void ClearDebugBonus()
+    {
+        _debugBonus = default;
+        RecalculateAllStats();
+    }
+    
+    private bool HasAnyDebugBonus()
+    {
+        var b = _debugBonus;
+        return b.atkFlat != 0 || b.atkPercent != 0 || b.maxHp != 0 || b.defense != 0 ||
+               b.moveSpeed != 0 || b.atkSpeed != 0 || b.critChance != 0 || b.critDmg != 0 ||
+               b.healMult != 0 || b.skillDmg != 0 || b.cdr != 0 || b.dmgRed != 0 ||
+               b.hpRegen != 0 || b.lifeSteal != 0 || b.armorPen != 0 || b.dodge != 0 ||
+               b.block != 0 || b.expGain != 0 || b.statusResist != 0;
+    }
+    
+    /// <summary>
+    /// ValidateStats() 직후 호출. 최종 필드에 디버그 보너스를 직접 더하고 범위를 재검증한다.
+    /// 흐름: [flat 보너스] → [ATK_PERCENT 곱연산] → [재 Clamp]
+    /// </summary>
+    private void ApplyDebugBonusOverride()
+    {
+        if (!HasAnyDebugBonus()) return;
+        
+        var b = _debugBonus;
+        
+        // Step 1: 플랫(Flat) 보너스 직접 가산
+        finalAttackDamage    += b.atkFlat;
+        finalMaxHealth       += b.maxHp;
+        finalDefense         += b.defense;
+        finalMoveSpeed       += b.moveSpeed;
+        finalAttackSpeed     += b.atkSpeed;
+        finalCriticalChance  += b.critChance;
+        finalCriticalDamage  += b.critDmg;
+        finalHealMultiplier  += b.healMult;
+        finalSkillDamageBonus  += b.skillDmg;
+        finalCooldownReduction += b.cdr;
+        finalDamageReduction   += b.dmgRed;
+        finalHpRegen         += b.hpRegen;
+        finalLifeSteal       += b.lifeSteal;
+        finalArmorPenetration += b.armorPen;
+        finalDodgeChance     += b.dodge;
+        finalBlockChance     += b.block;
+        finalExpGainBonus    += b.expGain;
+        finalStatusResist    += b.statusResist;
+        
+        // Step 2: ATK_PERCENT 보너스 — 플랫 합산 후 곱연산 (ATK_PERCENT 단독 테스트용)
+        if (b.atkPercent != 0f)
+            finalAttackDamage *= (1f + b.atkPercent);
+        
+        // Step 3: 오버라이드 후 범위 재검증 (cap 초과 방지)
+        finalAttackDamage      = Mathf.Max(1f, finalAttackDamage);
+        finalMaxHealth         = Mathf.Max(1f, finalMaxHealth);
+        finalDefense           = Mathf.Max(0f, finalDefense);
+        finalMoveSpeed         = Mathf.Clamp(finalMoveSpeed, 0.3f, 20f);
+        finalAttackSpeed       = Mathf.Clamp(finalAttackSpeed, 0.1f, 5f);
+        finalCriticalChance    = Mathf.Clamp01(finalCriticalChance);
+        finalCriticalDamage    = Mathf.Max(1f, finalCriticalDamage);
+        finalSkillDamageBonus  = Mathf.Max(0f, finalSkillDamageBonus);
+        finalCooldownReduction = Mathf.Clamp(finalCooldownReduction, 0f, 0.5f);
+        finalDamageReduction   = Mathf.Clamp(finalDamageReduction,   0f, 0.8f);
+        finalHpRegen           = Mathf.Max(0f, finalHpRegen);
+        finalLifeSteal         = Mathf.Clamp(finalLifeSteal,         0f, 1.0f);
+        finalArmorPenetration  = Mathf.Clamp(finalArmorPenetration,  0f, 1.0f);
+        finalDodgeChance       = Mathf.Clamp01(finalDodgeChance);
+        finalBlockChance       = Mathf.Clamp01(finalBlockChance);
+        finalExpGainBonus      = Mathf.Max(0f, finalExpGainBonus);
+        finalStatusResist      = Mathf.Clamp01(finalStatusResist);
+        
+        if (showDebugLogs)
+            Debug.Log($"🔧 [PlayerRuntimeStats] DEBUG 오버라이드 적용 — " +
+                      $"ATK +{b.atkFlat:F1} x{1f + b.atkPercent:F2}, HP +{b.maxHp:F0}, DEF +{b.defense:F1}");
+    }
+#endif
     
     /// <summary>
     /// 현재 플레이어 레벨 (Dynamic K 계산용)
@@ -224,6 +369,11 @@ public class PlayerRuntimeStats : MonoBehaviour
         // 5단계: 최종 검증 및 제한
         ValidateStats();
         
+#if UNITY_EDITOR
+        // 5.5단계: DEBUG 임시 오버라이드 (에디터 전용, 저장 안됨)
+        ApplyDebugBonusOverride();
+#endif
+        
         // 🆕 6단계: 스탯 변경 감지 및 이벤트 발생
         DetectAndTriggerStatChanges();
         
@@ -341,10 +491,23 @@ public class PlayerRuntimeStats : MonoBehaviour
         // 🏃 이동속도 (클래스 배율은 ApplyClassMultipliers에서 적용)
         float baseMoveSpeed = GetBaseMoveSpeedFromClass();
         finalMoveSpeed = baseMoveSpeed;
+        moveSpeedPercentBonus = 0f; // 퍼센트 보너스 누적용 초기화 (매 재계산마다 리셋)
         
         // 💚 회복 효율 ✅ CSV 조정 가능
         float healMult = GetHealMultiplierFromClass();
         finalHealMultiplier = healMult;
+        
+        // 📊 특수 스탯 10종 초기화 (매 재계산 시 누적 방지)
+        finalSkillDamageBonus = 0f;
+        finalCooldownReduction = 0f;
+        finalDamageReduction = 0f;
+        finalHpRegen = 0f;
+        finalLifeSteal = 0f;
+        finalArmorPenetration = 0f;
+        finalDodgeChance = 0f;
+        finalBlockChance = 0f;
+        finalExpGainBonus = 0f;
+        finalStatusResist = 0f;
         
         if (showDebugLogs)
         {
@@ -367,13 +530,11 @@ public class PlayerRuntimeStats : MonoBehaviour
         }
         
         var equippedItems = playerData.RuntimeEquippedItems;
+        var equippedInstanceIds = playerData.RuntimeEquippedInstanceIds;
         
         if (showDebugLogs)
-        {
             Debug.Log($"⚔️ [PlayerRuntimeStats] 장비 스탯 적용: {equippedItems.Count}개 장비");
-        }
         
-        // ✅ StatModifier 기반 적용 (완전 전환)
         foreach (var kvp in equippedItems)
         {
             EquipmentSlot slot = kvp.Key;
@@ -381,13 +542,28 @@ public class PlayerRuntimeStats : MonoBehaviour
             
             if (equipment == null) continue;
             
-            // ⭐ EquipmentData.GetStatModifiers() 호출 (단위 변환 자동 처리)
-            var modifiers = equipment.GetStatModifiers();
+            // EquipmentInstance 기반으로 스탯 조회 (동적 주옵션/부옵션 포함)
+            List<StatModifier> modifiers = null;
+            
+            if (AccountDataManager.Instance != null &&
+                equippedInstanceIds.TryGetValue(slot, out ItemInstanceID instanceId) &&
+                !instanceId.IsEmpty)
+            {
+                var equipmentInstance = AccountDataManager.Instance.CreateEquipmentInstance(instanceId);
+                if (equipmentInstance != null)
+                    modifiers = equipmentInstance.GetStatModifiers();
+            }
+            
+            // 폴백: EquipmentInstance 생성 실패 시 EquipmentData 사용
+            if (modifiers == null)
+            {
+                modifiers = equipment.GetStatModifiers();
+                if (showDebugLogs)
+                    Debug.LogWarning($"  ⚠️ {slot}: {equipment.equipmentName} - EquipmentInstance 없음, EquipmentData 폴백 사용");
+            }
             
             if (showDebugLogs)
-            {
                 Debug.Log($"  📦 {slot}: {equipment.equipmentName} - {modifiers.Count}개 StatModifier");
-            }
             
             foreach (var modifier in modifiers)
             {
@@ -410,8 +586,8 @@ public class PlayerRuntimeStats : MonoBehaviour
                         break;
                         
                     case EStatType.MOVE_SPEED:
-                        finalMoveSpeed += modifier.value;
-                        if (showDebugLogs) Debug.Log($"    🏃 MOVE_SPEED: +{modifier.value:F2} → {finalMoveSpeed:F2}");
+                        moveSpeedPercentBonus += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🏃 MOVE_SPEED(장비): +{modifier.value:P0} 누적 → 보너스 합계 {moveSpeedPercentBonus:P0}");
                         break;
                         
                     case EStatType.ASPD:
@@ -427,6 +603,56 @@ public class PlayerRuntimeStats : MonoBehaviour
                     case EStatType.CRIT_DMG:
                         finalCriticalDamage += modifier.value;
                         if (showDebugLogs) Debug.Log($"    💥 CRIT_DMG: +{modifier.value:P2} → {finalCriticalDamage:P2}");
+                        break;
+                    
+                    case EStatType.SKILL_DMG_PERCENT:
+                        finalSkillDamageBonus += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🎯 SKILL_DMG_PERCENT: +{modifier.value:P2} → {finalSkillDamageBonus:P2}");
+                        break;
+                    
+                    case EStatType.COOLDOWN_REDUCTION:
+                        finalCooldownReduction += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    ⏱️ COOLDOWN_REDUCTION: +{modifier.value:P2} → {finalCooldownReduction:P2}");
+                        break;
+                    
+                    case EStatType.DAMAGE_REDUCTION_PERCENT:
+                        finalDamageReduction += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🛡️ DAMAGE_REDUCTION_PERCENT: +{modifier.value:P2} → {finalDamageReduction:P2}");
+                        break;
+                    
+                    case EStatType.HP_REGEN:
+                        finalHpRegen += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    💚 HP_REGEN: +{modifier.value:F2} → {finalHpRegen:F2}");
+                        break;
+                    
+                    case EStatType.LIFESTEAL:
+                        finalLifeSteal += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🩸 LIFESTEAL: +{modifier.value:P2} → {finalLifeSteal:P2}");
+                        break;
+                    
+                    case EStatType.ARMOR_PENETRATION:
+                        finalArmorPenetration += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🔓 ARMOR_PENETRATION: +{modifier.value:P2} → {finalArmorPenetration:P2}");
+                        break;
+                    
+                    case EStatType.DODGE_CHANCE:
+                        finalDodgeChance += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    💨 DODGE_CHANCE: +{modifier.value:P2} → {finalDodgeChance:P2}");
+                        break;
+                    
+                    case EStatType.BLOCK_CHANCE:
+                        finalBlockChance += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🛑 BLOCK_CHANCE: +{modifier.value:P2} → {finalBlockChance:P2}");
+                        break;
+                    
+                    case EStatType.EXP_GAIN_PERCENT:
+                        finalExpGainBonus += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    ⭐ EXP_GAIN_PERCENT: +{modifier.value:P2} → {finalExpGainBonus:P2}");
+                        break;
+                    
+                    case EStatType.STATUS_RESIST_ALL:
+                        finalStatusResist += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🔮 STATUS_RESIST_ALL: +{modifier.value:P2} → {finalStatusResist:P2}");
                         break;
                         
                     default:
@@ -446,7 +672,12 @@ public class PlayerRuntimeStats : MonoBehaviour
         
         // 클래스별 배율 적용
         finalAttackDamage *= currentClass.AttackPowerMultiplier;
+        
+        // 이동속도: 퍼센트 보너스 단리 일괄 적용 → 클래스 배율 순서로 적용
+        // 공식: finalMoveSpeed = baseMoveSpeed * (1 + 장비%합 + 패시브%합 + Modifier%합) * 클래스배율
+        finalMoveSpeed *= (1f + moveSpeedPercentBonus);
         finalMoveSpeed *= currentClass.MoveSpeedMultiplier;
+        
         finalMaxHealth *= currentClass.HealthMultiplier;
         // finalAttackSpeed는 SkillCooldownMultiplier와 별개로 관리
         
@@ -454,7 +685,7 @@ public class PlayerRuntimeStats : MonoBehaviour
         {
             Debug.Log($"🎭 [PlayerRuntimeStats] {currentClass.ClassName} 배율 적용:");
             Debug.Log($"   - 공격력 x{currentClass.AttackPowerMultiplier} = {finalAttackDamage}");
-            Debug.Log($"   - 이동속도 x{currentClass.MoveSpeedMultiplier} = {finalMoveSpeed}");
+            Debug.Log($"   - 이동속도: base x(1+{moveSpeedPercentBonus:P0}) x{currentClass.MoveSpeedMultiplier} = {finalMoveSpeed:F2}");
             Debug.Log($"   - 체력 x{currentClass.HealthMultiplier} = {finalMaxHealth}");
         }
     }
@@ -493,6 +724,18 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalCriticalChance = Mathf.Clamp01(finalCriticalChance);
         finalCriticalDamage = Mathf.Max(1f, finalCriticalDamage);
         finalDefense = Mathf.Max(0f, finalDefense);
+        
+        // 특수 스탯 10종 범위 제한
+        finalSkillDamageBonus  = Mathf.Max(0f, finalSkillDamageBonus);          // 하한 0%
+        finalCooldownReduction = Mathf.Clamp(finalCooldownReduction, 0f, 0.5f); // 0% ~ 50%
+        finalDamageReduction   = Mathf.Clamp(finalDamageReduction,   0f, 0.8f); // 0% ~ 80%
+        finalHpRegen           = Mathf.Max(0f, finalHpRegen);                   // 하한 0
+        finalLifeSteal         = Mathf.Clamp(finalLifeSteal,         0f, 1.0f); // 0% ~ 100%
+        finalArmorPenetration  = Mathf.Clamp(finalArmorPenetration,  0f, 1.0f); // 0% ~ 100%
+        finalDodgeChance       = Mathf.Clamp01(finalDodgeChance);               // 0% ~ 100%
+        finalBlockChance       = Mathf.Clamp01(finalBlockChance);               // 0% ~ 100%
+        finalExpGainBonus      = Mathf.Max(0f, finalExpGainBonus);              // 하한 0%
+        finalStatusResist      = Mathf.Clamp01(finalStatusResist);              // 0% ~ 100%
     }
     
     /// <summary>
@@ -508,6 +751,18 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalCriticalDamage = 1.5f;
         finalDefense = 5f;
         finalHealMultiplier = 1.0f;  // 🆕
+        
+        // 특수 스탯 10종 기본값
+        finalSkillDamageBonus = 0f;
+        finalCooldownReduction = 0f;
+        finalDamageReduction = 0f;
+        finalHpRegen = 0f;
+        finalLifeSteal = 0f;
+        finalArmorPenetration = 0f;
+        finalDodgeChance = 0f;
+        finalBlockChance = 0f;
+        finalExpGainBonus = 0f;
+        finalStatusResist = 0f;
     }
     
     /// <summary>
@@ -516,18 +771,31 @@ public class PlayerRuntimeStats : MonoBehaviour
     private void LogFinalStats()
     {
         Debug.Log($"📊 [PlayerRuntimeStats] =====최종 스탯 계산 완료=====");
+#if UNITY_EDITOR
+        if (HasAnyDebugBonus())
+            Debug.Log($"   🔧 [DEBUG 오버라이드 활성] ATK+{_debugBonus.atkFlat:F1}(x{1f+_debugBonus.atkPercent:F2})" +
+                      $" HP+{_debugBonus.maxHp:F0} DEF+{_debugBonus.defense:F1} — 저장 안됨");
+#endif
         Debug.Log($"   📈 성장 스탯:");
-        Debug.Log($"      ⚔️ 공격력: {finalAttackDamage:F1} (변경: {finalAttackDamage - previousAttackDamage:+F1;-F1;±0})");
-        Debug.Log($"      ❤️ 최대체력: {finalMaxHealth:F0} (변경: {finalMaxHealth - previousMaxHealth:+F0;-F0;±0})");
-        Debug.Log($"      🛡️ 방어력: {finalDefense:F1} (변경: {finalDefense - previousDefense:+F1;-F1;±0})");
+        Debug.Log($"      ⚔️ 공격력: {finalAttackDamage:F1} (변경: {FormatDelta(finalAttackDamage - previousAttackDamage, "F1")})");
+        Debug.Log($"      ❤️ 최대체력: {finalMaxHealth:F0} (변경: {FormatDelta(finalMaxHealth - previousMaxHealth, "F0")})");
+        Debug.Log($"      🛡️ 방어력: {finalDefense:F1} (변경: {FormatDelta(finalDefense - previousDefense, "F1")})");
         Debug.Log($"   🎯 고정 스탯:");
         Debug.Log($"      🎯 크리티컬: {finalCriticalChance:P1} (x{finalCriticalDamage:F1})");
         Debug.Log($"      ⚡ 공격속도: {finalAttackSpeed:F2}");
-        Debug.Log($"      🏃 이동속도: {finalMoveSpeed:F1} (변경: {finalMoveSpeed - previousMoveSpeed:+F1;-F1;±0})");
+        Debug.Log($"      🏃 이동속도: {finalMoveSpeed:F1} (변경: {FormatDelta(finalMoveSpeed - previousMoveSpeed, "F1")})");
         Debug.Log($"      💚 회복 효율: {finalHealMultiplier:P0}");
         Debug.Log($"========================================");
     }
     
+    private static string FormatDelta(float delta, string fmt)
+    {
+        if (Mathf.Approximately(delta, 0f)) return "±0";
+        return delta > 0
+            ? $"+{delta.ToString(fmt)}"
+            : delta.ToString(fmt);
+    }
+
     /// <summary>
     /// 🔄 외부에서 스탯 재계산 요청
     /// </summary>
@@ -1211,7 +1479,9 @@ public class PlayerRuntimeStats : MonoBehaviour
                 break;
                 
             case EStatType.MOVE_SPEED:
-                finalMoveSpeed *= value;
+                moveSpeedPercentBonus += value;
+                if (showDebugLogs)
+                    Debug.Log($"🏃 [PlayerRuntimeStats] MOVE_SPEED(Modifier): +{value:P0} 누적 → 보너스 합계 {moveSpeedPercentBonus:P0}");
                 break;
                 
             // TODO: 다른 스탯 추가
@@ -1301,13 +1571,13 @@ public class PlayerRuntimeStats : MonoBehaviour
         if (showDebugLogs && atkFlat > 0)
             Debug.Log($"  ⚔️ ATK_FLAT: +{atkFlat:F2} → {finalAttackDamage:F2}");
         
-        // 공격력 (배수) - ATK_PERCENT
+        // 공격력 (배수) - ATK_PERCENT (CSV: 소수 형태, 0.05 = 5%)
         float atkPercent = GetPassiveBonusForStat(EStatType.ATK_PERCENT, StatModifierType.Multiplicative);
         if (atkPercent > 0)
         {
-            finalAttackDamage *= (1f + atkPercent / 100f);
+            finalAttackDamage *= (1f + atkPercent);
             if (showDebugLogs)
-                Debug.Log($"  ⚔️ ATK_PERCENT: x{1f + atkPercent / 100f:F2} → {finalAttackDamage:F2}");
+                Debug.Log($"  ⚔️ ATK_PERCENT: x{1f + atkPercent:F2} → {finalAttackDamage:F2}");
         }
         
         // 방어력 (가산) - DEF_FLAT
@@ -1322,11 +1592,15 @@ public class PlayerRuntimeStats : MonoBehaviour
         if (showDebugLogs && hpFlat > 0)
             Debug.Log($"  ❤️ HP_FLAT: +{hpFlat:F0} → {finalMaxHealth:F0}");
         
-        // 이동속도 (가산) - MOVE_SPEED
-        float moveSpeedFlat = GetPassiveBonusForStat(EStatType.MOVE_SPEED, StatModifierType.Additive);
-        finalMoveSpeed += moveSpeedFlat;
-        if (showDebugLogs && moveSpeedFlat > 0)
-            Debug.Log($"  🏃 MOVE_SPEED: +{moveSpeedFlat:F2} → {finalMoveSpeed:F2}");
+        // 이동속도 (퍼센트) - MOVE_SPEED (CSV: 소수 형태, 0.05 = 5%)
+        // 단리 합산을 위해 moveSpeedPercentBonus에 누적 (ApplyClassMultipliers에서 일괄 적용)
+        float moveSpeedBonus = GetPassiveBonusForStat(EStatType.MOVE_SPEED, StatModifierType.Multiplicative);
+        if (moveSpeedBonus > 0)
+        {
+            moveSpeedPercentBonus += moveSpeedBonus;
+            if (showDebugLogs)
+                Debug.Log($"  🏃 MOVE_SPEED(패시브): +{moveSpeedBonus:P0} 누적 → 보너스 합계 {moveSpeedPercentBonus:P0}");
+        }
         
         // 크리티컬 확률 (가산) - CRIT_RATE
         float critRate = GetPassiveBonusForStat(EStatType.CRIT_RATE, StatModifierType.Additive);
@@ -1340,13 +1614,84 @@ public class PlayerRuntimeStats : MonoBehaviour
         if (showDebugLogs && critDmg > 0)
             Debug.Log($"  💥 CRIT_DMG: +{critDmg:F2} → {finalCriticalDamage:F2}");
         
-        // 공격속도 (배수) - ASPD
+        // 공격속도 (배수) - ASPD (CSV: 소수 형태, 0.05 = 5%)
         float atkSpeed = GetPassiveBonusForStat(EStatType.ASPD, StatModifierType.Multiplicative);
         if (atkSpeed > 0)
         {
-            finalAttackSpeed *= (1f + atkSpeed / 100f);
+            finalAttackSpeed *= (1f + atkSpeed);
             if (showDebugLogs)
-                Debug.Log($"  ⚡ ASPD: x{1f + atkSpeed / 100f:F2} → {finalAttackSpeed:F2}");
+                Debug.Log($"  ⚡ ASPD: x{1f + atkSpeed:F2} → {finalAttackSpeed:F2}");
+        }
+        
+        // 📊 특수 스탯 10종 패시브 보너스 (Additive)
+        float skillDmgBonus = GetPassiveBonusForStat(EStatType.SKILL_DMG_PERCENT, StatModifierType.Additive);
+        if (skillDmgBonus > 0)
+        {
+            finalSkillDamageBonus += skillDmgBonus;
+            if (showDebugLogs) Debug.Log($"  🎯 SKILL_DMG_PERCENT: +{skillDmgBonus:P2} → {finalSkillDamageBonus:P2}");
+        }
+        
+        float cdrBonus = GetPassiveBonusForStat(EStatType.COOLDOWN_REDUCTION, StatModifierType.Additive);
+        if (cdrBonus > 0)
+        {
+            finalCooldownReduction += cdrBonus;
+            if (showDebugLogs) Debug.Log($"  ⏱️ COOLDOWN_REDUCTION: +{cdrBonus:P2} → {finalCooldownReduction:P2}");
+        }
+        
+        float dmgReducBonus = GetPassiveBonusForStat(EStatType.DAMAGE_REDUCTION_PERCENT, StatModifierType.Additive);
+        if (dmgReducBonus > 0)
+        {
+            finalDamageReduction += dmgReducBonus;
+            if (showDebugLogs) Debug.Log($"  🛡️ DAMAGE_REDUCTION_PERCENT: +{dmgReducBonus:P2} → {finalDamageReduction:P2}");
+        }
+        
+        float hpRegenBonus = GetPassiveBonusForStat(EStatType.HP_REGEN, StatModifierType.Additive);
+        if (hpRegenBonus > 0)
+        {
+            finalHpRegen += hpRegenBonus;
+            if (showDebugLogs) Debug.Log($"  💚 HP_REGEN: +{hpRegenBonus:F2} → {finalHpRegen:F2}");
+        }
+        
+        float lifeStealBonus = GetPassiveBonusForStat(EStatType.LIFESTEAL, StatModifierType.Additive);
+        if (lifeStealBonus > 0)
+        {
+            finalLifeSteal += lifeStealBonus;
+            if (showDebugLogs) Debug.Log($"  🩸 LIFESTEAL: +{lifeStealBonus:P2} → {finalLifeSteal:P2}");
+        }
+        
+        float armorPenBonus = GetPassiveBonusForStat(EStatType.ARMOR_PENETRATION, StatModifierType.Additive);
+        if (armorPenBonus > 0)
+        {
+            finalArmorPenetration += armorPenBonus;
+            if (showDebugLogs) Debug.Log($"  🔓 ARMOR_PENETRATION: +{armorPenBonus:P2} → {finalArmorPenetration:P2}");
+        }
+        
+        float dodgeBonus = GetPassiveBonusForStat(EStatType.DODGE_CHANCE, StatModifierType.Additive);
+        if (dodgeBonus > 0)
+        {
+            finalDodgeChance += dodgeBonus;
+            if (showDebugLogs) Debug.Log($"  💨 DODGE_CHANCE: +{dodgeBonus:P2} → {finalDodgeChance:P2}");
+        }
+        
+        float blockBonus = GetPassiveBonusForStat(EStatType.BLOCK_CHANCE, StatModifierType.Additive);
+        if (blockBonus > 0)
+        {
+            finalBlockChance += blockBonus;
+            if (showDebugLogs) Debug.Log($"  🛑 BLOCK_CHANCE: +{blockBonus:P2} → {finalBlockChance:P2}");
+        }
+        
+        float expGainBonus = GetPassiveBonusForStat(EStatType.EXP_GAIN_PERCENT, StatModifierType.Additive);
+        if (expGainBonus > 0)
+        {
+            finalExpGainBonus += expGainBonus;
+            if (showDebugLogs) Debug.Log($"  ⭐ EXP_GAIN_PERCENT: +{expGainBonus:P2} → {finalExpGainBonus:P2}");
+        }
+        
+        float statusResistBonus = GetPassiveBonusForStat(EStatType.STATUS_RESIST_ALL, StatModifierType.Additive);
+        if (statusResistBonus > 0)
+        {
+            finalStatusResist += statusResistBonus;
+            if (showDebugLogs) Debug.Log($"  🔮 STATUS_RESIST_ALL: +{statusResistBonus:P2} → {finalStatusResist:P2}");
         }
     }
     

@@ -24,23 +24,18 @@ MonoBehaviour:
   icon: {fileID: -1163354591, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 4551001115370886643, guid: f197f0b558e73a341bec616eef955381, type: 3}
   weaponType: 2
-  weaponCooldown: 0.05
-  weaponRange: 5
+  weaponCooldown: 3.5
+  weaponRange: 10
   armorType: 0
   accessoryType: 0
   equipmentSlot: 0
-  baseStats:
-  - statId: ATK_FLAT
-    value: 4.375
-    displayName: "\uACF5\uACA9\uB825"
-  - statId: ATK_PERCENT
-    value: 0.546875
-    displayName: "\uACF5\uACA9\uB825 %"
-  - statId: ASPD
-    value: 0.4861111
-    displayName: "\uACF5\uACA9\uC18D\uB3C4"
-  projectileId: Arrow_B
-  attackRange: 1
+  baseStats: []
+  projectileId: Arrow_ArrowRain
+  availableSubStats: 
+  baseBudget: 100
+  mainStatWeight: 1
+  subStatWeight: 0.3
+  attackRange: 15
   attackShape: 1
   buyPrice: 1000
   sellPrice: 500

@@ -618,6 +618,7 @@ public class PlayerController : MonoBehaviour
             }
 
             isDashing = true;
+            dashCooldownStartTime = Time.time;
             moveSpeed += dashspeed;
             if (myTrailRenderer != null)
                 myTrailRenderer.emitting = true;
@@ -657,16 +658,36 @@ public class PlayerController : MonoBehaviour
         Dash();
     }
 
+    // Dash Radial용 쿨다운 추적
+    private float dashCooldownStartTime = -999f;
+    private const float DashActiveDuration = 0.35f;
+    private const float DashCooldownDuration = 1f;
+    
+    /// <summary>
+    /// Dash Radial UI용: (잔여시간, 총쿨다운) 반환
+    /// </summary>
+    public void GetDashCooldownInfo(out float remaining, out float total)
+    {
+        total = DashActiveDuration + DashCooldownDuration; // 1.35f
+        if (!isDashing)
+        {
+            remaining = 0f;
+        }
+        else
+        {
+            float elapsed = Time.time - dashCooldownStartTime;
+            remaining = Mathf.Max(0f, total - elapsed);
+        }
+    }
+    
     private IEnumerator EndDashRoutine()
     {
-        float dashTime = .35f;
-        float dashCD = 1f;
-        yield return new WaitForSecondsRealtime(dashTime);
+        yield return new WaitForSecondsRealtime(DashActiveDuration);
         moveSpeed = startingMoveSpeed;
         if (myTrailRenderer != null)
             myTrailRenderer.emitting = false;
         
-        yield return new WaitForSecondsRealtime(dashCD);
+        yield return new WaitForSecondsRealtime(DashCooldownDuration);
         isDashing = false;
     }
 

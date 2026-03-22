@@ -28,10 +28,13 @@ MonoBehaviour:
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
+  requiredStamina: 5
+  categoryId: 
   WaveCount: 3
   Victory: 2
+  StageBaseLevel: 1
   hasTimeLimit: 0
-  TimeLimitSec: 60
+  TimeLimitSec: 120
   FirstClearDropGroupId: DROP_CH01_ST01_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST01_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01

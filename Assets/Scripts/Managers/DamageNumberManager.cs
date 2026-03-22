@@ -59,7 +59,7 @@ public class DamageNumberManager : MonoBehaviour
     [SerializeField] private float dotDamageScale = 0.8f;
 
     [Tooltip("힐 크기 배율")]
-    [SerializeField] private float healScale = 1.2f;
+    [SerializeField] private float healScale = 0.8f;
     
     [Header("🛡️ 면역 설정 (Phase 4-C)")]
     [Tooltip("면역 텍스트 색상")]
@@ -67,6 +67,32 @@ public class DamageNumberManager : MonoBehaviour
     
     [Tooltip("면역 텍스트 크기 배율")]
     [SerializeField] private float immunityScale = 1.3f;
+
+    [Header("🔮 상태이상 텍스트")]
+    [Tooltip("상태이상 적용 텍스트 색상")]
+    [SerializeField] private Color statusAppliedColor = new Color(1f, 0.75f, 0.1f); // 주황-노랑
+
+    [Tooltip("상태이상 저항 텍스트 색상")]
+    [SerializeField] private Color statusResistedColor = new Color(0.4f, 0.85f, 1f); // 하늘색
+
+    [Tooltip("상태이상 텍스트 크기 배율")]
+    [SerializeField] private float statusTextScale = 1.1f;
+
+    [Tooltip("상태이상 텍스트 Y 추가 오프셋 (음수 = 데미지 숫자 아래로 배치)")]
+    [SerializeField] private float statusTextExtraOffsetY = -0.5f;
+
+    [Header("🌀 회피/블록 텍스트")]
+    [Tooltip("회피(DODGE) 텍스트 색상")]
+    [SerializeField] private Color dodgeColor = new Color(0.4f, 1f, 1f); // 밝은 청록
+
+    [Tooltip("블록(BLOCK) 텍스트 색상")]
+    [SerializeField] private Color blockColor = new Color(0.8f, 0.8f, 0.8f); // 밝은 회색(은색)
+
+    [Tooltip("회피/블록 텍스트 크기 배율")]
+    [SerializeField] private float dodgeBlockScale = 1.0f;
+
+    [Tooltip("회피/블록 텍스트 Y 추가 오프셋 (데미지 숫자보다 위에 표시)")]
+    [SerializeField] private float dodgeBlockExtraOffsetY = 1.0f;
 
     [Header("디버그")]
     [SerializeField] private bool enableDebugLogs = false;
@@ -340,6 +366,122 @@ public class DamageNumberManager : MonoBehaviour
         {
             Debug.Log($"🛡️ [DamageNumberManager] 면역 표시: {resistedEffects} at {displayPosition:F2}");
         }
+    }
+
+    /// <summary>
+    /// 💚 흡혈 회복 숫자 표시 (+N, 초록색)
+    /// </summary>
+    /// <param name="targetPosition">플레이어 위치</param>
+    /// <param name="amount">회복량</param>
+    /// <param name="targetTransform">플레이어 Transform (앵커 검색용)</param>
+    public void ShowHealNumber(Vector3 targetPosition, int amount, Transform targetTransform = null)
+    {
+        if (damageNumberPrefab == null)
+        {
+            Debug.LogError("[DamageNumberManager] Prefab이 없어서 힐 숫자를 표시할 수 없습니다!");
+            return;
+        }
+
+        if (amount <= 0) return;
+
+        Vector3 displayPosition = GetDamageNumberPosition(targetPosition, isPlayer: true, targetTransform);
+
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition, amount);
+        spawnedNumber.SetColor(healColor);
+        spawnedNumber.transform.localScale *= healScale;
+
+        // "+" 기호를 숫자 위에 표시
+        spawnedNumber.enableTopText = true;
+        spawnedNumber.topText = "+";
+
+        if (enableDebugLogs)
+            Debug.Log($"💚 [DamageNumberManager] 흡혈 회복 표시: +{amount} at {displayPosition:F2}");
+    }
+
+    /// <summary>
+    /// 🔮 상태이상 적용 텍스트 표시 (효과 이름, 주황-노랑)
+    /// 예: "Bind" "Poison"
+    /// </summary>
+    public void ShowStatusEffectApplied(Vector3 targetPosition, string effectName, Transform targetTransform = null)
+    {
+        if (damageNumberPrefab == null) return;
+
+        Vector3 displayPosition = GetDamageNumberPosition(targetPosition, isPlayer: true, targetTransform)
+                                  + Vector3.up * statusTextExtraOffsetY;
+
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition);
+        spawnedNumber.enableNumber   = false;
+        spawnedNumber.enableTopText  = true;
+        spawnedNumber.topText        = effectName;
+        spawnedNumber.SetColor(statusAppliedColor);
+        spawnedNumber.transform.localScale *= statusTextScale;
+
+        if (enableDebugLogs)
+            Debug.Log($"🔮 [DamageNumberManager] 상태이상 적용 표시: {effectName} at {displayPosition:F2}");
+    }
+
+    /// <summary>
+    /// 🔮 상태이상 저항 성공 텍스트 표시 ("RESIST", 하늘색)
+    /// </summary>
+    public void ShowStatusEffectResisted(Vector3 targetPosition, string effectName, Transform targetTransform = null)
+    {
+        if (damageNumberPrefab == null) return;
+
+        Vector3 displayPosition = GetDamageNumberPosition(targetPosition, isPlayer: true, targetTransform)
+                                  + Vector3.up * statusTextExtraOffsetY;
+
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition);
+        spawnedNumber.enableNumber     = false;
+        spawnedNumber.enableTopText    = true;
+        spawnedNumber.topText          = "RESIST";
+        spawnedNumber.enableBottomText = false;
+        spawnedNumber.SetColor(statusResistedColor);
+        spawnedNumber.transform.localScale *= statusTextScale;
+
+        if (enableDebugLogs)
+            Debug.Log($"🔮 [DamageNumberManager] 상태이상 저항 표시: RESIST ({effectName}) at {displayPosition:F2}");
+    }
+
+    /// <summary>
+    /// 💨 회피 성공 텍스트 표시 ("DODGE", 청록색)
+    /// </summary>
+    public void ShowDodgeText(Vector3 targetPosition, Transform targetTransform = null)
+    {
+        if (damageNumberPrefab == null) return;
+
+        Vector3 displayPosition = GetDamageNumberPosition(targetPosition, isPlayer: true, targetTransform)
+                                  + Vector3.up * dodgeBlockExtraOffsetY;
+
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition);
+        spawnedNumber.enableNumber  = false;
+        spawnedNumber.enableTopText = true;
+        spawnedNumber.topText       = "MISS";
+        spawnedNumber.SetColor(dodgeColor);
+        spawnedNumber.transform.localScale *= dodgeBlockScale;
+
+        if (enableDebugLogs)
+            Debug.Log($"💨 [DamageNumberManager] 회피 텍스트 표시: DODGE at {displayPosition:F2}");
+    }
+
+    /// <summary>
+    /// 🛡️ 블록 성공 텍스트 표시 ("BLOCK", 은색)
+    /// </summary>
+    public void ShowBlockText(Vector3 targetPosition, Transform targetTransform = null)
+    {
+        if (damageNumberPrefab == null) return;
+
+        Vector3 displayPosition = GetDamageNumberPosition(targetPosition, isPlayer: true, targetTransform)
+                                  + Vector3.up * dodgeBlockExtraOffsetY;
+
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition);
+        spawnedNumber.enableNumber  = false;
+        spawnedNumber.enableTopText = true;
+        spawnedNumber.topText       = "BLOCK";
+        spawnedNumber.SetColor(blockColor);
+        spawnedNumber.transform.localScale *= dodgeBlockScale;
+
+        if (enableDebugLogs)
+            Debug.Log($"🛡️ [DamageNumberManager] 블록 텍스트 표시: BLOCK at {displayPosition:F2}");
     }
 
     #endregion

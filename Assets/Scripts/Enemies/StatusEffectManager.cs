@@ -215,6 +215,12 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
             
             if (enableDebugLogs)
                 Debug.Log($"🔄 [StatusEffectManager] {newEffect.EffectType} RefreshOrStack() 완료 → {newEffect.Target.name}");
+
+            // 중첩/갱신 팝업 표시 (상태이상 이펙트로 시각화되므로 비활성화)
+            // DamageNumberManager.Instance?.ShowStatusEffectApplied(
+            //     newEffect.Target.transform.position,
+            //     newEffect.EffectType.ToString(),
+            //     newEffect.Target.transform);
         }
         else
         {
@@ -227,6 +233,12 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
             
             if (enableDebugLogs)
                 Debug.Log($"✅ [StatusEffectManager] {newEffect.EffectType} Apply() 완료 → {newEffect.Target.name} (지속: {newEffect.RemainingDuration:F1}초)");
+
+            // 신규 적용 팝업 표시 (상태이상 이펙트로 시각화되므로 비활성화)
+            // DamageNumberManager.Instance?.ShowStatusEffectApplied(
+            //     newEffect.Target.transform.position,
+            //     newEffect.EffectType.ToString(),
+            //     newEffect.Target.transform);
         }
     }
     
@@ -356,6 +368,24 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
             if (playerObject == null)
             {
                 Debug.LogWarning("[StatusEffectManager] 플레이어를 찾을 수 없어서 상태이상 적용 불가");
+                return;
+            }
+        }
+        
+        // STATUS_RESIST_ALL: 상태이상 저항 확률 판정
+        var runtimeStats = UnityEngine.Object.FindObjectOfType<PlayerRuntimeStats>();
+        if (runtimeStats != null && runtimeStats.FinalStatusResist > 0f)
+        {
+            if (Random.Range(0f, 1f) < runtimeStats.FinalStatusResist)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"🔮 [StatusEffectManager] 상태이상 저항 성공! ({runtimeStats.FinalStatusResist:P1}) — {effectData.EffectType} 무효화");
+
+                // 저항 성공 팝업 표시
+                DamageNumberManager.Instance?.ShowStatusEffectResisted(
+                    playerObject.transform.position,
+                    effectData.EffectType.ToString(),
+                    playerObject.transform);
                 return;
             }
         }

@@ -27,7 +27,7 @@ MonoBehaviour:
   animTriggerName: Skill2
   baseCooldown: 3
   baseDamageMultiplier: 150
-  range: 8
+  range: 12
   castCueKey: skill.Focused_Strike.cast
   aoeCueKey: 
   hitCueKey: 
@@ -45,7 +45,7 @@ MonoBehaviour:
   multiHitCount: 1
   projectileCount: 1
   projectilePrefab: {fileID: 4149642069968341746, guid: 8dbc088b579da204990a31aa5fb11bd4, type: 3}
-  projectileSpeed: 10
+  projectileSpeed: 15
   spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
   projectilePoolName: Arrow_B_Arc

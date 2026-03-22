@@ -14,8 +14,10 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private Button attackButton;
     [SerializeField] private Button skill1Button;
     [SerializeField] private Button skill2Button;
-    [SerializeField] private Image skill1Button_Radial;  // skill1CooldownImage → 변경
-    [SerializeField] private Image skill2Button_Radial;  // skill2CooldownImage → 변경
+    [SerializeField] private Image skill1Button_Radial;
+    [SerializeField] private Image skill2Button_Radial;
+    [SerializeField] private Image attackButton_Radial;  // 기본공격 Radial (선택적)
+    [SerializeField] private Image dashButton_Radial;    // 대시 Radial (선택적)
     // ✅ Health UI, Gold UI 추가
     [SerializeField] private HealthUI healthUI;
     [SerializeField] private GoldUI goldUI;
@@ -37,6 +39,8 @@ public class PlayerUIController : MonoBehaviour
     private bool isInitialized = false;
     private bool isLevelUISubscribed = false;
     private SkillController skillController;
+    private PlayerAnimationController animController;
+    private PlayerController playerController;
     private float lastUpdateTime;
     private const float UPDATE_INTERVAL = 0.1f;
 
@@ -217,8 +221,24 @@ public class PlayerUIController : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"[PlayerUIController] Skill2Button_Radial 탐색: {(skill2Button_Radial != null ? "성공" : "실패")}");
         }
-        //  skill1Button이 없으면 실행할 필요 없음
-
+        
+        // 기본공격 Radial 자동 탐색 (선택적)
+        if (attackButton_Radial == null && attackButton != null)
+        {
+            attackButton_Radial = attackButton.transform.Find("AttackButton_Radial")?.GetComponent<Image>();
+            if (showDebugLogs)
+                Debug.Log($"[PlayerUIController] AttackButton_Radial 탐색: {(attackButton_Radial != null ? "성공" : "없음(선택적)")}");
+        }
+        
+        // 대시 Radial 자동 탐색 (선택적)
+        if (dashButton_Radial == null)
+        {
+            GameObject dashButtonObj = GameObject.Find("DashButton");
+            if (dashButtonObj != null)
+                dashButton_Radial = dashButtonObj.transform.Find("DashButton_Radial")?.GetComponent<Image>();
+            if (showDebugLogs)
+                Debug.Log($"[PlayerUIController] DashButton_Radial 탐색: {(dashButton_Radial != null ? "성공" : "없음(선택적)")}");
+        }
     }
 
     /// <summary>
@@ -334,89 +354,44 @@ public class PlayerUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// 스킬 쿨다운 UI 업데이트
+    /// 스킬/기본공격/대시 쿨다운 Radial UI 업데이트
+    /// PlayerAnimationController / PlayerController 에서 실제 쿨다운 값을 읽음
     /// </summary>
     private void UpdateSkillCooldownUI()
     {
-        // 🔍 null 체크 디버그 추가
-        if (showDebugLogs && Time.frameCount % 120 == 0) // 2초마다 한 번씩 출력
+        // PlayerAnimationController 캐싱 (처음 한 번)
+        if (animController == null)
+            animController = FindObjectOfType<PlayerAnimationController>();
+        
+        if (playerController == null)
+            playerController = FindObjectOfType<PlayerController>();
+        
+        // ── 스킬1 Radial ──────────────────────────────────────
+        if (skill1Button_Radial != null && animController != null)
         {
-            Debug.Log($"🔍 [UpdateSkillCooldownUI] 상태 체크:" +
-                     $"\n - skillController: {(skillController != null ? "OK" : "NULL")}" +
-                     $"\n - skill1Button_Radial: {(skill1Button_Radial != null ? "OK" : "NULL")}" +
-                     $"\n - skill2Button_Radial: {(skill2Button_Radial != null ? "OK" : "NULL")}" +
-                     $"\n - 프레임: {Time.frameCount}", this);
-                     
-            if (skillController != null && skillController.SkillSet != null)
-            {
-                var skill1 = skillController.SkillSet.GetSkill(0);
-                var skill2 = skillController.SkillSet.GetSkill(1);
-                Debug.Log($"🔍 [SkillSet] 상태 체크:" +
-                         $"\n - Skill1: {(skill1 != null ? skill1.GetType().Name : "NULL")}" +
-                         $"\n - Skill2: {(skill2 != null ? skill2.GetType().Name : "NULL")}", this);
-            }
+            animController.GetSkill1CooldownInfo(out float remaining, out float total);
+            skill1Button_Radial.fillAmount = (total > 0f) ? (remaining / total) : 0f;
         }
         
-        if (skillController == null) return;
-        
-        // 스킬1 쿨다운 UI
-        if (skill1Button_Radial != null)  // skill1CooldownImage → 변경
+        // ── 스킬2 Radial ──────────────────────────────────────
+        if (skill2Button_Radial != null && animController != null)
         {
-            var skill1 = skillController.SkillSet?.GetSkill(0);
-            if (skill1 != null)
-            {
-                float remainingTime = skill1.GetCooldownRemaining();
-                float totalTime = skill1.Cooldown;
-                
-                // fillAmount = remainingTime / totalTime
-                skill1Button_Radial.fillAmount = remainingTime / totalTime;  // skill1CooldownImage → 변경
-            }
+            animController.GetSkill2CooldownInfo(out float remaining, out float total);
+            skill2Button_Radial.fillAmount = (total > 0f) ? (remaining / total) : 0f;
         }
         
-        // 스킬2 쿨다운 UI  
-        if (skill2Button_Radial != null)  // skill2CooldownImage → 변경
+        // ── 기본공격 Radial (선택적) ──────────────────────────
+        if (attackButton_Radial != null && animController != null)
         {
-            var skill2 = skillController.SkillSet?.GetSkill(1);
-            if (skill2 != null)
-            {
-                float remainingTime = skill2.GetCooldownRemaining();
-                float totalTime = skill2.Cooldown;
-                
-                // fillAmount = remainingTime / totalTime
-                skill2Button_Radial.fillAmount = remainingTime / totalTime;  // skill2CooldownImage → 변경
-            }
+            animController.GetAttackCooldownInfo(out float remaining, out float total);
+            attackButton_Radial.fillAmount = (total > 0f) ? (remaining / total) : 0f;
         }
         
-        // 🔍 fillAmount 디버그 로그 추가
-        if (showDebugLogs && Time.frameCount % 60 == 0) // 1초마다 한 번씩만 출력 (60fps 기준)
+        // ── 대시 Radial (선택적) ──────────────────────────────
+        if (dashButton_Radial != null && playerController != null)
         {
-            if (skill1Button_Radial != null)
-            {
-                var skill1 = skillController?.SkillSet?.GetSkill(0);
-                float remainingTime = skill1?.GetCooldownRemaining() ?? 0f;
-                float totalTime = skill1?.Cooldown ?? 1f;
-                float calculatedFillAmount = remainingTime / totalTime;
-                
-                Debug.Log($"🔍 [Skill1 fillAmount] " +
-                         $"실제값: {skill1Button_Radial.fillAmount:F3} | " +
-                         $"계산값: {calculatedFillAmount:F3} | " +
-                         $"쿨다운: {remainingTime:F1}/{totalTime:F1} | " +
-                         $"프레임: {Time.frameCount}", this);
-            }
-            
-            if (skill2Button_Radial != null)
-            {
-                var skill2 = skillController?.SkillSet?.GetSkill(1);
-                float remainingTime = skill2?.GetCooldownRemaining() ?? 0f;
-                float totalTime = skill2?.Cooldown ?? 1f;
-                float calculatedFillAmount = remainingTime / totalTime;
-                
-                Debug.Log($"🔍 [Skill2 fillAmount] " +
-                         $"실제값: {skill2Button_Radial.fillAmount:F3} | " +
-                         $"계산값: {calculatedFillAmount:F3} | " +
-                         $"쿨다운: {remainingTime:F1}/{totalTime:F1} | " +
-                         $"프레임: {Time.frameCount}", this);
-            }
+            playerController.GetDashCooldownInfo(out float remaining, out float total);
+            dashButton_Radial.fillAmount = (total > 0f) ? (remaining / total) : 0f;
         }
     }
 

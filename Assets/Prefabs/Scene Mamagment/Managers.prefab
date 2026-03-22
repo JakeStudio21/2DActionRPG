@@ -55,7 +55,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_ImpulseDuration: 0.2
-    m_ImpulseType: 3
+    m_ImpulseType: 1
     m_DissipationRate: 0.25
     m_RawSignal: {fileID: 11400000, guid: de571980d10a6074fb267a188a0eda31, type: 2}
     m_AmplitudeGain: 1
@@ -76,8 +76,8 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
       m_AttackTime: 0
-      m_SustainTime: 0.15
-      m_DecayTime: 0.7
+      m_SustainTime: 0.2
+      m_DecayTime: 0.5
       m_ScaleWithImpact: 1
       m_HoldForever: 0
     m_ImpactRadius: 100
@@ -98,10 +98,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b37c373214cc934d9c427c4c816c884, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weakIntensity: 0.5
-  normalIntensity: 1
-  strongIntensity: 2
-  massiveIntensity: 4
+  globalShakeMultiplier: 1
+  shakeCooldown: 0.05
+  showDebugLogs: 0
 --- !u!1 &1149777301974655105
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,13 +151,24 @@ MonoBehaviour:
   normalDamageColor: {r: 1, g: 1, b: 1, a: 1}
   playerHitDamageColor: {r: 1, g: 0, b: 0, a: 1}
   criticalDamageColor: {r: 1, g: 0.6, b: 0, a: 1}
+  playerHitCriticalColor: {r: 1, g: 0, b: 0, a: 1}
   dotDamageColor: {r: 0.7, g: 0, b: 1, a: 1}
   healColor: {r: 0, g: 1, b: 0, a: 1}
   normalDamageScale: 1
   playerHitDamageScale: 1
   criticalDamageScale: 1.5
   dotDamageScale: 0.8
-  healScale: 1.2
+  healScale: 0.8
+  immunityColor: {r: 0.3, g: 0.7, b: 1, a: 1}
+  immunityScale: 1.3
+  statusAppliedColor: {r: 1, g: 0.75, b: 0.1, a: 1}
+  statusResistedColor: {r: 0.4, g: 0.85, b: 1, a: 1}
+  statusTextScale: 0.8
+  statusTextExtraOffsetY: -0.9
+  dodgeColor: {r: 0.4, g: 1, b: 1, a: 1}
+  blockColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  dodgeBlockScale: 1
+  dodgeBlockExtraOffsetY: 1.4
   enableDebugLogs: 0
 --- !u!1 &2952044546922807476
 GameObject:
