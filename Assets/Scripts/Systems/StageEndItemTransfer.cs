@@ -62,83 +62,80 @@ public class StageEndItemTransfer : MonoBehaviour
     private TransferResult ExecuteTransfer()
     {
         var playerData = PlayerDataManager.Instance;
-        var account = AccountDataManager.Instance;
+        var account    = AccountDataManager.Instance;
         int currentSlotIndex = playerData.CurrentSlotIndex;
-        
-        var result = new TransferResult();
-        
-        // ⭐ 슬롯 데이터 한 번만 가져오기 (여러 번 저장하면 재료 손실!)
+
+        var result   = new TransferResult();
         var slotData = playerData.GetSlotData(currentSlotIndex);
-        
-        // 1. 현재 가방 아이템 목록 가져오기
+
         var bagItems = new List<ItemInstanceID>(slotData.characterBagInstanceIds);
-        
-        Log($"🔍 [StageEndItemTransfer] 가방 아이템 목록 가져오기 완료: {bagItems.Count}개");
-        for (int i = 0; i < bagItems.Count; i++)
-        {
-            Log($"  [{i}] {bagItems[i].Value}");
-        }
-        
+
+        Log($"🔍 가방 아이템: {bagItems.Count}개, 재료: {slotData.characterBagMaterials.Count}개");
+
         if (bagItems.Count == 0 && slotData.characterBagMaterials.Count == 0)
         {
-            Log("📦 가방이 비어있음 - 전송할 아이템 없음");
+            Log("📦 가방이 비어있음 - 전송 스킵");
             return result;
         }
-        
-        Log($"📦 가방 아이템 수: {bagItems.Count}개, 재료: {slotData.characterBagMaterials.Count}개");
-        
-        // 3. 각 장비 아이템 처리
+
+        // ── Phase 1: Memory Update ────────────────────────────────────
+        // 가방의 모든 아이템 ID를 영구 컨테이너(창고/우편함)로 이동.
+        // 아직 파일에는 저장하지 않음.
         foreach (var itemId in bagItems)
         {
             if (itemId.IsEmpty)
             {
-                LogWarning($"⚠️ 잘못된 아이템 ID 스킵: {itemId}");
+                LogWarning($"⚠️ 빈 ID 스킵: {itemId}");
                 continue;
             }
-            
-            // 귀속 확인
+
             var bindInfo = account.GetBindInfo(itemId);
-            
             if (bindInfo.isBound)
             {
-                // 귀속된 아이템은 가방에 유지
                 Log($"🔒 귀속 아이템 유지: {itemId} (슬롯 {bindInfo.characterSlotIndex})");
                 result.skippedBound++;
                 continue;
             }
-            
-            // 창고로 이동 시도
-            bool addedToStorage = account.TryAddToShared(itemId);
-            
-            if (addedToStorage)
+
+            if (account.TryAddToShared(itemId))
             {
-                // ⭐ 메모리에서만 제거 (저장은 나중에 한 번만!)
-                slotData.characterBagInstanceIds.Remove(itemId);
-                
                 Log($"✅ 창고 이동: {itemId}");
                 result.transferredToStorage++;
             }
             else
             {
-                // 창고 가득 참 → 우편함 처리
                 account.MoveToMailbox(itemId);
-                
-                // ⭐ 메모리에서만 제거 (저장은 나중에 한 번만!)
-                slotData.characterBagInstanceIds.Remove(itemId);
-                
-                LogWarning($"📬 창고 가득 참 → 우편함 이동: {itemId}");
+                LogWarning($"📬 창고 만석 → 우편함: {itemId}");
                 result.transferredToMailbox++;
             }
         }
-        
-        // 4. 재료 전송 (신규) ⭐
+
+        // ── Phase 2: Memory Clear ─────────────────────────────────────
+        // 귀속 아이템을 제외한 이동 완료 ID를 가방에서 제거.
+        // (귀속 아이템은 가방에 잔존 → skippedBound 로 카운트됨)
+        slotData.characterBagInstanceIds.RemoveAll(id =>
+            !id.IsEmpty && !account.GetBindInfo(id).isBound);
+
+        // 재료도 동일하게 계정으로 이관 후 메모리에서 제거
         TransferMaterials(slotData, account, result);
-        
-        // 5. 저장 (⭐ 한 번만 저장!)
+
+        // ── Phase 3: Sequential Save ──────────────────────────────────
+        // [중요] AccountData를 반드시 먼저 저장한다.
+        //
+        // Crash Recovery 설계 의도:
+        //   - AccountData.Save() 성공 후 크래시 발생 →
+        //       창고에 ID 추가됨, 가방 파일에 ID 잔존 (중복 상태)
+        //   → 다음 실행 시 AutoCleanup PASS B (CleanDuplicateVolatileItems)가
+        //       영구 컨테이너(창고/우편함)에 이미 있는 가방 ID를 제거하여 자동 복구.
+        //
+        //   - AccountData.Save() 실패 →
+        //       가방 파일은 변경되지 않음, 아이템 보존됨
+        //   → 다음 실행 시 가방에 여전히 아이템 존재, StageEndItemTransfer 재시도 가능.
         account.Save();
         playerData.SaveSlotData(slotData);
         playerData.MarkDirty();
-        
+
+        Log($"✅ Sequential Save 완료: 창고 {result.transferredToStorage}개 / 우편함 {result.transferredToMailbox}개 / 귀속유지 {result.skippedBound}개");
         return result;
     }
     

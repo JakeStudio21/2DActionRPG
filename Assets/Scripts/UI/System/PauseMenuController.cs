@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using StageSystem;
 
 /// <summary>
 /// 인게임 일시정지 흐름 컨트롤러
@@ -85,10 +86,23 @@ public class PauseMenuController : MonoBehaviour
         CameraController.Instance.SetPlayerCameraFollow();
     }
 
-    /// <summary>로비로 이동 — timeScale 복구 + 저장 + 패배 화면</summary>
+    /// <summary>로비로 이동 — timeScale 복구 + 아이템 이관 + 저장 + 패배 화면</summary>
     private void ReturnToLobby()
     {
         Time.timeScale = 1f;
+
+        // 포기(Give-up) 시에도 그때까지 획득한 아이템은 공유창고로 이관
+        // StageManager.CompleteStage() 는 호출되지 않으므로 여기서 직접 실행.
+        // Sequential Save (AccountData → SlotData) 는 TransferItemsToAccount() 내부에서 보장.
+        if (StageManager.Instance != null)
+        {
+            Debug.Log("🎒 [PauseMenuController] 포기 → 가방 아이템 공유창고 이관 시작");
+            StageManager.Instance.TransferItemsToAccount();
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ [PauseMenuController] StageManager 없음 - 아이템 이관 스킵 (AutoCleanup PASS B가 다음 실행 시 복구)");
+        }
 
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
             PlayerDataManager.Instance.SaveOnMeaningfulEvent("PauseMenu_ForfeitGame");

@@ -142,10 +142,18 @@ public class GameManager : Singleton<GameManager>
         currentGameState = GameState.None;
         isGamePaused = false;
         
-        // ⭐ Phase 1: AccountDataManager 초기화 (PlayerDataManager보다 먼저)
+        // ── Phase 1: AccountData 로드 ────────────────────────────────────
         AccountDataManager.Initialize();
         
-        // ⭐ Phase 2: 자동 정리 실행 (고아 아이템, 무효 참조 제거)
+        // ── Phase 2: PlayerSlot 데이터 로드 ─────────────────────────────
+        // AutoCleanup이 CollectAllContainers()로 equippedRecords를 수집하려면
+        // 슬롯 파일이 반드시 메모리에 올라와 있어야 한다.
+        // PlayerDataManager.Start()보다 먼저 명시적으로 로드한다.
+        PlayerDataManager.Instance?.LoadAllSlots();
+        
+        // ── Phase 3: AutoCleanup (모든 데이터 준비 완료 후 실행) ─────────
+        // Guard: PlayerDataManager가 IsLoaded = true 일 때만 실행됨.
+        // Dry-Run 모드 활성 시 실제 삭제 없이 경고 로그만 출력됨.
         AccountDataManager.Instance?.AutoCleanup();
         
         // ⭐ 수정: selectedPlayerData가 null인 경우 런타임에서 생성

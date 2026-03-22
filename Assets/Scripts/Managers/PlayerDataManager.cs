@@ -133,6 +133,14 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     public int MaxSlots => maxSlots;
     public int CurrentSlotIndex => currentSlotIndex;
     public bool IsSlotSelected => currentSlotIndex >= 0 && selectedPlayerData != null;
+    
+    /// <summary>
+    /// LoadAllSlots() 완료 여부.
+    /// AccountDataManager.AutoCleanup()의 Guard 조건으로 사용된다.
+    /// false 상태에서 AutoCleanup이 실행되면 equippedRecords가 수집되지 않아
+    /// 장착 아이템이 Orphan으로 오판돼 영구 삭제될 위험이 있다.
+    /// </summary>
+    public bool IsLoaded { get; private set; }
     public PlayerType CurrentPlayerType => selectedPlayerData != null ? selectedPlayerData.selectedPlayerType : PlayerType.None;
     public string SaveDirectoryPath => Path.Combine(Application.persistentDataPath, saveDirectory);
     
@@ -279,8 +287,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     
     private void Start()
     {
-        // 모든 슬롯 로드
-        LoadAllSlots();
+        // GameManager.Awake()에서 LoadAllSlots()를 이미 호출한 경우 중복 로드 방지
+        if (!IsLoaded)
+            LoadAllSlots();
         
         // 🆕 SelectedPlayerData maxInventorySize 강제 동기화
         if (selectedPlayerData != null)
@@ -310,6 +319,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     public void LoadAllSlots()
     {
         playerSlots.Clear();
+        IsLoaded = false;
         
         for (int i = 0; i < maxSlots; i++)
         {
@@ -325,6 +335,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             }
             playerSlots.Add(slotData);
         }
+        
+        IsLoaded = true;
         
         if (showDebugLogs)
             Debug.Log($"📁 [PlayerDataManager] {maxSlots}개 슬롯 로드 완료. 사용중: {GetUsedSlotCount()}개");
@@ -1321,14 +1333,16 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         // 4. 계정 공유 창고로 이동 (sharedInventoryIds)
-        // ⭐ V2 시스템: AccountDataManager의 TryAddToShared 사용
         if (!account.TryAddToShared(instanceId))
         {
             Debug.LogWarning($"⚠️ [PlayerDataManager] 창고 추가 실패, 우편함으로 이동: {item.equipmentName}");
             account.MoveToMailbox(instanceId);
         }
-        
-        // 4. 저장 및 이벤트
+
+        // 5. Sequential Save: AccountData 먼저 저장 후 SlotData 저장
+        // account.Save()를 반드시 먼저 호출해야 sharedInventoryIds 변경이 디스크에 반영됨.
+        // 크래시 복구: account.Save() 성공 후 크래시 시 AutoCleanup PASS B가 equippedRecords 중복 제거.
+        account.Save();
         MarkDirty();
         SaveOnMeaningfulEvent("ItemUnequippedV2");
         

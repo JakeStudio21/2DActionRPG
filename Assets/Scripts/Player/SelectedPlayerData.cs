@@ -230,27 +230,16 @@ public class SelectedPlayerData : ScriptableObject
             foreach (var record in slotData.equippedRecords)
             {
                 if (record.instanceId.IsEmpty) continue;
-                
-                string templateName = record.templateName;
-                
-                // ⚠️ Fallback: 기존 JSON 파일 호환성 (templateName 없을 때)
-                if (string.IsNullOrEmpty(templateName))
+
+                // SoT(Single Source of Truth): templateName은 AccountData.itemInstances에서만 조회
+                var instanceData = AccountDataManager.Instance?.GetInstance(record.instanceId);
+                if (instanceData == null)
                 {
-                    Debug.LogWarning($"⚠️ [SelectedPlayerData] templateName 없음 → AccountData에서 복구 시도: {record.instanceId.Value.Substring(0, 8)}...");
-                    var account = AccountDataManager.Instance;
-                    var instance = account?.GetInstance(record.instanceId);
-                    if (instance != null)
-                    {
-                        templateName = instance.templateName;
-                        Debug.Log($"✅ [SelectedPlayerData] Fallback 성공: {templateName}");
-                    }
-                    else
-                    {
-                        Debug.LogError($"❌ [SelectedPlayerData] Fallback 실패: 인스턴스를 찾을 수 없음");
-                        continue;
-                    }
+                    Debug.LogError($"❌ [SelectedPlayerData] Dead Reference 감지: instanceId={record.instanceId.Value.Substring(0, 8)}... - itemInstances에 없음. AutoCleanup 시 자동 제거됩니다.");
+                    continue;
                 }
-                
+
+                string templateName = instanceData.templateName;
                 Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 시도: templateName={templateName}, slot={record.slot}");
                 
                 var item = ItemTemplateResolver.Load(templateName);
@@ -558,23 +547,16 @@ public class SelectedPlayerData : ScriptableObject
         foreach (var kvp in RuntimeEquippedInstanceIds)
         {
             Debug.Log($"  📦 저장 대상: {kvp.Key} → {(!kvp.Value.IsEmpty ? kvp.Value.Value.Substring(0, 8) + "..." : "Invalid")}");
-            
+
             if (!kvp.Value.IsEmpty)
             {
-                // ⭐ Phase B 수정: templateName도 함께 저장 (AccountData 의존성 제거)
-                string templateName = "";
-                if (RuntimeEquippedItems.TryGetValue(kvp.Key, out EquipmentData equipment))
-                {
-                    templateName = equipment.itemID; // ✅ itemID 사용 (예: ITEM_ARMOR_WIZARD_B)
-                }
-                
+                // 정규화: instanceId만 저장. templateName은 AccountData.itemInstances(SoT)에서 조회
                 slotData.equippedRecords.Add(new EquippedRecord
                 {
                     slot = kvp.Key,
-                    instanceId = kvp.Value,
-                    templateName = templateName  // ⭐ Phase B: 템플릿명 저장
+                    instanceId = kvp.Value
                 });
-                Debug.Log($"💾 [SelectedPlayerData] V2 장비 저장: {kvp.Key} → {templateName} ({kvp.Value.Value.Substring(0, 8)}...)");
+                Debug.Log($"💾 [SelectedPlayerData] V2 장비 저장: {kvp.Key} → ID:{kvp.Value.Value.Substring(0, 8)}...");
             }
         }
         

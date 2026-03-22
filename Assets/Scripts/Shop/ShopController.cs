@@ -282,23 +282,28 @@ private void TestBuyItem()
         
         int sellPrice = priceProvider.GetSellPrice(equipment.itemID);
         
-        // 🆕 V2: 계정 공유 창고에서 제거
-        if (AccountDataManager.Instance.RemoveFromShared(instanceId))
+        // 판매 = 아이템 영구 소멸 → DestroyItemInstance로 원본 + 참조 동시 제거
+        // (기존 RemoveFromShared는 sharedInventoryIds 참조만 지우고 itemInstances 원본이 잔존하는 구조적 결함이 있었음)
+        var account = AccountDataManager.Instance;
+
+        // 창고에 없는 아이템은 판매 거부 (존재 여부 = sharedInventoryIds 포함 여부로 판단)
+        if (!account.IsInSharedInventory(instanceId))
         {
-            PlayerDataManager.Instance.AddGold(sellPrice);
-            AccountDataManager.Instance.Save();  // 🆕 V2: 계정 데이터 저장
-            
             if (showDebugLogs)
-                Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}, ID: {instanceId.Value.Substring(0, 8)}...");
-            
-            OnItemSold?.Invoke(equipment.itemID);
-            return true;
+                Debug.LogError($"❌ [ShopController] {equipment.itemID} 판매 실패! (보관창고에 아이템 없음)");
+            OnTransactionFailed?.Invoke(equipment.itemID);
+            return false;
         }
-        
+
+        account.DestroyItemInstance(instanceId);    // ① 원본(itemInstances) + 모든 참조 동시 제거
+        PlayerDataManager.Instance.AddGold(sellPrice);
+        account.Save();                             // ② 디스크 반영
+
         if (showDebugLogs)
-            Debug.LogError($"❌ [ShopController] {equipment.itemID} 판매 실패! (보관창고에서 제거 실패)");
-        OnTransactionFailed?.Invoke(equipment.itemID);
-        return false;
+            Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}, ID: {instanceId.Value.Substring(0, 8)}...");
+
+        OnItemSold?.Invoke(equipment.itemID);
+        return true;
     }
     
     /// <summary>

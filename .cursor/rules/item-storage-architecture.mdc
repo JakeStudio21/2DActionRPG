@@ -1,0 +1,100 @@
+---
+description: 아이템 저장 구조 아키텍처 — Single Source of Truth 설계 원칙 및 리팩토링 내역
+globs: Assets/Scripts/Managers/AccountDataManager.cs,Assets/Scripts/Managers/PlayerDataManager.cs,Assets/Scripts/Systems/StageEndItemTransfer.cs,Assets/Scripts/Shop/ShopController.cs
+alwaysApply: false
+---
+
+# 아이템 저장 구조 아키텍처 (Single Source of Truth)
+
+## 핵심 원칙
+
+- **SoT(Single Source of Truth)**: `AccountData.itemInstances` 가 모든 아이템 원본 데이터의 유일한 소유자
+- **참조 컨테이너**: `sharedInventoryIds`, `mailboxIds`, `equippedRecords`, `characterBagInstanceIds` 는 ID 참조만 보유
+- `EquippedRecord.templateName` 필드 제거 — 아이템 이름은 반드시 `itemInstances`에서 조회
+
+## 컨테이너 분류
+
+| 종류 | 컨테이너 | 설명 |
+|---|---|---|
+| **영구(Permanent)** | `sharedInventoryIds`, `mailboxIds`, `equippedRecords` | 항상 유효, Dead Ref 검사 대상 |
+| **휘발성(Volatile)** | `characterBagInstanceIds` | 스테이지 중 임시 버퍼, 종료 시 창고로 이관 |
+
+## 아이템 생명주기
+
+### 획득 (Entry Point)
+- `AccountDataManager.CreateInstance()` → `itemInstances`에 등록 + `sharedInventoryIds` 또는 `characterBagInstanceIds`에 ID 추가
+
+### 장착 / 해제
+- **장착**: `sharedInventoryIds` → `equippedRecords` (ID 이동, `itemInstances` 유지)
+- **해제**: `equippedRecords` → `sharedInventoryIds` (ID 이동)
+- 해제 시 **Sequential Save**: `account.Save()` 먼저 → `SaveOnMeaningfulEvent()` 나중
+
+### 스테이지 종료 이관 (StageEndItemTransfer)
+- 클리어 / 실패 / 포기 **모든 경우** `StageManager.TransferItemsToAccount()` 호출
+- `characterBagInstanceIds` → `sharedInventoryIds` (또는 우편함)
+- **Sequential Save**: `account.Save()` 먼저 → `playerData.SaveSlotData()` 나중
+- 강제 종료 복구: `AutoCleanup PASS 0` 이 다음 실행 시 가방 잔여물 이관
+
+### 영구 소멸 (Exit Point)
+- **반드시 `DestroyItemInstance(id)` 호출** — 상점 판매, 분해, 합성 소모재, 귀속 아이템 삭제 모두
+- `itemInstances` 원본 + 모든 컨테이너 참조 + 캐시 동시 제거
+- `RemoveFromShared()` 만 호출하는 것은 참조만 지우고 원본이 잔존하는 **안티패턴**
+
+```csharp
+// ✅ GOOD — 아이템 영구 소멸
+account.DestroyItemInstance(instanceId);
+account.Save();
+
+// ❌ BAD — 참조만 제거, itemInstances 원본 잔존
+account.RemoveFromShared(instanceId);
+account.Save();
+```
+
+## AutoCleanup 구조 (AccountDataManager)
+
+게임 시작 시 `GameManager.InitializeGame()` 에서 아래 순서로 호출:
+1. `AccountDataManager.Initialize()` — AccountData 로드
+2. `PlayerDataManager.Instance.LoadAllSlots()` — 모든 슬롯 로드 (IsLoaded = true)
+3. `AccountDataManager.AutoCleanup()` — 모든 데이터 준비 후 실행
+
+### AutoCleanup Pass 순서
+
+| Pass | 역할 | Dry-Run 적용 |
+|---|---|---|
+| **PASS 0** | Crash Recovery Transfer: 가방 잔여 아이템 → 창고 이관 | ❌ 항상 실행 |
+| **PASS A** | Dead Reference 제거: 영구 컨테이너에서 itemInstances에 없는 ID 삭제 | ✅ |
+| **PASS B** | 중복 해소: 창고/우편함에 이미 있는 가방 ID 제거 | ❌ 항상 실행 |
+| **PASS C** | Orphan GC: 어떤 컨테이너에도 없는 itemInstances 제거 | ✅ |
+
+### Guard 및 Dry-Run
+
+```csharp
+// Guard — IsLoaded 미완료 시 실행 차단 (장착 아이템 Orphan 오판 방지)
+if (PlayerDataManager.Instance != null && !PlayerDataManager.Instance.IsLoaded) return;
+
+// Dry-Run — 모니터링 기간 중 실제 삭제 없이 LogWarning만 출력
+const bool DRY_RUN = true;  // 검증 완료 후 false로 전환
+```
+
+## Sequential Save 원칙
+
+아이템 이동을 수반하는 모든 저장은 **AccountData 먼저, SlotData 나중** 순서를 지킨다.
+
+```csharp
+// 강제 종료 크래시 시 PASS B / PASS 0 가 다음 실행에서 자동 복구
+account.Save();               // 1st: AccountData (창고 변경 반영)
+playerData.SaveSlotData(...); // 2nd: SlotData (가방/장착 변경 반영)
+```
+
+## 수정된 주요 파일
+
+- `EquippedRecord.cs` — `templateName` 필드 제거
+- `SelectedPlayerData.cs` — `LoadFromSlotData` / `SaveToSlotData`: SoT 기반 조회
+- `IItemContainer.cs` — 컨테이너 추상화 인터페이스 (신규)
+- `AccountDataManager.cs` — `AutoCleanup` 3-Pass → 4-Pass(PASS 0 추가), `DestroyItemInstance`, Guard, Dry-Run
+- `StageEndItemTransfer.cs` — Sequential Save 적용
+- `StageManager.cs` — `TransferItemsToAccount()` public 변경, 실패/포기 케이스 포함
+- `PauseMenuController.cs` — 포기 시 `TransferItemsToAccount()` 호출
+- `PlayerDataManager.cs` — `UnequipItemV2` Sequential Save, `IsLoaded` 플래그, Start() 중복 로드 방지
+- `GameManager.cs` — 초기화 순서: Load → LoadAllSlots → AutoCleanup
+- `ShopController.cs` — `TrySellItem`: `RemoveFromShared` → `DestroyItemInstance`

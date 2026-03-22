@@ -647,6 +647,10 @@ public class StageManager : MonoBehaviour
             // 성공 시 보상 처리 및 진행도 저장
             StageResultData resultData = new StageResultData(success, 0, 0); // 기본값
             
+            // 🎒 클리어/실패/포기 공통: 가방 아이템을 공유창고로 이관
+            // 어떤 종료 케이스든 그때까지 획득한 아이템은 유저 소유(창고 이동) 원칙
+            TransferItemsToAccount();
+
             if (success)
             {
                 // ⚡ Phase D-Revision: 재화 차감은 InitializeStage()에서 이미 완료
@@ -663,9 +667,6 @@ public class StageManager : MonoBehaviour
                 }
                 
                 SaveStageProgress(clearTime);
-                
-                // 🎒 Phase 3.5: 스테이지 종료 시 V2 가방 아이템을 계정 창고로 자동 이동
-                TransferItemsToAccount();
                 
                 // 🎯 Phase 5: Stage 10 클리어 시 챕터 종료 처리
                 if (stageConfig.stageIndexInChapter == 10)
@@ -1770,9 +1771,11 @@ public class StageManager : MonoBehaviour
     #region 🎒 Phase 3.5: V2 인벤토리 자동 전송
     
     /// <summary>
-    /// 스테이지 종료 시 V2 가방 아이템을 계정 창고로 자동 이동
+    /// 스테이지 종료 시 V2 가방 아이템을 계정 창고로 자동 이동.
+    /// 클리어/실패/포기 모두 이 메서드를 통해 이관하므로 public.
+    /// PauseMenuController(포기) 등 외부에서도 호출 가능.
     /// </summary>
-    private void TransferItemsToAccount()
+    public void TransferItemsToAccount()
     {
         // StageEndItemTransfer 컴포넌트 찾기
         var transfer = GetComponent<StageEndItemTransfer>();
