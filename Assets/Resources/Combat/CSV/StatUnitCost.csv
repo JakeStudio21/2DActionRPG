@@ -17,3 +17,4 @@ LIFESTEAL,LifeSteal% (흡혈),12,+1%p,피해량 X%를 HP 회복. 공격+생존 �
 ARMOR_PENETRATION,ArmorPen% (방어 관통),14,+1%p,적 방어력 X% 무시. 고방어 적에게 강력. COOLDOWN_REDUCTION(14)과 동급
 DODGE_CHANCE,DodgeChance% (회피 확률),15,+1%p,X% 확률 피해 완전 무효화. 강력하지만 확률성이므로 DAMAGE_REDUCTION(18)보다 낮게 책정
 BLOCK_CHANCE,BlockChance% (블록 확률),10,+1%p,X% 확률 피해 50% 감소. DODGE보다 약하므로 CRIT_RATE(10)와 동급
+PIERCE_DAMAGE_RETENTION,PierceDmgRetention% (관통 데미지 유지율),11,+1%p,관통 시 데미지 유지율. 50%→100%로 올릴수록 강력. LIFESTEAL(12)보다 약간 낮게 책정

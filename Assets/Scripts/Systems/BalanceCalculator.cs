@@ -232,6 +232,11 @@ public static class BalanceCalculator
             case "DAMAGE_REDUCTION_PERCENT": return "피해 감소";
             case "STATUS_RESIST_ALL": return "상태이상 저항";
             case "EXP_GAIN_PERCENT": return "경험치 획득";
+            case "LIFESTEAL": return "흡혈";
+            case "ARMOR_PENETRATION": return "방어 관통";
+            case "DODGE_CHANCE": return "회피 확률";
+            case "BLOCK_CHANCE": return "블록 확률";
+            case "PIERCE_DAMAGE_RETENTION": return "관통 데미지 유지율";
             default: return statId;
         }
     }

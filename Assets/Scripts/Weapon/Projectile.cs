@@ -24,6 +24,12 @@ public class Projectile : MonoBehaviour
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
     private bool needsStartPositionUpdate = false; // 🔑 startPosition 업데이트 플래그
     
+    // 🏹 관통 시스템
+    private bool isPiercing = false;                              // 관통 여부 (SkillController에서 주입)
+    private float pierceDamageRetention = 0.5f;                   // 관통 시 데미지 유지율 (SkillController에서 주입)
+    private float currentPierceMultiplier = 1.0f;                 // 현재 관통 데미지 배율 (타격마다 감소)
+    private readonly HashSet<GameObject> hitTargets = new HashSet<GameObject>(); // 다단 히트 방지
+    
     // ⭐ Phase 1-2: 등급 정보 저장
     private ItemGrade projectileGrade = ItemGrade.C;
     private WeaponType weaponType = WeaponType.Bow;
@@ -92,6 +98,30 @@ public class Projectile : MonoBehaviour
     {
         this.moveSpeed = moveSpeed;
     }
+    
+    /// <summary>
+    /// 관통 설정 주입 (SkillController에서 발사 시 호출)
+    /// </summary>
+    public void SetPierceData(bool piercing, float retention)
+    {
+        isPiercing = piercing;
+        pierceDamageRetention = retention;
+    }
+    
+    /// <summary>
+    /// 현재 관통 배율 반환 (DamageSource가 AttackContext.pierceMultiplier에 주입)
+    /// </summary>
+    public float GetCurrentPierceMultiplier() => isPiercing ? currentPierceMultiplier : 1.0f;
+
+    /// <summary>
+    /// 배율을 다음 타격용으로 감소 — DamageSource가 타격 완료 후 명시적으로 호출
+    /// 호출 순서: GetCurrentPierceMultiplier() → TakeDamage() → AdvancePierceMultiplier()
+    /// </summary>
+    public void AdvancePierceMultiplier()
+    {
+        if (!isPiercing) return;
+        currentPierceMultiplier *= pierceDamageRetention;
+    }
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
@@ -126,20 +156,32 @@ public class Projectile : MonoBehaviour
                 (enemyHealth && !isEnemyProjectile) ||
                 (simpleMob && !isEnemyProjectile)) // 🆕
             {
-                // EnemyDamage 컴포넌트에서 데미지 값을 가져와서 적용
+                // 적 발사체 → 플레이어 피격
                 EnemyDamage enemyDamage = GetComponent<EnemyDamage>();
                 if (player && isEnemyProjectile && enemyDamage != null) {
-                    // 적 발사체 → 플레이어 피격
-                    // ⭐ 피격 위치 정보 전달 (피격자가 이펙트 발행)
                     player.TakeDamage(enemyDamage.damageAmount, transform, transform.position);
                 }
-                // ✅ 플레이어 발사체는 DamageSource.cs가 데미지를 처리하므로 여기서는 Skip
-
-                // 🔑 한 번만 반환
+                
+                // 🏹 플레이어 발사체 관통 처리
+                if (!isEnemyProjectile && (enemyHealth || simpleMob))
+                {
+                    if (isPiercing)
+                    {
+                        // 이미 타격한 적이면 무시
+                        if (hitTargets.Contains(other.gameObject)) return;
+                        
+                        // 새 적 등록 (배율 감소는 DamageSource가 타격 완료 후 AdvancePierceMultiplier()로 처리)
+                        hitTargets.Add(other.gameObject);
+                        
+                        // ✅ 관통: ReturnProjectileToPool 호출 안 함 (계속 진행)
+                        return;
+                    }
+                }
+                
+                // 비관통이거나 적 발사체: 첫 타격 후 소멸
                 ReturnProjectileToPool();
                 
             } else if (!other.isTrigger && indestructible) {
-                // 🔑 한 번만 반환
                 ReturnProjectileToPool();
             }
         }
@@ -232,6 +274,10 @@ public class Projectile : MonoBehaviour
         
         isReturningToPool = false;
         needsStartPositionUpdate = true;
+        
+        // 🏹 관통 상태 초기화 (풀 재사용 시 이전 상태 제거)
+        currentPierceMultiplier = 1.0f;
+        hitTargets.Clear();
         
         // 🚨 InitializeTrajectory() 제거 - Update()에서 startPosition 설정 후 호출
         

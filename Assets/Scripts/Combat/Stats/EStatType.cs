@@ -39,6 +39,7 @@ public enum EStatType
     BLOCK_CHANCE = 81,          // 블록 확률 %
     LIFESTEAL = 82,             // 흡혈 %
     ARMOR_PENETRATION = 83,     // 방어구 관통 %
+    PIERCE_DAMAGE_RETENTION = 84, // 관통 시 데미지 유지율 %
 }
 
 /// <summary>
@@ -71,6 +72,7 @@ public static class EStatTypeExtensions
             case "BLOCK_CHANCE": return EStatType.BLOCK_CHANCE;
             case "LIFESTEAL": return EStatType.LIFESTEAL;
             case "ARMOR_PENETRATION": return EStatType.ARMOR_PENETRATION;
+            case "PIERCE_DAMAGE_RETENTION": return EStatType.PIERCE_DAMAGE_RETENTION;
             default: return EStatType.None;
         }
     }

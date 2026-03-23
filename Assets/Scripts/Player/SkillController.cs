@@ -628,11 +628,15 @@ public class SkillController : MonoBehaviour
             {
                 successCount++;
                 
-                // 발사체 속도 설정
+                // 발사체 속도 설정 및 관통 데이터 주입
                 var projectileComponent = projectile.GetComponent<Projectile>();
                 if (projectileComponent != null)
                 {
                     projectileComponent.UpdateMoveSpeed(skillData.projectileSpeed);
+                    
+                    // 🏹 관통 설정 주입 (isPiercing 여부 + PlayerRuntimeStats에서 유지율 전달)
+                    float retention = playerRuntimeStats != null ? playerRuntimeStats.FinalPierceDamageRetention : 0.5f;
+                    projectileComponent.SetPierceData(skillData.isPiercing, retention);
                 }
                 
                 // 발사체 데미지 설정 (스킬 배율이 적용된 값을 DamageSource에 주입)

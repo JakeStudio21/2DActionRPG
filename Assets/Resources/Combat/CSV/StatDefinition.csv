@@ -1,4 +1,4 @@
-﻿StatId,DisplayName,ValueType,Unit,StackRule,ApplyPhase,TargetScope,CapValue,Description
+StatId,DisplayName,ValueType,Unit,StackRule,ApplyPhase,TargetScope,CapValue,Description
 ATK_FLAT,ATK Flat,Float,Flat,Add,Phase1_AttackBuild,Self,,공격력 고정값
 ATK_PERCENT,ATK %,Float,Percent,AddThenMultiply,Phase1_AttackBuild,Self,,공격력 %
 ASPD,Attack Speed,Float,Percent,Add,Runtime,Self,,기본공격 쿨타임 %
@@ -17,3 +17,4 @@ LIFESTEAL,Lifesteal,Float,Percent,AddThenCap,Phase3_Modifier,Self,0.5,가한 피
 ARMOR_PENETRATION,Armor Penetration,Float,Percent,AddThenCap,Phase5_Defense,Self,0.8,적 방어력 X% 무시(최대 80%)
 DODGE_CHANCE,Dodge Chance,Float,Percent,AddThenCap,Phase5_Defense,Self,0.5,공격 회피 확률(최대 50%)
 BLOCK_CHANCE,Block Chance,Float,Percent,AddThenCap,Phase5_Defense,Self,0.5,공격 차단 확률(최대 50%)
+PIERCE_DAMAGE_RETENTION,Pierce Damage Retention,Float,Percent,AddThenCap,Phase6_Pierce,Self,1,관통 시 데미지 유지율(최대 100%)

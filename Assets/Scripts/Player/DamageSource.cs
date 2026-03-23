@@ -127,7 +127,10 @@ public class DamageSource : MonoBehaviour
             // ⚙️ Phase 4: ConditionalModifier용 필드
             target = other.GetComponent<IEnemyTarget>(),
             selfHpPercent = GetPlayerHpPercent(),
-            targetHpPercent = GetTargetHpPercent(other)
+            targetHpPercent = GetTargetHpPercent(other),
+            
+            // Step 6.5: 관통 배율 (Projectile 컴포넌트에서 현재 배율 읽기)
+            pierceMultiplier = GetComponent<Projectile>()?.GetCurrentPierceMultiplier() ?? 1.0f,
         };
         
         var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
@@ -141,6 +144,10 @@ public class DamageSource : MonoBehaviour
         
         // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만 공격자가 처리)
         ApplyLifeStealOnly(result);
+        
+        // 🏹 관통 배율 감소: 타격 완료 후 다음 적을 위해 배율 진행
+        // 순서 보장: GetCurrentPierceMultiplier(1.0) → TakeDamage → AdvancePierceMultiplier(→0.5)
+        GetComponent<Projectile>()?.AdvancePierceMultiplier();
         
         if (showDebugLogs)
             Debug.Log($"💥 [DamageSource] 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}, 스킬: {_hasSkillDamage}) → {other.name}");

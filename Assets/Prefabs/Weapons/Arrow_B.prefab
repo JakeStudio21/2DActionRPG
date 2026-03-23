@@ -48963,7 +48963,7 @@ MonoBehaviour:
   moveSpeed: 20
   particleOnHitPrefabVFX: {fileID: 1625881847255917415, guid: b2d32b6366355ff479d315f6909c12a9, type: 3}
   isEnemyProjectile: 0
-  projectileRange: 50
+  projectileRange: 20
   arrowEffectPrefabs: []
   showDebugLogs: 0
   wallLayer:

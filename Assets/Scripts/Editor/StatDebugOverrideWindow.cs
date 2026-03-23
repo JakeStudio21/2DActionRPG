@@ -43,6 +43,7 @@ public class StatDebugOverrideWindow : EditorWindow
     private float _dBlock       = 0f;   // BLOCK_CHANCE
     private float _dExpGain     = 0f;   // EXP_GAIN_PERCENT
     private float _dStatusResist = 0f;  // STATUS_RESIST_ALL
+    private float _dPierceRetention = 0f; // PIERCE_DAMAGE_RETENTION
     
     // ─── GUI 스타일 캐시 ──────────────────────────────────────────────
     private GUIStyle _headerStyle;
@@ -190,6 +191,7 @@ public class StatDebugOverrideWindow : EditorWindow
         DrawReadOnlyRow("🛑  블록        BLOCK",      s.FinalBlockChance,       "P1");
         DrawReadOnlyRow("⭐  경험치+     EXP_GAIN%",  s.FinalExpGainBonus,      "P1");
         DrawReadOnlyRow("🔮  상태이상저항 STATUS_R",  s.FinalStatusResist,      "P1");
+        DrawReadOnlyRow("🏹  관통유지율   PIERCE_RET", s.FinalPierceDamageRetention, "P1");
         
         EditorGUILayout.Space(4);
         
@@ -249,6 +251,7 @@ public class StatDebugOverrideWindow : EditorWindow
         DrawOverrideRow("🛑  BLOCK_CHANCE",              s.FinalBlockChance,       ref _dBlock,       "P1");
         DrawOverrideRow("⭐  EXP_GAIN_PERCENT",          s.FinalExpGainBonus,      ref _dExpGain,     "P1");
         DrawOverrideRow("🔮  STATUS_RESIST_ALL",         s.FinalStatusResist,      ref _dStatusResist,"P1");
+        DrawOverrideRow("🏹  PIERCE_DAMAGE_RETENTION",  s.FinalPierceDamageRetention, ref _dPierceRetention, "P1");
         
         EditorGUILayout.Space(6);
         
@@ -448,7 +451,8 @@ public class StatDebugOverrideWindow : EditorWindow
             dodge        = _dDodge,
             block        = _dBlock,
             expGain      = _dExpGain,
-            statusResist = _dStatusResist,
+            statusResist    = _dStatusResist,
+            pierceRetention = _dPierceRetention,
         };
         
         s.SetDebugBonus(bonus);
@@ -463,7 +467,7 @@ public class StatDebugOverrideWindow : EditorWindow
     {
         _dAtkFlat = _dAtkPercent = _dMaxHp = _dDefense = _dMoveSpeed = _dAtkSpeed = 0f;
         _dCritChance = _dCritDmg = _dHealMult = _dSkillDmg = _dCdr = _dDmgRed = 0f;
-        _dHpRegen = _dLifeSteal = _dArmorPen = _dDodge = _dBlock = _dExpGain = _dStatusResist = 0f;
+        _dHpRegen = _dLifeSteal = _dArmorPen = _dDodge = _dBlock = _dExpGain = _dStatusResist = _dPierceRetention = 0f;
         
         s.ClearDebugBonus();
         Debug.Log("🔧 [StatDebug] 모든 오버라이드 초기화 완료 → PlayerRuntimeStats 재계산");
@@ -476,7 +480,7 @@ public class StatDebugOverrideWindow : EditorWindow
                b.moveSpeed != 0 || b.atkSpeed != 0 || b.critChance != 0 || b.critDmg != 0 ||
                b.healMult != 0 || b.skillDmg != 0 || b.cdr != 0 || b.dmgRed != 0 ||
                b.hpRegen != 0 || b.lifeSteal != 0 || b.armorPen != 0 || b.dodge != 0 ||
-               b.block != 0 || b.expGain != 0 || b.statusResist != 0;
+               b.block != 0 || b.expGain != 0 || b.statusResist != 0 || b.pierceRetention != 0;
     }
     
     // ═══════════════════════════════════════════════════════════════════
@@ -512,6 +516,7 @@ public class StatDebugOverrideWindow : EditorWindow
         sb.AppendLine($"   🛑  블록        (BLOCK_CHANCE)  : {s.FinalBlockChance * 100f:F1}%");
         sb.AppendLine($"   ⭐  경험치+     (EXP_GAIN%)     : {s.FinalExpGainBonus * 100f:F1}%");
         sb.AppendLine($"   🔮  상태이상저항(STATUS_RESIST) : {s.FinalStatusResist * 100f:F1}%");
+        sb.AppendLine($"   🏹  관통유지율  (PIERCE_RET)    : {s.FinalPierceDamageRetention * 100f:F1}%");
         
         // 디버그 오버라이드 상태
         var b = s.GetDebugBonus();

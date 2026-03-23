@@ -37,6 +37,7 @@ public class PlayerRuntimeStats : MonoBehaviour
     [SerializeField] private float finalBlockChance = 0f;           // 블록 확률 (소수, cap 1.0)
     [SerializeField] private float finalExpGainBonus = 0f;          // 경험치 획득 증가 (소수, 0.1 = 10%)
     [SerializeField] private float finalStatusResist = 0f;          // 상태이상 저항 (소수, cap 1.0)
+    [SerializeField] private float finalPierceDamageRetention = 0.5f; // 관통 시 데미지 유지율 (기본 50%, cap 1.0)
 
     [Header("🔗 데이터 연결")]
     [SerializeField] private bool showDebugLogs = true;
@@ -62,6 +63,7 @@ public class PlayerRuntimeStats : MonoBehaviour
     public float FinalBlockChance => finalBlockChance;
     public float FinalExpGainBonus => finalExpGainBonus;
     public float FinalStatusResist => finalStatusResist;
+    public float FinalPierceDamageRetention => finalPierceDamageRetention;
     
 #if UNITY_EDITOR
     // ─── 🔧 DEBUG: 임시 오버라이드 (에디터 전용, 빌드 제외, 저장 안됨) ───────
@@ -91,6 +93,7 @@ public class PlayerRuntimeStats : MonoBehaviour
         public float block;
         public float expGain;
         public float statusResist;
+        public float pierceRetention;
     }
     
     private DebugStatBonus _debugBonus;
@@ -119,7 +122,7 @@ public class PlayerRuntimeStats : MonoBehaviour
                b.moveSpeed != 0 || b.atkSpeed != 0 || b.critChance != 0 || b.critDmg != 0 ||
                b.healMult != 0 || b.skillDmg != 0 || b.cdr != 0 || b.dmgRed != 0 ||
                b.hpRegen != 0 || b.lifeSteal != 0 || b.armorPen != 0 || b.dodge != 0 ||
-               b.block != 0 || b.expGain != 0 || b.statusResist != 0;
+               b.block != 0 || b.expGain != 0 || b.statusResist != 0 || b.pierceRetention != 0;
     }
     
     /// <summary>
@@ -150,7 +153,8 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalDodgeChance     += b.dodge;
         finalBlockChance     += b.block;
         finalExpGainBonus    += b.expGain;
-        finalStatusResist    += b.statusResist;
+        finalStatusResist           += b.statusResist;
+        finalPierceDamageRetention  += b.pierceRetention;
         
         // Step 2: ATK_PERCENT 보너스 — 플랫 합산 후 곱연산 (ATK_PERCENT 단독 테스트용)
         if (b.atkPercent != 0f)
@@ -508,6 +512,7 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalBlockChance = 0f;
         finalExpGainBonus = 0f;
         finalStatusResist = 0f;
+        finalPierceDamageRetention = 0.5f; // 기본값 50%
         
         if (showDebugLogs)
         {
@@ -654,6 +659,11 @@ public class PlayerRuntimeStats : MonoBehaviour
                         finalStatusResist += modifier.value;
                         if (showDebugLogs) Debug.Log($"    🔮 STATUS_RESIST_ALL: +{modifier.value:P2} → {finalStatusResist:P2}");
                         break;
+                    
+                    case EStatType.PIERCE_DAMAGE_RETENTION:
+                        finalPierceDamageRetention += modifier.value;
+                        if (showDebugLogs) Debug.Log($"    🏹 PIERCE_DAMAGE_RETENTION: +{modifier.value:P2} → {finalPierceDamageRetention:P2}");
+                        break;
                         
                     default:
                         if (showDebugLogs) Debug.LogWarning($"    ⚠️ 처리되지 않은 스탯: {modifier.statType}");
@@ -734,8 +744,9 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalArmorPenetration  = Mathf.Clamp(finalArmorPenetration,  0f, 1.0f); // 0% ~ 100%
         finalDodgeChance       = Mathf.Clamp01(finalDodgeChance);               // 0% ~ 100%
         finalBlockChance       = Mathf.Clamp01(finalBlockChance);               // 0% ~ 100%
-        finalExpGainBonus      = Mathf.Max(0f, finalExpGainBonus);              // 하한 0%
-        finalStatusResist      = Mathf.Clamp01(finalStatusResist);              // 0% ~ 100%
+        finalExpGainBonus           = Mathf.Max(0f, finalExpGainBonus);         // 하한 0%
+        finalStatusResist           = Mathf.Clamp01(finalStatusResist);         // 0% ~ 100%
+        finalPierceDamageRetention  = Mathf.Clamp01(finalPierceDamageRetention); // 0% ~ 100%
     }
     
     /// <summary>
@@ -763,6 +774,7 @@ public class PlayerRuntimeStats : MonoBehaviour
         finalBlockChance = 0f;
         finalExpGainBonus = 0f;
         finalStatusResist = 0f;
+        finalPierceDamageRetention = 0.5f;
     }
     
     /// <summary>
@@ -1484,7 +1496,9 @@ public class PlayerRuntimeStats : MonoBehaviour
                     Debug.Log($"🏃 [PlayerRuntimeStats] MOVE_SPEED(Modifier): +{value:P0} 누적 → 보너스 합계 {moveSpeedPercentBonus:P0}");
                 break;
                 
-            // TODO: 다른 스탯 추가
+            case EStatType.PIERCE_DAMAGE_RETENTION:
+                finalPierceDamageRetention += value;
+                break;
             
             default:
                 if (showDebugLogs)
@@ -1692,6 +1706,13 @@ public class PlayerRuntimeStats : MonoBehaviour
         {
             finalStatusResist += statusResistBonus;
             if (showDebugLogs) Debug.Log($"  🔮 STATUS_RESIST_ALL: +{statusResistBonus:P2} → {finalStatusResist:P2}");
+        }
+        
+        float pierceRetentionBonus = GetPassiveBonusForStat(EStatType.PIERCE_DAMAGE_RETENTION, StatModifierType.Additive);
+        if (pierceRetentionBonus > 0)
+        {
+            finalPierceDamageRetention += pierceRetentionBonus;
+            if (showDebugLogs) Debug.Log($"  🏹 PIERCE_DAMAGE_RETENTION: +{pierceRetentionBonus:P2} → {finalPierceDamageRetention:P2}");
         }
     }
     

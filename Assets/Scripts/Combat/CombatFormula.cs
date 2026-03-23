@@ -38,6 +38,9 @@ public static class CombatFormula
         public float lifeStealPercent;        // 기본 흡혈률 (0.0~1.0, 룬 흡혈 효과와 누적됨)
         public int targetCurrentHp;           // 오버킬 흡혈 방지용 타격 전 적 현재 체력 (0이면 체크 생략)
         
+        // Step 6.5: 관통 데미지 배율 (Projectile이 관통할 때마다 감소 — 초기값 1.0)
+        public float pierceMultiplier;        // 1.0 = 100% 유지, 0.5 = 50%로 감소
+        
         // ⚙️ Phase 4: ConditionalModifier용 추가 필드
         public IEnemyTarget target;           // 피격자 (보스/엘리트 구분용)
         public float selfHpPercent;           // 공격자 HP 비율 (0.0~1.0)
@@ -70,6 +73,7 @@ public static class CombatFormula
         public float damageAfterStep4;        // Step 4: 백어택 적용 후
         public float damageAfterStep5;        // Step 5: 방어력 감소 후
         public float damageAfterStep6;        // Step 6: 크리티컬 적용 후
+        public float damageAfterStep6_5;      // Step 6.5: 관통 배율 적용 후
         
         // 판정 결과
         public bool isCritical;               // 크리티컬 발생 여부
@@ -272,8 +276,17 @@ public static class CombatFormula
         if (EnableDetailedLogs && isCritical)
             Debug.Log($"[CombatFormula] Step 6: 크리티컬! (조건부 포함) ({ctx.criticalMultiplier}x) = {damage:F1}");
         
-        // 최종 데미지 확정
-        result.finalDamage = FinalizeDamage(damage);
+        // Step 6.5: 관통 배율 (pierceMultiplier < 1.0일 때만 적용 — 두 번째 적부터 감소)
+        if (ctx.pierceMultiplier < 1f)
+        {
+            damage *= ctx.pierceMultiplier;
+            if (EnableDetailedLogs)
+                Debug.Log($"[CombatFormula] Step 6.5: 관통 배율 {ctx.pierceMultiplier:P0} 적용 → {damage:F1}");
+        }
+        result.damageAfterStep6_5 = damage;
+        
+        // 최종 데미지 확정 (최소 1 보장)
+        result.finalDamage = Mathf.Max(1, FinalizeDamage(damage));
         result.totalMultiplier = result.damageAfterStep1 > 0 ? damage / result.damageAfterStep1 : 1f;
         result.appliedConditions = appliedConditions?.ToString() ?? "";
         

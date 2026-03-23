@@ -57,7 +57,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
   - vfxId: FocusedStrikeCast
-    poolKey: Fx_Projectile_Normal_Nature
+    poolKey: Fx_Projectile_Single_Nature
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -67,7 +67,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
   - vfxId: FocusedStrikeAoe
-    poolKey: Fx_Projectile_Single_Nature
+    poolKey: 
     duration: -1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
