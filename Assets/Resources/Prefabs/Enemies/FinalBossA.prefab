@@ -10,16 +10,18 @@ GameObject:
   m_Component:
   - component: {fileID: 1357538892725404220}
   - component: {fileID: 3241228118347545228}
-  - component: {fileID: 2593015259640542914}
   - component: {fileID: 2142061137914716384}
+  - component: {fileID: 2593015259640542914}
   - component: {fileID: 1996716122504307104}
-  - component: {fileID: 5752732880782816917}
-  - component: {fileID: 8403660534966338527}
-  - component: {fileID: 8998232531007038718}
-  - component: {fileID: 6118243705519806385}
   - component: {fileID: 4542210252753390916}
   - component: {fileID: -6921047091469587769}
-  - component: {fileID: -8125908967215737623}
+  - component: {fileID: 5752732880782816917}
+  - component: {fileID: 6118243705519806385}
+  - component: {fileID: 8403660534966338527}
+  - component: {fileID: -7100706554933349963}
+  - component: {fileID: -4897593938135889249}
+  - component: {fileID: 2285337997553290777}
+  - component: {fileID: -2776900281132293321}
   m_Layer: 6
   m_Name: FinalBossA
   m_TagString: Enemy
@@ -94,6 +96,33 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!50 &2142061137914716384
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!70 &2593015259640542914
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -129,33 +158,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0.029999912, y: -0.10970509}
   m_Size: {x: 0.9594804, y: 0.9594815}
   m_Direction: 0
---- !u!50 &2142061137914716384
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 4
 --- !u!95 &1996716122504307104
 Animator:
   serializedVersion: 5
@@ -166,7 +168,7 @@ Animator:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 645a596175f5d354ca8b18c39f91a01f, type: 2}
+  m_Controller: {fileID: 22100000, guid: 23849cc797cef5b43ac5ad252500f7b0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -177,85 +179,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5752732880782816917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isDead: 0
-  bossSpawner: {fileID: 0}
-  eliteHealthBarPrefab: {fileID: 0}
-  healthBarOffsetY: 2.5
-  basicHealthBarPrefab: {fileID: 0}
-  immunityDuration: 0.5
---- !u!114 &8403660534966338527
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22c0414bd2b202943a8fdb5e64d694c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
---- !u!114 &8998232531007038718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f900f912e45dc04cb967cf245078a55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
-  showMonsterRanges: 1
-  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
-  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
-  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
---- !u!114 &6118243705519806385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackData: {fileID: 0}
-  attackCooldown: 1.5
-  detectionRange: 5
-  chaseRange: 7
-  stopMovingWhileAttacking: 1
-  attackSound: {fileID: 0}
-  meleeDamage: 10
-  attackRange: 1
-  playerLayerMask:
-    serializedVersion: 2
-    m_Bits: 8
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  attackAngle: 90
-  attackOriginOffset: {x: 0, y: 0}
-  criticalHitEffect: {fileID: 0}
-  showAttackGizmos: 1
 --- !u!114 &4542210252753390916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-8125908967215737623
+--- !u!114 &5752732880782816917
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -295,18 +218,118 @@ MonoBehaviour:
   m_GameObject: {fileID: 3235174918318939483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74b4bf3abe0617f4bb1adda88ac7c047, type: 3}
+  m_Script: {fileID: 11500000, guid: c5bd4ef71e0b57249840c301facc8a85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDead: 0
+  bossSpawner: {fileID: 0}
+  eliteHealthBarPrefab: {fileID: 0}
+  healthBarOffsetY: 2.5
+  basicHealthBarPrefab: {fileID: 0}
+  immunityDuration: 0.5
+--- !u!114 &6118243705519806385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 102becb8983c5bc46b89d8891cabdc14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackData: {fileID: 0}
+  attackCooldown: 1.5
+  detectionRange: 5
+  chaseRange: 7
+  stopMovingWhileAttacking: 1
+  attackSound: {fileID: 0}
+  meleeDamage: 10
+  attackRange: 1
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  attackAngle: 90
+  attackOriginOffset: {x: 0, y: 0}
+  criticalHitEffect: {fileID: 0}
+  showAttackGizmos: 1
+--- !u!114 &8403660534966338527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22c0414bd2b202943a8fdb5e64d694c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
+--- !u!195 &-7100706554933349963
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.7
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1.4
+  m_BaseOffset: 1.44
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 0
+--- !u!114 &-4897593938135889249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 358a4c46f0299994083ed3d5cd7498b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerType: 1
+  defaultSprite: {fileID: 21300000, guid: bf398a0d8afa14a6fa28d37744a2d18c, type: 3}
+  arrowSprite: {fileID: 21300000, guid: 0fdf4afe84c9c4e3f9c07b2c567d565b, type: 3}
+  markerColor: {r: 1, g: 0, b: 0, a: 1}
+  isOutOfBounds: 0
+--- !u!114 &2285337997553290777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05643a1644c3e164591018d96b32b85a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 0}
-  growthProfile: {fileID: 0}
+  growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
   cueProfile: {fileID: 0}
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 0
   spawnPosition: {x: 0, y: 0, z: 0}
-  enableDebugLogs: 0
+  enableDebugLogs: 1
   meleeAttack: {fileID: 0}
   isometricData:
     directionPreset: 0
@@ -336,3 +359,25 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     heightAmplitude: 0
+--- !u!114 &-2776900281132293321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa7c60efecbe1b14ca019e6ef4b4fbb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showColliders: 1
+  showEnemyRanges: 1
+  showPlayerLine: 1
+  showDebugLabel: 1
+  colliderColor: {r: 0, g: 1, b: 0, a: 1}
+  idlePatrolColor: {r: 0, g: 1, b: 0, a: 1}
+  chaseColor: {r: 1, g: 0.5, b: 0, a: 1}
+  attackColor: {r: 1, g: 0, b: 0, a: 1}
+  spawnRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  fallbackColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
