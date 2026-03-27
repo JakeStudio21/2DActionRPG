@@ -17,9 +17,12 @@ MonoBehaviour:
   WaveIndex: 3
   StartCondition: 1
   WaveDelaySec: 2
-  TriggerId: 0
+  TriggerId: 2
   EnablesBossGate: 0
   BossGateTag: 
   TriggerToActivate: 0
+  UseSimpleMobWave: 0
+  SimpleMobWaveData: {fileID: 0}
+  SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
   - {fileID: 11400000, guid: 70c171ae2cc4b36409e74592e8889917, type: 2}

@@ -107,6 +107,23 @@ public class WaveSpawner : MonoBehaviour
     }
     
     /// <summary>
+    /// Inspector에 설정된 currentWaveData로 웨이브 시작 (WaveTriggerZone 직접 연결용)
+    /// </summary>
+    public void TriggerStart()
+    {
+        if (currentWaveData == null)
+        {
+            Debug.LogError($"[WaveSpawner] {gameObject.name}: TriggerStart() 호출됐지만 Current Wave Data가 설정되지 않았습니다!");
+            return;
+        }
+        
+        if (enableDebugLogs)
+            Debug.Log($"📞 [WaveSpawner] TriggerStart() 호출됨 - WaveData: {currentWaveData.name}");
+        
+        StartWave(currentWaveData);
+    }
+    
+    /// <summary>
     /// 스폰 중심점 설정 (외부 호출용)
     /// </summary>
     public void SetSpawnCenter(Transform spawnCenter)
@@ -191,6 +208,12 @@ public class WaveSpawner : MonoBehaviour
                 {
                     simpleMob.SetMoveSpeed(config.moveSpeed);
                 }
+
+                // 레벨 초기화 — StageBaseLevel 기반 성장 적용 (growthProfile이 없으면 무시)
+                int stageLevel = 1;
+                var stageCfg = StageSystem.StageManager.Instance?.CurrentStageConfig;
+                if (stageCfg != null) stageLevel = stageCfg.StageBaseLevel;
+                simpleMob.InitializeLevel(stageLevel);
             }
             
             if (enableDebugLogs)

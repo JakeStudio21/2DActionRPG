@@ -65,7 +65,12 @@ namespace CueSystem
                     Debug.LogWarning($"⚠️ [CueRegistry] {domain} 프로필이 null입니다");
                 return;
             }
-            
+
+            // 동일한 프로필이 이미 등록되어 있으면 불필요한 Initialize() 호출 방지
+            // (오브젝트 풀링으로 OnEnable이 반복 호출될 때 GC 압력 방지)
+            if (_profileRegistry.TryGetValue(domain, out CueProfile existing) && existing == profile)
+                return;
+
             _profileRegistry[domain] = profile;
             profile.Initialize(); // 머지-캐시 생성
             

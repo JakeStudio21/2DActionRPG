@@ -165,18 +165,18 @@ namespace CueSystem
                     
                     var slot = new CueSlot();
                     
-                    // VFX 구성
+                    // VFX 구성 — 엔트리가 속한 프로필의 카탈로그에서 조회
                     foreach (var vfxId in entry.vfxIds)
                     {
-                        var vfx = GetVFXCue(vfxId);
+                        var vfx = profile.GetVFXCue(vfxId);
                         if (vfx != null)
                             slot.vfxCues.Add(vfx);
                     }
                     
-                    // SFX 구성
+                    // SFX 구성 — 엔트리가 속한 프로필의 카탈로그에서 조회
                     foreach (var sfxId in entry.sfxIds)
                     {
-                        var sfx = GetSFXCue(sfxId);
+                        var sfx = profile.GetSFXCue(sfxId);
                         if (sfx != null)
                             slot.sfxCues.Add(sfx);
                     }

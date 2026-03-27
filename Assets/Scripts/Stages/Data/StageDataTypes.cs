@@ -40,7 +40,10 @@ namespace StageSystem
         None,
         BossGateOpened,
         PlayerReachedPoint,
-        TimerExpired
+        TimerExpired,
+        Zone1Enter,
+        Zone2Enter,
+        Zone3Enter
     }
     
     [System.Serializable]

@@ -17,6 +17,11 @@ public class WaveTriggerZone : MonoBehaviour
     [Tooltip("트리거 발동 후 오브젝트 비활성화")]
     [SerializeField] private bool disableAfterTrigger = true;
     
+    [Header("SimpleMob 직접 연결 (선택)")]
+    [Tooltip("설정 시 StageManager를 거치지 않고 이 WaveSpawner를 직접 트리거합니다.\n" +
+             "여러 구역을 독립적으로 운영할 때 사용. WaveData는 WaveSpawner에 설정.")]
+    [SerializeField] private WaveSpawner directWaveSpawner;
+    
     [Header("시각적 피드백")]
     [SerializeField] private Color gizmoColor = new Color(1f, 0.5f, 0f, 0.3f); // 주황색 반투명
     
@@ -81,21 +86,30 @@ public class WaveTriggerZone : MonoBehaviour
     /// </summary>
     private void ActivateTrigger()
     {
-        if (stageManager == null)
-        {
-            Debug.LogError($"[WaveTriggerZone] StageManager가 null입니다! 트리거를 발동할 수 없습니다.");
-            return;
-        }
-        
         hasTriggered = true;
         
         if (enableDebugLogs)
-        {
             Debug.Log($"🎯 [WaveTriggerZone] {gameObject.name} 발동! Trigger ID: {triggerIdToActivate}");
-        }
         
-        // StageManager에 트리거 전달
-        stageManager.TriggerWave(triggerIdToActivate);
+        // [방식 B] 직접 연결된 WaveSpawner가 있으면 StageManager 없이 직접 트리거
+        if (directWaveSpawner != null)
+        {
+            directWaveSpawner.TriggerStart();
+            if (enableDebugLogs)
+                Debug.Log($"🚀 [WaveTriggerZone] {gameObject.name} → WaveSpawner 직접 트리거: {directWaveSpawner.name}");
+        }
+        else
+        {
+            // [방식 A] StageManager 경유
+            if (stageManager == null)
+            {
+                Debug.LogError($"[WaveTriggerZone] StageManager가 null이고 directWaveSpawner도 없습니다! 트리거를 발동할 수 없습니다.");
+            }
+            else
+            {
+                stageManager.TriggerWave(triggerIdToActivate);
+            }
+        }
         
         // 비활성화
         if (disableAfterTrigger)

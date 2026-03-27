@@ -49046,7 +49046,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showDebugLogs: 1
-  checkWallBlocking: 1
+  checkWallBlocking: 0
   wallLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -49076,9 +49076,9 @@ SortingGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4149642069968341746}
   m_Enabled: 1
-  m_SortingLayerID: 1325618135
-  m_SortingLayer: 5
-  m_SortingOrder: 10
+  m_SortingLayerID: -539430629
+  m_SortingLayer: 2
+  m_SortingOrder: 100
   m_SortAtRoot: 0
 --- !u!1 &5025094156019291721
 GameObject:

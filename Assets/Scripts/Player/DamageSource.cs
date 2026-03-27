@@ -194,17 +194,22 @@ public class DamageSource : MonoBehaviour
             // ⚙️ Phase 4: ConditionalModifier용 필드
             target = null, // SimpleMob은 IEnemyTarget 미구현
             selfHpPercent = GetPlayerHpPercent(),
-            targetHpPercent = 1.0f // SimpleMob은 HP 비율 미지원
+            targetHpPercent = 1.0f, // SimpleMob은 HP 비율 미지원
+            
+            // Step 6.5: 관통 배율 (미할당 시 0f → 항상 데미지 1이 되는 버그 방지)
+            pierceMultiplier = GetComponent<Projectile>()?.GetCurrentPierceMultiplier() ?? 1.0f,
         };
         
         var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
         
-        // SimpleMob에 데미지 적용 (기본 int 데미지만 지원)
-        // ⚠️ SimpleMob은 DamageResult를 지원하지 않으므로 기존 방식 유지
-        simpleMob.TakeDamage(result.finalDamage);
+        // SimpleMob에 데미지 적용 — transform 전달로 넉백 방향 계산
+        simpleMob.TakeDamage(result.finalDamage, transform);
         
         // ⚙️ Phase 4-C: 공격자 측 후처리 (흡혈만)
         ApplyLifeStealOnly(result);
+        
+        // 🏹 관통 배율 감소: 타격 완료 후 다음 적을 위해 배율 진행
+        GetComponent<Projectile>()?.AdvancePierceMultiplier();
         
         if (showDebugLogs)
             Debug.Log($"💥 [DamageSource] SimpleMob 데미지: {result.finalDamage} → {other.name}");

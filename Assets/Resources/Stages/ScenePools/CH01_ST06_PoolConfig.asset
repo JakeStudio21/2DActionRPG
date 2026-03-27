@@ -446,6 +446,54 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: SimpleMob_GoblinMini
+    prefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: MON_GOBLINBOMB_001
+    prefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GOBLINWARRIOR_001
+    prefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: MON_GOBLINCART_001
+    prefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SimpleMobArrow
+    prefab: {fileID: 7490839546586705011, guid: 2a404d75b2969594dbd6f79419b8be31, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
+  - tag: SimpleMobSplitter_GoblinMini
+    prefab: {fileID: 6597114585581072514, guid: 5aff2f1b8ce3ed54198453e0f9d68f69, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
+  - tag: SimpleMobExploder_GoblinMini
+    prefab: {fileID: 5445624778298339401, guid: 1fa184e6a9e5e4b4fa07c7e3e113c641, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
+  - tag: FX_Hit_Explosion_Bomb
+    prefab: {fileID: 5033180708955247871, guid: b4aa5ee5c6da51a429ad16a67d781d7e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
   optionalPools:
   - tag: SimpleMobHit
     prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}

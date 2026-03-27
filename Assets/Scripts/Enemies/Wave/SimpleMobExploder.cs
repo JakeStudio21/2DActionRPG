@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using CueSystem;
 
 /// <summary>
 /// 자폭형 SimpleMob
@@ -9,17 +10,24 @@ using System.Collections;
 public class SimpleMobExploder : SimpleMob
 {
     [Header("자폭 설정")]
+    [Tooltip("폭발 범위 반경")]
     [SerializeField] private float explosionRadius = 3f;
+
+    [Tooltip("폭발 시 가하는 데미지")]
     [SerializeField] private float explosionDamage = 20f;
+
+    [Tooltip("이 거리 이내로 진입하면 자폭 시작")]
     [SerializeField] private float explosionTriggerDistance = 1.5f;
-    [SerializeField] private float explosionDelay = 0.5f; // 자폭 대기 시간
+
+    [Tooltip("자폭 대기 시간(초). Explode 애니메이션 클립 길이와 맞추세요.\n" +
+             "mobData.dieDelay와는 별개로 폭발 연출 전 딜레이입니다.")]
+    [SerializeField] private float explosionDelay = 0.5f;
     
-    [Header("자폭 이펙트")]
-    [SerializeField] private GameObject explosionEffectPrefab;
-    [SerializeField] private AudioClip explosionSound;
+    [Header("자폭 연출")]
     [SerializeField] private Color glowColor = Color.red;
-    
+
     private bool isExploding = false;
+    private string _explodeCueEmitDomain;
     private SpriteRenderer spriteRenderer;
     
     protected override void Awake()
@@ -32,14 +40,19 @@ public class SimpleMobExploder : SimpleMob
     {
         base.OnEnable();
         isExploding = false;
-        
+
         if (spriteRenderer != null)
-        {
             spriteRenderer.color = Color.white;
+
+        // 자폭 CueProfile 등록 — CueRegistry 중복 방어로 반복 호출 안전
+        if (mobData != null && mobData.explodeCueProfile != null)
+        {
+            _explodeCueEmitDomain = mobData.explodeCueProfile.profileId;
+            CueRegistry.Instance.RegisterProfile(_explodeCueEmitDomain, mobData.explodeCueProfile);
         }
     }
     
-    public override void UpdateAI()
+    public override void UpdateAI(float aiUpdateInterval)
     {
         if (isDead || isExploding || playerTransform == null) return;
         
@@ -139,24 +152,33 @@ public class SimpleMobExploder : SimpleMob
             }
         }
         
-        // 폭발 이펙트
-        if (explosionEffectPrefab != null)
+        // 자폭 피드백 — CueSystem (사운드 + VFX 통합)
+        if (mobData != null && mobData.explodeCueProfile != null
+            && !string.IsNullOrEmpty(_explodeCueEmitDomain)
+            && !string.IsNullOrEmpty(mobData.explodeCueEventKey))
         {
-            GameObject effect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-            Destroy(effect, 2f);
+            var context = CueContext.From(transform, 1.0f);
+            CueEmitter.Emit(mobData.explodeCueEventKey, _explodeCueEmitDomain, context);
         }
-        
-        // 폭발 사운드
-        if (explosionSound != null)
-        {
-            AudioSource.PlayClipAtPoint(explosionSound, transform.position, 1f);
-        }
-        
+
         // 자폭 후 즉시 풀로 반환
         isDead = true;
         StartCoroutine(ReturnToPoolAfterDelay(0.1f));
     }
     
+    /// <summary>
+    /// 트리거 진입 — 박치기 공격 대신 자폭 발동
+    /// </summary>
+    protected override void OnTriggerStay2D(Collider2D collision)
+    {
+        if (isDead || isExploding) return;
+
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            StartExplosion();
+        }
+    }
+
     /// <summary>
     /// 트리거 진입 (백업 폭발 트리거)
     /// </summary>

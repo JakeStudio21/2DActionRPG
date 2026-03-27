@@ -22,6 +22,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
@@ -31,6 +32,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
@@ -40,6 +42,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uADFC\uC811 \uACF5\uACA9 \uD788\uD2B8"
@@ -49,6 +52,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC"
@@ -58,6 +62,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uC801 \uC0AC\uB9DD"
@@ -67,6 +72,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBCF4\uC2A4 \uC0AC\uB9DD"
@@ -76,6 +82,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uD53C\uACA9"
@@ -85,6 +92,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uD53C\uACA9"
@@ -94,6 +102,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
@@ -103,6 +112,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
@@ -112,6 +122,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 0.8, y: 0.8, z: 0.8}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
@@ -121,6 +132,17 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
+  - vfxId: ExplodeEnemyNormal
+    poolKey: FX_Hit_Explosion_Bomb
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
@@ -232,7 +254,11 @@ MonoBehaviour:
     sfxIds:
     - MultiShot
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
   - eventKey: hit.player.dot.poison
@@ -241,7 +267,11 @@ MonoBehaviour:
     sfxIds:
     - MultiShot
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
   - eventKey: attack.melee.swing
@@ -250,7 +280,11 @@ MonoBehaviour:
     sfxIds:
     - AttackMeleeSound
     priority: 2
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 30
     note: "\uADFC\uC811 \uACF5\uACA9 \uD788\uD2B8"
   - eventKey: attack.ranged.fire
@@ -259,7 +293,11 @@ MonoBehaviour:
     sfxIds:
     - AttackRangedFireSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC"
   - eventKey: death.enemy.normal
@@ -268,7 +306,11 @@ MonoBehaviour:
     sfxIds:
     - DeathEnemySound
     priority: 2
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 100
     note: "\uC77C\uBC18 \uC801 \uC0AC\uB9DD"
   - eventKey: death.enemy.boss
@@ -277,7 +319,11 @@ MonoBehaviour:
     sfxIds:
     - DeathBossSound
     priority: 4
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 200
     note: "\uBCF4\uC2A4 \uC0AC\uB9DD"
   - eventKey: hit.enemy.normal
@@ -286,7 +332,11 @@ MonoBehaviour:
     sfxIds:
     - HitSound
     priority: 1
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uC77C\uBC18 \uD53C\uACA9"
   - eventKey: hit.enemy.normal_high
@@ -295,7 +345,11 @@ MonoBehaviour:
     sfxIds:
     - HitSound
     priority: 1
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uC77C\uBC18 \uD53C\uACA9"
   - eventKey: hit.enemy.critical
@@ -304,7 +358,11 @@ MonoBehaviour:
     sfxIds:
     - CritHitSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 80
     note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
   - eventKey: hit.enemy.critical_high
@@ -313,7 +371,11 @@ MonoBehaviour:
     sfxIds:
     - CritHitSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 80
     note: "\uD06C\uB9AC\uD2F0\uCEEC \uD53C\uACA9"
   - eventKey: projectile.hit.wall
@@ -322,7 +384,11 @@ MonoBehaviour:
     sfxIds:
     - WallHitSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 15
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
   - eventKey: attack.multishot.burst
@@ -331,7 +397,24 @@ MonoBehaviour:
     sfxIds:
     - MultiShot
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
+  - eventKey: explode.enemy.normal
+    vfxIds:
+    - ExplodeEnemyNormal
+    sfxIds:
+    - HitSound
+    priority: 1
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uC77C\uBC18 \uD53C\uACA9"
   description: "\uC801 \uAE30\uBCF8 \uD504\uB85C\uD544"

@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 3865600710948041677}
   - component: {fileID: 1406117473719759812}
   - component: {fileID: -6725183149168723124}
-  - component: {fileID: 4756788909676020121}
+  - component: {fileID: -7392507064775873154}
   m_Layer: 6
-  m_Name: SimpleMob
+  m_Name: SimpleMobRusher_Base
   m_TagString: SimpleMob
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -196,7 +196,7 @@ Animator:
   m_GameObject: {fileID: 6075384399065925802}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 7b15de6f8571bf342a9b9631e279674d, type: 2}
+  m_Controller: {fileID: 9100000, guid: 84f74d0cbf088db43885447b5e320546, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -207,7 +207,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4756788909676020121
+--- !u!114 &-7392507064775873154
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -216,15 +216,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 6075384399065925802}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9392ae28e0e83d4c8e10853212a9b2d, type: 3}
+  m_Script: {fileID: 11500000, guid: 000e5bb63a456de4ca5968688182670b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mobData: {fileID: 0}
   maxHealth: 10
-  moveSpeed: 2.3
-  contactDamage: 15
+  moveSpeed: 2
+  contactDamage: 5
   detectionRange: 15
   attackCooldown: 0.5
   hitSound: {fileID: 0}
   deathSound: {fileID: 0}
   hitEffectPrefab: {fileID: 0}
   enableDebugLogs: 0
+  rushSpeed: 8
+  rushDuration: 1.5
+  rushCooldown: 3
+  rushDamageMultiplier: 2
+  rushColor: {r: 0, g: 1, b: 1, a: 1}
+  rushEffect: {fileID: 0}
+  rushSound: {fileID: 0}

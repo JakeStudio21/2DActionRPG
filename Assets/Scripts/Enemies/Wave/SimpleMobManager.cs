@@ -13,7 +13,14 @@ public class SimpleMobManager : MonoBehaviour
     [SerializeField] private float aiUpdateInterval = 0.1f;
     [SerializeField] private bool skipOffScreenMobs = true;
     [SerializeField] private float screenPadding = 2f; // 화면 밖 여유 범위
-    
+
+    [Header("분리력 (Separation)")]
+    [Tooltip("분리력 계산을 활성화합니다.")]
+    [SerializeField] private bool enableSeparation = true;
+
+    [Tooltip("분리력 계산을 수행할 최대 몬스터 수. 이 수를 초과하면 비용 절감을 위해 계산을 스킵합니다.")]
+    [SerializeField] private int separationMaxMobs = 80;
+
     [Header("디버그")]
     [SerializeField] private bool enableDebugLogs = false;
     [SerializeField] private bool showGizmos = false;
@@ -102,14 +109,76 @@ public class SimpleMobManager : MonoBehaviour
                 continue;
             }
             
-            // AI 업데이트
-            mob.UpdateAI();
+            // AI 업데이트 (호출 주기를 전달하여 서브클래스 타이머 연산에 활용)
+            mob.UpdateAI(aiUpdateInterval);
             updatedCount++;
+        }
+
+        // ③ 분리력 — 몬스터끼리 겹치지 않도록 서로 밀어냄
+        // 몬스터 수가 상한을 초과하면 연산 스킵 (성능 안전장치)
+        if (enableSeparation && activeMobs.Count <= separationMaxMobs)
+        {
+            ApplySeparationToAll();
         }
         
         if (enableDebugLogs && updatedCount > 0)
         {
             Debug.Log($"[SimpleMobManager] AI 업데이트: {updatedCount}/{activeMobs.Count}마리");
+        }
+    }
+
+    /// <summary>
+    /// 모든 활성 몬스터에 분리력 계산 및 적용
+    /// O(n²) 쌍 비교 — sqrMagnitude 사용으로 sqrt 연산 없음
+    /// aiUpdateInterval(0.1s) 주기로만 호출되므로 실제 부담 낮음
+    /// </summary>
+    private void ApplySeparationToAll()
+    {
+        int count = activeMobs.Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            SimpleMob a = activeMobs[i];
+            if (a == null || a.IsDead) continue;
+
+            // contactRange 안에서 정지 중인 몹은 분리력 적용 대상에서 제외
+            // → 플레이어 근처에 멈춘 상태에서 밀려나는 진동 방지
+            if (a.IsInContactRange) continue;
+
+            Vector2 posA = a.transform.position;
+            Vector2 totalForce = Vector2.zero;
+
+            // SimpleMobData에서 반경/강도 읽기 (null이면 Manager 기본값 사용)
+            float radius    = a.MobData != null ? a.MobData.separationRadius   : 1.2f;
+            float strength  = a.MobData != null ? a.MobData.separationStrength : 2.0f;
+            float sqrRadius = radius * radius;
+
+            for (int j = i + 1; j < count; j++)
+            {
+                SimpleMob b = activeMobs[j];
+                if (b == null || b.IsDead) continue;
+
+                Vector2 posB  = b.transform.position;
+                Vector2 diff  = posA - posB;
+                float sqrDist = diff.sqrMagnitude;
+
+                // 범위 밖이면 스킵
+                if (sqrDist >= sqrRadius || sqrDist < 0.0001f) continue;
+
+                // 가까울수록 강하게 밀어냄 (1/dist 비례)
+                float dist      = Mathf.Sqrt(sqrDist);
+                Vector2 pushDir = diff / dist;
+                Vector2 push    = pushDir * (strength * (1f - dist / radius));
+
+                totalForce += push;                    // a는 b로부터 밀려남
+
+                // b가 contactRange 안에서 정지 중이 아닐 때만 반력 적용
+                if (!b.IsInContactRange)
+                    b.ApplySeparationForce(-push);
+            }
+
+            if (totalForce.sqrMagnitude > 0.0001f)
+                a.ApplySeparationForce(totalForce);
         }
     }
     

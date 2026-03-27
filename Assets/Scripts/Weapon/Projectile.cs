@@ -100,6 +100,16 @@ public class Projectile : MonoBehaviour
     }
     
     /// <summary>
+    /// 적 투사체 여부 설정 (SimpleMobShooter 등 적이 발사할 때 호출)
+    /// true: 플레이어에게 데미지 / 아군(SimpleMob)에게 소멸 안 함
+    /// false(기본): 플레이어 발사체 — SimpleMob/EnemyHealth에 소멸
+    /// </summary>
+    public void SetAsEnemyProjectile(bool isEnemy)
+    {
+        isEnemyProjectile = isEnemy;
+    }
+
+    /// <summary>
     /// 관통 설정 주입 (SkillController에서 발사 시 호출)
     /// </summary>
     public void SetPierceData(bool piercing, float retention)

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5afe412d2fe6c7449c4acb1d49ad84b, type: 3}
+  m_Name: SimpleMobData
+  m_EditorClassIdentifier: 
+  growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
+  levelOffset: 0
+  maxHp: 50
+  moveSpeed: 1
+  collisionDamage: 5
+  dieDelay: 0.5
+  healthBarPrefab: {fileID: 0}
+  healthBarOffsetY: 1.2
+  knockbackForce: 4
+  contactRange: 1
+  targetStopDistance: 0.5
+  speedJitterMin: 0.2
+  speedJitterMax: 1.2
+  targetOffsetRadius: 0.8
+  separationRadius: 1.2
+  separationStrength: 2
+  childPoolTag: SimpleMobSplitter_GoblinMini
+  childCount: 4
+  childSpawnRadius: 0.5
+  attackRange: 6
+  fireRate: 2
+  projectilePoolTag: SimpleMobArrow
+  orbitRadius: 4
+  hitCueProfile: {fileID: 11400000, guid: ee84b71fff1a591459c185521fa40793, type: 2}
+  hitCueEventKey: hit.enemy.normal
+  explodeCueProfile: {fileID: 11400000, guid: ee84b71fff1a591459c185521fa40793, type: 2}
+  explodeCueEventKey: explode.enemy.normal

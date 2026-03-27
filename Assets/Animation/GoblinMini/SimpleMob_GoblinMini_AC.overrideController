@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SimpleMob_GoblinMini_AC
+  m_Controller: {fileID: 9100000, guid: 84f74d0cbf088db43885447b5e320546, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: ea5cf883d5dc3b647bc2f337c3662adb, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 6eea7d3eac9b1b4499e43a3dc6f7d39a, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 54ee05d2226f22f47ac1af705ec3e1dc, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 9519b433bde4178408c88af2d9bd8403, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 79ff5821f3915394e8dd7309b2db9026, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: be9bea8a8afab6142bfed90c1067d83f, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 5861dd1642d48224fa1e71a9465d0235, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 91f408d8ba2356641af954b533c04df1, type: 2}

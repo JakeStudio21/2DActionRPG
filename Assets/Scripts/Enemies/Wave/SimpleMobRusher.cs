@@ -35,7 +35,7 @@ public class SimpleMobRusher : SimpleMob
         }
     }
     
-    public override void UpdateAI()
+    public override void UpdateAI(float aiUpdateInterval)
     {
         if (isDead || playerTransform == null) return;
         

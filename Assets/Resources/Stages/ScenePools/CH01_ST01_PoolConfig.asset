@@ -446,5 +446,11 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: SimpleMob_GoblinMini
+    prefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
   optionalPools: []
   enableDebugLogs: 1

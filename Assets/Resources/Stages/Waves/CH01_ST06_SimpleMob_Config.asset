@@ -15,10 +15,21 @@ MonoBehaviour:
   waveNumber: 1
   totalWaves: 2
   spawnConfigs:
-  - mobPrefab: {fileID: 6075384399065925802, guid: 3a57c2a6b8607a1408b46aa9066d2db3, type: 3}
+  - mobPrefab: {fileID: 5445624778298339401, guid: 1fa184e6a9e5e4b4fa07c7e3e113c641, type: 3}
+    spawnCount: 10
+    spawnInterval: 0.1
+    moveSpeed: 3
+    spawnPattern: 0
+    spawnRadius: 10
+    lineStart: {x: -5, y: 0}
+    lineEnd: {x: 5, y: 0}
+    gridRows: 3
+    gridColumns: 0
+    gridSpacing: 2
+  - mobPrefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
     spawnCount: 20
     spawnInterval: 0.1
-    moveSpeed: 2.2
+    moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 10
     lineStart: {x: -5, y: 0}
