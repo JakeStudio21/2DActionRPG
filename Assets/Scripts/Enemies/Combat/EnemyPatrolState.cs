@@ -64,26 +64,7 @@ public class EnemyPatrolState : IEnemyState
         }
         else
         {
-            // fallback 코드들...
-            if (enemy is BlueSlime blueSlime)
-            {
-                homePosition = blueSlime.SpawnPoint;
-                patrolRadius = blueSlime.PatrolRadius;
-            }
-            else if (enemy is Grape grape)
-            {
-                homePosition = grape.SpawnPoint;
-                patrolRadius = grape.PatrolRadius;
-            }
-            else if (enemy is Ghost ghost)
-            {
-                homePosition = ghost.SpawnPoint;
-                patrolRadius = ghost.PatrolRadius;
-            }
-            else
-            {
-                homePosition = enemy.transform.position;
-            }
+            homePosition = enemy.transform.position;
             
             if (baseSpeed <= 0)
             {
@@ -759,34 +740,7 @@ public class EnemyPatrolState : IEnemyState
         {
             detectionRange = baseEnemy.DetectionRange * 0.8f;
         }
-        else
-        {
-            // 기존 시스템 fallback
-            if (enemy is BlueSlime blueSlime)
-            {
-                var meleeAttack = blueSlime.GetComponent<MeleeAttack>();
-                if (meleeAttack != null)
-                {
-                    detectionRange = meleeAttack.GetDetectionRange() * 0.8f;
-                }
-            }
-            else if (enemy is Grape grape)
-            {
-                var rangedAttack = grape.GetComponent<RangedAttack>();
-                if (rangedAttack != null)
-                {
-                    detectionRange = rangedAttack.GetDetectionRange() * 0.8f;
-                }
-            }
-            else if (enemy is Ghost ghost)
-            {
-                var multiShotAttack = ghost.GetComponent<MultiShotRangedAttack>();
-                if (multiShotAttack != null)
-                {
-                    detectionRange = multiShotAttack.GetDetectionRange() * 0.8f;
-                }
-            }
-        }
+        // else: BaseEnemy가 아닌 경우 기본값(4f) 사용
         
         return detectionRange;
     }

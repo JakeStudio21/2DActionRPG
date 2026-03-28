@@ -31,29 +31,8 @@ public class EnemyReturnToHomeState : IEnemyState
         }
         else
         {
-            // 기존 시스템 fallback
-            if (enemy is BlueSlime blueSlime)
-            {
-                homePosition = blueSlime.SpawnPoint;
-            }
-            else if (enemy is Grape grape)
-            {
-                homePosition = grape.SpawnPoint;
-            }
-            else if (enemy is Ghost ghost)
-            {
-                homePosition = ghost.SpawnPoint;
-            }
-            else
-            {
-                homePosition = enemy.transform.position;
-            }
-            
-            // fallback 이동속도
-            if (moveSpeed <= 0)
-            {
-                moveSpeed = 2f; // 기본값
-            }
+            homePosition = enemy.transform.position;
+            if (moveSpeed <= 0) moveSpeed = 2f;
         }
     }
 
@@ -140,31 +119,6 @@ public class EnemyReturnToHomeState : IEnemyState
         }
         else
         {
-            // 기존 시스템 fallback
-            if (enemy is BlueSlime blueSlime)
-            {
-                var meleeAttack = blueSlime.GetComponent<MeleeAttack>();
-                if (meleeAttack != null)
-                {
-                    detectionRange = meleeAttack.GetDetectionRange();
-                }
-            }
-            else if (enemy is Grape grape)
-            {
-                var rangedAttack = grape.GetComponent<RangedAttack>();
-                if (rangedAttack != null)
-                {
-                    detectionRange = rangedAttack.GetDetectionRange();
-                }
-            }
-            else if (enemy is Ghost ghost)
-            {
-                var multiShotAttack = ghost.GetComponent<MultiShotRangedAttack>();
-                if (multiShotAttack != null)
-                {
-                    detectionRange = multiShotAttack.GetDetectionRange();
-                }
-            }
         }
         
         return detectionRange;
