@@ -39,7 +39,7 @@ public static class CombatFormula
         public int targetCurrentHp;           // 오버킬 흡혈 방지용 타격 전 적 현재 체력 (0이면 체크 생략)
         
         // Step 6.5: 관통 데미지 배율 (Projectile이 관통할 때마다 감소 — 초기값 1.0)
-        public float pierceMultiplier;        // 1.0 = 100% 유지, 0.5 = 50%로 감소
+        public float pierceMultiplier;        // 1.0 = 100% 유지, 0.5 = 50%로 감소 (0.0 = 미설정, 스킵)
         
         // ⚙️ Phase 4: ConditionalModifier용 추가 필드
         public IEnemyTarget target;           // 피격자 (보스/엘리트 구분용)
@@ -276,8 +276,9 @@ public static class CombatFormula
         if (EnableDetailedLogs && isCritical)
             Debug.Log($"[CombatFormula] Step 6: 크리티컬! (조건부 포함) ({ctx.criticalMultiplier}x) = {damage:F1}");
         
-        // Step 6.5: 관통 배율 (pierceMultiplier < 1.0일 때만 적용 — 두 번째 적부터 감소)
-        if (ctx.pierceMultiplier < 1f)
+        // Step 6.5: 관통 배율 (0 초과 1 미만일 때만 적용 — 두 번째 적부터 감소)
+        // pierceMultiplier = 0.0 은 미설정(관통 없음)으로 간주하여 스킵
+        if (ctx.pierceMultiplier > 0f && ctx.pierceMultiplier < 1f)
         {
             damage *= ctx.pierceMultiplier;
             if (EnableDetailedLogs)

@@ -469,71 +469,11 @@ public class SkillController : MonoBehaviour
             Debug.LogWarning("⚠️ [SkillController] PlayerAnimationController 없음!");
         }
         
-        // ⭐ 0.1초 딜레이 후 실제 발사 (애니메이션과 타이밍 맞추기)
-        StartCoroutine(DelayedSkillExecution(activeData, skillInstance, slotIndex, 0.1f));
-        
-        // castCueKey 미설정 시 generic 키로 fallback (레거시 SO 대응)
-        if (string.IsNullOrEmpty(activeData.castCueKey))
-        {
-            var context = new CueContext
-            {
-                position = transform.position,
-                actorType = ActorType.Player,
-                magnitude = 1.5f
-            };
-            CueEmitter.Emit($"skill.player.skill{slotIndex + 1}", "Player", context);
-        }
-        
-        Debug.Log($"🔥 [SkillController] ExecuteSkillFromInstance 완료");
+        // 실제 스킬 실행은 SkillStateBehaviour(40% 지점) → OnSkill1/2Start()
+        // → ExecuteSkillFromAnimationEvent 단일 경로에서 처리됨
+        Debug.Log($"🔥 [SkillController] ExecuteSkillFromInstance 완료 — 실행은 AnimationEvent 경로 대기");
     }
     
-    /// <summary>
-    /// 딜레이 후 스킬 실행 (애니메이션 타이밍 맞추기)
-    /// </summary>
-    private IEnumerator DelayedSkillExecution(ActiveSkillData activeData, SkillInstance skillInstance, int slotIndex, float delay)
-    {
-        Debug.Log($"⏰ [SkillController] DelayedSkillExecution 시작 - {delay}초 대기");
-        
-        yield return new WaitForSeconds(delay);
-        
-        Debug.Log($"⏰ [SkillController] 딜레이 종료 - 스킬 발동 시작");
-        
-        // ⭐ PlayerRuntimeStats 참조 확인 (Awake 캐싱 우선, 없으면 재탐색)
-        if (playerRuntimeStats == null)
-            playerRuntimeStats = GetComponent<PlayerRuntimeStats>();
-        if (playerRuntimeStats == null)
-        {
-            Debug.LogError("❌ [SkillController] PlayerRuntimeStats를 찾을 수 없습니다!");
-            yield break;
-        }
-        
-        // ⭐ 데미지 계산: 플레이어 공격력 × 스킬 배율 × 스킬 피해 증가 보너스
-        float damageMultiplier = skillInstance.GetCurrentDamage(); // CSV에서 가져온 배율 값 (예: 1.3 = 130%)
-        float skillDmgBonus = 1f + playerRuntimeStats.FinalSkillDamageBonus;
-        int finalDamage = Mathf.RoundToInt(playerRuntimeStats.FinalAttackDamage * damageMultiplier * skillDmgBonus);
-        
-        Debug.Log($"💥 [SkillController] {activeData.skillName} 데미지 계산:");
-        Debug.Log($"   - 플레이어 공격력: {playerRuntimeStats.FinalAttackDamage:F0}");
-        Debug.Log($"   - 스킬 배율: {damageMultiplier:F2}x ({damageMultiplier * 100f:F0}%)");
-        Debug.Log($"   - 스킬 피해 보너스: x{skillDmgBonus:F2} ({playerRuntimeStats.FinalSkillDamageBonus:P1})");
-        Debug.Log($"   - 최종 데미지: {finalDamage}");
-        Debug.Log($"   - 쿨다운: {skillInstance.GetCurrentCooldown()}초");
-        
-        // 실행 플래그 설정 후 Telegraph/Effect 코루틴에 위임
-        IsSkillPendingExecution = true;
-
-        if (activeData.telegraphPrefab != null && activeData.telegraphDuration > 0f)
-        {
-            activeSkillCoroutine = StartCoroutine(ExecuteWithTelegraph(activeData, skillInstance, finalDamage, slotIndex));
-        }
-        else
-        {
-            activeSkillCoroutine = StartCoroutine(ExecuteSkillEffects(activeData, skillInstance, finalDamage, slotIndex));
-        }
-
-        if (showDebugLogs)
-            Debug.Log($"✅ [SkillController] DelayedSkillExecution → 코루틴 위임 완료");
-    }
     
     /// <summary>
     /// 공격 방향 기준 Telegraph 스폰 위치 계산 (offset 적용)
