@@ -4181,11 +4181,11 @@ GameObject:
   - component: {fileID: 426178946}
   m_Layer: 0
   m_Name: PlayerRuntimeStats
-  m_TagString: MustBeDisabled
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &426178946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65431,7 +65431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4da2cfab4d151b446bb32ece0a117838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentWaveData: {fileID: 11400000, guid: 81dedad79fec53f4288f56a65e8ff631, type: 2}
+  currentWaveData: {fileID: 11400000, guid: ccbfb9dc009345047a69a766cc8c7ae2, type: 2}
   playerTransform: {fileID: 0}
   customSpawnCenter: {fileID: 373572375}
   autoStartWave: 0
@@ -65579,11 +65579,11 @@ GameObject:
   - component: {fileID: 558358959}
   m_Layer: 0
   m_Name: MinimapManager
-  m_TagString: MustBeDisabled
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &558358959
 MonoBehaviour:
   m_ObjectHideFlags: 0

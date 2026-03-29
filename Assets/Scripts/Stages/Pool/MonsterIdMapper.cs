@@ -16,6 +16,7 @@ namespace StageSystem
             { "MON_BLUESLIME_001", "Blue_slime" },
             { "MON_GRAPE_001", "Enemie1" },
             { "MON_GHOST_001", "Ghost" },
+            { "MON_RABBIT_001", "Rabbit" },
             
             // ⭐ 보스 몬스터 매핑 추가
             { "MON_BLUESLIME_001_BOSS", "Blue_slime" }, // 같은 프리팹, 다른 데이터
@@ -30,6 +31,7 @@ namespace StageSystem
             { "Blue_slime", "Blue_slime" },
             { "Enemie1", "Enemie1" }, 
             { "Ghost", "Ghost" },
+            { "Rabbit", "Rabbit" },
             { "FinalBossA", "FinalBossA" },
             { "FinalBossB", "FinalBossB" },
             { "FinalBossC", "FinalBossC" }
@@ -117,6 +119,8 @@ namespace StageSystem
                     return "Enemie1";
                 case "GHOST":
                     return "Ghost";
+                case "RABBIT":
+                    return "Rabbit";
                 case "FINALBOSSA":
                     return "FinalBossA";
                 case "FINALBOSSB":

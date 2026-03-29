@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 2bf977d6977055140bd270f770e45924, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fd1f9e2e2b57c164bbec4e4e3d21e276, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -225,14 +225,9 @@ MonoBehaviour:
   contactDamage: 5
   detectionRange: 15
   attackCooldown: 0.5
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
   enableDebugLogs: 0
   explosionRadius: 3
   explosionDamage: 20
   explosionTriggerDistance: 1.5
   explosionDelay: 0.5
-  explosionEffectPrefab: {fileID: 0}
-  explosionSound: {fileID: 0}
   glowColor: {r: 1, g: 0, b: 0, a: 1}

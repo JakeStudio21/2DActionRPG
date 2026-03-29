@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: CH01_ST01_MinimapData
   m_EditorClassIdentifier: 
   mapSprite: {fileID: 21300000, guid: db351cb537ee41949b49678d96f7b230, type: 3}
-  worldMin: {x: -10.75, y: -79.75}
-  worldMax: {x: 187.75, y: 118.75}
+  worldMin: {x: -10.5, y: -72.25}
+  worldMax: {x: 164, y: 102.25}

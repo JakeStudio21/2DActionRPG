@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SimpleMobExplode_Bomb_AC
+  m_Controller: {fileID: 9100000, guid: 1bee807ce61359745ac4a54cf16ae07b, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 47ef65a578d0e034fb8b2b8084c7330f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 6f91c8c159b5f4446a3115d608e16f56, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: f3c49c583d398cb44a7ed0cc6002d4ea, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: fc630129dc17cdc4b81a3d436df78a9e, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 30fc8963816ef6f49a06e5e884d9d586, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 6f91c8c159b5f4446a3115d608e16f56, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: ba57cdf9a1860804aa2eb0a2b0e2a75c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 2f0a6693e088d1e46b683a67db350d2f, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 210edb942d0afb9408a3d498c769e1e9, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: fa3cb461a58e03241a2fb5522e86d94e, type: 2}

@@ -28,12 +28,10 @@ public class SimpleMobExploder : SimpleMob
 
     private bool isExploding = false;
     private string _explodeCueEmitDomain;
-    private SpriteRenderer spriteRenderer;
-    
+
     protected override void Awake()
     {
         base.Awake();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     
     protected override void OnEnable()

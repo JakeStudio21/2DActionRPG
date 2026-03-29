@@ -1391,6 +1391,15 @@ public class StageManager : MonoBehaviour
                 else
                     return "MushroomData";
             }
+            else if (monsterID.Contains("RABBIT"))
+            {
+                if (monsterID.Contains("ELITE"))
+                    return "Elite_RabbitData";
+                else if (monsterID.Contains("BOSS"))
+                    return "Rabbit_BossData";
+                else
+                    return "RabbitData";
+            }
             
             return $"{monsterID}Data"; // 기본값
         }

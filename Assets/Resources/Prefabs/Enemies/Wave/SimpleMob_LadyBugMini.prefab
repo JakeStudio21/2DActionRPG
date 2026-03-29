@@ -12,6 +12,14 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: e8c99710fccb74d429a48f26fd327eb4, type: 2}
+    - target: {fileID: 1406117473719759812, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Radius
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1406117473719759812, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.40043217
+      objectReference: {fileID: 0}
     - target: {fileID: 2515049412435267571, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -19,6 +27,14 @@ PrefabInstance:
     - target: {fileID: 2948067443501596759, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
       propertyPath: attackCooldown
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3865600710948041677, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Radius
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3865600710948041677, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.4318388
       objectReference: {fileID: 0}
     - target: {fileID: 6075384399065925802, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
       propertyPath: m_Name

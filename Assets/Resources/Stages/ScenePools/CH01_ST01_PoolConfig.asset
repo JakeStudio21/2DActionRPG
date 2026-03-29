@@ -446,11 +446,41 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: MON_RABBIT_001
+    prefab: {fileID: 3235174918318939483, guid: e4765c3296266b34c9157f6b3fe30dc7, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   - tag: SimpleMob_GoblinMini
     prefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
     size: 30
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 50
+  - tag: SimpleMob_SpiderMini
+    prefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_LadyBugMini
+    prefab: {fileID: 329721555528023218, guid: 83bf43f6d67180340b5a2898b1ca434e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_BeetleMini
+    prefab: {fileID: 329721555528023218, guid: 2443fe66d1cc8f343b32d53b2ecfb8a1, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: FX_Hit_Explosion_Bomb
+    prefab: {fileID: 5033180708955247871, guid: b4aa5ee5c6da51a429ad16a67d781d7e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
   optionalPools: []
   enableDebugLogs: 1

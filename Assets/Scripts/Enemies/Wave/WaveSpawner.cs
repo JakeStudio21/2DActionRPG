@@ -180,9 +180,9 @@ public class WaveSpawner : MonoBehaviour
         // 풀에서 가져오기
         GameObject mob = null;
         
-        if (GamePoolManager.Instance != null && !string.IsNullOrEmpty(config.mobPrefab.tag))
+        if (GamePoolManager.Instance != null && !string.IsNullOrEmpty(config.mobPrefab.name))
         {
-            mob = GamePoolManager.Instance.SpawnFromPool(config.mobPrefab.tag, spawnPosition, Quaternion.identity);
+            mob = GamePoolManager.Instance.SpawnFromPool(config.mobPrefab.name, spawnPosition, Quaternion.identity);
         }
         
         // 풀에 없으면 인스턴스화

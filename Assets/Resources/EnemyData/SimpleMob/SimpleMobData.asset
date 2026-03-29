@@ -21,11 +21,11 @@ MonoBehaviour:
   healthBarPrefab: {fileID: 0}
   healthBarOffsetY: 1.2
   knockbackForce: 4
-  contactRange: 1
+  contactRange: 0.1
   targetStopDistance: 0.5
   speedJitterMin: 0.2
   speedJitterMax: 1.2
-  targetOffsetRadius: 0.8
+  targetOffsetRadius: 0.5
   separationRadius: 1.2
   separationStrength: 2
   childPoolTag: SimpleMobSplitter_GoblinMini

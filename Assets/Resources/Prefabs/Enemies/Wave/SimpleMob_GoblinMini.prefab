@@ -8,9 +8,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1406117473719759812, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Radius
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1406117473719759812, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.13344441
+      objectReference: {fileID: 0}
     - target: {fileID: 2948067443501596759, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
       propertyPath: attackCooldown
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3865600710948041677, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Radius
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3865600710948041677, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.27389756
       objectReference: {fileID: 0}
     - target: {fileID: 6075384399065925802, guid: ac2cb7451c70d944db09a63b3440ce04, type: 3}
       propertyPath: m_Name

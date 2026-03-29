@@ -393,8 +393,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.05981657, y: -0.4530729}
-  m_Size: {x: 0.61420995, y: 1.5361545}
+  m_Offset: {x: 0.08701646, y: -0.52301514}
+  m_Size: {x: 1.2281475, y: 1.2719281}
   m_Direction: 0
 --- !u!114 &-4864820137561828870
 MonoBehaviour:
@@ -645,6 +645,17 @@ MonoBehaviour:
   finalCriticalDamage: 1.5
   finalDefense: 0
   finalHealMultiplier: 1
+  finalSkillDamageBonus: 0
+  finalCooldownReduction: 0
+  finalDamageReduction: 0
+  finalHpRegen: 0
+  finalLifeSteal: 0
+  finalArmorPenetration: 0
+  finalDodgeChance: 0
+  finalBlockChance: 0
+  finalExpGainBonus: 0
+  finalStatusResist: 0
+  finalPierceDamageRetention: 0.5
   showDebugLogs: 1
 --- !u!114 &1756301324097207731
 MonoBehaviour:
