@@ -139,6 +139,27 @@ public class ActiveSkillData : BaseSkillData
     [Tooltip("연사 발사 간격 (초) — 각 발사체 사이의 딜레이")]
     public float burstInterval = 0.15f;
     
+    [Header("⛓️ 체인 샷 설정 (Chain Shot 등)")]
+    [Tooltip("체인 발사체 여부 — true이면 적 적중 시 파괴 없이 다음 적으로 방향을 꺾어 날아감")]
+    public bool isChainShot = false;
+    
+    [Tooltip("최대 연쇄 횟수 (CSV CHAIN_COUNT로 레벨별 오버라이드 가능)")]
+    public int maxChainCount = 4;
+    
+    [Tooltip("다음 적 탐색 반경 (Unity units)")]
+    public float chainRadius = 5.0f;
+    
+    [Tooltip("연쇄 1회당 데미지 감소율 (0.1 = 10% 감소, 첫 타격은 100%)")]
+    public float chainDamageReduction = 0.1f;
+    
+    [Tooltip("체인 타격 이펙트 CueKey (CueProfile에 등록된 키 — 예: chain_shot.hit)\n" +
+             "VFX + SFX + CameraShake 모두 CueEntry 한 곳에서 관리 (Explosive Arrow의 explosionCueKey 패턴)")]
+    public string chainHitCueKey;
+    
+    [Tooltip("적 타격 후 다음 타겟으로 날아가기 전 공중 정지 시간(초) — 타격감(Hit-Stop) 제어용\n" +
+             "0.05: 빠른 연쇄, 0.15: 명확한 타격감, 0.0: 즉시 이동(기존 동작)")]
+    public float chainDelay = 0.05f;
+    
     [Header("☠️ DOT 장판 설정 (Poison Field 등)")]
     [Tooltip("장판형 DOT 스킬 여부 (true = DotDamageArea 사용, isProjectile=false와 함께 사용)")]
     public bool isDotAoe = false;

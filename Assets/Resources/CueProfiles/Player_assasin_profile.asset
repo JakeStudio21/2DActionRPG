@@ -196,6 +196,16 @@ MonoBehaviour:
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: HitChainShot
+    poolKey: Fx_Hit_Impact_Fireball
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 1
+    priority: 50
+    cooldown: 0
+    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
   sfxCatalog:
   - sfxId: SkillCastSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
@@ -217,6 +227,16 @@ MonoBehaviour:
     priority: 60
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uBA40\uD2F0 \uC560\uB85C\uC6B0 \uC0AC\uC6B4\uB4DC"
+  - sfxId: HitSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC77C\uBC18 \uD53C\uACA9\uC74C"
   entries:
   - eventKey: skill.Arrow_Rain.cast
     vfxIds:
@@ -452,4 +472,17 @@ MonoBehaviour:
       delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: hit.enemy.chainshot
+    vfxIds:
+    - HitChainShot
+    sfxIds:
+    - HitSound
+    priority: 1
+    shakeData:
+      useShake: 1
+      intensity: 0.5
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uC77C\uBC18 \uD53C\uACA9"
   description: "\uC5B4\uC314\uC2E0 \uC804\uC6A9 \uD504\uB85C\uD544"

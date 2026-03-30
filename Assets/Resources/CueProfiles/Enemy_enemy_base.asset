@@ -157,16 +157,6 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8\uC74C"
-  - sfxId: MultiShot
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
-    pitch: 1
-    loop: 0
-    is3D: 0
-    maxDistance: 0
-    priority: 50
-    cooldown: 0
-    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8\uC74C"
   - sfxId: AttackMeleeSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
@@ -237,16 +227,6 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uD53C\uACA9\uC74C"
-  - sfxId: MultiShot
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
-    pitch: 1
-    loop: 0
-    is3D: 0
-    maxDistance: 0
-    priority: 50
-    cooldown: 0
-    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8\uC74C"
   entries:
   - eventKey: hit.player.dot.burn
     vfxIds:

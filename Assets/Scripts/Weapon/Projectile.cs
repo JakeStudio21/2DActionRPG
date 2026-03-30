@@ -36,6 +36,20 @@ public class Projectile : MonoBehaviour
     private int explosionDamageAmount = 0;                        // 폭발 데미지 (사전 계산값)
     private string explosionCueKey;                               // 폭발 VFX/SFX Cue 키
     
+    // ⛓️ 체인 시스템 (Chain Shot)
+    private bool isChainShot = false;                             // 체인 발사체 여부
+    private int remainingChainCount = 0;                          // 남은 연쇄 횟수
+    private float chainRadius = 5f;                               // 다음 적 탐색 반경
+    private float chainDamageReduction = 0.1f;                    // 연쇄 1회당 데미지 감소율
+    private float currentChainMultiplier = 1.0f;                  // 현재 연쇄 단계 데미지 배율 (1.0 → 0.9 → ...)
+    private int chainBaseDamage = 0;                              // SkillController에서 주입한 스킬 기본 데미지
+    private float chainDelay = 0.05f;                             // 착탄 후 다음 타겟 이동 전 Hit-Stop 정지 시간
+    private bool isChainWaiting = false;                          // Hit-Stop 대기 중 플래그 (이동/충돌 중단용)
+    private string chainHitCueKey;                                // 착탄 이펙트 CueKey (VFX+SFX+CameraShake 모두 CueEntry에서 관리)
+    private readonly HashSet<GameObject> chainHitTargets = new HashSet<GameObject>(); // 중복 타격 방지
+    private PlayerRuntimeStats _chainPlayerStats;                 // 체인 데미지 계산용 (지연 캐싱)
+    private Collider2D _cachedCollider;                           // Hit-Stop 중 충돌 비활성화용 (Awake에서 캐싱)
+    
     // ⭐ Phase 1-2: 등급 정보 저장
     private ItemGrade projectileGrade = ItemGrade.C;
     private WeaponType weaponType = WeaponType.Bow;
@@ -50,6 +64,12 @@ public class Projectile : MonoBehaviour
     private float totalDistance;
     private float traveledDistance = 0f;
     private Vector3 initialDirection;
+
+    private void Awake()
+    {
+        // Collider2D를 Awake에서 캐싱 — Hit-Stop 도중 enabled 제어에 사용
+        _cachedCollider = GetComponent<Collider2D>();
+    }
 
     void Start() {
         // 스킬 레벨별 이펙트 적용
@@ -151,6 +171,30 @@ public class Projectile : MonoBehaviour
         explosionCueKey = cueKey;
     }
 
+    /// <summary>
+    /// 체인 데이터 주입 (SkillController에서 발사 시 호출)
+    /// isChain=true 시 적 적중 때마다 방향을 꺾어 다음 적으로 날아감
+    /// </summary>
+    public void SetChainData(bool isChain, int chainCount, float radius, float reduction,
+                             string hitCueKey, int baseDamage, float hitStopDelay = 0.05f)
+    {
+        isChainShot            = isChain;
+        remainingChainCount    = chainCount;
+        chainRadius            = radius;
+        chainDamageReduction   = reduction;
+        chainHitCueKey         = hitCueKey;
+        chainBaseDamage        = baseDamage;
+        chainDelay             = Mathf.Max(0f, hitStopDelay);
+        currentChainMultiplier = 1.0f;
+        chainHitTargets.Clear();
+        _chainPlayerStats = null;
+    }
+    
+    /// <summary>
+    /// 체인 발사체 여부 (DamageSource가 데미지 처리를 스킵하는지 판단)
+    /// </summary>
+    public bool IsChainShotActive => isChainShot;
+
     private void OnTriggerEnter2D(Collider2D other) {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
         
@@ -190,6 +234,48 @@ public class Projectile : MonoBehaviour
                     player.TakeDamage(enemyDamage.damageAmount, transform, transform.position);
                 }
                 
+                // ⛓️ 체인 발사체 처리 (DamageSource는 IsChainShotActive 체크로 스킵됨)
+                if (isChainShot && !isEnemyProjectile && (enemyHealth || simpleMob))
+                {
+                    // 이미 이번 체인 시퀀스에서 타격한 적이면 무시
+                    if (chainHitTargets.Contains(other.gameObject)) return;
+                    // Hit-Stop 대기 중이면 추가 충돌 무시 (Collider 비활성화 보조 방어선)
+                    if (isChainWaiting) return;
+                    
+                    // 타격 등록
+                    chainHitTargets.Add(other.gameObject);
+                    
+                    // 체인 데미지 직접 처리
+                    ApplyChainDamage(simpleMob, enemyHealth, other);
+                    
+                    // ⭐ 착탄 이펙트 — CueSystem 경유 (VFX + SFX + CameraShake 모두 CueEntry 한 곳에서 처리)
+                    if (!string.IsNullOrEmpty(chainHitCueKey))
+                    {
+                        CueSystem.CueEmitter.Emit(chainHitCueKey, "Player", new CueSystem.CueContext
+                        {
+                            position   = other.transform.position,
+                            rotation   = transform.rotation,
+                            facingDir  = transform.right,
+                            magnitude  = 1.0f,
+                            scale      = 1.0f
+                        });
+                    }
+                    
+                    // 배율 감소
+                    currentChainMultiplier *= (1f - chainDamageReduction);
+                    remainingChainCount--;
+                    
+                    if (remainingChainCount <= 0)
+                    {
+                        ReturnProjectileToPool();
+                        return;
+                    }
+                    
+                    // Hit-Stop: 코루틴에서 대기 → 다음 타겟 탐색 → 방향 전환
+                    StartCoroutine(ChainJumpRoutine());
+                    return; // 발사체를 파괴하지 않음
+                }
+                
                 // 🏹 플레이어 발사체 관통 처리
                 if (!isEnemyProjectile && (enemyHealth || simpleMob))
                 {
@@ -221,6 +307,7 @@ public class Projectile : MonoBehaviour
 
     private void DetectFireDistance() {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
+        if (isChainWaiting) return;    // Hit-Stop 대기 중 사거리 초과 판정 스킵
         
         // 🔧 포물선은 MoveInArc()에서 progress 기반으로 체크하므로 직선만 처리
         if (trajectoryType == TrajectoryType.Arc) return;
@@ -316,6 +403,26 @@ public class Projectile : MonoBehaviour
         explosionDamageAmount = 0;
         explosionCueKey = null;
         
+        // ⛓️ 체인 상태 초기화
+        isChainShot            = false;
+        remainingChainCount    = 0;
+        currentChainMultiplier = 1.0f;
+        chainBaseDamage        = 0;
+        chainDelay             = 0.05f;
+        chainHitCueKey         = null;
+        chainHitTargets.Clear();
+        _chainPlayerStats = null;
+        
+        // ⭐ Hit-Stop 풀링 안전장치: 대기 중 비활성화된 Collider2D를 반드시 복원
+        // ChainJumpRoutine에서 collider를 꺼놓은 채 풀에 반환될 경우 유령 화살 버그 방지
+        isChainWaiting = false;
+        if (_cachedCollider != null) _cachedCollider.enabled = true;
+        
+        // ⭐ 보완사항 1 - TrailRenderer 잔상 버그 완벽 차단
+        // DelayedTrailInitialization 코루틴과 별개로, 재사용 즉시 명시적으로 궤적 클리어
+        var trail = GetComponent<TrailRenderer>();
+        if (trail != null) trail.Clear();
+        
         // 🚨 InitializeTrajectory() 제거 - Update()에서 startPosition 설정 후 호출
         
         // 🚨 TrailRenderer 즉시 초기화 문제 해결
@@ -391,6 +498,9 @@ public class Projectile : MonoBehaviour
 
     private void MoveProjectile()
     {
+        // Hit-Stop 대기 중에는 이동 정지
+        if (isChainWaiting) return;
+        
         switch (trajectoryType)
         {
             case TrajectoryType.Straight:
@@ -540,6 +650,184 @@ public class Projectile : MonoBehaviour
         Destroy(daGO, 2f);
         
         Debug.Log($"💥 [Projectile] 폭발 생성: pos={hitPosition}, radius={explosionRadius}, damage={explosionDamageAmount}");
+    }
+    
+    #endregion
+    
+    #region ⛓️ 체인 시스템 (Chain Shot)
+    
+    /// <summary>
+    /// Hit-Stop 코루틴 — 착탄 후 발사체를 잠깐 정지시킨 뒤 다음 타겟으로 방향 전환
+    /// ① 이동 정지 + Collider 비활성화 (대기 중 추가 충돌 방지)
+    /// ② chainDelay 대기
+    /// ③ FindNextChainTarget() 호출
+    /// ④ 타겟 있음: Collider 복원 + 이동 재개 / 없음: 풀 반환
+    /// </summary>
+    private IEnumerator ChainJumpRoutine()
+    {
+        // ① 이동 정지 + 충돌 비활성화
+        isChainWaiting = true;
+        if (_cachedCollider != null) _cachedCollider.enabled = false;
+        
+        // ② Hit-Stop 대기
+        if (chainDelay > 0f)
+            yield return new WaitForSeconds(chainDelay);
+        
+        // 대기 도중 이미 풀로 반환됐다면 중단 (코루틴이 늦게 재개될 경우 방어)
+        if (isReturningToPool)
+        {
+            isChainWaiting = false;
+            if (_cachedCollider != null) _cachedCollider.enabled = true;
+            yield break;
+        }
+        
+        // ③ 다음 타겟 탐색 및 방향 전환
+        if (!FindNextChainTarget())
+        {
+            // 유효 타겟 없음 — Collider 복원 후 소멸
+            if (_cachedCollider != null) _cachedCollider.enabled = true;
+            isChainWaiting = false;
+            ReturnProjectileToPool();
+            yield break;
+        }
+        
+        // ④ 이동 재개
+        if (_cachedCollider != null) _cachedCollider.enabled = true;
+        isChainWaiting = false;
+    }
+    
+    /// <summary>
+    /// 체인 데미지를 직접 계산하여 적용 — DamageSource를 우회하여 배율 완전 제어
+    /// chainBaseDamage × currentChainMultiplier 기준으로 CombatFormula 실행
+    /// </summary>
+    private void ApplyChainDamage(SimpleMob simpleMob, EnemyHealth enemyHealth, Collider2D hit)
+    {
+        int damageThisHit = Mathf.RoundToInt(chainBaseDamage * currentChainMultiplier);
+        if (damageThisHit <= 0) return;
+        
+        if (_chainPlayerStats == null)
+            _chainPlayerStats = Object.FindObjectOfType<PlayerRuntimeStats>();
+        
+        if (simpleMob != null)
+        {
+            if (_chainPlayerStats == null)
+            {
+                simpleMob.TakeDamage(damageThisHit);
+                return;
+            }
+            var ctx = BuildChainAttackContext(damageThisHit, hit, defense: 0f, target: null, hpPercent: 1f);
+            var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+            simpleMob.TakeDamage(result.finalDamage);
+            
+            if (showDebugLogs)
+                Debug.Log($"⛓️ [Projectile] 체인 SimpleMob 데미지: {result.finalDamage} (배율 {currentChainMultiplier:F2}) → {hit.name}");
+        }
+        else if (enemyHealth != null)
+        {
+            if (_chainPlayerStats == null)
+            {
+                enemyHealth.TakeDamage(damageThisHit);
+                return;
+            }
+            var baseEnemy = hit.GetComponent<BaseEnemy>();
+            float defense = baseEnemy != null ? baseEnemy.GetScaledDefense() : 0f;
+            var enemyTarget = hit.GetComponent<IEnemyTarget>();
+            float hpPercent = enemyTarget != null ? enemyTarget.GetCurrentHpPercent() : 1f;
+            
+            var ctx = BuildChainAttackContext(damageThisHit, hit, defense, enemyTarget, hpPercent);
+            var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
+            result.hitPosition = hit.transform.position;
+            enemyHealth.TakeDamage(result, transform);
+            
+            if (showDebugLogs)
+                Debug.Log($"⛓️ [Projectile] 체인 EnemyHealth 데미지: {result.finalDamage} (배율 {currentChainMultiplier:F2}) → {hit.name}");
+        }
+    }
+    
+    private CombatFormula.AttackContext BuildChainAttackContext(int damage, Collider2D hit,
+                                                                float defense, IEnemyTarget target, float hpPercent)
+    {
+        return new CombatFormula.AttackContext
+        {
+            baseAttack         = damage,
+            attackerClass      = null,
+            targetDefense      = defense,
+            targetTransform    = hit.transform,
+            attackerTransform  = transform,
+            isSkillAttack      = true,
+            skillMultiplier    = 1.0f,
+            criticalChance     = _chainPlayerStats.FinalCriticalChance,
+            criticalMultiplier = _chainPlayerStats.FinalCriticalDamage,
+            isPlayerAttack     = true,
+            attackerLevel      = _chainPlayerStats.CurrentLevel,
+            isBerserkerState   = false,
+            armorPenetration   = _chainPlayerStats.FinalArmorPenetration,
+            lifeStealPercent   = _chainPlayerStats.FinalLifeSteal,
+            target             = target,
+            selfHpPercent      = 1.0f,
+            targetHpPercent    = hpPercent
+        };
+    }
+    
+    /// <summary>
+    /// 현재 위치 기준으로 가장 가까운 유효 체인 타겟을 탐색하여 방향 전환
+    /// 조건: 미타격 + 벽에 가려지지 않음 + chainRadius 이내
+    /// </summary>
+    /// <returns>유효 타겟을 찾아 방향 전환 성공하면 true</returns>
+    private bool FindNextChainTarget()
+    {
+        int enemyLayer   = LayerMask.GetMask("Enemy");
+        int obstacleLayer = LayerMask.GetMask("Wall");  // 벽/지형 레이어
+        
+        Collider2D[] candidates = Physics2D.OverlapCircleAll(transform.position, chainRadius, enemyLayer);
+        
+        Transform bestTarget    = null;
+        float     bestDistance  = float.MaxValue;
+        
+        foreach (Collider2D candidate in candidates)
+        {
+            if (candidate == null) continue;
+            
+            // 이미 타격한 적 제외
+            if (chainHitTargets.Contains(candidate.gameObject)) continue;
+            
+            // 죽은 SimpleMob 제외
+            SimpleMob mob = candidate.GetComponent<SimpleMob>();
+            if (mob != null && mob.IsDead) continue;
+            
+            // 벽 차단 검사 — Linecast로 중간에 장애물이 있는지 확인
+            if (obstacleLayer != 0)
+            {
+                RaycastHit2D wallHit = Physics2D.Linecast(transform.position, candidate.transform.position, obstacleLayer);
+                if (wallHit.collider != null) continue; // 벽에 가려진 적 제외
+            }
+            
+            float dist = Vector2.Distance(transform.position, candidate.transform.position);
+            if (dist < bestDistance)
+            {
+                bestDistance = dist;
+                bestTarget   = candidate.transform;
+            }
+        }
+        
+        if (bestTarget == null)
+        {
+            if (showDebugLogs) Debug.Log("⛓️ [Projectile] 유효한 다음 체인 타겟 없음 → 소멸");
+            return false;
+        }
+        
+        // 방향 전환: transform.rotation 갱신 → MoveStraight()가 다음 프레임부터 새 방향으로 이동
+        Vector2 newDir  = (bestTarget.position - transform.position).normalized;
+        float   newAngle = Mathf.Atan2(newDir.y, newDir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
+        
+        // 사거리 리셋 — 새 타겟까지 날아가야 하므로 startPosition 갱신
+        startPosition = transform.position;
+        
+        if (showDebugLogs)
+            Debug.Log($"⛓️ [Projectile] 체인 방향 전환 → {bestTarget.name} (거리 {bestDistance:F2}, 배율 {currentChainMultiplier:F2})");
+        
+        return true;
     }
     
     #endregion

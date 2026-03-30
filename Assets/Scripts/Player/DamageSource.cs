@@ -63,6 +63,11 @@ public class DamageSource : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other) 
     {
+        // ⛓️ 체인 발사체는 Projectile.OnTriggerEnter2D에서 직접 데미지를 처리하므로 여기서는 스킵
+        // (배율 감소 타이밍 및 중복 타격 방지를 Projectile이 완전 제어)
+        Projectile proj = GetComponent<Projectile>();
+        if (proj != null && proj.IsChainShotActive) return;
+        
         // 🆕 SimpleMob 체크 (최우선)
         SimpleMob simpleMob = other.gameObject.GetComponent<SimpleMob>();
         if (simpleMob != null && !simpleMob.IsDead)

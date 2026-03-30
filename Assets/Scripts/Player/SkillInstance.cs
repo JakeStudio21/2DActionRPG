@@ -164,6 +164,25 @@ public class SkillInstance
     }
     
     /// <summary>
+    /// 현재 레벨의 연쇄 횟수 (StatType2 = CHAIN_COUNT인 스킬 전용)
+    /// Chain Shot 등 체인 발사체 스킬에서 사용
+    /// </summary>
+    public int GetCurrentChainCount()
+    {
+        if (currentLevel <= 0) return 0;
+        
+        if (skillData is ActiveSkillData activeData)
+        {
+            var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo(skillData.skillID, currentLevel);
+            if (levelInfo.level > 0 && levelInfo.statType2Raw == "CHAIN_COUNT")
+                return Mathf.Max(1, Mathf.RoundToInt(levelInfo.value2));
+            
+            return activeData.maxChainCount;
+        }
+        return 0;
+    }
+    
+    /// <summary>
     /// 쿨다운 남은 시간 (초)
     /// </summary>
     public float GetCooldownRemaining()

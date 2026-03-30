@@ -592,6 +592,24 @@ public class SkillController : MonoBehaviour
                         if (showDebugLogs)
                             Debug.Log($"💥 [SkillController] 폭발 데이터 주입: 폭발반경={skillData.aoeRadius}, 폭발데미지={explosionDamage} (직격{damage} × 배율{skillData.explosionDamageRatio})");
                     }
+                    
+                    // ⛓️ 체인 데이터 주입 (isChainShot = true인 스킬)
+                    if (skillData.isChainShot)
+                    {
+                        int chainCount = skillInstance.GetCurrentChainCount();
+                        projectileComponent.SetChainData(
+                            true,
+                            chainCount,
+                            skillData.chainRadius,
+                            skillData.chainDamageReduction,
+                            skillData.chainHitCueKey,   // CueSystem 이펙트 키 (VFX+SFX+CameraShake 통합)
+                            damage,                     // 첫 타격 기준 스킬 데미지
+                            skillData.chainDelay        // Hit-Stop 딜레이
+                        );
+                        
+                        if (showDebugLogs)
+                            Debug.Log($"⛓️ [SkillController] 체인 데이터 주입: 연쇄={chainCount}회, 반경={skillData.chainRadius}, 감소율={skillData.chainDamageReduction:P0}, 데미지={damage}");
+                    }
                 }
                 
                 // 발사체 데미지 설정 (스킬 배율이 적용된 값을 DamageSource에 주입)

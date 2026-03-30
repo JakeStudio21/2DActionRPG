@@ -512,5 +512,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
+  - tag: Fx_Hit_Impact_Fireball
+    prefab: {fileID: 7673062611469260749, guid: 218c08db2ce62444781b7f0eadf3fff9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SimpleMobExploder_Bomb
+    prefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 1

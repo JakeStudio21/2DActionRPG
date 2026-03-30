@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 179d2d3dd48692041977d244759ebcaa, type: 3}
+  m_Name: ActiveSkill_ChainShot
+  m_EditorClassIdentifier: 
+  skillID: SKILL_CHAIN_SHOT
+  skillName: "\uCCB4\uC778 \uC0F7"
+  icon: {fileID: 417366317, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uCCAB \uBC88\uC9F8 \uC801\uC744 \uB9DE\uCD98 \uD6C4 \uC8FC\uBCC0
+    \uC801\uC5D0\uAC8C \uD654\uC0B4 \uC5D0\uB108\uC9C0\uAC00 \uC5F0\uC1C4\uB41C\uB2E4."
+  unlockLevel: 30
+  maxLevel: 10
+  requiredClass: 0
+  skillType: 0
+  isProjectile: 1
+  animTriggerName: Skill1
+  baseCooldown: 3
+  baseDamageMultiplier: 150
+  range: 8
+  castCueKey: 
+  aoeCueKey: 
+  hitCueKey: 
+  aoeShape: 2
+  aoeSize: {x: 3, y: 3}
+  aoeRadius: 5
+  aoeFanAngle: 60
+  aoeDuration: 0.3
+  telegraphPrefab: {fileID: 0}
+  telegraphDuration: 0.3
+  telegraphOffset: {x: 0, y: 0}
+  castEffectDelay: 0
+  aoeEffectDelay: 0
+  isPiercing: 0
+  multiHitCount: 1
+  projectileCount: 1
+  projectilePrefab: {fileID: 4149642069968341746, guid: 89d421f72cf263742a6150806d213c0b, type: 3}
+  projectileSpeed: 10
+  spreadAngle: 0
+  projectileScale: {x: 1, y: 1, z: 1}
+  projectilePoolName: Arrow_GreenBullet
+  dashSpeed: 20
+  dashRange: 8
+  attackCount: 1
+  attackDelay: 0.3
+  attackRadius: 2
+  stunDuration: 1
+  hasExplosionOnHit: 0
+  explosionDamageRatio: 1.2
+  explosionCueKey: 
+  isBurstFire: 0
+  burstInterval: 0.15
+  isChainShot: 1
+  maxChainCount: 4
+  chainRadius: 10
+  chainDamageReduction: 0.2
+  chainHitCueKey: hit.enemy.chainshot
+  chainDelay: 0.12
+  isDotAoe: 0
+  dotDuration: 4
+  dotTickRate: 0.5
+  slowPercentage: 0.25
