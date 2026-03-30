@@ -10,43 +10,44 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 179d2d3dd48692041977d244759ebcaa, type: 3}
-  m_Name: ActiveSkill_MultiShot
+  m_Name: ActiveSkill_PoisonField
   m_EditorClassIdentifier: 
-  skillID: SKILL_MULTISHOT
-  skillName: "\uAC08\uB798 \uD654\uC0B4"
-  icon: {fileID: -1033301321, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
-  description: "\uBD80\uCC44\uAF34 \uBC1C\uC0AC\uB85C 3\uAC08\uB798\uC758 \uD558\uC580
-    \uBC14\uB78C \uADA4\uC801\uC744 \uADF8\uB9AC\uBA70 \uB0A0\uC544\uAC00\uB294 \uAE30\uBCF8\uAE30."
-  unlockLevel: 1
+  skillID: SKILL_POISON_FIELD
+  skillName: "\uD3EC\uC774\uC98C \uD544\uB4DC"
+  icon: {fileID: 189570280, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uC9C0\uC815\uD55C \uC704\uCE58\uC5D0 \uB3C5 \uC7A5\uD310\uC744 \uC0DD\uC131\uD558\uC5EC
+    \uC77C\uC815 \uC2DC\uAC04 \uB3D9\uC548 \uBC94\uC704 \uB0B4 \uC801\uC5D0\uAC8C
+    \uC9C0\uC18D \uD53C\uD574\uB97C \uC900\uB2E4."
+  unlockLevel: 10
   maxLevel: 10
   requiredClass: 0
   skillType: 0
-  isProjectile: 1
+  isProjectile: 0
   animTriggerName: Skill1
   baseCooldown: 3
   baseDamageMultiplier: 150
   range: 8
-  castCueKey: skill.MultiShot.cast
-  aoeCueKey: 
+  castCueKey: 
+  aoeCueKey: skill.poisonfield.aoe
   hitCueKey: 
-  aoeShape: 2
-  aoeSize: {x: 3, y: 3}
-  aoeRadius: 5
+  aoeShape: 0
+  aoeSize: {x: 8, y: 8}
+  aoeRadius: 4
   aoeFanAngle: 60
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
-  telegraphDuration: 0.3
-  telegraphOffset: {x: 0, y: 0}
+  telegraphDuration: 0.2
+  telegraphOffset: {x: 8, y: 0}
   castEffectDelay: 0
-  aoeEffectDelay: 0
+  aoeEffectDelay: 0.7
   isPiercing: 0
-  multiHitCount: 5
-  projectileCount: 5
-  projectilePrefab: {fileID: 4149642069968341746, guid: 0a84f1d8bd39b7144a2cfdb00bbede9e, type: 3}
-  projectileSpeed: 20
-  spreadAngle: 15
+  multiHitCount: 1
+  projectileCount: 1
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 10
+  spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
-  projectilePoolName: Arrow_MultiShot
+  projectilePoolName: 
   dashSpeed: 20
   dashRange: 8
   attackCount: 1
@@ -58,3 +59,7 @@ MonoBehaviour:
   explosionCueKey: 
   isBurstFire: 0
   burstInterval: 0.15
+  isDotAoe: 1
+  dotDuration: 6
+  dotTickRate: 0.5
+  slowPercentage: 0.25

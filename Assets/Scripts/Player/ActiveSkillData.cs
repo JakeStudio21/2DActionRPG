@@ -120,6 +120,38 @@ public class ActiveSkillData : BaseSkillData
     [Tooltip("적 기절 지속시간 (초)")]
     public float stunDuration = 1f;
     
+    [Header("💥 폭발형 설정 (Explosive Arrow 등)")]
+    [Tooltip("투사체 소멸 시 폭발 AOE 생성 여부")]
+    public bool hasExplosionOnHit = false;
+    
+    [Tooltip("폭발 데미지 = 직격 최종 데미지 × 이 배율 (1.2 = 120%)")]
+    public float explosionDamageRatio = 1.2f;
+    
+    // 폭발 반경은 위의 aoeRadius 필드를 공용으로 사용합니다
+    
+    [Tooltip("폭발 VFX/SFX Cue 키 (예: skill.archer.explosive_arrow.explosion)")]
+    public string explosionCueKey;
+    
+    [Header("🔫 연사형 설정 (Double Shot 등)")]
+    [Tooltip("연사 모드 여부 (true = 발사체를 순차 발사)")]
+    public bool isBurstFire = false;
+    
+    [Tooltip("연사 발사 간격 (초) — 각 발사체 사이의 딜레이")]
+    public float burstInterval = 0.15f;
+    
+    [Header("☠️ DOT 장판 설정 (Poison Field 등)")]
+    [Tooltip("장판형 DOT 스킬 여부 (true = DotDamageArea 사용, isProjectile=false와 함께 사용)")]
+    public bool isDotAoe = false;
+    
+    [Tooltip("장판 유지 시간 (초)")]
+    public float dotDuration = 4.0f;
+    
+    [Tooltip("데미지 틱 주기 (초) — 이 주기마다 1회 데미지 판정")]
+    public float dotTickRate = 0.5f;
+    
+    [Tooltip("이동속도 감소 비율 (0.25 = 25% 감소)")]
+    public float slowPercentage = 0.25f;
+    
     public override SkillCategory GetSkillCategory() => SkillCategory.Active;
 }
 

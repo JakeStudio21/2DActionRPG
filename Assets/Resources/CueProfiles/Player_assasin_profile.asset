@@ -176,6 +176,26 @@ MonoBehaviour:
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: ExplosiveArrowAoe
+    poolKey: FX_Hit_Explosion_Fire
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 1
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: PoisonFieldAoe
+    poolKey: Fx_AOE_Poison_Purple
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 1
+    priority: 70
+    cooldown: 0
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
   sfxCatalog:
   - sfxId: SkillCastSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
@@ -396,6 +416,32 @@ MonoBehaviour:
   - eventKey: skill.SpiritKings_Arrow.aoe
     vfxIds:
     - SpiritKingsArrowAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.explosive_arrow.aoe
+    vfxIds:
+    - ExplosiveArrowAoe
+    sfxIds:
+    - SkillAoeSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.poisonfield.aoe
+    vfxIds:
+    - PoisonFieldAoe
     sfxIds:
     - SkillAoeSound
     priority: 3

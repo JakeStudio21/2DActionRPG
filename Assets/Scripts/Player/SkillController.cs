@@ -577,6 +577,21 @@ public class SkillController : MonoBehaviour
                     // 🏹 관통 설정 주입 (isPiercing 여부 + PlayerRuntimeStats에서 유지율 전달)
                     float retention = playerRuntimeStats != null ? playerRuntimeStats.FinalPierceDamageRetention : 0.5f;
                     projectileComponent.SetPierceData(skillData.isPiercing, retention);
+                    
+                    // 💥 폭발 데이터 주입 (hasExplosionOnHit = true인 스킬)
+                    if (skillData.hasExplosionOnHit)
+                    {
+                        int explosionDamage = Mathf.RoundToInt(damage * skillData.explosionDamageRatio);
+                        projectileComponent.SetExplosionData(
+                            true,
+                            skillData.aoeRadius,
+                            explosionDamage,
+                            skillData.explosionCueKey
+                        );
+                        
+                        if (showDebugLogs)
+                            Debug.Log($"💥 [SkillController] 폭발 데이터 주입: 폭발반경={skillData.aoeRadius}, 폭발데미지={explosionDamage} (직격{damage} × 배율{skillData.explosionDamageRatio})");
+                    }
                 }
                 
                 // 발사체 데미지 설정 (스킬 배율이 적용된 값을 DamageSource에 주입)
@@ -603,6 +618,38 @@ public class SkillController : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"🏹 [SkillController] 발사 완료: {successCount}/{projectileCount}개 성공, 방향: {direction}");
+    }
+    
+    /// <summary>
+    /// 연사형 스킬 코루틴 (Double Shot 등, isBurstFire = true)
+    /// 스킬 트리거 시점의 방향(lockedSkillDirection)을 유지하면서 발사체를 순차 발사합니다.
+    /// 모든 발사 완료 후 CompleteSkillExecution을 호출하여 이동 잠금을 해제합니다.
+    /// </summary>
+    private IEnumerator BurstFireRoutine(ActiveSkillData activeData, SkillInstance skillInstance, int damage, int slotIndex)
+    {
+        int count = skillInstance.GetCurrentProjectileCount();
+        
+        float interval = skillInstance.GetCurrentBurstInterval();
+        
+        if (showDebugLogs)
+            Debug.Log($"🔫 [SkillController] BurstFireRoutine 시작: {count}발, 간격={interval}s (Lv.{skillInstance.currentLevel})");
+        
+        for (int i = 0; i < count; i++)
+        {
+            FireProjectile(activeData, skillInstance, damage, slotIndex);
+            
+            if (showDebugLogs)
+                Debug.Log($"🔫 [SkillController] 연사 {i + 1}/{count}발 발사");
+            
+            if (i < count - 1)
+                yield return new WaitForSeconds(interval);
+        }
+        
+        if (showDebugLogs)
+            Debug.Log($"🔫 [SkillController] BurstFireRoutine 완료: {count}발 발사 끝");
+        
+        // 모든 발사 완료 후 이동 잠금 해제
+        CompleteSkillExecution(slotIndex);
     }
     
     /// <summary>
@@ -647,6 +694,46 @@ public class SkillController : MonoBehaviour
 
         if (showDebugLogs)
             Debug.Log($"💥 [SkillController] DamageArea 생성: {skillData.aoeShape} → {shapeType}, Origin={aoeOrigin}, 방향: {attackDir}, 데미지: {damage}");
+    }
+    
+    /// <summary>
+    /// 장판형 DOT AoE 생성 (isDotAoe = true) — DotDamageArea 기반
+    /// 퀵 캐스트: 장판 생성 직후 CompleteSkillExecution 호출 → 플레이어 즉시 이동 가능
+    /// </summary>
+    private void SpawnDotAOE(ActiveSkillData skillData, int damage, int slotIndex, Vector3 spawnPos)
+    {
+        GameObject prefab = Resources.Load<GameObject>("Prefabs/VFX/DotDamageArea");
+        if (prefab == null)
+        {
+            Debug.LogError("❌ [SkillController] DotDamageArea 프리팹을 찾을 수 없습니다! 경로: Resources/Prefabs/VFX/DotDamageArea");
+            CompleteSkillExecution(slotIndex);
+            return;
+        }
+
+        GameObject dotGO = Instantiate(prefab, spawnPos, Quaternion.identity);
+        DotDamageArea dotArea = dotGO.GetComponent<DotDamageArea>();
+        if (dotArea == null)
+        {
+            Debug.LogError("❌ [SkillController] DotDamageArea 컴포넌트가 없습니다!");
+            Destroy(dotGO);
+            CompleteSkillExecution(slotIndex);
+            return;
+        }
+
+        dotArea.Initialize(
+            radius:          skillData.aoeRadius,
+            damage:          damage,
+            duration:        skillData.dotDuration,
+            tickRate:        skillData.dotTickRate,
+            slowPercentage:  skillData.slowPercentage,
+            hitCueKey:       skillData.hitCueKey
+        );
+
+        // ⭐ 퀵 캐스트 핵심: 장판 생성 완료 즉시 이동 잠금 해제
+        CompleteSkillExecution(slotIndex);
+
+        if (showDebugLogs)
+            Debug.Log($"☠️ [SkillController] DotDamageArea 생성: pos={spawnPos}, radius={skillData.aoeRadius}, damage={damage}/tick, duration={skillData.dotDuration}s");
     }
     
     /// <summary>
@@ -775,7 +862,19 @@ public class SkillController : MonoBehaviour
         // ⑥ AOE Effect + Damage 발동 — telegraphPos 기준으로 통일
         EmitAOECue(activeData, attackDir, telegraphPos);
 
-        if (activeData.isProjectile)
+        // 연사 모드: BurstFireRoutine에 위임 — CompleteSkillExecution은 코루틴 완료 후 호출
+        if (activeData.isBurstFire)
+        {
+            activeSkillCoroutine = StartCoroutine(BurstFireRoutine(activeData, skillInstance, finalDamage, slotIndex));
+            yield break;
+        }
+        else if (!activeData.isProjectile && activeData.isDotAoe)
+        {
+            // 퀵 캐스트: SpawnDotAOE 내부에서 즉시 CompleteSkillExecution 호출
+            SpawnDotAOE(activeData, finalDamage, slotIndex, telegraphPos);
+            yield break;
+        }
+        else if (activeData.isProjectile)
             FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
         else
             SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex, telegraphPos, attackDir);
@@ -810,7 +909,21 @@ public class SkillController : MonoBehaviour
         Vector3 aoeOrigin = CalculateTelegraphSpawnPos(skillPos, attackDir, activeData.telegraphOffset);
         EmitAOECue(activeData, attackDir, aoeOrigin);
 
-        if (activeData.isProjectile)
+        // 연사 모드: BurstFireRoutine에 위임 — CompleteSkillExecution은 코루틴 완료 후 호출
+        if (activeData.isBurstFire)
+        {
+            if (showDebugLogs) Debug.Log("🔫 [SkillController] 연사 모드 진입");
+            activeSkillCoroutine = StartCoroutine(BurstFireRoutine(activeData, skillInstance, finalDamage, slotIndex));
+            yield break;
+        }
+        else if (!activeData.isProjectile && activeData.isDotAoe)
+        {
+            if (showDebugLogs) Debug.Log("☠️ [SkillController] DOT 장판 모드 진입");
+            // 퀵 캐스트: SpawnDotAOE 내부에서 즉시 CompleteSkillExecution 호출
+            SpawnDotAOE(activeData, finalDamage, slotIndex, aoeOrigin);
+            yield break;
+        }
+        else if (activeData.isProjectile)
         {
             if (showDebugLogs) Debug.Log("🏹 [SkillController] 발사체 모드 진입");
             FireProjectile(activeData, skillInstance, finalDamage, slotIndex);

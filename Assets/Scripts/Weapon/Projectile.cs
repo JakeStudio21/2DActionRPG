@@ -30,6 +30,12 @@ public class Projectile : MonoBehaviour
     private float currentPierceMultiplier = 1.0f;                 // 현재 관통 데미지 배율 (타격마다 감소)
     private readonly HashSet<GameObject> hitTargets = new HashSet<GameObject>(); // 다단 히트 방지
     
+    // 💥 폭발 시스템 (Explosive Arrow)
+    private bool hasExplosionOnHit = false;                       // 소멸 시 폭발 AOE 생성 여부
+    private float explosionRadius = 2f;                           // 폭발 반경
+    private int explosionDamageAmount = 0;                        // 폭발 데미지 (사전 계산값)
+    private string explosionCueKey;                               // 폭발 VFX/SFX Cue 키
+    
     // ⭐ Phase 1-2: 등급 정보 저장
     private ItemGrade projectileGrade = ItemGrade.C;
     private WeaponType weaponType = WeaponType.Bow;
@@ -132,6 +138,18 @@ public class Projectile : MonoBehaviour
         if (!isPiercing) return;
         currentPierceMultiplier *= pierceDamageRetention;
     }
+    
+    /// <summary>
+    /// 폭발 데이터 주입 (SkillController에서 발사 시 호출)
+    /// hasExplosion=true 시 소멸 위치에서 DamageArea 기반 폭발 AOE가 생성됩니다.
+    /// </summary>
+    public void SetExplosionData(bool hasExplosion, float radius, int damageAmount, string cueKey)
+    {
+        hasExplosionOnHit = hasExplosion;
+        explosionRadius = radius;
+        explosionDamageAmount = damageAmount;
+        explosionCueKey = cueKey;
+    }
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (isReturningToPool) return; // 🔑 이미 반환 중이면 무시
@@ -189,6 +207,9 @@ public class Projectile : MonoBehaviour
                 }
                 
                 // 비관통이거나 적 발사체: 첫 타격 후 소멸
+                // ⭐ 보강: 풀 반환 전에 폭발 생성 → transform.position이 유효한 상태 보장
+                // ⭐ 충돌한 몬스터 중심 위치를 전달하여 DamageArea가 정확한 위치에 생성됨
+                if (!isEnemyProjectile) SpawnExplosion(other.transform.position);
                 ReturnProjectileToPool();
                 
             } else if (!other.isTrigger && indestructible) {
@@ -208,6 +229,7 @@ public class Projectile : MonoBehaviour
         
         if (currentDistance > projectileRange) {
             Debug.Log($"🏹 [DetectFireDistance] 직선 발사체 사거리 초과: {currentDistance:F2} > {projectileRange:F2}");
+            SpawnExplosion(transform.position);
             ReturnProjectileToPool();
         }
     }
@@ -288,6 +310,11 @@ public class Projectile : MonoBehaviour
         // 🏹 관통 상태 초기화 (풀 재사용 시 이전 상태 제거)
         currentPierceMultiplier = 1.0f;
         hitTargets.Clear();
+        
+        // 💥 폭발 상태 초기화
+        hasExplosionOnHit = false;
+        explosionDamageAmount = 0;
+        explosionCueKey = null;
         
         // 🚨 InitializeTrajectory() 제거 - Update()에서 startPosition 설정 후 호출
         
@@ -421,6 +448,7 @@ public class Projectile : MonoBehaviour
             float actualDistance = Vector2.Distance(new Vector2(startPosition.x, startPosition.y), 
                                                     new Vector2(transform.position.x, transform.position.y));
             Debug.Log($"🎯 [MoveInArc] 포물선 착탄! progress: {progress:F3}, 실제거리: {actualDistance:F2}, 목표거리: {totalDistance:F2}");
+            SpawnExplosion(transform.position);
             ReturnProjectileToPool();
             return;
         }
@@ -453,6 +481,65 @@ public class Projectile : MonoBehaviour
         
         if (showDebugLogs)
             Debug.Log($"🏹 [Projectile] 초기화: 등급={grade}, 타입={type}");
+    }
+    
+    #endregion
+    
+    #region 💥 폭발 시스템 (Explosive Arrow)
+    
+    /// <summary>
+    /// 지정 위치에서 폭발 AOE 생성 — ReturnProjectileToPool() 직전에 반드시 호출해야 함
+    /// hitPosition: 몬스터 충돌 시 other.transform.position, 사거리 끝/포물선 착탄 시 transform.position
+    /// ⭐ 폭발 이펙트는 hitPosition에서 1번만 직접 Emit — hitCueKey 미사용으로 중복 발동 방지
+    /// </summary>
+    private void SpawnExplosion(Vector3 hitPosition)
+    {
+        if (!hasExplosionOnHit || explosionDamageAmount <= 0) return;
+        
+        GameObject damageAreaPrefab = Resources.Load<GameObject>("Prefabs/VFX/DamageArea");
+        if (damageAreaPrefab == null)
+        {
+            Debug.LogError("❌ [Projectile] DamageArea 프리팹을 찾을 수 없습니다! 경로: Resources/Prefabs/VFX/DamageArea");
+            return;
+        }
+        
+        // 폭발 이펙트를 착탄 위치에서 정확히 1번만 발동
+        // hitCueKey로 전달하면 AOE 범위 내 몬스터마다 반복 발동되므로 직접 Emit 사용
+        if (!string.IsNullOrEmpty(explosionCueKey))
+        {
+            CueSystem.CueEmitter.Emit(explosionCueKey, "Player", new CueSystem.CueContext
+            {
+                position = hitPosition,
+                rotation = transform.rotation,
+                facingDir = transform.right,
+                magnitude = 1.0f,
+                scale = 1.0f
+            });
+        }
+        
+        GameObject daGO = Object.Instantiate(damageAreaPrefab);
+        DamageArea da = daGO.GetComponent<DamageArea>();
+        if (da == null)
+        {
+            Debug.LogError("❌ [Projectile] DamageArea 컴포넌트가 없습니다!");
+            Destroy(daGO);
+            return;
+        }
+        
+        da.InitializeForPlayer(
+            AOEShapeType.Circle,
+            hitPosition,        // 착탄 위치 기준으로 DamageArea 생성
+            transform.right,
+            explosionRadius,
+            Vector2.one * explosionRadius * 2f,
+            360f,
+            explosionDamageAmount,
+            hitCueKey: null     // 폭발 이펙트는 위에서 직접 발동 완료
+        );
+        
+        Destroy(daGO, 2f);
+        
+        Debug.Log($"💥 [Projectile] 폭발 생성: pos={hitPosition}, radius={explosionRadius}, damage={explosionDamageAmount}");
     }
     
     #endregion

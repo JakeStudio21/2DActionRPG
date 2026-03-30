@@ -75,18 +75,41 @@ public class SkillInstance
         
         if (skillData is ActiveSkillData activeData)
         {
-            // CSV에서 레벨별 쿨다운 가져오기
             var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo(skillData.skillID, currentLevel);
             
-            if (levelInfo.level > 0) // CSV 데이터 존재
+            if (levelInfo.level > 0)
             {
-                return levelInfo.value2; // Value2 = 쿨다운
+                // StatType2가 BURST_INTERVAL이면 value2는 발사 간격 — 쿨다운은 SO 기본값 사용
+                if (levelInfo.statType2Raw == "BURST_INTERVAL")
+                    return activeData.baseCooldown;
+                
+                return levelInfo.value2; // Value2 = COOLDOWN
             }
             
-            // CSV 데이터 없으면 기본값 사용
             return activeData.baseCooldown;
         }
         return 0f;
+    }
+    
+    /// <summary>
+    /// 현재 레벨의 연사 발사 간격 (StatType2 = BURST_INTERVAL인 스킬 전용)
+    /// Double Shot 등 isBurstFire 스킬에서 BurstFireRoutine이 호출
+    /// </summary>
+    public float GetCurrentBurstInterval()
+    {
+        if (currentLevel <= 0) return 0.15f;
+        
+        if (skillData is ActiveSkillData activeData)
+        {
+            var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo(skillData.skillID, currentLevel);
+            
+            if (levelInfo.level > 0 && levelInfo.statType2Raw == "BURST_INTERVAL")
+                return Mathf.Max(0.05f, levelInfo.value2); // 최소 0.05초 하한선
+            
+            // CSV에 BURST_INTERVAL이 없으면 SO 고정값 사용
+            return activeData.burstInterval;
+        }
+        return 0.15f;
     }
     
     /// <summary>
@@ -121,6 +144,23 @@ public class SkillInstance
     public float GetCurrentDamageMultiplier()
     {
         return GetCurrentDamage(); // CSV Value1 값 (%) 반환
+    }
+    
+    /// <summary>
+    /// 현재 레벨의 발사체 수 (StatType1 = PROJECTILE_COUNT인 스킬 전용)
+    /// Double Shot 등 연사 스킬에서 사용
+    /// </summary>
+    public int GetCurrentProjectileCount()
+    {
+        if (currentLevel <= 0) return 1;
+        
+        if (skillData is ActiveSkillData)
+        {
+            var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo(skillData.skillID, currentLevel);
+            if (levelInfo.level > 0 && levelInfo.statType1Raw == "PROJECTILE_COUNT")
+                return Mathf.Max(1, Mathf.RoundToInt(levelInfo.value1));
+        }
+        return 1;
     }
     
     /// <summary>

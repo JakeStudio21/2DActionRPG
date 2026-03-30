@@ -30,7 +30,7 @@ MonoBehaviour:
   accessoryType: 0
   equipmentSlot: 0
   baseStats: []
-  projectileId: Arrow_B
+  projectileId: Arrow_GreenBullet
   availableSubStats: 
   baseBudget: 100
   mainStatWeight: 1

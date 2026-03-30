@@ -76,6 +76,38 @@ public class SimpleMob : MonoBehaviour
         }
     }
     
+    // 슬로우 상태 관리 (DotDamageArea에서 사용)
+    private float _baseSpeedBeforeSlow;
+    private bool _isSlowed = false;
+    
+    /// <summary>
+    /// 이동속도 감소 적용 (DotDamageArea 장판 진입 시 호출)
+    /// 중복 적용을 방지하며, 원래 속도를 보존하여 정확한 복원을 보장합니다.
+    /// </summary>
+    public void ApplySlow(float slowPercentage)
+    {
+        if (_isSlowed) return;
+        _baseSpeedBeforeSlow = moveSpeed;
+        moveSpeed = moveSpeed * (1f - Mathf.Clamp01(slowPercentage));
+        _isSlowed = true;
+        
+        if (enableDebugLogs)
+            Debug.Log($"[SimpleMob] {gameObject.name} 슬로우 적용: {_baseSpeedBeforeSlow:F2} → {moveSpeed:F2} ({slowPercentage:P0} 감소)");
+    }
+    
+    /// <summary>
+    /// 이동속도 감소 해제 (DotDamageArea 장판 퇴장 또는 소멸 시 호출)
+    /// </summary>
+    public void RemoveSlow()
+    {
+        if (!_isSlowed) return;
+        moveSpeed = _baseSpeedBeforeSlow;
+        _isSlowed = false;
+        
+        if (enableDebugLogs)
+            Debug.Log($"[SimpleMob] {gameObject.name} 슬로우 해제: moveSpeed = {moveSpeed:F2} 복원");
+    }
+    
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();

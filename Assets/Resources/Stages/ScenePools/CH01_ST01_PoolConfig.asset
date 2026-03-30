@@ -482,5 +482,35 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 30
+  - tag: FX_Hit_Explosion_Fire
+    prefab: {fileID: 4654283702912762952, guid: 029e94e6f8edd2c44a28494f72321f08, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ExplosiveArrow
+    prefab: {fileID: 4149642069968341746, guid: ac1f715d4734d594ca8817ecded3f68e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_DoubleShot
+    prefab: {fileID: 4149642069968341746, guid: 1a8f6d7fc25747a4b8b12e82e80866f7, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_GreenBullet
+    prefab: {fileID: 4149642069968341746, guid: 89d421f72cf263742a6150806d213c0b, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Fx_AOE_Poison_Purple
+    prefab: {fileID: 5634074603722038344, guid: 6ae6f607f84524445b600ef1ce175c92, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 1

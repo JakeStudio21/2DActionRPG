@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 179d2d3dd48692041977d244759ebcaa, type: 3}
-  m_Name: ActiveSkill_MultiShot
+  m_Name: ActiveSkill_DoubleShot
   m_EditorClassIdentifier: 
-  skillID: SKILL_MULTISHOT
-  skillName: "\uAC08\uB798 \uD654\uC0B4"
-  icon: {fileID: -1033301321, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
-  description: "\uBD80\uCC44\uAF34 \uBC1C\uC0AC\uB85C 3\uAC08\uB798\uC758 \uD558\uC580
-    \uBC14\uB78C \uADA4\uC801\uC744 \uADF8\uB9AC\uBA70 \uB0A0\uC544\uAC00\uB294 \uAE30\uBCF8\uAE30."
+  skillID: SKILL_DOUBLE_SHOT
+  skillName: "\uB354\uBE14 \uC0F7"
+  icon: {fileID: 283133129, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  description: "\uC9E7\uC740 \uC2DC\uAC04 \uB3D9\uC548 \uD654\uC0B4 2\uBC1C\uC744
+    \uBE60\uB974\uAC8C \uC5F0\uC18D \uBC1C\uC0AC\uD55C\uB2E4."
   unlockLevel: 1
   maxLevel: 10
   requiredClass: 0
-  skillType: 0
+  skillType: 1
   isProjectile: 1
-  animTriggerName: Skill1
+  animTriggerName: Skill2
   baseCooldown: 3
-  baseDamageMultiplier: 150
-  range: 8
-  castCueKey: skill.MultiShot.cast
+  baseDamageMultiplier: 50
+  range: 10
+  castCueKey: 
   aoeCueKey: 
   hitCueKey: 
   aoeShape: 2
@@ -40,13 +40,13 @@ MonoBehaviour:
   castEffectDelay: 0
   aoeEffectDelay: 0
   isPiercing: 0
-  multiHitCount: 5
-  projectileCount: 5
-  projectilePrefab: {fileID: 4149642069968341746, guid: 0a84f1d8bd39b7144a2cfdb00bbede9e, type: 3}
+  multiHitCount: 1
+  projectileCount: 1
+  projectilePrefab: {fileID: 4149642069968341746, guid: 1a8f6d7fc25747a4b8b12e82e80866f7, type: 3}
   projectileSpeed: 20
-  spreadAngle: 15
+  spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
-  projectilePoolName: Arrow_MultiShot
+  projectilePoolName: Arrow_DoubleShot
   dashSpeed: 20
   dashRange: 8
   attackCount: 1
@@ -56,5 +56,5 @@ MonoBehaviour:
   hasExplosionOnHit: 0
   explosionDamageRatio: 1.2
   explosionCueKey: 
-  isBurstFire: 0
-  burstInterval: 0.15
+  isBurstFire: 1
+  burstInterval: 0.5
