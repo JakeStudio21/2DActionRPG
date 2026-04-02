@@ -39,6 +39,7 @@ MonoBehaviour:
   bossId: 
   baseGoldReward: 12
   baseExpReward: 30
-  dropGroupId: DROP_BLUESLIME_001
+  bossReward: {fileID: 0}
+  dropGroupId: DROP_COBRA_001
   dropRolls: 1
   patrolTuning: {fileID: 11400000, guid: 4558e5815177e274aa182b2b81ddd7d7, type: 2}

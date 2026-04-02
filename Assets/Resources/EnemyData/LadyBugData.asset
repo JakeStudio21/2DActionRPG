@@ -16,8 +16,8 @@ MonoBehaviour:
   enemyName: LadyBug
   enemyType: 0
   description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2AC\uB77C\uC784\n"
-  baseHealth: 100
-  baseDefense: 50
+  baseHealth: 60
+  baseDefense: 30
   baseMoveSpeed: 3
   detectionRange: 8
   chaseRange: 12
@@ -39,6 +39,7 @@ MonoBehaviour:
   bossId: 
   baseGoldReward: 12
   baseExpReward: 30
+  bossReward: {fileID: 0}
   dropGroupId: DROP_LADYBUG_001
   dropRolls: 1
   patrolTuning: {fileID: 11400000, guid: 2679d36f3e9045b488c0992c693a6b68, type: 2}

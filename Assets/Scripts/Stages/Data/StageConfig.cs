@@ -82,6 +82,16 @@ namespace StageSystem
         [TextArea(3, 5)]
         public string Description;
         
+        [Header("🎯 타겟 파밍 설정 (특정 아이템 드롭률 강화)")]
+        [Tooltip("이 스테이지에서 특정 부위/아이템의 드롭률을 올려주는 설정 목록.\n" +
+                 "비어 있으면 타겟 파밍 보정 없이 기본 확률을 사용합니다.")]
+        public List<TargetFarmingEntry> targetFarmingEntries = new List<TargetFarmingEntry>();
+
+        [Header("📊 레벨 구간 보상 테이블 (오버라이드)")]
+        [Tooltip("null 이면 RewardSystem의 글로벌 기본 테이블을 사용합니다.\n" +
+                 "이 스테이지에만 다른 보상 구간을 적용하고 싶을 때 할당하세요.")]
+        public RewardLevelRangeTable overrideRangeTable;
+
         [Header("런타임 참조")]
         public List<WaveConfig> WaveConfigs = new List<WaveConfig>();
         public DropTable FirstClearDropTable;

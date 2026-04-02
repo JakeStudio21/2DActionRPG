@@ -15,137 +15,38 @@ MonoBehaviour:
   dropGroupId: DROP_BLUESLIME_001
   dropPolicy: 2
   pickCount: 1
-  description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
+  description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 \uB4DC\uB86D \uD14C\uC774\uBE14 (\uB808\uBCA8
+    1~10)"
   dropEntries:
+  - itemId: GEN_EQUIP_D_B
+    rarity: 0
+    weight: 0
+    chance: 0.12
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
   - itemId: MAT_WEAPON_FRAGMENT
     rarity: 0
-    weight: 0.2
-    chance: 0.3
+    weight: 0
+    chance: 0.4
+    minQuantity: 1
+    maxQuantity: 2
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_GOLD_COIN
+    rarity: 0
+    weight: 0
+    chance: 0.6
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_RING_NONE_TR
-    rarity: 3
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_NECKLACE_NONE_A
-    rarity: 1
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_BELT_ASSASIN_EX
-    rarity: 3
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_BOOTS_ASSASIN_TR
-    rarity: 2
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_AREA_DEFENDER
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_BOSS_DEFENDER
-    rarity: 0
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_BOSS_HUNTER
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_DEFENSE_BREAKER
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_EXECUTIONER
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_HIGH_HP_HUNTER
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_SURVIVOR
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: RUNE_FRAG_RUNE_VAMPIRE
-    rarity: 0
-    weight: 10
-    chance: 0.3
-    minQuantity: 50
-    maxQuantity: 60
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  totalWeight: 71.2
-  totalChance: 3.8999996
+  totalWeight: 0
+  totalChance: 1.12

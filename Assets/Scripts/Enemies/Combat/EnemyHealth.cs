@@ -795,6 +795,10 @@ public class EnemyHealth : MonoBehaviour
             return;
         }
 
+        // RewardCalculator 에서 이 몬스터의 재료 수량 배율을 가져옵니다.
+        // (레벨 구간 테이블 + EnemyType 보정이 반영된 값)
+        float materialAmountMultiplier = GetMaterialAmountMultiplier();
+
         // 여러 번 드롭 시도
         List<DropResult> allDropResults = new List<DropResult>();
         
@@ -809,20 +813,44 @@ public class EnemyHealth : MonoBehaviour
         // 드롭 결과 로그
         Debug.Log(DropResolver.GetDropResultsDebugInfo(allDropResults));
 
-        // 실제 아이템 스폰 (순차적 드롭)
-        StartCoroutine(SpawnDroppedItemsCoroutine(allDropResults));
+        // 실제 아이템 스폰 (순차적 드롭) — 재료 배율 함께 전달
+        StartCoroutine(SpawnDroppedItemsCoroutine(allDropResults, materialAmountMultiplier));
+    }
+
+    /// <summary>
+    /// RewardCalculator 를 통해 이 몬스터의 재료 수량 배율을 계산합니다.
+    /// RewardCalculator 가 씬에 없으면 1.0(배율 없음)을 반환합니다.
+    /// </summary>
+    private float GetMaterialAmountMultiplier()
+    {
+        if (RewardCalculator.Instance == null || baseEnemy?.EnemyData == null || baseEnemy?.GrowthProfile == null)
+            return 1f;
+
+        StageSystem.StageConfig stageConfig = StageManager.Instance?.CurrentStageConfig;
+
+        KillRewardResult killResult = RewardCalculator.Instance.CalculateKillReward(
+            baseEnemy.EnemyData,
+            baseEnemy.GetEnemyType(),
+            baseEnemy.CurrentLevel,
+            baseEnemy.GrowthProfile,
+            stageConfig
+        );
+
+        return Mathf.Max(1f, killResult.materialAmountMultiplier);
     }
 
     /// <summary>
     /// 드롭된 아이템들을 실제로 스폰 (순차적 드롭)
     /// </summary>
-    private IEnumerator SpawnDroppedItemsCoroutine(List<DropResult> dropResults)
+    /// <param name="dropResults">드롭 결과 목록</param>
+    /// <param name="materialAmountMultiplier">재료 수량 배율 (RewardCalculator 계산값)</param>
+    private IEnumerator SpawnDroppedItemsCoroutine(List<DropResult> dropResults, float materialAmountMultiplier = 1f)
     {
         foreach (var result in dropResults)
         {
             for (int i = 0; i < result.quantity; i++)
             {
-                SpawnSingleItem(result.itemId, result.rarity);
+                SpawnSingleItem(result.itemId, result.rarity, materialAmountMultiplier);
                 
                 // ⭐ 순차적 드롭: 0.3~0.5초 랜덤 지연
                 float delay = Random.Range(0.3f, 0.5f);
@@ -837,7 +865,7 @@ public class EnemyHealth : MonoBehaviour
     /// <summary>
     /// ✨ 신규 드롭 시스템: 범용 프리팹 + 데이터 주입 방식 [Phase 8-1: 룬 조각 지원]
     /// </summary>
-    private void SpawnSingleItem(string itemId, ItemRarity rarity)
+    private void SpawnSingleItem(string itemId, ItemRarity rarity, float materialAmountMultiplier = 1f)
     {
         // ⭐ 스폰은 몬스터 위치에서, 드롭 애니메이션으로 퍼짐
         Vector3 spawnPosition = transform.position;
@@ -847,12 +875,21 @@ public class EnemyHealth : MonoBehaviour
         {
             SpawnCurrencyItem(itemId, spawnPosition);
         }
-        // 📦 재료 아이템 (MAT_로 시작) + 💎 룬 조각 (RUNE_FRAG_로 시작) [Phase 8-1]
-        else if (itemId.StartsWith("MAT_") || itemId.StartsWith("RUNE_FRAG_"))
+        // 📦 재료 아이템:
+        //   MAT_           — 장비 강화 재료 (파편/결정/코어/제작정수)
+        //   RUNE_FRAG_     — 룬 조각 (8종)
+        //   SPIRIT_ESSENCE_ — 정령 정수 (4종)
+        //   ※ SPIRIT_ESSENCE_ 는 MAT_ 접두사가 없어서 이전에는 장비 경로로 잘못 분기되던 버그 수정
+        else if (itemId.StartsWith("MAT_") || itemId.StartsWith("RUNE_FRAG_") || itemId.StartsWith("SPIRIT_ESSENCE_"))
         {
-            SpawnMaterialItem(itemId, spawnPosition);
+            SpawnMaterialItem(itemId, spawnPosition, materialAmountMultiplier);
         }
-        // 장비 아이템 (무기/방어구)
+        // GEN_EQUIP 키워드 — 동적 장비 생성 (ItemGenerator 경유, SpawnEquipmentItem 과 다른 경로)
+        else if (itemId.StartsWith("GEN_EQUIP"))
+        {
+            SpawnGeneratedEquipmentItem(itemId, spawnPosition);
+        }
+        // 장비 아이템 (고정 ID 방식)
         else
         {
             SpawnEquipmentItem(itemId, rarity, spawnPosition);
@@ -949,22 +986,31 @@ public class EnemyHealth : MonoBehaviour
     }
     
     /// <summary>
-    /// 📦 재료 아이템 스폰 (MaterialPickup 사용) [Phase 8-2: MaterialDatabase 통합]
+    /// 📦 재료 아이템 스폰 (MaterialPickup 사용)
+    ///
+    /// 처리 대상 ID 접두사:
+    ///   MAT_            — 장비 강화 재료 9종 + 제작 정수
+    ///   RUNE_FRAG_      — 룬 조각 8종
+    ///   SPIRIT_ESSENCE_ — 정령 정수 4종
     /// </summary>
-    private void SpawnMaterialItem(string itemId, Vector3 spawnPosition)
+    /// <param name="itemId">재료 ID (MaterialDatabase 에 등록된 materialId 와 일치해야 함)</param>
+    /// <param name="spawnPosition">스폰 위치</param>
+    /// <param name="materialAmountMultiplier">재료 수량 배율 (RewardCalculator 계산값, 기본 1.0)</param>
+    private void SpawnMaterialItem(string itemId, Vector3 spawnPosition, float materialAmountMultiplier = 1f)
     {
-        // 1. itemId → MaterialData 검색 (일반 재료 & 룬 조각 통합)
+        // 1. itemId → MaterialData 검색
         MaterialData materialData = MaterialDatabase.Instance?.GetDataById(itemId);
         
         if (materialData == null)
         {
-            Debug.LogError($"❌ [EnemyHealth] MaterialData를 찾을 수 없습니다: {itemId}");
+            Debug.LogError($"❌ [EnemyHealth] MaterialData를 찾을 수 없습니다: {itemId}\n" +
+                           $"   MaterialDatabase 에 등록된 materialId 와 일치하는지 확인하세요.");
             return;
         }
         
         MaterialType materialType = materialData.materialType;
         
-        // 2. Drop_Material 프리팹 스폰 (범용 프리팹)
+        // 2. Drop_Material 프리팹 스폰
         string poolTag = "Drop_Material";
         GameObject dropObj = GamePoolManager.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
         
@@ -978,11 +1024,15 @@ public class EnemyHealth : MonoBehaviour
         MaterialPickup pickup = dropObj.GetComponent<MaterialPickup>();
         if (pickup != null)
         {
-            // 재료 수량 (1~3개 랜덤)
-            int amount = Random.Range(1, 4);
+            // 기본 수량(1~3) × 레벨 구간 배율 적용
+            // 예) 레벨 25+ 구간의 materialAmountMultiplier=2.5 라면 → 3~8개
+            int baseAmount = Random.Range(1, 4);
+            int amount = Mathf.Max(1, Mathf.RoundToInt(baseAmount * materialAmountMultiplier));
+            
             pickup.Initialize(materialType, amount, spawnPosition);
             
-            Debug.Log($"📦 [EnemyHealth] 재료 드롭 성공: {materialType.GetDisplayName()} x{amount}");
+            Debug.Log($"📦 [EnemyHealth] 재료 드롭 성공: {materialType.GetDisplayName()} x{amount} " +
+                      $"(기본 {baseAmount} × 배율 {materialAmountMultiplier:F1})");
         }
         else
         {
@@ -992,36 +1042,102 @@ public class EnemyHealth : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 스테이지 레벨 획득
+    /// 몬스터 처치 드롭에서 GEN_EQUIP 키워드를 처리합니다.
+    /// RewardSystem(스테이지 클리어) 과 동일한 ItemGenerator 경로를 사용합니다.
     /// </summary>
-    private int GetCurrentStageLevel()
+    private void SpawnGeneratedEquipmentItem(string genKeyword, Vector3 spawnPosition)
     {
-        // FSMStageController나 GameManager에서 현재 스테이지 레벨 획득
-        if (FSMStageController.Instance != null)
+        if (ItemGenerator.Instance == null)
         {
-            // FSMStageController에서 스테이지별 레벨 매핑
-            var currentStage = FSMStageController.Instance.GetCurrentStage();
-            return MapStageToLevel(currentStage);
+            Debug.LogWarning($"[EnemyHealth] ItemGenerator.Instance 가 null 입니다. GEN_EQUIP 드롭을 건너뜁니다.");
+            return;
         }
-        
-        // 몬스터 레벨을 스테이지 레벨로 사용 (fallback)
-        return baseEnemy?.CurrentLevel ?? 1;
+
+        // 현재 스테이지 기반 등급 범위 결정
+        ItemSystem.EquipmentRank minRarity = ItemSystem.EquipmentRank.D;
+        ItemSystem.EquipmentRank maxRarity = ItemSystem.EquipmentRank.A;
+
+        // RewardCalculator 에서 등급 파라미터 가져오기
+        if (RewardCalculator.Instance != null && baseEnemy?.EnemyData != null && baseEnemy?.GrowthProfile != null)
+        {
+            StageSystem.StageConfig stageConfig = StageManager.Instance?.CurrentStageConfig;
+            KillRewardResult killResult = RewardCalculator.Instance.CalculateKillReward(
+                baseEnemy.EnemyData,
+                baseEnemy.GetEnemyType(),
+                baseEnemy.CurrentLevel,
+                baseEnemy.GrowthProfile,
+                stageConfig
+            );
+            minRarity = killResult.minRarity;
+            maxRarity = killResult.maxRarity;
+        }
+
+        // GEN_EQUIP_B_S 형식의 키워드에서 범위 오버라이드 파싱
+        ParseGenEquipKeyword(genKeyword, ref minRarity, ref maxRarity);
+
+        PlayerType playerType = PlayerDataManager.Instance != null
+            ? PlayerDataManager.Instance.GetCurrentPlayerType()
+            : PlayerType.Warrior;
+
+        var request = new EquipmentGenerationRequest
+        {
+            minRarity   = minRarity,
+            maxRarity   = maxRarity,
+            playerType  = playerType,
+            stageConfig = StageManager.Instance?.CurrentStageConfig,
+        };
+
+        GenerationResult genResult = ItemGenerator.Instance.Generate(request);
+
+        if (!genResult.isValid)
+        {
+            Debug.LogWarning($"[EnemyHealth] GEN_EQUIP 장비 생성 실패: {genKeyword}");
+            return;
+        }
+
+        // EquipmentRank → ItemRarity 변환 (enum 순서 동일: D=0 ~ TR=7)
+        ItemRarity itemRarity = (ItemRarity)(int)genResult.rank;
+
+        Debug.Log($"🎲 [EnemyHealth] GEN_EQUIP 장비 결정: {genResult.templateId} " +
+                  $"| {genResult.rank.GetRankName()} | Soulbound: {genResult.isSoulbound}");
+
+        // 기존 SpawnEquipmentItem 경로로 월드 픽업 스폰 (플레이어가 직접 줍는 방식)
+        SpawnEquipmentItem(genResult.templateId, itemRarity, spawnPosition);
     }
 
     /// <summary>
-    /// 스테이지를 레벨로 매핑
+    /// "GEN_EQUIP_B_S" 형식의 키워드에서 등급 범위를 파싱합니다.
+    /// 접미사가 없으면 전달된 min/max 를 그대로 유지합니다.
     /// </summary>
-    private int MapStageToLevel(FSMStageController.StageState stage)
+    private void ParseGenEquipKeyword(string keyword,
+        ref ItemSystem.EquipmentRank minRarity,
+        ref ItemSystem.EquipmentRank maxRarity)
     {
-        return stage switch
-        {
-            FSMStageController.StageState.Lobby => 1,
-            FSMStageController.StageState.Scene1 => 1,
-            FSMStageController.StageState.Scene2 => 2,
-            FSMStageController.StageState.Scene3 => 3,
-            FSMStageController.StageState.Boss => 5,
-            _ => 1
-        };
+        string[] parts = keyword.ToUpper().Split('_');
+        // "GEN_EQUIP_B_S" → ["GEN","EQUIP","B","S"]
+        if (parts.Length >= 3 && System.Enum.TryParse(parts[2], out ItemSystem.EquipmentRank parsedMin))
+            minRarity = parsedMin;
+        if (parts.Length >= 4 && System.Enum.TryParse(parts[3], out ItemSystem.EquipmentRank parsedMax))
+            maxRarity = parsedMax;
+        if ((int)minRarity > (int)maxRarity)
+            maxRarity = minRarity;
+    }
+
+    /// <summary>
+    /// 현재 스테이지 레벨 획득
+    /// </summary>
+    /// <summary>
+    /// 현재 스테이지의 기준 레벨을 반환합니다.
+    ///
+    /// StageManager.CurrentStageConfig.StageBaseLevel 을 우선 참조합니다.
+    /// StageManager 를 찾을 수 없는 경우에만 몬스터 자신의 CurrentLevel 을 fallback 으로 사용합니다.
+    ///
+    /// (이전 구현은 FSMStageController.StageState enum 을 1~5 값에 매핑했으나,
+    ///  실제 스테이지 레벨(10, 20 등)을 반영하지 못하는 문제가 있어 수정합니다.)
+    /// </summary>
+    private int GetCurrentStageLevel()
+    {
+        return RewardCalculator.GetCurrentStageLevel(baseEnemy?.CurrentLevel ?? 1);
     }
     
     // ⭐ UI 시스템용 공개 프로퍼티 추가

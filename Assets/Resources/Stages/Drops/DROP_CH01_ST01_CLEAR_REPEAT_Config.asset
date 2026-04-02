@@ -18,51 +18,15 @@ MonoBehaviour:
   Gold: 100
   Exp: 20
   Items:
-  - ItemID: ITEM_BOW_TR
+  - ItemID: GEN_EQUIP_D_D
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_BOW_EX
+  - ItemID: GEN_EQUIP_D_D
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_C
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_D
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_B
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_A
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_S
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_SS
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_EX
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_TR
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_BOW_A
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_BOW_B
+  - ItemID: RUNE_FRAG_RUNE_AREA_DEFENDER
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}

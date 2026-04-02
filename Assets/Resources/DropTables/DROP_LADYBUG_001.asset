@@ -15,11 +15,12 @@ MonoBehaviour:
   dropGroupId: DROP_LADYBUG_001
   dropPolicy: 2
   pickCount: 1
-  description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
+  description: "\uBB34\uB2F9\uBC8C\uB808 \uB4DC\uB86D \uD14C\uC774\uBE14 (\uB808\uBCA8
+    1~5)"
   dropEntries:
-  - itemId: ITEM_BELT_ASSASIN_B
-    rarity: 2
-    weight: 0.2
+  - itemId: GEN_EQUIP_D_C
+    rarity: 0
+    weight: 0
     chance: 0.3
     minQuantity: 1
     maxQuantity: 1
@@ -27,55 +28,25 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_BELT_ASSASIN_A
-    rarity: 3
-    weight: 0.2
-    chance: 0.3
+  - itemId: MAT_ARMOR_FRAGMENT
+    rarity: 0
+    weight: 0
+    chance: 0.45
+    minQuantity: 1
+    maxQuantity: 2
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_GOLD_COIN
+    rarity: 0
+    weight: 0
+    chance: 0.65
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_BOOTS_ASSASIN_B
-    rarity: 2
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_BOOTS_ASSASIN_A
-    rarity: 3
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_GLOVES_ASSASIN_B
-    rarity: 2
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_GLOVES_ASSASIN_A
-    rarity: 3
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  totalWeight: 1.2
-  totalChance: 1.8
+  totalWeight: 0
+  totalChance: 1.18

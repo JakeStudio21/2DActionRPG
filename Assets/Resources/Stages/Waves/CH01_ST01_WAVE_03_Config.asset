@@ -25,4 +25,5 @@ MonoBehaviour:
   SimpleMobWaveData: {fileID: 0}
   SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
+  - {fileID: 11400000, guid: d92e6c06c2a77ae4f9f712903764043c, type: 2}
   - {fileID: 11400000, guid: 70c171ae2cc4b36409e74592e8889917, type: 2}

@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63cf431b69e7cbe4986bd46872510bbf, type: 3}
+  m_Name: RewardLevelRangeTable
+  m_EditorClassIdentifier: 
+  levelRanges:
+  - minStageLevel: 1
+    maxStageLevel: 5
+    materialAmountMultiplier: 1
+    equipmentChanceMultiplier: 1
+    minRarity: 0
+    maxRarity: 1
+    goldLevelMultiplier: 0
+    expLevelMultiplier: 0
+  - minStageLevel: 6
+    maxStageLevel: 10
+    materialAmountMultiplier: 1.5
+    equipmentChanceMultiplier: 1.3
+    minRarity: 1
+    maxRarity: 2
+    goldLevelMultiplier: 1.7
+    expLevelMultiplier: 1.7
+  - minStageLevel: 11
+    maxStageLevel: 17
+    materialAmountMultiplier: 2.2
+    equipmentChanceMultiplier: 1.7
+    minRarity: 2
+    maxRarity: 3
+    goldLevelMultiplier: 2.5
+    expLevelMultiplier: 2.5
+  - minStageLevel: 18
+    maxStageLevel: 24
+    materialAmountMultiplier: 2.8
+    equipmentChanceMultiplier: 2
+    minRarity: 3
+    maxRarity: 4
+    goldLevelMultiplier: 3.5
+    expLevelMultiplier: 3.5
+  - minStageLevel: 25
+    maxStageLevel: 60
+    materialAmountMultiplier: 3.2
+    equipmentChanceMultiplier: 2.4
+    minRarity: 4
+    maxRarity: 4
+    goldLevelMultiplier: 4.5
+    expLevelMultiplier: 4.5

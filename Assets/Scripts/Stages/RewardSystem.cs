@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ItemSystem;
 
 namespace StageSystem
 {
@@ -83,32 +84,51 @@ namespace StageSystem
         {
             // 보상 테이블 선택
             DropTable rewardTable = isFirstClear ? stageConfig.FirstClearDropTable : stageConfig.RepeatClearDropTable;
-            
+
+            int rawGold;
+            int rawExp;
+
             if (rewardTable != null)
             {
-                // 기본 보상
-                result.Gold = rewardTable.Gold;
-                result.Exp = rewardTable.Exp;
-                
-                // 클리어 시간 보너스 (빠를수록 보너스)
-                float timeBonus = CalculateTimeBonus(clearTime, stageConfig.TimeLimitSec);
-                result.Gold = Mathf.RoundToInt(result.Gold * timeBonus);
-                result.Exp = Mathf.RoundToInt(result.Exp * timeBonus);
+                rawGold = rewardTable.Gold;
+                rawExp  = rewardTable.Exp;
             }
             else
             {
-                // 기본값 사용
-                result.Gold = baseGold;
-                result.Exp = baseExp;
+                // 드롭 테이블이 없을 때 하드코딩 기본값 사용
+                rawGold = baseGold;
+                rawExp  = baseExp;
             }
-            
-            // 골드/EXP 커브 적용
-            result.Gold = Mathf.RoundToInt(result.Gold * goldMultiplier);
-            result.Exp = Mathf.RoundToInt(result.Exp * expMultiplier);
-            
+
+            // 클리어 시간 보너스 계산 (빠를수록 최대 1.5배)
+            float timeBonus = CalculateTimeBonus(clearTime, stageConfig.TimeLimitSec);
+
+            // RewardCalculator 를 통해 StageBaseLevel 기반 레벨 구간 배율 적용
+            // (이전: 고정값 그대로 사용 → 수정: 레벨 구간 goldLevelMultiplier / expLevelMultiplier 반영)
+            if (global::RewardCalculator.Instance != null)
+            {
+                var calcResult = global::RewardCalculator.Instance.CalculateStageClearReward(rawGold, rawExp, timeBonus, stageConfig);
+                result.Gold = Mathf.RoundToInt(calcResult.gold * goldMultiplier);
+                result.Exp  = Mathf.RoundToInt(calcResult.exp  * expMultiplier);
+
+                // 아이템 드롭 파라미터를 RewardResult 에 전달 (ProcessItemRewards 에서 사용)
+                result.EquipmentChanceMultiplier = calcResult.equipmentChanceMultiplier;
+                result.MaterialAmountMultiplier  = calcResult.materialAmountMultiplier;
+                result.MinRarity                 = calcResult.minRarity;
+                result.MaxRarity                 = calcResult.maxRarity;
+            }
+            else
+            {
+                // RewardCalculator 가 씬에 없을 때 안전 fallback (레벨 배율 미적용)
+                result.Gold = Mathf.RoundToInt(rawGold * timeBonus * goldMultiplier);
+                result.Exp  = Mathf.RoundToInt(rawExp  * timeBonus * expMultiplier);
+                Debug.LogWarning("[RewardSystem] RewardCalculator.Instance 가 null 입니다. 레벨 구간 배율이 적용되지 않습니다.");
+            }
+
             if (enableDebugLogs)
             {
-                Debug.Log($"💰 [RewardSystem] 기본 보상: 골드 {result.Gold}, EXP {result.Exp}");
+                Debug.Log($"💰 [RewardSystem] 기본 보상: 골드 {result.Gold}, EXP {result.Exp} " +
+                          $"(rawGold={rawGold}, rawExp={rawExp}, timeBonus={timeBonus:F2})");
             }
         }
         
@@ -139,8 +159,8 @@ namespace StageSystem
             
             if (rewardTable != null && rewardTable.Items.Count > 0)
             {
-                // 확률 기반 아이템 드롭
-                var droppedItems = rewardTable.RollDrops();
+                // isFirstClear 를 전달하여 최초 클리어 시 드롭률 1.5배 보너스가 실제로 적용되도록 합니다.
+                var droppedItems = rewardTable.RollDrops(isFirstClear);
                 result.Items = droppedItems;
                 
                 if (enableDebugLogs)
@@ -215,8 +235,25 @@ namespace StageSystem
                     foreach (var itemData in result.Items)
                     {
                         string rawId = itemData.ItemID;
-                        
-                        // ⭐ 1단계: 장비 아이템 확인
+
+                        // ══════════════════════════════════════════════════════════
+                        // ⭐ 0단계: GEN_EQUIP 키워드 — 동적 장비 생성 분기
+                        //
+                        //   DropTable 의 ItemID 가 "GEN_EQUIP_{minRank}_{maxRank}" 형식이면
+                        //   ItemGenerator 를 통해 플레이어 클래스·등급에 맞는 장비를 생성합니다.
+                        //
+                        //   예: "GEN_EQUIP_B_S"  → B(희귀)~S(전설) 범위에서 랜덤 생성
+                        //       "GEN_EQUIP_D_A"  → D(일반)~A(영웅) 범위에서 랜덤 생성
+                        //       "GEN_EQUIP"      → RewardResult 의 MinRarity ~ MaxRarity 사용
+                        // ══════════════════════════════════════════════════════════
+                        if (rawId.StartsWith("GEN_EQUIP", System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            GrantGeneratedEquipment(rawId, itemData.Amount, result);
+                            equipmentCount += itemData.Amount;
+                            continue;
+                        }
+
+                        // ⭐ 1단계: 장비 아이템 확인 (고정 ID 방식 — 기존 로직 유지)
                         string templateName = rawId;
                         var equipmentData = ItemTemplateResolver.Load(templateName);
                         
@@ -292,6 +329,101 @@ namespace StageSystem
             }
         }
         
+        // ─────────────────────────────────────────────────────────────
+        // GEN_EQUIP 동적 장비 생성 헬퍼
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// "GEN_EQUIP_{minRank}_{maxRank}" 형식의 키워드를 파싱하여
+        /// ItemGenerator 로 장비를 생성하고 플레이어 인벤토리에 지급합니다.
+        /// </summary>
+        /// <param name="keyword">GEN_EQUIP 키워드 문자열</param>
+        /// <param name="amount">지급 횟수 (DropItemData.Amount)</param>
+        /// <param name="result">결과 객체 (ItemInstanceIds 추가용)</param>
+        private void GrantGeneratedEquipment(string keyword, int amount, RewardResult result)
+        {
+            if (global::ItemGenerator.Instance == null)
+            {
+                Debug.LogWarning("[RewardSystem] ItemGenerator.Instance 가 null 입니다. GEN_EQUIP 처리를 건너뜁니다.");
+                return;
+            }
+
+            // 키워드에서 등급 범위 파싱 ("GEN_EQUIP_B_S" → min=B, max=S)
+            EquipmentRank minRank = result.MinRarity;
+            EquipmentRank maxRank = result.MaxRarity;
+            ParseGenEquipKeyword(keyword, ref minRank, ref maxRank);
+
+            // 현재 플레이어 타입 조회
+            PlayerType playerType = PlayerDataManager.Instance != null
+                ? PlayerDataManager.Instance.GetCurrentPlayerType()
+                : PlayerType.Warrior;
+
+            // 현재 스테이지 Config
+            StageConfig stageConfig = StageManager.Instance?.CurrentStageConfig;
+
+            var request = new global::EquipmentGenerationRequest
+            {
+                minRarity  = minRank,
+                maxRarity  = maxRank,
+                playerType = playerType,
+                stageConfig = stageConfig,
+            };
+
+            for (int i = 0; i < amount; i++)
+            {
+                global::GenerationResult genResult = global::ItemGenerator.Instance.Generate(request);
+
+                if (!genResult.isValid)
+                {
+                    Debug.LogWarning($"[RewardSystem] GEN_EQUIP 생성 실패 (#{i + 1}/{amount})");
+                    continue;
+                }
+
+                // 인벤토리에 추가
+                ItemInstanceID newItemId = PlayerDataManager.Instance.AddItemV2(genResult.templateId, 0, true);
+
+                if (!newItemId.IsEmpty)
+                {
+                    result.ItemInstanceIds.Add(newItemId);
+
+                    if (enableDebugLogs)
+                    {
+                        Debug.Log($"🎁 [RewardSystem] GEN_EQUIP 지급: {genResult.templateId} " +
+                                  $"| {genResult.rank.GetRankName()} | Soulbound: {genResult.isSoulbound}");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[RewardSystem] GEN_EQUIP AddItemV2 실패: {genResult.templateId}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// GEN_EQUIP 키워드에서 등급 범위를 파싱합니다.
+        ///
+        /// 포맷 예시:
+        ///   "GEN_EQUIP"       → minRank, maxRank 변경 없음 (RewardResult 값 그대로 사용)
+        ///   "GEN_EQUIP_B_S"   → minRank = B, maxRank = S
+        ///   "GEN_EQUIP_D"     → minRank = D (maxRank 변경 없음)
+        /// </summary>
+        private void ParseGenEquipKeyword(string keyword, ref EquipmentRank minRank, ref EquipmentRank maxRank)
+        {
+            // "GEN_EQUIP_B_S" → ["GEN", "EQUIP", "B", "S"]
+            string[] parts = keyword.ToUpper().Split('_');
+
+            // parts[0]="GEN", parts[1]="EQUIP", parts[2]=minRank(optional), parts[3]=maxRank(optional)
+            if (parts.Length >= 3 && System.Enum.TryParse(parts[2], out EquipmentRank parsedMin))
+                minRank = parsedMin;
+
+            if (parts.Length >= 4 && System.Enum.TryParse(parts[3], out EquipmentRank parsedMax))
+                maxRank = parsedMax;
+
+            // 최소가 최대보다 높으면 교정
+            if ((int)minRank > (int)maxRank)
+                maxRank = minRank;
+        }
+
         /// <summary>
         /// EquipmentData 로드 (EquipmentData ID 직접 사용)
         /// </summary>
@@ -329,10 +461,20 @@ namespace StageSystem
             public int Gold;
             public int Exp;
             public List<DropItemData> Items = new List<DropItemData>();
-            public List<ItemInstanceID> ItemInstanceIds = new List<ItemInstanceID>();  // ⭐ 생성된 장비 인스턴스 ID 목록
-            public List<MaterialStack> MaterialRewards = new List<MaterialStack>();    // ⭐ 지급된 재료 목록 (UI 표시용)
+            public List<ItemInstanceID> ItemInstanceIds = new List<ItemInstanceID>();
+            public List<MaterialStack> MaterialRewards = new List<MaterialStack>();
             public bool IsFirstClear;
             public float ClearTime;
+
+            // ── RewardCalculator 가 채워주는 드롭 파라미터 ──────────
+            /// <summary>장비 드롭 확률 배율 (레벨 구간 + 타입 보정 결과)</summary>
+            public float EquipmentChanceMultiplier = 1f;
+            /// <summary>재료 수량 배율</summary>
+            public float MaterialAmountMultiplier  = 1f;
+            /// <summary>드롭 가능 최소 장비 등급</summary>
+            public ItemSystem.EquipmentRank MinRarity = ItemSystem.EquipmentRank.D;
+            /// <summary>드롭 가능 최대 장비 등급</summary>
+            public ItemSystem.EquipmentRank MaxRarity = ItemSystem.EquipmentRank.A;
         }
     }
 }

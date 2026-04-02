@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec6643a649a822444a23199755fc255b, type: 3}
+  m_Name: DROP_ELITEORC_001
+  m_EditorClassIdentifier: 
+  dropGroupId: DROP_ELITEORC_001
+  dropPolicy: 2
+  pickCount: 1
+  description: "\uC5D8\uB9AC\uD2B8 \uC624\uD06C \uB4DC\uB86D \uD14C\uC774\uBE14"
+  dropEntries:
+  - itemId: GEN_EQUIP
+    rarity: 0
+    weight: 0
+    chance: 0.45
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 12
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: MAT_ARMOR_CRYSTAL
+    rarity: 0
+    weight: 0
+    chance: 0.6
+    minQuantity: 1
+    maxQuantity: 2
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: MAT_ARMOR_CORE
+    rarity: 0
+    weight: 0
+    chance: 0.2
+    minQuantity: 1
+    maxQuantity: 1
+    minStageLevel: 15
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  - itemId: ITEM_GOLD_COIN
+    rarity: 0
+    weight: 0
+    chance: 0.8
+    minQuantity: 1
+    maxQuantity: 3
+    minStageLevel: 1
+    maxStageLevel: 0
+    isGuaranteed: 0
+    conditions: []
+  totalWeight: 0
+  totalChance: 2.05

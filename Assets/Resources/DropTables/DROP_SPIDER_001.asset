@@ -15,97 +15,38 @@ MonoBehaviour:
   dropGroupId: DROP_SPIDER_001
   dropPolicy: 2
   pickCount: 1
-  description: "\uBE14\uB8E8\uC2AC\uB77C\uC784 1\uB808\uBCA8 \uBCF4\uC0C1\uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
+  description: "\uC2A4\uD30C\uC774\uB354 \uB4DC\uB86D \uD14C\uC774\uBE14 (\uB808\uBCA8
+    5~15)"
   dropEntries:
-  - itemId: MAT_WEAPON_FRAGMENT
+  - itemId: GEN_EQUIP
     rarity: 0
-    weight: 0.2
-    chance: 0.3
+    weight: 0
+    chance: 0.4
     minQuantity: 1
     maxQuantity: 1
-    minStageLevel: 1
+    minStageLevel: 5
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_RING_NONE_D
+  - itemId: MAT_ARMOR_FRAGMENT
     rarity: 0
-    weight: 0.2
-    chance: 0.3
+    weight: 0
+    chance: 0.25
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 2
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_NECKLACE_NONE_D
+  - itemId: ITEM_GOLD_COIN
     rarity: 0
-    weight: 0.2
-    chance: 0.3
+    weight: 0
+    chance: 0.6
     minQuantity: 1
     maxQuantity: 1
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: ITEM_BELT_ASSASIN_D
-    rarity: 0
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_BELT_ASSASIN_C
-    rarity: 1
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_BOOTS_ASSASIN_D
-    rarity: 0
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_BOOTS_ASSASIN_C
-    rarity: 1
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_GLOVES_ASSASIN_D
-    rarity: 0
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: ITEM_GLOVES_ASSASIN_C
-    rarity: 1
-    weight: 0.2
-    chance: 0.3
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  totalWeight: 1.8000002
-  totalChance: 2.6999998
+  totalWeight: 0
+  totalChance: 1

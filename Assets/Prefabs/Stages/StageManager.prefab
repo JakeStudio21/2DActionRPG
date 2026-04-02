@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 2527185910950675844}
   - component: {fileID: 5272159293615511465}
   - component: {fileID: 415416088450973132}
+  - component: {fileID: 2345596267660226705}
+  - component: {fileID: 3944923988444519436}
   m_Layer: 0
   m_Name: StageManager
   m_TagString: Untagged
@@ -46,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentStageId: 
-  stageConfig: {fileID: 11400000, guid: 6c8889d03706c7343b7f2396e56401fb, type: 2}
+  stageConfig: {fileID: 0}
   enableDebugLogs: 1
   autoStartStage: 1
 --- !u!114 &415416088450973132
@@ -66,3 +68,49 @@ MonoBehaviour:
   expMultiplier: 1
   baseGold: 100
   baseExp: 50
+--- !u!114 &2345596267660226705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9083205748952842261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b130bba6b5672a142acb2e3dfba8c032, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultRangeTable: {fileID: 11400000, guid: b21ccf7dec3bc1840b35a5bc81336808, type: 2}
+  killGoldMultiplier: 1
+  killExpMultiplier: 1
+--- !u!114 &3944923988444519436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9083205748952842261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b239b915be0f084ea6bc2d8cc0e6cb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rankWeights:
+  - rank: 0
+    weight: 40
+  - rank: 1
+    weight: 25
+  - rank: 2
+    weight: 15
+  - rank: 3
+    weight: 10
+  - rank: 4
+    weight: 6
+  - rank: 5
+    weight: 2
+  - rank: 6
+    weight: 1.5
+  - rank: 7
+    weight: 0.5
+  currentClassSlotRatio: 0.5
+  fallbackItemId: ITEM_ARMOR_ASSASIN_D

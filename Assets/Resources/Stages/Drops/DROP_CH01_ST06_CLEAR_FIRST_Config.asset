@@ -12,21 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caebb815a80113343a9fcac2e9ae1631, type: 3}
   m_Name: DROP_CH01_ST06_CLEAR_FIRST_Config
   m_EditorClassIdentifier: 
-  DropGroupID: DROP_CH01_ST05_CLEAR_FIRST
-  StageID: CH01_ST05
+  DropGroupID: DROP_CH01_ST06_CLEAR_FIRST
+  StageID: CH01_ST06
   GroupType: 0
-  Gold: 350
-  Exp: 100
+  Gold: 500
+  Exp: 175
   Items:
-  - ItemID: ITEM_ARMOR_WARRIOR_B
+  - ItemID: GEN_EQUIP_D_C
     Amount: 1
-    DropRate: 0.3
+    DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_ASSASIN_B
+  - ItemID: GEN_EQUIP_D_C
     Amount: 1
-    DropRate: 0.3
+    DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_B
+  - ItemID: RUNE_FRAG_RUNE_AREA_DEFENDER
     Amount: 1
-    DropRate: 0.3
+    DropRate: 1
     ItemPrefab: {fileID: 0}

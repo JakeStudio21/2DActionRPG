@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3720158753207567491
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3689717777185550826}
+  - component: {fileID: 4631259890476914050}
+  m_Layer: 0
+  m_Name: PlayerRuntimeStats
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3689717777185550826
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3720158753207567491}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 190.11487, y: 860.99066, z: 1.1288188}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4631259890476914050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3720158753207567491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fdec0663035e8142918ffde5eea5f62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  finalAttackDamage: 10
+  finalMoveSpeed: 4
+  finalMaxHealth: 200
+  finalAttackSpeed: 1
+  finalCriticalChance: 0
+  finalCriticalDamage: 1.5
+  finalDefense: 0
+  finalHealMultiplier: 1
+  finalSkillDamageBonus: 0
+  finalCooldownReduction: 0
+  finalDamageReduction: 0
+  finalHpRegen: 0
+  finalLifeSteal: 0
+  finalArmorPenetration: 0
+  finalDodgeChance: 0
+  finalBlockChance: 0
+  finalExpGainBonus: 0
+  finalStatusResist: 0
+  finalPierceDamageRetention: 0.5
+  showDebugLogs: 1

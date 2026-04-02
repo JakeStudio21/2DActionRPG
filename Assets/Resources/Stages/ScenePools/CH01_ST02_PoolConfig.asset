@@ -380,5 +380,149 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: Arrow_Piercing_Gale
+    prefab: {fileID: 4149642069968341746, guid: 97e6aa982e89be742ac8139f544f0edd, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: FX_PF_Fire_Projectile
+    prefab: {fileID: 1597112295188672555, guid: ab05267c9fb8dd44ab3503c7331320cf, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Projectile_Single_Nature
+    prefab: {fileID: 8417769874834129646, guid: ce791cb78057fbb4183c45aa8ec1f975, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_PlayerDot_Spark_White
+    prefab: {fileID: 8683933021285538514, guid: 9a4fd47bf3eebec45b5923331c592d50, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_Projectile_Normal_Nature
+    prefab: {fileID: 8417769874834129646, guid: e10cc2efc9bec3940abff51ce712fe9f, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: FX_Projectile_Multishot_Nature
+    prefab: {fileID: 8417769874834129646, guid: 4c245f30e2ecb114e8b35c9d7c72d3b5, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_MultiShot
+    prefab: {fileID: 4149642069968341746, guid: 0a84f1d8bd39b7144a2cfdb00bbede9e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_Focused_Strike
+    prefab: {fileID: 4149642069968341746, guid: 8dbc088b579da204990a31aa5fb11bd4, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_AOE_ArrowRain_Nature
+    prefab: {fileID: 1851157920771873509, guid: 77da7451b9bfb014db0328827255a147, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ArrowRain
+    prefab: {fileID: 4149642069968341746, guid: 117d6b0786fe28d45a44ff16cd88f302, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: WarriorSlashAreaEffect
+    prefab: {fileID: 3156866507962234106, guid: c37d9a12995e3d5458ca015d30db56df, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: MON_RABBIT_001
+    prefab: {fileID: 3235174918318939483, guid: e4765c3296266b34c9157f6b3fe30dc7, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: SimpleMob_GoblinMini
+    prefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_SpiderMini
+    prefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_LadyBugMini
+    prefab: {fileID: 329721555528023218, guid: 83bf43f6d67180340b5a2898b1ca434e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_BeetleMini
+    prefab: {fileID: 329721555528023218, guid: 2443fe66d1cc8f343b32d53b2ecfb8a1, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: FX_Hit_Explosion_Bomb
+    prefab: {fileID: 5033180708955247871, guid: b4aa5ee5c6da51a429ad16a67d781d7e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
+  - tag: FX_Hit_Explosion_Fire
+    prefab: {fileID: 4654283702912762952, guid: 029e94e6f8edd2c44a28494f72321f08, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ExplosiveArrow
+    prefab: {fileID: 4149642069968341746, guid: ac1f715d4734d594ca8817ecded3f68e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_DoubleShot
+    prefab: {fileID: 4149642069968341746, guid: 1a8f6d7fc25747a4b8b12e82e80866f7, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_GreenBullet
+    prefab: {fileID: 4149642069968341746, guid: 89d421f72cf263742a6150806d213c0b, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Fx_AOE_Poison_Purple
+    prefab: {fileID: 5634074603722038344, guid: 6ae6f607f84524445b600ef1ce175c92, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Fx_Hit_Impact_Fireball
+    prefab: {fileID: 7673062611469260749, guid: 218c08db2ce62444781b7f0eadf3fff9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SimpleMobExploder_Bomb
+    prefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

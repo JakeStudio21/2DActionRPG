@@ -28,6 +28,10 @@ MonoBehaviour:
   enemyPrefab: {fileID: 3235174918318939483, guid: 3ec4d020a30a0cc4ba964b0677e69e40, type: 3}
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 0
+  skillDataList: []
+  meleeAttackProbability: 100
+  skillUseProbability: 0
+  skillProbabilities: 
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000
@@ -36,6 +40,7 @@ MonoBehaviour:
   bossId: 
   baseGoldReward: 18
   baseExpReward: 45
-  dropGroupId: DROP_SCORPION_001
+  bossReward: {fileID: 0}
+  dropGroupId: DROP_SCORPION_BROWN_001
   dropRolls: 1
   patrolTuning: {fileID: 11400000, guid: 279a9d63ccc66c64a8a840bd0d957f90, type: 2}

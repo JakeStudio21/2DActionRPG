@@ -18,15 +18,11 @@ MonoBehaviour:
   Gold: 350
   Exp: 100
   Items:
-  - ItemID: ITEM_BOW_TR
+  - ItemID: GEN_EQUIP_D_D
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_ASSASIN_B
-    Amount: 1
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WIZARD_B
+  - ItemID: GEN_EQUIP_D_D
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}

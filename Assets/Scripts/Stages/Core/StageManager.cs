@@ -647,10 +647,6 @@ public class StageManager : MonoBehaviour
             // 성공 시 보상 처리 및 진행도 저장
             StageResultData resultData = new StageResultData(success, 0, 0); // 기본값
             
-            // 🎒 클리어/실패/포기 공통: 가방 아이템을 공유창고로 이관
-            // 어떤 종료 케이스든 그때까지 획득한 아이템은 유저 소유(창고 이동) 원칙
-            TransferItemsToAccount();
-
             if (success)
             {
                 // ⚡ Phase D-Revision: 재화 차감은 InitializeStage()에서 이미 완료
@@ -665,6 +661,10 @@ public class StageManager : MonoBehaviour
                 {
                     Debug.Log($"📦 [StageManager] StageResultData 생성: 골드 {resultData.goldReward}, EXP {resultData.expReward}, 아이템 {resultData.itemRewards.Count}개");
                 }
+                
+                // 🎒 보상 처리 완료 후 이관: 스테이지 중 드랍 아이템 + 클리어 보상 아이템 모두 포함
+                // (이전에는 이관이 보상 처리보다 먼저 호출되어 클리어 보상이 sharedInventory에 저장되지 않는 버그 존재)
+                TransferItemsToAccount();
                 
                 SaveStageProgress(clearTime);
                 
@@ -736,6 +736,9 @@ public class StageManager : MonoBehaviour
             }
             else
             {
+                // 🎒 실패/포기 시: 스테이지 중 획득한 아이템만 이관 (보상 없음)
+                TransferItemsToAccount();
+                
                 // FSMStageController에 패배 알림
                 if (FSMStageController.Instance != null)
                 {

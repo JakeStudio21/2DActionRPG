@@ -26,4 +26,3 @@ MonoBehaviour:
   SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
   - {fileID: 11400000, guid: 2b6655b0e3bf9dd41b76dca42100bf8f, type: 2}
-  - {fileID: 11400000, guid: 6fa3ca6cdd06fdd439bc157c47c6d56d, type: 2}

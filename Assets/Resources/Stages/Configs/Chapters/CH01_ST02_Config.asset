@@ -34,12 +34,14 @@ MonoBehaviour:
   Victory: 2
   StageBaseLevel: 2
   hasTimeLimit: 1
-  TimeLimitSec: 10
+  TimeLimitSec: 300
   FirstClearDropGroupId: DROP_CH01_ST02_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST02_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 2 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST01"
+  targetFarmingEntries: []
+  overrideRangeTable: {fileID: 0}
   WaveConfigs:
   - {fileID: 11400000, guid: b76f313119adcbe4b986d5289685d97c, type: 2}
   - {fileID: 11400000, guid: 25f0e74c7176dc5489062c31bbcd04b1, type: 2}
