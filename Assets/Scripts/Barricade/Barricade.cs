@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.AI; // NavMeshObstacle용
+using StageSystem;    // StageManager 접근용
 
 /// <summary>
 /// 프리셋 기반 바리케이드 시스템
@@ -15,6 +16,18 @@ public class Barricade : MonoBehaviour
     // ========================================
     [Header("==== 프리셋 선택 ====")]
     [SerializeField] private BarricadePreset preset;
+    
+    // ========================================
+    // 승리 조건 연동
+    // ========================================
+    [Header("==== 승리 조건 연동 ====")]
+    [Tooltip("true: 이 바리케이드가 파괴되면 StageManager에 알림 (ObjectiveComplete 판정 대상)\n" +
+             "false: 일반 장애물, 파괴해도 승리 조건에 영향 없음")]
+    [SerializeField] private bool isVictoryTarget = false;
+    
+    [Tooltip("isVictoryTarget=true일 때 표시할 미션 마커 비주얼 설정\n" +
+             "null이면 마커 UI를 표시하지 않음")]
+    [SerializeField] private ObjectiveMarkerConfig objectiveMarkerConfig;
     
     // ========================================
     // 런타임 상태
@@ -37,6 +50,8 @@ public class Barricade : MonoBehaviour
     private PickUpSpawner pickupSpawner;
     private BoxCollider2D boxCollider;
     private NavMeshObstacle navMeshObstacle; // ⭐ Phase 4: 동적 장애물
+    private MinimapMarker minimapMarker;
+    private ObjectiveMarkerUI objectiveMarkerUI;
     
     // ========================================
     // 초기화
@@ -47,6 +62,8 @@ public class Barricade : MonoBehaviour
         pickupSpawner = GetComponent<PickUpSpawner>();
         hpDisplay = GetComponentInChildren<BarricadeHPDisplay>(); // ⭐ HP 바 참조 초기화
         navMeshObstacle = GetComponent<NavMeshObstacle>(); // ⭐ Phase 4: NavMeshObstacle 참조
+        minimapMarker      = GetComponent<MinimapMarker>();
+        objectiveMarkerUI  = GetComponentInChildren<ObjectiveMarkerUI>(includeInactive: true);
         
         if (preset == null)
         {
@@ -57,6 +74,22 @@ public class Barricade : MonoBehaviour
         
         InitializeFromPreset();
         InitializeNavMeshObstacle(); // ⭐ Phase 4: NavMesh 장애물 초기화
+    }
+    
+    private void Start()
+    {
+        // isVictoryTarget 여부에 따라 MinimapMarker 활성 제어
+        // true  → 미니맵/레이더에 미션 목표로 표시 (OnEnable에서 자동 등록)
+        // false → 등록하지 않음 (일반 장애물은 맵에 표시하지 않음)
+        if (minimapMarker != null)
+            minimapMarker.enabled = isVictoryTarget;
+
+        // 미션 목표 오브젝트이고 Config가 연결되어 있으면 마커 UI 초기화
+        if (isVictoryTarget && objectiveMarkerUI != null && objectiveMarkerConfig != null)
+        {
+            objectiveMarkerUI.Initialize(objectiveMarkerConfig);
+            UpdateObjectiveMarkerProgress();
+        }
     }
     
     private void InitializeFromPreset()
@@ -226,6 +259,9 @@ public class Barricade : MonoBehaviour
         // HP 바 업데이트
         UpdateHPDisplay();
         
+        // 미션 마커 진행도 업데이트
+        UpdateObjectiveMarkerProgress();
+        
         // 파괴 체크
         if (currentHits >= preset.hitsToBreak)
         {
@@ -253,6 +289,9 @@ public class Barricade : MonoBehaviour
         PlayHitFeedback();
         UpdateVisualStage();
         UpdateHPDisplay();
+        
+        // 미션 마커 진행도 업데이트
+        UpdateObjectiveMarkerProgress();
         
         if (currentHP <= 0)
         {
@@ -646,6 +685,24 @@ public class Barricade : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// 미션 마커 UI 진행도 업데이트 (isVictoryTarget=true + objectiveMarkerUI 존재 시)
+    /// BreakMode에 따라 남은 비율(0~1)을 계산해 SetProgress()에 전달
+    /// </summary>
+    private void UpdateObjectiveMarkerProgress()
+    {
+        if (objectiveMarkerUI == null || !isVictoryTarget) return;
+        
+        float progress = preset.breakMode switch
+        {
+            BreakMode.Hits => 1f - ((float)currentHits / Mathf.Max(preset.hitsToBreak, 1)),
+            BreakMode.HP   => currentHP / Mathf.Max(preset.maxHP, 1f),
+            _              => 1f
+        };
+        
+        objectiveMarkerUI.SetProgress(progress);
+    }
+    
     // ========================================
     // 보상 드롭
     // ========================================
@@ -787,6 +844,18 @@ public class Barricade : MonoBehaviour
         
         // ⭐ 모든 피드백 완료 후 GameObject 비활성화 (2초 후)
         StartCoroutine(DestroyAfterDelay(2f));
+        
+        // 파괴 시 미니맵 마커 제거 (OnDisable에서 MinimapManager 자동 Unregister)
+        if (minimapMarker != null)
+            minimapMarker.enabled = false;
+        
+        // 미션 마커 완료 연출 (스케일 업 → 페이드 아웃)
+        if (objectiveMarkerUI != null)
+            objectiveMarkerUI.ShowComplete();
+        
+        // 승리 조건 대상이면 StageManager에 파괴 통지
+        if (isVictoryTarget)
+            StageManager.Instance?.NotifyBarricadeDestroyed(this);
     }
     
     private IEnumerator DestroyAfterDelay(float delay)
@@ -794,5 +863,11 @@ public class Barricade : MonoBehaviour
         yield return new WaitForSeconds(delay);
         gameObject.SetActive(false);
     }
+    
+    // ========================================
+    // 공개 속성 (StageManager 등 외부 참조용)
+    // ========================================
+    public bool IsVictoryTarget => isVictoryTarget;
+    public bool IsBroken => isBroken;
 }
 

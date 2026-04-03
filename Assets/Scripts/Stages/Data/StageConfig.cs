@@ -57,6 +57,11 @@ namespace StageSystem
         public int WaveCount;
         public VictoryCondition Victory;
         
+        [Tooltip("Victory = ObjectiveComplete일 때 세부 목표 종류\n" +
+                 "BarricadeDestroy: isVictoryTarget=true 바리케이드를 모두 파괴하면 승리\n" +
+                 "ProtectObject / ItemCollect: 향후 구현 예정")]
+        public ObjectiveType objectiveType = ObjectiveType.None;
+        
         [Header("⭐ Phase 3: 레벨 시스템")]
         [Tooltip("스테이지 기준 레벨 (몬스터 기본 레벨)\n" +
                  "MonsterSpawnData의 LevelOffset과 합산되어 최종 레벨 결정\n" +

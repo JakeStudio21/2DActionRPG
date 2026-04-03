@@ -202,7 +202,7 @@ namespace StageSystem
                         VictoryCondition.KillAll => $"목표: {timeText} 안에 모든 적 처치 ⏱️",
                         VictoryCondition.BossKill => $"목표: {timeText} 안에 보스 처치 ⏱️",
                         VictoryCondition.Survival => $"목표: {timeText} 생존",
-                        VictoryCondition.ObjectiveComplete => $"목표: {timeText} 안에 미션 완료 ⏱️",
+                        VictoryCondition.ObjectiveComplete => $"목표: {timeText} 안에 {GetObjectiveLabel(currentStage.objectiveType)} ⏱️",
                         _ => "목표: 스테이지 클리어"
                     };
                 }
@@ -214,7 +214,7 @@ namespace StageSystem
                         VictoryCondition.KillAll => "목표: 모든 적 처치",
                         VictoryCondition.BossKill => "목표: 보스 처치",
                         VictoryCondition.Survival => "목표: 제한시간 생존",
-                        VictoryCondition.ObjectiveComplete => "목표: 특수 미션 완료",
+                        VictoryCondition.ObjectiveComplete => $"목표: {GetObjectiveLabel(currentStage.objectiveType)}",
                         _ => "목표: 스테이지 클리어"
                     };
                 }
@@ -222,6 +222,20 @@ namespace StageSystem
                 if (victoryConditionText != null)
                     victoryConditionText.text = conditionText;
             }
+        }
+        
+        /// <summary>
+        /// ObjectiveType → UI 표시 텍스트 변환
+        /// </summary>
+        private string GetObjectiveLabel(ObjectiveType type)
+        {
+            return type switch
+            {
+                ObjectiveType.BarricadeDestroy => "바리케이드 파괴",
+                ObjectiveType.ProtectObject    => "오브젝트 방어",
+                ObjectiveType.ItemCollect      => "아이템 수집",
+                _                              => "특수 미션 완료"
+            };
         }
         
         /// <summary>

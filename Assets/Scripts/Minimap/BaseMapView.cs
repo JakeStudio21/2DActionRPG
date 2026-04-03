@@ -43,6 +43,7 @@ public abstract class BaseMapView : MonoBehaviour
     [SerializeField] private GameObject enemyMarkerPrefab;
     [SerializeField] private GameObject questMarkerPrefab;
     [SerializeField] private GameObject exitMarkerPrefab;
+    [SerializeField] private GameObject objectiveMarkerPrefab;
 
     // ── Inspector — Edge Clamping ────────────────────────────────────
     [Header("Edge Clamping")]
@@ -186,7 +187,7 @@ public abstract class BaseMapView : MonoBehaviour
                 return;
             }
 
-            // Boss / Quest / Exit: 테두리에 고정하고 방향 표시 (Edge Clamping 유지)
+            // Boss / Quest / Exit / Objective: 테두리에 고정하고 방향 표시 (Edge Clamping 유지)
             float scale = Mathf.Min(
                 halfW / Mathf.Max(Mathf.Abs(mapPos.x), 0.001f),
                 halfH / Mathf.Max(Mathf.Abs(mapPos.y), 0.001f));
@@ -317,11 +318,12 @@ public abstract class BaseMapView : MonoBehaviour
 
     private GameObject GetPrefabForType(MinimapMarkerType type) => type switch
     {
-        MinimapMarkerType.Boss  => bossMarkerPrefab,
-        MinimapMarkerType.Enemy => enemyMarkerPrefab,
-        MinimapMarkerType.Quest => questMarkerPrefab,
-        MinimapMarkerType.Exit  => exitMarkerPrefab,
-        _                       => null
+        MinimapMarkerType.Boss      => bossMarkerPrefab,
+        MinimapMarkerType.Enemy     => enemyMarkerPrefab,
+        MinimapMarkerType.Quest     => questMarkerPrefab,
+        MinimapMarkerType.Exit      => exitMarkerPrefab,
+        MinimapMarkerType.Objective => objectiveMarkerPrefab,
+        _                           => null
     };
 
 #if UNITY_EDITOR

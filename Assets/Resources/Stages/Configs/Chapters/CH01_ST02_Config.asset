@@ -31,7 +31,8 @@ MonoBehaviour:
   requiredStamina: 5
   categoryId: 
   WaveCount: 3
-  Victory: 2
+  Victory: 3
+  objectiveType: 1
   StageBaseLevel: 2
   hasTimeLimit: 1
   TimeLimitSec: 300

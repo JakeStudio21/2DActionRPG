@@ -10,7 +10,8 @@ public enum MinimapMarkerType
     Boss,
     Enemy,
     Quest,
-    Exit
+    Exit,
+    Objective // isVictoryTarget=true 바리케이드 등 미션 목표 오브젝트
 }
 
 /// <summary>

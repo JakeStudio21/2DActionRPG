@@ -348,7 +348,16 @@ public class StageManager : MonoBehaviour
         {
             if (currentWaveIndex >= stageConfig.WaveConfigs.Count)
             {
-                // 모든 웨이브 완료
+                // ObjectiveComplete는 NotifyBarricadeDestroyed() 등 외부 통지에서만 승리 처리
+                // 몬스터를 모두 처치해도 목표 오브젝트가 파괴되기 전까지 승리하지 않음
+                if (stageConfig.Victory == VictoryCondition.ObjectiveComplete)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"🏚️ [StageManager] 모든 몬스터 처치 완료 - 목표 오브젝트 파괴 대기 중");
+                    return;
+                }
+                
+                // 그 외 조건(KillAll 등)은 기존대로 즉시 승리
                 CompleteStage(true);
                 return;
             }
@@ -561,7 +570,8 @@ public class StageManager : MonoBehaviour
                     return elapsedTime >= stageConfig.TimeLimitSec;
                     
                 case VictoryCondition.ObjectiveComplete:
-                    // 특수 목표 달성 확인 (추후 구현)
+                    // NotifyBarricadeDestroyed() 등 외부 통지로만 트리거됨
+                    // 이 함수에서는 판정하지 않음
                     return false;
                     
                 default:
@@ -1492,6 +1502,37 @@ public class StageManager : MonoBehaviour
             
             // 보스 스폰 UI 이벤트
             OnBossSpawned?.Invoke(bossObject);
+        }
+        
+        /// <summary>
+        /// isVictoryTarget=true 바리케이드가 파괴될 때 Barricade.cs에서 호출
+        /// Victory=ObjectiveComplete, objectiveType=BarricadeDestroy 스테이지에서만 유효
+        /// 씬에 남은 isVictoryTarget=true 바리케이드가 없으면 승리 처리
+        /// </summary>
+        public void NotifyBarricadeDestroyed(Barricade destroyedBarricade)
+        {
+            if (stageConfig == null || stageConfig.Victory != VictoryCondition.ObjectiveComplete) return;
+            if (!isStageActive) return;
+            
+            if (enableDebugLogs)
+                Debug.Log($"🏚️ [StageManager] 목표 바리케이드 파괴: {destroyedBarricade.name}");
+            
+            // 씬에 남은 isVictoryTarget=true 바리케이드 중 아직 파괴되지 않은 것 탐색
+            var allBarricades = Object.FindObjectsOfType<Barricade>();
+            foreach (var barricade in allBarricades)
+            {
+                if (barricade.IsVictoryTarget && !barricade.IsBroken)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"🏚️ [StageManager] 아직 남은 목표 바리케이드: {barricade.name}");
+                    return; // 아직 남아 있으면 승리 보류
+                }
+            }
+            
+            if (enableDebugLogs)
+                Debug.Log($"🏆 [StageManager] 모든 목표 바리케이드 파괴 완료! 승리 처리");
+            
+            CompleteStage(true);
         }
 
         #region ✅ 🎵 BGM 시스템 연동 (Phase 1.3 추가)

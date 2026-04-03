@@ -547,7 +547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1e8c8d3c616aac4c93c553c8b4330d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 4d7d4e47b3235f14d9f5e17466ebf79f, type: 2}
+  skillData: {fileID: 0}
   showDebugLogs: 1
 --- !u!114 &1342558069000973292
 MonoBehaviour:
@@ -561,7 +561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23a5371c80c519a419a71ffb1fdf1803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 9ea2cbcb25f6dbe47acafcf02ca6559a, type: 2}
+  skillData: {fileID: 0}
   showDebugLogs: 1
 --- !u!114 &5734504649737104247
 MonoBehaviour:
@@ -710,7 +710,7 @@ MonoBehaviour:
   moveThreshold: 0.01
   showDebugGizmo: 1
   showOrderInInspector: 0
-  enableDebugLogs: 1
+  enableDebugLogs: 0
 --- !u!114 &7154712043368475352
 MonoBehaviour:
   m_ObjectHideFlags: 0

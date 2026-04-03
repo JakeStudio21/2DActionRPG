@@ -15,12 +15,15 @@ MonoBehaviour:
   WaveID: CH01_ST02_WAVE_02
   StageID: CH01_ST02
   WaveIndex: 1
-  StartCondition: 0
+  StartCondition: 2
   WaveDelaySec: 2
-  TriggerId: 0
+  TriggerId: 5
   EnablesBossGate: 0
   BossGateTag: BossGate
   TriggerToActivate: 1
+  UseSimpleMobWave: 0
+  SimpleMobWaveData: {fileID: 0}
+  SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
   - {fileID: 11400000, guid: 30f8f5223b094b04b875c378802c122a, type: 2}
   - {fileID: 11400000, guid: 19162c471069b04488c524e0792d4c00, type: 2}

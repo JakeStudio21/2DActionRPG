@@ -20,10 +20,22 @@ namespace StageSystem
     [System.Serializable]
     public enum VictoryCondition
     {
-        KillAll,        // 모든 적 처치
-        BossKill,       // 보스 처치 (Boss Clear)
-        Survival,       // 제한시간 생존
-        ObjectiveComplete // 특정 목표 완수
+        KillAll,          // 모든 적 처치
+        BossKill,         // 보스 처치 (Boss Clear)
+        Survival,         // 제한시간 생존
+        ObjectiveComplete // 특정 목표 완수 (objectiveType 필드로 세부 종류 지정)
+    }
+    
+    /// <summary>
+    /// Victory = ObjectiveComplete일 때 세부 목표 종류
+    /// </summary>
+    [System.Serializable]
+    public enum ObjectiveType
+    {
+        None,             // 미설정 (ObjectiveComplete 외 조건에서 사용)
+        BarricadeDestroy, // isVictoryTarget=true 바리케이드를 모두 파괴
+        ProtectObject,    // 특정 오브젝트가 파괴되지 않도록 보호 (향후 구현)
+        ItemCollect       // 지정 수량의 아이템 수집 (향후 구현)
     }
     
     [System.Serializable]

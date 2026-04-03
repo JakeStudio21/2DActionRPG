@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4496539021125338592}
   - component: {fileID: 6833912404888999494}
   - component: {fileID: 7978062314037176724}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 234131187670560976}
   - component: {fileID: 7965634965207210608}
   - component: {fileID: 8264485497608605811}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BarricadeHPDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -164,7 +164,7 @@ GameObject:
   - component: {fileID: 9151606804454984189}
   - component: {fileID: 3601165097373094425}
   - component: {fileID: 8199987332092805997}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HPBarRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 3752184129238360522}
   - component: {fileID: 6987805998914689201}
   - component: {fileID: 6048052237714118385}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HitsText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
