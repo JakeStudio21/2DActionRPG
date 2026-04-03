@@ -15,9 +15,9 @@ MonoBehaviour:
   WaveID: CH01_ST02_WAVE_01
   StageID: CH01_ST02
   WaveIndex: 1
-  StartCondition: 2
+  StartCondition: 1
   WaveDelaySec: 1
-  TriggerId: 4
+  TriggerId: 2
   EnablesBossGate: 0
   BossGateTag: BossGate
   TriggerToActivate: 1

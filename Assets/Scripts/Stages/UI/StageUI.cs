@@ -98,6 +98,7 @@ namespace StageSystem
                 StageManager.Instance.OnStageStarted += OnStageStarted;
                 StageManager.Instance.OnStageCompleted += OnStageCompleted;
                 StageManager.Instance.OnWaveChanged += OnWaveChanged;
+                StageManager.Instance.OnDisplayWaveIndexChanged += OnDisplayWaveIndexChanged;
                 
                 // ⭐ 보스 스폰 이벤트 구독 추가 (누락되었던 부분)
                 StageManager.Instance.OnBossSpawned += OnBossSpawned;
@@ -120,6 +121,7 @@ namespace StageSystem
                 StageManager.Instance.OnStageStarted -= OnStageStarted;
                 StageManager.Instance.OnStageCompleted -= OnStageCompleted;
                 StageManager.Instance.OnWaveChanged -= OnWaveChanged;
+                StageManager.Instance.OnDisplayWaveIndexChanged -= OnDisplayWaveIndexChanged;
                 
                 // ⭐ 보스 스폰 이벤트 구독 해제 추가
                 StageManager.Instance.OnBossSpawned -= OnBossSpawned;
@@ -296,6 +298,19 @@ namespace StageSystem
         {
             if (enableDebugLogs)
                 Debug.Log($"📱 [StageUI] 웨이브 변경: {waveConfig.WaveID}");
+        }
+        
+        /// <summary>
+        /// UI용 웨이브 진행 이벤트 처리 (실제 스폰 시점에만 발생)
+        /// Wave 카운터 UI가 있으면 여기서 업데이트
+        /// </summary>
+        private void OnDisplayWaveIndexChanged(int current, int total)
+        {
+            if (enableDebugLogs)
+                Debug.Log($"📱 [StageUI] 웨이브 표시 업데이트: {current} / {total}");
+            
+            // TODO: Wave 카운터 TextMeshPro가 있으면 여기서 업데이트
+            // 예: waveCounterText.text = $"Wave {current} / {total}";
         }
         
         /// <summary>

@@ -38,10 +38,30 @@ public class StageManager : MonoBehaviour
         private int currentWaveIndex = 0;
         private float stageStartTime;
         
+        // AutoAfterDelay 병렬 웨이브 관리
+        [Header("웨이브 병렬 설정")]
+        [Tooltip("AutoAfterDelay 웨이브가 스폰되기 전 허용하는 최대 생존 적 수\n" +
+                 "초과 시 적 수가 줄어들 때까지 스폰 대기")]
+        [SerializeField] private int maxEnemyLimit = 50;
+        
+        private HashSet<int> scheduledAutoDelayWaveIndices = new HashSet<int>();
+        private List<Coroutine> pendingAutoDelayCoroutines = new List<Coroutine>();
+        
+        // 병렬 웨이브가 완료됐으나 순차 웨이브가 아직 진행 중이어서 StartNextWave를 보류 중
+        private bool pendingNextWaveStart = false;
+        
+        // UI용 표시 웨이브 인덱스 (내부 currentWaveIndex와 분리)
+        private int displayWaveIndex = 0;
+        
         // 이벤트
         public System.Action<StageConfig> OnStageStarted;
         public System.Action<StageConfig, bool> OnStageCompleted; // success
         public System.Action<WaveConfig> OnWaveChanged;
+        
+        /// <summary>
+        /// UI용 웨이브 진행 이벤트 (currentIndex: 현재 스폰된 웨이브, total: 전체 웨이브 수)
+        /// </summary>
+        public System.Action<int, int> OnDisplayWaveIndexChanged;
         
         // UI 업데이트 이벤트 추가
         public System.Action<GameObject> OnBossSpawned; // 보스 스폰 시
@@ -193,6 +213,10 @@ public class StageManager : MonoBehaviour
             currentWaveIndex = 0;
             totalEnemyKillCount = 0;
             isBossKilled = false; // ✅ 보스 처치 플래그 초기화
+            displayWaveIndex = 0;
+            scheduledAutoDelayWaveIndices.Clear();
+            pendingAutoDelayCoroutines.Clear();
+            pendingNextWaveStart = false;
             
             // ⚡ Phase D-Revision: 입장 시점에 즉시 재화 차감 (로비 검증 통과 전제)
             ConsumeStageEntryCost();
@@ -375,8 +399,119 @@ public class StageManager : MonoBehaviour
             // ✅ 🎵 전투/보스 BGM 전환
             HandleWaveBGM(currentWave, isWaveStart: true);
             
+            // UI 표시 인덱스 업데이트
+            displayWaveIndex++;
+            OnDisplayWaveIndexChanged?.Invoke(displayWaveIndex, stageConfig.WaveConfigs.Count);
             OnWaveChanged?.Invoke(currentWave);
+            
             waveController.ExecuteWave(currentWave);
+            
+            // 다음 웨이브가 AutoAfterDelay이면 지금 바로 타이머 시작 (현재 웨이브 시작과 동시에)
+            int nextIndex = currentWaveIndex + 1;
+            if (nextIndex < stageConfig.WaveConfigs.Count)
+            {
+                var nextWave = stageConfig.WaveConfigs[nextIndex];
+                if (nextWave.StartCondition == WaveStartCondition.AutoAfterDelay)
+                {
+                    scheduledAutoDelayWaveIndices.Add(nextIndex);
+                    var coroutine = StartCoroutine(AutoDelayWaveCoroutine(nextIndex, nextWave));
+                    pendingAutoDelayCoroutines.Add(coroutine);
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"⏱️ [StageManager] AutoAfterDelay 예약: Wave[{nextIndex}] {nextWave.WaveID} ({nextWave.WaveDelaySec}초 후)");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// AutoAfterDelay 웨이브 독립 타이머 코루틴
+        /// 이전 웨이브가 살아있어도 딜레이 후 병렬 스폰 시작
+        /// </summary>
+        private IEnumerator AutoDelayWaveCoroutine(int waveIndex, WaveConfig wave)
+        {
+            // 지정 시간 대기
+            if (wave.WaveDelaySec > 0)
+                yield return new WaitForSeconds(wave.WaveDelaySec);
+            
+            if (!isStageActive) yield break;
+            
+            // MaxEnemyLimit: 적이 너무 많으면 줄어들 때까지 대기
+            while (waveController.TotalActiveEnemies >= maxEnemyLimit)
+            {
+                if (!isStageActive) yield break;
+                if (enableDebugLogs)
+                    Debug.Log($"⏸️ [StageManager] AutoDelay Wave[{waveIndex}] 대기 중: 현재 적 {waveController.TotalActiveEnemies} / 한도 {maxEnemyLimit}");
+                yield return new WaitForSeconds(1f);
+            }
+            
+            if (!isStageActive) yield break;
+            
+            // B안: 이 웨이브 적이 실제로 스폰되는 시점에 다음 AutoAfterDelay 타이머 시작
+            int nextIndex = waveIndex + 1;
+            if (nextIndex < stageConfig.WaveConfigs.Count)
+            {
+                var nextWave = stageConfig.WaveConfigs[nextIndex];
+                if (nextWave.StartCondition == WaveStartCondition.AutoAfterDelay)
+                {
+                    scheduledAutoDelayWaveIndices.Add(nextIndex);
+                    var coroutine = StartCoroutine(AutoDelayWaveCoroutine(nextIndex, nextWave));
+                    pendingAutoDelayCoroutines.Add(coroutine);
+                    
+                    if (enableDebugLogs)
+                        Debug.Log($"⏱️ [StageManager] AutoAfterDelay 체인 예약: Wave[{nextIndex}] {nextWave.WaveID} ({nextWave.WaveDelaySec}초 후)");
+                }
+            }
+            
+            // UI 표시 인덱스 업데이트 (실제 스폰 시점)
+            displayWaveIndex++;
+            OnDisplayWaveIndexChanged?.Invoke(displayWaveIndex, stageConfig.WaveConfigs.Count);
+            OnWaveChanged?.Invoke(wave);
+            
+            if (enableDebugLogs)
+                Debug.Log($"⚡ [StageManager] AutoAfterDelay 병렬 스폰 시작: Wave[{waveIndex}] {wave.WaveID}");
+            
+            // 병렬 스폰 실행 (isWaveActive 체크 없이)
+            waveController.StartParallelWave(wave, (completedWave) => OnParallelWaveCompleted(waveIndex, completedWave));
+        }
+        
+        /// <summary>
+        /// 병렬 웨이브 완료 콜백
+        /// </summary>
+        private void OnParallelWaveCompleted(int waveIndex, WaveConfig completedWave)
+        {
+            scheduledAutoDelayWaveIndices.Remove(waveIndex);
+            pendingAutoDelayCoroutines.RemoveAll(c => c == null);
+            
+            if (!isStageActive) return;
+            
+            if (enableDebugLogs)
+                Debug.Log($"✅ [StageManager] 병렬 웨이브 완료: Wave[{waveIndex}] {completedWave.WaveID}");
+            
+            // currentWaveIndex를 이 웨이브 다음으로 최소 보장
+            if (currentWaveIndex < waveIndex + 1)
+                currentWaveIndex = waveIndex + 1;
+            
+            // 다음 순차 웨이브도 auto-scheduled이면 그 완료 콜백에게 위임
+            if (currentWaveIndex < stageConfig.WaveConfigs.Count &&
+                scheduledAutoDelayWaveIndices.Contains(currentWaveIndex))
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[StageManager] Wave[{currentWaveIndex}]도 AutoAfterDelay 예약됨 - 대기");
+                return;
+            }
+            
+            // 순차 웨이브(ExecuteWave)가 아직 진행 중이면 isWaveActive 가드에 막힘
+            // → 순차 웨이브 완료 시 OnWaveCompleted가 pendingNextWaveStart를 확인해서 실행
+            if (waveController.IsWaveActive)
+            {
+                pendingNextWaveStart = true;
+                if (enableDebugLogs)
+                    Debug.Log($"[StageManager] 순차 웨이브 진행 중 - 다음 웨이브(Wave[{currentWaveIndex}]) 대기 예약");
+                return;
+            }
+            
+            // 순차 웨이브 완료 상태 → 즉시 다음 웨이브 시작
+            StartNextWave();
         }
         
         /// <summary>
@@ -395,7 +530,11 @@ public class StageManager : MonoBehaviour
             // ✅ 🎵 전투/보스 BGM 종료
             HandleWaveBGM(completedWave, isWaveStart: false);
             
-            currentWaveIndex++;
+            // currentWaveIndex 안전 증가 (병렬 완료로 이미 앞서있을 수 있음)
+            int completedIndex = stageConfig.WaveConfigs.IndexOf(completedWave);
+            int newNextIndex = completedIndex >= 0 ? completedIndex + 1 : currentWaveIndex + 1;
+            if (currentWaveIndex < newNextIndex)
+                currentWaveIndex = newNextIndex;
 
             // ✅ Boss Gate 활성화 체크
             if (completedWave.EnablesBossGate)
@@ -421,6 +560,34 @@ public class StageManager : MonoBehaviour
             if (currentWaveIndex < stageConfig.WaveConfigs.Count)
             {
                 CheckForBossInNextWave();
+            }
+            
+            // 다음 순차 웨이브가 AutoAfterDelay로 이미 예약/진행 중이면 여기서 체인 중단
+            // → AutoDelayWaveCoroutine 또는 OnParallelWaveCompleted가 다음 웨이브를 처리함
+            if (newNextIndex < stageConfig.WaveConfigs.Count &&
+                scheduledAutoDelayWaveIndices.Contains(newNextIndex))
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"[StageManager] Wave[{newNextIndex}] AutoAfterDelay 예약됨 - 완료 대기");
+                return;
+            }
+            
+            // 병렬 완료로 currentWaveIndex가 이미 newNextIndex를 넘어섰을 때
+            if (currentWaveIndex > newNextIndex)
+            {
+                // 병렬 웨이브가 isWaveActive에 막혀 다음 웨이브 시작을 보류해뒀다면 지금 실행
+                if (pendingNextWaveStart)
+                {
+                    pendingNextWaveStart = false;
+                    if (enableDebugLogs)
+                        Debug.Log($"[StageManager] 순차 완료 → 보류 중이던 Wave[{currentWaveIndex}] 시작");
+                    StartNextWave();
+                }
+                else if (enableDebugLogs)
+                {
+                    Debug.Log($"[StageManager] 순차 완료({newNextIndex}) 무시: 인덱스가 이미 {currentWaveIndex}");
+                }
+                return;
             }
             
             // ✅ 승리 조건 체크 (Victory 타입별로 처리)
@@ -634,10 +801,17 @@ public class StageManager : MonoBehaviour
             
             isStageActive = false;
             
+            // AutoAfterDelay 대기 코루틴 전부 취소
+            foreach (var c in pendingAutoDelayCoroutines)
+                if (c != null) StopCoroutine(c);
+            pendingAutoDelayCoroutines.Clear();
+            scheduledAutoDelayWaveIndices.Clear();
+            pendingNextWaveStart = false;
+            
             // ✅ 🎵 스테이지 완료 이펙트 발행
             EmitStageCompleteCues(success);
             
-            // 진행 중인 웨이브 정지
+            // 진행 중인 웨이브 정지 (병렬 포함)
             if (waveController != null)
             {
                 waveController.StopCurrentWave();
@@ -1003,6 +1177,11 @@ public class StageManager : MonoBehaviour
         public bool IsStageActive => isStageActive;
         public StageConfig CurrentStage => stageConfig;
         public int CurrentWaveIndex => currentWaveIndex;
+        
+        /// <summary>
+        /// UI 표시용 웨이브 인덱스 (실제 스폰 시점에만 증가, 내부 인덱스와 분리)
+        /// </summary>
+        public int DisplayWaveIndex => displayWaveIndex;
         public float StageElapsedTime => isStageActive ? Time.time - stageStartTime : 0f;
         public WaveController WaveController => waveController;
         

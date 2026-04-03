@@ -34,6 +34,9 @@ public class WaveController : MonoBehaviour
         private Dictionary<SpawnGroup, List<GameObject>> groupEnemies = new Dictionary<SpawnGroup, List<GameObject>>();
         private bool isWaveActive = false;
         
+        // 병렬 웨이브 추적 (AutoAfterDelay 독립 스폰용)
+        private Dictionary<WaveConfig, List<GameObject>> parallelWaveEnemies = new Dictionary<WaveConfig, List<GameObject>>();
+        
         // 외부 시스템 참조
         private SpawnPointManager spawnPointManager;
         
@@ -82,7 +85,7 @@ public class WaveController : MonoBehaviour
                     
                 case WaveStartCondition.OnClearPrev:
                     // 이전 웨이브 완료 대기 로직 (StageManager에서 처리)
-                    StartCoroutine(ExecuteWaveWithDelay(0));
+                    StartCoroutine(ExecuteWaveWithDelay(waveConfig.WaveDelaySec));
                     break;
                     
                 case WaveStartCondition.OnTrigger:
@@ -105,6 +108,137 @@ public class WaveController : MonoBehaviour
                     
                 StartCoroutine(ExecuteWaveWithDelay(0));
             }
+        }
+        
+        /// <summary>
+        /// AutoAfterDelay용 병렬 웨이브 시작 (isWaveActive 체크 없이 독립 스폰)
+        /// StageManager의 AutoDelayWaveCoroutine에서 호출됨
+        /// </summary>
+        public void StartParallelWave(WaveConfig wave, System.Action<WaveConfig> onAllCleared)
+        {
+            StartCoroutine(SpawnWaveParallelCoroutine(wave, onAllCleared));
+        }
+        
+        /// <summary>
+        /// 병렬 웨이브 스폰 코루틴
+        /// 기존 순차 웨이브와 독립적으로 적을 스폰하고 완료 시 콜백 호출
+        /// </summary>
+        private IEnumerator SpawnWaveParallelCoroutine(WaveConfig wave, System.Action<WaveConfig> onAllCleared)
+        {
+            var parallelEnemies = new List<GameObject>();
+            parallelWaveEnemies[wave] = parallelEnemies;
+            
+            if (enableDebugLogs)
+                Debug.Log($"⚡ [WaveController] 병렬 웨이브 스폰 시작: {wave.WaveID}");
+            
+            if (wave.UseSimpleMobWave)
+            {
+                // SimpleMob 경로: WaveSpawner를 직접 사용
+                WaveSpawner waveSpawner = FindObjectOfType<WaveSpawner>();
+                if (waveSpawner == null)
+                {
+                    Debug.LogWarning($"[WaveController] SpawnWaveParallel: WaveSpawner 없음 - {wave.WaveID} 스킵");
+                    parallelWaveEnemies.Remove(wave);
+                    onAllCleared?.Invoke(wave);
+                    yield break;
+                }
+                
+                if (wave.SimpleMobSpawnCenter != null)
+                    waveSpawner.SetSpawnCenter(wave.SimpleMobSpawnCenter);
+                
+                bool simpleMobDone = false;
+                waveSpawner.OnWaveComplete += (_) =>
+                {
+                    waveSpawner.OnWaveComplete -= null; // 임시 - 아래서 재구독 해제
+                    simpleMobDone = true;
+                };
+                waveSpawner.StartWaveExternal(wave.SimpleMobWaveData);
+                
+                yield return new WaitUntil(() => simpleMobDone);
+            }
+            else
+            {
+                if (wave.SpawnGroups.Count == 0)
+                {
+                    Debug.LogWarning($"[WaveController] SpawnWaveParallel: SpawnGroups 없음 - {wave.WaveID} 스킵");
+                    parallelWaveEnemies.Remove(wave);
+                    onAllCleared?.Invoke(wave);
+                    yield break;
+                }
+                
+                foreach (var group in wave.SpawnGroups)
+                {
+                    foreach (var monsterData in group.Monsters)
+                    {
+                        SpawnPoint targetSpawnPoint = FindSpawnPointByGroupID(group.SpawnGroupID);
+                        if (targetSpawnPoint == null)
+                        {
+                            Debug.LogWarning($"[WaveController] SpawnGroup '{group.SpawnGroupID}' SpawnPoint 없음 (병렬)");
+                            continue;
+                        }
+                        
+                        for (int i = 0; i < monsterData.Count; i++)
+                        {
+                            Vector3 spawnPos = StageManager.Instance != null
+                                ? targetSpawnPoint.GetDistributedSpawnPosition(i, monsterData.Count)
+                                : targetSpawnPoint.GetSpawnPosition();
+                            
+                            GameObject enemy = StageManager.Instance != null
+                                ? StageManager.Instance.SpawnMonster(monsterData, spawnPos)
+                                : SpawnMonster(monsterData.MonsterID, spawnPos);
+                            
+                            if (enemy != null)
+                            {
+                                BaseEnemy enemyComp = enemy.GetComponent<BaseEnemy>();
+                                if (enemyComp != null)
+                                {
+                                    float patrolRadius = targetSpawnPoint.PatrolRadius;
+                                    if (patrolRadius <= 0.1f && enemyComp.EnemyData != null)
+                                        patrolRadius = enemyComp.EnemyData.PatrolRadius;
+                                    enemyComp.SetHomePosition(spawnPos, patrolRadius);
+                                }
+                                
+                                parallelEnemies.Add(enemy);
+                                
+                                // 사망 이벤트: 병렬 풀에서만 제거
+                                var capturedEnemy = enemy;
+                                var enemyHealth = enemy.GetComponent<EnemyHealth>();
+                                if (enemyHealth != null)
+                                    enemyHealth.OnEnemyDeath += () => RemoveFromParallelWave(wave, capturedEnemy);
+                                
+                                // 보스 감지
+                                if (enemyHealth != null && enemyHealth.IsBoss())
+                                    StageManager.Instance?.NotifyBossSpawned(enemy);
+                            }
+                            
+                            yield return new WaitForSeconds(groupSpawnDelay);
+                        }
+                    }
+                }
+            }
+            
+            if (enableDebugLogs)
+                Debug.Log($"⏳ [WaveController] 병렬 웨이브 완료 대기: {parallelEnemies.Count}마리 ({wave.WaveID})");
+            
+            // 모든 병렬 적이 소멸할 때까지 대기
+            while (parallelEnemies.Count > 0)
+                yield return new WaitForSeconds(0.5f);
+            
+            parallelWaveEnemies.Remove(wave);
+            
+            if (enableDebugLogs)
+                Debug.Log($"🏆 [WaveController] 병렬 웨이브 완료: {wave.WaveID}");
+            
+            onAllCleared?.Invoke(wave);
+        }
+        
+        /// <summary>
+        /// 병렬 웨이브 적 사망 처리
+        /// </summary>
+        private void RemoveFromParallelWave(WaveConfig wave, GameObject enemy)
+        {
+            if (parallelWaveEnemies.TryGetValue(wave, out var list))
+                list.Remove(enemy);
         }
         
         /// <summary>
@@ -617,39 +751,47 @@ public class WaveController : MonoBehaviour
         }
         
         /// <summary>
-        /// 현재 웨이브 강제 정지
+        /// 현재 웨이브 강제 정지 (병렬 웨이브 포함)
         /// </summary>
         public void StopCurrentWave()
         {
-            if (isWaveActive)
+            StopAllCoroutines();
+            
+            // 순차 웨이브 적 정리
+            foreach (GameObject enemy in currentWaveEnemies.ToList())
             {
-                StopAllCoroutines();
-                
-                // 모든 적 정리
-                foreach (GameObject enemy in currentWaveEnemies.ToList())
+                if (enemy != null)
+                {
+                    string poolTag = DetermineEnemyPoolTag(enemy);
+                    if (!string.IsNullOrEmpty(poolTag))
+                        GamePoolManager.Instance.ReturnToPool(poolTag, enemy);
+                    else
+                        Destroy(enemy);
+                }
+            }
+            currentWaveEnemies.Clear();
+            groupEnemies.Clear();
+            
+            // 병렬 웨이브 적 정리
+            foreach (var parallelList in parallelWaveEnemies.Values)
+            {
+                foreach (GameObject enemy in parallelList.ToList())
                 {
                     if (enemy != null)
                     {
-                        // 풀 태그 결정 필요
                         string poolTag = DetermineEnemyPoolTag(enemy);
                         if (!string.IsNullOrEmpty(poolTag))
-                        {
                             GamePoolManager.Instance.ReturnToPool(poolTag, enemy);
-                        }
                         else
-                        {
-                            // 풀 태그를 찾을 수 없으면 파괴
                             Destroy(enemy);
-                        }
                     }
                 }
-                
-                currentWaveEnemies.Clear();
-                groupEnemies.Clear();
-                isWaveActive = false;
-                
-                Debug.Log($"⏹️ [WaveController] 웨이브 강제 정지: {currentWave?.WaveID}");
             }
+            parallelWaveEnemies.Clear();
+            
+            isWaveActive = false;
+            
+            Debug.Log($"⏹️ [WaveController] 웨이브 강제 정지: {currentWave?.WaveID}");
         }
         
         /// <summary>
@@ -714,6 +856,20 @@ public class WaveController : MonoBehaviour
         public bool IsWaveActive => isWaveActive;
         public int CurrentWaveEnemyCount => currentWaveEnemies.Count;
         public WaveConfig CurrentWave => currentWave;
+        
+        /// <summary>
+        /// 순차 + 병렬 웨이브 전체 생존 적 수 (MaxEnemyLimit 체크용)
+        /// </summary>
+        public int TotalActiveEnemies
+        {
+            get
+            {
+                int total = currentWaveEnemies.Count;
+                foreach (var list in parallelWaveEnemies.Values)
+                    total += list.Count;
+                return total;
+            }
+        }
     }
 }
 

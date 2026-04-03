@@ -68,9 +68,9 @@ public class DamageSource : MonoBehaviour
         Projectile proj = GetComponent<Projectile>();
         if (proj != null && proj.IsChainShotActive) return;
         
-        // 🆕 SimpleMob 체크 (최우선)
+        // 🆕 SimpleMob 체크 (최우선) — 트리거 콜라이더(접촉 공격용)는 제외, 물리 콜라이더에만 피격 처리
         SimpleMob simpleMob = other.gameObject.GetComponent<SimpleMob>();
-        if (simpleMob != null && !simpleMob.IsDead)
+        if (simpleMob != null && !simpleMob.IsDead && !other.isTrigger)
         {
             DealDamageToSimpleMob(simpleMob, other);
             return;
