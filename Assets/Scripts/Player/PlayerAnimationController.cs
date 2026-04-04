@@ -631,6 +631,14 @@ public class PlayerAnimationController : MonoBehaviour
         if (playerController != null)
         {
             playerController.RestoreNormalMovement();
+            // 공격 애니메이션 방향 잠금 해제 → PlayerController가 이동 방향 갱신 재개
+            playerController.UnlockAnimationDirection();
+        }
+        
+        // 무기 방향 잠금 해제 → ActiveWeapon이 조이스틱 입력으로 복귀
+        if (activeWeapon != null)
+        {
+            activeWeapon.UnlockAttackDirection();
         }
         
         // 공격 쿨다운 시작

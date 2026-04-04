@@ -10,7 +10,7 @@ using CueSystem;
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(CircleCollider2D))]
-public class SimpleMob : MonoBehaviour
+public class SimpleMob : MonoBehaviour, ITargetable
 {
     [Header("📦 데이터 (선택 — null이면 아래 Inspector 값 사용)")]
     [SerializeField] protected SimpleMobData mobData;
@@ -509,9 +509,29 @@ public class SimpleMob : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // 탐지 범위 시각화
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
+
+    #region ITargetable 구현 (자동 타겟팅 시스템)
+
+    private TargetOutlineEffect _outlineEffect;
+
+    bool ITargetable.IsAlive() => !isDead;
+    EnemyRank ITargetable.GetRank() => EnemyRank.Normal;
+    Transform ITargetable.GetTransform() => transform;
+
+    void ITargetable.ActivateLockOn()
+    {
+        if (_outlineEffect == null) _outlineEffect = GetComponentInChildren<TargetOutlineEffect>();
+        _outlineEffect?.Activate();
+    }
+
+    void ITargetable.DeactivateLockOn()
+    {
+        _outlineEffect?.Deactivate();
+    }
+
+    #endregion
 }
 

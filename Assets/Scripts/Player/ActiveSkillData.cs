@@ -174,6 +174,16 @@ public class ActiveSkillData : BaseSkillData
     public float slowPercentage = 0.25f;
     
     public override SkillCategory GetSkillCategory() => SkillCategory.Active;
+
+    [Header("🎯 자동 타겟팅 설정")]
+    [Tooltip("이 스킬 사용 시 적용할 타겟팅 프로필. null이면 AutoTargetDirectionProvider의 기본 프로필 사용.")]
+    public TargetingProfile targetingProfile;
+
+    [Tooltip(
+        "true: 애님 이벤트 발동 시점에 LastResolvedTarget의 현재 위치로 방향을 재계산합니다.\n" +
+        "느린 스킬(무거운 스킬, 시전 시간이 긴 마법)에 권장합니다.\n" +
+        "false: 버튼을 누른 순간의 방향 스냅샷을 그대로 사용합니다. (기본공격, 빠른 스킬 권장)")]
+    public bool useLiveTargetOnCast = false;
 }
 
 /// <summary>

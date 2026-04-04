@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1406117473719759812}
   - component: {fileID: -6725183149168723124}
   - component: {fileID: -7392507064775873154}
+  - component: {fileID: -5874292016982119329}
   m_Layer: 6
   m_Name: SimpleMobRusher_Base
   m_TagString: SimpleMob
@@ -57,7 +58,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3bff383526f74794783a440fee2a4a15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -225,9 +226,6 @@ MonoBehaviour:
   contactDamage: 5
   detectionRange: 15
   attackCooldown: 0.5
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
   enableDebugLogs: 0
   rushSpeed: 8
   rushDuration: 1.5
@@ -236,3 +234,17 @@ MonoBehaviour:
   rushColor: {r: 0, g: 1, b: 1, a: 1}
   rushEffect: {fileID: 0}
   rushSound: {fileID: 0}
+--- !u!114 &-5874292016982119329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6075384399065925802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a5e236592871c4684739fc88f3d9f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propEnabled: _OutlineEnabled
+  propThicknessMult: _ThicknessMult

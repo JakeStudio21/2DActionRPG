@@ -247,6 +247,7 @@ GameObject:
   - component: {fileID: 7154712043368475352}
   - component: {fileID: 5932016489492290845}
   - component: {fileID: 3289187088691961757}
+  - component: {fileID: 2770741970701670057}
   m_Layer: 8
   m_Name: Assasin
   m_TagString: Player
@@ -486,7 +487,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableKeyboardInput: 1
-  showDebugLogs: 0
+  autoTargetResolver: {fileID: 2770741970701670057}
+  basicAttackProfile: {fileID: 11400000, guid: 011efb26c8a755f42b55fcc4c5a97ff5, type: 2}
+  playerController: {fileID: 3412523220790301595}
+  activeWeapon: {fileID: 7429681287523315572}
+  playerAnimationController: {fileID: -5040200761801505519}
+  showDebugLogs: 1
 --- !u!114 &2541682511758850633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -779,3 +785,20 @@ MonoBehaviour:
   bleedResistance: 0
   stunResistance: 0
   enableDebugLogs: 1
+--- !u!114 &2770741970701670057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7542120236176968360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e5db7c0985ffe749a9f4937654cf0d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  showDebugGizmos: 1
+  showDebugLogs: 0

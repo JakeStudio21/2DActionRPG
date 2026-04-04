@@ -53,6 +53,7 @@ GameObject:
   - component: {fileID: 4466303172817903321}
   - component: {fileID: 1474429993412035822}
   - component: {fileID: 3469310229988036102}
+  - component: {fileID: 4645802972022551068}
   m_Layer: 6
   m_Name: CrystalGolem
   m_TagString: Enemy
@@ -96,7 +97,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3bff383526f74794783a440fee2a4a15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -408,3 +409,17 @@ MonoBehaviour:
   attackColor: {r: 1, g: 0, b: 0, a: 1}
   spawnRangeColor: {r: 1, g: 0, b: 1, a: 1}
   fallbackColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &4645802972022551068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8853189013130719682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a5e236592871c4684739fc88f3d9f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propEnabled: _OutlineEnabled
+  propThicknessMult: _ThicknessMult

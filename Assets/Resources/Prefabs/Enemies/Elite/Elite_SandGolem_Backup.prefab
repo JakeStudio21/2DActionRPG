@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 507309305805102008}
   - component: {fileID: 5211488974049482479}
   - component: {fileID: -997904178781826403}
+  - component: {fileID: -8125525398904821512}
   m_Layer: 6
   m_Name: Elite_SandGolem_Backup
   m_TagString: Enemy
@@ -69,7 +70,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3bff383526f74794783a440fee2a4a15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -193,6 +194,7 @@ MonoBehaviour:
   eliteHealthBarPrefab: {fileID: 0}
   healthBarOffsetY: 2.5
   basicHealthBarPrefab: {fileID: 0}
+  immunityDuration: 0.5
 --- !u!114 &4792411720221729903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -370,6 +372,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 0463628152ba53843830e0c7f8f95f1a, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
+  cueProfile: {fileID: 0}
   useNavMesh: 0
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
@@ -471,6 +474,20 @@ NavMeshAgent:
   m_BaseOffset: 1.44
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!114 &-8125525398904821512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a5e236592871c4684739fc88f3d9f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propEnabled: _OutlineEnabled
+  propThicknessMult: _ThicknessMult
 --- !u!1 &5935677080312344865
 GameObject:
   m_ObjectHideFlags: 0

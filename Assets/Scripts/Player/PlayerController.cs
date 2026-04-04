@@ -24,6 +24,66 @@ public class PlayerController : MonoBehaviour
     public bool FacingLeft { get { return facingLeft; } }
     public Vector2 Movement { get { return movement; } }
 
+    /// <summary>
+    /// 자동 타겟팅이 공격 방향을 결정했을 때 즉시 스프라이트를 뒤집습니다.
+    /// 이동 애니메이션 상태를 변경하지 않고 flipX만 갱신합니다.
+    /// </summary>
+    public void ForceSetFacing(bool faceLeft)
+    {
+        if (facingLeft == faceLeft) return;
+        facingLeft = faceLeft;
+        if (mySpriteRender != null)
+            mySpriteRender.flipX = faceLeft;
+    }
+
+    // ── 공격 방향 잠금 ────────────────────────────────────────────────────────
+
+    private bool _attackDirectionLocked = false;
+
+    /// <summary>
+    /// 공격 시작 시 호출. moveX/moveY/flipX를 attackDir로 고정하고,
+    /// UpdateAnimAndFlipFromVelocity()에 의한 덮어쓰기를 OnAttackComplete까지 차단합니다.
+    /// </summary>
+    public void LockAnimationDirection(Vector2 attackDir)
+    {
+        if (attackDir.sqrMagnitude < 0.001f) return;
+
+        attackDir = attackDir.normalized;
+
+        if (myAnimator != null && mySpriteRender != null)
+        {
+            if (attackDir.x < -0.1f)
+            {
+                mySpriteRender.flipX = true;
+                facingLeft = true;
+                myAnimator.SetFloat("moveX", Mathf.Abs(attackDir.x));
+                myAnimator.SetFloat("moveY", attackDir.y);
+            }
+            else if (attackDir.x > 0.1f)
+            {
+                mySpriteRender.flipX = false;
+                facingLeft = false;
+                myAnimator.SetFloat("moveX", attackDir.x);
+                myAnimator.SetFloat("moveY", attackDir.y);
+            }
+            else
+            {
+                myAnimator.SetFloat("moveX", 0f);
+                myAnimator.SetFloat("moveY", attackDir.y);
+            }
+        }
+
+        _attackDirectionLocked = true;
+    }
+
+    /// <summary>
+    /// OnAttackComplete() 시점에 호출. 이동 방향 기반 애니메이션 갱신을 재개합니다.
+    /// </summary>
+    public void UnlockAnimationDirection()
+    {
+        _attackDirectionLocked = false;
+    }
+
     /// <summary>미니맵 마커 회전에 사용할 플레이어 이동 방향 (정규화된 벡터)</summary>
     public Vector2 FacingDirection { get; private set; } = Vector2.down;
 
@@ -486,6 +546,9 @@ public class PlayerController : MonoBehaviour
             Debug.Log($"   speed: {speed:F3} < 0.1f (정지 조건 만족)");
             Debug.Log($"   현재 lastMoveDirection: ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
             
+            // 공격 방향 잠금 중: moveX/moveY/flipX 갱신 건너뜀
+            if (_attackDirectionLocked) return;
+            
             // ✅ 수정: 정지 시 마지막 방향 유지
             Vector2 idleDirection = lastMoveDirection.normalized;
             Debug.Log($"   정규화된 idleDirection: ({idleDirection.x:F3}, {idleDirection.y:F3})");
@@ -531,7 +594,10 @@ public class PlayerController : MonoBehaviour
         // ✅ 이동 중: 현재 방향 저장 + 애니메이션 적용
         Vector2 dir = velocity.normalized;
         Vector2 previousLastMove = lastMoveDirection; // 이전 값 저장
-        lastMoveDirection = dir; // ⭐ 마지막 방향 업데이트
+        lastMoveDirection = dir; // ⭐ 마지막 방향 업데이트 (공격 중에도 추적)
+
+        // 공격 방향 잠금 중: moveX/moveY/flipX 갱신 건너뜀
+        if (_attackDirectionLocked) return;
 
         // ⭐ 이동 중 디버깅
         if (Time.frameCount % 30 == 0) // 0.5초마다

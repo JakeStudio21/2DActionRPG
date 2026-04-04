@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 7206207676289867992}
   - component: {fileID: 7851657569023699972}
   - component: {fileID: 905411959354238117}
+  - component: {fileID: -5054269310667526445}
   m_Layer: 6
   m_Name: Beetle
   m_TagString: Enemy
@@ -64,7 +65,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3bff383526f74794783a440fee2a4a15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,7 +86,7 @@ SpriteRenderer:
   m_SortingLayerID: 1855332111
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 0d3e997df1ec04249abfbd5bde63d11d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8f1f4a4a724038341a4b20293e484b75, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -381,3 +382,43 @@ MonoBehaviour:
   attackColor: {r: 1, g: 0, b: 0, a: 1}
   spawnRangeColor: {r: 1, g: 0, b: 1, a: 1}
   fallbackColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &-5054269310667526445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a5e236592871c4684739fc88f3d9f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propEnabled: _OutlineEnabled
+  propThicknessMult: _ThicknessMult
+  popPeak: 1.4
+  popDuration: 0.25
+  popCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

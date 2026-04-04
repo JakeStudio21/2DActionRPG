@@ -7,7 +7,7 @@ using UnityEngine.AI; // NavMeshAgent (Phase 2)
 /// ⭐ [Complete Reset] 완전한 데이터 기반 시스템 - fallback 제거
 /// ⚙️ [Phase 4] IEnemyTarget 구현 추가 - 조건부 모디파이어용
 /// </summary>
-public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget
+public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetable
 {
     #region ⭐ 데이터 기반 시스템 (필수)
 
@@ -966,5 +966,41 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget
         return gameObject;
     }
     
+    #endregion
+
+    #region ITargetable 구현 (자동 타겟팅 시스템)
+
+    private TargetOutlineEffect _outlineEffect;
+
+    bool ITargetable.IsAlive()
+    {
+        return enemyHealth != null && !enemyHealth.isDead;
+    }
+
+    EnemyRank ITargetable.GetRank()
+    {
+        if (enemyData != null && enemyData.IsMiniBoss) return EnemyRank.MiniBoss;
+        EnemyType type = GetEnemyType();
+        return type switch
+        {
+            EnemyType.Boss  => EnemyRank.Boss,
+            EnemyType.Elite => EnemyRank.Elite,
+            _               => EnemyRank.Normal,
+        };
+    }
+
+    Transform ITargetable.GetTransform() => transform;
+
+    void ITargetable.ActivateLockOn()
+    {
+        if (_outlineEffect == null) _outlineEffect = GetComponentInChildren<TargetOutlineEffect>();
+        _outlineEffect?.Activate();
+    }
+
+    void ITargetable.DeactivateLockOn()
+    {
+        _outlineEffect?.Deactivate();
+    }
+
     #endregion
 } 

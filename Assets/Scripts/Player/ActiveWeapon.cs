@@ -23,7 +23,8 @@ public class ActiveWeapon : MonoBehaviour
     public EquipmentData CurrentWeaponData { get; private set; } // 🆕 현재 무기 데이터 보관
     
     [Header("🎮 무기 방향 제어")]
-    public AttackJoystickInput attackJoystickInput; // 인스펙터에서 할당
+    public AttackJoystickInput attackJoystickInput; // 인스펙터에서 할당 (폴백 용도)
+
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
@@ -212,15 +213,41 @@ public class ActiveWeapon : MonoBehaviour
     }
     
     /// <summary>
-    /// 🎮 무기 방향 업데이트 (런타임 제어)
-    /// 🗡️ [아이소메트릭] WeaponCollider 회전 시스템 추가
+    /// 공격 시작 시 호출. 애니메이션이 완료될 때까지 무기 방향을 고정합니다.
+    /// OnAttackComplete()에서 UnlockAttackDirection()으로 해제해야 합니다.
     /// </summary>
+    public void LockAttackDirection(Vector2 dir)
+    {
+        _lockedDir = dir;
+        _directionLocked = true;
+    }
+
+    /// <summary>
+    /// OnAttackComplete() 시점에 호출. 무기 방향 고정을 해제하고 조이스틱 입력으로 복귀합니다.
+    /// </summary>
+    public void UnlockAttackDirection()
+    {
+        _directionLocked = false;
+    }
+
+    private Vector2 _lockedDir;
+    private bool _directionLocked;
+
     private void UpdateWeaponDirection()
     {
         if (CurrentActiveWeapon == null) return;
-        
-        // 조이스틱 방향 가져오기
-        Vector2 dir = attackJoystickInput != null ? attackJoystickInput.GetAttackDirection() : Vector2.zero;
+
+        Vector2 dir;
+        if (_directionLocked)
+        {
+            // 공격 방향 고정 중: OnAttackComplete 때까지 유지
+            dir = _lockedDir;
+        }
+        else
+        {
+            // 평상시: 조이스틱 방향 사용 (zero일 때 무기 idle 유지)
+            dir = attackJoystickInput != null ? attackJoystickInput.GetAttackDirection() : Vector2.zero;
+        }
         
         // 플레이어 방향 가져오기
         var playerController = FindObjectOfType<PlayerController>();
