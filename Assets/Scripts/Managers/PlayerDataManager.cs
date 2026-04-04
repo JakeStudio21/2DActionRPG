@@ -459,6 +459,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                     StageSystem.StageProgressManager.Instance.InitializeFor(slotIndex);
                     Debug.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} StageProgressManager 초기화 완료");
                 }
+                
+                // 신규 캐릭터 기본 무기 지급 (클래스별 D등급 무기 → 공유 창고 추가 + 장비창 자동 장착)
+                GiveStartingWeapon(playerType);
             }
             
             // 🆕 캐릭터 생성 완료 이벤트 발생
@@ -471,7 +474,78 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         return false;
     }
-    
+
+    /// <summary>
+    /// 신규 캐릭터 기본 무기 지급 — 클래스별 D등급 무기를 공유 창고 추가 후 장비창 자동 장착
+    /// RegisterNewInstance → DynamicEquipmentGenerator → TryAddToShared → EquipItemFromSharedStorage
+    /// </summary>
+    private void GiveStartingWeapon(PlayerType playerType)
+    {
+        string templateName = playerType.GetStartingItemId();
+        if (string.IsNullOrEmpty(templateName))
+        {
+            Debug.LogWarning($"⚠️ [GiveStartingWeapon] PlayerType '{playerType}'에 대한 시작 무기가 정의되지 않았습니다.");
+            return;
+        }
+
+        if (AccountDataManager.Instance == null)
+        {
+            Debug.LogError("❌ [GiveStartingWeapon] AccountDataManager를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 1. 인스턴스 등록 (itemInstances)
+        var newId = AccountDataManager.Instance.RegisterNewInstance(templateName);
+        if (newId.IsEmpty)
+        {
+            Debug.LogError($"❌ [GiveStartingWeapon] 인스턴스 등록 실패: '{templateName}'");
+            return;
+        }
+
+        // 2. 동적 스탯 생성
+        EquipmentData equipData = ItemTemplateResolver.Load(templateName);
+        if (equipData != null)
+        {
+            EquipmentInstance dynamicInstance = DynamicEquipmentGenerator.Generate(equipData, equipData.itemGrade);
+            if (dynamicInstance != null)
+            {
+                ItemInstanceData instanceData = AccountDataManager.Instance.GetInstance(newId);
+                if (instanceData != null)
+                    EquipmentInstanceConverter.ApplyDynamicStats(instanceData, dynamicInstance);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ [GiveStartingWeapon] EquipmentData 로드 실패: '{templateName}' — 동적 스탯 없이 등록됩니다.");
+        }
+
+        // 3. 공유 창고에 추가
+        bool addedToShared = AccountDataManager.Instance.TryAddToShared(newId);
+        if (!addedToShared)
+        {
+            // 창고 가득 시 우편함으로 — 장착 불가
+            AccountDataManager.Instance.MoveToMailbox(newId);
+            AccountDataManager.Instance.Save();
+            Debug.LogWarning($"⚠️ [GiveStartingWeapon] 공유 창고가 가득 찼습니다. 우편함으로 전송: '{templateName}'");
+            TriggerInventoryChanged();
+            return;
+        }
+
+        // 4. 장비창에 자동 장착 (EquipItemFromSharedStorage 내부에서 Save + 이벤트 처리)
+        bool equipped = EquipItemFromSharedStorage(newId);
+        if (equipped)
+        {
+            Debug.Log($"🎁 [GiveStartingWeapon] 기본 무기 지급 및 장착 완료: '{templateName}' ({newId})");
+        }
+        else
+        {
+            // 장착 실패(클래스 불일치 등) — 창고에 그대로 보관, 저장만 수행
+            AccountDataManager.Instance.Save();
+            Debug.LogWarning($"⚠️ [GiveStartingWeapon] 장착 실패 — 공유 창고에 보관: '{templateName}' ({newId})");
+            TriggerInventoryChanged();
+        }
+    }
+
     /// <summary>
     /// 슬롯 삭제
     /// </summary>

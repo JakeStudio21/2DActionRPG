@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a8cc4a7e44e3f4bbc96700d9172fa2, type: 3}
   m_Name: AccessoryCrystal
   m_EditorClassIdentifier: 
-  materialId: MAT_WEAPON_FRAGMENT
+  materialId: MAT_ACCESSORY_CRYSTAL
   materialType: 8
   displayName: "\uC545\uC138\uC0AC\uB9AC \uAC15\uD654 \uACB0\uC815"
   icon: {fileID: 21300000, guid: 906295dac36849a4dba3b964dd6b9b06, type: 3}

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a8cc4a7e44e3f4bbc96700d9172fa2, type: 3}
   m_Name: ArmorCrystal
   m_EditorClassIdentifier: 
+  materialId: MAT_ARMOR_CRYSTAL
   materialType: 5
   displayName: "\uBC29\uC5B4\uAD6C \uAC15\uD654 \uACB0\uC815"
   icon: {fileID: 21300000, guid: c6ad7463db673c048a63efd1b0775038, type: 3}

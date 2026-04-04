@@ -835,6 +835,20 @@ public static class PlayerTypeExtensions
     }
     
     /// <summary>
+    /// 플레이어 타입에 따른 시작 무기 아이템 ID 반환 (캐릭터 생성 시 기본 지급용)
+    /// </summary>
+    public static string GetStartingItemId(this PlayerType playerType)
+    {
+        return playerType switch
+        {
+            PlayerType.Warrior => "ITEM_SWORD_D",
+            PlayerType.Assasin => "ITEM_BOW_D",
+            PlayerType.Wizard  => "ITEM_STAFF_D",
+            _ => ""
+        };
+    }
+
+    /// <summary>
     /// 플레이어 타입에 따른 표시 이름 반환
     /// </summary>
     public static string GetDisplayName(this PlayerType playerType)

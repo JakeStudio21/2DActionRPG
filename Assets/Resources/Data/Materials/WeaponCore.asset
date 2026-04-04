@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a8cc4a7e44e3f4bbc96700d9172fa2, type: 3}
   m_Name: WeaponCore
   m_EditorClassIdentifier: 
+  materialId: MAT_WEAPON_CORE
   materialType: 3
   displayName: "\uBB34\uAE30 \uAC15\uD654 \uCF54\uC5B4"
   icon: {fileID: 21300000, guid: 58a8d167d1ce7004fb94f630303b0400, type: 3}

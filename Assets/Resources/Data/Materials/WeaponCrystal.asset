@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a8cc4a7e44e3f4bbc96700d9172fa2, type: 3}
   m_Name: WeaponCrystal
   m_EditorClassIdentifier: 
+  materialId: MAT_WEAPON_CRYSTAL
   materialType: 2
   displayName: "\uBB34\uAE30 \uAC15\uD654 \uACB0\uC815"
   icon: {fileID: 21300000, guid: 968865ed83a3da44f80a9eb3b32c1378, type: 3}
