@@ -530,6 +530,9 @@ public class PlayerController : MonoBehaviour
         myAnimator.SetFloat("speed", speed);
         myAnimator.SetBool("isMoving", speed > 0.01f);
 
+        // 넉백 중이면 방향 파라미터(moveX/moveY/flipX/lastMoveDirection) 갱신 건너뜀
+        if (knockback != null && knockback.GettingKnockedBack) return;
+
         // ⭐ 항상 출력되는 기본 디버깅
         if (Time.frameCount % 30 == 0) // 0.5초마다
         {
