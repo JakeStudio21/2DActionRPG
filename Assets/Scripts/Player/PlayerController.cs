@@ -119,6 +119,8 @@ public class PlayerController : MonoBehaviour
 
     private bool facingLeft = false;
     private bool isDashing = false;
+    private bool isDashActive = false;    // 대시 활성 구간 (DashActiveDuration 동안만 true)
+    private Vector2 lockedDashDirection;  // 대시 시작 시 고정된 이동 방향
 
     // ⭐ 마지막 이동 방향 저장 (새로 추가)
     private Vector2 lastMoveDirection = Vector2.down; // 기본값: 북쪽
@@ -421,7 +423,8 @@ public class PlayerController : MonoBehaviour
         if (Time.frameCount % 60 == 0) Debug.Log("🔍 [MoveFast] 이동 로직 진입!");
 
         // ✅ 개선: 입력 방향 즉시 적용 (정규화 + 스케일링)
-        var inputDir = movement.normalized;
+        // 대시 활성 구간에는 조이스틱 입력을 무시하고 대시 방향 고정
+        var inputDir = isDashActive ? lockedDashDirection : movement.normalized;
         
         // 🆕 이동 스케일 적용
         var effectiveMoveSpeed = moveSpeed * movementScale;
@@ -687,6 +690,8 @@ public class PlayerController : MonoBehaviour
             }
 
             isDashing = true;
+            isDashActive = true;
+            lockedDashDirection = dashDirection;
             dashCooldownStartTime = Time.time;
             moveSpeed += dashspeed;
             if (myTrailRenderer != null)
@@ -753,6 +758,7 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(DashActiveDuration);
         moveSpeed = startingMoveSpeed;
+        isDashActive = false;
         if (myTrailRenderer != null)
             myTrailRenderer.emitting = false;
         
