@@ -30,7 +30,7 @@ MonoBehaviour:
   - itemId: MAT_ARMOR_CRYSTAL
     rarity: 0
     weight: 0
-    chance: 0.6
+    chance: 0.3
     minQuantity: 1
     maxQuantity: 2
     minStageLevel: 1
@@ -58,4 +58,4 @@ MonoBehaviour:
     isGuaranteed: 0
     conditions: []
   totalWeight: 0
-  totalChance: 2.05
+  totalChance: 1.75

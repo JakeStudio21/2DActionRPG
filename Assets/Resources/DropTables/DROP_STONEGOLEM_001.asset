@@ -30,7 +30,7 @@ MonoBehaviour:
   - itemId: MAT_WEAPON_FRAGMENT
     rarity: 0
     weight: 0
-    chance: 0.5
+    chance: 0.3
     minQuantity: 1
     maxQuantity: 2
     minStageLevel: 1
@@ -48,4 +48,4 @@ MonoBehaviour:
     isGuaranteed: 0
     conditions: []
   totalWeight: 0
-  totalChance: 1.3499999
+  totalChance: 1.2

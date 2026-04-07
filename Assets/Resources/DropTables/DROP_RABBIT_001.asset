@@ -30,7 +30,7 @@ MonoBehaviour:
   - itemId: MAT_WEAPON_FRAGMENT
     rarity: 0
     weight: 0
-    chance: 0.5
+    chance: 0.3
     minQuantity: 1
     maxQuantity: 2
     minStageLevel: 1
@@ -40,12 +40,12 @@ MonoBehaviour:
   - itemId: ITEM_GOLD_COIN
     rarity: 0
     weight: 0
-    chance: 0.7
-    minQuantity: 1
-    maxQuantity: 1
+    chance: 0.5
+    minQuantity: 20
+    maxQuantity: 50
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
   totalWeight: 0
-  totalChance: 2.7
+  totalChance: 1.1
