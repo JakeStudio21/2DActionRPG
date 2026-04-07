@@ -111,7 +111,8 @@ public class PlayerAttackInput : MonoBehaviour
                 Transform t = target.GetTransform();
                 if (t != null)
                 {
-                    Vector2 toTarget = (Vector2)(t.position - transform.position);
+                    Vector2 fireOrigin = GetFireOrigin();
+                    Vector2 toTarget = (Vector2)t.position - fireOrigin;
                     if (toTarget.sqrMagnitude > 0.001f)
                         return toTarget.normalized;
                 }
@@ -119,6 +120,26 @@ public class PlayerAttackInput : MonoBehaviour
         }
 
         return GetFacingDirection();
+    }
+
+    /// <summary>
+    /// 실제 발사 위치를 반환합니다.
+    /// 현재 장착된 무기의 SpawnPoint를 찾고, 없으면 무기 위치, 그것도 없으면 자신의 위치를 사용합니다.
+    /// </summary>
+    private Vector2 GetFireOrigin()
+    {
+        if (activeWeapon?.CurrentActiveWeapon != null)
+        {
+            Transform weapon = activeWeapon.CurrentActiveWeapon.transform;
+            string[] spawnNames = { "Arrow Spawn Point", "SpawnPoint", "Spawn Point", "FirePoint", "Fire Point", "Muzzle" };
+            foreach (string spawnName in spawnNames)
+            {
+                Transform sp = weapon.Find(spawnName);
+                if (sp != null) return sp.position;
+            }
+            return weapon.position;
+        }
+        return transform.position;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-StatId,DisplayName,ValueType,Unit,StackRule,ApplyPhase,TargetScope,CapValue,Description
+﻿StatId,DisplayName,ValueType,Unit,StackRule,ApplyPhase,TargetScope,CapValue,Description
 ATK_FLAT,ATK Flat,Float,Flat,Add,Phase1_AttackBuild,Self,,공격력 고정값
 ATK_PERCENT,ATK %,Float,Percent,AddThenMultiply,Phase1_AttackBuild,Self,,공격력 %
 ASPD,Attack Speed,Float,Percent,Add,Runtime,Self,,기본공격 쿨타임 %

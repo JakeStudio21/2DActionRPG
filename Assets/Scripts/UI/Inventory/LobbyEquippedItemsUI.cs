@@ -24,18 +24,41 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     [SerializeField] private InventorySlot necklaceSlot;    // 목걸이 슬롯
     
     [Header("🎮 플레이어 정보 표시")]
+    [SerializeField] private TMP_Text playerLevelText;          // 캐릭터 레벨 (이름 왼쪽)
     [SerializeField] private TMP_Text playerNameText;           // 캐릭터명
     [SerializeField] private Image playerClassIcon;             // 클래스 이미지
+
+    [Header("📊 기본 스탯 패널")]
     [SerializeField] private TMP_Text finalAttackDamageText;    // 최종 공격력
-    [SerializeField] private TMP_Text finalDefenseText;         // 최종 방어력  
+    [SerializeField] private TMP_Text finalMaxHealthText;       // 최대 체력
+    [SerializeField] private TMP_Text finalDefenseText;         // 최종 방어력
+    [SerializeField] private TMP_Text finalCritRateText;        // 크리티컬 확률
+    [SerializeField] private TMP_Text finalCritDmgText;         // 크리티컬 데미지
     [SerializeField] private TMP_Text finalAttackSpeedText;     // 최종 공격속도
     [SerializeField] private TMP_Text finalMoveSpeedText;       // 최종 이동속도
+    [SerializeField] private TMP_Text finalHealMultText;        // 회복 효율
+
+    [Header("📊 심화 스탯 패널")]
+    [SerializeField] private TMP_Text finalSkillDmgText;        // 스킬 피해 증가
+    [SerializeField] private TMP_Text finalCdrText;             // 쿨다운 감소
+    [SerializeField] private TMP_Text finalLifeStealText;       // 흡혈
+    [SerializeField] private TMP_Text finalArmorPenText;        // 방어구 관통
+    [SerializeField] private TMP_Text finalDmgReductionText;    // 받는 피해 감소
+    [SerializeField] private TMP_Text finalHpRegenText;         // 초당 체력 회복
+    [SerializeField] private TMP_Text finalDodgeText;           // 회피 확률
+    [SerializeField] private TMP_Text finalBlockText;           // 블록 확률
+    [SerializeField] private TMP_Text finalStatusResistText;    // 상태이상 저항
+    [SerializeField] private TMP_Text finalPierceRetentionText; // 관통 데미지 유지율
+    [SerializeField] private TMP_Text finalExpGainText;         // 경험치 획득 증가
 
     [Header("🎨 클래스별 아이콘")]
     [SerializeField] private Sprite warriorClassIcon;
     [SerializeField] private Sprite assassinClassIcon; 
     [SerializeField] private Sprite wizardClassIcon;
     
+    [Header("📜 스크롤")]
+    [SerializeField] private ScrollRect statScrollRect; // 스탯 스크롤 뷰 — 갱신 시 최상단 복귀용
+
     [Header("🔒 읽기 전용 모드")]
     [SerializeField] private bool isReadOnly = false; // true: 캐릭터 정보창 (읽기 전용), false: 인벤토리창 (읽기/쓰기)
     
@@ -362,6 +385,10 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         
         var playerData = GameManager.Instance.selectedPlayerData;
         
+        // 레벨 업데이트
+        if (playerLevelText != null)
+            playerLevelText.text = $"Lv.{playerData.currentLevel}";
+
         // 플레이어명 업데이트
         if (playerNameText != null)
         {
@@ -483,77 +510,62 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     }
     
     /// <summary>
-    /// 🎮 로비 전용 능력치 업데이트 (PlayerRuntimeStats 없이)
+    /// 🎮 로비 전용 능력치 업데이트 — PlayerStatComputationService 사용
     /// </summary>
     private void UpdatePlayerStats()
     {
         if (PlayerDataManager.Instance == null) return;
-        
-        // 🆕 UI 요소 null 체크 강화
-        bool hasValidUI = CheckUIElements();
-        if (!hasValidUI) 
-        {
-            Debug.LogWarning("⚠️ [LobbyEquippedItemsUI] UI 요소가 연결되지 않아 능력치 업데이트를 건너뜁니다!");
-            return;
-        }
-        
-        // 🆕 로비에서는 직접 계산 (PlayerRuntimeStats 의존성 제거)
-        var stats = CalculateLobbyPlayerStats();
-        
-        // 🔧 인게임과 동일한 형식으로 UI 업데이트
-        if (finalAttackDamageText != null)
-            finalAttackDamageText.text = $"Attack: {stats.attackDamage:F0}";
-            
-        if (finalDefenseText != null)
-            finalDefenseText.text = $"Defence: {stats.defense:F0}";
-            
-        if (finalAttackSpeedText != null)
-            finalAttackSpeedText.text = $"AttackSpeed: {stats.attackSpeed:F1}";
-            
-        if (finalMoveSpeedText != null)
-            finalMoveSpeedText.text = $"MoveSpeed: {stats.moveSpeed:F1}";
-        
+
+        var playerData = PlayerDataManager.Instance.selectedPlayerData;
+        if (playerData == null) return;
+
+        var snap = PlayerStatComputationService.Compute(playerData, playerData.selectedPlayerType);
+
+        // ── 기본 패널 ──
+        SetText(finalAttackDamageText, FormatStat("공격력",    $"{snap.AttackDamage:F0}"));
+        SetText(finalMaxHealthText,    FormatStat("체력",      $"{snap.MaxHealth:F0}"));
+        SetText(finalDefenseText,      FormatStat("방어력",    $"{snap.Defense:F0}"));
+        SetText(finalCritRateText,     FormatStat("치명타",    $"{snap.CriticalChance:P1}"));
+        SetText(finalCritDmgText,      FormatStat("치명 피해", $"x{snap.CriticalDamage:F2}"));
+        SetText(finalAttackSpeedText,  FormatStat("공격속도",  $"{snap.AttackSpeed:F2}"));
+        SetText(finalMoveSpeedText,    FormatStat("이동속도",  $"{snap.MoveSpeed:F1}"));
+        SetText(finalHealMultText,     FormatStat("회복 효율", $"{snap.HealMultiplier:P0}"));
+
+        // ── 심화 패널 ──
+        SetText(finalSkillDmgText,        FormatStat("스킬 피해",    $"+{snap.SkillDamageBonus:P0}"));
+        SetText(finalCdrText,             FormatStat("쿨다운 감소",  $"{snap.CooldownReduction:P0}"));
+        SetText(finalLifeStealText,       FormatStat("흡혈",         $"{snap.LifeSteal:P0}"));
+        SetText(finalArmorPenText,        FormatStat("방어구 관통",  $"{snap.ArmorPenetration:P0}"));
+        SetText(finalDmgReductionText,    FormatStat("피해 감소",    $"{snap.DamageReduction:P0}"));
+        SetText(finalHpRegenText,         FormatStat("체력 재생",    $"{snap.HpRegen:F1}/s"));
+        SetText(finalDodgeText,           FormatStat("회피",         $"{snap.DodgeChance:P0}"));
+        SetText(finalBlockText,           FormatStat("블록",         $"{snap.BlockChance:P0}"));
+        SetText(finalStatusResistText,    FormatStat("상태저항",     $"{snap.StatusResist:P0}"));
+        SetText(finalPierceRetentionText, FormatStat("관통 유지",    $"{snap.PierceDamageRetention:P0}"));
+        SetText(finalExpGainText,         FormatStat("경험치 획득",  $"+{snap.ExpGainBonus:P0}"));
+
+        // 스크롤 최상단 복귀 (슬롯 전환 시 심화 패널이 보이는 채로 남지 않도록)
+        if (statScrollRect != null)
+            statScrollRect.verticalNormalizedPosition = 1f;
+
         if (showDebugLogs)
-            Debug.Log($"🎮 [LobbyEquippedItemsUI] 능력치 업데이트 완료 - 공격력:{stats.attackDamage:F0}, 방어력:{stats.defense:F0}, 공속:{stats.attackSpeed:F1}, 이속:{stats.moveSpeed:F1}");
+            Debug.Log($"🎮 [LobbyEquippedItemsUI] 스탯 업데이트 완료 — ATK:{snap.AttackDamage:F0} DEF:{snap.Defense:F0} SPD:{snap.AttackSpeed:F2} MOV:{snap.MoveSpeed:F1}");
     }
-    
+
     /// <summary>
-    /// 🧮 로비 전용 플레이어 능력치 계산
+    /// 스탯 행 텍스트 포맷 — 라벨과 수치 사이를 공백 패딩으로 채워 정렬감을 만든다.
+    /// 예) FormatStat("공격력", "123")  →  "공격력           123"
     /// </summary>
-    private (float attackDamage, float defense, float attackSpeed, float moveSpeed) CalculateLobbyPlayerStats()
+    private static string FormatStat(string label, string value)
     {
-        var equippedItems = PlayerDataManager.Instance.EquippedItems;
-        var playerData = GameManager.Instance?.selectedPlayerData;
-        
-        // 🔧 currentLevel 사용
-        float baseAttack = playerData != null ? playerData.currentLevel * 10f : 50f;
-        float baseDefense = playerData != null ? playerData.currentLevel * 5f : 25f;
-        float baseAttackSpeed = 1.0f;
-        float baseMoveSpeed = 4.0f;
-        
-        // 장비 보너스 계산
-        float equipmentAttack = 0f;
-        float equipmentDefense = 0f;
-        float equipmentAttackSpeed = 0f;
-        float equipmentMoveSpeed = 0f;
-        
-        foreach (var kvp in equippedItems)
-        {
-            var equipment = kvp.Value;
-            if (equipment == null) continue;
-            
-            equipmentAttack += equipment.attackDamage;
-            equipmentDefense += equipment.defenseBonus;
-            equipmentAttackSpeed += equipment.attackSpeed;
-            equipmentMoveSpeed += equipment.speedBonus;
-        }
-        
-        return (
-            attackDamage: baseAttack + equipmentAttack,
-            defense: baseDefense + equipmentDefense,
-            attackSpeed: baseAttackSpeed + equipmentAttackSpeed,
-            moveSpeed: baseMoveSpeed + equipmentMoveSpeed
-        );
+        // TMP Rich Text: 라벨은 좌측, 수치는 우측 고정폭 정렬
+        // 스크롤 콘텐츠 너비에 맞춰 <margin> 또는 <pos> 태그로 수치를 오른쪽에 배치
+        return $"{label}<pos=65%>{value}";
+    }
+
+    private static void SetText(TMP_Text label, string value)
+    {
+        if (label != null) label.text = value;
     }
     
     /// <summary>
@@ -644,24 +656,27 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         ClearSlot(necklaceSlot);
         
         // 플레이어 정보도 빈 상태로 설정
+        if (playerLevelText != null)
+            playerLevelText.text = "";
+
         if (playerNameText != null)
             playerNameText.text = "빈 슬롯";
             
         if (playerClassIcon != null)
             playerClassIcon.sprite = null;
             
-        // 스탯 정보도 초기화
-        if (finalAttackDamageText != null)
-            finalAttackDamageText.text = "-";
-            
-        if (finalDefenseText != null)
-            finalDefenseText.text = "-";
-            
-        if (finalAttackSpeedText != null)
-            finalAttackSpeedText.text = "-";
-            
-        if (finalMoveSpeedText != null)
-            finalMoveSpeedText.text = "-";
+        // 스탯 정보 초기화 (기본 + 심화 패널 전체)
+        TMP_Text[] statTexts = {
+            finalAttackDamageText, finalMaxHealthText, finalDefenseText,
+            finalCritRateText, finalCritDmgText, finalAttackSpeedText,
+            finalMoveSpeedText, finalHealMultText,
+            finalSkillDmgText, finalCdrText, finalLifeStealText,
+            finalArmorPenText, finalDmgReductionText, finalHpRegenText,
+            finalDodgeText, finalBlockText, finalStatusResistText,
+            finalPierceRetentionText, finalExpGainText
+        };
+        foreach (var t in statTexts)
+            if (t != null) t.text = "-";
         
         if (showDebugLogs)
             Debug.Log("✅ [LobbyEquippedItemsUI] 빈 슬롯 상태 표시 완료");

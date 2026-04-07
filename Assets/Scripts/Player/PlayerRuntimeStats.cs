@@ -336,6 +336,8 @@ public class PlayerRuntimeStats : MonoBehaviour
     
     /// <summary>
     /// 🔄 전체 스탯 재계산 (무기교체, 레벨업, 장비변경 시 호출)
+    /// PlayerStatComputationService 를 통해 기본 스탯(1~3단계)을 계산한 뒤
+    /// 인게임 전용 추가 효과(버프/StatModifier)를 덮어씌운다.
     /// </summary>
     public void RecalculateAllStats()
     {
@@ -351,21 +353,36 @@ public class PlayerRuntimeStats : MonoBehaviour
         
         // 🆕 이전 값 저장 (변경 감지용)
         StorePreviousStats();
-        
-        // 1단계: 기본 스탯 계산 (레벨 기반)
-        CalculateBaseStats();
-        
-        // 2단계: 장비 스탯 추가 (기존 시스템)
-        ApplyEquipmentStats();
-        
-        // 🆕 2.5단계: 패시브 스킬 스탯 적용 (Phase 1: 스킬 시스템)
-        ApplyPassiveSkillStats();
-        
-        // 🆕 2.7단계: StatModifier 시스템 적용 (Phase 순서대로)
+
+        // ── 공통 계산 서비스 호출 (1~3단계 + Clamp) ──────────────────────
+        PlayerType playerType = playerData.selectedPlayerType;
+        var snap = PlayerStatComputationService.Compute(playerData, playerType);
+
+        // 서비스 결과를 필드에 복사
+        finalAttackDamage          = snap.AttackDamage;
+        finalMaxHealth             = snap.MaxHealth;
+        finalDefense               = snap.Defense;
+        finalCriticalChance        = snap.CriticalChance;
+        finalCriticalDamage        = snap.CriticalDamage;
+        finalAttackSpeed           = snap.AttackSpeed;
+        finalMoveSpeed             = snap.MoveSpeed;
+        finalHealMultiplier        = snap.HealMultiplier;
+        moveSpeedPercentBonus      = snap.MoveSpeedPercentBonus;
+        finalSkillDamageBonus      = snap.SkillDamageBonus;
+        finalCooldownReduction     = snap.CooldownReduction;
+        finalDamageReduction       = snap.DamageReduction;
+        finalHpRegen               = snap.HpRegen;
+        finalLifeSteal             = snap.LifeSteal;
+        finalArmorPenetration      = snap.ArmorPenetration;
+        finalDodgeChance           = snap.DodgeChance;
+        finalBlockChance           = snap.BlockChance;
+        finalExpGainBonus          = snap.ExpGainBonus;
+        finalStatusResist          = snap.StatusResist;
+        finalPierceDamageRetention = snap.PierceDamageRetention;
+        // ─────────────────────────────────────────────────────────────────
+
+        // 🆕 2.7단계: StatModifier 시스템 적용 (인게임 런타임 전용 — 룬/버프 아이템 등)
         ApplyStatModifiers();
-        
-        // 3단계: 클래스 배율 적용
-        ApplyClassMultipliers();
         
         // 4단계: 추가 효과 적용 (버프/디버프)
         ApplyBuffEffects();

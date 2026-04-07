@@ -433,31 +433,38 @@ public class SkillListItemUI : MonoBehaviour
             if (showDebugLogs)
                 Debug.Log($"🔓 [SkillListItemUI] {skillInstance.skillData.skillName} 해제 시도");
         }
-        // 미장착 스킬 → 장착 시도 (슬롯 체크)
+        // 미장착 스킬 → 장착 시도
         else
         {
             bool isActive = skillInstance.IsActiveSkill;
-            
-            // 빈 슬롯 확인
-            int emptySlotIndex = tabController.FindEmptySlot(isActive);
-            
-            // 슬롯이 모두 찼으면 경고 메시지 표시
-            if (emptySlotIndex < 0)
+
+            if (isActive)
             {
-                string skillTypeName = isActive ? "액티브 스킬" : "패시브 스킬";
-                tabController.ShowWarningMessage($"⚠️ {skillTypeName} 슬롯이 가득 찼습니다!\n먼저 {skillTypeName}을 해제해주세요.");
-                
+                // 액티브 스킬: 슬롯이 찬 경우에도 바로 교체 (EquipActiveSkill 내부에서 기존 스킬 자동 해제)
+                tabController.EquipSkill(skillInstance);
+
                 if (showDebugLogs)
-                    Debug.LogWarning($"⚠️ [SkillListItemUI] {skillInstance.skillData.skillName} 장착 실패: {skillTypeName} 슬롯이 가득 참!");
-                
-                return;
+                    Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 액티브 장착 시도 (기존 스킬 교체 포함)");
             }
-            
-            // 빈 슬롯에 장착
-            tabController.EquipSkill(skillInstance);
-            
-            if (showDebugLogs)
-                Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 장착 시도 (빈 슬롯: {emptySlotIndex})");
+            else
+            {
+                // 패시브 스킬: 빈 슬롯 없으면 경고 (패시브는 타입 고정이 아니므로 어떤 슬롯과 교체할지 불명확)
+                int emptySlotIndex = tabController.FindEmptySlot(isActive);
+                if (emptySlotIndex < 0)
+                {
+                    tabController.ShowWarningMessage($"⚠️ 패시브 스킬 슬롯이 가득 찼습니다!\n먼저 패시브 스킬을 해제해주세요.");
+
+                    if (showDebugLogs)
+                        Debug.LogWarning($"⚠️ [SkillListItemUI] {skillInstance.skillData.skillName} 장착 실패: 패시브 슬롯이 가득 참!");
+
+                    return;
+                }
+
+                tabController.EquipSkill(skillInstance);
+
+                if (showDebugLogs)
+                    Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 패시브 장착 시도 (빈 슬롯: {emptySlotIndex})");
+            }
         }
     }
     
