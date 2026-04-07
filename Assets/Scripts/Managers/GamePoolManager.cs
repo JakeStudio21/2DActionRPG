@@ -637,6 +637,13 @@ public class GamePoolManager : Singleton<GamePoolManager>
         objectToSpawn.transform.rotation = rotation;
         objectToSpawn.transform.SetParent(null); // 씬 루트로 이동
         
+        // ⭐ 풀 태그 주입: 반환 시 이름 추측 없이 항상 정확한 태그 사용
+        IPoolTagReceiver tagReceiver = objectToSpawn.GetComponent<IPoolTagReceiver>();
+        if (tagReceiver != null)
+        {
+            tagReceiver.SetPoolTag(tag);
+        }
+        
         // ⭐ IPoolableObject 인터페이스 확인 및 초기화 콜백 호출
         IPoolableObject poolable = objectToSpawn.GetComponent<IPoolableObject>();
         if (poolable != null)
@@ -731,6 +738,14 @@ public class GamePoolManager : Singleton<GamePoolManager>
             obj.name = $"{setting.prefab.name}_Expanded_{i}";
             obj.SetActive(false);
             obj.transform.SetParent(transform);
+            
+            // ⭐ 풀 태그 주입: Expanded 오브젝트도 원본과 동일한 태그로 반환되도록 보장
+            IPoolTagReceiver tagReceiver = obj.GetComponent<IPoolTagReceiver>();
+            if (tagReceiver != null)
+            {
+                tagReceiver.SetPoolTag(tag);
+            }
+            
             pool.Enqueue(obj);
         }
         

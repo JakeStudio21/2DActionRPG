@@ -4,7 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using CueSystem; // ⭐ Phase 1-2: 히트 이펙트 Cue 시스템
 
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviour, IPoolTagReceiver
 {
     [SerializeField] private float moveSpeed = 22f;
     [SerializeField] private GameObject particleOnHitPrefabVFX;
@@ -23,6 +23,7 @@ public class Projectile : MonoBehaviour
     private Vector3 startPosition;
     private bool isReturningToPool = false; // 🔑 중복 반환 방지 플래그
     private bool needsStartPositionUpdate = false; // 🔑 startPosition 업데이트 플래그
+    private string _poolTag = ""; // SpawnFromPool에서 주입된 풀 태그
     
     // 🏹 관통 시스템
     private bool isPiercing = false;                              // 관통 여부 (SkillController에서 주입)
@@ -321,6 +322,11 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    public void SetPoolTag(string tag)
+    {
+        _poolTag = tag;
+    }
+    
     // 🔑 새로운 통합 반환 메서드
     private void ReturnProjectileToPool()
     {
@@ -338,9 +344,17 @@ public class Projectile : MonoBehaviour
         
         if (GamePoolManager.Instance != null)
         {
-            // 🔧 수정: 동적 풀 태그 사용 (하드코딩 제거)
-            string poolTag = gameObject.name.Replace("(Clone)", "").Trim();
-            GamePoolManager.Instance.ReturnToPool(poolTag, gameObject);
+            // SpawnFromPool에서 주입된 태그 사용, 없으면 이름으로 추론 (폴백)
+            string tagToUse = !string.IsNullOrEmpty(_poolTag)
+                ? _poolTag
+                : gameObject.name.Replace("(Clone)", "").Trim();
+            
+            if (string.IsNullOrEmpty(_poolTag))
+            {
+                Debug.LogWarning($"[Projectile] {gameObject.name}: _poolTag가 주입되지 않음. 이름으로 추론: '{tagToUse}'");
+            }
+            
+            GamePoolManager.Instance.ReturnToPool(tagToUse, gameObject);
         }
         else
         {

@@ -6,12 +6,12 @@ using UnityEngine;
 /// ParticleSystem 완료 시 자동으로 GamePoolManager에 반환하는 컴포넌트
 /// SlashAnim 기능도 통합
 /// </summary>
-public class ParticleAutoReturn : MonoBehaviour
+public class ParticleAutoReturn : MonoBehaviour, IPoolTagReceiver
 {
     private ParticleSystem particleSystem;
     private bool isReturningToPool = false;
     
-    [SerializeField] private string poolTag = ""; // Inspector에서 직접 설정 가능
+    [SerializeField] private string poolTag = ""; // SpawnFromPool에서 자동 주입됨 (수동 설정 불필요)
     
     private void Awake()
     {
@@ -21,6 +21,11 @@ public class ParticleAutoReturn : MonoBehaviour
         {
             Debug.LogError($"[ParticleAutoReturn] {gameObject.name}에 ParticleSystem이 없습니다!");
         }
+    }
+    
+    public void SetPoolTag(string tag)
+    {
+        poolTag = tag;
     }
     
     private void OnEnable()
@@ -62,8 +67,13 @@ public class ParticleAutoReturn : MonoBehaviour
         
         isReturningToPool = true;
         
-        // 풀 태그 결정
+        // 풀 태그 결정: SpawnFromPool에서 주입된 값 사용, 없으면 이름으로 추론
         string tagToUse = !string.IsNullOrEmpty(poolTag) ? poolTag : DeterminePoolTag();
+        
+        if (string.IsNullOrEmpty(poolTag))
+        {
+            Debug.LogWarning($"[ParticleAutoReturn] {gameObject.name}: poolTag가 주입되지 않음. DeterminePoolTag()로 추론: '{tagToUse}'");
+        }
         
         if (GamePoolManager.Instance != null)
         {
