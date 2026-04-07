@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     // ── 공격 방향 잠금 ────────────────────────────────────────────────────────
 
     private bool _attackDirectionLocked = false;
+    private AttackDirectionMarker attackDirectionMarker;
 
     /// <summary>
     /// 공격 시작 시 호출. moveX/moveY/flipX를 attackDir로 고정하고,
@@ -74,6 +75,7 @@ public class PlayerController : MonoBehaviour
         }
 
         _attackDirectionLocked = true;
+        attackDirectionMarker?.Show(attackDir);
     }
 
     /// <summary>
@@ -82,6 +84,7 @@ public class PlayerController : MonoBehaviour
     public void UnlockAnimationDirection()
     {
         _attackDirectionLocked = false;
+        attackDirectionMarker?.Hide();
     }
 
     /// <summary>미니맵 마커 회전에 사용할 플레이어 이동 방향 (정규화된 벡터)</summary>
@@ -166,6 +169,7 @@ public class PlayerController : MonoBehaviour
         mySpriteRender = GetComponent<SpriteRenderer>();
         knockback = GetComponent<Knockback>();
         playerHealth = FindObjectOfType<PlayerHealth>(); // ✅ 한 번만 찾고 캐시
+        attackDirectionMarker = GetComponentInChildren<AttackDirectionMarker>(true);
         // 조이스틱 초기화는 Start에서 코루틴으로 처리
         
         // ⭐ Trail Renderer 초기 비활성화

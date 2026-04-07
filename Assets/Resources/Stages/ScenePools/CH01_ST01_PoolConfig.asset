@@ -448,7 +448,7 @@ MonoBehaviour:
     maxInstancesPerFrame: 5
   - tag: MON_RABBIT_001
     prefab: {fileID: 3235174918318939483, guid: e4765c3296266b34c9157f6b3fe30dc7, type: 3}
-    size: 5
+    size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
