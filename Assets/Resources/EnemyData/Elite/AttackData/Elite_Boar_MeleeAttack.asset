@@ -15,13 +15,13 @@ MonoBehaviour:
   attackName: "\"\uC5D8\uB9AC\uD2B8 \uC57C\uC0DD\uBA67\uB3FC\uC9C0 \uADFC\uC811 \uACF5\uACA9\""
   attackType: 0
   description: "\"\uAC15\uD654\uB41C \uADFC\uC811 \uACF5\uACA9\"\n"
-  baseDamage: 5
+  baseDamage: 50
   criticalChance: 0.12
   criticalMultiplier: 2
-  attackCooldown: 1
+  attackCooldown: 2
   animationDuration: 1
   animationTrigger: Attack
-  attackRange: 4
+  attackRange: 5
   attackAngle: 360
   stopMovingWhileAttacking: 1
   projectilePrefab: {fileID: 0}

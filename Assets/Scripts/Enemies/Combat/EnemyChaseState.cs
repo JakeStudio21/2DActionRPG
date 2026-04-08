@@ -65,9 +65,17 @@ public class EnemyChaseState : IEnemyState
         {
             baseEnemy.Agent.isStopped = false; // Agent 이동 허용!
             
+            // ⭐ 엘리트/일반: 공격 범위 안쪽에서 자동 정지 (물리 밀기 방지)
+            // attackCheckRange = 0.8x이므로 stoppingDistance는 반드시 0.8x 미만이어야 Attack 전환 조건 충족
+            // 0.7x: 멈춘 지점(0.7x)이 attackCheckRange(0.8x) 안쪽 → 즉시 Attack 전환
+            if (!(enemy is Boss_SandElemental))
+            {
+                baseEnemy.Agent.stoppingDistance = enemy.AttackRange * 0.7f;
+            }
+            
             if (baseEnemy.EnableDebugLogs)
             {
-                Debug.Log($"✅ [EnemyChaseState] {enemy.transform.name} NavMeshAgent 활성화 (isStopped = false)");
+                Debug.Log($"✅ [EnemyChaseState] {enemy.transform.name} NavMeshAgent 활성화 (isStopped = false, stoppingDistance: {baseEnemy.Agent.stoppingDistance:F2})");
             }
         }
         
@@ -206,10 +214,22 @@ public class EnemyChaseState : IEnemyState
             }
         }
         
-        // ⭐ 일반 몬스터는 기존 로직
+        // ⭐ 일반/엘리트 몬스터 공격 전환
         float attackCheckRange = enemy.AttackRange * 0.8f;
-        if (!(enemy is Boss_SandElemental) && dist <= attackCheckRange) // 일반 몬스터는 기존 로직
+        if (!(enemy is Boss_SandElemental) && dist <= attackCheckRange)
         {
+            // ⭐ 엘리트 전용: CanAttack() 확인 후 Attack 전환 (보스와 동일 방식)
+            // 쿨다운 중에는 Attack 상태에 진입해도 no-op이 되므로 Chase 유지
+            if (enemy is BaseEnemy baseEnemyForElite)
+            {
+                var eliteAttack = baseEnemyForElite.GetComponent<EliteAttackBehaviour>();
+                if (eliteAttack != null && !eliteAttack.CanAttack())
+                {
+                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (ELITE) - 공격 범위 내지만 쿨다운 중, Chase 유지 (거리: {dist:F2})");
+                    return; // 쿨다운 해제까지 Chase 유지 (NavMesh stoppingDistance로 정지 상태)
+                }
+            }
+            
             Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 공격 범위 도달! Attack 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
             enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
         }
@@ -251,6 +271,7 @@ public class EnemyChaseState : IEnemyState
         if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
         {
             baseEnemy.Agent.isStopped = true; // Agent 정지
+            baseEnemy.Agent.stoppingDistance = 0f; // ⭐ stoppingDistance 초기화 (다음 Chase 진입 전 오염 방지)
         }
         
         // ⭐ 보스 전용: 추격 종료 시 상태 초기화

@@ -28,8 +28,11 @@ MonoBehaviour:
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
+  requiredStamina: 5
+  categoryId: 
   WaveCount: 3
-  Victory: 1
+  Victory: 0
+  objectiveType: 0
   StageBaseLevel: 3
   hasTimeLimit: 0
   TimeLimitSec: 600
@@ -38,6 +41,8 @@ MonoBehaviour:
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 3 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uBCF4\uC2A4 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST02"
+  targetFarmingEntries: []
+  overrideRangeTable: {fileID: 0}
   WaveConfigs:
   - {fileID: 11400000, guid: 1a616f4035478f34692e28ea4b375868, type: 2}
   - {fileID: 11400000, guid: 13c8791624876634b90b6e521d23c5c8, type: 2}

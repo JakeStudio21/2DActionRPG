@@ -17,8 +17,8 @@ MonoBehaviour:
   enemyType: 1
   description: "\"\uAC15\uD654\uB41C \uC57C\uC0DD\uBA67\uB3FC\uC9C0\""
   baseHealth: 200
-  baseDefense: 3
-  baseMoveSpeed: 2
+  baseDefense: 20
+  baseMoveSpeed: 4
   detectionRange: 10
   chaseRange: 16
   patrolRadius: 8
