@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,10 @@ public class EliteHealthBarUI : MonoBehaviour
     [Header("UI 컴포넌트")]
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Image hpFillImage;
+    
+    [Header("이름 표시 (선택)")]
+    [Tooltip("몬스터 이름을 표시할 TextMeshProUGUI. 연결하지 않으면 이름 표시 없음.")]
+    [SerializeField] private TextMeshProUGUI nameText;
     
     [Header("색상 설정")]
     [SerializeField] private Color healthyColor = new Color(0f, 1f, 0f); // 초록색
@@ -24,7 +29,6 @@ public class EliteHealthBarUI : MonoBehaviour
     
     [Header("Billboard 설정")]
     [SerializeField] private bool enableBillboard = true;
-    [SerializeField] private bool lockYAxis = true; // Y축 회전만 허용
     
     [Header("디버그")]
     [SerializeField] private bool enableDebugLogs = false;
@@ -72,17 +76,20 @@ public class EliteHealthBarUI : MonoBehaviour
     
     private void Update()
     {
-        // Billboard 효과 (카메라 향하기)
-        if (enableBillboard && mainCamera != null)
-        {
-            ApplyBillboard();
-        }
-        
         // 부드러운 체력바 애니메이션
         if (enableSmoothTransition && Mathf.Abs(currentDisplayRatio - targetHealthRatio) > 0.001f)
         {
             currentDisplayRatio = Mathf.Lerp(currentDisplayRatio, targetHealthRatio, Time.deltaTime * hpChangeAnimSpeed);
             UpdateSliderValue(currentDisplayRatio);
+        }
+    }
+    
+    private void LateUpdate()
+    {
+        // Billboard 효과: LateUpdate에서 실행해야 NavMesh/Animator 회전 이후 보정됨
+        if (enableBillboard && mainCamera != null)
+        {
+            ApplyBillboard();
         }
     }
     
@@ -152,27 +159,14 @@ public class EliteHealthBarUI : MonoBehaviour
     
     /// <summary>
     /// Billboard 효과 적용 (카메라 향하기)
+    /// World Space Canvas는 -Z 방향이 앞면이므로
+    /// 카메라와 동일한 회전(transform.rotation = camera.rotation)이 가장 정확함.
     /// </summary>
     private void ApplyBillboard()
     {
-        if (lockYAxis)
-        {
-            // Y축 회전만 (자연스러운 느낌)
-            Vector3 directionToCamera = mainCamera.transform.position - transform.position;
-            directionToCamera.y = 0; // Y축 고정
-            
-            if (directionToCamera.sqrMagnitude > 0.001f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(directionToCamera);
-                transform.rotation = targetRotation;
-            }
-        }
-        else
-        {
-            // 완전히 카메라를 향함
-            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward,
-                             mainCamera.transform.rotation * Vector3.up);
-        }
+        // 카메라와 동일한 회전 적용 → 항상 카메라 정면을 향함
+        // 이 방식은 직교/원근 카메라 모두에서 텍스트가 올바르게 표시됨
+        transform.rotation = mainCamera.transform.rotation;
     }
     
     /// <summary>
@@ -188,6 +182,17 @@ public class EliteHealthBarUI : MonoBehaviour
         {
             gameObject.SetActive(visible);
         }
+    }
+    
+    /// <summary>
+    /// 몬스터 이름 설정. nameText가 연결되지 않은 경우 조용히 무시.
+    /// EnemyHealth.CreateEliteHealthBar()에서 호출됨.
+    /// </summary>
+    public void SetName(string monsterName)
+    {
+        if (nameText == null) return;
+        nameText.text = monsterName;
+        nameText.gameObject.SetActive(!string.IsNullOrEmpty(monsterName));
     }
     
     /// <summary>

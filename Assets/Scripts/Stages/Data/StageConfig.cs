@@ -62,6 +62,11 @@ namespace StageSystem
                  "ProtectObject / ItemCollect: 향후 구현 예정")]
         public ObjectiveType objectiveType = ObjectiveType.None;
         
+        [Tooltip("Victory = BossKill일 때 미션 텍스트에 표시할 보스/목표 이름\n" +
+                 "예: '오염된 거대멧돼지'\n" +
+                 "비어있으면 '보스 처치'로 표시됨")]
+        public string targetBossName = "";
+        
         [Header("⭐ Phase 3: 레벨 시스템")]
         [Tooltip("스테이지 기준 레벨 (몬스터 기본 레벨)\n" +
                  "MonsterSpawnData의 LevelOffset과 합산되어 최종 레벨 결정\n" +

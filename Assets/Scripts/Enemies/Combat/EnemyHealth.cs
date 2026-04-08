@@ -1300,7 +1300,13 @@ public class EnemyHealth : MonoBehaviour
         if (activeHealthBar != null)
         {
             activeHealthBar.SetHealthImmediate(HealthRatio);
-            Debug.Log($"✅ [EnemyHealth] {gameObject.name} 엘리트 체력바 생성 완료");
+            
+            // 몬스터 이름 설정 (nameText가 프리팹에 연결된 경우에만 표시)
+            string enemyName = baseEnemy?.EnemyData?.EnemyName;
+            if (!string.IsNullOrEmpty(enemyName))
+                activeHealthBar.SetName(enemyName);
+            
+            Debug.Log($"✅ [EnemyHealth] {gameObject.name} 엘리트 체력바 생성 완료 (이름: {enemyName ?? "없음"})");
         }
         else
         {

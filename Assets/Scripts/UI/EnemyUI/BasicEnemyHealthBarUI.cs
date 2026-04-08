@@ -41,7 +41,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
     
     [Header("Billboard 설정")]
     [SerializeField] private bool enableBillboard = true;
-    [SerializeField] private bool lockYAxis = true;
     
     [Header("디버그")]
     [SerializeField] private bool enableDebugLogs = false;
@@ -119,12 +118,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
     
     private void Update()
     {
-        // Billboard 효과
-        if (enableBillboard && mainCamera != null && IsVisible)
-        {
-            ApplyBillboard();
-        }
-        
         // 부드러운 체력바 애니메이션
         if (enableSmoothTransition && Mathf.Abs(currentDisplayRatio - targetHealthRatio) > 0.001f)
         {
@@ -136,6 +129,15 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         if (IsVisible)
         {
             CheckVisibilityConditions();
+        }
+    }
+    
+    private void LateUpdate()
+    {
+        // Billboard 효과: LateUpdate에서 실행해야 NavMesh/Animator 회전 이후 보정됨
+        if (enableBillboard && mainCamera != null && IsVisible)
+        {
+            ApplyBillboard();
         }
     }
     
@@ -448,29 +450,13 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
     
     /// <summary>
     /// Billboard 효과 적용 (카메라 향하기)
+    /// 카메라와 동일한 회전 적용 → 항상 카메라 정면을 향함
+    /// 직교/원근 카메라 모두 정확하게 동작하며 부모 회전 영향을 받지 않음
     /// </summary>
     private void ApplyBillboard()
     {
         if (mainCamera == null) return;
-        
-        if (lockYAxis)
-        {
-            // Y축 회전만 (자연스러운 느낌)
-            Vector3 directionToCamera = mainCamera.transform.position - transform.position;
-            directionToCamera.y = 0; // Y축 고정
-            
-            if (directionToCamera.sqrMagnitude > 0.001f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(directionToCamera);
-                transform.rotation = targetRotation;
-            }
-        }
-        else
-        {
-            // 완전히 카메라를 향함
-            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward,
-                             mainCamera.transform.rotation * Vector3.up);
-        }
+        transform.rotation = mainCamera.transform.rotation;
     }
     
     #endregion
