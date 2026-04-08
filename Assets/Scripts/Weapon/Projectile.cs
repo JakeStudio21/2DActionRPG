@@ -340,7 +340,21 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
             Debug.LogWarning($"🚨🚨🚨 [N/S POOL RETURN] 풀 반환됨! 각도: {angle:F1}도, 위치: {transform.position}");
         }
         
-        isReturningToPool = true; // 🔑 반환 중 플래그 설정
+        isReturningToPool = true; // 🔑 즉시 플래그 설정 — 이후 OnTriggerEnter2D 중복 진입 차단
+        
+        // ⭐ SetActive(false)를 1프레임 지연
+        // 이유: Projectile.OnTriggerEnter2D → ReturnToPool → SetActive(false) 가 동기 실행되면
+        //       Unity가 같은 충돌 이벤트의 DamageSource.OnTriggerEnter2D 콜백을 취소한다.
+        //       isReturningToPool=true로 즉시 중복 충돌을 막고, 실제 비활성화는 1프레임 후 처리.
+        StartCoroutine(DeferredPoolReturn());
+    }
+    
+    private IEnumerator DeferredPoolReturn()
+    {
+        yield return null; // 현재 물리 스텝의 모든 OnTriggerEnter2D 콜백이 완료될 때까지 대기
+        
+        // OnEnable에서 isReturningToPool이 false로 리셋된 경우 = 풀에서 재사용 중 → 취소
+        if (!isReturningToPool) yield break;
         
         if (GamePoolManager.Instance != null)
         {

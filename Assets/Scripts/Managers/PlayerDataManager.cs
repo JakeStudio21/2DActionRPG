@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.IO;
 using Systems; // Phase 7: EnhancementResult, EnhancementSystem 등
+using CueSystem;
 
 /// <summary>
 /// ⭐ [Phase 3] 슬롯 기반 플레이어 데이터 관리자 (완전 새 구조)
@@ -1097,6 +1098,24 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             selectedPlayerData.expToNextLevel = CalculateExpToNextLevel(selectedPlayerData.currentLevel);
             OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
             leveledUp = true;
+            
+            // 🆙 레벨업 연출: 플레이어 위치에서 VFX + SFX + 텍스트 팝업
+            var playerHealth = FindObjectOfType<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                Vector3 playerPos = playerHealth.transform.position;
+                
+                // DamageNumbersPro 폰트로 "LEVEL UP! Lv.N" 텍스트 표시
+                DamageNumberManager.Instance?.ShowLevelUpText(playerPos, selectedPlayerData.currentLevel);
+                
+                // CueSystem으로 VFX + SFX 재생 (에디터에서 player.levelup 이벤트 설정 필요)
+                CueEmitter.Emit("player.levelup", "Player", new CueContext
+                {
+                    position  = playerPos,
+                    actorType = ActorType.Player,
+                    magnitude = 1.0f,
+                });
+            }
             
             // Phase 3.5: 레벨업 시 SP 자동 증가 (totalSP = level, 1:1 동기화)
             var slotData = GetCurrentSlotData();

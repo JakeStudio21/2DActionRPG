@@ -22,6 +22,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "C\uB4F1\uAE09 \uAC80 Slash \uC774\uD399\uD2B8"
@@ -31,6 +32,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "C \uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8 \uC774\uD399\uD2B8"
@@ -40,6 +42,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 1
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "C \uB4F1\uAE09 \uD65C \uBC1C\uC0AC \uC774\uD399\uD2B8"
@@ -49,6 +52,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
@@ -58,6 +62,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
@@ -67,6 +72,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
@@ -76,6 +82,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
@@ -85,6 +92,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 2, y: 2, z: 2}
     followTarget: 0
+    rotationMode: 0
     priority: 80
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD VFX"
@@ -94,6 +102,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0.5, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 1
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 VFX"
@@ -103,6 +112,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 1
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC774\uD399\uD2B8 (\uCE90\uB9AD\uD130
@@ -113,6 +123,17 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
+  - vfxId: PlayerLevelupEffect
+    poolKey: FX_PlayerLevelup
+    duration: -1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8"
@@ -197,6 +218,16 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8\uC74C"
+  - sfxId: PlayerLevelupSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.8
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 0
+    priority: 50
+    cooldown: 0
+    note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8\uC74C"
   entries:
   - eventKey: test.effect
     vfxIds:
@@ -204,7 +235,11 @@ MonoBehaviour:
     sfxIds:
     - PlayerSFX
     priority: 1
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 25
     note: "\uD50C\uB808\uC774\uC5B4 \uD14C\uC2A4\uD2B8"
   - eventKey: attack.player.melee
@@ -213,7 +248,11 @@ MonoBehaviour:
     sfxIds:
     - AttackPlayerMeleeSound
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 35
     note: "Warrior\uACF5\uACA9"
   - eventKey: attack.player.ranged
@@ -222,7 +261,11 @@ MonoBehaviour:
     sfxIds:
     - AttackPlayerRangedSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 25
     note: "\uD50C\uB808\uC774\uC5B4 \uD65C \uBC1C\uC0AC \uBA38\uC990 \uD50C\uB798\uC2DC"
   - eventKey: hit.player.normal
@@ -231,7 +274,11 @@ MonoBehaviour:
     sfxIds:
     - HitPlayerSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 60
     note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
   - eventKey: hit.player.critical
@@ -240,7 +287,11 @@ MonoBehaviour:
     sfxIds:
     - HitPlayerSound
     priority: 3
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 60
     note: "\"S\uB4F1\uAE09 \uD654\uC0B4 \uD788\uD2B8\""
   - eventKey: hit.player.dot.burn
@@ -249,7 +300,11 @@ MonoBehaviour:
     sfxIds:
     - HitPlayerDotSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
   - eventKey: hit.player.dot.poison
@@ -258,7 +313,11 @@ MonoBehaviour:
     sfxIds:
     - HitPlayerDotSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
   - eventKey: death.player
@@ -267,7 +326,11 @@ MonoBehaviour:
     sfxIds:
     - PlayerDeathSound
     priority: 4
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 150
     note: "\uD50C\uB808\uC774\uC5B4 \uC0AC\uB9DD"
   - eventKey: heal.player
@@ -276,7 +339,11 @@ MonoBehaviour:
     sfxIds:
     - PlayerHealSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 30
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5"
   - eventKey: player.dash.start
@@ -285,7 +352,11 @@ MonoBehaviour:
     sfxIds:
     - PlayerDashSound
     priority: 3
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uB300\uC2DC \uC2DC\uC791 \uC774\uD399\uD2B8"
   - eventKey: projectile.hit.wall
@@ -294,7 +365,24 @@ MonoBehaviour:
     sfxIds:
     - WallHitSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
+  - eventKey: player.levelup
+    vfxIds:
+    - PlayerLevelupEffect
+    sfxIds:
+    - PlayerLevelupSound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uBC1C\uC0AC\uCCB4 \uBCA0 \uCDA9\uB3CC \uC774\uD399\uD2B8 + \uC0AC\uC6B4\uB4DC"
   description: "\uD50C\uB808\uC774\uC5B4 \uAE30\uBCF8 \uD504\uB85C\uD544"

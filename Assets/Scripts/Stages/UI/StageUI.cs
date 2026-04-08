@@ -195,16 +195,16 @@ namespace StageSystem
                 {
                     int minutes = currentStage.TimeLimitSec / 60;
                     int seconds = currentStage.TimeLimitSec % 60;
-                    string timeText = minutes > 0 
-                        ? $"{minutes}분 {seconds}초" 
+                    string timeText = minutes > 0
+                        ? (seconds > 0 ? $"{minutes}분 {seconds}초" : $"{minutes}분")
                         : $"{seconds}초";
                     
                     conditionText = condition switch
                     {
-                        VictoryCondition.KillAll => $"목표: {timeText} 안에 모든 적 처치 ⏱️",
-                        VictoryCondition.BossKill => $"목표: {timeText} 안에 보스 처치 ⏱️",
+                        VictoryCondition.KillAll => $"목표: {timeText} 안에 모든 적 처치 ",
+                        VictoryCondition.BossKill => $"목표: {timeText} 안에 보스 처치 ",
                         VictoryCondition.Survival => $"목표: {timeText} 생존",
-                        VictoryCondition.ObjectiveComplete => $"목표: {timeText} 안에 {GetObjectiveLabel(currentStage.objectiveType)} ⏱️",
+                        VictoryCondition.ObjectiveComplete => $"목표: {timeText} 안에 {GetObjectiveLabel(currentStage.objectiveType)} ",
                         _ => "목표: 스테이지 클리어"
                     };
                 }

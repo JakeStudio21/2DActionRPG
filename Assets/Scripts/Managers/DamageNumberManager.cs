@@ -484,6 +484,32 @@ public class DamageNumberManager : MonoBehaviour
             Debug.Log($"🛡️ [DamageNumberManager] 블록 텍스트 표시: BLOCK at {displayPosition:F2}");
     }
 
+    /// <summary>
+    /// 🆙 레벨업 텍스트 표시 ("LEVEL UP!" + 새 레벨, 금색)
+    /// DamageNumbersPro 폰트를 그대로 사용하며, topText에 "LEVEL UP!", bottomText에 "Lv.N" 표시
+    /// </summary>
+    /// <param name="targetPosition">플레이어 월드 좌표</param>
+    /// <param name="newLevel">레벨업 후 레벨</param>
+    public void ShowLevelUpText(Vector3 targetPosition, int newLevel)
+    {
+        if (damageNumberPrefab == null) return;
+
+        // 머리 위 기준으로 조금 더 높게 표시 (일반 숫자보다 위)
+        Vector3 displayPosition = targetPosition + Vector3.up * (enemyDamageOffsetY + 1.0f);
+
+        DamageNumber spawnedNumber = damageNumberPrefab.Spawn(displayPosition);
+        spawnedNumber.enableNumber     = false;
+        spawnedNumber.enableTopText    = true;
+        spawnedNumber.topText          = "LEVEL UP!";
+        spawnedNumber.enableBottomText = true;
+        spawnedNumber.bottomText       = $"Lv.{newLevel}";
+        spawnedNumber.SetColor(new Color(1f, 0.85f, 0f)); // 금색
+        spawnedNumber.transform.localScale *= 1.0f;       // 강조 크기
+
+        if (enableDebugLogs)
+            Debug.Log($"🆙 [DamageNumberManager] 레벨업 텍스트 표시: LEVEL UP! Lv.{newLevel} at {displayPosition:F2}");
+    }
+
     #endregion
 
     #region Future Expansion - Phase 2 (준비됨)
