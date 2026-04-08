@@ -15,8 +15,7 @@ MonoBehaviour:
   dropGroupId: DROP_GHOST_001
   dropPolicy: 2
   pickCount: 1
-  description: "\uACE0\uC2A4\uD2B8 \uB4DC\uB86D \uD14C\uC774\uBE14 (\uB808\uBCA8
-    8~20)"
+  description: "\uACE0\uC2A4\uD2B8 \uB4DC\uB86D \uD14C\uC774\uBE14"
   dropEntries:
   - itemId: GEN_EQUIP
     rarity: 0
@@ -31,9 +30,9 @@ MonoBehaviour:
   - itemId: MAT_ARMOR_FRAGMENT
     rarity: 0
     weight: 0
-    chance: 0.3
+    chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 3
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
@@ -42,8 +41,8 @@ MonoBehaviour:
     rarity: 0
     weight: 0
     chance: 0.65
-    minQuantity: 1
-    maxQuantity: 1
+    minQuantity: 60
+    maxQuantity: 80
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0

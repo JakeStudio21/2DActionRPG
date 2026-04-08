@@ -34,6 +34,9 @@ public class WaveController : MonoBehaviour
         private Dictionary<SpawnGroup, List<GameObject>> groupEnemies = new Dictionary<SpawnGroup, List<GameObject>>();
         private bool isWaveActive = false;
         
+        // 웨이브 완료 대기 코루틴 참조 (ForceCompleteCurrentWave에서 중단용)
+        private Coroutine waitForCompletionCoroutine;
+        
         // 병렬 웨이브 추적 (AutoAfterDelay 독립 스폰용)
         private Dictionary<WaveConfig, List<GameObject>> parallelWaveEnemies = new Dictionary<WaveConfig, List<GameObject>>();
         
@@ -108,6 +111,38 @@ public class WaveController : MonoBehaviour
                     
                 StartCoroutine(ExecuteWaveWithDelay(0));
             }
+        }
+        
+        /// <summary>
+        /// 현재 웨이브를 트리거로 강제 클리어 (몬스터가 남아있어도 다음 웨이브로 진행)
+        /// WaveTriggerZone의 forceCompleteCurrentWave 옵션에서 호출됨
+        ///
+        /// 남은 몬스터는 그대로 유지됨. 이후 플레이어가 돌아와서 잡아도 무방.
+        /// (Wave가 바뀌면 currentWaveEnemies가 초기화되어 이전 Wave 적의 죽음은 무시됨)
+        /// </summary>
+        public void ForceCompleteCurrentWave()
+        {
+            if (!isWaveActive)
+            {
+                if (enableDebugLogs)
+                    Debug.Log($"⏭️ [WaveController] ForceCompleteCurrentWave 무시 — 이미 완료된 웨이브: {currentWave?.WaveID}");
+                return;
+            }
+            
+            // 완료 대기 코루틴 중단
+            if (waitForCompletionCoroutine != null)
+            {
+                StopCoroutine(waitForCompletionCoroutine);
+                waitForCompletionCoroutine = null;
+            }
+            
+            // 남은 적 리스트는 건드리지 않음 (플레이어가 돌아와서 처치 가능)
+            isWaveActive = false;
+            
+            if (enableDebugLogs)
+                Debug.Log($"⏭️ [WaveController] 웨이브 강제 클리어: {currentWave?.WaveID} (남은 적 {currentWaveEnemies.Count}마리 유지)");
+            
+            OnWaveCompleted?.Invoke(currentWave);
         }
         
         /// <summary>
@@ -402,7 +437,7 @@ public class WaveController : MonoBehaviour
                 Debug.Log($"⏳ [WaveController] 웨이브 완료 대기 시작: {currentWaveEnemies.Count}마리 적");
             }
             
-            StartCoroutine(WaitForWaveCompletion());
+            waitForCompletionCoroutine = StartCoroutine(WaitForWaveCompletion());
         }
         
         /// <summary>
@@ -436,7 +471,7 @@ public class WaveController : MonoBehaviour
             }
             
             // 웨이브 완료 대기
-            StartCoroutine(WaitForWaveCompletion());
+            waitForCompletionCoroutine = StartCoroutine(WaitForWaveCompletion());
         }
         
         /// <summary>

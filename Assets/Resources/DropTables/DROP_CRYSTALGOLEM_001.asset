@@ -30,9 +30,9 @@ MonoBehaviour:
   - itemId: MAT_ARMOR_FRAGMENT
     rarity: 0
     weight: 0
-    chance: 0.3
+    chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 2
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
@@ -41,8 +41,8 @@ MonoBehaviour:
     rarity: 0
     weight: 0
     chance: 0.65
-    minQuantity: 1
-    maxQuantity: 1
+    minQuantity: 200
+    maxQuantity: 300
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0

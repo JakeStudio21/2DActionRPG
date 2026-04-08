@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CH01_ST03_G03_Config
   m_EditorClassIdentifier: 
   SpawnGroupID: CH01_ST03_G03
-  WaveID: CH01_ST03_WAVE_02
+  WaveID: CH01_ST03_WAVE_01
   SpawnDelaySec: 0
   RepeatCount: 1
   RepeatIntervalSec: 0

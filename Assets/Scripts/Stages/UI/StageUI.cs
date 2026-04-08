@@ -190,6 +190,11 @@ namespace StageSystem
                 
                 string conditionText = "";
                 
+                // BossKill 표시 이름: targetBossName이 설정되어 있으면 사용, 없으면 "보스" fallback
+                string bossLabel = !string.IsNullOrEmpty(currentStage.targetBossName)
+                    ? $"{currentStage.targetBossName} 처치"
+                    : "보스 처치";
+                
                 // ✅ 타임리미트 조합 처리
                 if (currentStage.hasTimeLimit)
                 {
@@ -202,7 +207,7 @@ namespace StageSystem
                     conditionText = condition switch
                     {
                         VictoryCondition.KillAll => $"목표: {timeText} 안에 모든 적 처치 ",
-                        VictoryCondition.BossKill => $"목표: {timeText} 안에 보스 처치 ",
+                        VictoryCondition.BossKill => $"목표: {timeText} 안에 {bossLabel} ",
                         VictoryCondition.Survival => $"목표: {timeText} 생존",
                         VictoryCondition.ObjectiveComplete => $"목표: {timeText} 안에 {GetObjectiveLabel(currentStage.objectiveType)} ",
                         _ => "목표: 스테이지 클리어"
@@ -214,7 +219,7 @@ namespace StageSystem
                     conditionText = condition switch
                     {
                         VictoryCondition.KillAll => "목표: 모든 적 처치",
-                        VictoryCondition.BossKill => "목표: 보스 처치",
+                        VictoryCondition.BossKill => $"목표: {bossLabel}",
                         VictoryCondition.Survival => "목표: 제한시간 생존",
                         VictoryCondition.ObjectiveComplete => $"목표: {GetObjectiveLabel(currentStage.objectiveType)}",
                         _ => "목표: 스테이지 클리어"

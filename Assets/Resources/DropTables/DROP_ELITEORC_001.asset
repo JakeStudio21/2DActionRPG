@@ -17,22 +17,22 @@ MonoBehaviour:
   pickCount: 1
   description: "\uC5D8\uB9AC\uD2B8 \uC624\uD06C \uB4DC\uB86D \uD14C\uC774\uBE14"
   dropEntries:
-  - itemId: GEN_EQUIP
+  - itemId: GEN_EQUIP_C_B
     rarity: 0
     weight: 0
     chance: 0.45
     minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 12
+    maxQuantity: 3
+    minStageLevel: 5
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
   - itemId: MAT_ARMOR_CRYSTAL
     rarity: 0
     weight: 0
-    chance: 0.3
+    chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 2
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
@@ -42,7 +42,7 @@ MonoBehaviour:
     weight: 0
     chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 2
     minStageLevel: 15
     maxStageLevel: 0
     isGuaranteed: 0
@@ -51,8 +51,8 @@ MonoBehaviour:
     rarity: 0
     weight: 0
     chance: 0.8
-    minQuantity: 1
-    maxQuantity: 3
+    minQuantity: 400
+    maxQuantity: 500
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0

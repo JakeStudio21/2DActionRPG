@@ -15,9 +15,9 @@ MonoBehaviour:
   dropGroupId: DROP_BEAR_001
   dropPolicy: 2
   pickCount: 1
-  description: "\uACF0 \uB4DC\uB86D \uD14C\uC774\uBE14 (\uB808\uBCA8 10~25)"
+  description: "\uACF0 \uB4DC\uB86D \uD14C\uC774\uBE14"
   dropEntries:
-  - itemId: GEN_EQUIP
+  - itemId: GEN_EQUIP_D_C
     rarity: 0
     weight: 0
     chance: 0.2
@@ -30,20 +30,10 @@ MonoBehaviour:
   - itemId: MAT_ACCESSORY_FRAGMENT
     rarity: 0
     weight: 0
-    chance: 0.3
+    chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 3
     minStageLevel: 1
-    maxStageLevel: 0
-    isGuaranteed: 0
-    conditions: []
-  - itemId: MAT_ARMOR_CRYSTAL
-    rarity: 0
-    weight: 0
-    chance: 0.15
-    minQuantity: 1
-    maxQuantity: 1
-    minStageLevel: 10
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
@@ -51,8 +41,8 @@ MonoBehaviour:
     rarity: 0
     weight: 0
     chance: 0.7
-    minQuantity: 1
-    maxQuantity: 2
+    minQuantity: 80
+    maxQuantity: 100
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0

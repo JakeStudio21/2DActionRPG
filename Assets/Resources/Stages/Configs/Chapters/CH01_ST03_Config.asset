@@ -31,8 +31,9 @@ MonoBehaviour:
   requiredStamina: 5
   categoryId: 
   WaveCount: 3
-  Victory: 0
+  Victory: 1
   objectiveType: 0
+  targetBossName: "\uC624\uC5FC\uB41C \uAC70\uB300\uBA67\uB3FC\uC9C0"
   StageBaseLevel: 3
   hasTimeLimit: 0
   TimeLimitSec: 600

@@ -17,6 +17,12 @@ public class WaveTriggerZone : MonoBehaviour
     [Tooltip("트리거 발동 후 오브젝트 비활성화")]
     [SerializeField] private bool disableAfterTrigger = true;
     
+    [Header("웨이브 강제 클리어 (OR 조건)")]
+    [Tooltip("체크 시: 플레이어가 이 존을 통과하면 현재 진행 중인 웨이브를 즉시 클리어 판정.\n" +
+             "남은 몬스터를 처치하지 않아도 다음 웨이브로 진행됩니다.\n" +
+             "보스 스테이지에서 이전 웨이브를 스킵할 때 사용.")]
+    [SerializeField] private bool forceCompleteCurrentWave = false;
+    
     [Header("SimpleMob 직접 연결 (선택)")]
     [Tooltip("설정 시 StageManager를 거치지 않고 이 WaveSpawner를 직접 트리거합니다.\n" +
              "여러 구역을 독립적으로 운영할 때 사용. WaveData는 WaveSpawner에 설정.")]
@@ -31,6 +37,7 @@ public class WaveTriggerZone : MonoBehaviour
     // 상태
     private bool hasTriggered = false;
     private StageManager stageManager;
+    private WaveController waveController;
     private Collider2D triggerCollider;
     
     private void Awake()
@@ -53,6 +60,14 @@ public class WaveTriggerZone : MonoBehaviour
         if (stageManager == null)
         {
             Debug.LogError($"[WaveTriggerZone] StageManager를 찾을 수 없습니다! 씬에 StageManager가 있는지 확인하세요.");
+        }
+        
+        // ForceComplete 옵션 사용 시 WaveController도 캐싱
+        if (forceCompleteCurrentWave)
+        {
+            waveController = FindObjectOfType<WaveController>();
+            if (waveController == null)
+                Debug.LogWarning($"[WaveTriggerZone] {gameObject.name} — forceCompleteCurrentWave=true인데 WaveController를 찾을 수 없습니다.");
         }
         
         if (enableDebugLogs)
@@ -91,6 +106,14 @@ public class WaveTriggerZone : MonoBehaviour
         if (enableDebugLogs)
             Debug.Log($"🎯 [WaveTriggerZone] {gameObject.name} 발동! Trigger ID: {triggerIdToActivate}");
         
+        // [OR 조건] 현재 웨이브 강제 클리어 (몬스터가 남아있어도 다음 웨이브로 진행)
+        if (forceCompleteCurrentWave && waveController != null)
+        {
+            waveController.ForceCompleteCurrentWave();
+            if (enableDebugLogs)
+                Debug.Log($"⏭️ [WaveTriggerZone] {gameObject.name} → 현재 웨이브 강제 클리어");
+        }
+        
         // [방식 B] 직접 연결된 WaveSpawner가 있으면 StageManager 없이 직접 트리거
         if (directWaveSpawner != null)
         {
@@ -98,9 +121,9 @@ public class WaveTriggerZone : MonoBehaviour
             if (enableDebugLogs)
                 Debug.Log($"🚀 [WaveTriggerZone] {gameObject.name} → WaveSpawner 직접 트리거: {directWaveSpawner.name}");
         }
-        else
+        else if (!forceCompleteCurrentWave)
         {
-            // [방식 A] StageManager 경유
+            // [방식 A] StageManager 경유 (forceComplete 단독 사용이 아닐 때만)
             if (stageManager == null)
             {
                 Debug.LogError($"[WaveTriggerZone] StageManager가 null이고 directWaveSpawner도 없습니다! 트리거를 발동할 수 없습니다.");
@@ -109,6 +132,13 @@ public class WaveTriggerZone : MonoBehaviour
             {
                 stageManager.TriggerWave(triggerIdToActivate);
             }
+        }
+        else if (stageManager != null)
+        {
+            // forceComplete + StageManager 경유 모드: 강제 클리어 후 추가 트리거도 발동 가능
+            // (directWaveSpawner가 없는 경우에만 진입. triggerIdToActivate가 None이 아닐 때 발동)
+            if (triggerIdToActivate != WaveTriggerId.None)
+                stageManager.TriggerWave(triggerIdToActivate);
         }
         
         // 비활성화

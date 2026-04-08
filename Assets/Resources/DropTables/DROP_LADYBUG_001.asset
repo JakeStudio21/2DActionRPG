@@ -15,8 +15,7 @@ MonoBehaviour:
   dropGroupId: DROP_LADYBUG_001
   dropPolicy: 2
   pickCount: 1
-  description: "\uBB34\uB2F9\uBC8C\uB808 \uB4DC\uB86D \uD14C\uC774\uBE14 (\uB808\uBCA8
-    1~5)"
+  description: "\uBB34\uB2F9\uBC8C\uB808 \uB4DC\uB86D \uD14C\uC774\uBE14"
   dropEntries:
   - itemId: GEN_EQUIP_D_C
     rarity: 0
@@ -28,12 +27,12 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: MAT_WEAPON_FRAGMENT
+  - itemId: MAT_ARMOR_FRAGMENT
     rarity: 0
     weight: 0
-    chance: 0.3
+    chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 2
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
@@ -42,8 +41,8 @@ MonoBehaviour:
     rarity: 0
     weight: 0
     chance: 0.65
-    minQuantity: 1
-    maxQuantity: 1
+    minQuantity: 60
+    maxQuantity: 80
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0
