@@ -39,7 +39,7 @@ MonoBehaviour:
   isMiniBoss: 0
   bossId: 
   baseGoldReward: 15
-  baseExpReward: 35
+  baseExpReward: 10
   bossReward: {fileID: 0}
   dropGroupId: DROP_PLANTS_001
   dropRolls: 1

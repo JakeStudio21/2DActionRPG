@@ -118,8 +118,19 @@ public class CurrencyPickup : MonoBehaviour, IPoolableObject
     
     /// <summary>
     /// 데이터 주입 방식 초기화 (BaseItemData 기반)
+    /// GoldItemData/HealthItemData의 기본값을 사용합니다.
     /// </summary>
     public void Initialize(BaseItemData itemData)
+    {
+        Initialize(itemData, 0);
+    }
+    
+    /// <summary>
+    /// 데이터 주입 방식 초기화 (BaseItemData + 수량 오버라이드)
+    /// overrideAmount > 0 이면 DropTable.quantity 기반 수량을 사용합니다.
+    /// overrideAmount == 0 이면 GoldItemData/HealthItemData 기본값을 사용합니다.
+    /// </summary>
+    public void Initialize(BaseItemData itemData, int overrideAmount)
     {
         if (itemData == null)
         {
@@ -127,21 +138,24 @@ public class CurrencyPickup : MonoBehaviour, IPoolableObject
             return;
         }
         
-        // 타입 감지
         CurrencyType type = CurrencyType.Gold;
         int amount = 1;
         
         if (itemData is GoldItemData goldData)
         {
             type = CurrencyType.Gold;
-            amount = goldData.isRandomAmount ? 
-                Random.Range(goldData.minGoldAmount, goldData.maxGoldAmount + 1) : 
-                goldData.goldAmount;
+            // overrideAmount > 0 이면 DropTable quantity 우선 사용
+            amount = overrideAmount > 0
+                ? overrideAmount
+                : (goldData.isRandomAmount
+                    ? Random.Range(goldData.minGoldAmount, goldData.maxGoldAmount + 1)
+                    : goldData.goldAmount);
         }
         else if (itemData is HealthItemData healthData)
         {
             type = CurrencyType.Heart;
-            amount = healthData.healAmount;
+            // overrideAmount > 0 이면 DropTable quantity 우선 사용
+            amount = overrideAmount > 0 ? overrideAmount : healthData.healAmount;
         }
         
         // 초기화

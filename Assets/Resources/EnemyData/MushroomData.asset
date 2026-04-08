@@ -38,7 +38,7 @@ MonoBehaviour:
   isMiniBoss: 0
   bossId: 
   baseGoldReward: 12
-  baseExpReward: 30
+  baseExpReward: 10
   bossReward: {fileID: 0}
   dropGroupId: DROP_MUSHROOM_001
   dropRolls: 1

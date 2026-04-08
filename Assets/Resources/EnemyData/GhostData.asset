@@ -27,6 +27,10 @@ MonoBehaviour:
   enemyPrefab: {fileID: 237821646944878469, guid: e2a44f31c07b7964e9ded4996c0d2279, type: 3}
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 1
+  skillDataList: []
+  meleeAttackProbability: 100
+  skillUseProbability: 0
+  skillProbabilities: 
   hasSkills: 0
   skillIds: []
   immuneEffects: 
@@ -34,7 +38,8 @@ MonoBehaviour:
   isMiniBoss: 0
   bossId: 
   baseGoldReward: 15
-  baseExpReward: 35
+  baseExpReward: 8
+  bossReward: {fileID: 0}
   dropGroupId: DROP_GHOST_001
   dropRolls: 1
   patrolTuning: {fileID: 11400000, guid: 50bd7d860ca6bb54786ba64f84a098b4, type: 2}

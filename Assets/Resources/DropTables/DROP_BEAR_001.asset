@@ -27,12 +27,12 @@ MonoBehaviour:
     maxStageLevel: 0
     isGuaranteed: 0
     conditions: []
-  - itemId: MAT_ARMOR_FRAGMENT
+  - itemId: MAT_ACCESSORY_FRAGMENT
     rarity: 0
     weight: 0
     chance: 0.3
     minQuantity: 1
-    maxQuantity: 3
+    maxQuantity: 1
     minStageLevel: 1
     maxStageLevel: 0
     isGuaranteed: 0

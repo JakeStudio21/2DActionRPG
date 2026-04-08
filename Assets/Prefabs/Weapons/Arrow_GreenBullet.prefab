@@ -4936,7 +4936,6 @@ GameObject:
   - component: {fileID: 8813411787559020723}
   - component: {fileID: -72455256398735164}
   - component: {fileID: 5918898709646160063}
-  - component: {fileID: 8900625606471990385}
   m_Layer: 0
   m_Name: Arrow_GreenBullet
   m_TagString: Untagged
@@ -5282,19 +5281,6 @@ SortingGroup:
   m_SortingLayer: 2
   m_SortingOrder: 100
   m_SortAtRoot: 0
---- !u!114 &8900625606471990385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4149642069968341746}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 911f7f6f47875774f8e2834160c2ae50, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  poolTag: Arrow_GreenBullet
 --- !u!1 &7007900032596867362
 GameObject:
   m_ObjectHideFlags: 0

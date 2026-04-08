@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: ITEM_GOLD_COIN
   itemName: "\uACE8\uB4DC 1\uAC1C"
   description: "\uACE8\uB4DC\uB97C 1\uAC1C \uD68D\uB4DD\uD569\uB2C8\uB2E4."
-  icon: {fileID: -1451198759, guid: 34eea503aec7e6e4bab08a91963c1e0e, type: 3}
+  icon: {fileID: 21300000, guid: 7b1abe5a3ca494a41b041fdfa01d9540, type: 3}
   pickupPrefab: {fileID: 6665777931767919178, guid: 4c1beef6b9ea18040b610449d3c0db32, type: 3}
   pickupType: 0
   dropRate: 1

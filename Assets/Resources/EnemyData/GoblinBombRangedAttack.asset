@@ -16,7 +16,7 @@ MonoBehaviour:
   attackType: 1
   description: "\"\uD3ED\uD0C4\uB358\uC9C0\uAE30\uB97C \uD3EC\uBB3C\uC120\uC73C\uB85C
     \uBC1C\uC0AC\uD569\uB2C8\uB2E4\"\n"
-  baseDamage: 8
+  baseDamage: 81
   criticalChance: 0.05
   criticalMultiplier: 1.8
   attackCooldown: 1.5

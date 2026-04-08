@@ -254,7 +254,7 @@ MonoBehaviour:
   shadowSpriteRenderer: {fileID: 6390574634065633983}
   pickUpDistance: 4
   accelerationRate: 0.5
-  moveSpeed: 9
+  moveSpeed: 12
   popAnimationCurve:
     serializedVersion: 2
     m_Curve:

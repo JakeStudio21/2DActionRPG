@@ -848,13 +848,26 @@ public class EnemyHealth : MonoBehaviour
     {
         foreach (var result in dropResults)
         {
-            for (int i = 0; i < result.quantity; i++)
+            // 재화(골드/하트)는 1개 픽업에 quantity 수량을 담아 스폰 (픽업 여러 개 X)
+            // 재료/장비는 기존대로 quantity 횟수만큼 스폰
+            bool isCurrency = result.itemId.StartsWith("ITEM_GOLD") || result.itemId.StartsWith("ITEM_HEALTH");
+            
+            if (isCurrency)
             {
-                SpawnSingleItem(result.itemId, result.rarity, materialAmountMultiplier);
-                
-                // ⭐ 순차적 드롭: 0.3~0.5초 랜덤 지연
+                SpawnSingleItem(result.itemId, result.rarity, materialAmountMultiplier, result.quantity);
                 float delay = Random.Range(0.3f, 0.5f);
                 yield return new WaitForSeconds(delay);
+            }
+            else
+            {
+                for (int i = 0; i < result.quantity; i++)
+                {
+                    SpawnSingleItem(result.itemId, result.rarity, materialAmountMultiplier);
+                    
+                    // ⭐ 순차적 드롭: 0.3~0.5초 랜덤 지연
+                    float delay = Random.Range(0.3f, 0.5f);
+                    yield return new WaitForSeconds(delay);
+                }
             }
         }
     }
@@ -865,7 +878,7 @@ public class EnemyHealth : MonoBehaviour
     /// <summary>
     /// ✨ 신규 드롭 시스템: 범용 프리팹 + 데이터 주입 방식 [Phase 8-1: 룬 조각 지원]
     /// </summary>
-    private void SpawnSingleItem(string itemId, ItemRarity rarity, float materialAmountMultiplier = 1f)
+    private void SpawnSingleItem(string itemId, ItemRarity rarity, float materialAmountMultiplier = 1f, int currencyOverrideAmount = 0)
     {
         // ⭐ 스폰은 몬스터 위치에서, 드롭 애니메이션으로 퍼짐
         Vector3 spawnPosition = transform.position;
@@ -873,7 +886,11 @@ public class EnemyHealth : MonoBehaviour
         // 재화 아이템 (골드/하트)
         if (itemId.StartsWith("ITEM_GOLD") || itemId.StartsWith("ITEM_HEALTH"))
         {
-            SpawnCurrencyItem(itemId, spawnPosition);
+            // currencyOverrideAmount > 0 이면 DropTable.quantity × materialAmountMultiplier 적용
+            int finalAmount = currencyOverrideAmount > 0
+                ? Mathf.Max(1, Mathf.RoundToInt(currencyOverrideAmount * materialAmountMultiplier))
+                : 0; // 0 = CurrencyPickup이 GoldItemData 기본값 사용
+            SpawnCurrencyItem(itemId, spawnPosition, finalAmount);
         }
         // 📦 재료 아이템:
         //   MAT_           — 장비 강화 재료 (파편/결정/코어/제작정수)
@@ -899,7 +916,11 @@ public class EnemyHealth : MonoBehaviour
     /// <summary>
     /// 재화 아이템 스폰 (Drop_Currency 프리팹 사용)
     /// </summary>
-    private void SpawnCurrencyItem(string itemId, Vector3 spawnPosition)
+    /// <param name="overrideAmount">
+    /// 0 이면 GoldItemData/HealthItemData 기본값 사용.
+    /// 1 이상이면 DropTable.quantity × materialAmountMultiplier 를 적용한 값을 사용.
+    /// </param>
+    private void SpawnCurrencyItem(string itemId, Vector3 spawnPosition, int overrideAmount = 0)
     {
         // 1. 기존 데이터 가져오기
         var pickupDataCache = FindObjectOfType<PickupDataCache>();
@@ -929,8 +950,12 @@ public class EnemyHealth : MonoBehaviour
         CurrencyPickup pickup = dropObj.GetComponent<CurrencyPickup>();
         if (pickup != null)
         {
-            pickup.Initialize(itemData);
-            Debug.Log($"💰 [EnemyHealth] 재화 드롭 성공: {itemData.itemName}");
+            if (overrideAmount > 0)
+                pickup.Initialize(itemData, overrideAmount);
+            else
+                pickup.Initialize(itemData);
+            
+            Debug.Log($"💰 [EnemyHealth] 재화 드롭 성공: {itemData.itemName} x{(overrideAmount > 0 ? overrideAmount : 1)}");
         }
         else
         {

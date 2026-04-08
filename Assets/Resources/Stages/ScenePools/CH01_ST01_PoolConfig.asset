@@ -524,5 +524,11 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: FX_PlayerLevelup
+    prefab: {fileID: 1116151898118068179, guid: a7b919ff84efa1e428fcd4a2907f4bc2, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 1

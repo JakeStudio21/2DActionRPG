@@ -38,7 +38,7 @@ MonoBehaviour:
   isMiniBoss: 0
   bossId: 
   baseGoldReward: 10
-  baseExpReward: 25
+  baseExpReward: 10
   bossReward: {fileID: 0}
   dropGroupId: DROP_CRYSTALGOLEM_001
   dropRolls: 1

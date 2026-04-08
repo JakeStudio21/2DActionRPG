@@ -40,7 +40,7 @@ MonoBehaviour:
   isMiniBoss: 0
   bossId: 
   baseGoldReward: 18
-  baseExpReward: 45
+  baseExpReward: 12
   bossReward: {fileID: 0}
   dropGroupId: DROP_SCORPION_RED_001
   dropRolls: 1

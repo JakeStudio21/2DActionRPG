@@ -168,7 +168,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   pickUpDistance: 4
   accelerationRate: 0.5
-  moveSpeed: 9
+  moveSpeed: 12
   popSpreadRadius: 2.5
   bounceHeight: 2
   bounceDuration: 0.5

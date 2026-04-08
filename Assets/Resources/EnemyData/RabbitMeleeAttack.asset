@@ -15,7 +15,7 @@ MonoBehaviour:
   attackName: "\uC2AC\uB77C\uC784 \uADFC\uC811 \uACF5\uACA9"
   attackType: 0
   description: "\uB3C5\uC131 \uC2AC\uB77C\uC784\uC758 \uADFC\uC811 \uACF5\uACA9\n"
-  baseDamage: 8
+  baseDamage: 5
   criticalChance: 0.1
   criticalMultiplier: 2
   attackCooldown: 1
