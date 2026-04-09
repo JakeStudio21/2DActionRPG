@@ -37,7 +37,7 @@ MonoBehaviour:
   isBoss: 0
   isMiniBoss: 0
   bossId: 
-  baseGoldReward: 12
+  baseGoldReward: 0
   baseExpReward: 10
   bossReward: {fileID: 0}
   dropGroupId: DROP_MUSHROOM_001

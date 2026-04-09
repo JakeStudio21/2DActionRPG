@@ -22,7 +22,7 @@ MonoBehaviour:
     weight: 0
     chance: 0.45
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 3
     minStageLevel: 12
     maxStageLevel: 0
     isGuaranteed: 0
@@ -42,7 +42,7 @@ MonoBehaviour:
     weight: 0
     chance: 0.2
     minQuantity: 1
-    maxQuantity: 1
+    maxQuantity: 2
     minStageLevel: 15
     maxStageLevel: 0
     isGuaranteed: 0
@@ -58,4 +58,4 @@ MonoBehaviour:
     isGuaranteed: 0
     conditions: []
   totalWeight: 0
-  totalChance: 1.75
+  totalChance: 1.65
