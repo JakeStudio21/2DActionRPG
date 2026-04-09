@@ -9,6 +9,9 @@ public class DynamicJoystick : Joystick
 
     [SerializeField] private float moveThreshold = 1;
     [SerializeField] private float slideMultiplier = 0.1f;
+    [SerializeField] private float maxSlideDistance = 50f;
+
+    private Vector2 touchStartPosition;
 
     protected override void Start()
     {
@@ -21,6 +24,7 @@ public class DynamicJoystick : Joystick
         if (RectTransformUtility.RectangleContainsScreenPoint(baseRect, eventData.position, eventData.pressEventCamera))
         {
             background.anchoredPosition = ScreenPointToAnchoredPosition(eventData.position);
+            touchStartPosition = background.anchoredPosition;
             base.OnPointerDown(eventData);
         }
     }
@@ -37,6 +41,12 @@ public class DynamicJoystick : Joystick
             Vector2 difference = normalised * (magnitude - moveThreshold) * radius * slideMultiplier;
             background.anchoredPosition += difference;
 
+            // 터치 시작 위치 기준 최대 이동 거리 제한
+            Vector2 offset = background.anchoredPosition - touchStartPosition;
+            if (offset.magnitude > maxSlideDistance)
+                background.anchoredPosition = touchStartPosition + offset.normalized * maxSlideDistance;
+
+            // 터치 영역(baseRect) 경계 내로 클램프
             Vector2 bgHalfSize = background.sizeDelta / 2f;
             Rect bounds = baseRect.rect;
             Vector3 localPos = background.localPosition;
