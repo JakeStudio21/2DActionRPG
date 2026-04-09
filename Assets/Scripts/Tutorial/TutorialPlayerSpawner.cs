@@ -129,7 +129,7 @@ public class TutorialPlayerSpawner : MonoBehaviour
     }
     
     /// <summary>
-    /// 플레이어 스폰 후 후처리 (무기, 카메라 등)
+    /// 플레이어 스폰 후 후처리 (무기, 스킬, 카메라)
     /// </summary>
     private IEnumerator SetupPlayerAfterSpawn(TutorialPlayerData playerData)
     {
@@ -139,12 +139,37 @@ public class TutorialPlayerSpawner : MonoBehaviour
         // 무기 장착
         EquipWeapon(playerData.equippedWeapon);
         
+        // 스킬 주입 (새 스킬 시스템)
+        SetupSkills(playerData);
+        
         // 카메라 설정
         SetupCamera();
         
         if (showDebugLogs)
         {
             Debug.Log("[TutorialPlayerSpawner] 플레이어 후처리 완료");
+        }
+    }
+    
+    /// <summary>
+    /// Tutorial 스킬 직접 주입 (PlayerDataManager 없이 동작)
+    /// </summary>
+    private void SetupSkills(TutorialPlayerData playerData)
+    {
+        if (spawnedPlayer == null) return;
+        
+        var skillManager = spawnedPlayer.GetComponent<PlayerSkillManager>();
+        if (skillManager == null)
+        {
+            Debug.LogWarning("[TutorialPlayerSpawner] PlayerSkillManager를 찾을 수 없습니다!");
+            return;
+        }
+        
+        skillManager.SetTutorialSkills(playerData.tutorialSkill1, playerData.tutorialSkill2);
+        
+        if (showDebugLogs)
+        {
+            Debug.Log("[TutorialPlayerSpawner] Tutorial 스킬 주입 완료");
         }
     }
     

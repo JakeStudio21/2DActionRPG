@@ -17,6 +17,10 @@ public class TutorialPlayerData
     // 무기 (단순 참조)
     public EquipmentData equippedWeapon;
     
+    // 튜토리얼용 스킬 (인게임 첫 지급 스킬과 동일하게 설정)
+    public ActiveSkillData tutorialSkill1;
+    public ActiveSkillData tutorialSkill2;
+    
     // 생성자
     public TutorialPlayerData(PlayerType classType)
     {
@@ -24,6 +28,8 @@ public class TutorialPlayerData
         playerName = "Tutorial_Player";
         level = 1;
         equippedWeapon = null;
+        tutorialSkill1 = null;
+        tutorialSkill2 = null;
     }
     
     /// <summary>
@@ -40,7 +46,9 @@ public class TutorialPlayerData
     public override string ToString()
     {
         return $"[TutorialPlayerData] {playerName}({playerClass}) Lv.{level} " +
-               $"Weapon:{(equippedWeapon != null ? equippedWeapon.equipmentName : "None")}";
+               $"Weapon:{(equippedWeapon != null ? equippedWeapon.equipmentName : "None")} " +
+               $"Skill1:{(tutorialSkill1 != null ? tutorialSkill1.skillName : "None")} " +
+               $"Skill2:{(tutorialSkill2 != null ? tutorialSkill2.skillName : "None")}";
     }
 }
 

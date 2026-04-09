@@ -22,6 +22,10 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private EquipmentData swordEquipment; // Warrior용
     [SerializeField] private EquipmentData staffEquipment; // Wizard용
     
+    [Header("기본 스킬 데이터 (Tutorial용)")]
+    [SerializeField] private ActiveSkillData defaultSkill1; // 슬롯 0 — 예: SKILL_MULTISHOT
+    [SerializeField] private ActiveSkillData defaultSkill2; // 슬롯 1 — 예: SKILL_FOCUSE_STRIKE
+    
     // Tutorial 플레이어 데이터
     private TutorialPlayerData tutorialPlayerData;
     public TutorialPlayerData TutorialPlayerData => tutorialPlayerData;
@@ -77,6 +81,17 @@ public class TutorialManager : MonoBehaviour
         else
         {
             Debug.LogError($"[TutorialManager] {defaultPlayerClass} 클래스의 기본 무기를 찾을 수 없습니다!");
+        }
+        
+        // 기본 스킬 할당
+        tutorialPlayerData.tutorialSkill1 = defaultSkill1;
+        tutorialPlayerData.tutorialSkill2 = defaultSkill2;
+        
+        if (showDebugLogs)
+        {
+            Debug.Log($"[TutorialManager] 기본 스킬 할당: " +
+                      $"슬롯0={defaultSkill1?.skillName ?? "없음"}, " +
+                      $"슬롯1={defaultSkill2?.skillName ?? "없음"}");
         }
         
         if (showDebugLogs)

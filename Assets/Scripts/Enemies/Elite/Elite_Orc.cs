@@ -34,12 +34,9 @@ public class Elite_Orc : BaseEnemy
     { 
         get 
         {
-            // 1순위: AttackData (평타)
             if (meleeAttack != null && meleeAttack.AttackData != null)
                 return meleeAttack.AttackData.AttackRange;
-                
-            Debug.LogError($"[Elite_Orc] {gameObject.name}: MeleeAttack 또는 AttackData가 없습니다!");
-            return 1.8f; // Orc는 긴 팔 공격 범위
+            return 1.8f;
         } 
     }
     
@@ -48,14 +45,8 @@ public class Elite_Orc : BaseEnemy
         get
         {
             if (EnemyData != null)
-            {
-                float range = EnemyData.DetectionRange;
-                Debug.Log($"[Elite_Orc] {gameObject.name} DetectionRange: {range} (from EnemyData)");
-                return range;
-            }
-                
-            Debug.LogError($"[Elite_Orc] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가! fallback 7f 사용");
-            return 7f; // Elite는 넓은 감지 범위
+                return EnemyData.DetectionRange;
+            return 7f;
         }
     }
     
@@ -64,14 +55,8 @@ public class Elite_Orc : BaseEnemy
         get 
         {
             if (EnemyData != null)
-            {
-                float range = EnemyData.ChaseRange;
-                Debug.Log($"[Elite_Orc] {gameObject.name} ChaseRange: {range} (from EnemyData)");
-                return range;
-            }
-                
-            Debug.LogError($"[Elite_Orc] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가! fallback 9f 사용");
-            return 9f; // Elite는 긴 추적 범위 (끈질긴 추격)
+                return EnemyData.ChaseRange;
+            return 9f;
         } 
     }
 

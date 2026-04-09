@@ -145,6 +145,38 @@ public class PlayerSkillManager : MonoBehaviour
     }
     
     /// <summary>
+    /// Tutorial 전용 스킬 직접 주입
+    /// — PlayerDataManager/슬롯 없이 ActiveSkillData를 바로 장착 슬롯에 설정
+    /// </summary>
+    public void SetTutorialSkills(ActiveSkillData skill1, ActiveSkillData skill2)
+    {
+        equippedActiveSkills.Clear();
+        unlockedActiveSkills.Clear();
+
+        for (int i = 0; i < 2; i++)
+        {
+            ActiveSkillData data = (i == 0) ? skill1 : skill2;
+            if (data != null)
+            {
+                var instance = new SkillInstance(data, 1, true);
+                unlockedActiveSkills.Add(instance);
+                equippedActiveSkills.Add(instance);
+            }
+            else
+            {
+                equippedActiveSkills.Add(null);
+            }
+        }
+
+        if (showDebugLogs)
+        {
+            Debug.Log($"✅ [PlayerSkillManager] Tutorial 스킬 주입 완료:" +
+                      $" 슬롯0={skill1?.skillName ?? "없음"}," +
+                      $" 슬롯1={skill2?.skillName ?? "없음"}");
+        }
+    }
+
+    /// <summary>
     /// SlotData에서 액티브 스킬 목록 가져오기
     /// </summary>
     private List<SkillInstance> GetActiveSkillsFromSlotData(PlayerSlotData slotData)

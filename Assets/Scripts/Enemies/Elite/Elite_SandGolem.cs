@@ -18,12 +18,9 @@ public class Elite_SandGolem : BaseEnemy
     { 
         get 
         {
-            // 1순위: AttackData (평타)
             if (meleeAttack != null && meleeAttack.AttackData != null)
                 return meleeAttack.AttackData.AttackRange;
-                
-            Debug.LogError($"[Elite_SandGolem] {gameObject.name}: MeleeAttack 또는 AttackData가 없습니다!");
-            return 1.5f; // SandGolem은 중간 공격 범위 (강력한 주먹)
+            return 1.5f;
         } 
     }
     
@@ -32,14 +29,8 @@ public class Elite_SandGolem : BaseEnemy
         get
         {
             if (EnemyData != null)
-            {
-                float range = EnemyData.DetectionRange;
-                Debug.Log($"[Elite_SandGolem] {gameObject.name} DetectionRange: {range} (from EnemyData)");
-                return range;
-            }
-                
-            Debug.LogError($"[Elite_SandGolem] {gameObject.name}: EnemyData가 없어서 DetectionRange 확인 불가! fallback 6f 사용");
-            return 6f; // Elite는 넓은 감지 범위
+                return EnemyData.DetectionRange;
+            return 6f;
         }
     }
     
@@ -48,14 +39,8 @@ public class Elite_SandGolem : BaseEnemy
         get 
         {
             if (EnemyData != null)
-            {
-                float range = EnemyData.ChaseRange;
-                Debug.Log($"[Elite_SandGolem] {gameObject.name} ChaseRange: {range} (from EnemyData)");
-                return range;
-            }
-                
-            Debug.LogError($"[Elite_SandGolem] {gameObject.name}: EnemyData가 없어서 ChaseRange 확인 불가! fallback 8f 사용");
-            return 8f; // Elite는 긴 추적 범위
+                return EnemyData.ChaseRange;
+            return 8f;
         } 
     }
 
