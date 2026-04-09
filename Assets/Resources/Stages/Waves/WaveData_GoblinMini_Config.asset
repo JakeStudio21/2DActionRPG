@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6847a89159fb0b0469ed630e7bad5f76, type: 3}
-  m_Name: WaveData_Bomb_Config
+  m_Name: WaveData_GoblinMini_Config
   m_EditorClassIdentifier: 
   waveNumber: 1
   totalWaves: 2
   spawnConfigs:
-  - mobPrefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
+  - mobPrefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
     spawnCount: 15
     spawnInterval: 0.1
     moveSpeed: 2

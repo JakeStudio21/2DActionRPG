@@ -14,18 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: CH01_ST06
   requiredPools:
-  - tag: Arrow_B
-    prefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
-    size: 20
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
-  - tag: Arrow_B_Arc
-    prefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: Grape Projectile
     prefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
     size: 10
@@ -98,18 +86,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
-  - tag: Golem Projectile
-    prefab: {fileID: 6830296691463287077, guid: 61357f20c7386224bb4654399e49ddd5, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: VFX_CrystalGolem_Attack
-    prefab: {fileID: 7883441628179305771, guid: 12cfa14e89836e84c88056d5c7a5bf83, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
   - tag: MuzzleFlash_C
     prefab: {fileID: 4186470608034871016, guid: 3dd2aebcc29f67d48bbb81c299a4aa05, type: 3}
     size: 2
@@ -152,18 +128,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
-  - tag: MON_BLUESLIME_001
-    prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
+  - tag: MON_RABBIT_001
+    prefab: {fileID: 3235174918318939483, guid: e4765c3296266b34c9157f6b3fe30dc7, type: 3}
     size: 5
     preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: MON_GRAPE_001
-    prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   - tag: MON_BEETLE_001
     prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
     size: 5
@@ -452,6 +422,72 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 50
+  - tag: SimpleMob_SpiderMini
+    prefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_LadyBugMini
+    prefab: {fileID: 329721555528023218, guid: 83bf43f6d67180340b5a2898b1ca434e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: SimpleMob_BeetleMini
+    prefab: {fileID: 329721555528023218, guid: 2443fe66d1cc8f343b32d53b2ecfb8a1, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 50
+  - tag: FX_Hit_Explosion_Bomb
+    prefab: {fileID: 5033180708955247871, guid: b4aa5ee5c6da51a429ad16a67d781d7e, type: 3}
+    size: 30
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 30
+  - tag: FX_Hit_Explosion_Fire
+    prefab: {fileID: 4654283702912762952, guid: 029e94e6f8edd2c44a28494f72321f08, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ExplosiveArrow
+    prefab: {fileID: 4149642069968341746, guid: ac1f715d4734d594ca8817ecded3f68e, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_DoubleShot
+    prefab: {fileID: 4149642069968341746, guid: 1a8f6d7fc25747a4b8b12e82e80866f7, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Arrow_GreenBullet
+    prefab: {fileID: 4149642069968341746, guid: 89d421f72cf263742a6150806d213c0b, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Fx_AOE_Poison_Purple
+    prefab: {fileID: 5634074603722038344, guid: 6ae6f607f84524445b600ef1ce175c92, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 5
+  - tag: Fx_Hit_Impact_Fireball
+    prefab: {fileID: 7673062611469260749, guid: 218c08db2ce62444781b7f0eadf3fff9, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
+  - tag: SimpleMobExploder_Bomb
+    prefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   - tag: MON_GOBLINBOMB_001
     prefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
     size: 5
@@ -470,30 +506,30 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: SimpleMobArrow
-    prefab: {fileID: 7490839546586705011, guid: 2a404d75b2969594dbd6f79419b8be31, type: 3}
-    size: 30
+  - tag: Fx_Hit_Impact_Chain
+    prefab: {fileID: 4186470608034871016, guid: b3061650a8ceac2469d5aa777bcd08bd, type: 3}
+    size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
-  - tag: SimpleMobSplitter_GoblinMini
-    prefab: {fileID: 6597114585581072514, guid: 5aff2f1b8ce3ed54198453e0f9d68f69, type: 3}
-    size: 30
+    maxInstancesPerFrame: 10
+  - tag: ELITEMON_ORC_001
+    prefab: {fileID: 3235174918318939483, guid: 0806c881d4f5f174d83411b786a59268, type: 3}
+    size: 1
     preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
-  - tag: SimpleMobExploder_GoblinMini
-    prefab: {fileID: 5445624778298339401, guid: 1fa184e6a9e5e4b4fa07c7e3e113c641, type: 3}
-    size: 30
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_MuzzleFlash
+    prefab: {fileID: 3545761778305609661, guid: b14f0f3817bd84a46887c51290c8d3ec, type: 3}
+    size: 1
     preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
-  - tag: FX_Hit_Explosion_Bomb
-    prefab: {fileID: 5033180708955247871, guid: b4aa5ee5c6da51a429ad16a67d781d7e, type: 3}
-    size: 30
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Fx_EnemyDeath_Soul
+    prefab: {fileID: 6190469637602000563, guid: b5f27bc70ff7df84c8b5624b0be9f95a, type: 3}
+    size: 1
     preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 1
   optionalPools:
   - tag: SimpleMobHit
     prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}

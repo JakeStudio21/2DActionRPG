@@ -9650,7 +9650,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 376602bb09617904480819716cd6a522, type: 2}
     - target: {fileID: 750069039041828581, guid: c039ae87606b0c4408cd028b9bb71c66, type: 3}
       propertyPath: explosionDamage
-      value: 100
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1406117473719759812, guid: c039ae87606b0c4408cd028b9bb71c66, type: 3}
       propertyPath: m_Radius

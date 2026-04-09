@@ -4712,50 +4712,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0528c0309e6694d429442577296f6b4d, type: 3}
---- !u!1 &123688124
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 123688126}
-  - component: {fileID: 123688125}
-  m_Layer: 0
-  m_Name: RuntimeTest_Phase4C
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &123688125
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 123688124}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3305d40336aa3e499a5d8499f6ca510, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &123688126
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 123688124}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 40.8278, y: 21.969818, z: 3.5425792}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &132542180
 GameObject:
   m_ObjectHideFlags: 0
@@ -91393,6 +91349,10 @@ PrefabInstance:
       propertyPath: currentStageId
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 5272159293615511465, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
+      propertyPath: bossDeathEffectDuration
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 9083205748952842261, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
       propertyPath: m_Name
       value: StageManager
@@ -106501,18 +106461,19 @@ SceneRoots:
   - {fileID: 261131798}
   - {fileID: 820630333}
   - {fileID: 1019328403}
-  - {fileID: 1917273054}
   - {fileID: 375348522}
   - {fileID: 121763042}
   - {fileID: 1950283866}
   - {fileID: 467854474}
   - {fileID: 1122755184}
   - {fileID: 1369769690}
+  - {fileID: 557965599}
   - {fileID: 858699203}
   - {fileID: 1937912055}
-  - {fileID: 2101181551}
-  - {fileID: 531393437}
   - {fileID: 270868951}
+  - {fileID: 531393437}
+  - {fileID: 1917273054}
+  - {fileID: 2101181551}
   - {fileID: 1639090070}
   - {fileID: 840266116}
   - {fileID: 2030832605}
@@ -106523,7 +106484,5 @@ SceneRoots:
   - {fileID: 575532961}
   - {fileID: 1346369733}
   - {fileID: 1589765663}
-  - {fileID: 557965599}
-  - {fileID: 123688126}
   - {fileID: 555494517}
   - {fileID: 1988956859}

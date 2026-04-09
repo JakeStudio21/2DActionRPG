@@ -740,7 +740,9 @@ public class WaveController : MonoBehaviour
         /// </summary>
         private void HandleEnemyDeath(GameObject enemy)
         {
-            currentWaveEnemies.Remove(enemy);
+            // Remove가 true를 반환할 때만(= 실제로 이 웨이브 소속 적) StageManager에 알림
+            // false이면 이미 제거됐거나 다른 웨이브 적이므로 중복 호출 방지
+            bool wasTracked = currentWaveEnemies.Remove(enemy);
             
             // 그룹별 적 제거
             foreach (var groupPair in groupEnemies.ToList())
@@ -761,6 +763,13 @@ public class WaveController : MonoBehaviour
                     }
                     break;
                 }
+            }
+            
+            // StageManager에 킬 알림 (BossKill 연출 트리거, 킬 카운트 등)
+            // wasTracked 가드: 이 웨이브 소속이 아닌 적의 중복 호출 방지
+            if (wasTracked)
+            {
+                StageManager.Instance?.NotifyEnemyKilled(enemy);
             }
         }
         

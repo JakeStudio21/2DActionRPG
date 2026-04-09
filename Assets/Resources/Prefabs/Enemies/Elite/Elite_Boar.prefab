@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1357538892725404220}
   - component: {fileID: 2106861080513923722}
-  - component: {fileID: 2593015259640542914}
   - component: {fileID: 2142061137914716384}
+  - component: {fileID: 2593015259640542914}
   - component: {fileID: 5709947880115937855}
   - component: {fileID: 5752732880782816917}
   - component: {fileID: 4792411720221729903}
@@ -104,6 +104,33 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!50 &2142061137914716384
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!70 &2593015259640542914
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -139,33 +166,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0.04872962, y: -0.3618136}
   m_Size: {x: 2.3319013, y: 2.0323384}
   m_Direction: 1
---- !u!50 &2142061137914716384
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 4
 --- !u!114 &5709947880115937855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,7 +358,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: ad052626492a9f7448de948a50fc912a, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
-  cueProfile: {fileID: 0}
+  cueProfile: {fileID: 11400000, guid: 1979e2f0c6c958944904f0eb86880f20, type: 2}
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3

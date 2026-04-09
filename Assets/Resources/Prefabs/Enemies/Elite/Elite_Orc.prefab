@@ -358,7 +358,7 @@ MonoBehaviour:
   enemyData: {fileID: 11400000, guid: 1c1aefe8a5c750248bbee1802c9d6324, type: 2}
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   currentLevel: 1
-  cueProfile: {fileID: 0}
+  cueProfile: {fileID: 11400000, guid: e2ed5201518c3d444b4cad1e938ba606, type: 2}
   useNavMesh: 1
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3

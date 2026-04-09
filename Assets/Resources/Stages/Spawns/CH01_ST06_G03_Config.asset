@@ -19,12 +19,8 @@ MonoBehaviour:
   RepeatIntervalSec: 0
   Monsters:
   - MonsterID: MON_GOBLINWARRIOR_001
-    Count: 1
+    Count: 2
     SpawnCount: 0.3
     IsBoss: 0
-    MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_GOBLINCART_001
-    Count: 1
-    SpawnCount: 0
-    IsBoss: 0
+    LevelOffset: 0
     MonsterPrefab: {fileID: 0}

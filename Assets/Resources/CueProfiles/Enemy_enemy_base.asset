@@ -26,16 +26,6 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
-  - vfxId: BurstEffect
-    poolKey: BurstEffect
-    duration: 2
-    offset: {x: 0, y: 0, z: 0}
-    scale: {x: 1, y: 1, z: 1}
-    followTarget: 0
-    rotationMode: 0
-    priority: 50
-    cooldown: 0
-    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
   - vfxId: AttackMeleeSwing
     poolKey: Fx_EnemyHit_Slash
     duration: 2
@@ -57,7 +47,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC6D0\uAC70\uB9AC \uBC1C\uC0AC"
   - vfxId: EnemyDeathEffect
-    poolKey: Fx_EnemyDeath
+    poolKey: Fx_EnemyDeath_Soul
     duration: 1
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}

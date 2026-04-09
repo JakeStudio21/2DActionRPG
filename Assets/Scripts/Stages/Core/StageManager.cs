@@ -44,6 +44,17 @@ public class StageManager : MonoBehaviour
                  "초과 시 적 수가 줄어들 때까지 스폰 대기")]
         [SerializeField] private int maxEnemyLimit = 50;
         
+        [Header("⚔️ 공통 승리 연출")]
+        [Tooltip("KillAll / ObjectiveComplete 승리 시 팝업 전 대기 시간 (실제 시간 기준, 초) — 마지막 적 Death Effect 길이에 맞게 조정")]
+        [SerializeField] private float victoryDelay = 1.5f;
+        
+        [Header("🐲 보스 처치 연출")]
+        [Tooltip("Death Effect 재생 대기 시간 (실제 시간 기준, 초) — VFX 길이에 맞게 조정")]
+        [SerializeField] private float bossDeathEffectDuration = 3.0f;
+        
+        [Tooltip("Death Effect 종료 후 승리 팝업까지 추가 여유 시간 (실제 시간 기준, 초)")]
+        [SerializeField] private float bossVictoryDelay = 0.5f;
+        
         private HashSet<int> scheduledAutoDelayWaveIndices = new HashSet<int>();
         private List<Coroutine> pendingAutoDelayCoroutines = new List<Coroutine>();
         
@@ -381,8 +392,17 @@ public class StageManager : MonoBehaviour
                     return;
                 }
                 
-                // 그 외 조건(KillAll 등)은 기존대로 즉시 승리
-                CompleteStage(true);
+                // BossKill은 NotifyEnemyKilled() → BossKillVictorySequence 코루틴에서 처리
+                // 여기서 즉시 CompleteStage를 호출하면 슬로우 연출이 무시됨
+                if (stageConfig.Victory == VictoryCondition.BossKill)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"🐲 [StageManager] BossKill - 모든 웨이브 완료, 보스 처치 판정 대기 중");
+                    return;
+                }
+                
+                // 그 외 조건(KillAll 등) — Death Effect 대기 후 승리
+                StartCoroutine(VictorySequence(true, victoryDelay));
                 return;
             }
             
@@ -643,8 +663,8 @@ public class StageManager : MonoBehaviour
             if (shouldCheckVictory && CheckVictoryCondition())
             {
                 if (enableDebugLogs)
-                    Debug.Log($"🏆 [StageManager] 승리! CompleteStage(true)");
-                CompleteStage(true);
+                    Debug.Log($"🏆 [StageManager] 승리! VictorySequence 시작 ({victoryDelay}초 대기)");
+                StartCoroutine(VictorySequence(true, victoryDelay));
             }
             else
             {
@@ -1638,25 +1658,25 @@ public class StageManager : MonoBehaviour
                             if (enableDebugLogs)
                                 Debug.Log($"🏆 [StageManager] BossKill + 시간 안에 승리! {elapsedTime:F1}초");
                             
-                            CompleteStage(true);
+                            StartCoroutine(BossKillVictorySequence(true));
                         }
                         else
                         {
                             if (enableDebugLogs)
                                 Debug.Log($"⏱️ [StageManager] 보스 처치했지만 시간 초과: {elapsedTime:F1}초");
                             
-                            CompleteStage(false); // 시간 초과로 패배
+                            CompleteStage(false); // 시간 초과 패배는 연출 없이 즉시 처리
                         }
                     }
                     else
                     {
-                        // 시간 제한 없음 - 즉시 승리 체크
+                        // 시간 제한 없음
                         if (enableDebugLogs)
-                            Debug.Log($"🏆 [StageManager] 승리 조건 달성! (BossKill) - 즉시 승리 처리");
+                            Debug.Log($"🏆 [StageManager] 승리 조건 달성! (BossKill) - 보스 처치 연출 시작");
                         
                         if (CheckVictoryCondition())
                         {
-                            CompleteStage(true);
+                            StartCoroutine(BossKillVictorySequence(true));
                         }
                     }
                 }
@@ -1669,6 +1689,44 @@ public class StageManager : MonoBehaviour
             
             if (enableDebugLogs)
                 Debug.Log($"🎯 [StageManager] 총 처치수: {totalEnemyKillCount}");
+        }
+        
+        /// <summary>
+        /// BossKill 승리 연출 코루틴
+        /// 보스 사망 후 Death Effect가 재생되는 동안 대기한 뒤 승리 팝업 출력
+        /// </summary>
+        private IEnumerator BossKillVictorySequence(bool success)
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🐲 [StageManager] 보스 처치 연출 시작 — Death Effect 대기 {bossDeathEffectDuration}초");
+            
+            // Death Effect 재생 시간 동안 대기
+            yield return new WaitForSecondsRealtime(bossDeathEffectDuration);
+            
+            if (enableDebugLogs)
+                Debug.Log($"🐲 [StageManager] Death Effect 대기 완료 → {bossVictoryDelay}초 후 승리 처리");
+            
+            // 추가 여유 시간 후 승리
+            yield return new WaitForSecondsRealtime(bossVictoryDelay);
+            
+            CompleteStage(success);
+        }
+        
+        /// <summary>
+        /// KillAll / ObjectiveComplete 승리 연출 코루틴
+        /// 마지막 적 처치 또는 목표 달성 후 Death/파괴 이펙트 재생 시간만큼 대기한 뒤 승리 팝업 출력
+        /// </summary>
+        private IEnumerator VictorySequence(bool success, float delay)
+        {
+            if (enableDebugLogs)
+                Debug.Log($"🏆 [StageManager] VictorySequence 시작 — {delay}초 대기 후 승리 처리");
+            
+            yield return new WaitForSecondsRealtime(delay);
+            
+            if (enableDebugLogs)
+                Debug.Log($"🏆 [StageManager] VictorySequence 완료 → CompleteStage");
+            
+            CompleteStage(success);
         }
         
         /// <summary>
@@ -1709,9 +1767,9 @@ public class StageManager : MonoBehaviour
             }
             
             if (enableDebugLogs)
-                Debug.Log($"🏆 [StageManager] 모든 목표 바리케이드 파괴 완료! 승리 처리");
+                Debug.Log($"🏆 [StageManager] 모든 목표 바리케이드 파괴 완료! VictorySequence 시작 ({victoryDelay}초 대기)");
             
-            CompleteStage(true);
+            StartCoroutine(VictorySequence(true, victoryDelay));
         }
 
         #region ✅ 🎵 BGM 시스템 연동 (Phase 1.3 추가)

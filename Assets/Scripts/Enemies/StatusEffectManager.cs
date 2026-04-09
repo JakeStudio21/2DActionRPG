@@ -137,6 +137,13 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         // ⚡ GC 최소화: foreach 사용 (List는 struct enumerator 사용)
         foreach (var effect in activeEffects)
         {
+            // 대상 오브젝트가 이미 파괴된 경우 즉시 제거 대기열에 추가
+            if (effect.Target == null)
+            {
+                effectsToRemove.Add(effect);
+                continue;
+            }
+            
             // 틱 처리 (지속시간 감소 + 지속 피해 등)
             bool isExpired = effect.Tick(Time.deltaTime);
             
@@ -502,7 +509,7 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         activeEffects.Remove(effect);
         
         if (enableDebugLogs)
-            Debug.Log($"❌ [StatusEffectManager] {effect.EffectType} 제거 ← {effect.Target.name}");
+            Debug.Log($"❌ [StatusEffectManager] {effect.EffectType} 제거 ← {(effect.Target != null ? effect.Target.name : "(destroyed)")}");
     }
     
     /// <summary>

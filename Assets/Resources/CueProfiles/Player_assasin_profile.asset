@@ -17,7 +17,7 @@ MonoBehaviour:
   baseProfile: {fileID: 11400000, guid: 1970a8983fce55b449e7de0795a13329, type: 2}
   vfxCatalog:
   - vfxId: SkillArrowRainCast
-    poolKey: WarriorSlashAreaEffect
+    poolKey: Fx_Muzzle_Nature
     duration: 3
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
@@ -197,7 +197,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
   - vfxId: HitChainShot
-    poolKey: Fx_Hit_Impact_Fireball
+    poolKey: Fx_Hit_Impact_Chain
     duration: 2
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}

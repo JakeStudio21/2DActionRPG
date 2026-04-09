@@ -536,5 +536,17 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: Fx_EnemyDeath_Soul
+    prefab: {fileID: 6190469637602000563, guid: b5f27bc70ff7df84c8b5624b0be9f95a, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 1
+  - tag: Fx_Hit_Impact_Chain
+    prefab: {fileID: 4186470608034871016, guid: b3061650a8ceac2469d5aa777bcd08bd, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

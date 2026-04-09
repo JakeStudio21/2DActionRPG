@@ -28,16 +28,22 @@ MonoBehaviour:
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
+  requiredStamina: 5
+  categoryId: 
   WaveCount: 4
   Victory: 1
+  objectiveType: 0
+  targetBossName: "\uC624\uD06C\uB450\uBAA9"
   StageBaseLevel: 7
   hasTimeLimit: 0
-  TimeLimitSec: 180
+  TimeLimitSec: 9999
   FirstClearDropGroupId: DROP_CH01_ST06_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST06_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 6 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uBCF4\uC2A4 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST05"
+  targetFarmingEntries: []
+  overrideRangeTable: {fileID: 0}
   WaveConfigs:
   - {fileID: 11400000, guid: 9ee3afb44a9a830498396bb44656ac26, type: 2}
   - {fileID: 11400000, guid: d853a67d52e4dcf42b777a65162c9257, type: 2}

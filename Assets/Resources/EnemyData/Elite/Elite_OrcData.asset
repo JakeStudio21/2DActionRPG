@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Elite_OrcData
   m_EditorClassIdentifier: 
   enemyId: ELITEMON_ORC_001
-  enemyName: Elite_Orc
+  enemyName: "\uC624\uD06C\uB450\uBAA9"
   enemyType: 1
   description: "\"\uC5D8\uB9AC\uD2B8 \uC624\uD06C\""
   baseHealth: 200
@@ -36,7 +36,7 @@ MonoBehaviour:
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000
-  isBoss: 0
+  isBoss: 1
   isMiniBoss: 0
   bossId: 
   baseGoldReward: 20
