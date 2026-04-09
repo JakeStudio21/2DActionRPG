@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,24 +8,25 @@ public class DynamicJoystick : Joystick
     public float MoveThreshold { get { return moveThreshold; } set { moveThreshold = Mathf.Abs(value); } }
 
     [SerializeField] private float moveThreshold = 1;
+    [SerializeField] private float slideMultiplier = 0.1f;
 
     protected override void Start()
     {
         MoveThreshold = moveThreshold;
         base.Start();
-        background.gameObject.SetActive(false);
     }
 
     public override void OnPointerDown(PointerEventData eventData)
     {
-        background.anchoredPosition = ScreenPointToAnchoredPosition(eventData.position);
-        background.gameObject.SetActive(true);
-        base.OnPointerDown(eventData);
+        if (RectTransformUtility.RectangleContainsScreenPoint(baseRect, eventData.position, eventData.pressEventCamera))
+        {
+            background.anchoredPosition = ScreenPointToAnchoredPosition(eventData.position);
+            base.OnPointerDown(eventData);
+        }
     }
 
     public override void OnPointerUp(PointerEventData eventData)
     {
-        background.gameObject.SetActive(false);
         base.OnPointerUp(eventData);
     }
 
@@ -33,8 +34,15 @@ public class DynamicJoystick : Joystick
     {
         if (magnitude > moveThreshold)
         {
-            Vector2 difference = normalised * (magnitude - moveThreshold) * radius;
+            Vector2 difference = normalised * (magnitude - moveThreshold) * radius * slideMultiplier;
             background.anchoredPosition += difference;
+
+            Vector2 bgHalfSize = background.sizeDelta / 2f;
+            Rect bounds = baseRect.rect;
+            Vector3 localPos = background.localPosition;
+            localPos.x = Mathf.Clamp(localPos.x, bounds.xMin + bgHalfSize.x, bounds.xMax - bgHalfSize.x);
+            localPos.y = Mathf.Clamp(localPos.y, bounds.yMin + bgHalfSize.y, bounds.yMax - bgHalfSize.y);
+            background.localPosition = localPos;
         }
         base.HandleInput(magnitude, normalised, radius, cam);
     }
