@@ -724,15 +724,14 @@ namespace CutsceneSystem
             
             if (playerController != null)
             {
-                // 이동 잠금 상태 저장
+                // 컷신 시작 전 이동 잠금 상태를 기록한다.
+                // - 일반 플레이 중 발동되는 컷신(AreaTrigger 등): false → RestorePlayerInput이 잠금 해제
+                // - 스테이지 입장 컷신: PlayerSpawner가 스폰 직후 SetMovementLocked(true)를 걸었으므로
+                //   wasPlayerMovementLocked = true가 되어 RestorePlayerInput이 잠금 유지.
+                //   이 경우 StageManager.InitializeStage() 가 웨이브 시작 직전 최종 잠금 해제를 담당한다.
                 wasPlayerMovementLocked = playerController.IsMovementRestricted();
                 
-                // 이동 잠금
                 playerController.SetMovementLocked(true);
-                
-                // 입력 비활성화 (PlayerControls)
-                // PlayerController의 ReEnableControls를 반대로 사용
-                // 실제로는 SetMovementLocked만으로도 충분할 수 있음
                 
                 if (enableDebugLogs)
                     Debug.Log("[CutsceneManager] 플레이어 입력 차단");
@@ -749,15 +748,13 @@ namespace CutsceneSystem
         {
             if (playerController != null)
             {
-                // 이동 잠금 해제
+                // 컷신 시작 전 이동이 잠겨 있지 않았던 경우에만 잠금 해제한다.
+                // 스테이지 입장 컷신처럼 외부 시스템(PlayerSpawner)이 먼저 잠금을 건 경우
+                // wasPlayerMovementLocked == true이므로 여기서는 유지하고,
+                // StageManager.InitializeStage() 가 최종 해제를 담당한다.
                 if (!wasPlayerMovementLocked)
                 {
                     playerController.SetMovementLocked(false);
-                }
-                else
-                {
-                    // 원래 잠금 상태였으면 그대로 유지
-                    // (다른 시스템에서 잠금한 경우)
                 }
                 
                 if (enableDebugLogs)

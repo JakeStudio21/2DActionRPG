@@ -24,6 +24,9 @@ public class MiniMapUIManager : MonoBehaviour
     [Tooltip("화면 중앙 대형 전체 미니맵 패널")]
     [SerializeField] private GameObject minimapPanel;
 
+    [Tooltip("설정 패널 (미니맵 확장 시 열려있으면 자동으로 닫음)")]
+    [SerializeField] private SettingsUIController settingsUIController;
+
     // ────────────────────────────────────────────────────────────────
     //  초기화
     // ────────────────────────────────────────────────────────────────
@@ -60,6 +63,10 @@ public class MiniMapUIManager : MonoBehaviour
     /// </summary>
     public void ShowMinimap()
     {
+        // SettingsPanel이 열려있으면 먼저 닫는다 (패널 겹침 방지)
+        if (settingsUIController != null && settingsUIController.gameObject.activeSelf)
+            settingsUIController.Close();
+
         SetPanelState(showRadar: false);
     }
 

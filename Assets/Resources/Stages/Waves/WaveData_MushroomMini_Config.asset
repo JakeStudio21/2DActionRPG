@@ -16,7 +16,7 @@ MonoBehaviour:
   totalWaves: 2
   spawnConfigs:
   - mobPrefab: {fileID: 329721555528023218, guid: 68bdd57e65937b746a74f703147bad55, type: 3}
-    spawnCount: 20
+    spawnCount: 15
     spawnInterval: 0.1
     moveSpeed: 1.5
     spawnPattern: 0

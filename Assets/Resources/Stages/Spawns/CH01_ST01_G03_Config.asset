@@ -19,7 +19,7 @@ MonoBehaviour:
   RepeatIntervalSec: 0
   Monsters:
   - MonsterID: MON_RABBIT_001
-    Count: 8
+    Count: 6
     SpawnCount: 0.3
     IsBoss: 0
     LevelOffset: 0

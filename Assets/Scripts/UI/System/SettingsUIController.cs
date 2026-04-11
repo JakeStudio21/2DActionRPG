@@ -116,6 +116,10 @@ public class SettingsUIController : MonoBehaviour
     {
         _currentOpenMode = mode;
 
+        // MinimapPanel이 열려있으면 레이더맵으로 되돌린다 (패널 겹침 방지)
+        if (MiniMapUIManager.Instance != null && MiniMapUIManager.Instance.IsMinimapVisible)
+            MiniMapUIManager.Instance.ShowRadarMap();
+
         if (mode == SettingsOpenMode.FromHUD)
             Time.timeScale = 0f;
 

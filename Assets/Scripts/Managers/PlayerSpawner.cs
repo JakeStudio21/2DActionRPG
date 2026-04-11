@@ -322,6 +322,15 @@ public class PlayerSpawner : MonoBehaviour
         yield return null; // 한 프레임 대기
         spawnedPlayer = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
         Debug.Log($"[PlayerSpawner] {prefab.name} 스폰 완료 (직접 생성) - spawnedPlayer: {spawnedPlayer?.name}");
+
+        // 스테이지 초기화(풀 워밍업·컷신)가 끝나기 전에 플레이어가 이동하지 않도록 즉시 잠금
+        // StageManager.InitializeStage() 가 모든 준비를 마친 뒤 해제한다.
+        var spawnedController = spawnedPlayer != null ? spawnedPlayer.GetComponent<PlayerController>() : null;
+        if (spawnedController != null)
+        {
+            spawnedController.SetMovementLocked(true);
+            Debug.Log("[PlayerSpawner] 스테이지 초기화 완료 전 이동 잠금 설정");
+        }
         
         // 스폰된 플레이어 유효성 검사
         if (spawnedPlayer == null)

@@ -60,6 +60,10 @@ public class IntegratedInventoryController : MonoBehaviour
     // 내부 상태
     private bool isInventoryOpen = false;
     
+    // 초기화 중 패널을 투명하게 만들기 위한 CanvasGroup 캐시
+    private CanvasGroup activeInventoryCanvasGroup;
+    private CanvasGroup equippedItemsCanvasGroup;
+    
     void Start()
     {
         // 🔧 수정: IntegratedInventoryController는 인게임에서만 활성화
@@ -87,9 +91,18 @@ public class IntegratedInventoryController : MonoBehaviour
     {
         if (activeInventoryPanel != null)
         {
+            // CanvasGroup 캐시: 초기화 중 패널을 투명하게 유지하기 위해 사용
+            activeInventoryCanvasGroup = activeInventoryPanel.GetComponent<CanvasGroup>();
+            if (activeInventoryCanvasGroup != null)
+            {
+                activeInventoryCanvasGroup.alpha = 0f;
+                activeInventoryCanvasGroup.blocksRaycasts = false;
+                activeInventoryCanvasGroup.interactable = false;
+            }
+            
             Debug.Log($"✅ [IntegratedInventoryController] ActiveInventory 참조 연결 완료");
             
-            // 🆕 수정: ActiveInventory 초기화 완료 이벤트 구독
+            // ActiveInventory 초기화 완료 이벤트 구독
             ActiveInventory.OnActiveInventoryInitialized += OnActiveInventoryInitialized;
         }
         else
@@ -99,7 +112,15 @@ public class IntegratedInventoryController : MonoBehaviour
         
         if (equippedItemsPanel != null)
         {
-            // equippedItemsPanel.SetActive(false); // 🗑️ 제거: 즉시 비활성화 금지
+            // CanvasGroup 캐시: 초기화 중 패널을 투명하게 유지하기 위해 사용
+            equippedItemsCanvasGroup = equippedItemsPanel.GetComponent<CanvasGroup>();
+            if (equippedItemsCanvasGroup != null)
+            {
+                equippedItemsCanvasGroup.alpha = 0f;
+                equippedItemsCanvasGroup.blocksRaycasts = false;
+                equippedItemsCanvasGroup.interactable = false;
+            }
+            
             Debug.Log($"✅ [IntegratedInventoryController] EquippedItemsPanel 참조 연결 완료");
         }
         else
@@ -118,24 +139,42 @@ public class IntegratedInventoryController : MonoBehaviour
             Debug.LogError("🔴 [IntegratedInventoryController] BagButton 참조가 설정되지 않았습니다!");
         }
         
-        isInventoryOpen = false; // 🔧 수정: 논리적 상태만 false로 설정
+        isInventoryOpen = false;
         
         if (showDebugLogs)
             Debug.Log("✅ [IntegratedInventoryController] 참조 방식 초기화 완료");
     }
 
     /// <summary>
-    /// 🆕 ActiveInventory 초기화 완료 시 호출
+    /// ActiveInventory 초기화 완료 시 호출.
+    /// CanvasGroup을 원상 복구한 뒤 패널을 비활성화하여 시작 시 깜빡임을 제거한다.
     /// </summary>
     private void OnActiveInventoryInitialized()
     {
         Debug.Log("🎯 [IntegratedInventoryController] ActiveInventory 초기화 완료 - 패널 비활성화 시작");
         
         if (activeInventoryPanel != null)
+        {
+            // CanvasGroup 원상 복구 후 비활성화 (다음 SetActive(true) 시 정상 표시됨)
+            if (activeInventoryCanvasGroup != null)
+            {
+                activeInventoryCanvasGroup.alpha = 1f;
+                activeInventoryCanvasGroup.blocksRaycasts = true;
+                activeInventoryCanvasGroup.interactable = true;
+            }
             activeInventoryPanel.SetActive(false);
+        }
         
         if (equippedItemsPanel != null)
+        {
+            if (equippedItemsCanvasGroup != null)
+            {
+                equippedItemsCanvasGroup.alpha = 1f;
+                equippedItemsCanvasGroup.blocksRaycasts = true;
+                equippedItemsCanvasGroup.interactable = true;
+            }
             equippedItemsPanel.SetActive(false);
+        }
         
         Debug.Log("✅ [IntegratedInventoryController] 인벤토리 초기화 및 비활성화 완료");
     }

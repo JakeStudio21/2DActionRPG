@@ -261,8 +261,10 @@ public class StageManager : MonoBehaviour
             // 🎬 Phase 4: 스테이지 입장 컷신 체크
             if (!string.IsNullOrEmpty(stageConfig.enterCutsceneId))
             {
-                bool isReplay = StageProgressManager.Instance != null && 
-                                StageProgressManager.Instance.IsStageCompleted(stageConfig.StageID);
+                // 스테이지 클리어 여부가 아닌 컷신 시청 여부로 판단한다.
+                // 실패 후 재입장 시에도 이미 본 컷신은 스킵되도록 한다.
+                bool isReplay = CutsceneSystem.CutsceneManager.Instance != null &&
+                                CutsceneSystem.CutsceneManager.Instance.HasSeenCutscene(stageConfig.enterCutsceneId);
                 
                 if (CutsceneSystem.CutsceneManager.Instance != null)
                 {
@@ -289,7 +291,17 @@ public class StageManager : MonoBehaviour
             // 2단계: 스테이지 데이터 로드
             yield return StartCoroutine(LoadStageData());
             
-            // 3단계: 첫 번째 웨이브 시작
+            // 3단계: 모든 사전 처리(풀 워밍업·컷신) 완료 후 플레이어 이동 잠금 해제
+            // PlayerSpawner에서 스폰 직후 걸어둔 잠금을 여기서 일괄 해제한다.
+            var playerController = FindObjectOfType<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.SetMovementLocked(false);
+                if (enableDebugLogs)
+                    Debug.Log("[StageManager] 스테이지 준비 완료 - 플레이어 이동 잠금 해제");
+            }
+            
+            // 4단계: 첫 번째 웨이브 시작
             OnStageStarted?.Invoke(stageConfig);
             
             StartNextWave();
