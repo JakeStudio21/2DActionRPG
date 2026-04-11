@@ -5,6 +5,7 @@ using System.Collections;
 using DG.Tweening;
 using System.Collections.Generic;
 using CueSystem;
+using UnityEngine.InputSystem;
 
 namespace CutsceneSystem
 {
@@ -511,14 +512,18 @@ namespace CutsceneSystem
                 return;
             
             // ESC 키: 컷신 전체 종료
-            if (Input.GetKeyDown(KeyCode.Escape))
+#if UNITY_EDITOR || UNITY_STANDALONE
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 StopCutscene();
                 return;
             }
-            
-            // 마우스 클릭 또는 터치
-            if (Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+#endif
+
+            // 마우스 클릭 또는 터치 (New Input System)
+            bool mouseClick  = Mouse.current      != null && Mouse.current.leftButton.wasPressedThisFrame;
+            bool touchTap    = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
+            if (mouseClick || touchTap)
             {
                 HandleClick();
             }

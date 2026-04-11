@@ -451,7 +451,11 @@ public class TutorialStepController : MonoBehaviour
             return;
         
         // 스킬1 입력 체크 (S키 또는 UI 버튼)
-        if (!hasUsedSkill1 && (Input.GetKeyDown(KeyCode.S) || CheckSkill1ButtonPressed()))
+        bool skill1KeyDown = false;
+#if UNITY_EDITOR || UNITY_STANDALONE
+        skill1KeyDown = Input.GetKeyDown(KeyCode.S);
+#endif
+        if (!hasUsedSkill1 && (skill1KeyDown || CheckSkill1ButtonPressed()))
         {
             hasUsedSkill1 = true;
             
@@ -525,7 +529,11 @@ public class TutorialStepController : MonoBehaviour
             return;
         
         // 스킬2 입력 체크 (D키 또는 UI 버튼)
-        if (!hasUsedSkill2 && (Input.GetKeyDown(KeyCode.D) || CheckSkill2ButtonPressed()))
+        bool skill2KeyDown = false;
+#if UNITY_EDITOR || UNITY_STANDALONE
+        skill2KeyDown = Input.GetKeyDown(KeyCode.D);
+#endif
+        if (!hasUsedSkill2 && (skill2KeyDown || CheckSkill2ButtonPressed()))
         {
             hasUsedSkill2 = true;
             

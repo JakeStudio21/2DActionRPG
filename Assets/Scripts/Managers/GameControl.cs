@@ -152,13 +152,15 @@ public class GameControl : Singleton<GameControl>
     {
         DashPressed = false;
 
-        // 🆕 Spacebar 대시 입력 활성화
+        // 🆕 Spacebar 대시 입력 (PC 전용)
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (enableKeyboardInput && Input.GetKeyDown(KeyCode.Space))
         {
             DashPressed = true;
             OnDashPressed?.Invoke();
             Debug.Log("[GameControl] Spacebar 대시 입력 감지");
         }
+#endif
     }
 
     /// <summary>

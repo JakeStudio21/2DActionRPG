@@ -15,17 +15,22 @@ public class ColliderGizmosDrawer : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F1))
+#if UNITY_EDITOR
+        var kb = UnityEngine.InputSystem.Keyboard.current;
+        if (kb != null && kb.leftShiftKey.isPressed)
         {
-            showGizmos = !showGizmos;
-            Debug.Log("콜라이더 표시: " + (showGizmos ? "ON" : "OFF") + " (Shift+F1로 토글)");
+            if (kb.f1Key.wasPressedThisFrame)
+            {
+                showGizmos = !showGizmos;
+                Debug.Log("콜라이더 표시: " + (showGizmos ? "ON" : "OFF") + " (Shift+F1로 토글)");
+            }
+            if (kb.f2Key.wasPressedThisFrame)
+            {
+                showMonsterRanges = !showMonsterRanges;
+                Debug.Log("몬스터 범위 표시: " + (showMonsterRanges ? "ON" : "OFF") + " (Shift+F2로 토글)");
+            }
         }
-        
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.F2))
-        {
-            showMonsterRanges = !showMonsterRanges;
-            Debug.Log("몬스터 범위 표시: " + (showMonsterRanges ? "ON" : "OFF") + " (Shift+F2로 토글)");
-        }
+#endif
     }
 
     private void OnDrawGizmos()

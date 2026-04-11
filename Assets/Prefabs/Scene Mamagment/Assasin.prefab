@@ -898,7 +898,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   showDebugGizmos: 1
-  showDebugLogs: 0
+  showDebugLogs: 1
 --- !u!1 &8172105619653225314
 GameObject:
   m_ObjectHideFlags: 0

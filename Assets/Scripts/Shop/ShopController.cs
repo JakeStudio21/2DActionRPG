@@ -70,11 +70,10 @@ public class ShopController : MonoBehaviour
 // ShopController.cs에 추가 (Update 메서드)
 void Update()
 {
-    // 테스트용: B키 누르면 첫 번째 아이템 구매 시도
+#if UNITY_EDITOR || UNITY_STANDALONE
     if (Input.GetKeyDown(KeyCode.B))
-    {
         TestBuyItem();
-    }
+#endif
 }
 
 private void TestBuyItem()

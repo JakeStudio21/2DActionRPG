@@ -16,18 +16,18 @@ public class SimpleCueTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // 간단한 키 테스트
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Debug.Log("🧪 [SimpleCueTest] 스페이스바 테스트");
             
-            // FindObjectOfType으로 안전하게 접근
             var cuePlayer = FindObjectOfType<CueSystem.CuePlayer>();
             if (cuePlayer != null)
             {
                 Debug.Log("✅ [SimpleCueTest] CuePlayer 접근 성공");
             }
         }
+#endif
     }
 
     void RunTest()

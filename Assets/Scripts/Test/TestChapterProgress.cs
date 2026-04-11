@@ -13,6 +13,7 @@ public class TestChapterProgress : MonoBehaviour
     private void Update()
     {
         updateFrameCount++;
+#if UNITY_EDITOR
         
         // 키 입력 전체 디버깅
         if (Input.anyKeyDown)
@@ -545,5 +546,6 @@ public class TestChapterProgress : MonoBehaviour
         }
         
         ======================================== */
+#endif
     }
 }

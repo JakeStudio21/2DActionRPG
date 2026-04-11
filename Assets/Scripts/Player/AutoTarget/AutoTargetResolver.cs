@@ -37,7 +37,12 @@ public class AutoTargetResolver : MonoBehaviour
     /// <returns>최적 ITargetable (없으면 null)</returns>
     public ITargetable FindBestTarget(Vector2 aimDir, TargetingProfile profile)
     {
-        if (profile == null) return _currentTarget;
+        if (profile == null)
+        {
+            if (showDebugLogs)
+                Debug.Log("[AT_DBG] FindBestTarget: profile=null → 스킵");
+            return _currentTarget;
+        }
 
         // 현재 타겟 유효성 검사
         // ITargetable은 인터페이스라 != null이 C# 참조 비교를 사용하며,
@@ -64,6 +69,13 @@ public class AutoTargetResolver : MonoBehaviour
 
         Vector2 origin = transform.position;
         int count = Physics2D.OverlapCircleNonAlloc(origin, profile.detectionRadius, _results, enemyLayer);
+
+        if (showDebugLogs)
+        {
+            Debug.Log($"[AT_DBG] FindBestTarget: origin={origin}, radius={profile.detectionRadius:F1}, " +
+                      $"enemyLayerMask={enemyLayer.value}, OverlapCount={count} " +
+                      $"(count=0이면 레이어/반경/콜라이더 확인)");
+        }
 
         ITargetable bestTarget = null;
         float bestScore = float.MinValue;

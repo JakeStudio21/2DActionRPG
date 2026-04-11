@@ -126,7 +126,10 @@ public class PlayerSpawner : MonoBehaviour
         
         // ⭐ 추가: PlayerAttackInput 컴포넌트 자동 추가
         AddPlayerAttackInput();
-        
+
+        // AttackButtonController에 PlayerAttackInput 주입
+        BindAttackButtonController();
+
         // 카메라 설정 (더 안전한 방식) - 즉시 실행
         yield return StartCoroutine(SetupPlayerCameraCoroutine());
         
@@ -453,6 +456,32 @@ public class PlayerSpawner : MonoBehaviour
     public GameObject GetSpawnedPlayer()
     {
         return spawnedPlayer;
+    }
+
+    /// <summary>
+    /// AttackButtonController에 PlayerAttackInput 참조를 주입한다.
+    /// 플레이어 스폰 + AddPlayerAttackInput() 완료 직후 1회 호출.
+    /// </summary>
+    private void BindAttackButtonController()
+    {
+        if (spawnedPlayer == null) return;
+
+        var input = spawnedPlayer.GetComponent<PlayerAttackInput>();
+        if (input == null)
+        {
+            Debug.LogWarning("[PlayerSpawner] PlayerAttackInput 컴포넌트를 찾을 수 없어 AttackButtonController 바인딩 생략.");
+            return;
+        }
+
+        var attackButtonController = FindObjectOfType<AttackButtonController>();
+        if (attackButtonController == null)
+        {
+            Debug.LogWarning("[PlayerSpawner] AttackButtonController를 찾을 수 없습니다. HUD가 씬에 있는지 확인하세요.");
+            return;
+        }
+
+        attackButtonController.Bind(input);
+        Debug.Log("[PlayerSpawner] AttackButtonController 바인딩 완료.");
     }
 
     /// <summary>

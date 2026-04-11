@@ -808,11 +808,12 @@ public class ActiveInventory : MonoBehaviour
     }
 
     void Update() {
-        // T키로 강제 무기 교체 테스트
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetKeyDown(KeyCode.T)) {
             Debug.Log("🔧 [DEBUG] T키로 강제 무기 교체 테스트");
-            ToggleActiveHighlight(1); // 1번 슬롯으로 강제 변경
+            ToggleActiveHighlight(1);
         }
+#endif
         
         // Q키로 다음 무기 교체
         // if (Input.GetKeyDown(KeyCode.Q)) {

@@ -145,26 +145,19 @@ namespace DebugTools
         
         private void Update()
         {
-            // F1 키로 패널 토글
+#if UNITY_EDITOR || UNITY_STANDALONE
             if (Input.GetKeyDown(toggleKey))
             {
-                if (showDebugLogs)
-                {
-                    Debug.Log($"🔑 [CheatToggler] {toggleKey} 키 입력 감지됨");
-                }
+                if (showDebugLogs) Debug.Log($"🔑 [CheatToggler] {toggleKey} 키 입력 감지됨");
                 TogglePanel();
             }
-            
-            // ESC 키로 패널 닫기
+
             if (cheatPanel != null && cheatPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
             {
                 cheatPanel.SetActive(false);
-                
-                if (showDebugLogs)
-                {
-                    Debug.Log($"🔑 [CheatToggler] ESC 키로 패널 닫힘");
-                }
+                if (showDebugLogs) Debug.Log($"🔑 [CheatToggler] ESC 키로 패널 닫힘");
             }
+#endif
         }
         
         /// <summary>

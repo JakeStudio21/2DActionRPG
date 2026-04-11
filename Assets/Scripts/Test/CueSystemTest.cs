@@ -14,30 +14,13 @@ public class CueSystemTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TestDirectCall();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            TestCueSystem();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            PrintStats();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            TestCongestionControl();
-        }
-        
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            TestExtensionMethods();
-        }
+#if UNITY_EDITOR || UNITY_STANDALONE
+        if (Input.GetKeyDown(KeyCode.T)) TestDirectCall();
+        if (Input.GetKeyDown(KeyCode.Y)) TestCueSystem();
+        if (Input.GetKeyDown(KeyCode.U)) PrintStats();
+        if (Input.GetKeyDown(KeyCode.I)) TestCongestionControl();
+        if (Input.GetKeyDown(KeyCode.E)) TestExtensionMethods();
+#endif
     }
     
     void TestDirectCall()

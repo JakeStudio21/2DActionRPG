@@ -21,16 +21,13 @@ public class V2InventoryDebugUI : MonoBehaviour
     
     private void Update()
     {
-        // F12 키로 UI 토글
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetKeyDown(KeyCode.F12))
         {
             showUI = !showUI;
-            
-            if (showUI)
-            {
-                Debug.Log("🎮 [V2InventoryDebugUI] 디버그 UI 열림");
-            }
+            if (showUI) Debug.Log("🎮 [V2InventoryDebugUI] 디버그 UI 열림");
         }
+#endif
     }
     
     private void OnGUI()

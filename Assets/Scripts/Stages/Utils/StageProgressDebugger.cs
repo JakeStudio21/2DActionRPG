@@ -90,25 +90,13 @@ namespace StageSystem
         
         private void Update()
         {
-            if (!enableDebugKeys || !Application.isEditor) return;
-            
-            // Ctrl + U: 모든 스테이지 해금
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.U))
-            {
-                UnlockAllStages();
-            }
-            
-            // Ctrl + C: 모든 스테이지 완료
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C))
-            {
-                CompleteAllStages();
-            }
-            
-            // Ctrl + R: 진행도 초기화
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
-            {
-                ResetAllProgress();
-            }
+#if UNITY_EDITOR
+            if (!enableDebugKeys) return;
+
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.U)) UnlockAllStages();
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C)) CompleteAllStages();
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R)) ResetAllProgress();
+#endif
         }
     }
 }

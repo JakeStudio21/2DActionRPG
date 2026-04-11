@@ -53,11 +53,13 @@ public class PlayerAttackInput : MonoBehaviour
 
     void Update()
     {
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (!enableKeyboardInput) return;
 
         if (Input.GetKeyDown(KeyCode.A)) PerformAttack();
         if (Input.GetKeyDown(KeyCode.S)) PerformSkill();
         if (Input.GetKeyDown(KeyCode.D)) PerformSkill2();
+#endif
     }
 
     #endregion
@@ -65,7 +67,7 @@ public class PlayerAttackInput : MonoBehaviour
     // ──────────────────────────────────────────────────────────────────────────
     #region 기본공격 (자동 타겟팅)
 
-    private void PerformAttack()
+    public void PerformAttack()
     {
         // ── 1단계: Check ──────────────────────────────────────────────────────
         if (playerAnimationController == null)
@@ -101,23 +103,31 @@ public class PlayerAttackInput : MonoBehaviour
     /// </summary>
     private Vector2 ResolveAttackDirection()
     {
-        if (autoTargetResolver != null && basicAttackProfile != null)
+        if (autoTargetResolver == null || basicAttackProfile == null)
         {
-            Vector2 aimDir = GetAimDir();
-            ITargetable target = autoTargetResolver.FindBestTarget(aimDir, basicAttackProfile);
+            if (showDebugLogs)
+                Debug.Log($"[AT_DBG] ResolveAttackDirection: autoTarget={(autoTargetResolver != null)}, " +
+                          $"basicAttackProfile={(basicAttackProfile != null)} → Facing만 사용");
+            return GetFacingDirection();
+        }
 
-            if (target != null && target.IsAlive())
+        Vector2 aimDir = GetAimDir();
+        ITargetable target = autoTargetResolver.FindBestTarget(aimDir, basicAttackProfile);
+
+        if (target != null && target.IsAlive())
+        {
+            Transform t = target.GetTransform();
+            if (t != null)
             {
-                Transform t = target.GetTransform();
-                if (t != null)
-                {
-                    Vector2 fireOrigin = GetFireOrigin();
-                    Vector2 toTarget = (Vector2)t.position - fireOrigin;
-                    if (toTarget.sqrMagnitude > 0.001f)
-                        return toTarget.normalized;
-                }
+                Vector2 fireOrigin = GetFireOrigin();
+                Vector2 toTarget = (Vector2)t.position - fireOrigin;
+                if (toTarget.sqrMagnitude > 0.001f)
+                    return toTarget.normalized;
             }
         }
+
+        if (showDebugLogs)
+            Debug.Log("[AT_DBG] ResolveAttackDirection: 타겟 없음 → Facing 사용");
 
         return GetFacingDirection();
     }
@@ -165,7 +175,7 @@ public class PlayerAttackInput : MonoBehaviour
     // ──────────────────────────────────────────────────────────────────────────
     #region 스킬 (수동 모드 — 자동 타겟팅 없음)
 
-    private void PerformSkill()
+    public void PerformSkill()
     {
         if (showDebugLogs) Debug.Log("[PlayerAttackInput] S키 스킬1");
 
@@ -185,7 +195,7 @@ public class PlayerAttackInput : MonoBehaviour
             Debug.LogWarning("[PlayerAttackInput] SkillController 없음");
     }
 
-    private void PerformSkill2()
+    public void PerformSkill2()
     {
         if (showDebugLogs) Debug.Log("[PlayerAttackInput] D키 스킬2");
 

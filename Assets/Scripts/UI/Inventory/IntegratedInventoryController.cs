@@ -169,17 +169,13 @@ public class IntegratedInventoryController : MonoBehaviour
     /// </summary>
     private void HandleInputs()
     {
-        // I키 토글
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetKeyDown(toggleKey))
-        {
             ToggleInventoryPanel();
-        }
-        
-        // ESC키 닫기
+
         if (Input.GetKeyDown(closeKey) && isInventoryOpen)
-        {
             CloseInventoryPanel();
-        }
+#endif
     }
     
     /// <summary>

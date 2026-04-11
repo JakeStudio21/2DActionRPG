@@ -132,12 +132,11 @@ namespace StageSystem
         private void HandlePlayerInput()
         {
             if (!playerInRange) return;
-            
-            // F키 또는 자동 입장 처리
+
+#if UNITY_EDITOR || UNITY_STANDALONE
             if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Space))
-            {
                 EnterPortal();
-            }
+#endif
         }
         
         /// <summary>

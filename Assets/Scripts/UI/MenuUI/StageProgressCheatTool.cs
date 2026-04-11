@@ -38,49 +38,17 @@ public class StageProgressCheatTool : MonoBehaviour
     
     private void Update()
     {
+#if UNITY_EDITOR || UNITY_STANDALONE
         if (!enableCheats) return;
-        
-        // F1: Chapter 1 클리어 (CH01_ST01~10)
-        if (Input.GetKeyDown(clearChapter1Key))
-        {
-            ClearChapter(1);
-        }
-        
-        // F2: Chapter 2 클리어 (CH02_ST01~10)
-        if (Input.GetKeyDown(clearChapter2Key))
-        {
-            ClearChapter(2);
-        }
-        
-        // F3: Chapter 3 클리어 (CH03_ST01~10)
-        if (Input.GetKeyDown(clearChapter3Key))
-        {
-            ClearChapter(3);
-        }
-        
-        // F4: Chapter 4 클리어 (CH04_ST01~10)
-        if (Input.GetKeyDown(clearChapter4Key))
-        {
-            ClearChapter(4);
-        }
-        
-        // F5: 진행도 초기화
-        if (Input.GetKeyDown(resetProgressKey))
-        {
-            ResetAllProgress();
-        }
-        
-        // F6: 현재 챕터의 다음 스테이지 해금
-        if (Input.GetKeyDown(unlockNextStageKey))
-        {
-            UnlockNextStage();
-        }
-        
-        // F7: 현재 챕터의 모든 스테이지 해금
-        if (Input.GetKeyDown(unlockAllStagesKey))
-        {
-            UnlockAllStagesInCurrentChapter();
-        }
+
+        if (Input.GetKeyDown(clearChapter1Key))   ClearChapter(1);
+        if (Input.GetKeyDown(clearChapter2Key))   ClearChapter(2);
+        if (Input.GetKeyDown(clearChapter3Key))   ClearChapter(3);
+        if (Input.GetKeyDown(clearChapter4Key))   ClearChapter(4);
+        if (Input.GetKeyDown(resetProgressKey))   ResetAllProgress();
+        if (Input.GetKeyDown(unlockNextStageKey)) UnlockNextStage();
+        if (Input.GetKeyDown(unlockAllStagesKey)) UnlockAllStagesInCurrentChapter();
+#endif
     }
     
     /// <summary>
