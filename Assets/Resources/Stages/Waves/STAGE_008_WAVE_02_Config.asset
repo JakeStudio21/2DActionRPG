@@ -21,5 +21,9 @@ MonoBehaviour:
   EnablesBossGate: 0
   BossGateTag: 
   TriggerToActivate: 0
+  UseSimpleMobWave: 0
+  SimpleMobWaveData: {fileID: 0}
+  SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
-  - {fileID: 11400000, guid: 6d79c938e34310a4f9c912442d25fe1f, type: 2}
+  - {fileID: 11400000, guid: d3123a6322edb5e4ba5309926d756c3e, type: 2}
+  - {fileID: 11400000, guid: e31e0f1557becd74581b7313af94d230, type: 2}

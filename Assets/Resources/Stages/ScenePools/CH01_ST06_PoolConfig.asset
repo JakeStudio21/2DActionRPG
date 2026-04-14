@@ -530,6 +530,24 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 1
+  - tag: BombProjectile
+    prefab: {fileID: 6830296691463287077, guid: 3ac331e1b5464094db57d54b21cd9e03, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: ArcProjectile
+    prefab: {fileID: 6830296691463287077, guid: e54a050430e39204b8b648e42172fc4c, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Fx_Hit_Explosion_SmallBomb
+    prefab: {fileID: 2487952251765402218, guid: 401cef4307d0c874ab8a8346614c7429, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   optionalPools:
   - tag: SimpleMobHit
     prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}

@@ -47,9 +47,10 @@ MonoBehaviour:
     imageScale: 1
     imageDuration: 2
     speakerName: '{PLAYER_NAME}'
-    dialogueText: "\"\uC774\uAC74... \uC0DD\uCCB4 \uC2E4\uD5D8\uC758 \uD754\uC801\uC774\uC57C.
-      \uB188\uB4E4\uC740 \uC232\uC758 \uC0DD\uBA85\uB825\uC744 \uCD94\uCD9C\uD574\uC11C
-      \uBB34\uC5B8\uAC00\uB97C \uB9CC\uB4E4\uB824\uACE0 \uD588\uC5B4.\""
+    dialogueText: "\"\uC548\uAC1C\uAC00... \uC228\uC744 \uC26C\uAE30\uC870\uCC28
+      \uD798\uB4E4\uC5B4. \uB2E8\uC21C\uD55C \uC5F0\uAE30\uAC00 \uC544\uB2C8\uB77C
+      \uC232\uC758 \uC0DD\uBA85\uB825\uC744 \uAC09\uC544\uBA39\uB294 \uD751\uB9C8\uBC95\uC758
+      \uD754\uC801\uC774\uC57C.\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
@@ -89,9 +90,9 @@ MonoBehaviour:
     imageScale: 1
     imageDuration: 2
     speakerName: '{PLAYER_NAME}'
-    dialogueText: "\"\uC774 \uBD89\uC740 \uC548\uAC1C... \uC232\uC758 \uAC00\uC7A5
-      \uAE4A\uC740 \uACF3, '\uC218\uD638\uC790\uC758 \uC81C\uB2E8' \uCABD\uC5D0\uC11C
-      \uD758\uB7EC\uB098\uC624\uACE0 \uC788\uC5B4.\""
+    dialogueText: "\"\uC548\uAC1C\uAC00 \uD5A5\uD558\uB294 \uACF3\uC740 \uC81C\uB2E8\uC774\uB2E4.
+      \uB188\uC774 \uC131\uC18C\uB97C \uC644\uC804\uD788 \uC624\uC5FC\uC2DC\uD0A4\uAE30
+      \uC804\uC5D0 \uAE38\uC744 \uD655\uBCF4\uD574\uC57C \uD574!\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene

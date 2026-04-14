@@ -28,19 +28,25 @@ MonoBehaviour:
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
+  requiredStamina: 5
+  categoryId: 
   WaveCount: 3
-  Victory: 2
+  Victory: 0
+  objectiveType: 0
+  targetBossName: 
   StageBaseLevel: 9
-  hasTimeLimit: 0
-  TimeLimitSec: 10
+  hasTimeLimit: 1
+  TimeLimitSec: 240
   FirstClearDropGroupId: DROP_CH01_ST08_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST08_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 8 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST07"
+  targetFarmingEntries: []
+  overrideRangeTable: {fileID: 0}
   WaveConfigs:
   - {fileID: 11400000, guid: 2e4ce1321662d024a8a633fd186643bc, type: 2}
   - {fileID: 11400000, guid: 0d8c474267abb884e8db4ce13cba54e5, type: 2}
   - {fileID: 11400000, guid: f4a9f6cedaf13d0419a07927196aca30, type: 2}
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  FirstClearDropTable: {fileID: 11400000, guid: cf18050482d0a70499a54b96c025032a, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: 29364559e3408894cad0dace4497fd1a, type: 2}

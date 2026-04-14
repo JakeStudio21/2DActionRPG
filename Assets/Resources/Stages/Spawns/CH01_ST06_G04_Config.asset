@@ -20,11 +20,13 @@ MonoBehaviour:
   Monsters:
   - MonsterID: MON_GOBLINWARRIOR_001
     Count: 2
-    SpawnCount: 0.3
+    SpawnCount: 1
     IsBoss: 0
+    LevelOffset: 0
     MonsterPrefab: {fileID: 0}
-  - MonsterID: MON_GOBLINCART_001
+  - MonsterID: MON_GOBLINBOMB_001
     Count: 2
-    SpawnCount: 0
+    SpawnCount: 1
     IsBoss: 0
+    LevelOffset: 0
     MonsterPrefab: {fileID: 0}

@@ -77436,6 +77436,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2102256484657845110, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -27.499908
+      objectReference: {fileID: 0}
     - target: {fileID: 2193526336361923844, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -82034,7 +82038,7 @@ MonoBehaviour:
   m_BuildHeightMesh: 0
   m_MinRegionArea: 1
   m_HideEditorLogs: 1
-  m_NavMeshData: {fileID: 23800000, guid: eb43a0f9b5da3dc4482efe16b66510b3, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 15b555dfcf86ae84f9d5294fa7f91b04, type: 2}
 --- !u!4 &1601075755
 Transform:
   m_ObjectHideFlags: 0

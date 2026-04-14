@@ -548,5 +548,11 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: BombProjectile
+    prefab: {fileID: 6830296691463287077, guid: 3ac331e1b5464094db57d54b21cd9e03, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   optionalPools: []
   enableDebugLogs: 0

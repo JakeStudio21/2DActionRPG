@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 365ff0eb4e0d17a4ebc5abc9d5bd3e1a, type: 3}
+  m_Name: CH01_ST09_WAVE_02_Config
+  m_EditorClassIdentifier: 
+  WaveID: CH01_ST09_WAVE_02
+  StageID: CH01_ST09
+  WaveIndex: 2
+  StartCondition: 2
+  WaveDelaySec: 0
+  TriggerId: 5
+  EnablesBossGate: 0
+  BossGateTag: BossGate
+  TriggerToActivate: 1
+  UseSimpleMobWave: 0
+  SimpleMobWaveData: {fileID: 0}
+  SimpleMobSpawnCenter: {fileID: 0}
+  SpawnGroups:
+  - {fileID: 11400000, guid: 80593d88b4905ca449a7f277bf311d76, type: 2}
+  - {fileID: 11400000, guid: 8ffba2eddc079fe46bb6ec99d4b9de86, type: 2}
+  - {fileID: 11400000, guid: 0dc338e8432d3e042a0eb44f7fa9849c, type: 2}
+  - {fileID: 11400000, guid: a5d88f8f316d56d46ae2db4d65024a28, type: 2}
+  - {fileID: 11400000, guid: a9dfd03caa97f9447b189dd2955c1c34, type: 2}
+  - {fileID: 11400000, guid: fc7342beca544f5458bb154bc16e4555, type: 2}
+  - {fileID: 11400000, guid: fd39ddd81bcd50d43a5174b0e47e594c, type: 2}
+  - {fileID: 11400000, guid: 8372c6010b4c89c4fae9c8672658fb3a, type: 2}

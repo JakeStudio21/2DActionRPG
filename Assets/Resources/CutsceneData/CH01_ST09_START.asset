@@ -47,9 +47,9 @@ MonoBehaviour:
     imageScale: 1
     imageDuration: 2
     speakerName: '{PLAYER_NAME}'
-    dialogueText: "\"\uC218\uD638\uC790\uB97C \uC9C0\uD0A4\uB358 \uACE8\uB818\uB4E4\uB9C8\uC800...
-      \uBE44\uCF1C\uB2E4\uC624! \uB098\uB294 \uB108\uD76C\uC758 \uC8FC\uC778\uC744
-      \uAD6C\uD558\uB7EC \uAC00\uB294 \uAC83\uC774\uB2E4!\"\n"
+    dialogueText: "\"\uC218\uD638\uC11D\uC774 \uD751\uB9C8\uBC95\uC5D0 \uACE0\uBB38\uB2F9\uD558\uACE0
+      \uC788\uC5B4... \uADF8\uB798\uC11C \uC232\uC758 \uC815\uB839\uC774 \uBBF8\uCCD0\uBC84\uB9B0
+      \uAC70\uAD70!\""
     typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
@@ -78,26 +78,6 @@ MonoBehaviour:
     bgmWaitTime: 0
     callbackMethodName: 
     note: 
-  - stepType: 0
-    duration: 0
-    imageSprite: {fileID: 21300000, guid: 5d16c4572fd281d40ade93ccd8908a38, type: 3}
-    isFade: 0
-    isPortrait: 1
-    useDynamicPlayerPortrait: 0
-    fadeIn: 1
-    imagePosition: {x: 600, y: -240}
-    imageScale: 3
-    imageDuration: 0.3
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 0
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
   - stepType: 1
     duration: 1
     imageSprite: {fileID: 0}
@@ -106,12 +86,14 @@ MonoBehaviour:
     useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: "\uC232\uC758 \uACE8\uB818"
-    dialogueText: " \"\uAC00... \uB77C... \uC704\uD5D8... \uD558\uB2E4...\"\n\" \uB0A0
-      \uC8FC\uCCB4\uD560 \uC218\uAC00.. \uC5C6\uB2E4.. \uC73C..\uC73C..\""
-    typingSpeed: 10
+    imageScale: 1
+    imageDuration: 2
+    speakerName: '{PLAYER_NAME}'
+    dialogueText: "\"\uC218\uD638\uC11D\uC744 \uC815\uD654\uD574\uC11C \uC815\uB839\uC758
+      \uD798\uC744 \uB418\uCC3E\uC544\uC918\uC57C\uB9CC \uBCF4\uC2A4\uC5D0\uAC8C
+      \uB2E4\uAC00\uAC08 \uC218 \uC788\uC5B4. \uD751\uB9C8\uBC95\uC758 \uAC00\uC2DC\uB369\uCFE8\uB4E4\uC744
+      \uD30C\uAD34\uD558\uC790!\""
+    typingSpeed: 20
     sfxEventKey: 
     sfxDomain: Cutscene
     bgmEventKey: 
