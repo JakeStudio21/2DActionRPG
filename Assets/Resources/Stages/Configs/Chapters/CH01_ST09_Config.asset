@@ -36,12 +36,15 @@ MonoBehaviour:
   targetBossName: 
   StageBaseLevel: 11
   hasTimeLimit: 1
-  TimeLimitSec: 300
+  TimeLimitSec: 420
   FirstClearDropGroupId: DROP_CH01_ST09_FIRST
   RepeatClearDropGroupId: DROP_CH01_ST09_REPEAT
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 9 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST08"
+  fogVolumeProfile: {fileID: 11400000, guid: 2c15c09ac4b17a1429deff03d903e038, type: 2}
+  clearVolumeProfile: {fileID: 11400000, guid: 165638dc2191e194abb5a070d58d368b, type: 2}
+  volumeTransitionDuration: 2
   targetFarmingEntries: []
   overrideRangeTable: {fileID: 0}
   WaveConfigs:

@@ -301,7 +301,10 @@ public class StageManager : MonoBehaviour
                     Debug.Log("[StageManager] 스테이지 준비 완료 - 플레이어 이동 잠금 해제");
             }
             
-            // 4단계: 첫 번째 웨이브 시작
+            // 4단계: Volume 이펙트 적용 (fogVolumeProfile이 null이면 스킵)
+            StageVolumeController.Instance?.ApplyStageVolume(stageConfig);
+
+            // 5단계: 첫 번째 웨이브 시작
             OnStageStarted?.Invoke(stageConfig);
             
             StartNextWave();
@@ -1724,10 +1727,19 @@ public class StageManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(bossDeathEffectDuration);
             
             if (enableDebugLogs)
-                Debug.Log($"🐲 [StageManager] Death Effect 대기 완료 → {bossVictoryDelay}초 후 승리 처리");
+                Debug.Log($"🐲 [StageManager] Death Effect 대기 완료 → Volume 전환 후 승리 처리");
             
-            // 추가 여유 시간 후 승리
-            yield return new WaitForSecondsRealtime(bossVictoryDelay);
+            // Volume 클리어 전환 후 전환 완료까지 대기 (완료 후 컷신 발동)
+            float transitionDuration = stageConfig?.volumeTransitionDuration ?? 0f;
+            if (transitionDuration > 0f && StageVolumeController.Instance != null)
+            {
+                StageVolumeController.Instance.ApplyClearTransition(transitionDuration);
+                yield return new WaitForSecondsRealtime(transitionDuration);
+            }
+            else
+            {
+                yield return new WaitForSecondsRealtime(bossVictoryDelay);
+            }
             
             CompleteStage(success);
         }
@@ -1742,6 +1754,14 @@ public class StageManager : MonoBehaviour
                 Debug.Log($"🏆 [StageManager] VictorySequence 시작 — {delay}초 대기 후 승리 처리");
             
             yield return new WaitForSecondsRealtime(delay);
+            
+            // Volume 클리어 전환 후 전환 완료까지 대기 (완료 후 컷신 발동)
+            float transitionDuration = stageConfig?.volumeTransitionDuration ?? 0f;
+            if (transitionDuration > 0f && StageVolumeController.Instance != null)
+            {
+                StageVolumeController.Instance.ApplyClearTransition(transitionDuration);
+                yield return new WaitForSecondsRealtime(transitionDuration);
+            }
             
             if (enableDebugLogs)
                 Debug.Log($"🏆 [StageManager] VictorySequence 완료 → CompleteStage");

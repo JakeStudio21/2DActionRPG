@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace StageSystem
 {
@@ -91,6 +92,16 @@ namespace StageSystem
         public string BGMPath;
         [TextArea(3, 5)]
         public string Description;
+        
+        [Header("🌫️ Volume 이펙트")]
+        [Tooltip("스테이지 진행 중 적용할 Volume Profile (안개·어두운 연출)\nnull이면 Volume 효과 없음")]
+        public VolumeProfile fogVolumeProfile;
+        
+        [Tooltip("스테이지 클리어 후 전환될 Volume Profile\nnull이면 fogVolumeProfile이 페이드 아웃만 됨")]
+        public VolumeProfile clearVolumeProfile;
+        
+        [Tooltip("클리어 시 Volume 전환 시간 (초)")]
+        public float volumeTransitionDuration = 2f;
         
         [Header("🎯 타겟 파밍 설정 (특정 아이템 드롭률 강화)")]
         [Tooltip("이 스테이지에서 특정 부위/아이템의 드롭률을 올려주는 설정 목록.\n" +
