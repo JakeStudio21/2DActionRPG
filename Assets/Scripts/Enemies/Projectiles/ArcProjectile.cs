@@ -15,8 +15,15 @@ public class ArcProjectile : MonoBehaviour
     [Header("데미지 설정")]
     [SerializeField] private LayerMask playerLayerMask = 1 << 3; // Player layer
     [SerializeField] private int projectileDamage = 10;
+    [Tooltip("착지 시 데미지 판정 반경 (RangedAttack에서 AttackData.AttackRange로 덮어쓸 수 있음)")]
+    [SerializeField] private float damageRadius = 1.5f;
     
-    [Header("이펙트")]
+    [Header("착지 이펙트 (CueSystem)")]
+    [Tooltip("착지 시 발행할 Cue 이벤트 키. 몬스터 CueProfile에 매핑된 폭발 VFX/SFX가 재생됨.")]
+    [SerializeField] private string landingCueEventKey = "attack.projectile.land";
+    
+    [Header("착지 이펙트 (레거시 - hitEffectPrefab)")]
+    [Tooltip("CueSystem을 사용하지 않는 경우 직접 스폰할 프리팹. CueSystem이 우선 적용됨.")]
     [SerializeField] private GameObject hitEffectPrefab;
     
     [Header("디버그")]
@@ -34,6 +41,7 @@ public class ArcProjectile : MonoBehaviour
     
     // 🛡️ Phase 1: 상태이상 적용용
     private BaseAttackBehaviour attacker = null;
+    private string attackerCueDomain = "Enemy";
     
     // 컴포넌트
     private Rigidbody2D rb;
@@ -113,14 +121,27 @@ public class ArcProjectile : MonoBehaviour
     }
     
     /// <summary>
-    /// 🛡️ Phase 1: 공격자 설정 (상태이상 적용용)
+    /// 🛡️ Phase 1: 공격자 설정 (상태이상 적용 + 착지 Cue 도메인 동기화)
     /// </summary>
     public void SetAttacker(BaseAttackBehaviour attackerBehaviour)
     {
         attacker = attackerBehaviour;
         
-        if (showDebugLogs && attacker != null)
-            Debug.Log($"🎯 [ArcProjectile] 공격자 설정: {attacker.gameObject.name}");
+        if (attacker != null)
+        {
+            attackerCueDomain = attacker.CueEmitDomain;
+            
+            if (showDebugLogs)
+                Debug.Log($"🎯 [ArcProjectile] 공격자 설정: {attacker.gameObject.name}, Cue 도메인: {attackerCueDomain}");
+        }
+    }
+    
+    /// <summary>
+    /// 착지 데미지 반경 설정 (RangedAttack에서 AttackData.AttackRange로 주입)
+    /// </summary>
+    public void SetDamageRadius(float radius)
+    {
+        damageRadius = radius;
     }
     
     /// <summary>
@@ -192,14 +213,36 @@ public class ArcProjectile : MonoBehaviour
         // 착지 위치 정확히 설정
         transform.position = targetPosition;
         
-        // 데미지 적용
-        DealDamageToPlayer();
+        // 착지 이펙트 — CueSystem 우선, 없으면 레거시 hitEffectPrefab 사용
+        // 플레이어 피격 여부와 무관하게 항상 실행
+        PlayLandingEffect();
         
-        // Hit 이펙트 재생
-        PlayHitEffect();
+        // 데미지 적용 (범위 내 플레이어에게만)
+        DealDamageToPlayer();
         
         // 풀 반환
         ReturnToPool();
+    }
+    
+    /// <summary>
+    /// 착지 이펙트 재생 (CueSystem → 레거시 순서)
+    /// </summary>
+    private void PlayLandingEffect()
+    {
+        // CueSystem: 몬스터 CueProfile의 이벤트 키 발행 (폭발 VFX + SFX)
+        if (!string.IsNullOrEmpty(landingCueEventKey))
+        {
+            bool cueSuccess = CueSystem.CueEmitter.EmitAt(targetPosition, landingCueEventKey, attackerCueDomain);
+            
+            if (showDebugLogs)
+                Debug.Log($"💥 [ArcProjectile] 착지 Cue 발행: '{landingCueEventKey}' (도메인: {attackerCueDomain}) → {(cueSuccess ? "성공" : "실패")}");
+            
+            // Cue가 성공적으로 처리되면 레거시 hitEffectPrefab은 스킵
+            if (cueSuccess) return;
+        }
+        
+        // 레거시 Fallback: hitEffectPrefab 직접 스폰
+        PlayHitEffect();
     }
     
     /// <summary>
@@ -207,7 +250,7 @@ public class ArcProjectile : MonoBehaviour
     /// </summary>
     private void DealDamageToPlayer()
     {
-        Collider2D[] playersInRange = Physics2D.OverlapCircleAll(transform.position, 1.5f, playerLayerMask);
+        Collider2D[] playersInRange = Physics2D.OverlapCircleAll(transform.position, damageRadius, playerLayerMask);
         
         foreach (Collider2D playerCollider in playersInRange)
         {

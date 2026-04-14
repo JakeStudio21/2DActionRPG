@@ -29,6 +29,7 @@ public class EnemyIdleState : IEnemyState
             {
                 baseEnemy.Agent.isStopped = true;
                 baseEnemy.Agent.ResetPath();
+                baseEnemy.Agent.stoppingDistance = 0f; // Idle 진입 시 초기화 (이전 상태의 값 오염 방지)
             }
         }
     }

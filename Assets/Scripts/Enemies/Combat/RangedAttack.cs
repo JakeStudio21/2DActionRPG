@@ -312,14 +312,16 @@ public class RangedAttack : BaseAttackBehaviour
             arcProjectile.SetMoveSpeed(attackData.ProjectileSpeed);
             arcProjectile.SetArcHeight(attackData.ArcHeight);
             
-            // Hit 이펙트 설정
-            if (attackData.HitEffect != null)
+            // explosionRadius > 0 이면 명시적 폭발 반경 적용, 0이면 ArcProjectile 기본값(1.5) 유지
+            // AttackRange(AI 사거리)는 폭발 반경과 무관
+            if (attackData.ExplosionRadius > 0f)
             {
-                arcProjectile.SetHitEffect(attackData.HitEffect);
+                arcProjectile.SetDamageRadius(attackData.ExplosionRadius);
             }
         }
         
-        Debug.Log($"🎯 [RangedAttack] ArcProjectile 설정 완료 - Target: {targetPosition}, Height: {attackData?.ArcHeight ?? 3f}");
+        float appliedRadius = (attackData != null && attackData.ExplosionRadius > 0f) ? attackData.ExplosionRadius : 1.5f;
+        Debug.Log($"🎯 [RangedAttack] ArcProjectile 설정 완료 - Target: {targetPosition}, Height: {attackData?.ArcHeight ?? 3f}, ExplosionRadius: {appliedRadius}");
     }
     
     /// <summary>

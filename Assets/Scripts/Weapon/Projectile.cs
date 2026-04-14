@@ -392,33 +392,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
     // }
     private void OnEnable()
     {
-        Debug.Log("🔵🔵🔵 [PROJECTILE DEBUG] OnEnable() 호출됨!");
-        Debug.Log($"🚨 [SPAWN POSITION] 스폰 위치: {transform.position}");
-        Debug.Log($"🚨 [SPAWN ROTATION] 스폰 회전: {transform.rotation.eulerAngles}");
-        
-        // 🚨 실제 발사인지 풀 초기화인지 구분
-        bool isActualFire = transform.position.magnitude > 0.1f; // 원점이 아니면 실제 발사
-        Debug.Log($"🚨 [FIRE TYPE] {(isActualFire ? "실제 발사" : "풀 초기화")}");
-        
-        if (isActualFire)
-        {
-            Debug.LogWarning($"🚨🚨🚨 [REAL FIRE] 실제 발사 감지! 위치: {transform.position}, 회전: {transform.rotation.eulerAngles}");
-            
-            // 🆕 N/S 방향 확인 및 상위 시스템 상태 진단
-            float angle = transform.rotation.eulerAngles.z;
-            bool isNorthSouth = (Mathf.Abs(angle - 90f) < 10f) || (Mathf.Abs(angle - 270f) < 10f);
-            
-            if (isNorthSouth)
-            {
-                Debug.LogWarning($"🎉🎉🎉 [N/S SUCCESS] N/S 방향 발사 성공! 각도: {angle:F1}도");
-                Debug.LogWarning($"🎉🎉🎉 [N/S SUCCESS] 상위 시스템이 정상 작동함!");
-            }
-            else
-            {
-                Debug.Log($"📍 [E/W FIRE] E/W 방향 발사 - 각도: {angle:F1}도");
-            }
-        }
-        
         isReturningToPool = false;
         needsStartPositionUpdate = true;
         

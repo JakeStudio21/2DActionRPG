@@ -50,6 +50,11 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
     /// </summary>
     protected string cueEmitDomain = "Enemy";
     
+    /// <summary>
+    /// 발사체에서 착지 Cue 발행 시 사용할 도메인 (읽기 전용)
+    /// </summary>
+    public string CueEmitDomain => cueEmitDomain;
+    
     #endregion
 
     #region ⭐ 새 시스템: Public Properties (데이터 우선순위 적용)

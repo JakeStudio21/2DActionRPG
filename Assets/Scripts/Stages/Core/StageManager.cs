@@ -413,6 +413,14 @@ public class StageManager : MonoBehaviour
                     return;
                 }
                 
+                // Survival은 Update()의 타이머가 승리를 처리하므로 여기서는 대기
+                if (stageConfig.Victory == VictoryCondition.Survival)
+                {
+                    if (enableDebugLogs)
+                        Debug.Log($"⏱️ [StageManager] Survival - 모든 웨이브 완료, 타이머 대기 중");
+                    return;
+                }
+                
                 // 그 외 조건(KillAll 등) — Death Effect 대기 후 승리
                 StartCoroutine(VictorySequence(true, victoryDelay));
                 return;

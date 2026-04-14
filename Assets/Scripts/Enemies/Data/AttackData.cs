@@ -61,6 +61,10 @@ public class AttackData : ScriptableObject
     [Tooltip("발사체 생존시간 (초)")]
     [SerializeField] private float projectileLifetime = 5f;
     
+    [Tooltip("착지 폭발 반경 (ArcProjectile 전용 — 0이면 ArcProjectile 기본값 1.5 사용)\n" +
+             "StraightProjectile은 콜라이더 직접 충돌로만 판정하므로 이 값을 사용하지 않음")]
+    [SerializeField] private float explosionRadius = 0f;
+    
     [Tooltip("다중 발사 수 (Ghost용)")]
     [SerializeField] private int projectileCount = 1;
     
@@ -121,6 +125,7 @@ public class AttackData : ScriptableObject
     public float ProjectileLifetime => projectileLifetime;
     public int ProjectileCount => projectileCount;
     public float MultiShotAngle => multiShotAngle;
+    public float ExplosionRadius => explosionRadius;
     public List<StatusEffectData> OnHitEffects => onHitEffects;
     public List<float> EffectChances => effectChances;
     public GameObject AttackStartEffect => attackStartEffect;

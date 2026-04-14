@@ -281,7 +281,6 @@ public class PlayerController : MonoBehaviour
                 var joystickInScene = FindObjectOfType<DynamicJoystick>();
                 if (joystickInScene != null)
                 {
-                    Debug.Log("[PlayerController] Update에서 조이스틱 재연결 시도");
                     fixedJoystick = joystickInScene;
                     joystickFound = true;
                 }
@@ -353,20 +352,6 @@ public class PlayerController : MonoBehaviour
     // ⚡ 액션 RPG 스타일 즉각 반응 이동 시스템
     private void MoveFast()
     {
-        // ⭐ 강제 디버그 - 매 2초마다
-        if (Time.frameCount % 120 == 0) 
-        {
-            Debug.Log($"🔍 [MoveFast] === 이동 시스템 상태 ===");
-            Debug.Log($"   movement 입력: ({movement.x:F3}, {movement.y:F3})");
-            Debug.Log($"   rb.velocity: ({(rb?.velocity.x ?? 0):F3}, {(rb?.velocity.y ?? 0):F3})");
-            Debug.Log($"   joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick != null}");
-            // 🆕 이동 제어 상태 로그 추가
-            if (showMovementDebug)
-            {
-                Debug.Log($"   movementScale: {movementScale:F2}, isLocked: {isMovementLocked}");
-            }
-        }
-
         // 🆕 이동 잠금 체크 (최우선 체크)
         if (isMovementLocked)
         {
@@ -384,38 +369,21 @@ public class PlayerController : MonoBehaviour
 
         // 상태 체크 (넉백/사망 시 이동 금지)
         if (knockback != null && knockback.GettingKnockedBack)
-        {
-            if (Time.frameCount % 60 == 0) Debug.Log("❌ [MoveFast] knockback 중단");
             return;
-        }
         if (playerHealth != null && playerHealth.isDead)
-        {
-            if (Time.frameCount % 60 == 0) Debug.Log("❌ [MoveFast] 사망 상태 중단");
             return;
-        }
         if (rb == null)
-        {
-            if (Time.frameCount % 60 == 0) Debug.Log("❌ [MoveFast] rb null 중단");
             return;
-        }
 
         // ✅ 개선: deadZone 필드 사용 (더 작은 값으로 조정)
         float improvedDeadZone = deadZone * 0.5f; // deadZone 필드 사용하되 더 민감하게
 
-        // ⭐ DeadZone 체크 디버그
         float movementMagnitude = movement.sqrMagnitude;
         bool inDeadZone = movementMagnitude < improvedDeadZone * improvedDeadZone;
-
-        if (Time.frameCount % 60 == 0)
-        {
-            Debug.Log($"🔍 [MoveFast] DeadZone 체크 - magnitude: {movementMagnitude:F4}, threshold: {improvedDeadZone * improvedDeadZone:F4}, inDeadZone: {inDeadZone}");
-        }
 
         // DeadZone: 미세 입력은 0으로 간주
         if (inDeadZone)
         {
-            if (Time.frameCount % 60 == 0) Debug.Log("🔍 [MoveFast] DeadZone - 정지 상태");
-
             // ✅ 개선: 즉시 완전 정지 (관성 제거)
             rb.velocity = Vector2.zero;
             rb.angularVelocity = 0f; // 회전 관성도 제거
@@ -423,8 +391,6 @@ public class PlayerController : MonoBehaviour
             // 정지 애니메이션 신호는 FixedUpdate에서 일괄 처리
             return;
         }
-
-        if (Time.frameCount % 60 == 0) Debug.Log("🔍 [MoveFast] 이동 로직 진입!");
 
         // ✅ 개선: 입력 방향 즉시 적용 (정규화 + 스케일링)
         // 대시 활성 구간에는 조이스틱 입력을 무시하고 대시 방향 고정

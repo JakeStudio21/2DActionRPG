@@ -423,6 +423,7 @@ public class EnemyPatrolState : IEnemyState
         if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
         {
             baseEnemy.Agent.isStopped = false; // ✅ Agent 재개 (Chase에서 정지됨)
+            baseEnemy.Agent.stoppingDistance = 0f; // ✅ 순찰 중 목표 지점까지 완전히 이동
         }
         
         // 홈 위치에서 멀리 떨어져 있으면 먼저 홈으로 돌아가기

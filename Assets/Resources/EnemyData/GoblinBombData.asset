@@ -24,7 +24,7 @@ MonoBehaviour:
   patrolRadius: 8
   knockBackThrust: 5
   deathVFXPrefabPath: 
-  enemyPrefab: {fileID: 6830296691463287077, guid: 61357f20c7386224bb4654399e49ddd5, type: 3}
+  enemyPrefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 0
   skillDataList: []

@@ -136,6 +136,26 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
+  - vfxId: AttackBombProjectileLandEffect
+    poolKey: Fx_Hit_Explosion_SmallBomb
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 2
+    priority: 0
+    cooldown: 0
+    note: "\uACE0\uBE14\uB9B0\uD3ED\uD0C4\uBCD1 \uD3ED\uD0C4\uC774\uD399\uD2B8"
+  - vfxId: AttackArcProjectileLandEffect
+    poolKey: Fx_Hit_Fire_SmallFire
+    duration: 0
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 2
+    priority: 0
+    cooldown: 0
+    note: "\uACE0\uBE14\uB9B0\uCE74\uD2B8\uBCD1 \uBD88\uAF43\uC774\uD399\uD2B8"
   sfxCatalog:
   - sfxId: MultiShot
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
@@ -217,6 +237,16 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uD53C\uACA9\uC74C"
+  - sfxId: ExplosionSound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uC804\uAC08 \uB3C5\uCE68 \uACF5\uACA9\uC74C (\uB192\uC740 \uD1A4)"
   entries:
   - eventKey: hit.player.dot.burn
     vfxIds:
@@ -387,4 +417,30 @@ MonoBehaviour:
       delay: 0
     timeStopMs: 20
     note: "\uC77C\uBC18 \uD53C\uACA9"
+  - eventKey: attack.bombprojectile.land
+    vfxIds:
+    - AttackBombProjectileLandEffect
+    sfxIds:
+    - ExplosionSound
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: 
+  - eventKey: attack.arcprojectile.land
+    vfxIds:
+    - AttackArcProjectileLandEffect
+    sfxIds:
+    - ExplosionSound
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: 
   description: "\uC801 \uAE30\uBCF8 \uD504\uB85C\uD544"
