@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   growthProfile: {fileID: 11400000, guid: 0761d452782c01a45a327171ce2bd8c5, type: 2}
   levelOffset: 0
-  maxHp: 50
+  maxHp: 30
   moveSpeed: 1
   collisionDamage: 5
   dieDelay: 0.5

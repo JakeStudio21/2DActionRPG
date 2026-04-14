@@ -29,6 +29,7 @@ MonoBehaviour:
   arcHeight: 3
   projectileSpeed: 10
   projectileLifetime: 5
+  explosionRadius: 0
   projectileCount: 1
   multiShotAngle: 15
   aoeEffectPrefab: {fileID: 0}
@@ -36,7 +37,7 @@ MonoBehaviour:
   aoeShape: 0
   aoeScale: 1
   onHitEffects:
-  - {fileID: 11400000, guid: f93ac484ffc8b8042975c32b41bf2f7d, type: 2}
+  - {fileID: 0}
   effectChances:
   - 1
   attackStartEffect: {fileID: 0}

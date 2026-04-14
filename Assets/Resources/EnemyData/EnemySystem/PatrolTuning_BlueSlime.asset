@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: PatrolTuning_BlueSlime
   m_EditorClassIdentifier: 
   acceleration:
-    accelerationRate: 2.31
+    accelerationRate: 1.8
     decelerationRate: 3
-    maxSpeedMultiplier: 1.5
-    minSpeedMultiplier: 0.3
+    maxSpeedMultiplier: 1.2
+    minSpeedMultiplier: 0.5
     speedTransitionSmoothing: 1
   pause:
     pauseDistanceMin: 2
