@@ -572,6 +572,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: Fx_Run_DustSmoke
+    prefab: {fileID: 2886950366143268859, guid: 6964a7d4c5699b049a900f1d74604c49, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 0
+    maxInstancesPerFrame: 10
   optionalPools:
   - tag: SimpleMobHit
     prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}

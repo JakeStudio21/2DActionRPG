@@ -110,6 +110,11 @@ namespace CueSystem
         public ShakeData shakeData;
         public int timeStopMs = 0;
         
-        public bool IsEmpty => vfxCues.Count == 0 && sfxCues.Count == 0;
+        // shakeData 또는 timeStopMs만 설정된 경우도 "비어있지 않음"으로 처리
+        public bool IsEmpty =>
+            vfxCues.Count == 0 &&
+            sfxCues.Count == 0 &&
+            (shakeData == null || !shakeData.useShake) &&
+            timeStopMs == 0;
     }
 }

@@ -554,5 +554,29 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: LargeBoulder_NE
+    prefab: {fileID: 8962294267068437915, guid: b0d3a99f6ea71744ea577608787d4aeb, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: LargeBoulder_SE
+    prefab: {fileID: 8962294267068437915, guid: e462028ce7dce214bad96f0ac60b8f85, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: LargeBoulder_NW
+    prefab: {fileID: 8962294267068437915, guid: 3de361eb4a1701946b72abbfa4cc9214, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: LargeBoulder_SW
+    prefab: {fileID: 8962294267068437915, guid: 2e8bf346e2a15ba4faa59ed6b605f7de, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 0

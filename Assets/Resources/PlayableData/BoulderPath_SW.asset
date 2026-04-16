@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7225e0e080b39a84f9cf06c593e697be, type: 3}
+  m_Name: BoulderPath_SW
+  m_EditorClassIdentifier: 
+  waypoints:
+  - {x: 65.8, y: 31.1, z: 0}
+  - {x: 80.2, y: 63.9, z: 0}
+  duration: 12
+  easeType: 5
+  bumpStrength: 0.01
+  bumpVibrato: 3
+  splitCount: 3
+  splitScatterForce: 15
+  splitSnapDelay: 1.5
+  splitMode: 1
+  scatterDuration: 3
+  scatterDrag: 0.3
+  smallPathOptions: []

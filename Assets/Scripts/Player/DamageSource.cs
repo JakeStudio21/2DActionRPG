@@ -75,6 +75,8 @@ public class DamageSource : MonoBehaviour
             DealDamageToSimpleMob(simpleMob, other);
             return;
         }
+
+        // 🪨 RollingBoulder: 바위 자신의 OnTriggerEnter2D(Barricade 패턴)에서 처리
         
         // 기존 몬스터 (EnemyHealth)
         EnemyHealth enemyHealth = other.gameObject.GetComponent<EnemyHealth>();
@@ -234,9 +236,10 @@ public class DamageSource : MonoBehaviour
     }
     
     /// <summary>
-    /// 🎯 현재 기본 데미지 가져오기 (PlayerRuntimeStats 우선)
+    /// 🎯 현재 기본 데미지 가져오기 (PlayerRuntimeStats 우선).
+    /// RollingBoulder 등 외부 오브젝트의 OnTriggerEnter2D에서도 사용 가능.
     /// </summary>
-    private float GetCurrentBaseDamage()
+    public float GetCurrentBaseDamage()
     {
         if (playerRuntimeStats != null)
         {

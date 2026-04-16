@@ -22,6 +22,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uC2A4\uD3F0"
@@ -31,6 +32,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uBCF4\uC2A4 \uC2A4\uD3F0"
@@ -40,6 +42,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC6E8\uC774\uBE0C \uC2DC\uC791"
@@ -49,6 +52,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC6E8\uC774\uBE0C \uC644\uB8CC"
@@ -58,6 +62,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC785\uC7A5"
@@ -67,6 +72,27 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - vfxId: BoulderRollingEffect
+    poolKey: Fx_Run_DustSmoke
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - vfxId: BoulderHitPlayerEffect
+    poolKey: Fx_PlayerHit_Spark_White
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
@@ -75,6 +101,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -84,6 +111,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -93,6 +121,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -102,6 +131,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -111,6 +141,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -120,6 +151,7 @@ MonoBehaviour:
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
     volume: 0.8
     pitch: 1
+    loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
@@ -132,7 +164,11 @@ MonoBehaviour:
     sfxIds:
     - SpawnSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 50
     note: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uC2A4\uD3F0"
   - eventKey: spawn.enemy.boss
@@ -141,7 +177,11 @@ MonoBehaviour:
     sfxIds:
     - BossSpawnSound
     priority: 4
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 100
     note: "\uBCF4\uC2A4 \uC2A4\uD3F0"
   - eventKey: wave.start
@@ -150,7 +190,11 @@ MonoBehaviour:
     sfxIds:
     - WaveStartSound
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 80
     note: "\uC6E8\uC774\uBE0C \uC2DC\uC791"
   - eventKey: wave.complete
@@ -159,7 +203,11 @@ MonoBehaviour:
     sfxIds:
     - WaveCompleteSound
     priority: 3
-    cameraShakePreset: Medium
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 60
     note: "\uC6E8\uC774\uBE0C \uC644\uB8CC"
   - eventKey: stage.enter
@@ -168,7 +216,11 @@ MonoBehaviour:
     sfxIds:
     - StageEnterSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC785\uC7A5"
   - eventKey: stage.complete
@@ -177,7 +229,63 @@ MonoBehaviour:
     sfxIds:
     - StageCompleteSound
     priority: 4
-    cameraShakePreset: Heavy
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 120
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - eventKey: boulder.rolling
+    vfxIds:
+    - BoulderRollingEffect
+    sfxIds:
+    - 
+    priority: 4
+    shakeData:
+      useShake: 1
+      intensity: 0.25
+      duration: 0.25
+      delay: 0
+    timeStopMs: 120
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - eventKey: boulder.split
+    vfxIds:
+    - 
+    sfxIds:
+    - 
+    priority: 4
+    shakeData:
+      useShake: 1
+      intensity: 0.9
+      duration: 0.4
+      delay: 0
+    timeStopMs: 120
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - eventKey: boulder.destroy
+    vfxIds:
+    - 
+    sfxIds:
+    - 
+    priority: 4
+    shakeData:
+      useShake: 1
+      intensity: 0.4
+      duration: 0.25
+      delay: 0
+    timeStopMs: 120
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - eventKey: boulder.hit.player
+    vfxIds:
+    - BoulderHitPlayerEffect
+    sfxIds:
+    - 
+    priority: 4
+    shakeData:
+      useShake: 1
+      intensity: 0.5
+      duration: 0.3
+      delay: 0
     timeStopMs: 120
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
   description: "\uC2A4\uD14C\uC774\uC9C0 \uAE30\uBCF8 \uD504\uB85C\uD544"
