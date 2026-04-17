@@ -12,18 +12,17 @@ GameObject:
   - component: {fileID: 2106861080513923722}
   - component: {fileID: 2142061137914716384}
   - component: {fileID: 2593015259640542914}
-  - component: {fileID: 5709947880115937855}
   - component: {fileID: 5752732880782816917}
   - component: {fileID: 4792411720221729903}
   - component: {fileID: 4045494338668433670}
   - component: {fileID: -8070876538002613510}
-  - component: {fileID: -752092573500323026}
   - component: {fileID: 3746799392073795553}
   - component: {fileID: 8403660534966338527}
   - component: {fileID: 8998232531007038718}
   - component: {fileID: -3420654551023502779}
   - component: {fileID: -3278405193768076442}
   - component: {fileID: 507309305805102008}
+  - component: {fileID: 2919581533059615490}
   - component: {fileID: 5211488974049482479}
   - component: {fileID: 3256451191777437646}
   - component: {fileID: 1748217021442075240}
@@ -166,19 +165,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0.04872962, y: -0.3618136}
   m_Size: {x: 2.3319013, y: 2.0323384}
   m_Direction: 1
---- !u!114 &5709947880115937855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 2
 --- !u!114 &5752732880782816917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,28 +234,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-752092573500323026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 30
-  goldDropMaxAmount: 50
-  canDropEquipment: 1
-  equipmentDropChance: 50
-  possibleEquipmentDrops: []
 --- !u!114 &3746799392073795553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,9 +376,28 @@ MonoBehaviour:
   currentSkill: {fileID: 0}
   isCasting: 0
   isActionExecuting: 0
+  dashSkill: {fileID: 0}
   aoeOffset: {x: 0, y: 3, z: 0}
   skillSpawnPoint: {fileID: 505429217177140206}
   enableDebugLogs: 1
+--- !u!114 &2919581533059615490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96417ae1338a421448bdee516c605fea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseEnemy: {fileID: 0}
+  dashSpeed: 10
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  enableDebugLogs: 0
 --- !u!114 &5211488974049482479
 MonoBehaviour:
   m_ObjectHideFlags: 0

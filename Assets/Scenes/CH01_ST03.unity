@@ -90107,6 +90107,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2102256484657845110, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -27.499786
+      objectReference: {fileID: 0}
     - target: {fileID: 2193526336361923844, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -92423,11 +92427,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: radius
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnType
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnSpread
@@ -92435,11 +92439,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: gizmoColor.b
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: gizmoColor.r
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 903577806771765948, guid: 5afa0238c8831ef458c6990249d706d2, type: 3}
       propertyPath: spawnPointID

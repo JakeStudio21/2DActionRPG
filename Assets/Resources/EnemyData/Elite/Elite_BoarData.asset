@@ -16,10 +16,10 @@ MonoBehaviour:
   enemyName: "\uC624\uC5FC\uB41C \uAC70\uB300\uBA67\uB3FC\uC9C0"
   enemyType: 1
   description: "\"\uAC15\uD654\uB41C \uC57C\uC0DD\uBA67\uB3FC\uC9C0\""
-  baseHealth: 200
+  baseHealth: 1000
   baseDefense: 20
-  baseMoveSpeed: 4
-  detectionRange: 10
+  baseMoveSpeed: 6
+  detectionRange: 15
   chaseRange: 16
   patrolRadius: 8
   knockBackThrust: 2
@@ -27,12 +27,10 @@ MonoBehaviour:
   enemyPrefab: {fileID: 3235174918318939483, guid: 1bc540bb9eb14e54fa61ce093a3abb5b, type: 3}
   deathVFXPrefab: {fileID: 0}
   primaryAttackType: 0
-  skillDataList:
-  - {fileID: 11400000, guid: a7214b9d3b707584c8e76ddcafe158ca, type: 2}
-  - {fileID: 11400000, guid: a7214b9d3b707584c8e76ddcafe158ca, type: 2}
+  skillDataList: []
   meleeAttackProbability: 60
-  skillUseProbability: 40
-  skillProbabilities: 6400000032000000
+  skillUseProbability: 0
+  skillProbabilities: 
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000
@@ -44,4 +42,4 @@ MonoBehaviour:
   bossReward: {fileID: 0}
   dropGroupId: DROP_ELITEBOAR_001
   dropRolls: 1
-  patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}
+  patrolTuning: {fileID: 11400000, guid: 89c8e1695f665414aa9be7e3c8fc4745, type: 2}

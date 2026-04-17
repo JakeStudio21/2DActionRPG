@@ -22,6 +22,10 @@ public class EliteSkillController : MonoBehaviour
     [Header("⏱️ 쿨다운 관리")]
     private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();
     
+    [Header("🏃 대시 스킬")]
+    [Tooltip("SkillType.Dash 전용 실행 컴포넌트")]
+    [SerializeField] private EliteDashSkill dashSkill;
+
     [Header("📍 텔레그래프")]
     private GameObject activeTelegraph;
     
@@ -50,9 +54,12 @@ public class EliteSkillController : MonoBehaviour
         // 컴포넌트 자동 참조
         if (baseEnemy == null)
             baseEnemy = GetComponent<BaseEnemy>();
-        
+
         if (animController == null)
             animController = GetComponent<EnemyAnimationController>();
+
+        if (dashSkill == null)
+            dashSkill = GetComponent<EliteDashSkill>();
     }
 
     private void Start()
@@ -290,21 +297,49 @@ public class EliteSkillController : MonoBehaviour
     
     /// <summary>
     /// ⭐ Phase 2: Damage만 실행 (EliteSkillActionStateBehaviour에서 호출)
+    /// SkillType에 따라 Dash / AOE 분기 처리
     /// </summary>
     public void ExecuteSkillDamageOnly()
     {
         if (currentSkill == null) return;
-        
+
         if (enableDebugLogs)
-        {
-            Debug.Log($"💥 [EliteSkillController] {gameObject.name}: {currentSkill.SkillName} 데미지 판정!");
-        }
-        
-        // ⭐ Telegraph 제거 (데미지 판정 직전)
+            Debug.Log($"💥 [EliteSkillController] {gameObject.name}: {currentSkill.SkillName} 데미지 판정! (Type: {currentSkill.SkillType})");
+
+        // Telegraph 제거 (데미지 판정 직전)
         RemoveTelegraph();
-        
-        // ⭐ Phase 2: DamageArea를 사용한 데미지 판정
-        SpawnDamageArea();
+
+        // ⭐ SkillType 분기: Dash는 EliteDashSkill, 나머지는 기존 DamageArea
+        switch (currentSkill.SkillType)
+        {
+            case SkillType.Dash:
+                ExecuteDashSkill();
+                break;
+
+            default:
+                SpawnDamageArea();
+                break;
+        }
+    }
+
+    /// <summary>
+    /// SkillType.Dash 실행 - EliteDashSkill 컴포넌트에 위임
+    /// </summary>
+    private void ExecuteDashSkill()
+    {
+        if (dashSkill == null)
+        {
+            Debug.LogError($"[EliteSkillController] {gameObject.name}: EliteDashSkill 컴포넌트가 없습니다! " +
+                           "GameObject에 EliteDashSkill을 추가하거나 Inspector에서 할당해주세요.");
+            // 폴백: 기존 DamageArea로 대체
+            SpawnDamageArea();
+            return;
+        }
+
+        if (enableDebugLogs)
+            Debug.Log($"🏃 [EliteSkillController] {gameObject.name}: 대시 스킬 실행 → EliteDashSkill.Execute()");
+
+        dashSkill.Execute(currentSkill, cachedTargetDirection, baseEnemy);
     }
     
     /// <summary>
@@ -792,6 +827,23 @@ public class EliteSkillController : MonoBehaviour
     #endregion
 
     #region 유틸리티
+
+    /// <summary>
+    /// EnemyData 스킬 목록 중 가장 큰 MaxRange 반환
+    /// Elite_Boar.AttackRange 계산에 사용하여 FSM이 스킬 사거리까지 Attack 상태로 진입하도록 함
+    /// </summary>
+    public float GetMaxSkillRange()
+    {
+        if (baseEnemy?.EnemyData?.SkillDataList == null) return 0f;
+
+        float maxRange = 0f;
+        foreach (var skill in baseEnemy.EnemyData.SkillDataList)
+        {
+            if (skill != null && skill.MaxRange > maxRange)
+                maxRange = skill.MaxRange;
+        }
+        return maxRange;
+    }
 
     /// <summary>
     /// ⭐ Phase 2: 스킬 Origin 위치 계산 (간소화)

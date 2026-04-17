@@ -22,6 +22,10 @@ public class EnemyChaseState : IEnemyState
     
     // 리드 타겟팅
     private float leadOffset = 1.5f;             // 플레이어 앞쪽 오프셋 거리
+    
+    // 경로 갱신 쓰로틀 (NavMesh 전용)
+    private float lastPathUpdateTime = -999f;
+    private const float PathUpdateInterval = 0.1f; // 초당 10회 경로 재계산
 
     public EnemyChaseState(IEnemy enemy)
     {
@@ -64,6 +68,7 @@ public class EnemyChaseState : IEnemyState
         if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
         {
             baseEnemy.Agent.isStopped = false; // Agent 이동 허용!
+            lastPathUpdateTime = -999f;         // Chase 재진입 시 즉시 경로 갱신
             
             // ⭐ 엘리트/일반: 공격 범위 안쪽에서 자동 정지 (물리 밀기 방지)
             // attackCheckRange = 0.8x이므로 stoppingDistance는 반드시 0.8x 미만이어야 Attack 전환 조건 충족
@@ -119,8 +124,12 @@ public class EnemyChaseState : IEnemyState
         // ⭐⭐⭐ NavMesh 사용 시 (Phase 3 - 핵심 변경!)
         if (usingNavMesh)
         {
-            // NavMeshAgent로 경로 탐색
-            baseEnemy.Agent.SetDestination(targetPosition);
+            // ⭐ 경로 갱신 쓰로틀: 0.1초마다만 SetDestination 호출 (매 프레임 재계산 시 속도 저하 방지)
+            if (Time.time - lastPathUpdateTime >= PathUpdateInterval)
+            {
+                baseEnemy.Agent.SetDestination(targetPosition);
+                lastPathUpdateTime = Time.time;
+            }
             
             // ⭐ 보스 전용: 속도 증가 체크 및 적용
             if (enemy is Boss_SandElemental)

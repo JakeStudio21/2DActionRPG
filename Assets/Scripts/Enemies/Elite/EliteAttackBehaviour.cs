@@ -72,50 +72,62 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         if (baseEnemy == null || cachedPlayer == null)
         {
             if (enableDebugLogs)
-            {
                 Debug.LogWarning($"[EliteAttackBehaviour] BaseEnemy 또는 Player가 null!");
-            }
             return;
         }
 
         // 거리 계산
         float distanceToPlayer = Vector2.Distance(baseEnemy.transform.position, cachedPlayer.transform.position);
-        
-        // 공격 결정
+
+        // 평타 사거리 (공격 결정에 사용)
+        float meleeRange = GetMeleeRange();
+
+        // 공격 결정 (거리 기반 + 확률 기반)
         var decision = attackDecision.DecideAttack(
             baseEnemy.EnemyData,
             skillController,
-            distanceToPlayer
+            distanceToPlayer,
+            meleeRange
         );
-        
+
         if (enableDebugLogs)
-        {
             Debug.Log($"🎯 [EliteAttackBehaviour] {baseEnemy.gameObject.name}: {decision.Reason}");
-        }
 
         // 결정에 따라 실행
-        if (decision.IsSkill)
+        if (decision.IsSkip)
         {
-            // 스킬 사용
+            // 스킬 쿨다운 대기 중 - 짧은 재시도 타이머 설정
+            lastAttackTime = Time.time - globalAttackCooldown * 0.5f;
+
+            if (enableDebugLogs)
+                Debug.Log($"⏸ [EliteAttackBehaviour] {baseEnemy.gameObject.name}: 공격 대기 (0.75s 후 재시도)");
+
+            return;
+        }
+        else if (decision.IsSkill)
+        {
             ExecuteSkillAttack(decision.SelectedSkill);
-            
-            // 통계 기록
+
             if (trackStatistics && decision.SelectedSkill != null)
-            {
                 statistics?.RecordSkill(decision.SelectedSkill.SkillName);
-            }
         }
         else
         {
-            // 평타 사용
             ExecuteMeleeAttack();
-            
-            // 통계 기록
+
             if (trackStatistics)
-            {
                 statistics?.RecordMelee();
-            }
         }
+    }
+
+    /// <summary>
+    /// 평타 유효 사거리 반환 (EliteAttackDecision에 전달)
+    /// </summary>
+    private float GetMeleeRange()
+    {
+        if (meleeAttack != null && meleeAttack.AttackData != null)
+            return meleeAttack.AttackData.AttackRange;
+        return 1.8f;
     }
     
     #endregion

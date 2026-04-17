@@ -78,6 +78,8 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
     [Header("NavMesh 설정")]
     [Tooltip("NavMesh 사용 여부 토글")]
     [SerializeField] protected bool useNavMesh = false;
+    [Tooltip("NavMeshAgent 가속도 (0 = 자동: speed×20). 기본값 0 권장 — 특수 움직임(느린 기동감)이 필요한 몬스터만 수동 설정")]
+    [SerializeField] protected float navMeshAcceleration = 0f;
     
     /// <summary>
     /// NavMeshAgent 컴포넌트 (Phase 2)
@@ -290,6 +292,11 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             
             // Warp로 현재 위치를 NavMesh 위로 인식시킴 (자동 이동 방지)
             Agent.Warp(correctedPosition);
+            
+            // ⭐ 활성화 후 속도/가속도 재적용 (비활성화 상태에서 설정한 값이 Inspector 기본값으로 덮어써지기 때문)
+            float scaledSpeed = GetScaledMoveSpeed();
+            Agent.speed = scaledSpeed;
+            Agent.acceleration = navMeshAcceleration > 0f ? navMeshAcceleration : scaledSpeed * 20f;
         }
         
         StartCoroutine(FindPlayerCoroutine());
@@ -528,6 +535,10 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         
         // ⭐ 속도 동기화 (데이터 기반)
         Agent.speed = GetScaledMoveSpeed();
+        
+        // ⭐ 가속도 설정: navMeshAcceleration이 0이면 speed 비례 자동 계산
+        // speed / acceleration = 최고속도 도달 시간 (0 = speed*20으로 자동 설정 → 0.05초)
+        Agent.acceleration = navMeshAcceleration > 0f ? navMeshAcceleration : Agent.speed * 20f;
         
         // ⭐⭐⭐ 정지 거리 설정 (공격 범위보다 약간 작게)
         // 안전장치: AttackRange 접근 시 에러 발생하면 기본값 사용

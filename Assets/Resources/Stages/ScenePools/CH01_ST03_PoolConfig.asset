@@ -548,5 +548,11 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: Fx_Dash_Energy
+    prefab: {fileID: 7861109282139630347, guid: 7993eeb2e5c124d428ff6f295a352d78, type: 3}
+    size: 1
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
   enableDebugLogs: 0

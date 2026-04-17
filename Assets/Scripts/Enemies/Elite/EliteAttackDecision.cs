@@ -16,12 +16,13 @@ public class EliteAttackDecision
     }
 
     /// <summary>
-    /// 공격 타입 결정 (평타 or 스킬)
+    /// 공격 타입 결정 (평타 or 스킬 or 대기)
     /// </summary>
     public enum AttackDecisionType
     {
         MeleeAttack,    // 평타
-        UseSkill        // 스킬
+        UseSkill,       // 스킬
+        Skip            // 이번 턴 공격 없음 (원거리 + 스킬 쿨다운)
     }
 
     /// <summary>
@@ -32,18 +33,24 @@ public class EliteAttackDecision
         public AttackDecisionType DecisionType;
         public SkillData SelectedSkill;  // 스킬 선택 시
         public string Reason;            // 결정 이유 (디버그용)
-        
-        public bool IsSkill => DecisionType == AttackDecisionType.UseSkill;
-        public bool IsMelee => DecisionType == AttackDecisionType.MeleeAttack;
+
+        public bool IsSkill  => DecisionType == AttackDecisionType.UseSkill;
+        public bool IsMelee  => DecisionType == AttackDecisionType.MeleeAttack;
+        public bool IsSkip   => DecisionType == AttackDecisionType.Skip;
     }
 
     /// <summary>
     /// 메인 결정 메서드 - 평타 vs 스킬 결정
     /// </summary>
+    /// <param name="enemyData">몬스터 데이터</param>
+    /// <param name="skillController">스킬 컨트롤러 (쿨다운 체크용)</param>
+    /// <param name="distanceToPlayer">현재 플레이어까지 거리</param>
+    /// <param name="meleeRange">평타 유효 사거리 (이 거리 밖이면 평타 제외)</param>
     public DecisionResult DecideAttack(
-        EnemyData enemyData, 
+        EnemyData enemyData,
         EliteSkillController skillController,
-        float distanceToPlayer)
+        float distanceToPlayer,
+        float meleeRange = 1.8f)
     {
         // 기본값: 평타
         DecisionResult result = new DecisionResult
@@ -53,10 +60,50 @@ public class EliteAttackDecision
             Reason = "기본값 (평타)"
         };
 
+        // ─────────────────────────────────────────────────────
+        // ⭐ 거리 기반 1차 분기
+        //    플레이어가 평타 사거리 밖이면 → 스킬만 시도
+        //    스킬도 없으면 → Skip (이번 턴 공격 없음, 짧은 대기)
+        // ─────────────────────────────────────────────────────
+        bool playerOutOfMeleeRange = distanceToPlayer > meleeRange;
+
+        if (playerOutOfMeleeRange)
+        {
+            if (enableDebugLogs)
+                Debug.Log($"[EliteAttackDecision] 플레이어가 평타 사거리 밖 ({distanceToPlayer:F1} > {meleeRange:F1}) → 스킬만 시도");
+
+            SkillData selectedSkill = null;
+
+            if (enemyData != null && enemyData.HasSkillData)
+                selectedSkill = DecideSkill(enemyData, skillController, distanceToPlayer);
+
+            if (selectedSkill != null)
+            {
+                result.DecisionType = AttackDecisionType.UseSkill;
+                result.SelectedSkill = selectedSkill;
+                result.Reason = $"원거리 → 강제 스킬: {selectedSkill.SkillName}";
+            }
+            else
+            {
+                // 스킬도 쿨다운이면 이번 턴 skip
+                result.DecisionType = AttackDecisionType.Skip;
+                result.Reason = $"원거리({distanceToPlayer:F1}) + 스킬 쿨다운 → 공격 대기";
+            }
+
+            if (enableDebugLogs)
+                Debug.Log($"[EliteAttackDecision] {result.Reason}");
+
+            return result;
+        }
+
+        // ─────────────────────────────────────────────────────
+        // 근접 범위: 기존 확률 기반 (평타 60% / 스킬 40%)
+        // ─────────────────────────────────────────────────────
+
         // 스킬 데이터 없으면 평타
         if (enemyData == null || !enemyData.HasSkillData)
         {
-            result.Reason = "스킬 데이터 없음";
+            result.Reason = "스킬 데이터 없음 → 평타";
             return result;
         }
 
@@ -67,7 +114,7 @@ public class EliteAttackDecision
 
         if (total == 0)
         {
-            result.Reason = "확률 합계 0";
+            result.Reason = "확률 합계 0 → 평타";
             return result;
         }
 
@@ -76,45 +123,38 @@ public class EliteAttackDecision
 
         if (randomValue < meleeProb)
         {
-            // 평타 선택
             result.DecisionType = AttackDecisionType.MeleeAttack;
             result.Reason = $"확률 선택: 평타 ({meleeProb}/{total})";
-            
+
             if (enableDebugLogs)
-            {
                 Debug.Log($"[EliteAttackDecision] {result.Reason}");
-            }
-            
+
             return result;
         }
         else
         {
             // 스킬 선택 시도
             SkillData selectedSkill = DecideSkill(enemyData, skillController, distanceToPlayer);
-            
+
             if (selectedSkill != null)
             {
                 result.DecisionType = AttackDecisionType.UseSkill;
                 result.SelectedSkill = selectedSkill;
                 result.Reason = $"스킬 선택: {selectedSkill.SkillName} ({skillProb}/{total})";
-                
+
                 if (enableDebugLogs)
-                {
                     Debug.Log($"[EliteAttackDecision] {result.Reason}");
-                }
             }
             else
             {
                 // 스킬 사용 불가 시 평타로 fallback
                 result.DecisionType = AttackDecisionType.MeleeAttack;
                 result.Reason = "스킬 사용 불가 → 평타로 fallback";
-                
+
                 if (enableDebugLogs)
-                {
                     Debug.LogWarning($"[EliteAttackDecision] {result.Reason}");
-                }
             }
-            
+
             return result;
         }
     }

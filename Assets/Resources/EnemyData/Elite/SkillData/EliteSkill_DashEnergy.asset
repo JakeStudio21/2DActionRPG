@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c4ada57f186b8c4cb4422257d3cb493, type: 3}
+  m_Name: EliteSkill_DashEnergy
+  m_EditorClassIdentifier: 
+  skillType: 1
+  skillName: "\uB3CC\uC9C4"
+  skillId: ELITESKILL_BOAR_DASH_001
+  description: "\uD50C\uB808\uC774\uC5B4\uB97C \uD5A5\uD574 \uB3CC\uC9C4\uD558\uC5EC
+    \uCDA9\uACA9"
+  castTime: 0.1
+  cooldown: 8
+  actionDuration: 1.5
+  damageMultiplier: 2
+  canCritical: 1
+  criticalChanceBonus: 0.05
+  aoeShape: 1
+  aoeRadius: 15
+  aoeSize: {x: 4, y: 1.5}
+  aoeAngle: 0
+  aoeOffset: {x: 0, y: 0}
+  aoeCenterMode: 1
+  aoeCenterOffset: 2
+  telegraphPrefab: {fileID: 4861058780197955906, guid: c64a504b69ad9ce4693f5f5353d7018e, type: 3}
+  telegraphDuration: 0.1
+  telegraphColor: {r: 0, g: 0.2463131, b: 1, a: 0.5}
+  telegraphOffset: {x: 2, y: 0}
+  castEffect: {fileID: 7861109282139630347, guid: 7993eeb2e5c124d428ff6f295a352d78, type: 3}
+  aoeEffect: {fileID: 8683933021285538514, guid: ee4dcd56239c78b40bc8725875ddd6e6, type: 3}
+  castSound: {fileID: 0}
+  skillSound: {fileID: 0}
+  hitCueKey: 
+  minRange: 2
+  maxRange: 8
+  stopMovingWhileCasting: 1
+  vfxMode: 1
+  vfxTime: 0.5
+  damageMode: 1
+  damageTime: 0.5
+  damageWindow: 0
+  aoeDamagePolicy: 0
+  aoeDuration: 0.11
+  aoeTickInterval: 0.5
