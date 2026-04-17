@@ -238,6 +238,7 @@ GameObject:
   - component: {fileID: 1560686160041477823}
   - component: {fileID: 9021089914784124626}
   - component: {fileID: 123569544394047151}
+  - component: {fileID: 12748542617000352}
   m_Layer: 10
   m_Name: Barricade_Vine_NE
   m_TagString: Untagged
@@ -286,7 +287,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3bff383526f74794783a440fee2a4a15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -433,6 +434,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   preset: {fileID: 11400000, guid: 11c3fdb90dd071b4385f9d61207e4b9e, type: 2}
+  isVictoryTarget: 0
+  objectiveMarkerConfig: {fileID: 0}
   currentHits: 0
   currentHP: 0
   isBroken: 0
@@ -482,6 +485,20 @@ MonoBehaviour:
   showDebugGizmo: 0
   showOrderInInspector: 0
   enableDebugLogs: 0
+--- !u!114 &12748542617000352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7473363003276881193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37a5e236592871c4684739fc88f3d9f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propEnabled: _OutlineEnabled
+  propThicknessMult: _ThicknessMult
 --- !u!1001 &2625729096951669155
 PrefabInstance:
   m_ObjectHideFlags: 0

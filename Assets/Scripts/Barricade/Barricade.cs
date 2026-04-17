@@ -9,7 +9,7 @@ using StageSystem;    // StageManager 접근용
 /// 프리셋 기반 바리케이드 시스템
 /// BarricadePreset을 선택하면 모든 설정이 자동 적용됨
 /// </summary>
-public class Barricade : MonoBehaviour
+public class Barricade : MonoBehaviour, ITargetable
 {
     // ========================================
     // 프리셋 선택 (핵심!)
@@ -869,5 +869,28 @@ public class Barricade : MonoBehaviour
     // ========================================
     public bool IsVictoryTarget => isVictoryTarget;
     public bool IsBroken => isBroken;
+
+    // ========================================
+    // ITargetable 구현 (오토타게팅 시스템)
+    // ========================================
+    private TargetOutlineEffect _outlineEffect;
+
+    bool ITargetable.IsAlive() => !isBroken;
+
+    EnemyRank ITargetable.GetRank() =>
+        isVictoryTarget ? EnemyRank.MissionObject : EnemyRank.Obstacle;
+
+    Transform ITargetable.GetTransform() => transform;
+
+    void ITargetable.ActivateLockOn()
+    {
+        if (_outlineEffect == null) _outlineEffect = GetComponentInChildren<TargetOutlineEffect>();
+        _outlineEffect?.Activate();
+    }
+
+    void ITargetable.DeactivateLockOn()
+    {
+        _outlineEffect?.Deactivate();
+    }
 }
 

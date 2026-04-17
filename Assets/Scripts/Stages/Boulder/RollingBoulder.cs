@@ -24,7 +24,7 @@ using CueSystem;
 ///   분열 직후 Rigidbody2D.AddForce로 좌우 퍼짐 → splitSnapDelay 후
 ///   Rigidbody2D를 다시 Kinematic으로 전환 + 남은 경로 DOPath 재개
 /// </summary>
-public class RollingBoulder : MonoBehaviour
+public class RollingBoulder : MonoBehaviour, ITargetable
 {
     // ── 바위 설정 ────────────────────────────────────────────────────────────
     [Header("바위 타입")]
@@ -516,5 +516,25 @@ public class RollingBoulder : MonoBehaviour
     {
         moveTween?.Kill();
         shakeTween?.Kill();
+    }
+
+    // ── ITargetable 구현 (오토타게팅 시스템) ──────────────────────────────────
+    private TargetOutlineEffect _outlineEffect;
+
+    bool ITargetable.IsAlive() => !isDead;
+
+    EnemyRank ITargetable.GetRank() => EnemyRank.Obstacle;
+
+    Transform ITargetable.GetTransform() => transform;
+
+    void ITargetable.ActivateLockOn()
+    {
+        if (_outlineEffect == null) _outlineEffect = GetComponentInChildren<TargetOutlineEffect>();
+        _outlineEffect?.Activate();
+    }
+
+    void ITargetable.DeactivateLockOn()
+    {
+        _outlineEffect?.Deactivate();
     }
 }

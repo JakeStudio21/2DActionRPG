@@ -897,6 +897,9 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
+  objectLayer:
+    serializedVersion: 2
+    m_Bits: 1024
   showDebugGizmos: 1
   showDebugLogs: 1
 --- !u!1 &8172105619653225314

@@ -25,7 +25,7 @@ MonoBehaviour:
   equipmentPrefab: {fileID: 4551001115370886643, guid: 5d41a6ee7a8cd6141890535a196e1deb, type: 3}
   weaponType: 2
   weaponCooldown: 1.5
-  weaponRange: 13
+  weaponRange: 11
   armorType: 0
   accessoryType: 0
   equipmentSlot: 0
@@ -35,7 +35,7 @@ MonoBehaviour:
   baseBudget: 100
   mainStatWeight: 1
   subStatWeight: 0.3
-  attackRange: 15
+  attackRange: 12
   attackShape: 2
   buyPrice: 2000
   sellPrice: 1000

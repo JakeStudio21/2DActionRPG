@@ -16,6 +16,9 @@ public class AutoTargetResolver : MonoBehaviour
 {
     [Header("레이어 설정")]
     [SerializeField] private LayerMask enemyLayer;
+    [Tooltip("바리케이드·구르는 바위 등 ITargetable을 구현한 오브젝트가 속한 레이어.\n" +
+             "Wall 레이어 또는 전용 레이어를 할당하세요.")]
+    [SerializeField] private LayerMask objectLayer;
 
     [Header("디버그")]
     [SerializeField] private bool showDebugGizmos = true;
@@ -68,12 +71,12 @@ public class AutoTargetResolver : MonoBehaviour
         }
 
         Vector2 origin = transform.position;
-        int count = Physics2D.OverlapCircleNonAlloc(origin, profile.detectionRadius, _results, enemyLayer);
+        int count = Physics2D.OverlapCircleNonAlloc(origin, profile.detectionRadius, _results, enemyLayer | objectLayer);
 
         if (showDebugLogs)
         {
             Debug.Log($"[AT_DBG] FindBestTarget: origin={origin}, radius={profile.detectionRadius:F1}, " +
-                      $"enemyLayerMask={enemyLayer.value}, OverlapCount={count} " +
+                      $"enemyLayerMask={enemyLayer.value}, objectLayerMask={objectLayer.value}, OverlapCount={count} " +
                       $"(count=0이면 레이어/반경/콜라이더 확인)");
         }
 

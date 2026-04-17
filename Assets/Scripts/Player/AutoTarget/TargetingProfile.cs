@@ -28,6 +28,14 @@ public class TargetingProfile : ScriptableObject
     [Tooltip("Boss 등급 적에게 추가하는 보너스 점수")]
     public float bossBonus     = 30f;
 
+    [Header("미션·장애물 보너스 (고정 점수)")]
+    [Tooltip("미션 목표 오브젝트(isVictoryTarget 바리케이드)에 추가하는 보너스 점수.\n" +
+             "Normal(0)보다 높고 Elite보다 낮게 설정하세요. (기본값: 2.5)")]
+    public float missionObjectBonus = 2.5f;
+    [Tooltip("일반 파괴 오브젝트(일반 바리케이드·구르는 바위)의 보너스 점수.\n" +
+             "음수로 설정하면 다른 조건이 같을 때 Normal 몬스터보다 낮은 우선순위가 됩니다. (기본값: -5)")]
+    public float obstacleBonus      = -5f;
+
     [Header("근접 보호망 (Close Protection)")]
     [Tooltip("이 반경 안에 들어온 적은 다른 조건을 무시하고 최우선 타겟이 됩니다.")]
     [Range(0f, 5f)] public float closeProtectionRadius = 1.5f;
@@ -45,10 +53,12 @@ public class TargetingProfile : ScriptableObject
     {
         return rank switch
         {
-            EnemyRank.Elite    => eliteBonus,
-            EnemyRank.MiniBoss => miniBossBonus,
-            EnemyRank.Boss     => bossBonus,
-            _                  => 0f,
+            EnemyRank.Elite         => eliteBonus,
+            EnemyRank.MiniBoss      => miniBossBonus,
+            EnemyRank.Boss          => bossBonus,
+            EnemyRank.MissionObject => missionObjectBonus,
+            EnemyRank.Obstacle      => obstacleBonus,
+            _                       => 0f,
         };
     }
 }
