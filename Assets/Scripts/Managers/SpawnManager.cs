@@ -60,7 +60,6 @@ public class SpawnManager : Singleton<SpawnManager>
             spawnPoints[i] = spawnPointObjects[i].transform;
         }
         
-        Debug.Log($"[SpawnManager] {spawnPoints.Length}개의 스폰 포인트를 찾았습니다.");
     }
     
     /// <summary>
@@ -88,7 +87,6 @@ public class SpawnManager : Singleton<SpawnManager>
         GameObject enemy = GamePoolManager.Instance.SpawnFromPool("Enemy", spawnPoint.position, spawnPoint.rotation);
         activeEnemies.Add(enemy);
         
-        Debug.Log($"[SpawnManager] 적 스폰: {enemyPrefab.name} at {spawnPoint.position}");
     }
     
     /// <summary>
@@ -102,7 +100,6 @@ public class SpawnManager : Singleton<SpawnManager>
         GameObject boss = Instantiate(bossPrefabs[bossIndex], spawnPoint.position, spawnPoint.rotation);
         activeEnemies.Add(boss);
         
-        Debug.Log($"[SpawnManager] 보스 스폰: {bossPrefabs[bossIndex].name}");
     }
     
     /// <summary>

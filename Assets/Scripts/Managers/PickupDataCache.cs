@@ -34,7 +34,6 @@ public class PickupDataCache : MonoBehaviour
     {
         if (isInitialized) return;
         
-        Debug.Log("🔄 [PickupDataCache] 초기화 시작...");
         
         // Gold 아이템 로드
         LoadGoldItems();
@@ -46,9 +45,7 @@ public class PickupDataCache : MonoBehaviour
         totalCachedItemCount = goldItemCache.Count + healthItemCache.Count;
         isInitialized = true;
         
-        Debug.Log($"✅ [PickupDataCache] 초기화 완료: 총 {totalCachedItemCount}개 아이템 캐시됨");
-        Debug.Log($"   - Gold 아이템: {cachedGoldItemCount}개");
-        Debug.Log($"   - Health 아이템: {cachedHealthItemCount}개");
+        Dbg.Log($"✅ [PickupDataCache] 초기화 완료: 총 {totalCachedItemCount}개 아이템 캐시됨");
     }
     
     /// <summary>
@@ -58,7 +55,6 @@ public class PickupDataCache : MonoBehaviour
     {
         GoldItemData[] allGoldItems = Resources.LoadAll<GoldItemData>("PickupData");
         
-        Debug.Log($"📁 [PickupDataCache] Gold 아이템 로드 결과: {allGoldItems.Length}개");
         
         foreach (var goldItem in allGoldItems)
         {
@@ -67,10 +63,6 @@ public class PickupDataCache : MonoBehaviour
                 goldItemCache[goldItem.itemId] = goldItem;
                 allItemCache[goldItem.itemId] = goldItem; // 통합 캐시에도 추가
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log($"💰 [PickupDataCache] Gold 캐시 추가: {goldItem.itemId} → {goldItem.itemName}");
-                }
             }
             else
             {
@@ -88,7 +80,6 @@ public class PickupDataCache : MonoBehaviour
     {
         HealthItemData[] allHealthItems = Resources.LoadAll<HealthItemData>("PickupData");
         
-        Debug.Log($"📁 [PickupDataCache] Health 아이템 로드 결과: {allHealthItems.Length}개");
         
         foreach (var healthItem in allHealthItems)
         {
@@ -97,10 +88,6 @@ public class PickupDataCache : MonoBehaviour
                 healthItemCache[healthItem.itemId] = healthItem;
                 allItemCache[healthItem.itemId] = healthItem; // 통합 캐시에도 추가
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log($"❤️ [PickupDataCache] Health 캐시 추가: {healthItem.itemId} → {healthItem.itemName}");
-                }
             }
             else
             {
@@ -130,10 +117,6 @@ public class PickupDataCache : MonoBehaviour
         
         if (goldItemCache.TryGetValue(itemID, out GoldItemData goldItem))
         {
-            if (showDebugLogs)
-            {
-                Debug.Log($"💰 [PickupDataCache] Gold 캐시 히트: {itemID} → {goldItem.itemName}");
-            }
             return goldItem;
         }
         
@@ -160,10 +143,6 @@ public class PickupDataCache : MonoBehaviour
         
         if (healthItemCache.TryGetValue(itemID, out HealthItemData healthItem))
         {
-            if (showDebugLogs)
-            {
-                Debug.Log($"❤️ [PickupDataCache] Health 캐시 히트: {itemID} → {healthItem.itemName}");
-            }
             return healthItem;
         }
         
@@ -190,10 +169,6 @@ public class PickupDataCache : MonoBehaviour
         
         if (allItemCache.TryGetValue(itemID, out BaseItemData item))
         {
-            if (showDebugLogs)
-            {
-                Debug.Log($"📦 [PickupDataCache] 통합 캐시 히트: {itemID} → {item.itemName}");
-            }
             return item;
         }
         

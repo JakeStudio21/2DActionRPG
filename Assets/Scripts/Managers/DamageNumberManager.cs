@@ -121,20 +121,10 @@ public class DamageNumberManager : MonoBehaviour
         playerHitCriticalColor = Color.red; // 플레이어 크리티컬 (몬스터 → 플레이어): 빨간색
         criticalDamageScale = 1.5f; // 크리티컬: 1.5배 크기
         
-        Debug.Log($"🎨 [DamageNumberManager] 시각 설정 완료:");
-        Debug.Log($"  - 일반 데미지 (플레이어 → 몬스터): 흰색 {normalDamageColor}");
-        Debug.Log($"  - 플레이어 피격 (몬스터 → 플레이어): 주황색 {playerHitDamageColor}");
-        Debug.Log($"  - 몬스터 크리티컬 (플레이어 → 몬스터): 노란색 {criticalDamageColor}");
-        Debug.Log($"  - 플레이어 크리티컬 (몬스터 → 플레이어): 빨간색 {playerHitCriticalColor}");
-        Debug.Log($"  - 크기: {criticalDamageScale}배");
 
         // ✅ Prefab 검증 (Inspector 할당 우선, 없으면 Resources.Load 백업)
         ValidatePrefab();
         
-        if (enableDebugLogs)
-        {
-            Debug.Log("[DamageNumberManager] 초기화 완료 - DontDestroyOnLoad 적용됨");
-        }
     }
 
     #endregion
@@ -155,7 +145,7 @@ public class DamageNumberManager : MonoBehaviour
 
             if (damageNumberPrefab != null)
             {
-                Debug.Log("[DamageNumberManager] Resources에서 DamageNumber Prefab 로드 성공!");
+                Dbg.Log("[DamageNumberManager] Resources에서 DamageNumber Prefab 로드 성공!");
             }
             else
             {
@@ -165,10 +155,6 @@ public class DamageNumberManager : MonoBehaviour
         }
         else
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[DamageNumberManager] Prefab 할당 확인: {damageNumberPrefab.name}");
-            }
         }
     }
 
@@ -205,12 +191,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(damageColor);
         spawnedNumber.transform.localScale *= damageScale;
 
-        if (enableDebugLogs)
-        {
-            bool usedAnchor = targetTransform != null && FindDamageNumberAnchor(targetTransform) != null;
-            Debug.Log($"[DamageNumberManager] 데미지 표시: {damage} at {displayPosition:F2} " +
-                     $"(Target: {targetPosition:F2}, isPlayer={isPlayer}, Anchor={usedAnchor})");
-        }
     }
     
     /// <summary>
@@ -316,7 +296,6 @@ public class DamageNumberManager : MonoBehaviour
         
         // ⭐ 강제 디버그 (색상 확인용)
         string target = isPlayer ? "플레이어 피격" : "몬스터 피격";
-        Debug.Log($"💥 [DamageNumberManager] 크리티컬 {target}: {damage} | 색상: {critColor} | 크기: {criticalDamageScale}배");
     }
     
     /// <summary>
@@ -336,7 +315,6 @@ public class DamageNumberManager : MonoBehaviour
         
         // ⭐ 강제 디버그 (색상 확인용)
         string targetType = isPlayer ? "플레이어 피격" : "몬스터 피격";
-        Debug.Log($"⚔️ [DamageNumberManager] {targetType}: {damage} | 색상: {damageColor} | 크기: {damageScale}배");
     }
     
     /// <summary>
@@ -362,10 +340,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(immunityColor); // 파란색
         spawnedNumber.transform.localScale *= immunityScale; // 1.3배로 크게 표시
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🛡️ [DamageNumberManager] 면역 표시: {resistedEffects} at {displayPosition:F2}");
-        }
     }
 
     /// <summary>
@@ -394,8 +368,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.enableTopText = true;
         spawnedNumber.topText = "+";
 
-        if (enableDebugLogs)
-            Debug.Log($"💚 [DamageNumberManager] 흡혈 회복 표시: +{amount} at {displayPosition:F2}");
     }
 
     /// <summary>
@@ -416,8 +388,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(statusAppliedColor);
         spawnedNumber.transform.localScale *= statusTextScale;
 
-        if (enableDebugLogs)
-            Debug.Log($"🔮 [DamageNumberManager] 상태이상 적용 표시: {effectName} at {displayPosition:F2}");
     }
 
     /// <summary>
@@ -438,8 +408,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(statusResistedColor);
         spawnedNumber.transform.localScale *= statusTextScale;
 
-        if (enableDebugLogs)
-            Debug.Log($"🔮 [DamageNumberManager] 상태이상 저항 표시: RESIST ({effectName}) at {displayPosition:F2}");
     }
 
     /// <summary>
@@ -459,8 +427,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(dodgeColor);
         spawnedNumber.transform.localScale *= dodgeBlockScale;
 
-        if (enableDebugLogs)
-            Debug.Log($"💨 [DamageNumberManager] 회피 텍스트 표시: DODGE at {displayPosition:F2}");
     }
 
     /// <summary>
@@ -480,8 +446,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(blockColor);
         spawnedNumber.transform.localScale *= dodgeBlockScale;
 
-        if (enableDebugLogs)
-            Debug.Log($"🛡️ [DamageNumberManager] 블록 텍스트 표시: BLOCK at {displayPosition:F2}");
     }
 
     /// <summary>
@@ -506,8 +470,6 @@ public class DamageNumberManager : MonoBehaviour
         spawnedNumber.SetColor(new Color(1f, 0.85f, 0f)); // 금색
         spawnedNumber.transform.localScale *= 1.0f;       // 강조 크기
 
-        if (enableDebugLogs)
-            Debug.Log($"🆙 [DamageNumberManager] 레벨업 텍스트 표시: LEVEL UP! Lv.{newLevel} at {displayPosition:F2}");
     }
 
     #endregion
@@ -541,8 +503,6 @@ public class DamageNumberManager : MonoBehaviour
         // dn.enableLeftText = true;
         // dn.leftText = "!";
         
-        if (enableDebugLogs)
-            Debug.Log($"💥 [DamageNumberManager] 크리티컬 데미지: {damage} (색상: {criticalDamageColor})");
     }
 
     /// <summary>
@@ -567,8 +527,6 @@ public class DamageNumberManager : MonoBehaviour
         // ⭐ 짧은 애니메이션 (lifetime 단축)
         dn.lifetime = 1.0f; // 기본 2초 → 1초로 단축 (툭툭 효과)
         
-        if (enableDebugLogs)
-            Debug.Log($"🟣 [DamageNumberManager] DoT 데미지: {damage} (색상: {dotDamageColor})");
     }
 
     /// <summary>
@@ -594,8 +552,6 @@ public class DamageNumberManager : MonoBehaviour
         dn.enableLeftText = true;
         dn.leftText = "+";
         
-        if (enableDebugLogs)
-            Debug.Log($"💚 [DamageNumberManager] 힐: +{healing} (색상: {healColor})");
     }
 
     /// <summary>

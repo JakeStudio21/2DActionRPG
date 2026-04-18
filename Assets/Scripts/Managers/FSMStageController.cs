@@ -91,7 +91,6 @@ public class FSMStageController : Singleton<FSMStageController>
         // 씬이 변경된 경우에만 실행
         if (lastSceneName != currentSceneName)
         {
-            Debug.Log($"[FSMStageController] 씬 변경 감지: {lastSceneName} → {currentSceneName}");
             lastSceneName = currentSceneName;
             
             // Victory/Defeat 플래그 리셋 (새 씬에서 다시 판정 가능)
@@ -158,19 +157,16 @@ public class FSMStageController : Singleton<FSMStageController>
                 if (enemy.isDead)
                 {
                     deadBossCount++;
-                    Debug.Log($"[FSMStageController] 처치된 보스: {enemy.gameObject.name}");
                 }
             }
         }
         
         if (totalBossCount == 0)
         {
-            Debug.Log("[FSMStageController] 이 스테이지에는 보스가 없습니다.");
             return false;
         }
         
         bool allDefeated = (deadBossCount == totalBossCount);
-        Debug.Log($"[FSMStageController] 보스 처치 현황: {deadBossCount}/{totalBossCount}");
         
         return allDefeated;
         */
@@ -211,7 +207,7 @@ public class FSMStageController : Singleton<FSMStageController>
         currentStage = StageState.Victory;
         OnStageChanged?.Invoke(currentStage);
         
-        Debug.Log("[FSMStageController] Victory! 미션 완료");
+        Dbg.Log("[FSMStageController] Victory! 미션 완료");
         
         // Victory 팝업 표시 (보상 데이터 포함)
         StartCoroutine(ShowVictoryPopupRoutine(resultData));
@@ -236,7 +232,6 @@ public class FSMStageController : Singleton<FSMStageController>
         if (resultPopup != null)
         {
             resultPopup.ShowVictory(resultData); // Victory + 보상 데이터 전달
-            Debug.Log($"[FSMStageController] Victory 팝업 표시 완료 (골드: {resultData.goldReward}, EXP: {resultData.expReward})");
         }
         else
         {
@@ -255,7 +250,7 @@ public class FSMStageController : Singleton<FSMStageController>
         currentStage = StageState.GameOver;
         OnStageChanged?.Invoke(currentStage);
         
-        Debug.Log("[FSMStageController] Defeat! 게임 오버");
+        Dbg.Log("[FSMStageController] Defeat! 게임 오버");
         
         // ✅ Defeat 팝업 표시 추가
         StartCoroutine(ShowDefeatPopupRoutine());
@@ -272,7 +267,6 @@ public class FSMStageController : Singleton<FSMStageController>
         if (resultPopup != null)
         {
             resultPopup.Show(false); // Defeat
-            Debug.Log("[FSMStageController] Defeat 팝업 표시 완료");
         }
         else
         {
@@ -313,7 +307,6 @@ public class FSMStageController : Singleton<FSMStageController>
         if (player != null)
         {
             player.transform.position = targetPosition;
-            Debug.Log($"[FSMStageController] 포털 이동: {targetPosition}");
         }
 
         // 전환 정보 설정
@@ -397,7 +390,6 @@ public class FSMStageController : Singleton<FSMStageController>
             {
                 currentStage = stageInfo.stage;
                 OnStageChanged?.Invoke(currentStage);
-                Debug.Log($"[FSMStageController] 현재 스테이지: {currentStage} ({stageInfo.displayName})");
                 break;
             }
         }
@@ -458,7 +450,7 @@ public class FSMStageController : Singleton<FSMStageController>
         OnStageTransitionStarted?.Invoke(targetStage);
 
         var targetStageInfo = stageDict[targetStage];
-        Debug.Log($"[FSMStageController] {currentStage} → {targetStage} 전환 시작");
+        Dbg.Log($"[FSMStageController] {currentStage} → {targetStage} 전환 시작");
 
         // 로딩 씬을 거쳐야 하는 경우
         if (targetStage != StageState.Loading && currentStage != StageState.Loading)
@@ -483,7 +475,7 @@ public class FSMStageController : Singleton<FSMStageController>
 
         isTransitioning = false;
         OnStageTransitionCompleted?.Invoke(targetStage);
-        Debug.Log($"[FSMStageController] {targetStage} 전환 완료");
+        Dbg.Log($"[FSMStageController] {targetStage} 전환 완료");
     }
 
     /// <summary>
@@ -531,7 +523,6 @@ public class FSMStageController : Singleton<FSMStageController>
         {
             // 설정된 스폰 위치로 이동
             playerController.transform.position = currentStageInfo.playerSpawnPosition;
-            Debug.Log($"[FSMStageController] 플레이어 위치 설정: {currentStageInfo.playerSpawnPosition}");
         }
         else
         {
@@ -540,7 +531,6 @@ public class FSMStageController : Singleton<FSMStageController>
             if (entrances.Length > 0)
             {
                 // 기존 AreaEntrance 시스템 사용 (하위 호환성)
-                Debug.Log("[FSMStageController] 기존 AreaEntrance 시스템 사용");
             }
         }
     }
@@ -670,7 +660,6 @@ public class FSMStageController : Singleton<FSMStageController>
         if (currentStageInfo != null)
         {
             currentStageInfo.transitionName = transitionName;
-            Debug.Log($"[FSMStageController] 전환 정보 설정: {transitionName}");
         }
     }
 

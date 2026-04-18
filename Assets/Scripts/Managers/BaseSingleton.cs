@@ -11,7 +11,6 @@ public class BaseSingleton : Singleton<BaseSingleton>
         // 실제 중복 매니저들이 있는지 체크 (같은 GameObject 내 매니저는 제외)
         if (HasDuplicateManagersFromOtherSources())
         {
-            Debug.Log("[BaseSingleton] 다른 소스의 매니저들이 감지되어 중복 Managers 프리팹을 파괴합니다.");
             isDestroying = true;
             
             // 자식 매니저들의 Singleton 등록을 차단하기 위해 즉시 파괴
@@ -25,7 +24,6 @@ public class BaseSingleton : Singleton<BaseSingleton>
         // 자신이 살아남은 경우에만 초기화 메시지 출력
         if (instance == this)
         {
-            Debug.Log("[BaseSingleton] Managers 프리팹이 정상적으로 초기화되었습니다.");
         }
     }
 
@@ -37,7 +35,6 @@ public class BaseSingleton : Singleton<BaseSingleton>
         // 1. BaseSingleton 자체 중복 체크 (다른 GameObject의 BaseSingleton)
         if (BaseSingleton.Instance != null && BaseSingleton.Instance.gameObject != this.gameObject)
         {
-            Debug.Log("[BaseSingleton] 다른 GameObject의 BaseSingleton이 이미 존재합니다.");
             return true;
         }
 
@@ -63,7 +60,6 @@ public class BaseSingleton : Singleton<BaseSingleton>
             var existingInstance = instanceProperty.GetValue(null) as T;
             if (existingInstance != null && existingInstance.gameObject != this.gameObject)
             {
-                Debug.Log($"[BaseSingleton] 다른 GameObject의 {typeof(T).Name}이 이미 존재합니다: {existingInstance.gameObject.name}");
                 return true;
             }
         }

@@ -35,14 +35,12 @@ public class PlayerSpawner : MonoBehaviour
         // GameManager 준비 대기
         while (GameManager.Instance == null)
         {
-            Debug.Log("[PlayerSpawner] GameManager를 기다리는 중...");
             yield return new WaitForSeconds(0.1f);
         }
 
         // selectedPlayerData 준비 대기
         while (GameManager.Instance.selectedPlayerData == null)
         {
-            Debug.Log("[PlayerSpawner] selectedPlayerData를 기다리는 중...");
             yield return new WaitForSeconds(0.1f);
         }
 
@@ -67,7 +65,6 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 데이터 확인: {GameManager.Instance.selectedPlayerData}");
 
         if (GameManager.Instance.selectedPlayerData.selectedPlayerType == PlayerType.None)
         {
@@ -76,7 +73,6 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         var selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
-        Debug.Log($"[PlayerSpawner] 스포너 시작. 선택된 클래스: {selectedType}");
 
         GameObject prefabToSpawn = GetPrefabByType(selectedType);
 
@@ -101,7 +97,6 @@ public class PlayerSpawner : MonoBehaviour
         // 한 프레임 대기하여 플레이어가 완전히 활성화되도록 함
         yield return null;
         
-        Debug.Log("[PlayerSpawner] 플레이어 후처리 시작");
 
         // 미니맵 시스템에 플레이어 참조 주입
         // MinimapManager.Start()는 플레이어 스폰 전에 실행되므로 여기서 직접 전달한다.
@@ -109,7 +104,6 @@ public class PlayerSpawner : MonoBehaviour
         {
             var playerController = spawnedPlayer.GetComponent<PlayerController>();
             MinimapManager.Instance.SetPlayer(spawnedPlayer.transform, playerController);
-            Debug.Log("[PlayerSpawner] MinimapManager에 플레이어 참조 주입 완료");
         }
 
         // 🆕 핵심 수정: PlayerDataManager에 현재 캐릭터 타입 설정
@@ -117,7 +111,6 @@ public class PlayerSpawner : MonoBehaviour
         {
             PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
             PlayerDataManager.Instance.SetCurrentPlayerType(selectedType);
-            Debug.Log($"💾 [PlayerSpawner] PlayerDataManager에 캐릭터 타입 설정: {selectedType}");
         }
         else
         {
@@ -136,7 +129,6 @@ public class PlayerSpawner : MonoBehaviour
         // ⭐ 수정: 무기 장착을 지연 실행으로 변경
         yield return StartCoroutine(DelayedWeaponEquipment());
         
-        Debug.Log("[PlayerSpawner] 플레이어 후처리 완료");
     }
 
     /// <summary>
@@ -144,7 +136,6 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private IEnumerator DelayedWeaponEquipment()
     {
-        Debug.Log("[PlayerSpawner] 지연된 무기 장착 시작 - 클래스 초기화 대기");
         
         // 클래스 시스템 초기화 대기
         int maxAttempts = 30; // 1.5초 대기
@@ -157,7 +148,6 @@ public class PlayerSpawner : MonoBehaviour
             
             if (!classSystemReady)
             {
-                Debug.Log($"[PlayerSpawner] 클래스 초기화 대기 중... {attempts + 1}/{maxAttempts}");
                 yield return new WaitForSeconds(0.1f);
                 attempts++;
             }
@@ -166,7 +156,7 @@ public class PlayerSpawner : MonoBehaviour
         // 무기 장착 시도
         if (classSystemReady)
         {
-            Debug.Log("[PlayerSpawner] ✅ 클래스 시스템 초기화 완료! 무기 장착 진행");
+            Dbg.Log("[PlayerSpawner] ✅ 클래스 시스템 초기화 완료! 무기 장착 진행");
             EquipStartingWeapon();
         }
         else
@@ -195,7 +185,6 @@ public class PlayerSpawner : MonoBehaviour
         var allClasses = spawnedPlayer.GetComponents<BaseClassBehaviour>();
         if (allClasses.Length == 0)
         {
-            Debug.Log($"[PlayerSpawner] BaseClassBehaviour 컴포넌트 없음");
             return false;
         }
         
@@ -205,16 +194,13 @@ public class PlayerSpawner : MonoBehaviour
             // 클래스가 초기화되었고 활성화되었거나, 또는 단순히 enabled 상태라면 준비된 것으로 간주
             if (classComp.IsActiveClass || (classComp.enabled && !string.IsNullOrEmpty(classComp.ClassName)))
             {
-                Debug.Log($"[PlayerSpawner] 활성 클래스 발견: {classComp.ClassName}");
                 return true;
             }
         }
         
         // ✅ 추가: 디버깅 정보
-        Debug.Log($"[PlayerSpawner] 클래스 상태 확인:");
         for (int i = 0; i < allClasses.Length; i++)
         {
-            Debug.Log($"  - {allClasses[i].GetType().Name}: enabled={allClasses[i].enabled}, IsActive={allClasses[i].IsActiveClass}, ClassName={allClasses[i].ClassName}");
         }
         
         return false;
@@ -225,7 +211,6 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private IEnumerator SetupPlayerCameraCoroutine()
     {
-        Debug.Log("[PlayerSpawner] 카메라 설정 시작");
         
         // CameraController 대기
         float timeout = 5f;
@@ -235,7 +220,6 @@ public class PlayerSpawner : MonoBehaviour
         {
             elapsed += 0.1f;
             yield return new WaitForSeconds(0.1f);
-            Debug.Log($"[PlayerSpawner] CameraController 대기 중... ({elapsed:F1}초)");
         }
         
         if (CameraController.Instance == null)
@@ -253,7 +237,6 @@ public class PlayerSpawner : MonoBehaviour
         
         // 카메라 설정 실행
         CameraController.Instance.SetPlayerCameraFollow();
-        Debug.Log("[PlayerSpawner] 카메라 설정 요청 완료");
     }
 
     /// <summary>
@@ -284,23 +267,17 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void SpawnPlayer(GameObject prefab)
     {
-        Debug.Log($"🔍 [PlayerSpawner] === SpawnPlayer 시작 ===");
-        Debug.Log($"🔍 [PlayerSpawner] prefab: {(prefab != null ? prefab.name : "NULL")}");
-        Debug.Log($"🔍 [PlayerSpawner] 현재 spawnedPlayer: {(spawnedPlayer != null ? spawnedPlayer.name : "NULL")}");
         
         // ✅ 추가: 기존 플레이어들 완전 정리
         var existingPlayers = FindObjectsOfType<PlayerController>();
-        Debug.Log($"🗑️ [PlayerSpawner] 씬에서 발견된 기존 플레이어 개수: {existingPlayers.Length}");
         
         for (int i = 0; i < existingPlayers.Length; i++)
         {
-            Debug.Log($"🗑️ [PlayerSpawner] 기존 플레이어 제거: {existingPlayers[i].name} (ID: {existingPlayers[i].GetInstanceID()})");
             Destroy(existingPlayers[i].gameObject);
         }
         
         // ✅ 추가: PlayerHealth도 확인
         var existingHealths = FindObjectsOfType<PlayerHealth>();
-        Debug.Log($"🗑️ [PlayerSpawner] 씬에서 발견된 기존 PlayerHealth 개수: {existingHealths.Length}");
         
         // 기존 참조도 초기화
         spawnedPlayer = null;
@@ -321,7 +298,7 @@ public class PlayerSpawner : MonoBehaviour
     {
         yield return null; // 한 프레임 대기
         spawnedPlayer = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
-        Debug.Log($"[PlayerSpawner] {prefab.name} 스폰 완료 (직접 생성) - spawnedPlayer: {spawnedPlayer?.name}");
+        Dbg.Log($"[PlayerSpawner] {prefab.name} 스폰 완료 (직접 생성) - spawnedPlayer: {spawnedPlayer?.name}");
 
         // 스테이지 초기화(풀 워밍업·컷신)가 끝나기 전에 플레이어가 이동하지 않도록 즉시 잠금
         // StageManager.InitializeStage() 가 모든 준비를 마친 뒤 해제한다.
@@ -329,7 +306,7 @@ public class PlayerSpawner : MonoBehaviour
         if (spawnedController != null)
         {
             spawnedController.SetMovementLocked(true);
-            Debug.Log("[PlayerSpawner] 스테이지 초기화 완료 전 이동 잠금 설정");
+            Dbg.Log("[PlayerSpawner] 스테이지 초기화 완료 전 이동 잠금 설정");
         }
         
         // 스폰된 플레이어 유효성 검사
@@ -349,7 +326,6 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void EquipStartingWeapon()
     {
-        Debug.Log("[PlayerSpawner] 무기 장착 시작");
         
         // null 체크들
         if (GameManager.Instance == null)
@@ -365,7 +341,6 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 데이터: {GameManager.Instance.selectedPlayerData}");
 
         // 🆕 수정: PlayerDataManager에서 장착된 무기 우선 확인
         EquipmentData equippedWeapon = null;
@@ -375,7 +350,6 @@ public class PlayerSpawner : MonoBehaviour
             if (equippedItems.ContainsKey(EquipmentSlot.MainWeapon) && equippedItems[EquipmentSlot.MainWeapon] != null)
             {
                 equippedWeapon = equippedItems[EquipmentSlot.MainWeapon];
-                Debug.Log($"[PlayerSpawner] 저장된 장착 무기 발견: {equippedWeapon.name}");
             }
         }
         
@@ -390,7 +364,6 @@ public class PlayerSpawner : MonoBehaviour
             }
             
             equippedWeapon = GetEquipmentDataByName(weaponNameToEquip);
-            Debug.Log($"[PlayerSpawner] 기본 무기 사용: {weaponNameToEquip}");
         }
 
         if (equippedWeapon == null)
@@ -399,7 +372,6 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 무기 정보 찾음: {equippedWeapon.name}");
 
         // 무기 장착
         EquipWeaponToPlayer(equippedWeapon);
@@ -410,7 +382,6 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private EquipmentData GetEquipmentDataByName(string weaponName)
     {
-        Debug.Log($"[PlayerSpawner] 무기 검색: {weaponName}");
         
         EquipmentData result = weaponName switch
         {
@@ -420,7 +391,6 @@ public class PlayerSpawner : MonoBehaviour
             _ => null
         };
         
-        Debug.Log($"[PlayerSpawner] 무기 검색 결과: {(result != null ? result.name : "NOT FOUND")}");
         return result;
     }
 
@@ -429,7 +399,6 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void EquipWeaponToPlayer(EquipmentData equipmentData)  // 매개변수명 변경
     {
-        Debug.Log($"[PlayerSpawner] 무기 장착 시도: {equipmentData.name}");
         
         if (equipmentData.equipmentPrefab == null)
         {
@@ -439,7 +408,6 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] 무기 프리팹 확인됨: {equipmentData.equipmentPrefab.name}");
 
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon == null)
@@ -453,10 +421,8 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[PlayerSpawner] ActiveWeapon 찾음: {activeWeapon.name}");
 
         activeWeapon.EquipWeapon(equipmentData);
-        Debug.Log($"[PlayerSpawner] 자동 장착 완료: {equipmentData.name}");
     }
 
     /// <summary>
@@ -490,7 +456,6 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         attackButtonController.Bind(input);
-        Debug.Log("[PlayerSpawner] AttackButtonController 바인딩 완료.");
     }
 
     /// <summary>
@@ -498,7 +463,6 @@ public class PlayerSpawner : MonoBehaviour
     /// </summary>
     private void AddPlayerAttackInput()
     {
-        Debug.Log("🔵 [PlayerSpawner] AddPlayerAttackInput() 시작");
         
         if (spawnedPlayer == null)
         {
@@ -506,13 +470,11 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Debug.Log("🔵 [PlayerSpawner] 스폰된 플레이어: " + spawnedPlayer.name);
 
         // 이미 PlayerAttackInput이 있는지 확인
         var existingInput = spawnedPlayer.GetComponent<PlayerAttackInput>();
         if (existingInput != null)
         {
-            Debug.Log("🟡 [PlayerSpawner] PlayerAttackInput이 이미 존재합니다.");
             return;
         }
 
@@ -520,11 +482,9 @@ public class PlayerSpawner : MonoBehaviour
         var playerAttackInput = spawnedPlayer.AddComponent<PlayerAttackInput>();
         if (playerAttackInput != null)
         {
-            Debug.Log("✅ [PlayerSpawner] PlayerAttackInput 컴포넌트 자동 추가 완료!");
             
             // 추가된 컴포넌트 확인
             var verifyInput = spawnedPlayer.GetComponent<PlayerAttackInput>();
-            Debug.Log("🔍 [PlayerSpawner] 컴포넌트 추가 확인: " + (verifyInput != null ? "성공" : "실패"));
         }
         else
         {

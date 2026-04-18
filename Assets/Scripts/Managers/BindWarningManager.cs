@@ -191,10 +191,6 @@ public class BindWarningManager : MonoBehaviour
     
     private void Log(string message)
     {
-        if (enableDebugLogs)
-        {
-            Debug.Log(message);
-        }
     }
     
     private void LogWarning(string message)

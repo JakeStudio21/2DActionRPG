@@ -41,7 +41,6 @@ public class AreaExit : MonoBehaviour
         if (string.IsNullOrEmpty(targetAreaName) && !string.IsNullOrEmpty(SceneTransitionName))
         {
             targetAreaName = SceneTransitionName;
-            Debug.Log($"[AreaExit] 기존 SceneTransitionName '{SceneTransitionName}'을 targetAreaName으로 마이그레이션");
         }
         
         if (string.IsNullOrEmpty(portalName))
@@ -141,11 +140,9 @@ public class AreaExit : MonoBehaviour
             
             if (!shouldGateBeOpen)
             {
-                Debug.Log($"[AreaExit] '{portalName}' 포털 게이트 닫힘 (보스 격파 필요)");
             }
             else
             {
-                Debug.Log($"[AreaExit] '{portalName}' 포털 게이트 열림 (보스 격파 완료)");
             }
         }
     }

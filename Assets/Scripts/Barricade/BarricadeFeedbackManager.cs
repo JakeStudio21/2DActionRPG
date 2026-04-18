@@ -146,15 +146,5 @@ public class BarricadeFeedbackManager : MonoBehaviour
         AudioSource.PlayClipAtPoint(clip, Camera.main.transform.position);
     }
     
-    // ========================================
-    // 디버그 정보
-    // ========================================
-    public void LogStatus()
-    {
-        Debug.Log($"[BarricadeFeedbackManager] 상태:");
-        Debug.Log($"  - 마지막 카메라 흔들림: {Time.time - lastCameraShakeTime:F1}초 전");
-        Debug.Log($"  - 마지막 큰 이펙트: {Time.time - lastBigFxTime:F1}초 전");
-        Debug.Log($"  - 연속 이펙트 카운트: {consecutiveFxCount}/{MAX_CONSECUTIVE_FX}");
-    }
 }
 

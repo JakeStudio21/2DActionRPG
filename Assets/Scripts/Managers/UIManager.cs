@@ -186,19 +186,16 @@ public class UIManager : Singleton<UIManager>
     private void OnAttackButtonClick()
     {
         // 공격 버튼 클릭 처리
-        Debug.Log("[UIManager] 공격 버튼 클릭");
     }
     
     private void OnSkill1ButtonClick()
     {
         // 스킬1 버튼 클릭 처리
-        Debug.Log("[UIManager] 스킬1 버튼 클릭");
     }
     
     private void OnSkill2ButtonClick()
     {
         // 스킬2 버튼 클릭 처리
-        Debug.Log("[UIManager] 스킬2 버튼 클릭");
     }
     
     /// <summary>

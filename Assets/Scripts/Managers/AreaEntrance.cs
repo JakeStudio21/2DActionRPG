@@ -47,7 +47,6 @@ public class AreaEntrance : MonoBehaviour
 
         if (transitionName == currentTransitionName) {
             playerController.transform.position = this.transform.position;
-            Debug.Log($"[AreaEntrance] 플레이어 위치 설정: {this.transform.position} (전환: {transitionName})");
             
             if (CameraController.Instance != null)
             {

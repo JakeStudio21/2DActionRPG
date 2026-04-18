@@ -38,17 +38,13 @@ public class EquipmentDataCache : MonoBehaviour
             {
                 equipmentCache[equipment.itemID] = equipment;
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log($"📦 [EquipmentDataCache] 캐시 추가: {equipment.itemID} → {equipment.equipmentName}");
-                }
             }
         }
         
         cachedEquipmentCount = equipmentCache.Count;
         isInitialized = true;
         
-        Debug.Log($"✅ [EquipmentDataCache] 초기화 완료: {cachedEquipmentCount}개 장비 캐시됨");
+        Dbg.Log($"✅ [EquipmentDataCache] 초기화 완료: {cachedEquipmentCount}개 장비 캐시됨");
     }
     
     /// <summary>
@@ -70,10 +66,6 @@ public class EquipmentDataCache : MonoBehaviour
         
         if (equipmentCache.TryGetValue(itemID, out EquipmentData equipment))
         {
-            if (showDebugLogs)
-            {
-                Debug.Log($"📦 [EquipmentDataCache] 캐시 히트: {itemID} → {equipment.equipmentName}");
-            }
             return equipment;
         }
         

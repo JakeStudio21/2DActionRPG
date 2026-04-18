@@ -28,7 +28,6 @@ public class ItemGradeColorManager : MonoBehaviour
                     _instance = go.AddComponent<ItemGradeColorManager>();
                     DontDestroyOnLoad(go);
                     
-                    Debug.Log("✨ [ItemGradeColorManager] 자동 생성 및 초기화");
                 }
             }
             return _instance;
@@ -90,15 +89,13 @@ public class ItemGradeColorManager : MonoBehaviour
             }
             else
             {
-                if (showDebugLogs)
-                    Debug.Log("✅ [ItemGradeColorManager] Config 자동 로드 완료");
+                    Dbg.Log("✅ [ItemGradeColorManager] Config 자동 로드 완료");
             }
         }
         
         isInitialized = true;
         
-        if (showDebugLogs)
-            Debug.Log("🎨 [ItemGradeColorManager] 초기화 완료");
+            Dbg.Log("🎨 [ItemGradeColorManager] 초기화 완료");
     }
     
     #endregion
@@ -121,8 +118,6 @@ public class ItemGradeColorManager : MonoBehaviour
         
         Color color = config.GetGradeColor(grade);
         
-        if (showDebugLogs)
-            Debug.Log($"🎨 [ItemGradeColorManager] {grade} 등급 색상 반환: {color}");
         
         return color;
     }
@@ -150,7 +145,7 @@ public class ItemGradeColorManager : MonoBehaviour
         
         if (config != null)
         {
-            Debug.Log("🔄 [ItemGradeColorManager] Config 재로드 완료");
+            Dbg.Log("🔄 [ItemGradeColorManager] Config 재로드 완료");
         }
         else
         {
@@ -176,8 +171,6 @@ public class ItemGradeColorManager : MonoBehaviour
             {
                 config.gradeColors[i].color = color;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [ItemGradeColorManager] {grade} 등급 색상 변경: {color}");
                 
                 return;
             }
@@ -202,16 +195,11 @@ public class ItemGradeColorManager : MonoBehaviour
             return;
         }
         
-        Debug.Log("═══════════════════════════════════════");
-        Debug.Log("🎨 아이템 등급별 색상 목록");
-        Debug.Log("═══════════════════════════════════════");
         
         foreach (var entry in config.gradeColors)
         {
-            Debug.Log($"{entry.grade}: RGB({entry.color.r:F2}, {entry.color.g:F2}, {entry.color.b:F2})");
         }
         
-        Debug.Log("═══════════════════════════════════════");
     }
     
     #endregion

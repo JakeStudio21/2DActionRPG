@@ -115,8 +115,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         OnLevelChanged?.Invoke(newLevel);
         
-        if (showDebugLogs)
-            Debug.Log($"🆙 [PlayerDataManager] 레벨 변경 이벤트 발생: Lv.{newLevel}");
     }
     
     // 접근자 프로퍼티 (AccountDataManager 위임 - V2 계정 공유 골드)
@@ -176,8 +174,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         #if UNITY_EDITOR
         // Unity Editor에서는 Pause 이벤트 무시 (Editor UI 조작 시 불필요한 저장 방지)
-        if (showDebugLogs)
-            Debug.Log($"⏭️ [OnApplicationPause] Unity Editor에서는 무시");
         return;
         #endif
         
@@ -191,8 +187,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         #if UNITY_EDITOR
         // Unity Editor에서는 Focus 이벤트 무시 (Inspector/Hierarchy 클릭 시 불필요한 저장 방지)
-        if (showDebugLogs)
-            Debug.Log($"⏭️ [OnApplicationFocus] Unity Editor에서는 무시");
         return;
         #endif
         
@@ -227,8 +221,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         isDirty = true;
-        if (showDebugLogs)
-            Debug.Log($"🔧 [Dirty Flag] 슬롯 {currentSlotIndex} 데이터 변경됨");
     }
     
     /// <summary>
@@ -237,8 +229,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     private void ClearDirty()
     {
         isDirty = false;
-        if (showDebugLogs)
-            Debug.Log($"✅ [Dirty Flag] 슬롯 {currentSlotIndex} 저장 완료 → Dirty 플래그 초기화");
+            Dbg.Log($"✅ [Dirty Flag] 슬롯 {currentSlotIndex} 저장 완료 → Dirty 플래그 초기화");
     }
     
     /// <summary>
@@ -250,8 +241,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         {
             selectedPlayerData.lastPlayTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             MarkDirty(); // lastPlayTime 갱신도 변경으로 간주
-            if (showDebugLogs)
-                Debug.Log($"⏰ [LastPlayTime] 갱신: {selectedPlayerData.lastPlayTime}");
         }
     }
     
@@ -262,8 +251,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// <param name="eventName">이벤트 이름 (디버깅용)</param>
     public void SaveOnMeaningfulEvent(string eventName)
     {
-        if (showDebugLogs)
-            Debug.Log($"📌 [SaveOnMeaningfulEvent] 이벤트: {eventName}");
         
         // lastPlayTime 갱신 (의미 있는 플레이 종료 시점)
         UpdateLastPlayTime();
@@ -271,19 +258,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // Dirty 체크: 변경사항이 있을 때만 저장
         if (!isDirty)
         {
-            if (showDebugLogs)
-                Debug.Log($"⏭️ [SaveOnMeaningfulEvent] Dirty가 false → 저장 생략");
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"💾 [SaveOnMeaningfulEvent] SaveCurrentSlot() 호출 중...");
         
         // 통일된 저장 경로: SaveCurrentSlot() 호출
         bool success = SaveCurrentSlot();
         
-        if (showDebugLogs)
-            Debug.Log($"💾 [SaveOnMeaningfulEvent] SaveCurrentSlot() 완료 - 성공: {success}");
     }
     
     private void Start()
@@ -296,7 +277,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (selectedPlayerData != null)
         {
             selectedPlayerData.maxInventorySize = 16; // 강제로 16으로 설정
-            Debug.Log($"🔧 [PlayerDataManager] maxInventorySize 강제 동기화: {selectedPlayerData.maxInventorySize}");
         }
         
         // UI 초기화
@@ -339,8 +319,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         IsLoaded = true;
         
-        if (showDebugLogs)
-            Debug.Log($"📁 [PlayerDataManager] {maxSlots}개 슬롯 로드 완료. 사용중: {GetUsedSlotCount()}개");
+            Dbg.Log($"📁 [PlayerDataManager] {maxSlots}개 슬롯 로드 완료. 사용중: {GetUsedSlotCount()}개");
     }
     
     /// <summary>
@@ -354,8 +333,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (!File.Exists(filePath))
         {
-            if (showDebugLogs)
-                Debug.Log($"📁 [PlayerDataManager] 슬롯 {slotIndex} 파일 없음: {filePath}");
             return null;
         }
         
@@ -366,8 +343,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             
             if (slotData != null)
             {
-                if (showDebugLogs)
-                    Debug.Log($"📁 [PlayerDataManager] 슬롯 {slotIndex} 로드 성공: {slotData}");
+                    Dbg.Log($"📁 [PlayerDataManager] 슬롯 {slotIndex} 로드 성공: {slotData}");
                 return slotData;
             }
         }
@@ -400,8 +376,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             
             OnSlotDataChanged?.Invoke(slotData);
             
-            if (showDebugLogs)
-                Debug.Log($"💾 [PlayerDataManager] 슬롯 {slotData.slotIndex} 저장 완료: {slotData}");
+                Dbg.Log($"💾 [PlayerDataManager] 슬롯 {slotData.slotIndex} 저장 완료: {slotData}");
                 
             return true;
         }
@@ -446,19 +421,17 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             bool selectSuccess = SelectSlot(slotIndex);
             if (selectSuccess)
             {
-                Debug.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} 자동 선택 완료");
                 
                 // ✅ 추가: 신규 캐릭터도 GameManager 동기화 확인
                 if (GameManager.Instance?.selectedPlayerData != null)
                 {
-                    Debug.Log($"🔗 [PlayerDataManager] 신규 캐릭터 GameManager 동기화 확인: {GameManager.Instance.selectedPlayerData.selectedPlayerType}");
                 }
                 
                 // StageProgressManager는 SelectSlot에서 자동으로 초기화됨
                 if (StageSystem.StageProgressManager.Instance != null)
                 {
                     StageSystem.StageProgressManager.Instance.InitializeFor(slotIndex);
-                    Debug.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} StageProgressManager 초기화 완료");
+                    Dbg.Log($"🎯 [PlayerDataManager] 신규 캐릭터 슬롯 {slotIndex} StageProgressManager 초기화 완료");
                 }
                 
                 // 신규 캐릭터 기본 무기 지급 (클래스별 D등급 무기 → 공유 창고 추가 + 장비창 자동 장착)
@@ -468,8 +441,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 🆕 캐릭터 생성 완료 이벤트 발생
             OnCharacterCreated?.Invoke(slotIndex);
             
-            if (showDebugLogs)
-                Debug.Log($"✨ [PlayerDataManager] 새 슬롯 {slotIndex} 생성 완료: {newSlot}");
             return true;
         }
         
@@ -536,7 +507,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         bool equipped = EquipItemFromSharedStorage(newId);
         if (equipped)
         {
-            Debug.Log($"🎁 [GiveStartingWeapon] 기본 무기 지급 및 장착 완료: '{templateName}' ({newId})");
         }
         else
         {
@@ -573,7 +543,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 // progressCache 강제 초기화
                 StageSystem.StageProgressManager.Instance.ClearProgressCache();
-                Debug.Log($"🗑️ [PlayerDataManager] StageProgressManager 캐시 초기화 완료");
+                Dbg.Log($"🗑️ [PlayerDataManager] StageProgressManager 캐시 초기화 완료");
             }
             
             // 🆕 추가: SelectedPlayerData ScriptableObject 완전 초기화
@@ -634,14 +604,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             }
             
             // 🆕 추가: 삭제 완료 로그 개선
-            if (showDebugLogs)
-            {
-                Debug.Log($"🗑️ [PlayerDataManager] 슬롯 {slotIndex} 삭제 완료");
                 if (isDeletingCurrentSlot)
                 {
-                    Debug.Log($"🔄 [PlayerDataManager] 현재 선택 슬롯 삭제됨 - SelectedPlayerData 완전 초기화");
                 }
-            }
                 
             return true;
         }
@@ -661,8 +626,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool SaveCurrentSlot()
     {
-        if (showDebugLogs)
-            Debug.Log($"💾 [SaveCurrentSlot] 시작 - IsSlotSelected: {IsSlotSelected}, isDirty: {isDirty}");
         
         if (!IsSlotSelected)
         {
@@ -674,13 +637,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 🔧 Dirty 체크: 변경사항이 없으면 저장 생략
         if (!isDirty)
         {
-            if (showDebugLogs)
-                Debug.Log("⏭️ [SaveCurrentSlot] Dirty가 false → 저장 생략");
             return true; // 저장 불필요 = 성공으로 간주
         }
         
-        if (showDebugLogs)
-            Debug.Log($"📦 [SaveCurrentSlot] SaveToSlotData() 호출 중...");
         
         // 1. ⭐ 기존 V2 데이터 백업
         var existingSlotData = GetSlotData(currentSlotIndex);
@@ -694,8 +653,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             ? new List<MaterialStack>(existingSlotData.characterBagMaterials)
             : new List<MaterialStack>();
         
-        if (showDebugLogs)
-            Debug.Log($"📦 [SaveCurrentSlot] V2 데이터 백업: 가방 {backupBagIds.Count}개, 장착 {backupEquippedRecords.Count}개, 재료 {backupBagMaterials.Count}개");
         
         // 2. Legacy 데이터 저장 (SaveToSlotData)
         var slotData = selectedPlayerData.SaveToSlotData();
@@ -705,28 +662,17 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         slotData.characterBagMaterials = backupBagMaterials; // ⭐ 재료 복원!
         // ❌ slotData.equippedRecords = backupEquippedRecords; // 제거! SaveToSlotData()가 이미 처리함
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"📦 [SaveCurrentSlot] V2 데이터 복원 완료: 가방 {slotData.characterBagInstanceIds.Count}개");
-            Debug.Log($"💾 [SaveCurrentSlot] V2 장착 레코드: {slotData.equippedRecords.Count}개 (SaveToSlotData에서 생성)");
-            Debug.Log($"📦 [SaveCurrentSlot] SaveToSlotData() 완료 - 장착 아이템: {slotData.equippedItemNames.Count}개 (Legacy)");
-        }
         
-        if (showDebugLogs)
-            Debug.Log($"💾 [SaveCurrentSlot] SaveSlotData() 호출 중...");
         
         // 4. 저장 실행
         bool success = SaveSlotData(slotData);
         
-        if (showDebugLogs)
-            Debug.Log($"💾 [SaveCurrentSlot] SaveSlotData() 완료 - 성공: {success}");
         
         // 저장 성공 시 Dirty 플래그 초기화
         if (success)
         {
             ClearDirty();
-            if (showDebugLogs)
-                Debug.Log($"✅ [SaveCurrentSlot] Dirty 플래그 초기화 완료");
+                Dbg.Log($"✅ [SaveCurrentSlot] Dirty 플래그 초기화 완료");
         }
         
         return success;
@@ -769,10 +715,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool SelectSlot(int slotIndex)
     {
-        Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"🔄 [SelectSlot] 슬롯 {slotIndex} 전환 시작");
-        Debug.Log($"   ⏰ 현재 선택된 슬롯: {currentSlotIndex}");
-        Debug.Log($"═══════════════════════════════════════════════════════");
+        Dbg.Log($"🔄 [SelectSlot] 슬롯 {slotIndex} 전환 시작");
         
         if (slotIndex < 0 || slotIndex >= maxSlots) return false;
         
@@ -781,24 +724,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         {
             Debug.LogError($"❌ [PlayerDataManager] 슬롯 {slotIndex}는 사용되지 않음");
             return false;
-        }
-        
-        // 🆕 디버그: 로드할 슬롯 데이터 상태 확인
-        Debug.Log($"📊 [SelectSlot] 슬롯 {slotIndex} 데이터 확인:");
-        Debug.Log($"   - 캐릭터: {slotData.playerName} ({slotData.playerType})");
-        Debug.Log($"   - 레벨: {slotData.level}, 골드: {slotData.gold}");
-        Debug.Log($"   - 인벤토리 아이템: {slotData.inventoryItemNames.Count}개");
-        Debug.Log($"   - 장착 아이템: {slotData.equippedItemNames.Count}개");
-        Debug.Log($"   - 📚 스킬: {slotData.skills?.Count ?? 0}개, SP: {slotData.usedSP}/{slotData.totalSP}");
-        
-        for (int i = 0; i < Mathf.Min(slotData.inventoryItemNames.Count, 5); i++)
-        {
-            Debug.Log($"     📦 인벤토리[{i}]: {slotData.inventoryItemNames[i]}");
-        }
-        
-        foreach (var equipped in slotData.equippedItemNames)
-        {
-            Debug.Log($"     ⚔️ 장착[{equipped.Key}]: {equipped.Value}");
         }
         
         // 💰 V2 마이그레이션: Slot 골드 → Account 골드 이동
@@ -810,7 +735,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 계정 골드에 추가 (중복 방지: 최초 1회만)
             if (oldAccountGold == 0)
             {
-                Debug.Log($"💰 [SelectSlot] V2 마이그레이션: Slot {slotIndex}의 골드 {slotGold} → Account로 이동");
                 AccountDataManager.Instance.AddGold(slotGold);
                 AccountDataManager.Instance.Save();
                 
@@ -818,12 +742,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 slotData.gold = 0;
                 SaveSlotData(slotData);
                 
-                Debug.Log($"✅ [SelectSlot] 골드 마이그레이션 완료: Account 골드 = {AccountDataManager.Instance.CurrentGold}");
             }
             else
             {
                 // 이미 Account에 골드가 있으면 슬롯 골드만 초기화
-                Debug.Log($"⚠️ [SelectSlot] Account에 이미 골드 존재 ({oldAccountGold}) - Slot 골드 초기화만 진행");
                 slotData.gold = 0;
                 SaveSlotData(slotData);
             }
@@ -841,38 +763,15 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (selectedPlayerData != null)
         {
-            Debug.Log($"📥 [SelectSlot] SelectedPlayerData에 로드 시작...");
+            Dbg.Log($"📥 [SelectSlot] SelectedPlayerData에 로드 시작...");
             selectedPlayerData.LoadFromSlotData(slotData);
             
-            // 🆕 디버그: 로드 후 SelectedPlayerData 상태 확인
-            Debug.Log($"✅ [SelectSlot] SelectedPlayerData 로드 완료:");
-            Debug.Log($"   - selectedSlotIndex: {selectedPlayerData.selectedSlotIndex}");
-            Debug.Log($"   - playerName: {selectedPlayerData.playerName}");
-            Debug.Log($"   - playerType: {selectedPlayerData.selectedPlayerType}");
-            Debug.Log($"   - level: {selectedPlayerData.currentLevel}");
-            Debug.Log($"   - gold: {selectedPlayerData.currentGold}");
-            Debug.Log($"   - 인벤토리 아이템: {selectedPlayerData.runtimeInventoryItems.Count}개");
-            Debug.Log($"   - 장착 아이템 (Data): {selectedPlayerData.RuntimeEquippedItems.Count}개");
-            Debug.Log($"   - 장착 아이템 (InstanceIds): {selectedPlayerData.RuntimeEquippedInstanceIds.Count}개");
-            
-            for (int i = 0; i < Mathf.Min(selectedPlayerData.runtimeInventoryItems.Count, 5); i++)
-            {
-                var item = selectedPlayerData.runtimeInventoryItems[i];
-                Debug.Log($"     📦 selectedPlayerData.inventory[{i}]: {item?.equipmentName ?? "null"}");
-            }
-            
-            foreach (var equipped in selectedPlayerData.RuntimeEquippedItems)
-            {
-                if (equipped.Value != null)
-                    Debug.Log($"     ⚔️ selectedPlayerData.equipped[{equipped.Key}]: {equipped.Value.equipmentName}");
-            }
+            Dbg.Log($"✅ [SelectSlot] SelectedPlayerData 로드 완료");
             
             // ✅ 추가: GameManager와 완벽 동기화 (핵심 수정)
             if (GameManager.Instance?.selectedPlayerData != null)
             {
-                Debug.Log($"🔗 [SelectSlot] GameManager.selectedPlayerData 동기화 시작...");
                 GameManager.Instance.selectedPlayerData.LoadFromSlotData(slotData);
-                Debug.Log($"✅ [SelectSlot] GameManager.selectedPlayerData 동기화 완료");
             }
             else
             {
@@ -881,7 +780,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         // 이벤트 발생
-        Debug.Log($"📢 [SelectSlot] 이벤트 발생: OnSlotSelected({slotIndex})");
         OnSlotSelected?.Invoke(slotIndex);
         TriggerAllUIEvents();
         
@@ -889,9 +787,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         isLoading = false;
         isDirty = false; // 로드 직후는 깨끗한 상태
         
-        Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"✅ [SelectSlot] 슬롯 {slotIndex} 전환 완료");
-        Debug.Log($"═══════════════════════════════════════════════════════");
+        Dbg.Log($"✅ [SelectSlot] 슬롯 {slotIndex} 전환 완료");
         
         return true;
     }
@@ -929,8 +825,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             selectedPlayerData.selectedSlotIndex = slotIndex;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 선택 저장 (지연 모드) - {slotData.playerName}");
     }
 
     /// <summary>
@@ -957,14 +851,12 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (selectedPlayerData != null)
         {
             selectedPlayerData.LoadFromSlotData(slotData);
-            if (showDebugLogs)
-                Debug.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 지연 로드 완료: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
+                Dbg.Log($"🔄 [PlayerDataManager] 슬롯 {slotIndex} 지연 로드 완료: {slotData.playerName}({slotData.playerType}) - 골드:{slotData.gold}, 레벨:{slotData.level}, 인벤토리:{slotData.inventoryItemNames.Count}개");
             
             // ✅ 추가: 지연 로드도 GameManager 동기화
             if (GameManager.Instance?.selectedPlayerData != null)
             {
                 GameManager.Instance.selectedPlayerData.LoadFromSlotData(slotData);
-                Debug.Log($"🔗 [PlayerDataManager] 지연 로드 GameManager 동기화 완료: {slotData.playerType}");
             }
         }
         
@@ -1080,8 +972,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         {
             int bonusExp = Mathf.RoundToInt(amount * runtimeStats.FinalExpGainBonus);
             amount += bonusExp;
-            if (showDebugLogs)
-                Debug.Log($"⭐ [PlayerDataManager] 경험치 보너스 +{runtimeStats.FinalExpGainBonus:P1} 적용: +{bonusExp} → 총 {amount}");
         }
         
         int oldLevel = selectedPlayerData.currentLevel;
@@ -1132,12 +1022,8 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                     selectedPlayerData.usedSP = slotData.usedSP;
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"💎 [PlayerDataManager] SP 자동 증가! totalSP: {slotData.totalSP}, level: {slotData.level}");
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🆙 [PlayerDataManager] 레벨업! {oldLevel} → {selectedPlayerData.currentLevel}");
         }
         
         OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
@@ -1161,7 +1047,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (!IsSlotSelected || item == null) return false;
         
         // 🆕 인벤토리 상태 디버그
-        Debug.Log($"📊 [PlayerDataManager] 인벤토리 상태: {selectedPlayerData.CurrentInventorySize}/{selectedPlayerData.MaxInventorySize}");
         
         if (selectedPlayerData.IsInventoryFull)
         {
@@ -1175,8 +1060,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnItemAddedToInventory?.Invoke(item);
         OnInventoryChanged?.Invoke();
         
-        if (showDebugLogs)
-            Debug.Log($"📦 [PlayerDataManager] 인벤토리 추가: {item.name} ({selectedPlayerData.CurrentInventorySize}/{selectedPlayerData.MaxInventorySize})");
         return true;
     }
     
@@ -1193,8 +1076,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             OnItemRemovedFromInventory?.Invoke(item);
             OnInventoryChanged?.Invoke();
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [PlayerDataManager] 인벤토리 제거: {item.name}");
             return true;
         }
         
@@ -1208,66 +1089,27 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         if (!IsSlotSelected || item == null) return false;
         
-        // 🆕 디버그: 장착 시작 전 상태 기록
-        Debug.Log($"⚔️ [PlayerDataManager] EquipItem 시작:");
-        Debug.Log($"   - 장착할 아이템: {item.equipmentName}");
-        Debug.Log($"   - 대상 슬롯: {targetSlot}");
-        Debug.Log($"   - 인벤토리 현재 상태 (장착 전):");
-        
-        for (int i = 0; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
-        {
-            var invItem = selectedPlayerData.runtimeInventoryItems[i];
-            Debug.Log($"     📦 inventory[{i}]: {invItem?.equipmentName ?? "null"}");
-        }
-        
         // 기존 장착 아이템 확인
         EquipmentData currentItem = selectedPlayerData.RuntimeEquippedItems[targetSlot];
-        Debug.Log($"   - 현재 장착된 아이템: {currentItem?.equipmentName ?? "없음"}");
-        
-        // 🆕 디버그: 인벤토리에서 아이템 위치 찾기
         int itemIndexInInventory = selectedPlayerData.runtimeInventoryItems.IndexOf(item);
-        Debug.Log($"   - 장착할 아이템의 인벤토리 인덱스: {itemIndexInInventory}");
         
         try
         {
             // 새 아이템 장착
             selectedPlayerData.RuntimeEquippedItems[targetSlot] = item;
-            Debug.Log($"✅ [PlayerDataManager] 새 아이템 장착 완료: {item.equipmentName} → {targetSlot}");
             
             // 기존 아이템이 있었다면 인벤토리에 추가
             if (currentItem != null)
             {
-                Debug.Log($"🔄 [PlayerDataManager] 기존 아이템 인벤토리 추가: {currentItem.equipmentName}");
                 selectedPlayerData.runtimeInventoryItems.Add(currentItem);
                 
                 // 🆕 디버그: 추가 후 인벤토리 상태
-                Debug.Log($"   - AddToInventory 후 인벤토리 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
-                Debug.Log($"   - 추가된 위치: 인덱스 {selectedPlayerData.runtimeInventoryItems.Count - 1}");
             }
             
             // 새 아이템을 인벤토리에서 제거
             if (itemIndexInInventory >= 0)
             {
-                Debug.Log($"🗑️ [PlayerDataManager] 새 아이템 인벤토리에서 제거: 인덱스 {itemIndexInInventory}");
                 selectedPlayerData.runtimeInventoryItems.RemoveAt(itemIndexInInventory);
-                
-                // 🆕 디버그: 제거 후 인벤토리 상태
-                Debug.Log($"   - RemoveAt({itemIndexInInventory}) 후 인벤토리 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
-                Debug.Log($"   - 제거로 인한 인덱스 시프트:");
-                
-                for (int i = itemIndexInInventory; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
-                {
-                    var shiftedItem = selectedPlayerData.runtimeInventoryItems[i];
-                    Debug.Log($"     🔄 인덱스 {i+1} → {i}: {shiftedItem?.equipmentName ?? "null"}");
-                }
-            }
-            
-            // 🆕 디버그: 최종 인벤토리 상태
-            Debug.Log($"📊 [PlayerDataManager] 장착 완료 후 최종 인벤토리 상태:");
-            for (int i = 0; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
-            {
-                var finalItem = selectedPlayerData.runtimeInventoryItems[i];
-                Debug.Log($"     📦 inventory[{i}]: {finalItem?.equipmentName ?? "null"}");
             }
             
             // 무기인 경우 ActiveWeapon 업데이트
@@ -1277,8 +1119,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 if (activeWeapon != null)
                 {
                     activeWeapon.EquipWeapon(item);
-                    if (showDebugLogs)
-                        Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {item.equipmentName}");
                 }
                 else
                 {
@@ -1291,8 +1131,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             if (playerRuntimeStats != null)
             {
                 playerRuntimeStats.RecalculateAllStats();
-                if (showDebugLogs)
-                    Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
             }
             else
             {
@@ -1300,18 +1138,12 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             }
             
             MarkDirty(); // 🔧 장비 착용 시 데이터 변경 표시
-            if (showDebugLogs)
-                Debug.Log($"🔧 [EquipItem] MarkDirty() 호출 완료 - isDirty: {isDirty}");
             
             SaveOnMeaningfulEvent("ItemEquipped"); // 🔧 즉시 저장 (슬롯 전환 시 유지)
-            if (showDebugLogs)
-                Debug.Log($"💾 [EquipItem] SaveOnMeaningfulEvent() 호출 완료");
             
             OnItemEquipped?.Invoke(targetSlot, item);
             OnInventoryChanged?.Invoke();
             
-            if (showDebugLogs)
-                Debug.Log($"⚔️ [PlayerDataManager] 장비 착용: {item.name} → {targetSlot}");
             return true;
         }
         catch (System.Exception ex)
@@ -1326,9 +1158,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool UnequipItem(EquipmentSlot slot)
     {
-        Debug.Log($"🔄 [PlayerDataManager] ============= UnequipItem 시작 =============");
-        Debug.Log($"   - 해제할 슬롯: {slot}");
-        Debug.Log($"   - IsSlotSelected: {IsSlotSelected}");
         
         if (!IsSlotSelected) 
         {
@@ -1337,7 +1166,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         var item = selectedPlayerData.RuntimeEquippedItems[slot];
-        Debug.Log($"   - 해제할 아이템: {item?.equipmentName ?? "null"}");
         
         if (item == null) 
         {
@@ -1345,18 +1173,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        // 🆕 해제 전 인벤토리 상태 확인
-        Debug.Log($"📊 [PlayerDataManager] 해제 전 인벤토리 상태:");
-        Debug.Log($"   - 현재 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
-        Debug.Log($"   - 최대 크기: {selectedPlayerData.MaxInventorySize}");
-        Debug.Log($"   - 가득찬 상태: {selectedPlayerData.IsInventoryFull}");
-        
         // 장착 해제
         selectedPlayerData.RuntimeEquippedItems[slot] = null;
-        Debug.Log($"✅ [PlayerDataManager] {slot} 슬롯 해제 완료");
         
         // 인벤토리에 추가 (🔧 스마트 추가 방식 사용)
-        Debug.Log($"📦 [PlayerDataManager] 인벤토리 추가 시도: {item.equipmentName}");
         if (!AddToInventorySmartly(item)) 
         {
             Debug.LogError($"🔴 [PlayerDataManager] 인벤토리 추가 실패! 장착 상태 복원");
@@ -1365,27 +1185,15 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        // 🆕 해제 후 인벤토리 상태 확인
-        Debug.Log($"📊 [PlayerDataManager] 해제 후 인벤토리 상태:");
-        Debug.Log($"   - 현재 크기: {selectedPlayerData.runtimeInventoryItems.Count}");
-        Debug.Log($"   - 마지막 아이템: {selectedPlayerData.runtimeInventoryItems[selectedPlayerData.runtimeInventoryItems.Count - 1]?.equipmentName ?? "null"}");
-        
         selectedPlayerData.SyncDictionaries();
         MarkDirty(); // 🔧 장비 해제 시 데이터 변경 표시
-        if (showDebugLogs)
-            Debug.Log($"🔧 [UnequipItem] MarkDirty() 호출 완료 - isDirty: {isDirty}");
         
         SaveOnMeaningfulEvent("ItemUnequipped"); // 🔧 즉시 저장 (슬롯 전환 시 유지)
-        if (showDebugLogs)
-            Debug.Log($"💾 [UnequipItem] SaveOnMeaningfulEvent() 호출 완료");
         
         OnItemUnequipped?.Invoke(slot, item);
         OnInventoryChanged?.Invoke();
         
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [PlayerDataManager] 장비 해제: {item.equipmentName} ← {slot}");
         
-        Debug.Log($"🔄 [PlayerDataManager] ============= UnequipItem 완료 =============");
         return true;
     }
     
@@ -1442,8 +1250,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnItemUnequipped?.Invoke(slot, item);
         OnInventoryChanged?.Invoke();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [PlayerDataManager] V2 장비 해제: {item.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...) → 보관창고");
         
         return true;
     }
@@ -1494,8 +1300,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         OnItemUnequipped?.Invoke(slot, item);
         OnInventoryChanged?.Invoke();
         
-        if (showDebugLogs)
-            Debug.Log($"🗑️ [PlayerDataManager] 귀속 아이템 해제 및 삭제: {item.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...)");
         
         return true;
     }
@@ -1514,8 +1318,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             if (!Directory.Exists(SaveDirectoryPath))
             {
                 Directory.CreateDirectory(SaveDirectoryPath);
-                if (showDebugLogs)
-                    Debug.Log($"📁 [PlayerDataManager] 저장 폴더 생성: {SaveDirectoryPath}");
             }
         }
         catch (System.Exception ex)
@@ -1572,7 +1374,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // ⭐ V2: 골드는 AccountDataManager에서 가져옴 (계정 공유)
         int accountGold = AccountDataManager.Instance?.CurrentGold ?? 0;
         OnGoldChanged?.Invoke(accountGold);
-        Debug.Log($"💰 [TriggerAllUIEvents] 골드 이벤트 발행: {accountGold}");
         
         OnLevelChanged?.Invoke(selectedPlayerData.currentLevel);
         OnExpChanged?.Invoke(selectedPlayerData.currentExp, selectedPlayerData.expToNextLevel);
@@ -1611,8 +1412,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         // 기존 PlayerPrefs에서 새 슬롯 시스템으로 마이그레이션하는 로직
         // 필요시 구현
-        if (showDebugLogs)
-            Debug.Log("🔄 [PlayerDataManager] PlayerPrefs 마이그레이션은 필요시 구현 예정");
     }
     
     /// <summary>
@@ -1633,8 +1432,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             selectedPlayerData.Reset();
             LoadAllSlots();
             
-            if (showDebugLogs)
-                Debug.Log("🗑️ [PlayerDataManager] 모든 슬롯 데이터 삭제 완료");
         }
         catch (System.Exception ex)
         {
@@ -1662,8 +1459,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         selectedPlayerData.weaponName = playerType.GetDefaultWeapon(); // 기존 호환성
         SaveCurrentSlot();
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [PlayerDataManager] 플레이어 타입 설정: {playerType}");
     }
 
     /// <summary>
@@ -1823,8 +1618,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 첫 번째 슬롯 선택
         SelectSlot(0);
         
-        if (showDebugLogs)
-            Debug.Log("🧪 [PlayerDataManager] 테스트 슬롯 3개 생성 완료!");
     }
 
     /// <summary>
@@ -1833,25 +1626,20 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     [ContextMenu("슬롯 상태 확인")]
     public void PrintSlotStatus()
     {
-        Debug.Log($"📊 [PlayerDataManager] === 슬롯 상태 ===");
-        Debug.Log($"최대 슬롯: {maxSlots}, 사용중: {GetUsedSlotCount()}개, 현재 선택: {currentSlotIndex}");
         
         for (int i = 0; i < playerSlots.Count; i++)
         {
             var slot = playerSlots[i];
             if (slot.isSlotUsed)
             {
-                Debug.Log($"슬롯 {i}: {slot}");
             }
             else
             {
-                Debug.Log($"슬롯 {i}: 비어있음");
             }
         }
         
         if (IsSlotSelected)
         {
-            Debug.Log($"🎯 현재 활성 데이터: {selectedPlayerData}");
         }
     }
 
@@ -1861,7 +1649,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     [ContextMenu("저장 폴더 열기")]
     public void OpenSaveDirectory()
     {
-        Debug.Log($"📁 [PlayerDataManager] 저장 폴더: {SaveDirectoryPath}");
         
         if (Application.platform == RuntimePlatform.WindowsEditor)
         {
@@ -1914,8 +1701,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public void TriggerSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId = default)
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [PlayerDataManager] 슬롯 클릭 이벤트 발생: {(equipmentData?.equipmentName ?? "빈 슬롯")} (인덱스: {slotIndex}, ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
         
         OnSlotClicked?.Invoke(equipmentData, slotIndex, instanceId);
     }
@@ -1927,8 +1712,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         if (equipmentData == null) return;
         
-        if (showDebugLogs)
-            Debug.Log($"📋 [PlayerDataManager] 아이템 상세 정보 요청: {equipmentData.equipmentName}");
         
         OnItemDetailRequested?.Invoke(equipmentData);
     }
@@ -1938,8 +1721,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public void TriggerInventoryChanged()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [PlayerDataManager] 인벤토리 변경 이벤트 발생 (외부 트리거)");
         
         OnInventoryChanged?.Invoke();
     }
@@ -1949,9 +1730,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool EquipItemFromSlot(EquipmentData item, int slotIndex)
     {
-        Debug.Log($"⚔️ [PlayerDataManager] ============= EquipItemFromSlot 시작 (V2) =============");
-        Debug.Log($"   - 요청 아이템: {item?.equipmentName ?? "null"}");
-        Debug.Log($"   - 요청 슬롯 인덱스: {slotIndex}");
         
         if (item == null || !IsSlotSelected) 
         {
@@ -1961,8 +1739,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         // ⭐ V2: 캐릭터 가방 아이템 가져오기
         var bagItemIds = GetCharacterBagV2();
-        Debug.Log($"   - V2 가방 크기: {bagItemIds.Count}");
-        Debug.Log($"   - IsSlotSelected: {IsSlotSelected}");
         
         // 슬롯 인덱스 유효성 검사
         if (slotIndex < 0 || slotIndex >= bagItemIds.Count)
@@ -1991,29 +1767,17 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        Debug.Log($"✅ [PlayerDataManager] V2 아이템 확인 완료: {itemInstance.templateName} (ID: {itemId.Value.Substring(0, 8)}...)");
         
         // 적절한 장비 슬롯 결정
         EquipmentSlot targetSlot = DetermineEquipmentSlot(item);
-        
-        // 기존 장착 아이템 확인
-        EquipmentData currentItem = selectedPlayerData.RuntimeEquippedItems[targetSlot];
-        Debug.Log($"   - 현재 장착된 아이템: {currentItem?.equipmentName ?? "없음"}");
         
         try
         {
             // 새 아이템 장착
             selectedPlayerData.RuntimeEquippedItems[targetSlot] = item;
-            Debug.Log($"✅ [PlayerDataManager] 새 아이템 장착 완료: {item.equipmentName} → {targetSlot}");
             
             // ⭐ V2 전용: Legacy runtimeInventoryItems는 사용하지 않음
             // V2에서는 장착 시스템이 별도로 관리되므로 runtimeInventoryItems 수정 불필요
-            Debug.Log($"✅ [PlayerDataManager] V2 시스템: 인벤토리 수정 건너뜀 (V2 가방은 유지)");
-            
-            // 🆕 디버그: 최종 상태 확인
-            Debug.Log($"📊 [PlayerDataManager] 장착 완료 후 상태:");
-            Debug.Log($"   - V2 가방 크기: {bagItemIds.Count}");
-            Debug.Log($"   - 장착됨: {item.equipmentName} → {targetSlot}");
             
             // 무기인 경우 ActiveWeapon 업데이트
             if (targetSlot == EquipmentSlot.MainWeapon)
@@ -2022,8 +1786,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 if (activeWeapon != null)
                 {
                     activeWeapon.EquipWeapon(item);
-                    if (showDebugLogs)
-                        Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {item.equipmentName}");
                 }
                 else
                 {
@@ -2036,8 +1798,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             if (playerRuntimeStats != null)
             {
                 playerRuntimeStats.RecalculateAllStats();
-                if (showDebugLogs)
-                    Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
             }
             else
             {
@@ -2063,8 +1823,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     /// </summary>
     public bool EquipItemFromSharedStorage(ItemInstanceID itemId)
     {
-        Debug.Log($"⚔️ [PlayerDataManager] ============= EquipItemFromSharedStorage 시작 (V2) =============");
-        Debug.Log($"   - 요청 아이템 ID: {itemId.Value.Substring(0, 8)}...");
         
         if (itemId.IsEmpty || !IsSlotSelected)
         {
@@ -2095,7 +1853,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        Debug.Log($"✅ [PlayerDataManager] 보관창고 아이템 확인: {equipment.equipmentName} (템플릿: {instanceData.templateName})");
         
         // 3️⃣ 클래스 호환성 체크
         PlayerClass playerClass = selectedPlayerData.selectedPlayerType switch
@@ -2112,11 +1869,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             return false;
         }
         
-        Debug.Log($"✅ [PlayerDataManager] 클래스 호환성 확인: {playerClass}");
         
         // 4️⃣ 장비 슬롯 결정
         EquipmentSlot targetSlot = DetermineEquipmentSlot(equipment);
-        Debug.Log($"   - 타겟 슬롯: {targetSlot}");
         
         try
         {
@@ -2124,7 +1879,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             EquipmentData oldEquipment = selectedPlayerData.RuntimeEquippedItems[targetSlot];
             if (oldEquipment != null)
             {
-                Debug.Log($"   - 기존 장비 해제: {oldEquipment.equipmentName}");
                 
                 // ⭐ V2: RuntimeEquippedInstanceIds에서 기존 아이템 ID 확인
                 ItemInstanceID oldInstanceId = default;
@@ -2135,19 +1889,9 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 
                 if (!oldInstanceId.IsEmpty)
                 {
-                    // V2 아이템 → 보관창고로 반환
-                    bool addedToShared = AccountDataManager.Instance.TryAddToShared(oldInstanceId);
-                    
-                    if (addedToShared)
-                    {
-                        Debug.Log($"✅ [PlayerDataManager] 기존 장비 보관창고 반환: {oldEquipment.equipmentName} (ID: {oldInstanceId.Value.Substring(0, 8)}...)");
-                    }
-                    else
-                    {
-                        // 보관창고 가득 찬 → 우편함으로 이동
+                    // V2 아이템 → 보관창고로 반환 (가득 찰 경우 우편함으로)
+                    if (!AccountDataManager.Instance.TryAddToShared(oldInstanceId))
                         AccountDataManager.Instance.MoveToMailbox(oldInstanceId);
-                        Debug.Log($"📬 [PlayerDataManager] 기존 장비 우편함 이동: {oldEquipment.equipmentName} (보관창고 가득 찬)");
-                    }
                     
                     // RuntimeEquippedInstanceIds에서 제거
                     selectedPlayerData.RuntimeEquippedInstanceIds.Remove(targetSlot);
@@ -2162,19 +1906,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 6️⃣ 새 장비 착용
             selectedPlayerData.RuntimeEquippedItems[targetSlot] = equipment;
             selectedPlayerData.RuntimeEquippedInstanceIds[targetSlot] = itemId; // ⭐ V2: InstanceId 추적
-            Debug.Log($"✅ [PlayerDataManager] 새 장비 착용 완료: {equipment.equipmentName} → {targetSlot} (ID: {itemId.Value.Substring(0, 8)}...)");
-            Debug.Log($"🔍 [PlayerDataManager] 착용 후 - RuntimeEquippedInstanceIds.Count: {selectedPlayerData.RuntimeEquippedInstanceIds.Count}");
             
             // 7️⃣ 보관창고에서 제거
-            bool removed = AccountDataManager.Instance.RemoveFromShared(itemId);
-            if (removed)
-            {
-                Debug.Log($"✅ [PlayerDataManager] 보관창고에서 제거 완료: {itemId.Value.Substring(0, 8)}...");
-            }
-            else
-            {
+            if (!AccountDataManager.Instance.RemoveFromShared(itemId))
                 Debug.LogWarning($"⚠️ [PlayerDataManager] 보관창고에서 제거 실패 (이미 제거됨?)");
-            }
             
             // 8️⃣ 무기인 경우 ActiveWeapon 업데이트
             if (targetSlot == EquipmentSlot.MainWeapon)
@@ -2183,7 +1918,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 if (activeWeapon != null)
                 {
                     activeWeapon.EquipWeapon(equipment);
-                    Debug.Log($"🔧 [PlayerDataManager] ActiveWeapon에 무기 적용: {equipment.equipmentName}");
                 }
             }
             
@@ -2192,7 +1926,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             if (playerRuntimeStats != null)
             {
                 playerRuntimeStats.RecalculateAllStats();
-                Debug.Log($"🎯 [PlayerDataManager] PlayerRuntimeStats 스탯 재계산 완료");
             }
             
             // 9️⃣ 저장 및 이벤트
@@ -2203,7 +1936,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             OnItemEquipped?.Invoke(targetSlot, equipment);
             OnInventoryChanged?.Invoke();
             
-            Debug.Log($"🎉 [PlayerDataManager] EquipItemFromSharedStorage 완료!");
             return true;
         }
         catch (System.Exception ex)
@@ -2221,7 +1953,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         if (!IsSlotSelected || item == null) return false;
         
-        Debug.Log($"🧠 [PlayerDataManager] 스마트 인벤토리 추가: {item.equipmentName}");
         
         // 1. 먼저 빈 슬롯(null) 찾기
         for (int i = 0; i < selectedPlayerData.runtimeInventoryItems.Count; i++)
@@ -2229,7 +1960,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             if (selectedPlayerData.runtimeInventoryItems[i] == null)
             {
                 selectedPlayerData.runtimeInventoryItems[i] = item;
-                Debug.Log($"✅ [PlayerDataManager] 빈 슬롯[{i}]에 배치: {item.equipmentName}");
                 
                 SaveCurrentSlot();
                 OnItemAddedToInventory?.Invoke(item);
@@ -2242,7 +1972,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         if (selectedPlayerData.CurrentInventorySize < selectedPlayerData.MaxInventorySize)
         {
             selectedPlayerData.runtimeInventoryItems.Add(item);
-            Debug.Log($"✅ [PlayerDataManager] 새 슬롯[{selectedPlayerData.runtimeInventoryItems.Count - 1}]에 추가: {item.equipmentName}");
             
             SaveCurrentSlot();
             OnItemAddedToInventory?.Invoke(item);
@@ -2301,8 +2030,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         // 🔧 스테이지 진행도 변경 표시
         MarkDirty();
         
-        if (showDebugLogs)
-            Debug.Log($"💾 [PlayerDataManager] 스테이지 진행도 업데이트: {progresses.Count}개");
     }
     
     /// <summary>
@@ -2409,8 +2136,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             File.WriteAllText(filePath, json);
             
             // 🔧 로그 단순화: 디버그 모드에서만 표시
-            if (showDebugLogs)
-                Debug.Log($"[PlayerDataManager] Last slot saved: {lastSelectedSlotIndex}");
         }
         catch (System.Exception e)
         {
@@ -2449,8 +2174,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     private void NotifyDataChanged()
     {
         OnSelectedPlayerDataChanged?.Invoke(selectedPlayerData);
-        if (showDebugLogs)
-            Debug.Log($"📢 [PlayerDataManager] 데이터 변경 알림: {selectedPlayerData?.selectedPlayerType} Lv.{selectedPlayerData?.CurrentLevel}");
     }
 
     private void NotifyGoldChanged(int newGold)
@@ -2467,8 +2190,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         OnInventoryChanged?.Invoke();
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [PlayerDataManager] 인벤토리 변경 알림 발생");
     }
 
     #endregion
@@ -2542,7 +2263,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 // 우편함으로 이동
                 account.MoveToMailbox(oldInstanceId.Value);
-                Debug.Log($"[EquipV2] 가방 가득 참 → 기존 아이템 우편함 이동: {oldInstanceId.Value}");
             }
             else
             {
@@ -2585,12 +2305,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 // SS, EX, TR 등급만 귀속
                 account.SetBind(instanceId, currentSlotIndex);
-                Debug.Log($"⚠️ [EquipV2] {equipment.itemGrade} 등급 아이템 귀속: {equipment.equipmentName} → 슬롯 {currentSlotIndex}");
             }
             else if (equipment != null)
             {
                 // D~S 등급은 귀속 없음
-                Debug.Log($"✅ [EquipV2] {equipment.itemGrade} 등급 아이템 귀속 없음: {equipment.equipmentName}");
             }
             
             // 저장
@@ -2600,14 +2318,11 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // ⭐ 중요: selectedPlayerData 동기화 (RuntimeEquippedItems 업데이트)
             if (selectedPlayerData != null)
             {
-                Debug.Log($"🔄 [EquipV2] selectedPlayerData 동기화 중...");
                 selectedPlayerData.LoadFromSlotData(slotData);
-                Debug.Log($"✅ [EquipV2] selectedPlayerData 동기화 완료");
             }
             
             MarkDirty();
             
-            Debug.Log($"✅ [EquipV2] 장착 성공: {instanceId} → {targetSlot}");
             OnInventoryChanged?.Invoke();
             
             return true;
@@ -2669,7 +2384,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 // 우편함으로 이동
                 account.MoveToMailbox(instanceId);
-                Debug.Log($"[UnequipV2] 가방 가득 참 → 우편함 이동: {instanceId}");
             }
             else
             {
@@ -2694,7 +2408,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             
             MarkDirty();
             
-            Debug.Log($"✅ [UnequipV2] 해제 성공: {instanceId} ← {targetSlot}");
             OnInventoryChanged?.Invoke();
             
             return true;
@@ -2769,7 +2482,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         MarkDirty();
         
-        Debug.Log($"✅ [MoveToAccountStorage] 창고 이동 성공: {instanceId}");
         OnInventoryChanged?.Invoke();
         
         return true;
@@ -2831,7 +2543,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         MarkDirty();
         
-        Debug.Log($"✅ [ClaimFromMailbox] 우편함 수령 성공: {instanceId}");
         OnInventoryChanged?.Invoke();
         
         return true;
@@ -2844,14 +2555,12 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     {
         if (!IsSlotSelected)
         {
-            Debug.Log("[GetCharacterBagV2] 슬롯 미선택 - 빈 리스트 반환");
             return new List<ItemInstanceID>();
         }
         
         var slotData = GetSlotData(currentSlotIndex);
         var bagItems = slotData?.characterBagInstanceIds ?? new List<ItemInstanceID>();
         
-        Debug.Log($"🔍 [GetCharacterBagV2] 슬롯 {currentSlotIndex} 가방 아이템: {bagItems.Count}개");
         
         return bagItems;
     }
@@ -2881,13 +2590,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
     public ItemInstanceID AddItemV2(string templateName, int enhancementLevel = 0, bool allowMailboxOnFull = true)
     {
         // ⭐ 디버깅: AddItemV2 호출 추적
-        Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"🔍 [DEBUG] AddItemV2() 호출됨!");
-        Debug.Log($"  templateName: {templateName}");
-        Debug.Log($"  현재 시간: {Time.time}");
-        Debug.Log($"  Stack Trace:");
-        Debug.Log(System.Environment.StackTrace);
-        Debug.Log($"═══════════════════════════════════════════════════════");
         
         if (!IsSlotSelected)
         {
@@ -2942,13 +2644,11 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 if (instanceData != null)
                 {
                     EquipmentInstanceConverter.ApplyDynamicStats(instanceData, dynamicInstance);
-                    Debug.Log($"🎲 [PlayerDataManager.AddItemV2] 동적 스탯 생성 완료: 주옵션={instanceData.finalMainStatValue}, 부옵션={instanceData.randomSubStats.Count}개");
                 }
             }
         }
         
         // 2. 가방 공간 확인
-        Debug.Log($"🔍 [AddItemV2] 가방 상태 확인: 현재 {slotData.characterBagInstanceIds.Count}개 / 최대 {selectedPlayerData.MaxInventorySize}개");
         
         bool bagFull = slotData.characterBagInstanceIds.Count >= selectedPlayerData.MaxInventorySize;
         
@@ -2958,7 +2658,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             {
                 // 우편함으로 이동
                 account.MoveToMailbox(newId);
-                Debug.Log($"📬 [AddItemV2] 가방 가득 참 → 우편함 이동: {templateName} (ID: {newId.Value})");
             }
             else
             {
@@ -2973,17 +2672,13 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         else
         {
             // 가방에 추가
-            Debug.Log($"📦 [AddItemV2] 가방에 추가 시작: {newId.Value}");
             slotData.characterBagInstanceIds.Add(newId);
-            Debug.Log($"📦 [AddItemV2] 가방에 추가 완료: 현재 {slotData.characterBagInstanceIds.Count}개");
         }
         
         // 3. 저장 및 메모리 동기화
         try
         {
-            Debug.Log($"💾 [AddItemV2] SaveSlotData() 호출 전: 가방 {slotData.characterBagInstanceIds.Count}개");
             bool saved = SaveSlotData(slotData);
-            Debug.Log($"💾 [AddItemV2] SaveSlotData() 결과: {(saved ? "성공" : "실패")}");
             
             if (!saved)
             {
@@ -2996,20 +2691,16 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             // 3.5. ⭐ 중요: selectedPlayerData도 업데이트 (SaveCurrentSlot 덮어쓰기 방지!)
             if (selectedPlayerData != null)
             {
-                Debug.Log($"🔄 [AddItemV2] selectedPlayerData 동기화 중...");
                 selectedPlayerData.LoadFromSlotData(slotData);
-                Debug.Log($"✅ [AddItemV2] selectedPlayerData 동기화 완료");
             }
             
             // 저장 후 검증
             var verifySlot = GetSlotData(currentSlotIndex);
-            Debug.Log($"🔍 [AddItemV2] 저장 후 검증: 가방 {verifySlot?.characterBagInstanceIds.Count ?? 0}개");
             
             account.Save();
             
             MarkDirty();
             
-            Debug.Log($"✅ [AddItemV2] 아이템 획득 성공: {templateName} (ID: {newId.Value}, 강화: +{enhancementLevel})");
             
             // ⭐ 이벤트 발생 (가방에 추가된 경우만 OnCharacterBagChanged)
             if (!bagFull)
@@ -3206,7 +2897,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (rewards != null && rewards.Count > 0)
         {
-            Debug.Log($"✅ [DismantleV2] 분해 성공");
             OnInventoryChanged?.Invoke();
         }
         else
@@ -3274,7 +2964,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                     
                     if (success)
                     {
-                        Debug.Log($"✅ [FuseV2] 합성 성공 (경고 확인 후)");
                         OnInventoryChanged?.Invoke();
                     }
                     
@@ -3282,7 +2971,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 }
                 else
                 {
-                    Debug.Log($"[FuseV2] 합성 취소 (사용자)");
                     onComplete?.Invoke(false, default);
                 }
             });
@@ -3296,7 +2984,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
             
             if (success)
             {
-                Debug.Log($"✅ [FuseV2] 합성 성공");
                 OnInventoryChanged?.Invoke();
             }
             
@@ -3433,12 +3120,10 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         
         if (result.success)
         {
-            Debug.Log($"✅ [EnhanceV2] 강화 성공");
             OnInventoryChanged?.Invoke();
         }
         else if (result.wasDestroyed)
         {
-            Debug.Log($"💥 [EnhanceV2] 아이템 파괴");
             OnInventoryChanged?.Invoke();
         }
         
@@ -3471,8 +3156,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         {
             existing.count += amount;
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [CharacterBag] 재료 추가: {type.GetDisplayName()} +{amount} (총: {existing.count}개)");
         }
         else
         {
@@ -3482,8 +3165,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
                 count = amount
             });
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [CharacterBag] 신규 재료 추가: {type.GetDisplayName()} x{amount}");
         }
         
         MarkDirty();
@@ -3571,7 +3252,7 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         MarkDirty();
         OnCharacterBagChanged?.Invoke();
         
-        Debug.Log($"🧹 [CharacterBag] 초기화 완료 (장비: {equipCount}개, 재료: {matCount}개)");
+        Dbg.Log($"🧹 [CharacterBag] 초기화 완료 (장비: {equipCount}개, 재료: {matCount}개)");
     }
     
     /// <summary>
@@ -3617,7 +3298,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         {
             account.AddMaterial(mat.materialType, mat.count);
             matTransferred++;
-            Debug.Log($"📦 [TransferCharacterBag] 재료 전송: {mat.materialType.GetDisplayName()} x{mat.count}");
         }
         
         // 3. 캐릭터 가방 초기화
@@ -3629,7 +3309,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         SaveOnMeaningfulEvent("CharacterBagTransferred");
         account.Save();
         
-        Debug.Log($"✅ [TransferCharacterBag] 전송 완료 - 장비: {equipTransferred}개, 재료: {matTransferred}개");
     }
     
     #endregion
@@ -3650,7 +3329,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         AddExp(50);
-        Debug.Log($"🎮 [치트] 경험치 +50 추가 완료! 현재: {CurrentExp}/{ExpToNextLevel}");
     }
     
     /// <summary>
@@ -3666,7 +3344,6 @@ public static event System.Action<EquipmentData> OnPlayerInventoryChanged;
         }
         
         AddExp(500);
-        Debug.Log($"🎮 [치트] 경험치 +500 추가 완료! 현재: {CurrentExp}/{ExpToNextLevel}");
     }
     
     #endregion

@@ -75,8 +75,6 @@ public class ContentEntryManager : MonoBehaviour
         // 이미 MAX인 경우 회복 불필요
         if (CurrentAccountData.currentStamina >= maxStamina)
         {
-            if (enableDebugLogs)
-                Debug.Log($"⚡ [ContentEntry] 스태미나가 이미 MAX입니다: {CurrentAccountData.currentStamina}/{maxStamina}");
             return;
         }
         
@@ -86,8 +84,6 @@ public class ContentEntryManager : MonoBehaviour
             // 현재 시간으로 초기화 (회복 시작)
             CurrentAccountData.lastStaminaUpdateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             
-            if (enableDebugLogs)
-                Debug.Log($"⚡ [ContentEntry] 스태미나 타이머 초기화: {CurrentAccountData.lastStaminaUpdateTime}");
             
             AccountDataManager.Instance?.Save();
             return;
@@ -123,8 +119,6 @@ public class ContentEntryManager : MonoBehaviour
             {
                 CurrentAccountData.lastStaminaUpdateTime = "";
                 
-                if (enableDebugLogs)
-                    Debug.Log($"⚡ [ContentEntry] 스태미나 MAX 도달 → 타이머 중지: {oldStamina} → {CurrentAccountData.currentStamina}");
             }
             else
             {
@@ -133,9 +127,6 @@ public class ContentEntryManager : MonoBehaviour
                 DateTime newUpdateTime = lastUpdate.AddMinutes(appliedMinutes);
                 CurrentAccountData.lastStaminaUpdateTime = newUpdateTime.ToString("yyyy-MM-dd HH:mm:ss");
                 
-                if (enableDebugLogs)
-                    Debug.Log($"⚡ [ContentEntry] 오프라인 회복: {oldStamina} → {CurrentAccountData.currentStamina} " +
-                              $"(+{recoveryCount}, 경과시간: {elapsedMinutes}분)");
             }
             
             // 저장
@@ -143,8 +134,6 @@ public class ContentEntryManager : MonoBehaviour
         }
         else
         {
-            if (enableDebugLogs)
-                Debug.Log($"⚡ [ContentEntry] 회복 대기 중: {elapsedMinutes}분 경과 (다음 회복까지: {staminaRecoveryIntervalMinutes - (elapsedMinutes % staminaRecoveryIntervalMinutes)}분)");
         }
     }
     
@@ -165,8 +154,6 @@ public class ContentEntryManager : MonoBehaviour
         
         bool canConsume = CurrentAccountData.currentStamina >= amount;
         
-        if (enableDebugLogs)
-            Debug.Log($"⚡ [ContentEntry] 스태미나 검증: {CurrentAccountData.currentStamina}/{maxStamina} (필요: {amount}) → {(canConsume ? "✅ 가능" : "❌ 불가")}");
         
         return canConsume;
     }
@@ -191,12 +178,8 @@ public class ContentEntryManager : MonoBehaviour
         {
             CurrentAccountData.lastStaminaUpdateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             
-            if (enableDebugLogs)
-                Debug.Log($"⚡ [ContentEntry] 스태미나 타이머 시작: {CurrentAccountData.lastStaminaUpdateTime}");
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"⚡ [ContentEntry] 스태미나 차감: {oldStamina} → {CurrentAccountData.currentStamina} (-{amount})");
         
         // 즉시 저장
         AccountDataManager.Instance?.Save();
@@ -273,8 +256,6 @@ public class ContentEntryManager : MonoBehaviour
         
         bool canEnter = (remainCount > 0 || tickets > 0);
         
-        if (enableDebugLogs)
-            Debug.Log($"🏰 [ContentEntry] 던전 카테고리 입장 검증: {categoryId} → 기본 {remainCount}/3, 티켓 {tickets}개 → {(canEnter ? "✅ 가능" : "❌ 불가")}");
         
         return canEnter;
     }
@@ -299,8 +280,6 @@ public class ContentEntryManager : MonoBehaviour
             record.dailyPlayCount = 0;
             record.lastPlayedDate = DateTime.Now.ToString("yyyy-MM-dd");
             
-            if (enableDebugLogs)
-                Debug.Log($"🏰 [ContentEntry] 날짜 변경 감지 → 카운트 리셋: {categoryId}");
         }
         
         // ⚡ 우선순위: 기본 횟수 먼저 소진
@@ -308,15 +287,11 @@ public class ContentEntryManager : MonoBehaviour
         {
             record.dailyPlayCount++;
             
-            if (enableDebugLogs)
-                Debug.Log($"🏰 [ContentEntry] 카테고리 기본 횟수 차감: {categoryId} → {record.dailyPlayCount}/{maxDailyDungeonEntries}");
         }
         else if (CurrentAccountData.dailyDungeonTickets > 0)
         {
             CurrentAccountData.dailyDungeonTickets--;
             
-            if (enableDebugLogs)
-                Debug.Log($"🏰 [ContentEntry] 티켓 차감: {categoryId} → {CurrentAccountData.dailyDungeonTickets}장 남음");
         }
         else
         {
@@ -376,8 +351,6 @@ public class ContentEntryManager : MonoBehaviour
         
         CurrentAccountData.dailyDungeonTickets += count;
         
-        if (enableDebugLogs)
-            Debug.Log($"🎫 [ContentEntry] 티켓 추가: +{count} → 총 {CurrentAccountData.dailyDungeonTickets}장");
         
         AccountDataManager.Instance?.Save();
     }
@@ -404,8 +377,6 @@ public class ContentEntryManager : MonoBehaviour
             record = new CategoryEntryData(categoryId);
             CurrentAccountData.dungeonCategoryEntries.Add(record);
             
-            if (enableDebugLogs)
-                Debug.Log($"🏰 [ContentEntry] 신규 카테고리 기록 생성: {categoryId}");
         }
         
         return record;

@@ -38,7 +38,7 @@ public class AccountDataManager
             _instance.storage = customStorage ?? new JsonFileStorage();
             _instance.Load();
             
-            Debug.Log("✨ [AccountDataManager] 초기화 완료");
+            Dbg.Log("✨ [AccountDataManager] 초기화 완료");
         }
         else
         {
@@ -60,8 +60,6 @@ public class AccountDataManager
     
     public void Load()
     {
-        Debug.Log($"🔄 [AccountDataManager] Load() 시작 - 저장 키: {ACCOUNT_SAVE_KEY}");
-        Debug.Log($"🔍 [AccountDataManager] Load() 호출 스택:\n{System.Environment.StackTrace}");
         
         string json = storage.Load(ACCOUNT_SAVE_KEY);
         
@@ -69,17 +67,11 @@ public class AccountDataManager
         {
             // 신규 계정
             accountData = new AccountData();
-            Debug.Log("✨ [AccountDataManager] 신규 계정 데이터 생성 (저장 파일 없음)");
         }
         else
         {
             accountData = JsonUtility.FromJson<AccountData>(json);
-            Debug.Log($"📥 [AccountDataManager] 계정 데이터 로드 완료!");
-            Debug.Log($"   - 아이템 인스턴스: {accountData.itemInstances.Count}개");
-            Debug.Log($"   - 공유 창고: {accountData.sharedInventoryIds.Count}개");
-            Debug.Log($"   - 우편함: {accountData.mailboxIds.Count}개");
-            Debug.Log($"   - 귀속 정보: {accountData.binds.Count}개");
-            Debug.Log($"🔍 [AccountDataManager] Load() 완료 후 accountData 해시코드: {accountData.GetHashCode()}");
+            Dbg.Log($"📥 [AccountDataManager] 계정 데이터 로드 완료!");
         }
         
         // 캐시 재구축
@@ -103,11 +95,6 @@ public class AccountDataManager
             return; // 스킬 데이터 없음 (신규 계정 또는 이미 마이그레이션 완료)
         }
         
-        Debug.Log("🔄 [AccountDataManager] Phase 3.5 마이그레이션 시작: 스킬 데이터를 PlayerSlotData로 이동...");
-        Debug.Log($"   - 마이그레이션할 스킬: {accountData.skills.Count}개");
-        Debug.Log($"   - 마이그레이션할 액티브 슬롯: {accountData.equippedActiveSkillIds.Length}개");
-        Debug.Log($"   - 마이그레이션할 패시브 슬롯: {accountData.equippedPassiveSkillIds.Length}개");
-        Debug.Log($"   - 마이그레이션할 SP: {accountData.usedSP}/{accountData.totalSP}");
         
         if (PlayerDataManager.Instance == null)
         {
@@ -126,7 +113,6 @@ public class AccountDataManager
                 // 이미 스킬 데이터가 있으면 스킵 (중복 마이그레이션 방지)
                 if (slotData.skills != null && slotData.skills.Count > 0)
                 {
-                    Debug.Log($"   ⏩ 슬롯 {i} ({slotData.playerName}): 이미 스킬 데이터 있음 - 스킵");
                     continue;
                 }
                 
@@ -154,9 +140,6 @@ public class AccountDataManager
                 PlayerDataManager.Instance.SaveSlotData(slotData);
                 migratedCount++;
                 
-                Debug.Log($"   ✅ 슬롯 {i} ({slotData.playerName}): 마이그레이션 완료");
-                Debug.Log($"      - 스킬: {slotData.skills.Count}개");
-                Debug.Log($"      - SP: {slotData.usedSP}/{slotData.totalSP}");
             }
         }
         
@@ -172,9 +155,6 @@ public class AccountDataManager
             
             Save();
             
-            Debug.Log($"✅ [AccountDataManager] Phase 3.5 마이그레이션 완료!");
-            Debug.Log($"   - 마이그레이션된 슬롯: {migratedCount}개");
-            Debug.Log($"   - Account.json 스킬 데이터 정리 완료");
         }
         
         #pragma warning restore CS0618
@@ -235,7 +215,6 @@ public class AccountDataManager
             materialCache[mat.materialType] = mat.count;
         }
         
-        Debug.Log($"🔄 [AccountDataManager] 캐시 재구축 완료: 인스턴스 {instanceCache.Count}개, 재료 {materialCache.Count}종류");
     }
     
     // ========================================
@@ -259,7 +238,6 @@ public class AccountDataManager
             {
                 accountData.gold = value;
                 OnGoldChanged?.Invoke(value);
-                Debug.Log($"💰 [AccountDataManager] 골드 변경: {value}");
             }
         }
     }
@@ -276,7 +254,6 @@ public class AccountDataManager
         }
         
         CurrentGold += amount;
-        Debug.Log($"💰 [AccountDataManager] 골드 추가: +{amount} → {CurrentGold}");
     }
     
     /// <summary>
@@ -297,7 +274,6 @@ public class AccountDataManager
         }
         
         CurrentGold -= amount;
-        Debug.Log($"💰 [AccountDataManager] 골드 소비: -{amount} → {CurrentGold}");
         return true;
     }
     
@@ -333,7 +309,6 @@ public class AccountDataManager
         accountData.itemInstances.Add(instanceData);
         instanceCache[newId] = instanceData;
         
-        Debug.Log($"✨ [AccountDataManager] 신규 아이템 등록: {templateName} (ID: {newId.Value})");
         return newId;
     }
     
@@ -384,7 +359,6 @@ public class AccountDataManager
         // ⭐ 동적 스탯 복원 (ItemInstanceData → EquipmentInstance)
         EquipmentInstanceConverter.RestoreDynamicStats(instance, instanceData);
         
-        Debug.Log($"✅ [AccountDataManager] EquipmentInstance 생성 완료: {equipData.equipmentName} (주옵션: {instance.finalMainStatValue}, 부옵션: {instance.randomSubStats.Count}개)");
         return instance;
     }
     
@@ -420,7 +394,6 @@ public class AccountDataManager
         instanceCache.Remove(id);
         bindCache.Remove(id);
 
-        Debug.Log($"💀 [AccountDataManager] 아이템 영구 소멸: {id.Value.Substring(0, 8)}...");
 
         if (wasInShared)
             OnSharedInventoryChanged?.Invoke();
@@ -454,7 +427,6 @@ public class AccountDataManager
         // 캐시에 추가
         instanceCache[newInstanceId] = instanceData;
         
-        Debug.Log($"✨ [AccountDataManager] 새 아이템 인스턴스 생성: {templateName} (ID: {newInstanceId.Value.Substring(0, 8)}..., 강화: +{enhancementLevel})");
         
         return newInstanceId;
     }
@@ -488,7 +460,6 @@ public class AccountDataManager
         accountData.sharedInventoryIds.Add(id);
         
         // ⭐ 이벤트 발생: 공유 창고 변경됨
-        Debug.Log($"🔔 [AccountDataManager] OnSharedInventoryChanged 이벤트 발생! (아이템 추가: {id.Value})");
         OnSharedInventoryChanged?.Invoke();
         
         return true;
@@ -508,7 +479,6 @@ public class AccountDataManager
         bool removed = accountData.sharedInventoryIds.Remove(id);
         if (removed)
         {
-            Debug.Log($"🗑️ [AccountDataManager] 창고 제거: {id.Value}");
             
             // ⭐ 이벤트 발생: 공유 창고 변경됨
             OnSharedInventoryChanged?.Invoke();
@@ -533,7 +503,6 @@ public class AccountDataManager
         
         // ✅ 단순히 mailbox에 추가만
         accountData.mailboxIds.Add(id);
-        Debug.Log($"📬 [AccountDataManager] 우편함으로 이동: {id.Value}");
         return true;
     }
     
@@ -544,7 +513,6 @@ public class AccountDataManager
     {
         bool removed = accountData.mailboxIds.Remove(id);
         if (removed)
-            Debug.Log($"📬 [AccountDataManager] 우편함 제거: {id.Value}");
         return removed;
     }
     
@@ -571,7 +539,6 @@ public class AccountDataManager
         accountData.binds.Add(bindRecord);
         bindCache[id] = characterSlotIndex;
         
-        Debug.Log($"🔒 [AccountDataManager] 아이템 귀속: {id.Value} → Slot {characterSlotIndex}");
     }
     
     /// <summary>
@@ -609,7 +576,6 @@ public class AccountDataManager
     {
         accountData.binds.RemoveAll(b => b.instanceId == id);
         bindCache.Remove(id);
-        Debug.Log($"🔓 [AccountDataManager] 귀속 해제: {id.Value}");
     }
     
     // ========================================
@@ -666,7 +632,6 @@ public class AccountDataManager
             materialCache[materialType] = amount;
         }
         
-        Debug.Log($"🎁 [AccountDataManager] 재료 추가: {materialType.GetDisplayName()} +{amount} (총: {materialCache[materialType]}개)");
         
         // 이벤트 발생
         OnMaterialChanged?.Invoke(materialType, materialCache[materialType]);
@@ -711,7 +676,6 @@ public class AccountDataManager
             }
         }
         
-        Debug.Log($"🎁 [AccountDataManager] 재료 소모: {materialType.GetDisplayName()} -{amount} (남은: {currentCount}개)");
         
         // 이벤트 발생
         OnMaterialChanged?.Invoke(materialType, currentCount);
@@ -777,7 +741,6 @@ public class AccountDataManager
     public AccountData GetAccountData()
     {
         // 🔍 디버그: 호출 시점 추적
-        Debug.Log($"🔍 [AccountDataManager] GetAccountData() 호출됨 - 공유 창고: {accountData?.sharedInventoryIds?.Count ?? 0}개");
         return accountData;
     }
     
@@ -809,19 +772,9 @@ public class AccountDataManager
     /// </summary>
     public void PrintStats()
     {
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log($"📊 [AccountDataManager] 통계");
-        Debug.Log($"   - 💰 골드 (AccountData.gold): {accountData.gold:N0}원 ⭐ 트루 소스!");
-        Debug.Log($"   - 아이템 인스턴스: {accountData.itemInstances.Count}개");
-        Debug.Log($"   - 공유 창고: {accountData.sharedInventoryIds.Count}개");
-        Debug.Log($"   - 우편함: {accountData.mailboxIds.Count}개");
-        Debug.Log($"   - 귀속 정보: {accountData.binds.Count}개");
-        Debug.Log($"   - 재료: {accountData.materials.Count}종류");
         foreach (var mat in accountData.materials)
         {
-            Debug.Log($"     - {mat.GetDisplayName()}: {mat.count}개 [{mat.materialType}]");
         }
-        Debug.Log("═══════════════════════════════════════════════════════");
     }
     
     #region 데이터 정합성 검증 및 자동 정리 시스템
@@ -898,7 +851,6 @@ public class AccountDataManager
     /// </summary>
     public ValidationResult ValidateDataIntegrity()
     {
-        Debug.Log("🔍 [AccountDataManager] 데이터 정합성 검증 시작...");
 
         var result = new ValidationResult
         {
@@ -909,10 +861,8 @@ public class AccountDataManager
             invalidMaterials  = FindInvalidMaterials()
         };
 
-        Debug.Log($"📊 [검증 결과] 고아:{result.orphanedItems.Count} / 무효참조:{result.invalidReferences.Count} / 귀속:{result.invalidBinds.Count} / 재료:{result.invalidMaterials.Count}");
 
         if (result.IsValid)
-            Debug.Log("✅ [AccountDataManager] 데이터 정합성 문제 없음");
         else
             Debug.LogWarning($"⚠️ [AccountDataManager] 정합성 문제 {result.totalIssues}건 발견");
 
@@ -941,7 +891,6 @@ public class AccountDataManager
             if (!allReferenced.Contains(inst.instanceId.Value))
             {
                 orphaned.Add(inst.instanceId);
-                Debug.Log($"   🗑️ 고아 아이템: {inst.templateName} ({inst.instanceId.Value.Substring(0, 8)}...)");
             }
         }
         return orphaned;
@@ -1020,7 +969,6 @@ public class AccountDataManager
             if (reason != null)
             {
                 invalid.Add(bind);
-                Debug.Log($"   🔒 무효 귀속: 슬롯{bind.characterSlotIndex} / {bind.instanceId.Value.Substring(0, 8)}... ({reason})");
             }
         }
         return invalid;
@@ -1047,7 +995,6 @@ public class AccountDataManager
         foreach (var g in templateGroups)
         {
             duplicates[g.Key] = g.Count();
-            Debug.Log($"   📦 중복 템플릿: {g.Key} ({g.Count()}개)");
         }
         return duplicates;
     }
@@ -1107,9 +1054,6 @@ public class AccountDataManager
         // ※ PASS 0, PASS B 는 항상 실제 실행 (데이터 이관/복구이므로 Dry-Run 불필요)
         const bool DRY_RUN = true;
 
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log($"🧹 [AutoCleanup] 시작... (DRY_RUN={DRY_RUN})");
-        Debug.Log("═══════════════════════════════════════════════════════");
 
         // ── 카운터 분리 ─────────────────────────────────────────────
         // crashCount  : PASS 0/B — 항상 실제 실행, DRY_RUN 여부와 무관하게 반드시 저장
@@ -1161,8 +1105,6 @@ public class AccountDataManager
 
         if (!hasRealChanges && !hasDryRunFindings)
         {
-            Debug.Log("✅ [AutoCleanup] 문제 없음 - 정리 불필요");
-            Debug.Log("═══════════════════════════════════════════════════════");
             return;
         }
 
@@ -1178,7 +1120,6 @@ public class AccountDataManager
                 if (sd != null) PlayerDataManager.Instance.SaveSlotData(sd);
             }
 
-            Debug.Log($"✅ [AutoCleanup] Crash Recovery 완료 - {crashCount}개 복구/정리 저장됨");
         }
 
         // Dry-Run 감지 결과 로그 출력 (실제 삭제 없음)
@@ -1189,7 +1130,6 @@ public class AccountDataManager
         }
 
         PrintStats();
-        Debug.Log("═══════════════════════════════════════════════════════");
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -1300,7 +1240,6 @@ public class AccountDataManager
             {
                 accountData.sharedInventoryIds.RemoveAll(id => !id.IsEmpty && !validIds.Contains(id.Value));
                 accountDataChanged = true;
-                Debug.Log($"   🧹 Dead Ref 제거 (공유 창고): {deadInShared.Count}개");
             }
             detected += deadInShared.Count;
         }
@@ -1315,7 +1254,6 @@ public class AccountDataManager
             {
                 accountData.mailboxIds.RemoveAll(id => !id.IsEmpty && !validIds.Contains(id.Value));
                 accountDataChanged = true;
-                Debug.Log($"   🧹 Dead Ref 제거 (우편함): {deadInMailbox.Count}개");
             }
             detected += deadInMailbox.Count;
         }
@@ -1424,7 +1362,6 @@ public class AccountDataManager
                 accountData.itemInstances.Remove(inst);
                 instanceCache.Remove(inst.instanceId);
             }
-            Debug.Log($"   🗑️ PASS C - Orphaned Items {toRemove.Count}개 제거");
         }
 
         return toRemove.Count;
@@ -1442,7 +1379,6 @@ public class AccountDataManager
             if (accountData.binds.Remove(bind))
             {
                 removed++;
-                Debug.Log($"      🔒 귀속 제거: 슬롯{bind.characterSlotIndex} / {bind.instanceId.Value.Substring(0, 8)}...");
             }
             bindCache.Remove(bind.instanceId);
         }
@@ -1458,7 +1394,6 @@ public class AccountDataManager
             if (stack != null && accountData.materials.Remove(stack))
             {
                 removed++;
-                Debug.Log($"      ❌ 재료 제거: {matType.GetDisplayName()} (count:{stack.count})");
             }
             materialCache.Remove(matType);
         }
@@ -1474,7 +1409,6 @@ public class AccountDataManager
     /// </summary>
     public int CleanupLegacyShopItems()
     {
-        Debug.Log("🧹 [AccountDataManager] Legacy 상점 아이템 정리 시작...");
         
         int beforeCount = accountData.itemInstances.Count;
         
@@ -1495,7 +1429,6 @@ public class AccountDataManager
             }
         }
         
-        Debug.Log($"🔒 [CleanupLegacyShopItems] 보호 대상 ID: {protectedIds.Count}개");
         
         // 2. D/C/B/A 등급 상점 장비 템플릿 로드
         var shopTemplates = new HashSet<string>();
@@ -1510,14 +1443,12 @@ public class AccountDataManager
             }
         }
         
-        Debug.Log($"📦 [CleanupLegacyShopItems] 상점 템플릿: {shopTemplates.Count}개");
         
         // 3. 상점 템플릿이면서 보호 대상이 아닌 아이템 = Legacy 상점 전시용 아이템
         var legacyShopItems = accountData.itemInstances
             .Where(i => shopTemplates.Contains(i.templateName) && !protectedIds.Contains(i.instanceId))
             .ToList();
         
-        Debug.Log($"🗑️ [CleanupLegacyShopItems] Legacy 상점 아이템 발견: {legacyShopItems.Count}개");
         
         // 4. 제거
         int removed = 0;
@@ -1534,13 +1465,11 @@ public class AccountDataManager
             
             if (removed <= 10) // 처음 10개만 로그 출력
             {
-                Debug.Log($"   🗑️ 제거: {item.templateName} (ID: {item.instanceId.Value.Substring(0, 8)}...)");
             }
         }
         
         if (removed > 10)
         {
-            Debug.Log($"   ... 외 {removed - 10}개 더");
         }
         
         int afterCount = accountData.itemInstances.Count;
@@ -1549,14 +1478,9 @@ public class AccountDataManager
         if (removed > 0)
         {
             Save();
-            Debug.Log($"✅ [CleanupLegacyShopItems] 정리 완료!");
-            Debug.Log($"   - 이전: {beforeCount}개");
-            Debug.Log($"   - 이후: {afterCount}개");
-            Debug.Log($"   - 제거: {removed}개");
         }
         else
         {
-            Debug.Log($"✅ [CleanupLegacyShopItems] Legacy 상점 아이템 없음 (정상)");
         }
         
         return removed;
@@ -1578,7 +1502,7 @@ public class AccountDataManager
         bindCache.Clear();
         materialCache.Clear();
         
-        Debug.Log("🧹 [AccountDataManager] 모든 계정 데이터 초기화 완료");
+        Dbg.Log("🧹 [AccountDataManager] 모든 계정 데이터 초기화 완료");
     }
     
     // ========================================
@@ -1699,10 +1623,6 @@ public class AccountDataManager
         UpdateSkillSaveData(skill);
         Save();
         
-        Debug.Log($"✅ [{skill.skillData.skillName}] 레벨업 성공!");
-        Debug.Log($"   Lv.{skill.currentLevel - 1} → Lv.{skill.currentLevel}");
-        Debug.Log($"   소모 SP: {requiredSP}");
-        Debug.Log($"   SP 현황: {availableSP - requiredSP}/{accountData.totalSP} (사용: {accountData.usedSP})");
         
         return true;
     }
@@ -1730,7 +1650,6 @@ public class AccountDataManager
         UpdateSkillSaveData(skill);
         Save();
         
-        Debug.Log($"🎯 [{skill.skillData.skillName}] 액티브 슬롯 {slotIndex}에 장착됨");
         return true;
     }
     
@@ -1761,7 +1680,6 @@ public class AccountDataManager
         
         Save();
         
-        Debug.Log($"🛡️ [{skill.skillData.skillName}] 패시브 슬롯 {slotIndex}에 장착됨");
         return true;
     }
     
@@ -1902,7 +1820,6 @@ public class AccountDataManager
         accountData.totalSP += amount;
         Save();
         
-        Debug.Log($"💎 SP +{amount} 획득! (총: {accountData.totalSP})");
     }
     
     /// <summary>
@@ -1939,7 +1856,6 @@ public class AccountDataManager
         accountData.skills.Add(SkillInstanceSaveData.FromSkillInstance(newSkill));
         Save();
         
-        Debug.Log($"✨ [{skillData.skillName}] 스킬 해금!");
     }
 }
 

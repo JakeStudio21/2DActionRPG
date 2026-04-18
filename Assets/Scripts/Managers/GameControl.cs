@@ -86,7 +86,7 @@ public class GameControl : Singleton<GameControl>
             // 둘 다 찾았으면 종료
             if (movementJoystick != null && attackJoystick != null)
             {
-                Debug.Log("[GameControl] 조이스틱 초기화 완료!");
+                Dbg.Log("[GameControl] 조이스틱 초기화 완료!");
                 break;
             }
 
@@ -158,7 +158,6 @@ public class GameControl : Singleton<GameControl>
         {
             DashPressed = true;
             OnDashPressed?.Invoke();
-            Debug.Log("[GameControl] Spacebar 대시 입력 감지");
         }
 #endif
     }

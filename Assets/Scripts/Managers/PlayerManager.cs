@@ -64,8 +64,6 @@ public class PlayerManager : Singleton<PlayerManager>
         if (PlayerDataManager.Instance != null)
         {
             currentGold = PlayerDataManager.Instance.CurrentGold;
-            if (showDebugLogs)
-                Debug.Log($"📁 [PlayerManager] PlayerDataManager에서 골드 로드: {currentGold}");
         }
         else
         {
@@ -111,7 +109,6 @@ public class PlayerManager : Singleton<PlayerManager>
         SavePlayerData();
         UpdateGoldUI();
         
-        Debug.Log($"[PlayerManager] 골드 추가: +{amount}, 현재: {currentGold}");
     }
 
     /// <summary>
@@ -125,7 +122,6 @@ public class PlayerManager : Singleton<PlayerManager>
             SavePlayerData();
             UpdateGoldUI();
             
-            Debug.Log($"[PlayerManager] 골드 소모: -{amount}, 현재: {currentGold}");
             return true;
         }
         else
@@ -144,7 +140,6 @@ public class PlayerManager : Singleton<PlayerManager>
         SavePlayerData();
         UpdateGoldUI();
         
-        Debug.Log($"[PlayerManager] 골드 설정: {currentGold}");
     }
 
     /// <summary>
@@ -182,8 +177,6 @@ public class PlayerManager : Singleton<PlayerManager>
         {
             // PlayerManager의 골드를 PlayerDataManager에 동기화
             // (실제로는 PlayerDataManager가 골드를 주도적으로 관리해야 함)
-            if (showDebugLogs)
-                Debug.Log($"💾 [PlayerManager] 골드 동기화: {currentGold} → PlayerDataManager로 이관");
         }
         else
         {

@@ -18,7 +18,6 @@ public class LobbyManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            Debug.Log("[LobbyManager] 생성됨");
         }
         else
         {
@@ -39,7 +38,6 @@ public class LobbyManager : MonoBehaviour
         if (Instance == this)
         {
             Instance = null;
-            Debug.Log("[LobbyManager] 파괴됨");
         }
     }
     
@@ -54,7 +52,6 @@ public class LobbyManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("[LobbyManager] GameManager 연결 확인됨");
         }
         
         if (GamePoolManager.Instance == null)
@@ -63,7 +60,6 @@ public class LobbyManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("[LobbyManager] GamePoolManager 연결 확인됨");
         }
     }
     
@@ -76,7 +72,6 @@ public class LobbyManager : MonoBehaviour
         {
             GameManager.Instance.selectedPlayerData.selectedPlayerType = type;
             GameManager.Instance.selectedPlayerData.weaponName = weaponName;
-            Debug.Log($"[LobbyManager] GameManager.selectedPlayerData 설정 완료: {type}, 무기: {weaponName}");
         }
         else
         {
@@ -86,7 +81,6 @@ public class LobbyManager : MonoBehaviour
         // 🆕 더 이상 PlayerDataManager 슬롯 선택을 여기서 하지 않음
         // LobbyUIController에서 이미 처리됨
         
-        Debug.Log($"[LobbyManager] 클래스 선택: {type}, 무기: {weaponName}");
     }
     
     /// <summary>
@@ -110,7 +104,6 @@ public class LobbyManager : MonoBehaviour
         GameManager.Instance.selectedPlayerData.selectedPlayerType = selectedPlayerType;
         GameManager.Instance.selectedPlayerData.weaponName = selectedWeaponName;
         
-        Debug.Log($"[LobbyManager] 로비를 떠납니다. 선택된 클래스: {selectedPlayerType}, 무기: {selectedWeaponName}");
         
         // 게임 씬으로 이동
         GameManager.Instance?.LoadGameScene(sceneName);

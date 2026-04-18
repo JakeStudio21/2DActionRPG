@@ -48,8 +48,7 @@ public class BGMController : Singleton<BGMController>
             CutsceneSystem.CutsceneManager.Instance.OnCutsceneEnd += OnCutsceneEnded;
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[BGMController] 초기화 완료");
+            Dbg.Log("[BGMController] 초기화 완료");
     }
     
     protected override void OnDestroy()
@@ -71,12 +70,9 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void PlayDefaultBGM(string bgmKey, string stageId = null)
     {
-        if (enableDebugLogs)
-            Debug.Log($"📥 [BGMController] PlayDefaultBGM() 호출됨 - Key: '{bgmKey}', StageId: '{stageId}'");
         
         // ✅ 씬 전환 시 이전 상태 초기화 (Battle, Boss 등 제거)
         if (enableDebugLogs && activeStates.Count > 0)
-            Debug.Log($"🔄 [BGMController] 이전 씬 상태 초기화 (활성 상태 수: {activeStates.Count})");
         
         activeStates.Clear();
         
@@ -85,8 +81,6 @@ public class BGMController : Singleton<BGMController>
         
         string resolvedKey = ResolveKey(bgmKey, stageId);
         
-        if (enableDebugLogs)
-            Debug.Log($"🔑 [BGMController] 키 해석 완료: '{bgmKey}' → '{resolvedKey}'");
         
         AddStateInternal(BGMPriority.Default, resolvedKey);
     }
@@ -147,8 +141,6 @@ public class BGMController : Singleton<BGMController>
             CueSystem.CuePlayer.Instance.StopCurrentBGM();
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[BGMController] BGM 정지");
     }
     
     /// <summary>
@@ -156,8 +148,6 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void AddState(BGMPriority priority, string bgmKey)
     {
-        if (enableDebugLogs)
-            Debug.Log($"📌 [BGMController] AddState() (Public) - Priority: {priority}, Key: '{bgmKey}'");
         
         AddStateInternal(priority, bgmKey);
     }
@@ -167,8 +157,6 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     public void RemoveState(BGMPriority priority)
     {
-        if (enableDebugLogs)
-            Debug.Log($"📌 [BGMController] RemoveState() (Public) - Priority: {priority}");
         
         RemoveStateInternal(priority);
     }
@@ -182,8 +170,6 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     private void AddStateInternal(BGMPriority priority, string bgmKey)
     {
-        if (enableDebugLogs)
-            Debug.Log($"📌 [BGMController] AddState() 호출 - Priority: {priority}, Key: '{bgmKey}'");
         
         if (string.IsNullOrEmpty(bgmKey))
         {
@@ -193,8 +179,6 @@ public class BGMController : Singleton<BGMController>
         
         activeStates[priority] = bgmKey;
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [BGMController] 상태 추가 완료: {priority} → {bgmKey} (활성 상태 수: {activeStates.Count})");
         
         UpdateBGM();
     }
@@ -209,8 +193,6 @@ public class BGMController : Singleton<BGMController>
             string removedKey = activeStates[priority];
             activeStates.Remove(priority);
             
-            if (enableDebugLogs)
-                Debug.Log($"[BGMController] 상태 제거: {priority} ({removedKey})");
             
             UpdateBGM();
         }
@@ -221,14 +203,11 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     private void UpdateBGM()
     {
-        if (enableDebugLogs)
-            Debug.Log($"🔄 [BGMController] UpdateBGM() 호출 - 현재 BGM: '{currentBGM}', 활성 상태 수: {activeStates.Count}");
+            Dbg.Log($"🔄 [BGMController] UpdateBGM() 호출 - 현재 BGM: '{currentBGM}', 활성 상태 수: {activeStates.Count}");
         
         // 활성 상태가 없으면 정지
         if (activeStates.Count == 0)
         {
-            if (enableDebugLogs)
-                Debug.Log($"⚠️ [BGMController] 활성 상태 없음 - BGM 정지");
             StopBGM();
             return;
         }
@@ -237,8 +216,6 @@ public class BGMController : Singleton<BGMController>
         var highestPriority = activeStates.Keys.Max();
         string bgmKey = activeStates[highestPriority];
         
-        if (enableDebugLogs)
-            Debug.Log($"🎯 [BGMController] 최고 우선순위: {highestPriority}, Key: '{bgmKey}'");
         
         // 중복 재생 방지
         if (currentBGM == bgmKey)
@@ -248,8 +225,7 @@ public class BGMController : Singleton<BGMController>
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"🎵 [BGMController] BGM 전환: '{currentBGM}' → '{bgmKey}'");
+            Dbg.Log($"🎵 [BGMController] BGM 전환: '{currentBGM}' → '{bgmKey}'");
         
         // BGM 전환
         PlayBGM(bgmKey);
@@ -264,8 +240,6 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     private void PlayBGM(string bgmKey)
     {
-        if (enableDebugLogs)
-            Debug.Log($"🎼 [BGMController] PlayBGM() 호출 - Key: '{bgmKey}', Domain: '{bgmDomain}'");
         
         if (string.IsNullOrEmpty(bgmKey))
         {
@@ -283,8 +257,6 @@ public class BGMController : Singleton<BGMController>
             {
                 currentBGM = bgmKey;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [BGMController] 🎵 BGM 재생 완료 (Fade {fadeTime}s): {bgmKey}");
             }
             else
             {
@@ -307,14 +279,10 @@ public class BGMController : Singleton<BGMController>
     /// </summary>
     private string ResolveKey(string requestedKey, string stageId = null)
     {
-        if (enableDebugLogs)
-            Debug.Log($"🔍 [BGMController] ResolveKey() - 입력: '{requestedKey}', StageId: '{stageId}'");
         
         // stageId가 제공되면 스테이지 전용 키 생성
         if (!string.IsNullOrEmpty(stageId) && requestedKey.Contains("bgm.stage."))
         {
-            if (enableDebugLogs)
-                Debug.Log($"   → StageId 있음 + 'bgm.stage.' 포함 - 스테이지 전용 키 생성 시도");
             
             // "bgm.stage.battle" + "STAGE_001" → "bgm.stage.STAGE_001.battle"
             string[] parts = requestedKey.Split('.');
@@ -324,8 +292,6 @@ public class BGMController : Singleton<BGMController>
                 string suffix = parts[2];
                 string stageSpecificKey = $"bgm.stage.{stageId}.{suffix}";
                 
-                if (enableDebugLogs)
-                    Debug.Log($"   → 스테이지 전용 키 생성: '{stageSpecificKey}' (suffix: {suffix})");
                 
                 // ✅ 1순위: 스테이지 전용 키 존재 확인
                 if (CueSystem.CueRegistry.Instance != null)
@@ -334,23 +300,16 @@ public class BGMController : Singleton<BGMController>
                     
                     if (hasStageSpecificKey)
                     {
-                        if (enableDebugLogs)
-                            Debug.Log($"   ✅ 스테이지 전용 키 발견: '{stageSpecificKey}'");
                         return stageSpecificKey;
                     }
                     else
                     {
-                        if (enableDebugLogs)
-                            Debug.Log($"   ⚠️ 스테이지 전용 키 없음: '{stageSpecificKey}'");
-                        Debug.Log($"   🔄 폴백: 공용 키 사용 '{requestedKey}'");
                     }
                 }
             }
         }
         
         // 2순위: 요청된 키 그대로 반환 (공용 키)
-        if (enableDebugLogs)
-            Debug.Log($"   → 공용 키 사용: '{requestedKey}'");
         
         return requestedKey;
     }
@@ -367,8 +326,6 @@ public class BGMController : Singleton<BGMController>
         // TODO: 컷신별 전용 BGM이 있으면 재생
         // 현재는 컷신 시작 시 BGM 유지 (일시정지 등은 CutsceneManager에서 처리)
         
-        if (enableDebugLogs)
-            Debug.Log($"[BGMController] 컷신 시작: {cutsceneId}");
     }
     
     /// <summary>
@@ -378,8 +335,6 @@ public class BGMController : Singleton<BGMController>
     {
         // 컷신 종료 시 이전 BGM으로 자동 복귀 (스택 시스템이 자동 처리)
         
-        if (enableDebugLogs)
-            Debug.Log($"[BGMController] 컷신 종료: {cutsceneId}");
     }
     
     #endregion

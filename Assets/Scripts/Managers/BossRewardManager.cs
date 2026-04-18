@@ -40,8 +40,6 @@ public class BossRewardManager : Singleton<BossRewardManager>
         // 2. 이미 클리어한 보스인지 확인
         if (playerData.clearedBossIds.Contains(bossId))
         {
-            if (enableDebugLogs)
-                Debug.Log($"[BossRewardManager] 이미 클리어한 보스입니다: {bossId} (보상 지급 안 함)");
             return;
         }
         
@@ -70,11 +68,6 @@ public class BossRewardManager : Singleton<BossRewardManager>
         resistanceStats.SaveToPlayerData();
         
         // 7. 보상 로그
-        Debug.Log($"🎉 [BossRewardManager] 최초 클리어 보상 지급!");
-        Debug.Log($"   - 보스: {bossId}");
-        Debug.Log($"   - 저항 타입: {rewardType}");
-        Debug.Log($"   - 저항력: {amount * 100:F0}%");
-        Debug.Log($"   - 현재 저항: {resistanceStats.GetResistance(rewardType) * 100:F0}%");
     }
     
     /// <summary>

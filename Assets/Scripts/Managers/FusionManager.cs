@@ -24,7 +24,6 @@ namespace Managers
                         GameObject go = new GameObject("FusionManager");
                         _instance = go.AddComponent<FusionManager>();
                         DontDestroyOnLoad(go);
-                        Debug.Log("✨ [FusionManager] 자동 생성 및 초기화");
                     }
                 }
                 return _instance;

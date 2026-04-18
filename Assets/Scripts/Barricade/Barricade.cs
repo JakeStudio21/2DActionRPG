@@ -97,7 +97,7 @@ public class Barricade : MonoBehaviour, ITargetable
         // HP 바 참조 확인
         if (hpDisplay == null)
         {
-            Debug.LogWarning($"[Barricade] {gameObject.name}에 BarricadeHPDisplay를 찾을 수 없습니다!");
+            Dbg.LogWarning($"[Barricade] {gameObject.name}에 BarricadeHPDisplay를 찾을 수 없습니다!");
         }
         
         // Break 모드에 따른 초기화

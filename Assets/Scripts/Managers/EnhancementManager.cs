@@ -22,7 +22,6 @@ namespace Managers
                         GameObject go = new GameObject("EnhancementManager");
                         _instance = go.AddComponent<EnhancementManager>();
                         DontDestroyOnLoad(go);
-                        Debug.Log("✨ [EnhancementManager] 자동 생성 및 초기화");
                     }
                 }
                 return _instance;

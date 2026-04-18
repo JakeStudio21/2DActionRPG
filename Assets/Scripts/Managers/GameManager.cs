@@ -101,7 +101,6 @@ public class GameManager : Singleton<GameManager>
         {
             GameObject contentEntryObj = new GameObject("ContentEntryManager");
             contentEntryObj.AddComponent<ContentEntryManager>();
-            Debug.Log("⚡ [GameManager] ContentEntryManager 자동 생성");
         }
         
         // 🆕 추가: PlayerDataManager 데이터 변경 리스너
@@ -109,11 +108,8 @@ public class GameManager : Singleton<GameManager>
         PlayerDataManager.OnPlayerGoldChanged += OnPlayerGoldChanged;
         PlayerDataManager.OnPlayerLevelChanged += OnPlayerLevelChanged;
         
-        Debug.Log($"[GameManager] Awake - selectedPlayerData: {selectedPlayerData}");
         if (selectedPlayerData != null)
         {
-            Debug.Log($"[GameManager] Awake - selectedPlayerType: {selectedPlayerData.selectedPlayerType}, weaponName: {selectedPlayerData.weaponName}");
-            Debug.Log($"[GameManager] Awake - selectedPlayerData instanceID: {selectedPlayerData.GetInstanceID()}");
         }
 
         InitializeGame();
@@ -183,7 +179,6 @@ public class GameManager : Singleton<GameManager>
         runtimeStageData.selectedStageNumber = stageNumber;
         runtimeStageData.selectedSceneName = sceneName;
         
-        Debug.Log($"[GameManager] 선택된 스테이지 설정: Stage {stageNumber} ({sceneName})");
     }
 
     /// <summary>
@@ -277,9 +272,7 @@ public class GameManager : Singleton<GameManager>
             yield break;
         }
 
-        Debug.Log($"[GameManager] 씬 전환 시작 - {sceneName}");
-        Debug.Log($"[GameManager] 전달될 데이터: {selectedPlayerData}");
-        Debug.Log($"[GameManager] PlayerDataManager 검증: ✅");
+        Dbg.Log($"[GameManager] 씬 전환 시작 - {sceneName}");
 
         // 로딩 씬으로 이동
         currentGameState = GameState.Loading;
@@ -330,7 +323,6 @@ public class GameManager : Singleton<GameManager>
             var joystick = FindObjectOfType<DynamicJoystick>();
             if (joystick != null && playerController != null)
             {
-                Debug.Log("[GameManager] 조이스틱 재연결 성공!");
                 break;
             }
             
@@ -385,14 +377,13 @@ public class GameManager : Singleton<GameManager>
     public void ChangeGameState(GameState newState)
     {
         currentGameState = newState;
-        Debug.Log($"[GameManager] 게임 상태 변경: {newState}");
+        Dbg.Log($"[GameManager] 게임 상태 변경: {newState}");
     }
 
     #region 🆕 Step 5: PlayerDataManager 이벤트 리스너
 
     private void OnPlayerDataChanged(SelectedPlayerData newData)
     {
-        Debug.Log($"🔔 [GameManager] PlayerData 변경 감지: {newData?.selectedPlayerType} Lv.{newData?.CurrentLevel} Gold:{newData?.CurrentGold}");
         
         // 🆕 추가 처리들:
         // - 다른 시스템들에 알림
@@ -402,12 +393,10 @@ public class GameManager : Singleton<GameManager>
 
     private void OnPlayerGoldChanged(int newGold)
     {
-        Debug.Log($"🪙 [GameManager] 골드 변경 감지: {newGold}");
     }
 
     private void OnPlayerLevelChanged(int newLevel)
     {
-        Debug.Log($"⭐ [GameManager] 레벨 변경 감지: {newLevel}");
     }
 
     #endregion
@@ -424,11 +413,9 @@ public class GameManager : Singleton<GameManager>
         
         if (!hasLaunchedBefore)
         {
-            Debug.Log("[GameManager] 🆕 최초 실행 감지");
             return true;
         }
         
-        Debug.Log("[GameManager] 🔄 재실행 감지");
         return false;
     }
     
@@ -439,7 +426,7 @@ public class GameManager : Singleton<GameManager>
     {
         PlayerPrefs.SetInt(FIRST_LAUNCH_KEY, 1);
         PlayerPrefs.Save();
-        Debug.Log("[GameManager] 최초 실행 플래그 저장 완료");
+        Dbg.Log("[GameManager] 최초 실행 플래그 저장 완료");
     }
     
     /// <summary>
@@ -450,7 +437,6 @@ public class GameManager : Singleton<GameManager>
         if (IsFirstLaunch())
         {
             // 최초 실행 → 인트로부터 시작
-            Debug.Log("[GameManager] 최초 실행 플로우 시작 → 인트로 씬으로 이동");
             currentFlow = FlowType.FirstTime;
             MarkAsLaunched(); // PlayerPrefs 저장
             LoadIntroScene();
@@ -458,7 +444,6 @@ public class GameManager : Singleton<GameManager>
         else
         {
             // 재실행 → 바로 로비로
-            Debug.Log("[GameManager] 재실행 플로우 → 로비로 직접 이동");
             currentFlow = FlowType.ReturnFromGame;
             LoadLobbyScene();
         }
@@ -469,7 +454,7 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void LoadIntroScene()
     {
-        Debug.Log($"[GameManager] 인트로 씬 로드 (플로우: {currentFlow})");
+        Dbg.Log($"[GameManager] 인트로 씬 로드 (플로우: {currentFlow})");
         currentGameState = GameState.None;
         SceneManager.LoadScene(introSceneName);
     }
@@ -479,7 +464,7 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void LoadTutorialScene()
     {
-        Debug.Log($"[GameManager] 튜토리얼 씬 로드 (플로우: {currentFlow})");
+        Dbg.Log($"[GameManager] 튜토리얼 씬 로드 (플로우: {currentFlow})");
         currentGameState = GameState.None;
         SceneManager.LoadScene(tutorialSceneName);
     }
@@ -489,7 +474,6 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void ReplayIntro()
     {
-        Debug.Log("[GameManager] 인트로 다시보기 시작");
         currentFlow = FlowType.ReplayIntro;
         LoadIntroScene();
     }
@@ -499,7 +483,6 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void ReplayTutorial()
     {
-        Debug.Log("[GameManager] 튜토리얼 다시보기 시작");
         currentFlow = FlowType.ReplayTutorial;
         LoadTutorialScene();
     }
@@ -509,7 +492,6 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void OnTutorialCompleted()
     {
-        Debug.Log("[GameManager] ⭐ Tutorial 완료 처리 시작");
         
         // 최초 실행 플래그 저장
         MarkAsLaunched();
@@ -517,7 +499,6 @@ public class GameManager : Singleton<GameManager>
         // FlowType 전환 (다음 실행부터 Tutorial 스킵)
         currentFlow = FlowType.ReturnFromGame;
         
-        Debug.Log("[GameManager] ✅ Tutorial 완료 처리 완료 - 다음 실행부터 Lobby 직행");
     }
     
     /// <summary>
@@ -525,26 +506,22 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public void ProceedToNextScene()
     {
-        Debug.Log($"[GameManager] ProceedToNextScene 호출 (현재 플로우: {currentFlow})");
         
         switch (currentFlow)
         {
             case FlowType.FirstTime:
                 // 최초 실행: 로비로 (튜토리얼 종료 후)
-                Debug.Log("[GameManager] 최초 실행 완료 → 로비로 이동");
                 LoadLobbyScene();
                 break;
                 
             case FlowType.ReplayIntro:
             case FlowType.ReplayTutorial:
                 // 다시보기: 로비로 복귀
-                Debug.Log("[GameManager] 다시보기 완료 → 로비로 복귀");
                 LoadLobbyScene();
                 break;
                 
             case FlowType.ReturnFromGame:
                 // 스테이지에서 복귀 → 로비
-                Debug.Log("[GameManager] 게임 복귀 → 로비로 이동");
                 LoadLobbyScene();
                 break;
         }

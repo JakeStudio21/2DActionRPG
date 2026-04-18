@@ -65,8 +65,7 @@ public class SceneTransitionManager : MonoBehaviour
             InitializeTransitionUI();
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[SceneTransitionManager] 초기화 완료 (DontDestroyOnLoad)");
+            Dbg.Log("[SceneTransitionManager] 초기화 완료 (DontDestroyOnLoad)");
     }
     
     /// <summary>
@@ -106,8 +105,6 @@ public class SceneTransitionManager : MonoBehaviour
             rt.offsetMax = Vector2.zero;
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[SceneTransitionManager] 전환 UI 자동 생성 완료");
     }
     
     /// <summary>
@@ -130,8 +127,7 @@ public class SceneTransitionManager : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 씬 전환 시작: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 씬 전환 시작: {sceneName}");
         
         currentTransition = StartCoroutine(TransitionCoroutine(sceneName, fadeOutTime, fadeInTime, fadeColor));
     }
@@ -141,8 +137,7 @@ public class SceneTransitionManager : MonoBehaviour
     /// </summary>
     public void LoadSceneImmediate(string sceneName)
     {
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 즉시 씬 전환: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 즉시 씬 전환: {sceneName}");
         
         SceneManager.LoadScene(sceneName);
     }
@@ -155,14 +150,11 @@ public class SceneTransitionManager : MonoBehaviour
         isTransitioning = true;
         
         // 1단계: 페이드 아웃 (현재 씬 가리기)
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 페이드 아웃 시작 ({fadeOutTime}초)");
         
         yield return StartCoroutine(FadeOut(fadeOutTime, fadeColor));
         
         // 2단계: 씬 로딩
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 씬 로딩 중: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 씬 로딩 중: {sceneName}");
         
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         
@@ -174,17 +166,13 @@ public class SceneTransitionManager : MonoBehaviour
             yield return null;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 씬 로드 완료: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 씬 로드 완료: {sceneName}");
         
         // 3단계: 페이드 인 (새 씬 표시)
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 페이드 인 시작 ({fadeInTime}초)");
         
         yield return StartCoroutine(FadeIn(fadeInTime));
         
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 씬 전환 완료: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 씬 전환 완료: {sceneName}");
         
         isTransitioning = false;
         currentTransition = null;
@@ -203,8 +191,6 @@ public class SceneTransitionManager : MonoBehaviour
         
         // 🆕 페이드 시작: 클릭 차단 활성화
         fadePanel.raycastTarget = true;
-        if (enableDebugLogs)
-            Debug.Log("[SceneTransitionManager] 페이드 아웃 중 - 클릭 차단 활성화");
         
         float elapsedTime = 0f;
         Color startColor = fadeColor;
@@ -253,8 +239,6 @@ public class SceneTransitionManager : MonoBehaviour
         
         // 🆕 페이드 완료: 클릭 차단 해제
         fadePanel.raycastTarget = false;
-        if (enableDebugLogs)
-            Debug.Log("[SceneTransitionManager] 페이드 인 완료 - 클릭 차단 해제 ✅");
     }
     
     /// <summary>
@@ -266,8 +250,6 @@ public class SceneTransitionManager : MonoBehaviour
         defaultFadeInDuration = fadeInTime;
         defaultFadeColor = fadeColor;
         
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 페이드 설정 변경: Out={fadeOutTime}, In={fadeInTime}, Color={fadeColor}");
     }
     
     /// <summary>
@@ -296,8 +278,6 @@ public class SceneTransitionManager : MonoBehaviour
         fadePanel.color = fadeColor;
         fadePanel.raycastTarget = true; // 클릭 차단
         
-        if (enableDebugLogs)
-            Debug.Log("[SceneTransitionManager] 즉시 페이드 아웃 (검은 화면) ✅");
     }
     
     /// <summary>
@@ -332,8 +312,7 @@ public class SceneTransitionManager : MonoBehaviour
         // 검은 화면 유지 (0.2초)
         yield return new WaitForSecondsRealtime(0.2f);
         
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 검은 화면에서 씬 로딩 시작: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 검은 화면에서 씬 로딩 시작: {sceneName}");
         
         // 씬 로드
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
@@ -343,8 +322,7 @@ public class SceneTransitionManager : MonoBehaviour
             yield return null;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[SceneTransitionManager] 씬 로드 완료: {sceneName}");
+            Dbg.Log($"[SceneTransitionManager] 씬 로드 완료: {sceneName}");
         
         // 페이드 인 (검은 화면 → 투명)
         yield return StartCoroutine(FadeIn(defaultFadeInDuration));
