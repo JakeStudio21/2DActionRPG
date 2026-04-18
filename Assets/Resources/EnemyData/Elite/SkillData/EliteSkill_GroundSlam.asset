@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: "\"\uB300\uC9C0 \uAC15\uD0C0\""
   skillId: ELITESKILL_GROUNDSLAM_001
   description: "\"\uB545\uC744 \uB0B4\uB9AC\uCCD0 \uCDA9\uACA9\uD30C \uC0DD\uC131\""
-  castTime: 1.5
+  castTime: 0.5
   cooldown: 8
   actionDuration: 3
   damageMultiplier: 2
@@ -30,15 +30,14 @@ MonoBehaviour:
   aoeCenterMode: 1
   aoeCenterOffset: 4
   telegraphPrefab: {fileID: 614329605402219767, guid: d7b751e350300e84e81746897bcaef64, type: 3}
-  telegraphDuration: 1.2
+  telegraphDuration: 0.8
   telegraphColor: {r: 0, g: 0.2463131, b: 1, a: 0.5}
+  telegraphOffset: {x: 0, y: 0}
   castEffect: {fileID: 6079819295311992884, guid: 9d6f4245a3816de458b2d83ca5c4a2cf, type: 3}
-  aoeEffect: {fileID: 2825740286487543389, guid: 1609060f2208d5144bb8e8a5df54c76a, type: 3}
-  hitEffect: {fileID: 8683933021285538514, guid: ee4dcd56239c78b40bc8725875ddd6e6, type: 3}
+  aoeEffect: {fileID: 7861703329210907134, guid: c28a316a4eab1714f92313cf7d10e0e1, type: 3}
   castSound: {fileID: 0}
   skillSound: {fileID: 0}
-  hitSound: {fileID: 0}
-  shakeIntensity: 0.5
+  hitCueKey: 
   minRange: 0
   maxRange: 10
   stopMovingWhileCasting: 1

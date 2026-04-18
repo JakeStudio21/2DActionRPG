@@ -217,7 +217,6 @@ public class EnemyChaseState : IEnemyState
                 }
                 else
                 {
-                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 내지만 공격 불가 (쿨다운 중), 계속 접근 중... (거리: {dist:F2})");
                     // Chase 상태 유지, 평타 범위까지 계속 접근
                 }
             }
@@ -234,7 +233,6 @@ public class EnemyChaseState : IEnemyState
                 var eliteAttack = baseEnemyForElite.GetComponent<EliteAttackBehaviour>();
                 if (eliteAttack != null && !eliteAttack.CanAttack())
                 {
-                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (ELITE) - 공격 범위 내지만 쿨다운 중, Chase 유지 (거리: {dist:F2})");
                     return; // 쿨다운 해제까지 Chase 유지 (NavMesh stoppingDistance로 정지 상태)
                 }
             }

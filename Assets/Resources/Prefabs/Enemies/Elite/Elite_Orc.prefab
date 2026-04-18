@@ -360,6 +360,7 @@ MonoBehaviour:
   currentLevel: 1
   cueProfile: {fileID: 11400000, guid: e2ed5201518c3d444b4cad1e938ba606, type: 2}
   useNavMesh: 1
+  navMeshAcceleration: 0
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
@@ -412,6 +413,7 @@ MonoBehaviour:
   currentSkill: {fileID: 0}
   isCasting: 0
   isActionExecuting: 0
+  dashSkill: {fileID: 0}
   aoeOffset: {x: 0, y: 3, z: 0}
   skillSpawnPoint: {fileID: 505429217177140206}
   enableDebugLogs: 1

@@ -999,7 +999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87647c0865c063944882c4febfcadd12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageTimingPoint: 0.8
+  damageTimingPoint: 0.3
   executeOnEnter: 0
   enableDebugLogs: 1
 --- !u!1101 &7980431288228882543

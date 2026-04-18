@@ -19,7 +19,8 @@ public class EnemyAttackState : IEnemyState
 
     public void Enter()
     {
-        Debug.Log($"🗡️ [EnemyAttackState] {enemy.transform.name} - 공격 상태 진입!");
+        bool debugEnabled = enemy is BaseEnemy be0 && be0.EnableDebugLogs;
+        if (debugEnabled) Debug.Log($"🗡️ [EnemyAttackState] {enemy.transform.name} - 공격 상태 진입!");
         
         // ⭐ 1번: 공격 시작 전 거리 체크 (엄격한 범위 체크로 허공 공격 방지)
         if (enemy.TargetPlayer != null)
@@ -32,12 +33,9 @@ public class EnemyAttackState : IEnemyState
             // 공격 범위 밖이면 추격 상태로 전환
             if (dist > rangeThreshold)
             {
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 시작 시 거리 밖 감지! Chase 상태로 전환 (거리: {dist:F2}, 범위: {rangeThreshold:F2})");
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
             }
-            
-            Debug.Log($"✅ [EnemyAttackState] {enemy.transform.name} - 범위 내 확인! 공격 실행 (거리: {dist:F2}, 범위: {rangeThreshold:F2})");
         }
         
         // ⭐⭐⭐ NavMeshAgent 정지 (Phase 3 - 공격 중 이동 방지)
@@ -52,7 +50,7 @@ public class EnemyAttackState : IEnemyState
         hasCheckedAfterAnimation = false;
         
         // ⭐ 방향 확인 로그
-        if (enemy is BaseEnemy baseEnemy && baseEnemy.AnimationController != null)
+        if (debugEnabled && enemy is BaseEnemy baseEnemy && baseEnemy.AnimationController != null)
         {
             var animController = baseEnemy.AnimationController;
             var animator = animController.GetComponent<Animator>();
@@ -83,14 +81,12 @@ public class EnemyAttackState : IEnemyState
             // ⭐ 스킬 시전 중이면 거리 체크 스킵 (엘리트/보스 전용)
             if (enemy is BaseEnemy baseEnemyCheck && baseEnemyCheck.IsPerformingSkill)
             {
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 스킬 시전 중! 거리 체크 스킵 (완료까지 대기)");
                 return; // 스킬 완료까지 대기
             }
             
             // ⭐ 3번: 연속 미스 체크 (안전장치)
             if (CheckConsecutiveMiss())
             {
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 연속 미스 2회 감지! Chase 상태로 전환");
                 consecutiveMissCount = 0; // 리셋
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
@@ -104,23 +100,17 @@ public class EnemyAttackState : IEnemyState
                 // ⭐⭐⭐ 공격 범위 밖이면 즉시 추격 상태로 전환 (엄격한 체크)
                 if (enemy is Boss_SandElemental)
                 {
-                    float attackRange = enemy.AttackRange;
-                    float chaseEndRange = attackRange - 0.5f;
-                    float chaseStartRange = attackRange + 1.5f;
-                    
+                    float chaseStartRange = enemy.AttackRange + 1.5f;
                     if (dist > chaseStartRange)
                     {
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} (BOSS) - 공격 완료 후 거리 밖! Chase 상태로 전환 (거리: {dist:F2})");
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                         return;
                     }
                 }
                 else
                 {
-                    // ⭐ 일반 몬스터: 실제 공격 범위로 엄격하게 체크 (1.0배)
                     if (dist > enemy.AttackRange)
                     {
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 완료 후 거리 밖! Chase 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                         return;
                     }
@@ -136,7 +126,6 @@ public class EnemyAttackState : IEnemyState
             // ⭐ 스킬 시전 중이면 상태 전환 스킵 (엘리트/보스 전용)
             if (enemy is BaseEnemy baseEnemyCheck2 && baseEnemyCheck2.IsPerformingSkill)
             {
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 스킬 시전 중! 상태 전환 스킵 (완료까지 대기)");
                 return; // 스킬 완료까지 대기
             }
             
@@ -149,40 +138,23 @@ public class EnemyAttackState : IEnemyState
                 if (enemy is Boss_SandElemental)
                 {
                     float attackRange = enemy.AttackRange;
-                    float chaseEndRange = attackRange - 0.5f; // 추격 종료 거리 (히스테리시스)
-                    float chaseStartRange = attackRange + 1.5f; // 추격 시작 거리 (히스테리시스)
-                    float rangedSkillRange = 10f; // 원거리 스킬 범위
+                    float chaseEndRange = attackRange - 0.5f;
+                    float chaseStartRange = attackRange + 1.5f;
+                    float rangedSkillRange = 10f;
                     
-                    // 평타 범위 내 → 재공격
                     if (dist <= chaseEndRange)
-                    {
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} (BOSS) - 평타 범위 내, 재공격 대기 (거리: {dist:F2}, 범위: {attackRange:F2})");
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
-                    }
-                    // 추격 시작 거리 내 → Chase 상태
                     else if (dist <= chaseStartRange)
-                    {
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} (BOSS) - 추격 시작 거리, Chase 상태로 전환 (거리: {dist:F2})");
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
-                    }
-                    // 원거리 스킬 범위 내 → 재공격 (스킬만 사용)
                     else if (dist <= rangedSkillRange)
-                    {
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 내, 재공격 대기 (거리: {dist:F2})");
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
-                    }
-                    // 너무 멀어짐 → Idle
                     else
-                    {
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} (BOSS) - 플레이어 멀어짐, Idle 상태로 전환 (거리: {dist:F2})");
                         enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
-                    }
                 }
                 // 일반 몬스터는 엄격한 범위 체크 적용
                 else
                 {
-                    // ⭐⭐⭐ 실제 공격 범위로 엄격하게 체크 (플레이어 넉백 고려)
-                    if (dist <= enemy.AttackRange * 0.95f) // 0.95배로 약간 여유 (넉백 반영)
+                    if (dist <= enemy.AttackRange * 0.95f)
                     {
                         // ⭐ 엘리트 전용: 실제 공격 가능할 때만 Attack 전환 (빈 공격 방지)
                         if (enemy is BaseEnemy baseEnemyElite)
@@ -190,34 +162,20 @@ public class EnemyAttackState : IEnemyState
                             var eliteAttack = baseEnemyElite.GetComponent<EliteAttackBehaviour>();
                             if (eliteAttack != null && !eliteAttack.CanAttack())
                             {
-                                // 공격 불가 (쿨다운 중) → Chase로 전환
-                                Debug.Log($"[EnemyAttackState] {enemy.transform.name} (ELITE) - 공격 범위 내지만 공격 불가 (쿨다운 중), Chase 전환 (거리: {dist:F2})");
                                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                                 return;
                             }
                         }
-                        
-                        // 공격 가능 - 다시 Attack 상태로 전환
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 범위 내, 재공격 대기 (거리: {dist:F2}, 범위: {(enemy.AttackRange * 0.95f):F2})");
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                     }
-                    else if (dist < enemy.AttackRange * 2f) // 2배 이내면 추격
-                    {
-                        // 중간 거리 - 추적 계속
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 범위 밖, Chase 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
+                    else if (dist < enemy.AttackRange * 2f)
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
-                    }
                     else
-                    {
-                        // 너무 멀어짐 - Idle로
-                        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 플레이어 멀어짐, Idle 상태로 전환 (거리: {dist:F2})");
                         enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
-                    }
                 }
             }
             else
             {
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 플레이어 없음, Idle 상태로 전환");
                 enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
             }
         }
@@ -225,7 +183,6 @@ public class EnemyAttackState : IEnemyState
 
     public void Exit() 
     {
-        Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 공격 상태 종료");
         
         // ⭐⭐⭐ NavMeshAgent 재개 (Phase 3)
         if (enemy is BaseEnemy baseEnemyNav && baseEnemyNav.IsUsingNavMesh)
@@ -256,7 +213,6 @@ public class EnemyAttackState : IEnemyState
             if (!lastAttackHit)
             {
                 consecutiveMissCount++;
-                Debug.Log($"[EnemyAttackState] {enemy.transform.name} - 미스 감지! 연속 미스: {consecutiveMissCount}회");
             }
             else
             {

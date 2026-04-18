@@ -25,7 +25,7 @@ MonoBehaviour:
   equipmentPrefab: {fileID: 4551001115370886643, guid: b5338b20cfe041c4b9d7452896159b9f, type: 3}
   weaponType: 2
   weaponCooldown: 1.3
-  weaponRange: 13
+  weaponRange: 12
   armorType: 0
   accessoryType: 0
   equipmentSlot: 0

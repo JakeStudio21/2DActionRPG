@@ -548,6 +548,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
+  - tag: Fx_AOE_GroundCrack
+    prefab: {fileID: 7861703329210907134, guid: c28a316a4eab1714f92313cf7d10e0e1, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
   optionalPools:
   - tag: SimpleMobHit
     prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}
