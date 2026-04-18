@@ -16,21 +16,16 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
     /// </summary>
     protected override void OnExecuteSkill()
     {
-        Debug.Log($"🏹 [AssasinSkill1] {SkillName} 실행 시작");
-        Debug.Log($"   - SkillData 유효성: {IsSkillDataValid}");
-        Debug.Log($"   - AnimationController: {(animationController != null ? "✅ 존재" : "❌ 없음")}");
             
         // 애니메이션 트리거
         if (animationController != null)
         {
-            Debug.Log($"🎬 [AssasinSkill1] 애니메이션 트리거 호출");
             animationController.TriggerSkill1();
         }
         else
         {
             Debug.LogWarning("🟡 [AssasinSkill1] PlayerAnimationController가 없습니다!");
             // 애니메이션 없이 직접 실행
-            Debug.Log("�� [AssasinSkill1] 애니메이션 없이 직접 실행");
             OnAnimationEvent();
         }
     }
@@ -40,11 +35,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
     /// </summary>
     public override void OnAnimationEvent()
     {
-        Debug.Log($"🎯 [AssasinSkill1] Animation Event 호출됨!");
-        Debug.Log($"   - SkillData 유효성: {IsSkillDataValid}");
-        Debug.Log($"   - 현재 시간: {Time.time:F2}");
-        Debug.Log($"   - 마지막 스킬 시간: {lastSkillTime:F2}");
-        Debug.Log($"   - 쿨다운 남은 시간: {GetCooldownRemaining():F2}");
         
         if (!IsSkillDataValid)
         {
@@ -52,10 +42,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
             return;
         }
         
-        Debug.Log($"🎯 [AssasinSkill1] 화살 발사 시작 - {SkillData.projectileCount}개 화살");
-        Debug.Log($"   - ProjectilePrefab: {(SkillData.projectilePrefab != null ? "✅ 존재" : "❌ 없음")}");
-        Debug.Log($"   - ProjectileSpeed: {SkillData.projectileSpeed}");
-        Debug.Log($"   - ProjectilePoolName: {SkillData.projectilePoolName}");
         
         // ⭐ 1단계: Cast 이펙트 (시전 이펙트)
         EmitSkillCastCue();
@@ -91,16 +77,12 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         
         if (firePoint == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [AssasinSkill1] 발사 지점을 찾을 수 없습니다!");
             return false;
         }
         
         // GamePoolManager 확인
         if (GamePoolManager.Instance == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [AssasinSkill1] GamePoolManager가 없습니다!");
             return false;
         }
         
@@ -174,10 +156,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         // ⭐ Phase 3: AOE 생성 (부채꼴)
         SpawnSkillAOE(baseDirection);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🏹 [AssasinSkill1] 화살 발사 완료: {successCount}/{arrowCount}개 성공 - 기준각도: {baseAngle:F1}°");
-        }
     }
     
     /// <summary>
@@ -194,8 +172,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         // AOE 비주얼 생성
         SpawnSkillAOE(direction);
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [AssasinSkill1] AOE 딜레이 후 발동 ({delay}초)");
     }
     
     /// <summary>
@@ -219,8 +195,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
             this
         );
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill1] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
     }
     
     /// <summary>
@@ -255,16 +229,8 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         {
             projectile.UpdateMoveSpeed(speed);
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [AssasinSkill1] 화살 속도 설정: {speed}");
         }
         
-        // 데미지 설정 (DamageSource 컴포넌트가 있다면)
-        var damageSource = arrow.GetComponent<DamageSource>();
-        if (damageSource != null && showDebugLogs)
-        {
-            Debug.Log($"🎯 [AssasinSkill1] DamageSource 감지됨 - 자동 데미지 적용");
-        }
     }
     
     #endregion
@@ -278,7 +244,7 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         // 어쌔신 스킬 전용 초기화
         if (IsSkillDataValid && showDebugLogs)
         {
-            Debug.Log($"🏹 [AssasinSkill1] 초기화 완료 - " +
+            Dbg.Log($"🏹 [AssasinSkill1] 초기화 완료 - " +
                      $"화살 수: {SkillData.projectileCount}, " +
                      $"퍼짐각: {SkillData.spreadAngle}°, " +
                      $"속도: {SkillData.projectileSpeed}");
@@ -293,7 +259,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
     private Vector2 GetCurrentAttackDirection()
     {
         // 🔍 스킬 방향 감지 비교 로그
-        Debug.Log($"🏹 [AssasinSkill1] GetCurrentAttackDirection 호출됨 - 시간: {Time.time:F3}");
         
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
@@ -308,18 +273,13 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
                 if (isNorthSouth)
                 {
                     string directionName = joystickDir.y > 0 ? "NORTH" : "SOUTH";
-                    Debug.Log($"🧭 [AssasinSkill1] {directionName} 방향 스킬 사용! 실시간 조이스틱: {joystickDir}");
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎮 [AssasinSkill1] 조이스틱 방향 사용: {joystickDir} (실시간 감지)");
                 return joystickDir.normalized;
             }
         }
         
         // 백업: firePoint.right 사용 (조이스틱 입력이 없을 때)
-        if (showDebugLogs)
-            Debug.Log($"🎮 [AssasinSkill1] 백업 방향 사용: firePoint.right");
         return firePoint.right;
     }
     
@@ -350,8 +310,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.assasin.skill1.cast", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [AssasinSkill1] Cast Cue 발행 (시전 이펙트, 각도: {angle:F1}°) → {cueSuccess}");
     }
     
     /// <summary>
@@ -376,8 +334,6 @@ public class AssasinSkill1 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.assasin.skill1.aoe", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [AssasinSkill1] AOE Cue 발행 (부채꼴 범위, 각도: {angle:F1}°) → {cueSuccess}");
     }
     
     #endregion

@@ -58,12 +58,6 @@ public class ActiveWeapon : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔗 [ActiveWeapon] 시스템 연동 상태:");
-            Debug.Log($"   - PlayerEquipment: {(playerEquipment != null ? "연결됨" : "없음")}");
-            Debug.Log($"   - PlayerAnimationController: {(playerAnimationController != null ? "연결됨" : "없음")}");
-        }
     }
 
     private void Update() 
@@ -91,8 +85,6 @@ public class ActiveWeapon : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔧 [ActiveWeapon] 무기 교체 요청: {weaponData.equipmentName}");
         
         // 1. PlayerEquipment에게 물리적 장착 요청 (책임 위임)
         GameObject weaponPrefab = playerEquipment.EquipWeaponPrefab(weaponData);
@@ -136,8 +128,6 @@ public class ActiveWeapon : MonoBehaviour
         // ⭐ Phase 2: 무기 등급에 따른 콜라이더 크기 자동 조절
         UpdateWeaponColliderForEquipment(weaponComponent);
         
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [ActiveWeapon] 활성 무기 상태 업데이트: {weaponData.equipmentName}");
     }
     
     /// <summary>
@@ -153,8 +143,6 @@ public class ActiveWeapon : MonoBehaviour
         {
             playerAnimationController.UpdateWeaponCooldown(weaponData.WeaponCooldown);
             
-            if (showDebugLogs)
-                Debug.Log($"📢 [ActiveWeapon] PlayerAnimationController에 쿨다운 전달: {weaponData.WeaponCooldown}초");
         }
         else
         {
@@ -175,8 +163,7 @@ public class ActiveWeapon : MonoBehaviour
             playerEquipment.UnequipWeapon();
         }
         
-        if (showDebugLogs)
-            Debug.Log("🗑️ [ActiveWeapon] 무기 제거 및 런타임 상태 초기화 완료");
+        Dbg.Log("🗑️ [ActiveWeapon] 무기 제거 및 런타임 상태 초기화 완료");
     }
     
     #endregion
@@ -265,7 +252,6 @@ public class ActiveWeapon : MonoBehaviour
                 
                 if (showDebugLogs && Time.frameCount % 60 == 0) // 1초마다 로그
                 {
-                    Debug.Log($"🗡️ [ActiveWeapon] WeaponCollider 회전: {angle:F1}도 (방향: {dir})");
                 }
             }
             else if (showDebugLogs && Time.frameCount % 60 == 0)
@@ -334,15 +320,11 @@ public class ActiveWeapon : MonoBehaviour
             // Sword의 UpdateWeaponColliderSize() 메서드 호출
             sword.SendMessage("UpdateWeaponColliderSize", SendMessageOptions.DontRequireReceiver);
             
-            if (showDebugLogs)
-                Debug.Log($"⚔️ [ActiveWeapon] Sword 콜라이더 크기 자동 조절 요청");
             
             return;
         }
         
         // 원거리 무기(Bow, Staff)는 콜라이더 크기 조절 불필요
-        if (showDebugLogs)
-            Debug.Log($"🏹 [ActiveWeapon] 원거리 무기는 콜라이더 크기 조절 불필요");
     }
     
     #endregion

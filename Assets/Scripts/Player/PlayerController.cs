@@ -210,10 +210,6 @@ public class PlayerController : MonoBehaviour
                 yield break;
             }
 
-            Debug.Log($"🔍 [PlayerController] Rigidbody2D 상태:");
-            Debug.Log($"   - isKinematic: {rb.isKinematic}");
-            Debug.Log($"   - bodyType: {rb.bodyType}");
-            Debug.Log($"   - position: {rb.position}");
 
             // ⭐ 문제 해결: Kinematic이면 Dynamic으로 변경
             if (rb.isKinematic)
@@ -243,7 +239,6 @@ public class PlayerController : MonoBehaviour
             if (fixedJoystick != null)
             {
                 joystickFound = true;
-                Debug.Log("[PlayerController] 조이스틱을 찾았습니다!");
                 break;
             }
 
@@ -333,12 +328,10 @@ public class PlayerController : MonoBehaviour
 
                 // ⭐ 추가: 실제 씬에 조이스틱이 있는지 확인
                 var joystickInScene = FindObjectOfType<DynamicJoystick>();
-                Debug.Log($"[PlayerController] 씬에 조이스틱 존재 여부: {joystickInScene != null}");
 
                 // ⭐ 씬에 조이스틱이 있는데 연결 안된 경우 강제 재연결
                 if (joystickInScene != null && (!joystickFound || fixedJoystick == null))
                 {
-                    Debug.Log("[PlayerController] 조이스틱 발견! 강제 재연결 시도");
                     RefreshJoystickReference();
                 }
             }
@@ -355,9 +348,6 @@ public class PlayerController : MonoBehaviour
         // 🆕 이동 잠금 체크 (최우선 체크)
         if (isMovementLocked)
         {
-            if (showMovementDebug && Time.frameCount % 60 == 0)
-                Debug.Log("🔒 [MoveFast] 이동 잠금됨 - 완전 정지");
-            
             rb.velocity = Vector2.zero;
             rb.angularVelocity = 0f;
             return;
@@ -400,12 +390,6 @@ public class PlayerController : MonoBehaviour
         var effectiveMoveSpeed = moveSpeed * movementScale;
         var targetVelocity = inputDir * effectiveMoveSpeed;
         
-        // 🆕 이동 스케일 디버그
-        if (showMovementDebug && Time.frameCount % 30 == 0)
-        {
-            Debug.Log($"⚔️ [MoveFast] 이동 스케일 적용 - 기본속도: {moveSpeed:F1}, 스케일: {movementScale:F2}, 최종속도: {effectiveMoveSpeed:F1}");
-        }
-
         // ✅ 개선: 더 민감한 방향 전환 (액션 게임 스타일)
         float aggressiveSnapThreshold = snapTurnThreshold * 0.5f;
 
@@ -506,63 +490,38 @@ public class PlayerController : MonoBehaviour
         // 넉백 중이면 방향 파라미터(moveX/moveY/flipX/lastMoveDirection) 갱신 건너뜀
         if (knockback != null && knockback.GettingKnockedBack) return;
 
-        // ⭐ 항상 출력되는 기본 디버깅
-        if (Time.frameCount % 30 == 0) // 0.5초마다
-        {
-            Debug.Log($"🔍 [UpdateAnim] === 기본 정보 ===");
-            Debug.Log($"   velocity: ({velocity.x:F3}, {velocity.y:F3}) | speed: {speed:F3}");
-            Debug.Log($"   lastMoveDirection: ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
-            Debug.Log($"   isMoving: {speed > 0.01f} | 정지조건: {speed < 0.1f}");
-        }
-
         if (speed < 0.1f)
         {
             // ⭐ 정지 상태 상세 디버깅
-            Debug.Log($"🛑 [IDLE] === 정지 상태 진입 ===");
-            Debug.Log($"   speed: {speed:F3} < 0.1f (정지 조건 만족)");
-            Debug.Log($"   현재 lastMoveDirection: ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
             
             // 공격 방향 잠금 중: moveX/moveY/flipX 갱신 건너뜀
             if (_attackDirectionLocked) return;
             
             // ✅ 수정: 정지 시 마지막 방향 유지
             Vector2 idleDirection = lastMoveDirection.normalized;
-            Debug.Log($"   정규화된 idleDirection: ({idleDirection.x:F3}, {idleDirection.y:F3})");
             
             // ⬅️ 좌측 방향이면 flipX + 양수 변환
             if (idleDirection.x < -0.1f)
             {
-                Debug.Log($"   🔄 좌측 처리: x={idleDirection.x:F3} < -0.1");
                 mySpriteRender.flipX = true;
                 myAnimator.SetFloat("moveX", Mathf.Abs(idleDirection.x));
                 myAnimator.SetFloat("moveY", idleDirection.y);
-                Debug.Log($"   설정값: flipX=true, moveX={Mathf.Abs(idleDirection.x):F3}, moveY={idleDirection.y:F3}");
             }
             // ➡️ 우측 방향이면 그대로
             else if (idleDirection.x > 0.1f)
             {
-                Debug.Log($"   ➡️ 우측 처리: x={idleDirection.x:F3} > 0.1");
                 mySpriteRender.flipX = false;
                 myAnimator.SetFloat("moveX", idleDirection.x);
                 myAnimator.SetFloat("moveY", idleDirection.y);
-                Debug.Log($"   설정값: flipX=false, moveX={idleDirection.x:F3}, moveY={idleDirection.y:F3}");
             }
             // ⬆️⬇️ 수직 방향
             else
             {
-                Debug.Log($"   ⬆️⬇️ 수직 처리: x={idleDirection.x:F3} (-0.1~0.1 범위)");
                 myAnimator.SetFloat("moveX", 0f);
                 myAnimator.SetFloat("moveY", idleDirection.y);
-                Debug.Log($"   설정값: moveX=0.0, moveY={idleDirection.y:F3}, flipX 유지");
             }
             
             // ⭐ 설정 후 실제 Animator 값 확인
-            Debug.Log($"🎬 [IDLE] 실제 Animator 설정값:");
-            Debug.Log($"   moveX: {myAnimator.GetFloat("moveX"):F3}");
-            Debug.Log($"   moveY: {myAnimator.GetFloat("moveY"):F3}");
-            Debug.Log($"   speed: {myAnimator.GetFloat("speed"):F3}");
-            Debug.Log($"   isMoving: {myAnimator.GetBool("isMoving")}");
-            Debug.Log($"   flipX: {mySpriteRender.flipX}");
             
             return;
         }
@@ -575,14 +534,6 @@ public class PlayerController : MonoBehaviour
         // 공격 방향 잠금 중: moveX/moveY/flipX 갱신 건너뜀
         if (_attackDirectionLocked) return;
 
-        // ⭐ 이동 중 디버깅
-        if (Time.frameCount % 30 == 0) // 0.5초마다
-        {
-            Debug.Log($"🏃 [MOVING] === 이동 상태 ===");
-            Debug.Log($"   dir: ({dir.x:F3}, {dir.y:F3})");
-            Debug.Log($"   lastMoveDirection 업데이트: ({previousLastMove.x:F3}, {previousLastMove.y:F3}) → ({lastMoveDirection.x:F3}, {lastMoveDirection.y:F3})");
-        }
-
         // ⬅️ 좌측: flipX = true, moveX는 양수(Abs)로 (오른쪽 전용 5방향 블렌드 사용)
         if (dir.x < -0.1f)
         {
@@ -591,11 +542,6 @@ public class PlayerController : MonoBehaviour
 
             myAnimator.SetFloat("moveX", Mathf.Abs(dir.x)); // ★★ 핵심: 양수
             myAnimator.SetFloat("moveY", dir.y);            // Y는 그대로
-            
-            if (Time.frameCount % 30 == 0)
-            {
-                Debug.Log($"🏃 [MOVING] 좌측: moveX={Mathf.Abs(dir.x):F3}, moveY={dir.y:F3}, flipX=true");
-            }
         }
         // ➡️ 우측: flipX = false, 파라미터 그대로
         else if (dir.x > 0.1f)
@@ -605,22 +551,12 @@ public class PlayerController : MonoBehaviour
 
             myAnimator.SetFloat("moveX", dir.x);
             myAnimator.SetFloat("moveY", dir.y);
-            
-            if (Time.frameCount % 30 == 0)
-            {
-                Debug.Log($"🏃 [MOVING] 우측: moveX={dir.x:F3}, moveY={dir.y:F3}, flipX=false");
-            }
         }
         // ⬆️⬇️ 수직 이동: flipX 유지, X=0
         else
         {
             myAnimator.SetFloat("moveX", 0f);
             myAnimator.SetFloat("moveY", dir.y);
-            
-            if (Time.frameCount % 30 == 0)
-            {
-                Debug.Log($"🏃 [MOVING] 수직: moveX=0.0, moveY={dir.y:F3}, flipX 유지");
-            }
         }
     }
 
@@ -683,8 +619,6 @@ public class PlayerController : MonoBehaviour
             
             bool cueSuccess = CueEmitter.Emit("player.dash.start", "Player", context);
             
-            if (showDebugLogs)
-                Debug.Log($"🏃 [Dash] 이펙트 발행 → {cueSuccess}, 방향: {dashDirection}, 각도: {angle:F1}°");
             
             // ⭐ 튜토리얼용 대시 이벤트 발생
             OnDashPerformed?.Invoke();
@@ -698,7 +632,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void PerformDash()
     {
-        Debug.Log("[PlayerController] 대시 실행 요청");
         Dash();
     }
 
@@ -760,7 +693,6 @@ public class PlayerController : MonoBehaviour
         fixedJoystick = null;
         StartCoroutine(FindJoystickCoroutine());
 
-        Debug.Log("[PlayerController] 조이스틱 강제 재연결 시도 - joystickFound를 false로 초기화");
     }
 
     // 🔧 클래스별 능력치 적용용 공개 메서드 추가
@@ -768,13 +700,11 @@ public class PlayerController : MonoBehaviour
     {
         moveSpeed = newMoveSpeed;
         startingMoveSpeed = newMoveSpeed;
-        Debug.Log($"🔧 [PlayerController] moveSpeed 직접 설정: {newMoveSpeed}");
     }
 
     public void SetDashSpeed(float newDashSpeed)
     {
         dashspeed = newDashSpeed;
-        Debug.Log($"🔧 [PlayerController] dashSpeed 직접 설정: {newDashSpeed}");
     }
 
     /// <summary>
@@ -791,7 +721,6 @@ public class PlayerController : MonoBehaviour
             SetMoveSpeed(newMoveSpeed);
             SetDashSpeed(newDashSpeed);
 
-            Debug.Log($"🎯 [PlayerController] PlayerRuntimeStats와 동기화: 이동속도 {newMoveSpeed:F1}, 대시속도 {newDashSpeed:F1}");
         }
         else
         {
@@ -812,7 +741,6 @@ public class PlayerController : MonoBehaviour
             rb.interpolation = RigidbodyInterpolation2D.Interpolate; // 부드러운 움직임
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // 빠른 움직임에서 충돌 감지
             rb.freezeRotation = true;       // Z축 회전 고정
-            Debug.Log("🎮 [PlayerController] 액션 RPG 물리 설정 완료");
         }
     }
 
@@ -824,9 +752,6 @@ public class PlayerController : MonoBehaviour
     public void SetMovementScale(float scale)
     {
         targetMovementScale = Mathf.Clamp01(scale);
-        
-        if (showMovementDebug)
-            Debug.Log($"⚔️ [PlayerController] 이동 스케일 설정: {scale:F2} (현재: {movementScale:F2} → 목표: {targetMovementScale:F2})");
     }
 
     /// <summary>
@@ -835,9 +760,6 @@ public class PlayerController : MonoBehaviour
     public void SetMovementLocked(bool locked)
     {
         isMovementLocked = locked;
-        
-        if (showMovementDebug)
-            Debug.Log($"🔒 [PlayerController] 이동 잠금 {(locked ? "활성화" : "해제")}");
         
         // 잠금 해제 시 즉시 정지
         if (locked && rb != null)
@@ -870,9 +792,6 @@ public class PlayerController : MonoBehaviour
                 SetMovementScale(1.0f); // 정상 이동
                 break;
         }
-        
-        if (showMovementDebug)
-            Debug.Log($"⚔️ [PlayerController] {attackType} 공격 - 이동 제한 적용");
     }
 
     /// <summary>
@@ -882,9 +801,6 @@ public class PlayerController : MonoBehaviour
     {
         SetMovementLocked(false);
         SetMovementScale(1.0f);
-        
-        if (showMovementDebug)
-            Debug.Log("✅ [PlayerController] 정상 이동 복구");
     }
 
     /// <summary>

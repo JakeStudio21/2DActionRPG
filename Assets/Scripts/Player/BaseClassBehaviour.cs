@@ -56,8 +56,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         
         CueSystem.CueRegistry.Instance.RegisterProfile("Player", cueProfile);
         
-        if (showDebugLogs)
-            Debug.Log($"🎵 [BaseClass] {ClassName} CueProfile 등록 완료: {cueProfile.profileId}");
     }
     
     #endregion
@@ -169,8 +167,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         {
             allClasses.Add(this);
             
-            if (showDebugLogs)
-                Debug.Log($"🔍 [ClassSystem] {ClassName} 등록됨 (총 {allClasses.Count}개 클래스)");
         }
     }
     
@@ -184,8 +180,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         if (managerClass == this)
         {
             managerClass = allClasses.FirstOrDefault();
-            if (showDebugLogs && managerClass != null)
-                Debug.Log($"🔄 [ClassSystem] 매니저 변경: {managerClass.ClassName}");
         }
     }
     
@@ -196,8 +190,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     {
         if (isSystemInitialized) return;
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [ClassSystem] 시스템 초기화 시작 - 매니저: {ClassName}");
         
         // 모든 클래스 초기 비활성화
         foreach (var classComp in allClasses)
@@ -217,8 +209,7 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         
         isSystemInitialized = true;
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ClassSystem] 시스템 초기화 완료");
+        Dbg.Log($"✅ [ClassSystem] 시스템 초기화 완료");
     }
     
     /// <summary>
@@ -236,16 +227,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         highestPriorityClass.SetActive(true);
         highestPriorityClass.InitializeClass();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🎯 [ClassSystem] 단일 클래스 모드: {highestPriorityClass.ClassName} 활성화");
-            
-            // 비활성화된 클래스들 로그
-            for (int i = 1; i < sortedClasses.Count; i++)
-            {
-                Debug.Log($"   - {sortedClasses[i].ClassName}: 비활성화 (우선순위 낮음)");
-            }
-        }
     }
     
     /// <summary>
@@ -253,16 +234,13 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     /// </summary>
     private void ActivateAllClasses()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [ClassSystem] 다중 클래스 모드: 모든 클래스 활성화");
+        Dbg.Log("🔄 [ClassSystem] 다중 클래스 모드: 모든 클래스 활성화");
         
         foreach (var classComp in allClasses)
         {
             classComp.SetActive(true);
             classComp.InitializeClass();
             
-            if (showDebugLogs)
-                Debug.Log($"   - {classComp.ClassName}: 활성화");
         }
         
         // 다중 클래스 모드에서는 충돌 해결
@@ -274,8 +252,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     /// </summary>
     private void ResolveMultiClassConflicts()
     {
-        if (showDebugLogs)
-            Debug.Log("🔧 [ClassSystem] 다중 클래스 충돌 해결 중...");
         
         ResolveSkillSlotConflicts();
         ResolveStatConflicts();
@@ -296,8 +272,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             AssignClassSkillsToSlots(classComp, ref slotIndex);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"   - 스킬 슬롯 재배치 완료 (총 {slotIndex}개 슬롯 사용)");
     }
     
     /// <summary>
@@ -319,8 +293,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             // 하지만 ApplyClassStats는 건너뛰도록
         }
         
-        if (showDebugLogs)
-            Debug.Log($"   - 능력치 충돌 해결: {dominantClass.ClassName}의 능력치 적용");
     }
     
     /// <summary>
@@ -336,15 +308,11 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             if (skill1 != null && skillController != null)
             {
                 skillController.SkillSet.SetSkill(startSlot++, skill1);
-                if (showDebugLogs)
-                    Debug.Log($"     - WarriorSkill1 → 슬롯 {startSlot - 1}");
             }
             
             if (skill2 != null && skillController != null)
             {
                 skillController.SkillSet.SetSkill(startSlot++, skill2);
-                if (showDebugLogs)
-                    Debug.Log($"     - WarriorSkill2 → 슬롯 {startSlot - 1}");
             }
         }
         else if (classComp.PlayerType == PlayerType.Assasin)
@@ -355,15 +323,11 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             if (skill1 != null && skillController != null)
             {
                 skillController.SkillSet.SetSkill(startSlot++, skill1);
-                if (showDebugLogs)
-                    Debug.Log($"     - AssasinSkill1 → 슬롯 {startSlot - 1}");
             }
             
             if (skill2 != null && skillController != null)
             {
                 skillController.SkillSet.SetSkill(startSlot++, skill2);
-                if (showDebugLogs)
-                    Debug.Log($"     - AssasinSkill2 → 슬롯 {startSlot - 1}");
             }
         }
         // 향후 Wizard 등 추가
@@ -413,7 +377,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             if (managerClass.allowMultipleClasses)
                 managerClass.ResolveMultiClassConflicts();
                 
-            Debug.Log($"🔄 [ClassSystem] {playerType} 클래스 강제 활성화");
         }
     }
     
@@ -423,16 +386,11 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     [ContextMenu("Print Class System Status")]
     public void PrintClassSystemStatus()
     {
-        Debug.Log("📊 [ClassSystem] 통합 클래스 시스템 상태:");
-        Debug.Log($"   - 매니저 클래스: {(managerClass?.ClassName ?? "없음")}");
-        Debug.Log($"   - 다중 클래스 허용: {allowMultipleClasses}");
-        Debug.Log($"   - 총 클래스 수: {allClasses.Count}");
         
         foreach (var classComp in allClasses)
         {
             string status = classComp.IsActive() ? "🟢 활성" : "🔴 비활성";
             int priority = GetClassPriority(classComp);
-            Debug.Log($"   - {classComp.ClassName}: {status} (우선순위: {priority})");
         }
     }
     
@@ -444,13 +402,9 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     {
         if (isInitialized)
         {
-            if (showDebugLogs)
-                Debug.Log($"⏭️ [BaseClassBehaviour] {ClassName} 이미 초기화됨 - 건너뜀");
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🚀 [BaseClassBehaviour] {ClassName} 초기화 시작");
         
         // 컴포넌트 참조 재확인
         GetComponentReferences();
@@ -467,14 +421,11 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         // ⭐ 추가: 초기화 완료 알림
         NotifyClassInitializationComplete();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [BaseClassBehaviour] {ClassName} 초기화 완료");
+            Dbg.Log($"✅ [BaseClassBehaviour] {ClassName} 초기화 완료");
     }
     
     public virtual void ApplyClassStats()
     {
-        if (showDebugLogs)
-            Debug.Log($"🎯 [BaseClass] {ClassName} 클래스별 능력치 적용 중...");
         
         // ⭐ [Phase C] 다중 클래스 충돌 방지
         if (managerClass != null && managerClass.allowMultipleClasses)
@@ -484,8 +435,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             // 최고 우선순위 클래스가 아니면 능력치 적용 건너뜀
             if (activeClasses.Count > 1 && activeClasses[0] != this)
             {
-                if (showDebugLogs)
-                    Debug.Log($"🟡 [BaseClass] {ClassName} 다중 클래스 모드에서 능력치 적용 건너뜀 (우선순위 낮음)");
                 return;
             }
         }
@@ -518,8 +467,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         if (playerRuntimeStats != null)
         {
             playerRuntimeStats.RecalculateAllStats();
-            if (showDebugLogs)
-                Debug.Log($"🎯 [BaseClass] PlayerRuntimeStats 스탯 재계산 완료: {ClassName}");
         }
         else
         {
@@ -529,8 +476,7 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     
     public virtual void OnLevelUp(int newLevel)
     {
-        if (showDebugLogs)
-            Debug.Log($"🆙 [BaseClass] {ClassName} 레벨업! Lv.{newLevel}");
+            Dbg.Log($"🆙 [BaseClass] {ClassName} 레벨업! Lv.{newLevel}");
         
         // 자식 클래스에서 구체적인 레벨업 보너스 구현
         ApplyLevelUpBonus(newLevel);
@@ -544,9 +490,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     public virtual float GetModifiedCooldown(float baseCooldown)
     {
         float modifiedCooldown = baseCooldown * SkillCooldownMultiplier;
-        
-        if (showDebugLogs && Time.frameCount % 300 == 0) // 5초마다 로그
-            Debug.Log($"🕐 [BaseClass] {ClassName} 쿨다운 수정: {baseCooldown}초 → {modifiedCooldown}초");
         
         return modifiedCooldown;
     }
@@ -573,8 +516,7 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         if (active)
             InitializeCueProfile();
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [BaseClass] {ClassName} 클래스 활성화 상태: {(active ? "활성화" : "비활성화")}");
+            Dbg.Log($"🔄 [BaseClass] {ClassName} 클래스 활성화 상태: {(active ? "활성화" : "비활성화")}");
     }
     
     #endregion
@@ -592,8 +534,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
         activeWeapon = GetComponent<ActiveWeapon>();
         playerLevel = FindObjectOfType<PlayerLevel>();
         
-        if (showDebugLogs)
-            Debug.Log($"🔗 [BaseClass] {ClassName} 컴포넌트 참조 획득 완료");
     }
     
     /// <summary>
@@ -639,13 +579,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     /// </summary>
     public virtual void PrintStatus()
     {
-        Debug.Log($"🎯 [BaseClass] {ClassName} 상태 정보:");
-        Debug.Log($"   - 공격력 배율: {AttackPowerMultiplier}x");
-        Debug.Log($"   - 이동속도 배율: {MoveSpeedMultiplier}x");
-        Debug.Log($"   - 쿨다운 배율: {SkillCooldownMultiplier}x");
-        Debug.Log($"   - 체력 배율: {HealthMultiplier}x");
-        Debug.Log($"   - 활성화 상태: {(isActive ? "활성" : "비활성")}");
-        Debug.Log($"   - 초기화 상태: {(isInitialized ? "완료" : "미완료")}");
     }
     
     #endregion
@@ -662,8 +595,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             // 🔧 기존 개별 계산 대신 PlayerRuntimeStats 동기화로 변경
             playerController.SyncWithRuntimeStats();
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [BaseClass] {ClassName} PlayerController가 PlayerRuntimeStats와 동기화됨");
         }
         else
         {
@@ -681,8 +612,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             // 🔧 기존 Reflection 기반 개별 계산 대신 PlayerRuntimeStats 동기화로 변경
             playerHealth.SyncWithRuntimeStats();
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [BaseClass] {ClassName} PlayerHealth가 PlayerRuntimeStats와 동기화됨");
         }
         else
         {
@@ -705,13 +634,9 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             {
                 // BaseSkill<T>의 GetModifiedCooldown 메서드를 통해 배율 적용
                 // 각 스킬이 자체 SkillData에서 쿨다운을 관리하므로 직접 수정하지 않음
-                if (showDebugLogs)
-                    Debug.Log($"   - {skill.SkillName}: 쿨다운 배율 {SkillCooldownMultiplier}x 준비 완료");
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"   - 스킬 쿨다운 배율: {SkillCooldownMultiplier}x 적용 완료");
     }
     
     /// <summary>
@@ -728,8 +653,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             
             knockback.SetKnockbackSettings(baseThrust, baseTime);
             
-            if (showDebugLogs)
-                Debug.Log($"🔧 [BaseClass] {ClassName} Knockback 설정 적용: {baseThrust} thrust, {baseTime}초");
         }
         else
         {
@@ -750,8 +673,6 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             
             flash.SetFlashSettings(flashDuration);
             
-            if (showDebugLogs)
-                Debug.Log($"🔧 [BaseClass] {ClassName} Flash 설정 적용: {flashDuration}초");
         }
         else
         {
@@ -806,8 +727,7 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
             playerEquipment.OnClassInitializationComplete(this);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"📢 [BaseClassBehaviour] {ClassName} 초기화 완료 알림 전송");
+            Dbg.Log($"📢 [BaseClassBehaviour] {ClassName} 초기화 완료 알림 전송");
     }
     
     #region ⚙️ IPlayerClass 인터페이스 구현 (Phase 4: ConditionalModifier)

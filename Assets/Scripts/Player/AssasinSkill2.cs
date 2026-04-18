@@ -19,8 +19,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
     /// </summary>
     protected override void OnExecuteSkill()
     {
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] {SkillName} 실행 시작");
             
         // 애니메이션 트리거
         if (animationController != null)
@@ -46,8 +44,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] Power Arrow 발사 시작");
         
         // ⭐ 1단계: Cast 이펙트 (시전 이펙트)
         EmitSkillCastCue();
@@ -80,16 +76,12 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         
         if (firePoint == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [AssasinSkill2] 발사 지점을 찾을 수 없습니다!");
             return false;
         }
         
         // GamePoolManager 확인
         if (GamePoolManager.Instance == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [AssasinSkill2] GamePoolManager가 없습니다!");
             return false;
         }
         
@@ -133,8 +125,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             // ⭐ 화살 추적 → 착탄 시 AOE 폭발
             StartCoroutine(TrackPowerArrowAndExplode(powerArrow, shootDirection, firePoint.position));
             
-            if (showDebugLogs)
-                Debug.Log($"🏹 [AssasinSkill2] Power Arrow 발사 - 시작위치: {firePoint.position}, 각도: {shootAngle:F1}°, 방향: {shootDirection}");
         }
         else
         {
@@ -179,8 +169,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             this
         );
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] AOE 생성: {SkillData.aoeShape}, 크기: {SkillData.aoeSize}");
     }
     
     /// <summary>
@@ -200,20 +188,9 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         {
             projectile.UpdateMoveSpeed(speed);
             
-            if (showDebugLogs)
-                Debug.Log($"💥 [AssasinSkill2] Power Arrow 속도 설정: {speed}");
-        }
-        
-        // 강화된 데미지 설정
-        var damageSource = arrow.GetComponent<DamageSource>();
-        if (damageSource != null && showDebugLogs)
-        {
-            Debug.Log($"💥 [AssasinSkill2] Power Arrow 데미지 소스 감지됨");
         }
         
         // Power Arrow 특수 효과 (관통, 폭발 등)
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] Power Arrow '{arrow.name}' 특수 효과 적용 준비");
     }
     
     /// <summary>
@@ -225,8 +202,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         if (firePoint != null)
         {
             // 추가 이펙트는 나중에 VFX 시스템과 연동
-            if (showDebugLogs)
-                Debug.Log($"✨ [AssasinSkill2] Power Arrow 추가 이펙트 생성");
         }
     }
     
@@ -241,7 +216,7 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         // Power Arrow 스킬 전용 초기화
         if (IsSkillDataValid && showDebugLogs)
         {
-            Debug.Log($"💥 [AssasinSkill2] 초기화 완료 - " +
+            Dbg.Log($"💥 [AssasinSkill2] 초기화 완료 - " +
                      $"Power Arrow 속도: {SkillData.projectileSpeed * 1.5f}, " +
                      $"크기: {SkillData.projectileScale}, " +
                      $"쿨다운: {Cooldown}초");
@@ -256,7 +231,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
     private Vector2 GetCurrentAttackDirection()
     {
         // 🔍 스킬2 방향 감지 비교 로그
-        Debug.Log($"💥 [AssasinSkill2] GetCurrentAttackDirection 호출됨 - 시간: {Time.time:F3}");
         
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
@@ -271,18 +245,13 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
                 if (isNorthSouth)
                 {
                     string directionName = joystickDir.y > 0 ? "NORTH" : "SOUTH";
-                    Debug.Log($"🧭 [AssasinSkill2] {directionName} 방향 스킬2 사용! 실시간 조이스틱: {joystickDir}");
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎮 [AssasinSkill2] 조이스틱 방향 사용: {joystickDir} (실시간 감지)");
                 return joystickDir.normalized;
             }
         }
         
         // 백업: firePoint.right 사용 (조이스틱 입력이 없을 때)
-        if (showDebugLogs)
-            Debug.Log($"🎮 [AssasinSkill2] 백업 방향 사용: firePoint.right");
         return firePoint.right;
     }
     
@@ -319,8 +288,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             new Vector2(impactPosition.x, impactPosition.y)
         );
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [AssasinSkill2] Power Arrow 착탄! 발사: {startPosition} → 착탄: {impactPosition}, 비행거리: {travelDistance:F2}");
         
         // ⭐ 3단계: AOE Cue (원형 범위 이펙트)
         EmitSkillAOECue(impactPosition);
@@ -343,14 +310,11 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         float circleRadius = SkillData.aoeRadius;
         Vector2 rectSize = SkillData.aoeSize;
         
-        if (showDebugLogs)
-            Debug.Log($"🔍 [AssasinSkill2] AOE 크기 확인: aoeRadius={circleRadius}, aoeSize={rectSize}");
         
         // ⭐ Phase 3: Telegraph 선택적 생성 (프리팹이 있으면 사용)
         float telegraphDelay = 0f;
         
         // ⭐ 강제 로그: Telegraph 프리팹 상태 확인
-        Debug.Log($"🔍 [AssasinSkill2] Telegraph 체크: prefab={(SkillData.telegraphPrefab != null ? "있음" : "없음")}");
         
         if (SkillData.telegraphPrefab != null)
         {
@@ -358,10 +322,8 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
             
             // 1. Telegraph 생성
             GameObject telegraphObj = Instantiate(SkillData.telegraphPrefab, position, Quaternion.identity);
-            Debug.Log($"🔍 [AssasinSkill2] Telegraph GameObject 생성: {telegraphObj.name}");
             
             TelegraphIndicator telegraph = telegraphObj.GetComponent<TelegraphIndicator>();
-            Debug.Log($"🔍 [AssasinSkill2] TelegraphIndicator 컴포넌트: {(telegraph != null ? "있음" : "없음")}");
             
             if (telegraph != null)
             {
@@ -377,16 +339,11 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
                     forward: direction  // ⭐ 추가: Forward 방향 전달
                 );
                 
-                Debug.Log($"📍 [AssasinSkill2] Telegraph 생성 완료: {telegraphDelay}초 경고 (반경: {circleRadius}, 방향: {direction})");
             }
             else
             {
                 Debug.LogError($"❌ [AssasinSkill2] TelegraphIndicator 컴포넌트를 찾을 수 없음!");
             }
-        }
-        else
-        {
-            Debug.Log($"📍 [AssasinSkill2] Telegraph 프리팹 없음 - 즉시 DamageArea 실행");
         }
         
         // ⭐ 2. DamageArea 실행 (Telegraph 지연 후 또는 즉시)
@@ -464,8 +421,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.assasin.skill2.cast", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] Cast Cue 발행 (시전 이펙트, 각도: {angle:F1}°) → {cueSuccess}");
     }
     
     /// <summary>
@@ -506,8 +461,6 @@ public class AssasinSkill2 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.assasin.skill2.aoe", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [AssasinSkill2] AOE Cue 발행 (원형, 착탄지점: {impactPosition}) → {cueSuccess}");
     }
     
     #endregion

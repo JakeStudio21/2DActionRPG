@@ -34,8 +34,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
     /// </summary>
     protected override void OnExecuteSkill()
     {
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [WarriorSkill1] {SkillName} 실행 시작");
             
         // 돌진할 적 찾기
         FindNearestEnemy();
@@ -57,11 +55,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
     /// </summary>
     public override void OnAnimationEvent()
     {
-        Debug.Log($"⚔️ [WarriorSkill1] Animation Event 호출됨!");
-        Debug.Log($"   - SkillData 유효성: {IsSkillDataValid}");
-        Debug.Log($"   - 현재 시간: {Time.time:F2}");
-        Debug.Log($"   - 쿨다운 남은 시간: {GetCooldownRemaining():F2}");
-        Debug.Log($"   - isExecuting: {isExecuting}");
         
         if (!IsSkillDataValid)
         {
@@ -75,10 +68,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
             return;
         }
         
-        Debug.Log($"⚔️ [WarriorSkill1] 돌진 공격 시작");
-        Debug.Log($"   - 돌진 속도: {SkillData.dashSpeed}");
-        Debug.Log($"   - 돌진 범위: {SkillData.dashRange}");
-        Debug.Log($"   - 공격 횟수: {SkillData.attackCount}");
         
         // ⭐ 1단계: Cast 이펙트를 제일 먼저 발동 (애니메이션 시작과 동시)
         EmitSkillCastCue();
@@ -115,8 +104,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         // 이미 실행 중인지 확인 (가장 중요한 조건)
         if (isExecuting)
         {
-            if (showDebugLogs)
-                Debug.Log("🟡 [WarriorSkill1] 스킬 실행 중입니다!");
             return false;
         }
         
@@ -129,8 +116,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
             
             if (playerRigidbody == null)
             {
-                if (showDebugLogs)
-                    Debug.LogError("🔴 [WarriorSkill1] Rigidbody2D를 찾을 수 없습니다!");
                 return false;
             }
         }
@@ -143,11 +128,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
                 playerController = GetComponentInParent<PlayerController>();
         }
         
-        if (showDebugLogs)
-        {
-            float currentSpeed = playerRigidbody.velocity.magnitude;
-            Debug.Log($"🏃 [WarriorSkill1] 현재 이동 속도: {currentSpeed:F2} - 스킬 사용 허용!");
-        }
         
         return true; // 실행 중이 아니고 Rigidbody2D가 있으면 항상 허용
     }
@@ -181,13 +161,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
             }
         }
         
-        if (showDebugLogs)
-        {
-            if (nearestEnemy != null)
-                Debug.Log($"🎯 [WarriorSkill1] 타겟 발견: {nearestEnemy.name} (거리: {closestDistance:F1})");
-            else
-                Debug.Log($"🎯 [WarriorSkill1] 범위 내 적 없음 (탐지 범위: {detectionRange})");
-        }
     }
     
     /// <summary>
@@ -204,8 +177,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
             wasPlayerControllerEnabled = playerController.enabled;
             playerController.enabled = false; // 이동 입력 차단
             
-            if (showDebugLogs)
-                Debug.Log("🛑 [WarriorSkill1] PlayerController 일시 비활성화 - 돌진 중 이동 차단");
         }
         
         // 현재 속도 초기화 (이동 관성 제거)
@@ -213,8 +184,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         {
             playerRigidbody.velocity = Vector2.zero;
             
-            if (showDebugLogs)
-                Debug.Log("🔄 [WarriorSkill1] 플레이어 속도 초기화");
         }
         
         // ⭐ Cast 이펙트는 OnAnimationEvent()에서 이미 발동됨
@@ -236,14 +205,10 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         {
             playerController.enabled = wasPlayerControllerEnabled; // 원래 상태로 복원
             
-            if (showDebugLogs)
-                Debug.Log("✅ [WarriorSkill1] PlayerController 재활성화 - 정상 이동 복원");
         }
         
         isExecuting = false;
         
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [WarriorSkill1] 돌진 공격 시퀀스 완료!");
     }
     
     /// <summary>
@@ -259,23 +224,8 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         
         targetPosition = transform.position + direction * SkillData.dashRange;
         
-        if (showDebugLogs)
-        {
-            if (nearestEnemy != null)
-                Debug.Log($"⚔️ [WarriorSkill1] 조이스틱 방향으로 돌진: {direction} (적 무시)");
-            else
-                Debug.Log($"⚔️ [WarriorSkill1] 조이스틱 방향으로 돌진: {direction} (적 없음)");
-        }
         
         // ⭐ 추가 로깅: 돌진 정보 출력
-        if (showDebugLogs)
-        {
-            Debug.Log($"🏃 [WarriorSkill1] 돌진 시작:");
-            Debug.Log($"   - 시작 위치: {originalPosition}");
-            Debug.Log($"   - 목표 위치: {targetPosition}");
-            Debug.Log($"   - 이동 거리: {Vector3.Distance(originalPosition, targetPosition):F1}");
-            Debug.Log($"   - 돌진 시간: {SkillData.dashRange / SkillData.dashSpeed:F2}초");
-        }
         
         // 돌진 애니메이션
         float dashTime = SkillData.dashRange / SkillData.dashSpeed;
@@ -302,11 +252,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         // 최종 위치 보정
         playerRigidbody.MovePosition(targetPosition);
         
-        if (showDebugLogs)
-        {
-            float actualDistance = Vector3.Distance(originalPosition, transform.position);
-            Debug.Log($"🏃 [WarriorSkill1] 돌진 완료 - 실제 이동 거리: {actualDistance:F1}, 맞은 적: {hitEnemies.Count}명");
-        }
     }
     
     
@@ -324,7 +269,7 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         // 워리어 스킬 전용 초기화
         if (IsSkillDataValid && showDebugLogs)
         {
-            Debug.Log($"⚔️ [WarriorSkill1] 초기화 완료 - " +
+            Dbg.Log($"⚔️ [WarriorSkill1] 초기화 완료 - " +
                      $"돌진 속도: {SkillData.dashSpeed}, " +
                      $"돌진 거리: {SkillData.dashRange}, " +
                      $"연속 공격: {SkillData.attackCount}회");
@@ -363,16 +308,9 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
             {
                 lastAttackDirection = joystickDir.normalized;
                 
-                if (showDirectionDebug)
-                    Debug.Log($"🎮 [WarriorSkill1] 새로운 조이스틱 방향 저장: {lastAttackDirection}");
-                
                 return lastAttackDirection;
             }
         }
-        
-        // ⭐ 핵심: 조이스틱 입력이 없으면 마지막 방향 사용
-        if (showDirectionDebug)
-            Debug.Log($"🎮 [WarriorSkill1] 마지막 저장된 방향 사용: {lastAttackDirection}");
         
         return lastAttackDirection;
     }
@@ -456,8 +394,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
                     forward: direction  // ⭐ 추가: Forward 방향 전달
                 );
                 
-                if (showDebugLogs)
-                    Debug.Log($"📍 [WarriorSkill1] Telegraph 생성: {SkillData.telegraphDuration}초 경고 (방향: {direction})");
             }
             
             // Telegraph 표시 시간만큼 DamageArea 실행 지연
@@ -549,8 +485,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.warrior.skill1.cast", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [WarriorSkill1] Cast Cue 발행 (돌진 시작, 각도: {angle:F1}°) → {cueSuccess}");
     }
     
     /// <summary>
@@ -578,8 +512,6 @@ public class WarriorSkill1 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.warrior.skill1.aoe", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [WarriorSkill1] AOE Cue 발행 (돌진 경로, 각도: {angle:F1}°) → {cueSuccess}");
     }
     
     #endregion

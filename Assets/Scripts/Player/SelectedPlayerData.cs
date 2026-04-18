@@ -221,11 +221,9 @@ public class SelectedPlayerData : ScriptableObject
         }
         
         // ⭐ V2 시스템 우선 처리 (Phase 4.5)
-        Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 전 - equippedRecords: {(slotData.equippedRecords == null ? "null" : $"{slotData.equippedRecords.Count}개")}");
         
         if (slotData.equippedRecords != null && slotData.equippedRecords.Count > 0)
         {
-            Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 시작: {slotData.equippedRecords.Count}개 아이템");
             // ⭐ Phase B 수정: AccountData 의존성 제거, templateName 직접 사용
             foreach (var record in slotData.equippedRecords)
             {
@@ -240,7 +238,6 @@ public class SelectedPlayerData : ScriptableObject
                 }
 
                 string templateName = instanceData.templateName;
-                Debug.Log($"🔍 [SelectedPlayerData] V2 장비 로드 시도: templateName={templateName}, slot={record.slot}");
                 
                 var item = ItemTemplateResolver.Load(templateName);
                 if (item != null)
@@ -249,13 +246,6 @@ public class SelectedPlayerData : ScriptableObject
                     RuntimeEquippedInstanceIds[record.slot] = record.instanceId; // ⭐ V2: InstanceId 추적
                     
                     // ⚠️ 디버그: EquipmentData 상세 정보
-                    Debug.Log($"✅ [SelectedPlayerData] V2 장비 로드 성공:");
-                    Debug.Log($"   - equipmentName: {item.equipmentName}");
-                    Debug.Log($"   - name (asset): {item.name}");
-                    Debug.Log($"   - equipmentType: {item.equipmentType}");
-                    Debug.Log($"   - slot: {record.slot}");
-                    Debug.Log($"   - instanceId: {record.instanceId.Value.Substring(0, 8)}...");
-                    Debug.Log($"   - equipmentPrefab: {(item.equipmentPrefab != null ? item.equipmentPrefab.name : "null")}");
                 }
                 else
                 {
@@ -274,7 +264,6 @@ public class SelectedPlayerData : ScriptableObject
                     if (item != null) 
                     {
                         RuntimeEquippedItems[slot] = item;
-                        Debug.Log($"✅ [SelectedPlayerData] Legacy 장비 로드: {item.equipmentName} → {slot}");
                     }
                     else
                     {
@@ -302,13 +291,7 @@ public class SelectedPlayerData : ScriptableObject
             {
                 // 던전이 아닌 경우만 추가
                 if (!StageSystem.StageIdValidator.IsDungeon(progress.stageId))
-                {
                     stageProgresses.Add(progress);
-                }
-                else
-                {
-                    Debug.Log($"🏰 [SelectedPlayerData] 던전 ID({progress.stageId})를 stageProgresses에서 제외합니다.");
-                }
             }
         }
         else
@@ -386,7 +369,6 @@ public class SelectedPlayerData : ScriptableObject
         totalSP = slotData.totalSP;
         usedSP = slotData.usedSP;
         
-        Debug.Log($"📚 [SelectedPlayerData] 스킬 데이터 로드: {skills.Count}개, SP: {usedSP}/{totalSP}");
         
         // 🛡️ Phase 2: 상태이상 저항 시스템
         resistanceStats = slotData.resistanceStats != null 
@@ -397,13 +379,11 @@ public class SelectedPlayerData : ScriptableObject
             ? new List<string>(slotData.clearedBossIds) 
             : new List<string>();
         
-        Debug.Log($"🛡️ [SelectedPlayerData] 저항 데이터 로드: {resistanceStats.Count}개, 클리어 보스: {clearedBossIds.Count}개");
         
         // ⚡ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
         
         SyncDictionaries();
         
-        Debug.Log($"📥 [SelectedPlayerData] 슬롯 {slotData.slotIndex} 데이터 완전 로드 완료");
     }
     
     /// <summary>
@@ -540,13 +520,10 @@ public class SelectedPlayerData : ScriptableObject
         // 📌 V2 인벤토리 & 장비 (Phase 0-7) ⭐ 중요!
         // ========================================
         // ⭐ V2: RuntimeEquippedInstanceIds → equippedRecords 변환
-        Debug.Log($"🔍 [SelectedPlayerData] 저장 전 - RuntimeEquippedInstanceIds: {RuntimeEquippedInstanceIds.Count}개");
-        Debug.Log($"🔍 [SelectedPlayerData] 저장 전 - RuntimeEquippedItems: {RuntimeEquippedItems.Count}개");
         
         slotData.equippedRecords.Clear();
         foreach (var kvp in RuntimeEquippedInstanceIds)
         {
-            Debug.Log($"  📦 저장 대상: {kvp.Key} → {(!kvp.Value.IsEmpty ? kvp.Value.Value.Substring(0, 8) + "..." : "Invalid")}");
 
             if (!kvp.Value.IsEmpty)
             {
@@ -556,7 +533,6 @@ public class SelectedPlayerData : ScriptableObject
                     slot = kvp.Key,
                     instanceId = kvp.Value
                 });
-                Debug.Log($"💾 [SelectedPlayerData] V2 장비 저장: {kvp.Key} → ID:{kvp.Value.Value.Substring(0, 8)}...");
             }
         }
         
@@ -578,7 +554,6 @@ public class SelectedPlayerData : ScriptableObject
         slotData.totalSP = this.totalSP;
         slotData.usedSP = this.usedSP;
         
-        Debug.Log($"💾 [SelectedPlayerData] 스킬 데이터 저장: {slotData.skills.Count}개, SP: {slotData.usedSP}/{slotData.totalSP}");
         
         // ========================================
         // 📌 상태이상 저항 시스템 (Phase 2) - 안전한 저장
@@ -593,7 +568,6 @@ public class SelectedPlayerData : ScriptableObject
                 ? new List<string>(this.clearedBossIds)
                 : new List<string>();
             
-            Debug.Log($"🛡️ [SelectedPlayerData] 저항 데이터 저장: {slotData.resistanceStats.Count}개, 클리어 보스: {slotData.clearedBossIds.Count}개");
         }
         catch (System.Exception ex)
         {
@@ -604,8 +578,6 @@ public class SelectedPlayerData : ScriptableObject
         
         // ⚡ Phase D-Revision: 스태미나와 던전 입장 제한은 AccountData로 이동 (계정 공유)
         
-        Debug.Log($"💾 [SelectedPlayerData] PlayerSlotData 완전 복제 완료: Lv.{slotData.level}, Gold:{slotData.gold}, Chapters:{slotData.clearedChapters.Count}");
-        Debug.Log($"💾 [SelectedPlayerData] V2 장비 레코드: {slotData.equippedRecords.Count}개");
         return slotData;
     }
     
@@ -636,7 +608,6 @@ public class SelectedPlayerData : ScriptableObject
                     equippedIdSlotValues.Add(kvp.Value);
                 }
             }
-            Debug.Log($"🔄 [SyncDictionaries] V2 장비 ID 동기화: {equippedIdSlotKeys.Count}개");
         }
         
         // 특성 동기화

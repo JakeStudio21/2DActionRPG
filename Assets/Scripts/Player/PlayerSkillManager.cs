@@ -55,15 +55,8 @@ public class PlayerSkillManager : MonoBehaviour
         {
             playerStats = FindObjectOfType<PlayerRuntimeStats>();
             
-            if (playerStats != null)
-            {
-                if (showDebugLogs)
-                    Debug.Log($"✅ [PlayerSkillManager] PlayerRuntimeStats를 씬에서 발견: {playerStats.gameObject.name}");
-            }
-            else
-            {
+            if (playerStats == null)
                 Debug.LogError("❌ [PlayerSkillManager] PlayerRuntimeStats를 찾을 수 없습니다!");
-            }
         }
     }
     
@@ -100,8 +93,6 @@ public class PlayerSkillManager : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log("🔄 [PlayerSkillManager] PlayerDataManager에서 스킬 데이터 동기화 시작...");
         
         // 1. 보유 스킬 동기화
         unlockedActiveSkills = GetActiveSkillsFromSlotData(slotData);
@@ -132,16 +123,6 @@ public class PlayerSkillManager : MonoBehaviour
         // 4. 플레이어 레벨 동기화
         currentPlayerLevel = slotData.level;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [PlayerSkillManager] 동기화 완료!");
-            Debug.Log($"   - 액티브 스킬: {unlockedActiveSkills.Count}개");
-            Debug.Log($"   - 패시브 스킬: {unlockedPassiveSkills.Count}개");
-            Debug.Log($"   - 장착 액티브: {equippedActiveSkills.FindAll(s => s != null).Count}/2");
-            Debug.Log($"   - 장착 패시브: {equippedPassiveSkills.FindAll(s => s != null).Count}/3");
-            Debug.Log($"   - SP: {usedSP}/{totalSP}");
-            Debug.Log($"   - 레벨: {currentPlayerLevel}");
-        }
     }
     
     /// <summary>
@@ -168,12 +149,6 @@ public class PlayerSkillManager : MonoBehaviour
             }
         }
 
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [PlayerSkillManager] Tutorial 스킬 주입 완료:" +
-                      $" 슬롯0={skill1?.skillName ?? "없음"}," +
-                      $" 슬롯1={skill2?.skillName ?? "없음"}");
-        }
     }
 
     /// <summary>
@@ -305,8 +280,6 @@ public class PlayerSkillManager : MonoBehaviour
         equippedActiveSkills[slotIndex] = skill;
         skill.isEquipped = true;
         
-        if (showDebugLogs)
-            Debug.Log($"⚔️ [{skill.skillData.skillName}] 슬롯 {slotIndex}에 장착됨");
         return true;
     }
     
@@ -334,8 +307,6 @@ public class PlayerSkillManager : MonoBehaviour
         // 스탯 재계산
         ApplyAllPassiveStats();
         
-        if (showDebugLogs)
-            Debug.Log($"🛡️ [{skill.skillData.skillName}] 패시브 슬롯 {slotIndex}에 장착됨");
         return true;
     }
     
@@ -391,8 +362,6 @@ public class PlayerSkillManager : MonoBehaviour
 
         if (poolKeys.Count == 0)
         {
-            if (showDebugLogs)
-                Debug.Log("🔥 [PlayerSkillManager] Warm-up 대상 VFX 풀 없음 (castCueKey/aoeCueKey 미설정)");
             return;
         }
 
@@ -400,8 +369,6 @@ public class PlayerSkillManager : MonoBehaviour
         {
             // 이미 존재하는 풀을 3개 추가 확보 (ScenePoolConfig에 등록된 경우)
             GamePoolManager.Instance.ExpandPool(key, 3);
-            if (showDebugLogs)
-                Debug.Log($"🔥 [PlayerSkillManager] VFX 풀 Warm-up: {key}");
         }
     }
 
@@ -457,8 +424,6 @@ public class PlayerSkillManager : MonoBehaviour
             if (st1 != EStatType.None)
             {
                 playerStats.AddPassiveStatBonus(skillID, st1, levelInfo.value1, GetModifierType(st1));
-                if (showDebugLogs)
-                    Debug.Log($"📊 패시브 [{passive.skillData.skillName}] {st1} +{levelInfo.value1}");
             }
             
             // StatType2 적용 (이중 스탯 패시브)
@@ -466,8 +431,6 @@ public class PlayerSkillManager : MonoBehaviour
             if (st2 != EStatType.None)
             {
                 playerStats.AddPassiveStatBonus(skillID, st2, levelInfo.value2, GetModifierType(st2));
-                if (showDebugLogs)
-                    Debug.Log($"📊 패시브 [{passive.skillData.skillName}] {st2} +{levelInfo.value2}");
             }
         }
         
@@ -497,8 +460,6 @@ public class PlayerSkillManager : MonoBehaviour
     public void AddSP(int amount)
     {
         totalSP += amount;
-        if (showDebugLogs)
-            Debug.Log($"💎 SP +{amount} 획득! (사용가능: {AvailableSP}/{totalSP})");
     }
     
     /// <summary>
@@ -523,18 +484,12 @@ public class PlayerSkillManager : MonoBehaviour
         // ① 해금 조건: 플레이어 레벨 체크
         if (playerLevel < skill.skillData.unlockLevel)
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"🔒 [{skill.skillData.skillName}] 해금 레벨 부족!\n" +
-                               $"   요구 레벨: Lv.{skill.skillData.unlockLevel}\n" +
-                               $"   현재 레벨: Lv.{playerLevel}");
             return false;
         }
         
         // ② 만렙 조건: 최대 레벨 체크
         if (skill.IsMaxLevel)
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"⭐ [{skill.skillData.skillName}] 이미 최대 레벨입니다! (Lv.{skill.currentLevel}/{skill.skillData.maxLevel})");
             return false;
         }
         
@@ -542,10 +497,6 @@ public class PlayerSkillManager : MonoBehaviour
         int requiredSP = skill.GetRequiredSPForNextLevel();
         if (!CanAffordSP(requiredSP))
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"💎 [{skill.skillData.skillName}] SP 부족!\n" +
-                               $"   필요 SP: {requiredSP}\n" +
-                               $"   보유 SP: {AvailableSP}");
             return false;
         }
         
@@ -554,20 +505,12 @@ public class PlayerSkillManager : MonoBehaviour
         skill.currentLevel++;
         usedSP += requiredSP;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [{skill.skillData.skillName}] 레벨업 성공!");
-            Debug.Log($"   Lv.{prevLevel} → Lv.{skill.currentLevel}");
-            Debug.Log($"   소모 SP: {requiredSP}");
-            Debug.Log($"   SP 현황: {AvailableSP}/{totalSP} (사용: {usedSP})");
-        }
+            Dbg.Log($"✅ [{skill.skillData.skillName}] 레벨업 성공!");
         
         // 🔄 패시브 스킬이 장착 중이면 스탯 즉시 재계산
         if (skill.IsPassiveSkill && skill.isEquipped)
         {
             ApplyAllPassiveStats();
-            if (showDebugLogs)
-                Debug.Log($"🔄 [{skill.skillData.skillName}] 패시브 스탯 재적용 완료!");
         }
         
         return true;
@@ -582,8 +525,6 @@ public class PlayerSkillManager : MonoBehaviour
     {
         // Phase 1: 기본 구조만 구현
         // Phase 2에서 실제 스킬 데이터 할당 예정
-        if (showDebugLogs)
-            Debug.Log($"🎯 [{playerType}] 기본 스킬 초기화 예정 (Phase 2)");
     }
     
     #region 🧪 테스트 메서드 (Play 모드 Context Menu)
@@ -610,22 +551,10 @@ public class PlayerSkillManager : MonoBehaviour
         
         // 추가
         if (!unlockedPassiveSkills.Exists(s => s.skillData.skillID == passiveData.skillID))
-        {
             unlockedPassiveSkills.Add(skillInstance);
-            Debug.Log($"✅ '{passiveData.skillName}' 패시브 추가됨 (Lv.1)");
-        }
-        else
-        {
-            Debug.Log($"⚠️ '{passiveData.skillName}' 패시브 이미 보유 중");
-        }
         
         // 슬롯 0에 장착
-        bool equipped = EquipPassiveSkill(skillInstance, 0);
-        if (equipped)
-        {
-            Debug.Log($"✅ '{passiveData.skillName}' 패시브 슬롯 0에 장착됨");
-            Debug.Log($"📊 기대 효과: 공격력 +5% (ATK_PERCENT)");
-        }
+        EquipPassiveSkill(skillInstance, 0);
     }
     
     /// <summary>
@@ -635,7 +564,6 @@ public class PlayerSkillManager : MonoBehaviour
     public void TestAdd10SP()
     {
         AddSP(10);
-        Debug.Log($"💎 SP +10 지급 완료! (사용가능: {AvailableSP}/{totalSP})");
     }
     
     /// <summary>
@@ -644,54 +572,42 @@ public class PlayerSkillManager : MonoBehaviour
     [ContextMenu("Test: Full Phase 2 Test")]
     public void TestFullPhase2()
     {
-        Debug.Log("🧪 ========== Phase 2 통합 테스트 시작 ==========");
         
         // 초기화
         TestResetAllData();
         
         // 1. SP 지급
-        Debug.Log("\n1️⃣ SP 지급 테스트");
         AddSP(10);
         
         // 2. 정령의 공명 추가 (Lv.0 → Lv.1)
-        Debug.Log("\n2️⃣ 정령의 공명 추가 및 장착");
         TestAddSpiritResonance();
         
         // 공격력 확인 (Lv.1 = +5%)
-        Debug.Log("\n📊 Lv.1 스탯 확인:");
         TestPrintStats();
         
         // 3. Lv.1 → Lv.2 업그레이드
-        Debug.Log("\n3️⃣ Lv.1 → Lv.2 레벨업");
+        Dbg.Log("\n3️⃣ Lv.1 → Lv.2 레벨업");
         currentPlayerLevel = 10; // 레벨 충분하게
         var skill = unlockedPassiveSkills.Find(s => s.skillData.skillID == "passive_spirit_resonance");
         bool success = TryUpgradeSkill(skill, currentPlayerLevel);
         
         if (success)
         {
-            Debug.Log("\n📊 Lv.2 스탯 확인:");
             TestPrintStats();
             
             // CSV 데이터 확인
             var levelInfo = SkillLevelDataLoader.Instance.GetSkillLevelInfo("passive_spirit_resonance", 2);
-            Debug.Log($"📋 CSV 데이터: Lv.2 = {levelInfo.value1}% (기대: 6%)");
         }
         
         // 4. 레벨 부족 시나리오
-        Debug.Log("\n4️⃣ 레벨 부족 방어 테스트");
         currentPlayerLevel = 3; // 레벨 낮춤
         bool failResult = TryUpgradeSkill(skill, currentPlayerLevel);
-        Debug.Log($"   결과: {(failResult ? "실패 (버그!)" : "성공 (방어됨)")}");
         
         // 5. SP 부족 시나리오
-        Debug.Log("\n5️⃣ SP 부족 방어 테스트");
         currentPlayerLevel = 10;
         usedSP = totalSP - 1; // SP를 1만 남김
-        Debug.Log($"   현재 SP: {AvailableSP}/{totalSP}");
         bool spFailResult = TryUpgradeSkill(skill, currentPlayerLevel);
-        Debug.Log($"   결과: {(spFailResult ? "실패 (버그!)" : "성공 (방어됨)")}");
         
-        Debug.Log("\n🎉 ========== Phase 2 통합 테스트 완료 ==========");
     }
     
     /// <summary>
@@ -710,9 +626,7 @@ public class PlayerSkillManager : MonoBehaviour
         }
         
         // unlockLevel = 5, 현재 playerLevel = 3 → 실패
-        Debug.Log($"🧪 테스트: 플레이어 Lv.{currentPlayerLevel}일 때 unlockLevel {skill.skillData.unlockLevel} 스킬 업그레이드 시도...");
         bool result = TryUpgradeSkill(skill, currentPlayerLevel);
-        Debug.Log($"결과: {(result ? "성공" : "실패 (예상된 결과)")}");
     }
     
     /// <summary>
@@ -731,19 +645,8 @@ public class PlayerSkillManager : MonoBehaviour
         }
         
         // SP 확인
-        Debug.Log($"🧪 테스트: 정령의 공명 Lv.{skill.currentLevel} → Lv.{skill.currentLevel + 1} 업그레이드 시도...");
-        Debug.Log($"   플레이어 레벨: {currentPlayerLevel}");
-        Debug.Log($"   필요 SP: {skill.GetRequiredSPForNextLevel()}");
-        Debug.Log($"   보유 SP: {AvailableSP}");
         
-        bool result = TryUpgradeSkill(skill, currentPlayerLevel);
-        
-        if (result)
-        {
-            Debug.Log($"✅ 업그레이드 성공!");
-            Debug.Log($"   현재 레벨: Lv.{skill.currentLevel}");
-            Debug.Log($"   사용 SP: {usedSP}/{totalSP}");
-        }
+        TryUpgradeSkill(skill, currentPlayerLevel);
     }
     
     /// <summary>
@@ -758,14 +661,6 @@ public class PlayerSkillManager : MonoBehaviour
             return;
         }
         
-        Debug.Log("📊 ========== 현재 스탯 ==========");
-        Debug.Log($"⚔️ 공격력: {playerStats.FinalAttackDamage:F2}");
-        Debug.Log($"🛡️ 방어력: {playerStats.FinalDefense:F2}");
-        Debug.Log($"❤️ 최대 체력: {playerStats.FinalMaxHealth:F0}");
-        Debug.Log($"🏃 이동속도: {playerStats.FinalMoveSpeed:F2}");
-        Debug.Log($"🎯 크리티컬: {playerStats.FinalCriticalChance:P1} (x{playerStats.FinalCriticalDamage:F1})");
-        Debug.Log($"⚡ 공격속도: {playerStats.FinalAttackSpeed:F2}");
-        Debug.Log("================================");
     }
     
     /// <summary>
@@ -774,26 +669,6 @@ public class PlayerSkillManager : MonoBehaviour
     [ContextMenu("Test: List All Skills")]
     public void TestListAllSkills()
     {
-        Debug.Log($"📋 ========== 보유 스킬 ==========");
-        Debug.Log($"액티브 스킬: {unlockedActiveSkills.Count}개");
-        foreach (var skill in unlockedActiveSkills)
-        {
-            if (skill?.skillData != null)
-            {
-                Debug.Log($"  ⚔️ {skill.skillData.skillName} (Lv.{skill.currentLevel}, 장착: {skill.isEquipped})");
-            }
-        }
-        
-        Debug.Log($"패시브 스킬: {unlockedPassiveSkills.Count}개");
-        foreach (var skill in unlockedPassiveSkills)
-        {
-            if (skill?.skillData != null)
-            {
-                Debug.Log($"  🛡️ {skill.skillData.skillName} (Lv.{skill.currentLevel}, 장착: {skill.isEquipped})");
-            }
-        }
-        Debug.Log($"SP 현황: {AvailableSP}/{totalSP} (사용: {usedSP})");
-        Debug.Log("================================");
     }
     
     /// <summary>
@@ -808,9 +683,7 @@ public class PlayerSkillManager : MonoBehaviour
             return;
         }
         
-        Debug.Log("🔄 패시브 스탯 강제 재적용 시작...");
         ApplyAllPassiveStats();
-        Debug.Log("✅ 재적용 완료!");
     }
     
     /// <summary>
@@ -834,7 +707,7 @@ public class PlayerSkillManager : MonoBehaviour
             playerStats.RecalculateAllStats();
         }
         
-        Debug.Log("🗑️ 테스트 데이터 초기화 완료");
+        Dbg.Log("🗑️ 테스트 데이터 초기화 완료");
     }
     
     #endregion

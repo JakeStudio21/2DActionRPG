@@ -32,7 +32,6 @@ public static class SkillAOESpawner
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             aoe.transform.rotation = Quaternion.Euler(0, 0, angle);
             
-            Debug.Log($"🔄 [SkillAOESpawner] AOE 방향 설정: {shape}, 각도: {angle:F1}°");
         }
         
         // 3. 콜라이더 설정
@@ -54,7 +53,6 @@ public static class SkillAOESpawner
             Object.Destroy(aoe, duration);
         }
         
-        Debug.Log($"💥 [SkillAOESpawner] AOE 생성: {shape}, 크기: {size}, 데미지: {damage:F0}, Hit Cue: {hitCueEventKey}");
         
         return aoe;
     }
@@ -73,7 +71,6 @@ public static class SkillAOESpawner
                 circleCollider.radius = 0.5f; // ⭐ 기본 크기: 반지름 0.5 (지름 1)
                 circleCollider.isTrigger = true;
                 collider = circleCollider;
-                Debug.Log($"🔵 [SkillAOESpawner] CircleCollider 생성: radius=0.5 (Scale로 조절: {size.x})");
                 break;
                 
             case SkillAOEShape.Rectangle:
@@ -85,7 +82,6 @@ public static class SkillAOESpawner
                 // 직사각형은 앞쪽으로 오프셋 (플레이어 중심이 아닌 전방)
                 boxCollider.offset = new Vector2(0.5f, 0); // ⭐ 기본 오프셋 (0.5 = 1×1 박스의 절반)
                 collider = boxCollider;
-                Debug.Log($"🔲 [SkillAOESpawner] BoxCollider 생성: size=1×1 (Scale로 조절: {size})");
                 break;
                 
             case SkillAOEShape.Fan:
@@ -94,7 +90,6 @@ public static class SkillAOESpawner
                 SetupFanCollider(polygonCollider, 1f, fanAngle, direction); // ⭐ 기본 반지름: 1
                 polygonCollider.isTrigger = true;
                 collider = polygonCollider;
-                Debug.Log($"🌀 [SkillAOESpawner] PolygonCollider 생성: radius=1 (Scale로 조절: {size.x}), angle={fanAngle}");
                 break;
         }
     }
@@ -138,7 +133,6 @@ public static class SkillAOESpawner
         skillAOE.SetDamage((int)damage);
         skillAOE.SetEnemyLayerMask(targetLayer);
         
-        Debug.Log($"💥 [SkillAOESpawner] PlayerSkillAOEDamage 설정: 데미지={damage}");
     }
     
     /// <summary>
@@ -170,7 +164,6 @@ public static class SkillAOESpawner
                 // CircleCollider: radius=0.5 (지름 1) → size.x로 스케일
                 // Y를 IsometricYRatio로 눌러 Telegraph 아이소메트릭 타원과 일치
                 aoe.transform.localScale = new Vector3(size.x * 2f, size.x * 2f * IsometricYRatio, 1f);
-                Debug.Log($"🔵 [SkillAOESpawner] Circle Scale 설정: X={size.x * 2f}, Y={size.x * 2f * IsometricYRatio:F3} (아이소메트릭 비율 {IsometricYRatio})");
                 break;
                 
             case SkillAOEShape.Rectangle:
@@ -178,14 +171,12 @@ public static class SkillAOESpawner
                 // BoxCollider: size=1×1 → size.x, size.y로 스케일
                 // Y를 IsometricYRatio로 눌러 Telegraph 아이소메트릭 직사각형과 일치
                 aoe.transform.localScale = new Vector3(size.x, size.y * IsometricYRatio, 1f);
-                Debug.Log($"🔲 [SkillAOESpawner] Rectangle Scale 설정: X={size.x}, Y={size.y * IsometricYRatio:F3} (아이소메트릭 비율 {IsometricYRatio})");
                 break;
                 
             case SkillAOEShape.Fan:
                 // PolygonCollider: radius=1 → size.x로 스케일
                 // Y를 IsometricYRatio로 눌러 Telegraph 아이소메트릭 부채꼴과 일치
                 aoe.transform.localScale = new Vector3(size.x, size.x * IsometricYRatio, 1f);
-                Debug.Log($"🌀 [SkillAOESpawner] Fan Scale 설정: X={size.x}, Y={size.x * IsometricYRatio:F3} (아이소메트릭 비율 {IsometricYRatio})");
                 break;
         }
         
@@ -204,7 +195,6 @@ public static class SkillAOESpawner
         if (aoe != null)
         {
             Object.Destroy(aoe);
-            Debug.Log($"🗑️ [SkillAOESpawner] AOE 자동 제거");
         }
     }
 }

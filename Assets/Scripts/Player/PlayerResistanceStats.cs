@@ -98,7 +98,7 @@ public class PlayerResistanceStats : MonoBehaviour
         SyncInspectorToDictionary();
         
         if (enableDebugLogs)
-            Debug.Log($"🛡️ [PlayerResistanceStats] 저항 시스템 초기화 완료");
+            Dbg.Log($"🛡️ [PlayerResistanceStats] 저항 시스템 초기화 완료");
     }
     
     /// <summary>
@@ -162,9 +162,6 @@ public class PlayerResistanceStats : MonoBehaviour
         
         // Inspector 역동기화
         SyncDictionaryToInspector();
-        
-        if (enableDebugLogs)
-            Debug.Log($"🛡️ [PlayerResistanceStats] {type} 저항 설정: {value * 100:F0}%");
     }
     
     /// <summary>
@@ -178,9 +175,6 @@ public class PlayerResistanceStats : MonoBehaviour
         float newValue = Mathf.Clamp01(currentValue + delta);
         
         SetResistance(type, newValue);
-        
-        if (enableDebugLogs)
-            Debug.Log($"🛡️ [PlayerResistanceStats] {type} 저항 추가: {currentValue * 100:F0}% → {newValue * 100:F0}% ({delta * 100:+F0;-F0}%)");
     }
     
     /// <summary>
@@ -221,7 +215,6 @@ public class PlayerResistanceStats : MonoBehaviour
         float value = Mathf.Clamp01(percent / 100f);
         SetResistance(type, value);
         
-        Debug.Log($"🔧 [DEBUG] {type} 저항 설정: {percent}%");
     }
     
     /// <summary>
@@ -232,7 +225,6 @@ public class PlayerResistanceStats : MonoBehaviour
     {
         if (resistances == null)
         {
-            Debug.Log("[PlayerResistanceStats] 저항 데이터가 초기화되지 않았습니다.");
             return;
         }
         
@@ -251,7 +243,6 @@ public class PlayerResistanceStats : MonoBehaviour
             info += "  (저항 없음)\n";
         }
         
-        Debug.Log(info);
     }
     
     /// <summary>
@@ -267,7 +258,7 @@ public class PlayerResistanceStats : MonoBehaviour
         
         SyncDictionaryToInspector();
         
-        Debug.Log("🔧 [DEBUG] 모든 저항 초기화 완료");
+        Dbg.Log("🔧 [DEBUG] 모든 저항 초기화 완료");
     }
     
     #endregion
@@ -303,9 +294,6 @@ public class PlayerResistanceStats : MonoBehaviour
                 SetResistance(type, kvp.Value);
             }
         }
-        
-        if (enableDebugLogs)
-            Debug.Log($"🛡️ [PlayerResistanceStats] 저항 데이터 로드 완료 ({data.Count}개)");
     }
     
     #endregion
@@ -327,7 +315,6 @@ public class PlayerResistanceStats : MonoBehaviour
         if (playerData.resistanceStats == null || playerData.resistanceStats.Count == 0)
         {
             if (enableDebugLogs)
-                Debug.Log("🛡️ [PlayerResistanceStats] 저장된 저항 데이터 없음 (신규 캐릭터)");
             return;
         }
         
@@ -339,9 +326,6 @@ public class PlayerResistanceStats : MonoBehaviour
         
         // Inspector에도 반영
         SyncDictionaryToInspector();
-        
-        if (enableDebugLogs)
-            Debug.Log($"🛡️ [PlayerResistanceStats] 저항 데이터 로드 완료: {playerData.resistanceStats.Count}개");
     }
     
     /// <summary>
@@ -365,9 +349,6 @@ public class PlayerResistanceStats : MonoBehaviour
                 playerData.resistanceStats.Add(new ResistanceSaveData(kvp.Key, kvp.Value));
             }
         }
-        
-        if (enableDebugLogs)
-            Debug.Log($"🛡️ [PlayerResistanceStats] 저항 데이터 저장 완료: {playerData.resistanceStats.Count}개");
         
         // 디스크 저장
         PlayerDataManager.Instance.SaveOnMeaningfulEvent("ResistanceStatsUpdated");

@@ -28,8 +28,6 @@ public class PlayerEquipment : MonoBehaviour
         if (weaponSlot == null)
         {
             weaponSlot = transform;
-            if (showDebugLogs)
-                Debug.Log("🔧 [PlayerEquipment] weaponSlot을 자동으로 설정: " + transform.name);
         }
     }
     
@@ -58,13 +56,10 @@ public class PlayerEquipment : MonoBehaviour
             // ⭐ 추가: 클래스 None인 경우 대기 상태로 설정
             if (GetPlayerClass() == PlayerClass.None)
             {
-                Debug.Log($"🕐 [PlayerEquipment] 클래스 초기화 대기 중 - 무기 장착 보류: {weaponData.equipmentName}");
                 pendingWeaponEquip = weaponData;
                 return null; // 현재는 실패하지만 나중에 재시도됨
             }
             
-            if (showDebugLogs)
-                Debug.LogWarning($"🚫 [PlayerEquipment] {weaponData.equipmentName} 장착 불가!");
             return null;
         }
         
@@ -90,8 +85,6 @@ public class PlayerEquipment : MonoBehaviour
         // 5. 생성된 무기에 EquipmentData 동적 할당
         SetWeaponData(currentWeaponPrefab, weaponData);
         
-        if (showDebugLogs)
-            Debug.Log($"🔧 [PlayerEquipment] 무기 프리팹 장착 완료: {weaponData.equipmentName}");
         
         return currentWeaponPrefab;
     }
@@ -103,8 +96,6 @@ public class PlayerEquipment : MonoBehaviour
     {
         if (currentWeaponPrefab != null)
         {
-            if (showDebugLogs)
-                Debug.Log($"🗑️ [PlayerEquipment] 기존 무기 제거: {currentWeaponPrefab.name}");
                 
             Destroy(currentWeaponPrefab);
             currentWeaponPrefab = null;
@@ -146,14 +137,10 @@ public class PlayerEquipment : MonoBehaviour
             return false;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🛡️ [PlayerEquipment] 방어구 장착: {armorData.equipmentName} (타입: {armorData.ArmorType})");
         
         // 갑옷/신발은 현재 시각적 표현 없음 (조건 5)
         // 향후 외형 변경 기능 추가 시 여기서 처리
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [PlayerEquipment] 방어구 장착 완료: {armorData.equipmentName}");
         
         return true;
     }
@@ -163,8 +150,6 @@ public class PlayerEquipment : MonoBehaviour
     /// </summary>
     public bool UnequipArmorPrefab(EquipmentSlot slot)
     {
-        if (showDebugLogs)
-            Debug.Log($"🛡️ [PlayerEquipment] 방어구 해제: {slot}");
         
         // 갑옷/신발은 현재 시각적 표현 없음
         // 향후 외형 변경 기능 추가 시 여기서 해제 처리
@@ -201,8 +186,6 @@ public class PlayerEquipment : MonoBehaviour
         if (equipmentDataField != null)
         {
             equipmentDataField.SetValue(weaponComponent, equipmentData);
-            if (showDebugLogs)
-                Debug.Log($"✅ [PlayerEquipment] {weaponComponent.GetType().Name}에 EquipmentData 할당: {equipmentData.equipmentName}");
         }
         else
         {
@@ -218,13 +201,6 @@ public class PlayerEquipment : MonoBehaviour
         // 현재 플레이어 클래스 확인
         PlayerClass currentClass = GetPlayerClass();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔍 [PlayerEquipment] 호환성 검사:");
-            Debug.Log($"   - 현재 클래스: {currentClass}");
-            Debug.Log($"   - 무기 요구 클래스: {weaponData.usableClass}");
-            Debug.Log($"   - 무기 타입: {weaponData.WeaponType}");
-        }
         
         // ⭐ 간단한 해결: 클래스가 None인 경우 임시 허용
         if (currentClass == PlayerClass.None)
@@ -236,10 +212,6 @@ public class PlayerEquipment : MonoBehaviour
         // 호환성 검사
         bool isCompatible = weaponData.IsCompatibleWith(currentClass);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔍 [PlayerEquipment] IsCompatibleWith() 결과: {isCompatible}");
-        }
         
         if (!isCompatible && showDebugLogs)
         {
@@ -254,38 +226,21 @@ public class PlayerEquipment : MonoBehaviour
     /// </summary>
     private PlayerClass GetPlayerClass()
     {
-        if (showDebugLogs)
-            Debug.Log("🎯 [PlayerEquipment] GetPlayerClass() 호출됨");
         
         // 같은 GameObject에서 클래스 컴포넌트 찾기
         var assasin = GetComponent<Assasin>();
         var warrior = GetComponent<Warrior>();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔍 [PlayerEquipment] 컴포넌트 검색 결과:");
-            Debug.Log($"   - Assasin 컴포넌트: {(assasin != null ? "발견됨" : "없음")}");
-            Debug.Log($"   - Warrior 컴포넌트: {(warrior != null ? "발견됨" : "없음")}");
-            
-            if (assasin != null)
-                Debug.Log($"   - Assasin.IsActiveClass: {assasin.IsActiveClass}");
-            if (warrior != null)
-                Debug.Log($"   - Warrior.IsActiveClass: {warrior.IsActiveClass}");
-        }
         
         // Assasin 확인
         if (assasin != null && assasin.IsActiveClass)
         {
-            if (showDebugLogs)
-                Debug.Log("✅ [PlayerEquipment] 현재 클래스: Assasin");
             return PlayerClass.Assasin;
         }
         
         // Warrior 확인
         if (warrior != null && warrior.IsActiveClass)
         {
-            if (showDebugLogs)
-                Debug.Log("✅ [PlayerEquipment] 현재 클래스: Warrior");
             return PlayerClass.Warrior;
         }
         
@@ -303,8 +258,6 @@ public class PlayerEquipment : MonoBehaviour
             
             if (tutorialPlayerClass != PlayerClass.None)
             {
-                if (showDebugLogs)
-                    Debug.Log($"🎓 [PlayerEquipment] Tutorial 모드 - 클래스: {tutorialPlayerClass}");
                 return tutorialPlayerClass;
             }
         }
@@ -339,13 +292,11 @@ public class PlayerEquipment : MonoBehaviour
     /// </summary>
     public void OnClassInitializationComplete(BaseClassBehaviour classComponent)
     {
-        if (showDebugLogs)
-            Debug.Log($"📨 [PlayerEquipment] 클래스 초기화 완료 알림 수신: {classComponent.ClassName}");
+            Dbg.Log($"📨 [PlayerEquipment] 클래스 초기화 완료 알림 수신: {classComponent.ClassName}");
         
         // 대기 중인 무기 장착이 있다면 재시도
         if (pendingWeaponEquip != null)
         {
-            Debug.Log("🔄 [PlayerEquipment] 대기 중인 무기 장착 재시도");
             StartCoroutine(RetryPendingWeaponEquip());
         }
     }
@@ -364,18 +315,11 @@ public class PlayerEquipment : MonoBehaviour
             var weaponData = pendingWeaponEquip;
             pendingWeaponEquip = null; // 중복 실행 방지
             
-            Debug.Log($"🔄 [PlayerEquipment] 대기 무기 재장착 시도: {weaponData.equipmentName}");
             
             // 재시도
             var result = EquipWeaponPrefab(weaponData);
-            if (result != null)
-            {
-                Debug.Log("✅ [PlayerEquipment] 대기 무기 재장착 성공!");
-            }
-            else
-            {
+            if (result == null)
                 Debug.LogWarning("🟡 [PlayerEquipment] 대기 무기 재장착도 실패");
-            }
         }
     }
 }

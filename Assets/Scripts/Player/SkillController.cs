@@ -64,8 +64,6 @@ public class SkillController : MonoBehaviour
                 
                 float cdr = playerRuntimeStats != null ? playerRuntimeStats.FinalCooldownReduction : 0f;
                 float effective = csvCooldown * (1f - cdr);
-                if (showDebugLogs)
-                    Debug.Log($"⏱️ [SkillController] Slot{slotIndex} 유효 쿨다운: {csvCooldown:F1}s × (1 - {cdr:P0}) = {effective:F1}s");
                 return Mathf.Max(0.1f, effective);
             }
         }
@@ -116,29 +114,15 @@ public class SkillController : MonoBehaviour
             skillSet = new SkillSet();
             skillSet.showDebugLogs = showDebugLogs;
             
-            if (showDebugLogs)
-                Debug.Log("🎯 [SkillController] SkillSet 초기화 완료");
+            Dbg.Log("🎯 [SkillController] SkillSet 초기화 완료");
         }
         
         // ⭐ 디버그: 초기 상태 로깅
-        if (showDebugLogs)
-        {
-            Debug.Log("🔍 [SkillController] Awake - 초기 스킬 상태 확인:");
-            LogSkillSetInfo();
-        }
     }
     
     void Start()
     {
         // ⭐ 디버그: 모든 초기화 후 최종 상태 확인
-        if (showDebugLogs)
-        {
-            Debug.Log("🔍 [SkillController] Start - 최종 스킬 할당 상태 확인:");
-            LogSkillSetInfo();
-            
-            // 스킬 컴포넌트들 직접 확인
-            CheckSkillComponents();
-        }
         
         // ⭐ 추가: 스킬 할당 검증 강화
         StartCoroutine(VerifySkillAssignmentRoutine());
@@ -156,27 +140,20 @@ public class SkillController : MonoBehaviour
     [ContextMenu("Check Skill Components")]
     public void CheckSkillComponents()
     {
-        Debug.Log("🔍 [SkillController] 스킬 컴포넌트 직접 확인:");
         
         var assasinSkill1 = GetComponent<AssasinSkill1>();
         var assasinSkill2 = GetComponent<AssasinSkill2>();
         var warriorSkill1 = GetComponent<WarriorSkill1>();
         var warriorSkill2 = GetComponent<WarriorSkill2>();
         
-        Debug.Log($"   - AssasinSkill1: {(assasinSkill1 != null ? "✅ 존재" : "❌ 없음")}");
-        Debug.Log($"   - AssasinSkill2: {(assasinSkill2 != null ? "✅ 존재" : "❌ 없음")}");
-        Debug.Log($"   - WarriorSkill1: {(warriorSkill1 != null ? "✅ 존재" : "❌ 없음")}");
-        Debug.Log($"   - WarriorSkill2: {(warriorSkill2 != null ? "✅ 존재" : "❌ 없음")}");
     }
 
     public void TriggerSkill()
     {
-        Debug.Log("🔵 [SkillController] 스킬1 실행 요청");
         
         // ⭐ Phase 4: PlayerSkillManager의 장착된 스킬 사용
         if (usePhase4System && skillManager != null)
         {
-            Debug.Log("✅ [SkillController] Phase 4 시스템 사용");
             
             var skillInstance = skillManager.GetEquippedActiveSkill(0); // 슬롯 0
             
@@ -186,18 +163,12 @@ public class SkillController : MonoBehaviour
                 return;
             }
             
-            Debug.Log($"📋 [SkillController] 장착된 스킬: {skillInstance.skillData.skillName}");
-            Debug.Log($"   - 현재 레벨: {skillInstance.currentLevel}");
-            Debug.Log($"   - 쿨다운 남음: {skillInstance.GetCooldownRemaining():F1}초");
-            Debug.Log($"   - CanUse: {skillInstance.CanUse()}");
             
             if (skillInstance.CanUse())
             {
                 // ⭐ 새로운 스킬 실행 메서드 호출
                 ExecuteSkillFromInstance(skillInstance, 0);
                 
-                if (showDebugLogs)
-                    Debug.Log($"⚔️ [SkillController] 스킬1 실행: {skillInstance.skillData.skillName}");
             }
             else
             {
@@ -220,11 +191,7 @@ public class SkillController : MonoBehaviour
         if (skillSet != null)
         {
             var skill = skillSet.GetSkill(0);
-            if (skill != null)
-            {
-                Debug.Log($"🎯 [SkillController] 스킬1 찾음: {skill.SkillName}, CanUse: {skill.CanUse()}");
-            }
-            else
+            if (skill == null)
             {
                 Debug.LogWarning("❌ [SkillController] 스킬1이 SkillSet에 없습니다!");
                 return;
@@ -244,12 +211,10 @@ public class SkillController : MonoBehaviour
 
     public void TriggerSkill2()
     {
-        Debug.Log("🔵 [SkillController] 스킬2 실행 요청");
         
         // ⭐ Phase 4: PlayerSkillManager의 장착된 스킬 사용
         if (usePhase4System && skillManager != null)
         {
-            Debug.Log("✅ [SkillController] Phase 4 시스템 사용");
             
             var skillInstance = skillManager.GetEquippedActiveSkill(1); // 슬롯 1
             
@@ -259,18 +224,12 @@ public class SkillController : MonoBehaviour
                 return;
             }
             
-            Debug.Log($"📋 [SkillController] 장착된 스킬: {skillInstance.skillData.skillName}");
-            Debug.Log($"   - 현재 레벨: {skillInstance.currentLevel}");
-            Debug.Log($"   - 쿨다운 남음: {skillInstance.GetCooldownRemaining():F1}초");
-            Debug.Log($"   - CanUse: {skillInstance.CanUse()}");
             
             if (skillInstance.CanUse())
             {
                 // ⭐ 새로운 스킬 실행 메서드 호출
                 ExecuteSkillFromInstance(skillInstance, 1);
                 
-                if (showDebugLogs)
-                    Debug.Log($"⚔️ [SkillController] 스킬2 실행: {skillInstance.skillData.skillName}");
             }
             else
             {
@@ -293,11 +252,7 @@ public class SkillController : MonoBehaviour
         if (skillSet != null)
         {
             var skill = skillSet.GetSkill(1);
-            if (skill != null)
-            {
-                Debug.Log($"🎯 [SkillController] 스킬2 찾음: {skill.SkillName}, CanUse: {skill.CanUse()}");
-            }
-            else
+            if (skill == null)
             {
                 Debug.LogWarning("❌ [SkillController] 스킬2가 SkillSet에 없습니다!");
                 return;
@@ -322,12 +277,10 @@ public class SkillController : MonoBehaviour
 
     public void OnSkillAnimationEvent(int slot)
     {
-        Debug.Log($"🎬 [SkillController] OnSkillAnimationEvent 호출 - Slot: {slot}");
         
         // ⭐ Phase 4: PlayerSkillManager 시스템 우선 사용
         if (usePhase4System && skillManager != null)
         {
-            Debug.Log($"✅ [SkillController] Phase 4 Animation Event 처리 - Slot {slot}");
             
             var skillInstance = skillManager.GetEquippedActiveSkill(slot);
             if (skillInstance == null)
@@ -383,8 +336,6 @@ public class SkillController : MonoBehaviour
             // BaseSkill의 StartCooldown() 호출
             skill1.Execute(); // 이미 쿨다운 시작 로직 포함
             
-            if (showDebugLogs)
-                Debug.Log($"🕐 [SkillController] 스킬1 쿨다운 시작: {skill1.Cooldown}초");
         }
         else
         {
@@ -403,8 +354,6 @@ public class SkillController : MonoBehaviour
             // BaseSkill의 StartCooldown() 호출
             skill2.Execute(); // 이미 쿨다운 시작 로직 포함
             
-            if (showDebugLogs)
-                Debug.Log($"🕐 [SkillController] 스킬2 쿨다운 시작: {skill2.Cooldown}초");
         }
         else
         {
@@ -422,7 +371,6 @@ public class SkillController : MonoBehaviour
     /// </summary>
     private void ExecuteSkillFromInstance(SkillInstance skillInstance, int slotIndex)
     {
-        Debug.Log($"🎯 [SkillController] ExecuteSkillFromInstance 호출 - Slot: {slotIndex}");
         
         if (skillInstance == null || skillInstance.skillData == null)
         {
@@ -437,10 +385,6 @@ public class SkillController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
-        Debug.Log($"   - isProjectile: {activeData.isProjectile}");
-        Debug.Log($"   - projectilePrefab: {(activeData.projectilePrefab != null ? activeData.projectilePrefab.name : "NULL")}");
-        Debug.Log($"   - castCueKey: {(string.IsNullOrEmpty(activeData.castCueKey) ? "없음(fallback)" : activeData.castCueKey)}");
         
         // ⭐ 쿨다운 시작 (CDR 적용: lastUsedTime 역산으로 실효 쿨다운 단축)
         skillInstance.lastUsedTime = Time.time;
@@ -449,8 +393,6 @@ public class SkillController : MonoBehaviour
             float baseCooldown = skillInstance.GetCurrentCooldown();
             float cdrReduction = baseCooldown * playerRuntimeStats.FinalCooldownReduction;
             skillInstance.lastUsedTime = Time.time - cdrReduction;
-            if (showDebugLogs)
-                Debug.Log($"⏱️ [SkillController] CDR 적용: {baseCooldown:F1}s → {baseCooldown - cdrReduction:F1}s ({playerRuntimeStats.FinalCooldownReduction:P1} 감소)");
         }
         
         // ⭐ 애니메이션 트리거 먼저 호출 (기존 시스템 호환)
@@ -462,7 +404,6 @@ public class SkillController : MonoBehaviour
             else if (slotIndex == 1)
                 animationController.TriggerSkill2();
             
-            Debug.Log($"🎬 [SkillController] 애니메이션 트리거 호출: Skill{slotIndex + 1}");
         }
         else
         {
@@ -471,7 +412,6 @@ public class SkillController : MonoBehaviour
         
         // 실제 스킬 실행은 SkillStateBehaviour(40% 지점) → OnSkill1/2Start()
         // → ExecuteSkillFromAnimationEvent 단일 경로에서 처리됨
-        Debug.Log($"🔥 [SkillController] ExecuteSkillFromInstance 완료 — 실행은 AnimationEvent 경로 대기");
     }
     
     
@@ -589,8 +529,6 @@ public class SkillController : MonoBehaviour
                             skillData.explosionCueKey
                         );
                         
-                        if (showDebugLogs)
-                            Debug.Log($"💥 [SkillController] 폭발 데이터 주입: 폭발반경={skillData.aoeRadius}, 폭발데미지={explosionDamage} (직격{damage} × 배율{skillData.explosionDamageRatio})");
                     }
                     
                     // ⛓️ 체인 데이터 주입 (isChainShot = true인 스킬)
@@ -607,8 +545,6 @@ public class SkillController : MonoBehaviour
                             skillData.chainDelay        // Hit-Stop 딜레이
                         );
                         
-                        if (showDebugLogs)
-                            Debug.Log($"⛓️ [SkillController] 체인 데이터 주입: 연쇄={chainCount}회, 반경={skillData.chainRadius}, 감소율={skillData.chainDamageReduction:P0}, 데미지={damage}");
                     }
                 }
                 
@@ -617,16 +553,12 @@ public class SkillController : MonoBehaviour
                 if (damageSource != null)
                 {
                     damageSource.SetSkillDamage(damage);
-                    if (showDebugLogs)
-                        Debug.Log($"🎯 [SkillController] 발사체 스킬 데미지 설정 완료: {damage}");
                 }
                 else
                 {
                     Debug.LogWarning($"⚠️ [SkillController] 발사체 '{poolName}'에 DamageSource 컴포넌트가 없습니다!");
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"🏹 [SkillController] 발사체 발사 #{i + 1}: 각도 {currentAngle:F1}°, 풀: {poolName}");
             }
             else
             {
@@ -634,8 +566,6 @@ public class SkillController : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [SkillController] 발사 완료: {successCount}/{projectileCount}개 성공, 방향: {direction}");
     }
     
     /// <summary>
@@ -649,22 +579,16 @@ public class SkillController : MonoBehaviour
         
         float interval = skillInstance.GetCurrentBurstInterval();
         
-        if (showDebugLogs)
-            Debug.Log($"🔫 [SkillController] BurstFireRoutine 시작: {count}발, 간격={interval}s (Lv.{skillInstance.currentLevel})");
         
         for (int i = 0; i < count; i++)
         {
             FireProjectile(activeData, skillInstance, damage, slotIndex);
             
-            if (showDebugLogs)
-                Debug.Log($"🔫 [SkillController] 연사 {i + 1}/{count}발 발사");
             
             if (i < count - 1)
                 yield return new WaitForSeconds(interval);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔫 [SkillController] BurstFireRoutine 완료: {count}발 발사 끝");
         
         // 모든 발사 완료 후 이동 잠금 해제
         CompleteSkillExecution(slotIndex);
@@ -710,8 +634,6 @@ public class SkillController : MonoBehaviour
         // 스킬 지속시간 + 여유시간 후 제거
         Destroy(damageAreaGO, skillData.aoeDuration + 0.5f);
 
-        if (showDebugLogs)
-            Debug.Log($"💥 [SkillController] DamageArea 생성: {skillData.aoeShape} → {shapeType}, Origin={aoeOrigin}, 방향: {attackDir}, 데미지: {damage}");
     }
     
     /// <summary>
@@ -750,8 +672,6 @@ public class SkillController : MonoBehaviour
         // ⭐ 퀵 캐스트 핵심: 장판 생성 완료 즉시 이동 잠금 해제
         CompleteSkillExecution(slotIndex);
 
-        if (showDebugLogs)
-            Debug.Log($"☠️ [SkillController] DotDamageArea 생성: pos={spawnPos}, radius={skillData.aoeRadius}, damage={damage}/tick, duration={skillData.dotDuration}s");
     }
     
     /// <summary>
@@ -760,7 +680,6 @@ public class SkillController : MonoBehaviour
     /// </summary>
     private void ExecuteSkillFromAnimationEvent(SkillInstance skillInstance, int slotIndex)
     {
-        Debug.Log($"🎯 [SkillController] ExecuteSkillFromAnimationEvent 호출 - Slot: {slotIndex}");
         
         if (!(skillInstance.skillData is ActiveSkillData activeData))
         {
@@ -768,10 +687,6 @@ public class SkillController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"✅ [SkillController] ActiveSkillData 확인: {activeData.skillName}");
-        Debug.Log($"   - isProjectile: {activeData.isProjectile}");
-        Debug.Log($"   - telegraphPrefab: {(activeData.telegraphPrefab != null ? activeData.telegraphPrefab.name : "NULL")}");
-        Debug.Log($"   - telegraphDuration: {activeData.telegraphDuration}");
         
         // ⭐ PlayerRuntimeStats 참조 확인 (Awake 캐싱 우선, 없으면 재탐색)
         if (playerRuntimeStats == null)
@@ -791,8 +706,6 @@ public class SkillController : MonoBehaviour
             float cdrReduction = csvCooldown * playerRuntimeStats.FinalCooldownReduction;
             skillInstance.lastUsedTime = Time.time - cdrReduction;
             effectiveCooldown = csvCooldown - cdrReduction;
-            if (showDebugLogs)
-                Debug.Log($"⏱️ [SkillController] AnimEvent CDR 적용: {csvCooldown:F1}s → {effectiveCooldown:F1}s ({playerRuntimeStats.FinalCooldownReduction:P1} 감소)");
         }
         
         // PlayerAnimationController의 skill 쿨다운을 CSV 값으로 동기화 (하드코딩 2f/3f 대체)
@@ -804,8 +717,6 @@ public class SkillController : MonoBehaviour
             else if (slotIndex == 1)
                 animController.UpdateSkill2Cooldown(effectiveCooldown);
             
-            if (showDebugLogs)
-                Debug.Log($"⏱️ [SkillController] Skill{slotIndex + 1} AnimController 쿨다운 동기화: {effectiveCooldown:F1}s");
         }
         
         // ⭐ 데미지 계산: 플레이어 공격력 × 스킬 배율 × 스킬 피해 증가 보너스
@@ -813,8 +724,6 @@ public class SkillController : MonoBehaviour
         float skillDmgBonus = 1f + playerRuntimeStats.FinalSkillDamageBonus;
         int finalDamage = Mathf.RoundToInt(playerRuntimeStats.FinalAttackDamage * damageMultiplier * skillDmgBonus);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [SkillController] AnimEvent 데미지 계산: {finalDamage} (배율 {damageMultiplier:F2}x, 스킬 보너스 x{skillDmgBonus:F2})");
         
         // 스킬 실행 시작 — 이동 잠금 연장 플래그
         IsSkillPendingExecution = true;
@@ -867,8 +776,6 @@ public class SkillController : MonoBehaviour
             );
         }
 
-        if (showDebugLogs)
-            Debug.Log($"📍 [SkillController] Telegraph 표시: {activeData.aoeShape}, {activeData.telegraphDuration}초 대기");
 
         // ④ Telegraph Duration 대기
         yield return new WaitForSeconds(activeData.telegraphDuration);
@@ -930,25 +837,21 @@ public class SkillController : MonoBehaviour
         // 연사 모드: BurstFireRoutine에 위임 — CompleteSkillExecution은 코루틴 완료 후 호출
         if (activeData.isBurstFire)
         {
-            if (showDebugLogs) Debug.Log("🔫 [SkillController] 연사 모드 진입");
             activeSkillCoroutine = StartCoroutine(BurstFireRoutine(activeData, skillInstance, finalDamage, slotIndex));
             yield break;
         }
         else if (!activeData.isProjectile && activeData.isDotAoe)
         {
-            if (showDebugLogs) Debug.Log("☠️ [SkillController] DOT 장판 모드 진입");
             // 퀵 캐스트: SpawnDotAOE 내부에서 즉시 CompleteSkillExecution 호출
             SpawnDotAOE(activeData, finalDamage, slotIndex, aoeOrigin);
             yield break;
         }
         else if (activeData.isProjectile)
         {
-            if (showDebugLogs) Debug.Log("🏹 [SkillController] 발사체 모드 진입");
             FireProjectile(activeData, skillInstance, finalDamage, slotIndex);
         }
         else
         {
-            if (showDebugLogs) Debug.Log("💥 [SkillController] 즉발 AoE 모드 진입");
             SpawnInstantAOE(activeData, skillInstance, finalDamage, slotIndex, aoeOrigin, attackDir);
         }
 
@@ -965,8 +868,6 @@ public class SkillController : MonoBehaviour
         activeSkillCoroutine = null;
         OnSkillExecutionComplete?.Invoke(slotIndex);
 
-        if (showDebugLogs)
-            Debug.Log($"✅ [SkillController] 스킬 실행 완료 — 슬롯 {slotIndex}, 이동 해제 이벤트 발행");
     }
 
     /// <summary>
@@ -986,8 +887,6 @@ public class SkillController : MonoBehaviour
         IsSkillPendingExecution = false;
         OnSkillExecutionComplete?.Invoke(-1); // -1 = 취소
 
-        if (showDebugLogs)
-            Debug.Log("⚠️ [SkillController] 스킬 실행 취소 — 이동 해제 이벤트 강제 발행");
     }
     
     /// <summary>
@@ -999,17 +898,14 @@ public class SkillController : MonoBehaviour
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
         if (activeWeapon != null)
         {
-            Debug.Log($"🔍 [SkillController] ActiveWeapon 찾음: {activeWeapon.gameObject.name}");
             
             var weaponParent = activeWeapon.transform.Find("WeaponParent");
             if (weaponParent != null)
             {
-                Debug.Log($"🔍 [SkillController] WeaponParent 찾음");
                 
                 var firePoint = weaponParent.Find("FirePoint");
                 if (firePoint != null)
                 {
-                    Debug.Log($"✅ [SkillController] FirePoint 찾음: {firePoint.position}, Rotation: {firePoint.rotation.eulerAngles}");
                     return firePoint;
                 }
                 else
@@ -1048,8 +944,6 @@ public class SkillController : MonoBehaviour
         };
         CueEmitter.Emit(skillData.castCueKey, "Player", ctx);
 
-        if (showDebugLogs)
-            Debug.Log($"✨ [SkillController] Cast Cue: {skillData.castCueKey} ({skillData.skillType})");
     }
 
     /// <summary>
@@ -1071,8 +965,6 @@ public class SkillController : MonoBehaviour
         };
         CueEmitter.Emit(skillData.aoeCueKey, "Player", ctx);
 
-        if (showDebugLogs)
-            Debug.Log($"✨ [SkillController] AOE Cue: {skillData.aoeCueKey}");
     }
 
     /// <summary>
@@ -1086,8 +978,6 @@ public class SkillController : MonoBehaviour
     public void LockCurrentSkillDirection()
     {
         lockedSkillDirection = GetAttackDirection();
-        if (showDebugLogs)
-            Debug.Log($"🔒 [SkillController] 스킬 방향 잠금: {lockedSkillDirection}");
     }
 
     private Vector2 GetAttackDirection()
@@ -1102,16 +992,12 @@ public class SkillController : MonoBehaviour
             {
                 lastAttackDirection = joystickDir.normalized;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎮 [SkillController] 조이스틱 방향 저장: {lastAttackDirection}");
                 
                 return lastAttackDirection;
             }
         }
         
         // ⭐ Fallback: 마지막 저장된 방향 사용
-        if (showDebugLogs)
-            Debug.Log($"🎯 [SkillController] 마지막 저장 방향 사용: {lastAttackDirection} (조이스틱 입력 없음)");
         
         return lastAttackDirection;
     }
@@ -1161,7 +1047,6 @@ public class SkillController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f); // 다른 시스템 초기화 대기
         
-        Debug.Log("🔍 [SkillController] 스킬 할당 검증 시작");
         
         if (skillSet == null)
         {
@@ -1169,19 +1054,12 @@ public class SkillController : MonoBehaviour
             yield break;
         }
         
-        Debug.Log($"🔍 [SkillController] 현재 스킬 개수: {skillSet.SkillCount}");
         
         for (int i = 0; i < skillSet.SkillCount; i++)
         {
             var skill = skillSet.GetSkill(i);
-            if (skill != null)
-            {
-                Debug.Log($"   ✅ 슬롯 {i}: {skill.SkillName} ({skill.GetType().Name})");
-            }
-            else
-            {
+            if (skill == null)
                 Debug.LogWarning($"   ❌ 슬롯 {i}: null");
-            }
         }
         
         // 수동 재할당 시도
@@ -1207,25 +1085,21 @@ public class SkillController : MonoBehaviour
         if (assasinSkill1 != null)
         {
             skillSet.SetSkill(slot++, assasinSkill1);
-            Debug.Log($"🔧 [SkillController] 수동 할당: AssasinSkill1 → 슬롯 {slot-1}");
         }
         
         if (assasinSkill2 != null)
         {
             skillSet.SetSkill(slot++, assasinSkill2);
-            Debug.Log($"🔧 [SkillController] 수동 할당: AssasinSkill2 → 슬롯 {slot-1}");
         }
         
         if (warriorSkill1 != null)
         {
             skillSet.SetSkill(slot++, warriorSkill1);
-            Debug.Log($"🔧 [SkillController] 수동 할당: WarriorSkill1 → 슬롯 {slot-1}");
         }
         
         if (warriorSkill2 != null)
         {
             skillSet.SetSkill(slot++, warriorSkill2);
-            Debug.Log($"🔧 [SkillController] 수동 할당: WarriorSkill2 → 슬롯 {slot-1}");
         }
     }
 } 

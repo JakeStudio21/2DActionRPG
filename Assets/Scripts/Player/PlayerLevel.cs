@@ -25,7 +25,6 @@ public class PlayerLevel : MonoBehaviour
     public void AddExp(int expToAdd)
     {
         _currentExp += expToAdd;
-        Debug.Log($"경험치 {expToAdd} 획득! 현재 경험치: {_currentExp}/{_expToNextLevel}");
 
         while (_currentExp >= _expToNextLevel)
         {
@@ -40,7 +39,6 @@ public class PlayerLevel : MonoBehaviour
 
         // TODO: 다음 레벨에 필요한 경험치를 동적으로 설정할 수 있습니다. (예: _expToNextLevel *= 1.5f;)
         
-        Debug.Log($"레벨 업! 현재 레벨: {_currentLevel}");
         
         // 레벨이 변경되었음을 모든 구독자(UI 등)에게 알립니다.
         OnLevelChanged?.Invoke();

@@ -47,18 +47,6 @@ public class DamageSource : MonoBehaviour
         warrior = FindObjectOfType<Warrior>();
         assasin = FindObjectOfType<Assasin>();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔗 [DamageSource] 참조 초기화:");
-            Debug.Log($"   - PlayerRuntimeStats: {(playerRuntimeStats != null ? "연결됨" : "❌ 없음")}");
-            Debug.Log($"   - Warrior: {(warrior != null ? "감지됨" : "없음")}");
-            Debug.Log($"   - Assasin: {(assasin != null ? "감지됨" : "없음")}");
-            
-            if (playerRuntimeStats != null)
-            {
-                Debug.Log($"📊 [DamageSource] 현재 스탯: 공격력 {playerRuntimeStats.FinalAttackDamage:F1}");
-            }
-        }
     }
     
     private void OnTriggerEnter2D(Collider2D other) 
@@ -85,8 +73,6 @@ public class DamageSource : MonoBehaviour
         // 🧱 벽 차단 체크
         if (checkWallBlocking && IsBlockedByWall(other.transform))
         {
-            if (showDebugLogs)
-                Debug.Log($"🚫 [DamageSource] {other.name} - 벽에 막혀서 공격 실패");
             return;
         }
         
@@ -101,14 +87,6 @@ public class DamageSource : MonoBehaviour
         // IPlayerClass 타입 캐스트 대신 런타임 상태 플래그로 CombatFormula에 전달
         bool isBerserkerState = EvaluateBerserkerState();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🎯 [DamageSource] 크리티컬 확률: {critChance:P2} (치명 데미지: {critDamage:F2}x)");
-            if (_hasSkillDamage)
-                Debug.Log($"🏹 [DamageSource] 스킬 데미지 적용: {_skillDamageOverride} (FinalAttackDamage × 스킬배율 사전 계산)");
-            if (isBerserkerState)
-                Debug.Log($"🔥 [DamageSource] 버서커 상태 감지 → isBerserkerState = true (Step 3 +50%)");
-        }
         
         var ctx = new CombatFormula.AttackContext
         {
@@ -156,8 +134,6 @@ public class DamageSource : MonoBehaviour
         // 순서 보장: GetCurrentPierceMultiplier(1.0) → TakeDamage → AdvancePierceMultiplier(→0.5)
         GetComponent<Projectile>()?.AdvancePierceMultiplier();
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [DamageSource] 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}, 스킬: {_hasSkillDamage}) → {other.name}");
     }
     
     /// <summary>
@@ -168,8 +144,6 @@ public class DamageSource : MonoBehaviour
         // 🧱 벽 차단 체크
         if (checkWallBlocking && IsBlockedByWall(other.transform))
         {
-            if (showDebugLogs)
-                Debug.Log($"🚫 [DamageSource] {other.name} - 벽에 막혀서 공격 실패");
             return;
         }
         
@@ -218,8 +192,6 @@ public class DamageSource : MonoBehaviour
         // 🏹 관통 배율 감소: 타격 완료 후 다음 적을 위해 배율 진행
         GetComponent<Projectile>()?.AdvancePierceMultiplier();
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [DamageSource] SimpleMob 데미지: {result.finalDamage} → {other.name}");
     }
     
     /// <summary>
@@ -294,15 +266,6 @@ public class DamageSource : MonoBehaviour
         {
             float warriorDamage = warrior.GetModifiedDamage(baseDamage);
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"⚔️ [DamageSource] Warrior 효과 적용: {currentDamage:F1} → {warriorDamage:F1}");
-                
-                if (warrior.IsInBerserkerMode())
-                {
-                    Debug.Log($"🔥 [DamageSource] 버서커 모드 활성! 추가 데미지 보너스");
-                }
-            }
             
             return warriorDamage;
         }
@@ -332,13 +295,6 @@ public class DamageSource : MonoBehaviour
             
             float finalAssasinDamage = assasinDamage * backAttackMultiplier;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🏹 [DamageSource] Assasin 효과 적용:");
-                Debug.Log($"   - 기본 → 크리티컬: {baseDamage:F1} → {assasinDamage:F1}");
-                Debug.Log($"   - 백어택 배율: x{backAttackMultiplier:F2}");
-                Debug.Log($"   - 최종 데미지: {finalAssasinDamage:F1}");
-            }
             
             return finalAssasinDamage;
         }
@@ -355,17 +311,8 @@ public class DamageSource : MonoBehaviour
     [ContextMenu("Print Current Damage Info")]
     private void PrintCurrentDamageInfo()
     {
-        if (playerRuntimeStats != null)
-        {
-            Debug.Log($"📊 [DamageSource] 현재 데미지 정보:");
-            Debug.Log($"   - 최종 공격력: {playerRuntimeStats.FinalAttackDamage:F1}");
-            Debug.Log($"   - 크리티컬 확률: {playerRuntimeStats.FinalCriticalChance:P1}");
-            Debug.Log($"   - 크리티컬 배율: x{playerRuntimeStats.FinalCriticalDamage:F1}");
-        }
-        else
-        {
+        if (playerRuntimeStats == null)
             Debug.LogWarning("⚠️ [DamageSource] PlayerRuntimeStats를 찾을 수 없습니다!");
-        }
     }
     
     /// <summary>
@@ -386,8 +333,6 @@ public class DamageSource : MonoBehaviour
         _skillDamageOverride = preCalculatedDamage;
         _hasSkillDamage = true;
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [DamageSource] 스킬 데미지 설정: {preCalculatedDamage}");
     }
     
     /// <summary>
@@ -447,28 +392,16 @@ public class DamageSource : MonoBehaviour
         float distance = Vector2.Distance(transform.position, target.position);
         
         // 🔍 디버그: Raycast 정보
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔍 [DamageSource] Raycast 체크:");
-            Debug.Log($"   - Origin: {origin}");
-            Debug.Log($"   - Target: {target.position} ({target.name})");
-            Debug.Log($"   - Direction: {direction}");
-            Debug.Log($"   - Distance: {distance:F2}");
-            Debug.Log($"   - wallLayer: {wallLayer.value}");
-        }
         
         // Raycast로 벽 감지
         RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, wallLayer);
         
         if (hit.collider != null)
         {
-            Debug.Log($"🧱 [DamageSource] 벽 감지! {hit.collider.name} (거리: {hit.distance:F2}, Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)})");
             return true;
         }
         else
         {
-            if (showDebugLogs)
-                Debug.Log($"✅ [DamageSource] 벽 없음 - 공격 가능");
             return false;
         }
     }
@@ -488,8 +421,6 @@ public class DamageSource : MonoBehaviour
         if (baseEnemy != null)
         {
             float defense = baseEnemy.GetScaledDefense();
-            if (showDebugLogs)
-                Debug.Log($"🛡️ [DamageSource] {target.name} 방어력: {defense:F1}");
             return defense;
         }
         
@@ -585,8 +516,6 @@ public class DamageSource : MonoBehaviour
             if (DamageNumberManager.Instance != null)
                 DamageNumberManager.Instance.ShowHealNumber(playerHealth.transform.position, healAmount, playerHealth.transform);
             
-            if (showDebugLogs)
-                Debug.Log($"💚 [DamageSource] 흡혈: {healAmount} HP 회복");
         }
     }
     

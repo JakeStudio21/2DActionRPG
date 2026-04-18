@@ -78,8 +78,6 @@ public class PlayerAttackInput : MonoBehaviour
 
         if (!playerAnimationController.CanPerformAttack())
         {
-            if (showDebugLogs)
-                Debug.Log("[PlayerAttackInput] 기본공격 불가 — 쿨다운 또는 애니메이션 중");
             return;
         }
 
@@ -93,8 +91,6 @@ public class PlayerAttackInput : MonoBehaviour
         activeWeapon?.LockAttackDirection(attackDir);           // Bow.lastAttackRotation 고정
         playerAnimationController.TriggerAttack();
 
-        if (showDebugLogs)
-            Debug.Log($"[PlayerAttackInput] 기본공격 실행 — dir={attackDir}");
     }
 
     /// <summary>
@@ -105,9 +101,6 @@ public class PlayerAttackInput : MonoBehaviour
     {
         if (autoTargetResolver == null || basicAttackProfile == null)
         {
-            if (showDebugLogs)
-                Debug.Log($"[AT_DBG] ResolveAttackDirection: autoTarget={(autoTargetResolver != null)}, " +
-                          $"basicAttackProfile={(basicAttackProfile != null)} → Facing만 사용");
             return GetFacingDirection();
         }
 
@@ -126,8 +119,6 @@ public class PlayerAttackInput : MonoBehaviour
             }
         }
 
-        if (showDebugLogs)
-            Debug.Log("[AT_DBG] ResolveAttackDirection: 타겟 없음 → Facing 사용");
 
         return GetFacingDirection();
     }
@@ -177,13 +168,10 @@ public class PlayerAttackInput : MonoBehaviour
 
     public void PerformSkill()
     {
-        if (showDebugLogs) Debug.Log("[PlayerAttackInput] S키 스킬1");
 
         if (playerAnimationController != null)
         {
             bool success = playerAnimationController.TriggerSkill1();
-            if (showDebugLogs)
-                Debug.Log(success ? "🟢 스킬1 성공" : "🟡 스킬1 실패 (쿨다운 등)");
             return;
         }
 
@@ -197,13 +185,10 @@ public class PlayerAttackInput : MonoBehaviour
 
     public void PerformSkill2()
     {
-        if (showDebugLogs) Debug.Log("[PlayerAttackInput] D키 스킬2");
 
         if (playerAnimationController != null)
         {
             bool success = playerAnimationController.TriggerSkill2();
-            if (showDebugLogs)
-                Debug.Log(success ? "🟢 스킬2 성공" : "🟡 스킬2 실패 (쿨다운 등)");
             return;
         }
 

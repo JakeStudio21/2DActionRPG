@@ -83,7 +83,7 @@ public class PlayerHealth : MonoBehaviour
         // HP 재생 코루틴 시작 (FinalHpRegen > 0 일 때만 실제 치유 발생)
         StartCoroutine(HpRegenCoroutine());
             
-        Debug.Log("🔧 [PlayerHealth] 기본 초기화 완료 (체력은 BaseClassBehaviour에서 설정 예정)");
+        Dbg.Log("🔧 [PlayerHealth] 기본 초기화 완료 (체력은 BaseClassBehaviour에서 설정 예정)");
     }
     
     private void OnDestroy()
@@ -169,17 +169,6 @@ public class PlayerHealth : MonoBehaviour
             
             CueEmitter.Emit("heal.player", "Player", context);
             
-            if (showDebugLogs)
-            {
-                if (blockedPercent > 0)
-                {
-                    Debug.Log($"❤️ [PlayerHealth] 체력 회복: +{actualHeal} (회복 차단 {blockedPercent * 100:F0}%로 {blockedAmount} 차단됨) ({currentHealth}/{maxHealth})");
-                }
-                else
-                {
-                    Debug.Log($"❤️ [PlayerHealth] 체력 회복: +{actualHeal} ({currentHealth}/{maxHealth})");
-                }
-            }
         }
     }
 
@@ -303,8 +292,6 @@ public class PlayerHealth : MonoBehaviour
             currentResistedEffects = result.resistedEffects;
             immunityExpireTime = Time.time + immunityDuration;
             
-            if (showDebugLogs)
-                Debug.Log($"🛡️ [PlayerHealth] 플레이어 면역 발동! 저항한 효과: {result.resistedEffects}");
             
             // ⚙️ 향후: UI에 "면역!" 텍스트 표시 이벤트 발행
         }
@@ -365,10 +352,6 @@ public class PlayerHealth : MonoBehaviour
         // 1️⃣1️⃣ 🎨 Hit 스파크 이펙트 발행 (피격자 책임)
         EmitHitEffect(result.hitPosition, result.sourceType, result.attackerGrade);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"💥 [PlayerHealth] {incomingDamage} 데미지 받음 (원본: {result.finalDamage}, 크리티컬: {result.isCritical}, 백어택: {result.isBackAttack}) ({currentHealth}/{maxHealth})");
-        }
     }
     
     /// <summary>
@@ -399,8 +382,6 @@ public class PlayerHealth : MonoBehaviour
         
         bool success = CueEmitter.Emit(eventKey, "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"🎨 [PlayerHealth] Hit 이펙트 발행: {eventKey} → {success}");
     }
 
     private void CheckIfPlayerDeath() {
@@ -424,7 +405,6 @@ public class PlayerHealth : MonoBehaviour
             
             // ✅ 수정: FSMStageController 호출 제거 (SRP 준수)
             // StageManager가 isDead 상태를 감지하여 패배 처리하도록 위임
-            Debug.Log("💀 [PlayerHealth] 플레이어 사망 - StageManager가 패배 조건을 감지할 것입니다.");
             
             // 기존 팝업 표시 로직 유지 (UI 책임)
             StartCoroutine(DeathLoadSceneRoutine());
@@ -504,7 +484,7 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         UpdateUI(); // ✅ 변경: UpdateHealthSlider() → UpdateUI()
         
-        Debug.Log($"🔧 [PlayerHealth] 체력 초기화 완료: {currentHealth}/{maxHealth}");
+        Dbg.Log($"🔧 [PlayerHealth] 체력 초기화 완료: {currentHealth}/{maxHealth}");
     }
     
     // 🔧 장비 시스템용 체력 설정 메서드 추가
@@ -522,7 +502,6 @@ public class PlayerHealth : MonoBehaviour
         
         UpdateUI();
         
-        Debug.Log($"🔧 [PlayerHealth] 최대 체력 설정: {currentHealth}/{maxHealth} (비율 {healthRatio:P0} 유지)");
     }
     
     /// <summary>
@@ -540,8 +519,6 @@ public class PlayerHealth : MonoBehaviour
             {
                 maxHealth = newMaxHealth;
                 currentHealth = maxHealth;
-                if (showDebugLogs)
-                    Debug.Log($"🆕 [PlayerHealth] 체력 가득 채움: {currentHealth}/{maxHealth}");
             }
             else
             {
@@ -550,8 +527,6 @@ public class PlayerHealth : MonoBehaviour
             }
             
             UpdateUI();
-            if (showDebugLogs)
-                Debug.Log($"🎯 [PlayerHealth] PlayerRuntimeStats와 동기화: 최대체력 {maxHealth}");
         }
     }
     
@@ -584,10 +559,6 @@ public class PlayerHealth : MonoBehaviour
         healingBlockMultiplier = blockPercent;
         healingBlockRoutine = StartCoroutine(HealingBlockRoutine());
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🚫 [PlayerHealth] 회복 차단 디버프 적용: {blockPercent * 100:F0}% ({healingBlockDuration}초 지속)");
-        }
     }
     
     /// <summary>
@@ -602,10 +573,6 @@ public class PlayerHealth : MonoBehaviour
         healingBlockMultiplier = 0f;
         healingBlockRoutine = null;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [PlayerHealth] 회복 차단 디버프 해제");
-        }
     }
     
     #endregion
@@ -636,8 +603,6 @@ public class PlayerHealth : MonoBehaviour
             
             HealPlayerAmount(healAmount);
             
-            if (showDebugLogs)
-                Debug.Log($"💚 [PlayerHealth] HP 재생: +{healAmount} ({currentHealth}/{maxHealth})");
         }
     }
     
@@ -653,8 +618,6 @@ public class PlayerHealth : MonoBehaviour
         float dodgeChance = playerRuntimeStats.FinalDodgeChance;
         if (dodgeChance > 0f && Random.Range(0f, 1f) < dodgeChance)
         {
-            if (showDebugLogs)
-                Debug.Log($"💨 [PlayerHealth] 회피 성공! (회피율 {dodgeChance:P1})");
             DamageNumberManager.Instance?.ShowDodgeText(transform.position, transform);
             return true;
         }
@@ -664,8 +627,6 @@ public class PlayerHealth : MonoBehaviour
         if (blockChance > 0f && Random.Range(0f, 1f) < blockChance)
         {
             damage = Mathf.RoundToInt(damage * 0.5f);
-            if (showDebugLogs)
-                Debug.Log($"🛑 [PlayerHealth] 블록 성공! 피해 50% 감소 → {damage} (블록율 {blockChance:P1})");
             DamageNumberManager.Instance?.ShowBlockText(transform.position, transform);
         }
         
@@ -674,8 +635,6 @@ public class PlayerHealth : MonoBehaviour
         if (reduction > 0f)
         {
             damage = Mathf.RoundToInt(damage * (1f - reduction));
-            if (showDebugLogs)
-                Debug.Log($"🛡️ [PlayerHealth] 피해 감소 {reduction:P1} 적용 → {damage}");
         }
         
         return false;
@@ -694,8 +653,6 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = Mathf.Clamp(newHealth, 0, maxHealth);
         UpdateUI();
         
-        if (showDebugLogs)
-            Debug.Log($"🔧 [DEBUG] 플레이어 체력 설정: {currentHealth}/{maxHealth}");
     }
     
     /// <summary>
@@ -715,8 +672,6 @@ public class PlayerHealth : MonoBehaviour
         currentHealth = maxHealth;
         UpdateUI();
         
-        if (showDebugLogs)
-            Debug.Log($"🔧 [DEBUG] 플레이어 완전 회복: {currentHealth}/{maxHealth}");
     }
 #endif
     

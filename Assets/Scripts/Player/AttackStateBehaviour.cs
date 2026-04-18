@@ -16,7 +16,6 @@ public class AttackStateBehaviour : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Debug.Log($"🎬 [AttackStateBehaviour] Attack State 진입 - 길이: {stateInfo.length:F3}초");
         
         // 상태 초기화
         attackStartTriggered = false;
@@ -32,7 +31,6 @@ public class AttackStateBehaviour : StateMachineBehaviour
         if (!attackStartTriggered && normalizedTime >= attackStartTime)
         {
             attackStartTriggered = true;
-            Debug.Log($"🎯 [AttackStateBehaviour] OnAttackStart 호출 - 진행도: {normalizedTime:F3}");
             
             // PlayerAnimationController의 OnAttackStart 호출
             var playerAnimationController = animator.GetComponent<PlayerAnimationController>();
@@ -50,7 +48,6 @@ public class AttackStateBehaviour : StateMachineBehaviour
         if (!attackCompleteTriggered && normalizedTime >= attackCompleteTime)
         {
             attackCompleteTriggered = true;
-            Debug.Log($"🏁 [AttackStateBehaviour] OnAttackComplete 호출 - 진행도: {normalizedTime:F3}");
             
             // PlayerAnimationController의 OnAttackComplete 호출
             var playerAnimationController = animator.GetComponent<PlayerAnimationController>();
@@ -68,7 +65,6 @@ public class AttackStateBehaviour : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Debug.Log($"🚪 [AttackStateBehaviour] Attack State 종료 - 최종 진행도: {stateInfo.normalizedTime:F3}");
         
         // 🔒 안전장치: State 종료 시 Complete가 호출되지 않았다면 강제 호출
         if (!attackCompleteTriggered)

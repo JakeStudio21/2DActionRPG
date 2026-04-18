@@ -42,8 +42,6 @@ public class AutoTargetResolver : MonoBehaviour
     {
         if (profile == null)
         {
-            if (showDebugLogs)
-                Debug.Log("[AT_DBG] FindBestTarget: profile=null → 스킵");
             return _currentTarget;
         }
 
@@ -73,12 +71,6 @@ public class AutoTargetResolver : MonoBehaviour
         Vector2 origin = transform.position;
         int count = Physics2D.OverlapCircleNonAlloc(origin, profile.detectionRadius, _results, enemyLayer | objectLayer);
 
-        if (showDebugLogs)
-        {
-            Debug.Log($"[AT_DBG] FindBestTarget: origin={origin}, radius={profile.detectionRadius:F1}, " +
-                      $"enemyLayerMask={enemyLayer.value}, objectLayerMask={objectLayer.value}, OverlapCount={count} " +
-                      $"(count=0이면 레이어/반경/콜라이더 확인)");
-        }
 
         ITargetable bestTarget = null;
         float bestScore = float.MinValue;
@@ -92,8 +84,6 @@ public class AutoTargetResolver : MonoBehaviour
 
             float score = ComputeScore(candidate, aimDir, profile);
 
-            if (showDebugLogs)
-                Debug.Log($"[AutoTargetResolver] {_results[i].name} → score={score:F1}");
 
             if (score > bestScore)
             {

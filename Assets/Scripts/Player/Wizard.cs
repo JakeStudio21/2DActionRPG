@@ -19,6 +19,5 @@ public class Wizard : MonoBehaviour
     // 마법사 고유 스킬 및 동작 구현
     public void UseSkill()
     {
-        Debug.Log("마법사 스킬 발동!");
     }
 }

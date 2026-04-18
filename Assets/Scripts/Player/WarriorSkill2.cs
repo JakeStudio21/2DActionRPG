@@ -28,8 +28,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     /// </summary>
     protected override void OnExecuteSkill()
     {
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] {SkillName} 실행 시작");
             
         // 애니메이션 트리거
         if (animationController != null)
@@ -48,11 +46,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     /// </summary>
     public override void OnAnimationEvent()
     {
-        Debug.Log($"💥 [WarriorSkill2] Animation Event 호출됨!");
-        Debug.Log($"   - SkillData 유효성: {IsSkillDataValid}");
-        Debug.Log($"   - 현재 시간: {Time.time:F2}");
-        Debug.Log($"   - 쿨다운 남은 시간: {GetCooldownRemaining():F2}");
-        Debug.Log($"   - isExecuting: {isExecuting}");
         
         if (!IsSkillDataValid)
         {
@@ -66,10 +59,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
             return;
         }
         
-        Debug.Log($"💥 [WarriorSkill2] Ground Slam 시작");
-        Debug.Log($"   - 기본 데미지: {BaseDamage}");
-        Debug.Log($"   - 공격 범위: {SkillData.attackRadius}");
-        Debug.Log($"   - 기절 시간: {SkillData.stunDuration}");
         
         // ⭐ 1단계: Cast 이펙트를 제일 먼저 발동 (애니메이션 시작과 동시)
         EmitSkillCastCue();
@@ -100,8 +89,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         // 이미 실행 중인지 확인
         if (isExecuting)
         {
-            if (showDebugLogs)
-                Debug.Log("🟡 [WarriorSkill2] 스킬 실행 중입니다!");
             return false;
         }
         
@@ -123,8 +110,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     /// </summary>
     private Vector2 GetCurrentAttackDirection()
     {
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] GetCurrentAttackDirection 호출됨 - 시간: {Time.time:F3}");
         
         // ActiveWeapon에서 AttackJoystickInput 참조 가져오기
         var activeWeapon = FindObjectOfType<ActiveWeapon>();
@@ -138,23 +123,9 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
                 lastAttackDirection = joystickDir.normalized;
                 
                 // 🔍 N/S 방향 특별 확인
-                bool isNorthSouth = Mathf.Abs(joystickDir.x) < 0.3f && Mathf.Abs(joystickDir.y) > 0.7f;
-                if (isNorthSouth)
-                {
-                    string directionName = joystickDir.y > 0 ? "NORTH" : "SOUTH";
-                    Debug.Log($"🧭 [WarriorSkill2] {directionName} 방향 스킬2 사용! 실시간 조이스틱: {joystickDir}");
-                }
-                
-                if (showDirectionDebug)
-                    Debug.Log($"🎮 [WarriorSkill2] 새로운 조이스틱 방향 저장: {lastAttackDirection}");
-                
                 return lastAttackDirection;
             }
         }
-        
-        // ⭐ 핵심: 조이스틱 입력이 없으면 마지막 방향 사용
-        if (showDirectionDebug)
-            Debug.Log($"🎮 [WarriorSkill2] 마지막 저장된 방향 사용: {lastAttackDirection}");
         
         return lastAttackDirection;
     }
@@ -191,8 +162,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     {
         isExecuting = true;
         
-        if (showDebugLogs)
-            Debug.Log("💥 [WarriorSkill2] 충격파 공격 시퀀스 시작!");
         
         // 1단계: 차징 단계 (0.8초)
         yield return StartCoroutine(ChargePhase());
@@ -203,8 +172,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         // 3단계: 충격파 확산 단계 (0.3초)
         yield return StartCoroutine(ShockwavePhase());
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [WarriorSkill2] 충격파 공격 시퀀스 완료!");
         
         isExecuting = false;
     }
@@ -216,8 +183,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     {
         float chargeTime = 0.3f; // ⭐ 0.8초 → 0.3초로 변경 (0.5초 빠르게)
         
-        if (showDebugLogs)
-            Debug.Log($"⚡ [WarriorSkill2] 차징 시작 ({chargeTime}초)");
         
         // 차징 이펙트 — castCueKey 기반 CueSystem 경유
         if (!string.IsNullOrEmpty(SkillData.castCueKey))
@@ -246,8 +211,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
             currentChargeEffect = null;
         }
         
-        if (showDebugLogs)
-            Debug.Log("⚡ [WarriorSkill2] 차징 완료");
     }
     
     /// <summary>
@@ -255,8 +218,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     /// </summary>
     private IEnumerator SlamPhase()
     {
-        if (showDebugLogs)
-            Debug.Log("🔨 [WarriorSkill2] 내려치기 시작");
         
         // ⭐ Cast 이펙트는 OnAnimationEvent()에서 이미 발동됨
         
@@ -266,8 +227,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         // 내려치기 애니메이션 시간 대기
         yield return new WaitForSeconds(0.2f);
         
-        if (showDebugLogs)
-            Debug.Log("🔨 [WarriorSkill2] 내려치기 완료");
     }
     
     /// <summary>
@@ -278,8 +237,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         float shockwaveRadius = 5f; // WarriorSkillData에서 확장 가능
         float expandTime = 0.3f;
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] 충격파 확산 시작 (반경: {shockwaveRadius})");
         
         // 충격파 사운드 재생
         PlaySound("Shockwave");
@@ -293,8 +250,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         // 충격파 시각 효과 대기
         yield return new WaitForSeconds(expandTime);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] 충격파 확산 완료");
     }
     
     /// <summary>
@@ -310,8 +265,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         // DamageArea 기반 AOE 생성
         SpawnSkillAOEAtPosition(transform.position, direction);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] DamageArea 생성: Circle, 반경: {SkillData.aoeRadius}, 방향: {direction}, 위치: {transform.position}, 데미지: {BaseDamage}");
     }
     
     /// <summary>
@@ -341,7 +294,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
             if (telegraph != null)
             {
                 // ⭐ 디버그: 크기 값 확인
-                Debug.Log($"🔍 [WarriorSkill2] Telegraph 초기화 전: Shape={SkillData.aoeShape}, Radius={SkillData.aoeRadius}, Size={SkillData.aoeSize}");
                 
                 telegraph.InitializeForPlayer(
                     shape: ConvertToAOEShapeType(SkillData.aoeShape),
@@ -431,7 +383,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
     {
         if (audioSource != null && showDebugLogs)
         {
-            Debug.Log($"🔊 [WarriorSkill2] {soundType} 사운드 재생");
             // 실제 AudioClip 재생은 나중에 오디오 시스템과 연동
         }
     }
@@ -461,8 +412,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.warrior.skill2.cast", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] Cast Cue 발행 (땅 내리치기) → {cueSuccess}");
     }
     
     /// <summary>
@@ -487,8 +436,6 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         
         bool cueSuccess = CueEmitter.Emit("skill.warrior.skill2.aoe", "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"💥 [WarriorSkill2] AOE Cue 발행 (충격파 확산) → {cueSuccess}");
     }
     
     #endregion
@@ -505,7 +452,7 @@ public class WarriorSkill2 : BaseSkill<ActiveSkillData>
         // Ground Slam 스킬 전용 초기화
         if (IsSkillDataValid && showDebugLogs)
         {
-            Debug.Log($"💥 [WarriorSkill2] 초기화 완료 - " +
+            Dbg.Log($"💥 [WarriorSkill2] 초기화 완료 - " +
                      $"충격파 데미지: {BaseDamage}, " +
                      $"쿨다운: {Cooldown}초");
         }

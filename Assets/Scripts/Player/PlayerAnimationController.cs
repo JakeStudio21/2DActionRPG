@@ -148,16 +148,12 @@ public class PlayerAnimationController : MonoBehaviour
         
         if (skillController != null)
         {
-            if (showDebugLogs)
-                Debug.Log($"🟢 [PlayerAnimationController] SkillController 찾음: {skillController.name}");
             
             // ⭐ 새로운 방식: 기본값 사용 또는 SkillSet에서 조회
             var skill1 = skillController.SkillSet?.GetSkill(0);
             if (skill1 != null)
             {
                 skill1Cooldown = skill1.Cooldown;
-                if (showDebugLogs)
-                    Debug.Log($"🎯 [PlayerAnimationController] 스킬1 쿨다운: {skill1Cooldown}초");
             }
 
             // 스킬 실행 완료 이벤트 구독 (중복 방지 — -= 후 +=)
@@ -171,8 +167,7 @@ public class PlayerAnimationController : MonoBehaviour
         // 🗺️ 아이소메트릭 데이터 초기화 추가
         InitializePlayerClassReference();
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] 초기화 완료!");
+        Dbg.Log("🟢 [PlayerAnimationController] 초기화 완료!");
     }
     
     /// <summary>
@@ -180,8 +175,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     private void InitializePlayerClassReference()
     {
-        if (showDebugLogs)
-            Debug.Log("🔍 [PlayerAnimationController] 플레이어 클래스 참조 초기화 시작");
             
         // Assasin 또는 Warrior 컴포넌트 찾기
         var assasin = GetComponent<Assasin>();
@@ -192,32 +185,12 @@ public class PlayerAnimationController : MonoBehaviour
             playerClass = assasin;
             currentDirectionPreset = assasin.GetDirectionPreset();
             
-            if (showDebugLogs)
-                Debug.Log($"🗺️ [PlayerAnimationController] Assasin 감지됨, DirectionPreset: {currentDirectionPreset}");
         }
         else if (warrior != null)
         {
             playerClass = warrior;
             currentDirectionPreset = warrior.GetDirectionPreset();
             
-            if (showDebugLogs)
-                Debug.Log($"🗺️ [PlayerAnimationController] Warrior 감지됨, DirectionPreset: {currentDirectionPreset}");
-        }
-        else
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [PlayerAnimationController] 플레이어 클래스 미감지 - Assasin/Warrior 컴포넌트 없음");
-        }
-        
-        if (playerClass != null && useIsometricData)
-        {
-            if (showDebugLogs)
-                Debug.Log($"✅ [PlayerAnimationController] 아이소메트릭 데이터 연동 활성화: {playerClass.ClassName}");
-        }
-        else if (!useIsometricData)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [PlayerAnimationController] IsometricData 비활성화됨 (useIsometricData = false)");
         }
     }
     
@@ -259,7 +232,6 @@ public class PlayerAnimationController : MonoBehaviour
                 if (weapon != null)
                 {
                     UpdateWeaponCooldown(weapon.GetEquipmentData().WeaponCooldown);
-                    Debug.Log($"🟢 [PlayerAnimationController] 무기 쿨다운 설정: {attackCooldown}초 (baseWeaponCooldown={baseWeaponCooldown:F3}s, ASPD 재계산 완료)");
                 }
             }
             
@@ -267,7 +239,7 @@ public class PlayerAnimationController : MonoBehaviour
             canSkill1 = true; // ⭐ 스킬1 초기화
             canSkill2 = true; // ⭐ 스킬2 초기화
             isHit = false; // ⭐ 피격 상태 초기화
-            Debug.Log("🟢 [PlayerAnimationController] Animation Parameters 초기화 완료!");
+            Dbg.Log("🟢 [PlayerAnimationController] Animation Parameters 초기화 완료!");
         }
         catch (System.Exception e)
         {
@@ -328,8 +300,6 @@ public class PlayerAnimationController : MonoBehaviour
         canAttack = false;
         attackCooldownStartTime = Time.time;
         
-        if (showDebugLogs)
-            Debug.Log($"🟢 [PlayerAnimationController] 공격 트리거 실행: BasicAttack (시퀀스 #{currentAttackSequence})");
         
         return true;
     }
@@ -339,8 +309,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public bool TriggerSkill1()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] TriggerSkill1 요청");
         
         // ⭐ 튜토리얼용 스킬 사용 이벤트 발생
         OnSkill1Used?.Invoke();
@@ -348,16 +316,12 @@ public class PlayerAnimationController : MonoBehaviour
         // 쿨다운 게이트: canSkill1이 주 게이트 (Skill1CooldownRoutine이 관리)
         if (!canSkill1)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 쿨다운 중입니다!");
             return false;
         }
         
         // 이동 잠금 게이트: 다른 스킬 애니메이션이 이동을 점유 중이면 발동 불가
         if (isSkillMovementActive)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬1 불가 — 이미 스킬 이동 잠금 진행 중!");
             return false;
         }
         
@@ -387,8 +351,6 @@ public class PlayerAnimationController : MonoBehaviour
         canSkill1 = false;
         skill1CooldownStartTime = Time.time;
         
-        if (showDebugLogs)
-            Debug.Log($"🟢 [PlayerAnimationController] 스킬1 트리거 실행! (canSkill1 = false)");
         
         return true;
     }
@@ -398,8 +360,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public bool TriggerSkill2()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] TriggerSkill2 요청");
         
         // ⭐ 튜토리얼용 스킬 사용 이벤트 발생
         OnSkill2Used?.Invoke();
@@ -407,16 +367,12 @@ public class PlayerAnimationController : MonoBehaviour
         // 쿨다운 게이트: canSkill2가 주 게이트 (Skill2CooldownRoutine이 관리)
         if (!canSkill2)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 쿨다운 중입니다!");
             return false;
         }
         
         // 이동 잠금 게이트: 다른 스킬 애니메이션이 이동을 점유 중이면 발동 불가
         if (isSkillMovementActive)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [PlayerAnimationController] 스킬2 불가 — 이미 스킬 이동 잠금 진행 중!");
             return false;
         }
         
@@ -446,8 +402,6 @@ public class PlayerAnimationController : MonoBehaviour
         canSkill2 = false;
         skill2CooldownStartTime = Time.time;
         
-        if (showDebugLogs)
-            Debug.Log($"🟢 [PlayerAnimationController] 스킬2 트리거 실행! (canSkill2 = false)");
         
         return true;
     }
@@ -461,8 +415,6 @@ public class PlayerAnimationController : MonoBehaviour
         if (activeWeapon == null)
         {
             activeWeapon = FindObjectOfType<ActiveWeapon>();
-            if (showDebugLogs && activeWeapon != null)
-                Debug.Log("🔄 [PlayerAnimationController] ActiveWeapon 재검색 성공");
         }
         
         bool animatorIsAttacking = false;
@@ -494,17 +446,6 @@ public class PlayerAnimationController : MonoBehaviour
         }
         
         // 디버깅을 위한 상세 로그 (빈도 줄임)
-        if (showDebugLogs && Time.frameCount % 120 == 0) // 2초마다
-        {
-            Debug.Log($"🔍 [PlayerAnimationController] 공격 가능 여부 체크:");
-            Debug.Log($"   - animatorIsAttacking: {animatorIsAttacking}");
-            Debug.Log($"   - animatorIsSkill1: {animatorIsSkill1}");
-            Debug.Log($"   - animatorIsSkill2: {animatorIsSkill2}"); // ⭐ 추가
-            Debug.Log($"   - animatorIsHit: {animatorIsHit}"); // ⭐ 추가
-            Debug.Log($"   - hasWeapon: {hasWeapon}");
-            Debug.Log($"   - canAttack (스크립트): {canAttack}");
-        }
-        
         bool result = !animatorIsAttacking && !animatorIsSkill1 && !animatorIsSkill2 && !animatorIsHit && hasWeapon && canAttack; // ⭐ isHit 조건 추가
         
         return result;
@@ -545,11 +486,6 @@ public class PlayerAnimationController : MonoBehaviour
                      !animatorIsHit && hasSkillController && canSkill1 && 
                      globalCooldownReady && !isSkillMovementActive;
         
-        if (showDebugLogs && !result && Time.frameCount % 60 == 0)
-        {
-            Debug.Log($"🟡 [PlayerAnimationController] 스킬1 불가능 - globalCooldownReady: {globalCooldownReady}, isSkillMovementActive: {isSkillMovementActive}");
-        }
-        
         return result;
     }
     
@@ -587,11 +523,6 @@ public class PlayerAnimationController : MonoBehaviour
         bool result = !animatorIsAttacking && !animatorIsSkill1 && !animatorIsSkill2 && 
                      !animatorIsHit && hasSkillController && canSkill2 && 
                      globalCooldownReady && !isSkillMovementActive;
-        
-        if (showDebugLogs && !result && Time.frameCount % 60 == 0)
-        {
-            Debug.Log($"🟡 [PlayerAnimationController] 스킬2 불가능 - globalCooldownReady: {globalCooldownReady}, isSkillMovementActive: {isSkillMovementActive}");
-        }
         
         return result;
     }
@@ -670,7 +601,6 @@ public class PlayerAnimationController : MonoBehaviour
                     if (field != null)
                     {
                         field.SetValue(skill1, Time.time);
-                        Debug.Log($"🕐 [OnSkill1Start] BaseSkill 쿨다운 시작: {skill1.SkillName} (쿨다운: {skill1.Cooldown}초)");
                     }
                 }
             }
@@ -726,7 +656,6 @@ public class PlayerAnimationController : MonoBehaviour
                     if (field != null)
                     {
                         field.SetValue(skill2, Time.time);
-                        Debug.Log($"🕐 [OnSkill2Start] BaseSkill 쿨다운 시작: {skill2.SkillName} (쿨다운: {skill2.Cooldown}초)");
                     }
                 }
             }
@@ -768,8 +697,6 @@ public class PlayerAnimationController : MonoBehaviour
             if (weapon != null)
             {
                 weapon.Attack();
-                if (showDebugLogs)
-                    Debug.Log("🟢 [PlayerAnimationController] 무기 공격 직접 실행 완료");
             }
         }
         
@@ -785,8 +712,6 @@ public class PlayerAnimationController : MonoBehaviour
         if (skillController != null)
         {
             skillController.OnSkill1AnimationEvent();
-            if (showDebugLogs)
-                Debug.Log("🟢 [PlayerAnimationController] 스킬1 Animation Event 실행 완료");
         }
         
         // ❌ 제거: 중복 쿨다운
@@ -801,8 +726,6 @@ public class PlayerAnimationController : MonoBehaviour
         if (skillController != null)
         {
             skillController.OnSkill2AnimationEvent();
-            if (showDebugLogs)
-                Debug.Log("🟢 [PlayerAnimationController] 스킬2 Animation Event 실행 완료");
         }
         
         // ❌ 제거: 중복 쿨다운
@@ -819,16 +742,12 @@ public class PlayerAnimationController : MonoBehaviour
         float elapsed = Time.time - attackCooldownStartTime;
         float remaining = Mathf.Max(0f, attackCooldown - elapsed);
         
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 공격 쿨다운 남은 시간: {remaining:F2}초 (전체 {attackCooldown:F2}초, 이미 경과 {elapsed:F2}초)");
         
         yield return new WaitForSeconds(remaining);
         
         canAttack = true;
         isAttacking = false;
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] 공격 쿨다운 완료!");
     }
     
     /// <summary>
@@ -841,8 +760,6 @@ public class PlayerAnimationController : MonoBehaviour
         float elapsed = Time.time - skill1CooldownStartTime;
         float remaining = Mathf.Max(0f, skill1Cooldown - elapsed);
         
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 스킬1 쿨다운 남은 시간: {remaining:F2}초 (전체 {skill1Cooldown:F2}초, 이미 경과 {elapsed:F2}초)");
         
         yield return new WaitForSeconds(remaining);
         
@@ -850,8 +767,6 @@ public class PlayerAnimationController : MonoBehaviour
         isSkill1 = false;
         isAnySkillActive = false;
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] 스킬1 쿨다운 완료! (글로벌 쿨다운 해제)");
     }
     
     /// <summary>
@@ -862,8 +777,6 @@ public class PlayerAnimationController : MonoBehaviour
         float elapsed = Time.time - skill2CooldownStartTime;
         float remaining = Mathf.Max(0f, skill2Cooldown - elapsed);
         
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 스킬2 쿨다운 남은 시간: {remaining:F2}초 (전체 {skill2Cooldown:F2}초, 이미 경과 {elapsed:F2}초)");
         
         yield return new WaitForSeconds(remaining);
         
@@ -871,8 +784,6 @@ public class PlayerAnimationController : MonoBehaviour
         isSkill2 = false;
         isAnySkillActive = false;
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] 스킬2 쿨다운 완료! (글로벌 쿨다운 해제)");
     }
     
     /// <summary>
@@ -901,8 +812,6 @@ public class PlayerAnimationController : MonoBehaviour
             if (baseWeaponCooldown != weaponCooldown)
             {
                 baseWeaponCooldown = weaponCooldown;
-                if (showDebugLogs)
-                    Debug.Log($"🔵 [PlayerAnimationController] SyncWithRuntimeStats: baseWeaponCooldown 동기화 → {baseWeaponCooldown:F3}s");
             }
         }
         
@@ -922,8 +831,6 @@ public class PlayerAnimationController : MonoBehaviour
 
         attackCooldown = baseWeaponCooldown / atkSpeed;
 
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 공격 쿨다운 재계산: 무기기본={baseWeaponCooldown:F3}s / ASPD={atkSpeed:F2} = {attackCooldown:F3}s");
     }
     
     /// <summary>
@@ -932,8 +839,6 @@ public class PlayerAnimationController : MonoBehaviour
     public void UpdateSkill1Cooldown(float newCooldown)
     {
         skill1Cooldown = newCooldown;
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 스킬1 쿨다운 업데이트: {skill1Cooldown}초");
     }
     
     /// <summary>
@@ -942,8 +847,6 @@ public class PlayerAnimationController : MonoBehaviour
     public void UpdateSkill2Cooldown(float newCooldown)
     {
         skill2Cooldown = newCooldown;
-        if (showDebugLogs)
-            Debug.Log($"🔵 [PlayerAnimationController] 스킬2 쿨다운 업데이트: {skill2Cooldown}초");
     }
     
     // ===== Radial UI용 쿨다운 정보 공개 메서드 =====
@@ -1005,7 +908,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public bool TriggerHit()
     {
-        Debug.Log("🔴 [PlayerAnimationController] 피격 트리거 실행 시작");
         
         if (animator == null)
         {
@@ -1019,28 +921,24 @@ public class PlayerAnimationController : MonoBehaviour
             if (HasParameter(animator, "isAttacking"))
             {
                 animator.SetBool(IS_ATTACKING_HASH, false);
-                Debug.Log("🟡 [PlayerAnimationController] 공격 중단됨");
             }
             
             // ⭐ 현재 스킬1 중이면 스킬1 중단
             if (HasParameter(animator, "isSkill1"))
             {
                 animator.SetBool(IS_SKILL1_HASH, false);
-                Debug.Log("🟡 [PlayerAnimationController] 스킬1 중단됨");
             }
 
             // ⭐ 현재 스킬2 중이면 스킬2 중단
             if (HasParameter(animator, "isSkill2"))
             {
                 animator.SetBool(IS_SKILL2_HASH, false);
-                Debug.Log("🟡 [PlayerAnimationController] 스킬2 중단됨");
             }
 
             // ⭐ 스킬 실행 중(Telegraph/딜레이 대기 포함)이면 강제 취소 → 이동 해제 이벤트 발행
             if (skillController != null && skillController.IsSkillPendingExecution)
             {
                 skillController.CancelSkillExecution();
-                Debug.Log("🟡 [PlayerAnimationController] 피격으로 스킬 실행 취소됨");
             }
             
             // ⭐ 피격 상태 시작
@@ -1048,14 +946,12 @@ public class PlayerAnimationController : MonoBehaviour
             {
                 animator.SetBool(IS_HIT_HASH, true);
                 isHit = true;
-                Debug.Log("🔴 [PlayerAnimationController] isHit = true 설정됨");
             }
             
             // Hit Trigger 존재 여부 확인 후 실행
             if (HasParameter(animator, "Hit"))
             {
                 animator.SetTrigger(HIT_TRIGGER_HASH);
-                Debug.Log("🟢 [PlayerAnimationController] Hit Trigger 실행됨!");
                 return true;
             }
             else
@@ -1077,7 +973,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnHitStart()
     {
-        Debug.Log("🔴 [PlayerAnimationController] OnHitStart - Animation Event 호출됨!");
             
         // 피격 시 추가 로직 (예: 이동 제한, 공격 중단 등)
         isAttacking = false; // 공격 중단
@@ -1089,7 +984,6 @@ public class PlayerAnimationController : MonoBehaviour
         if (HasParameter(animator, "isHit"))
         {
             animator.SetBool(IS_HIT_HASH, true);
-            Debug.Log("🔴 [PlayerAnimationController] OnHitStart: isHit = true 설정 확인");
         }
     }
 
@@ -1098,17 +992,14 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnHitEnd()
     {
-        Debug.Log("🟢 [PlayerAnimationController] OnHitEnd - Animation Event 호출됨!");
         
         // ⭐ 피격 상태 종료
         isHit = false;
         if (HasParameter(animator, "isHit"))
         {
             animator.SetBool(IS_HIT_HASH, false);
-            Debug.Log("🟢 [PlayerAnimationController] OnHitEnd: isHit = false 설정");
         }
         
-        Debug.Log("🟢 [PlayerAnimationController] 피격 애니메이션 종료");
     }
 
     /// <summary>
@@ -1134,18 +1025,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void LogCurrentState()
     {
-        Debug.Log($"🔍 [PlayerAnimationController] 현재 상태:");
-        Debug.Log($"   CanAttack (Script): {canAttack}");
-        Debug.Log($"   IsAttacking (Script): {isAttacking}");
-        Debug.Log($"   CanSkill1 (Script): {canSkill1}"); // ⭐ 추가
-        Debug.Log($"   IsSkill1 (Script): {isSkill1}"); // ⭐ 추가
-        Debug.Log($"   IsSkill2 (Script): {isSkill2}"); // ⭐ 스킬2 상태 추가
-        Debug.Log($"   IsHit (Script): {isHit}"); // ⭐ 피격 상태 추가
-        Debug.Log($"   IsAttacking (Animator): {animator.GetBool(IS_ATTACKING_HASH)}");
-        if (HasParameter(animator, "isHit"))
-            Debug.Log($"   IsHit (Animator): {animator.GetBool(IS_HIT_HASH)}"); // ⭐ 피격 상태 추가
-        Debug.Log($"   Has Weapon: {activeWeapon?.CurrentActiveWeapon != null}");
-        Debug.Log($"   Has SkillController: {skillController != null}"); // ⭐ 추가
     }
 
     private void OnDestroy()
@@ -1163,8 +1042,6 @@ public class PlayerAnimationController : MonoBehaviour
         // 이펙트 완료 신호 — 이동 해제는 TryReleaseSkillMovement에서 결정
         NotifySkillEffectDone();
 
-        if (showDebugLogs)
-            Debug.Log($"✅ [PlayerAnimationController] 스킬 이펙트 완료 수신 (슬롯 {slotIndex}) → effectDone=true");
     }
 
     // =========================================================================
@@ -1183,16 +1060,12 @@ public class PlayerAnimationController : MonoBehaviour
         isSkillEffectDone     = false;
         if (playerController != null)
             playerController.ApplyAttackMovementRestriction(PlayerAttackType.Skill);
-        if (showDebugLogs)
-            Debug.Log("⚔️ [SkillMovement] 잠금 시작 — 방향 고정, animDone=false, effectDone=false");
     }
 
     /// <summary>애니메이션 80% 도달 시 SkillStateBehaviour → OnSkill1/2Complete 경유하여 호출</summary>
     public void NotifySkillAnimDone()
     {
         isSkillAnimDone = true;
-        if (showDebugLogs)
-            Debug.Log($"🎬 [SkillMovement] animDone=true (effectDone={isSkillEffectDone})");
         TryReleaseSkillMovement();
     }
 
@@ -1200,8 +1073,6 @@ public class PlayerAnimationController : MonoBehaviour
     public void NotifySkillEffectDone()
     {
         isSkillEffectDone = true;
-        if (showDebugLogs)
-            Debug.Log($"✅ [SkillMovement] effectDone=true (animDone={isSkillAnimDone})");
         TryReleaseSkillMovement();
     }
 
@@ -1211,8 +1082,6 @@ public class PlayerAnimationController : MonoBehaviour
         if (!isSkillMovementActive) return;
         isSkillAnimDone   = true;
         isSkillEffectDone = true;
-        if (showDebugLogs)
-            Debug.Log("🔓 [SkillMovement] 강제 해제 (피격/취소/State Exit)");
         TryReleaseSkillMovement();
     }
 
@@ -1224,8 +1093,6 @@ public class PlayerAnimationController : MonoBehaviour
         isSkillMovementActive = false;
         if (playerController != null)
             playerController.RestoreNormalMovement();
-        if (showDebugLogs)
-            Debug.Log("🔓 [SkillMovement] 이동 해제 — animDone && effectDone 충족");
     }
 
     void Update()
@@ -1242,42 +1109,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     private void LogCurrentAnimationState()
     {
-        if (animator == null) return;
-        
-        try
-        {
-            Debug.Log($"🔍 [PlayerAnimationController] 현재 Animation 상태:");
-                
-            if (HasParameter(animator, "isAttacking"))
-                Debug.Log($"   - isAttacking: {animator.GetBool(IS_ATTACKING_HASH)}");
-                
-            // ⭐ 스킬1 상태 로깅 추가
-            if (HasParameter(animator, "isSkill1"))
-                Debug.Log($"   - isSkill1: {animator.GetBool(IS_SKILL1_HASH)}");
-                
-            // ⭐ 스킬2 상태 로깅 추가 (신규)
-            if (HasParameter(animator, "isSkill2"))
-                Debug.Log($"   - isSkill2: {animator.GetBool(IS_SKILL2_HASH)}");
-                
-            // ⭐ 피격 상태 로깅 추가
-            if (HasParameter(animator, "isHit"))
-                Debug.Log($"   - isHit: {animator.GetBool(IS_HIT_HASH)}");
-                
-            if (HasParameter(animator, "moveX"))
-                // Debug.Log($"   - moveX: {animator.GetFloat("moveX")}");
-                
-            if (HasParameter(animator, "moveY"))
-                Debug.Log($"   - moveY: {animator.GetFloat("moveY")}");
-                
-            // 현재 애니메이션 상태 이름
-            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            string stateName = GetStateName(stateInfo.shortNameHash);
-            Debug.Log($"   - State 이름: {stateName} (시간: {stateInfo.normalizedTime})");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"🔴 [PlayerAnimationController] Animation 상태 확인 실패: {e.Message}");
-        }
     }
 
     /// <summary>
@@ -1348,8 +1179,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public bool TriggerDash(Vector2 direction)
     {
-        if (showDebugLogs)
-            Debug.Log($"🚀 [PlayerAnimationController] TriggerDash 호출: {direction}");
         
         if (animator == null)
         {
@@ -1359,8 +1188,6 @@ public class PlayerAnimationController : MonoBehaviour
         
         if (!canDash)
         {
-            if (showDebugLogs)
-                Debug.Log("🟡 [PlayerAnimationController] 대시 쿨다운 중입니다!");
             return false;
         }
         
@@ -1385,8 +1212,6 @@ public class PlayerAnimationController : MonoBehaviour
             isDashing = true;
             canDash = false;
             
-            if (showDebugLogs)
-                Debug.Log($"🟢 [PlayerAnimationController] 대시 트리거 성공! 방향: {dashDirection}");
             
             // 대시 지속시간 후 상태 리셋
             StartCoroutine(DashRoutine());
@@ -1513,15 +1338,11 @@ public class PlayerAnimationController : MonoBehaviour
         }
         isDashing = false;
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] 대시 완료");
         
         // 쿨다운
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
         
-        if (showDebugLogs)
-            Debug.Log("🟢 [PlayerAnimationController] 대시 쿨다운 완료");
     }
     
     /// <summary>
@@ -1529,8 +1350,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnDashStart()
     {
-        if (showDebugLogs)
-            Debug.Log("🚀 [PlayerAnimationController] OnDashStart - Animation Event");
         
         // 추가 대시 로직 (파티클 이펙트 등)이 필요하면 여기에 구현
     }
@@ -1540,8 +1359,6 @@ public class PlayerAnimationController : MonoBehaviour
     /// </summary>
     public void OnDashComplete()
     {
-        if (showDebugLogs)
-            Debug.Log("🚀 [PlayerAnimationController] OnDashComplete - Animation Event");
         
         // 대시 완료 시 추가 로직이 필요하면 여기에 구현
     }

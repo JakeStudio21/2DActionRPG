@@ -90,41 +90,16 @@ public class Assasin : BaseClassBehaviour
     
     protected override void Start()
     {
-        Debug.Log("🔵 [Assasin] Start() 시작");
         
-        // 🔍 AssasinData 상태 상세 확인
-        if (assasinData != null)
-        {
-            Debug.Log($"✅ [Assasin] AssasinData 연결됨: {assasinData.name}");
-            Debug.Log($"📊 [Assasin] AssasinData 실제 설정값들:");
-            Debug.Log($"   - attackPowerMultiplier: {assasinData.AttackPowerMultiplier}");
-            Debug.Log($"   - moveSpeedMultiplier: {assasinData.MoveSpeedMultiplier}");
-            Debug.Log($"   - skillCooldownMultiplier: {assasinData.SkillCooldownMultiplier}");
-            Debug.Log($"   - healthMultiplier: {assasinData.HealthMultiplier}");
-            Debug.Log($"   - baseMoveSpeed: {assasinData.baseMoveSpeed}");
-            Debug.Log($"   - baseMaxHealth: {assasinData.baseMaxHealth}");
-            Debug.Log($"🔍 [Assasin] GetBaseMoveSpeed() 결과: {GetBaseMoveSpeed()}");
-        }
-        else
-        {
+        if (assasinData == null)
             Debug.LogError("❌ [Assasin] AssasinData가 null입니다!");
-            Debug.Log($"�� [Assasin] Fallback 값들:");
-            Debug.Log($"   - AttackPowerMultiplier: {AttackPowerMultiplier}");
-            Debug.Log($"   - MoveSpeedMultiplier: {MoveSpeedMultiplier}");
-            Debug.Log($"   - HealthMultiplier: {HealthMultiplier}");
-        }
         
         // 🎯 현재 오버라이드 값 확인
-        Debug.Log($"🔧 [Assasin] 현재 배율 값들:");
-        Debug.Log($"   - AttackPowerMultiplier: {AttackPowerMultiplier}");
-        Debug.Log($"   - MoveSpeedMultiplier: {MoveSpeedMultiplier}");
-        Debug.Log($"   - HealthMultiplier: {HealthMultiplier}");
         
         base.Start(); // BaseClassBehaviour.Start() 호출 - 자동 적용
         
         // 🗑️ ForceApplyAssasinData() 제거됨 - BaseClassBehaviour가 자동 처리
         
-        Debug.Log("🔵 [Assasin] Start() 완료 - BaseClassBehaviour 자동 적용만 사용");
     }
 
     protected override void Update()
@@ -147,22 +122,17 @@ public class Assasin : BaseClassBehaviour
         if (assasinSkill1 != null)
         {
             skillController.SkillSet.SetSkill(0, assasinSkill1);
-            if (showDebugLogs)
-                Debug.Log($"🎯 [Assasin] AssasinSkill1 자동 할당 완료");
         }
         
         if (assasinSkill2 != null)  // ← 주석 해제
         {
             skillController.SkillSet.SetSkill(1, assasinSkill2);
-            if (showDebugLogs)
-                Debug.Log($"🎯 [Assasin] AssasinSkill2 자동 할당 완료");
         }
     }
     
     protected override void ApplyLevelUpBonus(int newLevel)
     {
-        if (showDebugLogs)
-            Debug.Log($"🆙 [Assasin] 레벨업! Lv.{newLevel} - 어쌔신 보너스 적용");
+            Dbg.Log($"🆙 [Assasin] 레벨업! Lv.{newLevel} - 어쌔신 보너스 적용");
         
         // 레벨업 시 어쌔신 고유 보너스
         // 예: 레벨마다 크리티컬 확률 0.5% 증가
@@ -208,8 +178,6 @@ public class Assasin : BaseClassBehaviour
     {
         if (!isActive || !isInitialized)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [Assasin] 클래스가 비활성화되어 있거나 초기화되지 않았습니다.");
             return;
         }
         
@@ -222,14 +190,11 @@ public class Assasin : BaseClassBehaviour
                 // 어쌔신 쿨다운 배율 적용
                 skill.Execute();
                 
-                if (showDebugLogs)
-                    Debug.Log($"�� [Assasin] 스킬 사용: {skill.SkillName}");
             }
         }
         else
         {
             // Fallback: 기존 방식
-            Debug.Log("🏹 어쌔신 스킬 발동!");
         }
     }
     
@@ -247,8 +212,6 @@ public class Assasin : BaseClassBehaviour
     {
         isStealthActive = true; // 🆕 은신 상태 시작
         
-        if (showDebugLogs)
-            Debug.Log($"👻 [Assasin] 은신 발동! 지속시간: {StealthDuration}초"); // 이제 ScriptableObject에서 관리
         
         // 🆕 실제 은신 효과 적용
         var spriteRenderer = GetComponent<SpriteRenderer>();
@@ -272,17 +235,8 @@ public class Assasin : BaseClassBehaviour
             {
                 gameObject.layer = stealthLayer;
             }
-            else
-            {
-                if (showDebugLogs)
-                    Debug.LogWarning("🟡 [Assasin] StealthPlayer 레이어가 정의되지 않았습니다.");
-            }
         }
-        catch (System.Exception ex)
-        {
-            if (showDebugLogs)
-                Debug.LogWarning($"🟡 [Assasin] 레이어 변경 실패: {ex.Message}");
-        }
+        catch (System.Exception) { }
         
         // 🆕 은신 이펙트 생성
         if (GamePoolManager.Instance != null)
@@ -307,8 +261,6 @@ public class Assasin : BaseClassBehaviour
         
         isStealthActive = false; // 🆕 은신 상태 종료
         
-        if (showDebugLogs)
-            Debug.Log($"👻 [Assasin] 은신 해제");
     }
     
     /// <summary>
@@ -322,8 +274,6 @@ public class Assasin : BaseClassBehaviour
         // 적의 뒤쪽에서 공격하는 경우 (dot > 0.5)
         if (dot > 0.5f)
         {
-            if (showDebugLogs)
-                Debug.Log($"🗡️ [Assasin] 백어택 성공! 보너스: {BackAttackBonus}x"); // 이제 ScriptableObject에서 관리
             return BackAttackBonus; // 이제 ScriptableObject에서 관리
         }
         
@@ -346,10 +296,6 @@ public class Assasin : BaseClassBehaviour
     {
         base.PrintStatus(); // 기본 정보 출력
         
-        Debug.Log($"🏹 [Assasin] 고유 특성:");
-        Debug.Log($"   - 회피 확률: {DodgeChance * 100:F1}%");
-        Debug.Log($"   - 은신 지속시간: {StealthDuration}초");
-        Debug.Log($"   - 백어택 보너스: {BackAttackBonus}x");
     }
     
     #endregion
@@ -364,8 +310,6 @@ public class Assasin : BaseClassBehaviour
         // ⭐ 새로운 구조: SelectedPlayerData 사용
         if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
         {
-            if (showDebugLogs)
-                Debug.Log("ℹ️ [Assasin] PlayerDataManager 없음 또는 슬롯 미선택. 저장 생략.");
             return;
         }
         
@@ -381,8 +325,6 @@ public class Assasin : BaseClassBehaviour
         // 슬롯에 저장
         PlayerDataManager.Instance.SaveCurrentSlot();
         
-        if (showDebugLogs)
-            Debug.Log($"�� [Assasin] 데이터 저장 완료: Lv.{selectedData.classLevel}, 회피확률:{DodgeChance}");
     }
     
     /// <summary>
@@ -406,12 +348,8 @@ public class Assasin : BaseClassBehaviour
             if (selectedData.RuntimeExtraStats.ContainsKey("dodgeChance"))
             {
                 float savedDodgeChance = selectedData.GetRuntimeStat("dodgeChance");
-                if (showDebugLogs)
-                    Debug.Log($"📁 [Assasin] 저장된 회피 확률: {savedDodgeChance} (현재: {DodgeChance})");
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [Assasin] 데이터 로드 성공: {selectedData.RuntimeExtraStats.Count}개 속성");
         }
         catch (System.Exception ex)
         {
@@ -496,8 +434,6 @@ public class Assasin : BaseClassBehaviour
         try
         {
             ApplyClassStats();
-            if (showDebugLogs)
-                Debug.Log("🔄 [Assasin] AssasinData 변경 감지 → 능력치 안전 재적용 완료");
         }
         catch (System.Exception e)
         {
@@ -521,8 +457,6 @@ public class Assasin : BaseClassBehaviour
     public override Vector2 GetFootOffset()
     {
         var isometricData = GetIsometricData();
-        if (showDebugLogs)
-            Debug.Log($"🦶 [Assasin] FootOffset: {isometricData.FootOffset}");
         return isometricData.FootOffset;
     }
     
@@ -532,8 +466,6 @@ public class Assasin : BaseClassBehaviour
     public override DirectionPreset GetDirectionPreset()
     {
         var isometricData = GetIsometricData();
-        if (showDebugLogs)
-            Debug.Log($"🧭 [Assasin] DirectionPreset: {isometricData.DirectionPreset}");
         return isometricData.DirectionPreset;
     }
     
@@ -547,9 +479,6 @@ public class Assasin : BaseClassBehaviour
         var isometricData = GetIsometricData();
         int heightOffset = isometricData.CalculateHeightOffset(t);
         
-        if (showDebugLogs && heightOffset != 0)
-            Debug.Log($"📈 [Assasin] HeightOffset: t={t:F2} → {heightOffset}");
-            
         return heightOffset;
     }
     
@@ -569,19 +498,6 @@ public class Assasin : BaseClassBehaviour
     /// </summary>
     private void ValidateIsometricData()
     {
-        if (showDebugLogs)
-        {
-            Debug.Log($"🗺️ [Assasin] 아이소메트릭 데이터 검증 시작");
-            
-            var isometricData = GetIsometricData();
-            Debug.Log($"   - DirectionPreset: {isometricData.DirectionPreset}");
-            Debug.Log($"   - FootOffset: {isometricData.FootOffset}");
-            Debug.Log($"   - HeightAmplitude: {isometricData.HeightAmplitude}");
-            Debug.Log($"   - IsValid: {isometricData.IsValid()}");
-            
-            // 샘플 높이 계산 테스트
-            Debug.Log($"   - 높이 테스트: 0.0={CalculateHeightOffset(0f)}, 0.5={CalculateHeightOffset(0.5f)}, 1.0={CalculateHeightOffset(1f)}");
-        }
     }
     
     /// <summary>
@@ -592,8 +508,6 @@ public class Assasin : BaseClassBehaviour
         var defaultData = new IsometricCharacterData();
         defaultData.SetDefaults();
         
-        if (showDebugLogs)
-            Debug.LogWarning($"⚠️ [Assasin] AssasinData가 없어 기본 아이소메트릭 데이터 사용");
             
         return defaultData;
     }
