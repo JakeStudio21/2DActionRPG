@@ -90,7 +90,6 @@ public class SimpleMobOrbitalShooter : SimpleMob
     {
         if (string.IsNullOrEmpty(mobData.projectilePoolTag))
         {
-            if (enableDebugLogs)
                 Debug.LogWarning("[SimpleMobOrbitalShooter] projectilePoolTag가 비어있어 발사 스킵");
             return;
         }
@@ -110,7 +109,6 @@ public class SimpleMobOrbitalShooter : SimpleMob
 
         if (projectile == null)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[SimpleMobOrbitalShooter] 투사체 스폰 실패 — 풀 태그 '{mobData.projectilePoolTag}'");
             return;
         }
@@ -128,8 +126,6 @@ public class SimpleMobOrbitalShooter : SimpleMob
             if (proj != null) proj.SetAsEnemyProjectile(true);
         }
 
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMobOrbitalShooter] 투사체 발사 → {direction}");
 
         // 공격 애니메이션 트리거
         if (animator != null)

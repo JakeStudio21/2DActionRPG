@@ -35,7 +35,6 @@ public class BossMultiShotSkill : MonoBehaviour
     [SerializeField] private float projectileLifetime = 5f;
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
     
     private BossSkillController skillController;
     
@@ -63,18 +62,6 @@ public class BossMultiShotSkill : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🌀 [BossMultiShotSkill] {gameObject.name}: 나선형 난사 시작!");
-            if (targetDirection.HasValue)
-            {
-                Debug.Log($"   📍 저장된 방향 사용: {targetDirection.Value}");
-            }
-            else
-            {
-                Debug.Log($"   📍 현재 플레이어 방향 사용");
-            }
-        }
         
         StartCoroutine(SpiralFireRoutine(skillEntry, targetDirection));
     }
@@ -95,10 +82,6 @@ public class BossMultiShotSkill : MonoBehaviour
         // 각도 증가량 (나선 패턴)
         float angleStep = spiralRotationSpeed * fireInterval;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🌀 나선 난사: {spiralProjectileCount}발, 회전속도 {spiralRotationSpeed}도/초");
-        }
         
         // 발사체 순차 발사
         for (int i = 0; i < spiralProjectileCount; i++)
@@ -115,10 +98,6 @@ public class BossMultiShotSkill : MonoBehaviour
             yield return new WaitForSeconds(fireInterval);
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🌀 나선 난사 완료!");
-        }
     }
     
     /// <summary>
@@ -165,10 +144,6 @@ public class BossMultiShotSkill : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossMultiShotSkill] GamePoolManager 사용 실패: {e.Message}");
-            }
         }
         
         // 풀링 실패 시 직접 생성
@@ -197,10 +172,6 @@ public class BossMultiShotSkill : MonoBehaviour
             float speed = projectileSpeed * skillEntry.skillScaleMultiplier;
             rb.velocity = direction * speed;
             
-            if (enableDebugLogs && Random.value < 0.1f) // 10%만 로그 (너무 많아서)
-            {
-                Debug.Log($"[BossMultiShotSkill] 발사: 속도 {speed:F1}, 각도 {angleInDegrees:F0}도");
-            }
         }
         
         // 데미지 설정

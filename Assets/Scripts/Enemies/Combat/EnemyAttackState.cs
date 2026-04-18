@@ -19,8 +19,6 @@ public class EnemyAttackState : IEnemyState
 
     public void Enter()
     {
-        bool debugEnabled = enemy is BaseEnemy be0 && be0.EnableDebugLogs;
-        if (debugEnabled) Debug.Log($"🗡️ [EnemyAttackState] {enemy.transform.name} - 공격 상태 진입!");
         
         // ⭐ 1번: 공격 시작 전 거리 체크 (엄격한 범위 체크로 허공 공격 방지)
         if (enemy.TargetPlayer != null)
@@ -49,18 +47,6 @@ public class EnemyAttackState : IEnemyState
         attackTimer = 0f;
         hasCheckedAfterAnimation = false;
         
-        // ⭐ 방향 확인 로그
-        if (debugEnabled && enemy is BaseEnemy baseEnemy && baseEnemy.AnimationController != null)
-        {
-            var animController = baseEnemy.AnimationController;
-            var animator = animController.GetComponent<Animator>();
-            if (animator != null)
-            {
-                float moveX = animator.GetFloat("moveX");
-                float moveY = animator.GetFloat("moveY");
-                Debug.Log($"   📍 공격 시작 직후 방향: moveX={moveX:F2}, moveY={moveY:F2}");
-            }
-        }
     }
 
     public void Execute()

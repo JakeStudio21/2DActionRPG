@@ -41,9 +41,6 @@ public class EliteSkillController : MonoBehaviour
     [Tooltip("⭐ 스킬 스폰 위치 (PlantsMonster 방식) - 프리팹 내부 Transform")]
     [SerializeField] private Transform skillSpawnPoint;
     
-    [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 기본값: false (필요시 Inspector에서 켜기)
-
     // 프로퍼티
     public bool IsCasting => isCasting;
     public bool IsActionExecuting => isActionExecuting;
@@ -74,19 +71,11 @@ public class EliteSkillController : MonoBehaviour
                     skillCooldowns[skill] = 0f; // 처음엔 사용 가능
                     
                     // ⭐ 스킬 정보 로그 출력
-                    if (enableDebugLogs)
-                    {
-                        Debug.Log($"[EliteSkillController] 스킬 등록: {skill.SkillName}");
-                        Debug.Log($"[EliteSkillController] {skill.GetDebugInfo(10)}");
-                    }
                 }
             }
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[EliteSkillController] {gameObject.name} 초기화 완료 (스킬 개수: {skillCooldowns.Count})");
-        }
+        Dbg.Log($"[EliteSkillController] {gameObject.name} 초기화 완료 (스킬 개수: {skillCooldowns.Count})");
     }
 
     private void Update()
@@ -111,10 +100,6 @@ public class EliteSkillController : MonoBehaviour
                 if (skillCooldowns[skill] <= 0f)
                 {
                     skillCooldowns[skill] = 0f;
-                    if (enableDebugLogs)
-                    {
-                        Debug.Log($"[EliteSkillController] {gameObject.name}: {skill.SkillName} 쿨다운 완료!");
-                    }
                 }
             }
         }
@@ -127,15 +112,12 @@ public class EliteSkillController : MonoBehaviour
     {
         if (skill == null) 
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[EliteSkillController] CanUseSkill: skill이 null!");
             return false;
         }
         
         if (isCasting || isActionExecuting) 
         {
-            if (enableDebugLogs)
-                Debug.Log($"[EliteSkillController] CanUseSkill: 이미 스킬 실행 중 (isCasting={isCasting}, isAction={isActionExecuting})");
             return false;
         }
         
@@ -143,17 +125,9 @@ public class EliteSkillController : MonoBehaviour
         if (skillCooldowns.ContainsKey(skill))
         {
             bool canUse = skillCooldowns[skill] <= 0f;
-            if (enableDebugLogs)
-            {
-                if (!canUse)
-                    Debug.Log($"[EliteSkillController] CanUseSkill: {skill.SkillName} 쿨다운 중 (남은 시간: {skillCooldowns[skill]:F1}초)");
-                else
-                    Debug.Log($"[EliteSkillController] CanUseSkill: {skill.SkillName} 사용 가능! ✅");
-            }
             return canUse;
         }
         
-        if (enableDebugLogs)
             Debug.LogWarning($"[EliteSkillController] CanUseSkill: {skill.SkillName}가 쿨다운 딕셔너리에 없음!");
         return true;
     }
@@ -174,20 +148,12 @@ public class EliteSkillController : MonoBehaviour
     {
         if (!CanUseSkill(skill))
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[EliteSkillController] {gameObject.name}: {skill.SkillName} 사용 불가!");
-            }
             return;
         }
 
         currentSkill = skill;
         isCasting = true;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🔮 [EliteSkillController] {gameObject.name}: {skill.SkillName} 캐스팅 시작!");
-        }
         
         // 애니메이션 트리거
         if (animController != null)
@@ -215,36 +181,14 @@ public class EliteSkillController : MonoBehaviour
             Vector3 toPlayer = cachedTargetPosition - elitePos;
             cachedTargetDirection = toPlayer.normalized;
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🎯 [EliteSkillController] Forward 방향 계산:");
-                Debug.Log($"   - Elite 위치: {elitePos}");
-                Debug.Log($"   - Player 위치: {cachedTargetPosition}");
-                Debug.Log($"   - 방향 벡터 (정규화 전): {toPlayer}");
-                Debug.Log($"   - 방향 벡터 (정규화 후): {cachedTargetDirection}");
-                
-                // 2D 각도 계산 (X-Y 평면 기준)
-                float angle2D = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
-                Debug.Log($"   - 2D 각도: {angle2D}° (0°=우측, 90°=상단, 180°=좌측, -90°=하단)");
-            }
         }
         else
         {
             cachedTargetDirection = Vector3.down; // fallback
             cachedTargetPosition = transform.position + Vector3.down * 5f;
             
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"⚠️ [EliteSkillController] Player를 찾을 수 없음! Fallback: Vector3.down");
-            }
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✨ [EliteSkillController] {gameObject.name}: Cast 이펙트 + Telegraph 생성");
-            Debug.Log($"   - Cached Origin: {cachedOrigin}");
-            Debug.Log($"   - Cached Forward: {cachedTargetDirection}");
-        }
         
         // Cast 이펙트 생성
         SpawnCastEffect();
@@ -263,10 +207,6 @@ public class EliteSkillController : MonoBehaviour
         isCasting = false;
         isActionExecuting = true;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎯 [EliteSkillController] {gameObject.name}: Cast 완료 → Action 단계");
-        }
         
         // ⚠️ Telegraph는 여기서 제거하지 않음! (Action 실행 직전에 제거)
         // RemoveTelegraph(); ← 주석 처리
@@ -287,10 +227,6 @@ public class EliteSkillController : MonoBehaviour
     {
         if (currentSkill == null) return;
         
-        if (enableDebugLogs)
-        {
-            Debug.LogWarning($"⚠️ [EliteSkillController] ExecuteSkillVFXOnly()는 Deprecated! VFX는 자동으로 생성됩니다.");
-        }
         
         // Phase 4: VFX는 SpawnDamageArea()에서 자동 생성되므로 여기서는 아무것도 하지 않음
     }
@@ -303,8 +239,6 @@ public class EliteSkillController : MonoBehaviour
     {
         if (currentSkill == null) return;
 
-        if (enableDebugLogs)
-            Debug.Log($"💥 [EliteSkillController] {gameObject.name}: {currentSkill.SkillName} 데미지 판정! (Type: {currentSkill.SkillType})");
 
         // Telegraph 제거 (데미지 판정 직전)
         RemoveTelegraph();
@@ -336,8 +270,6 @@ public class EliteSkillController : MonoBehaviour
             return;
         }
 
-        if (enableDebugLogs)
-            Debug.Log($"🏃 [EliteSkillController] {gameObject.name}: 대시 스킬 실행 → EliteDashSkill.Execute()");
 
         dashSkill.Execute(currentSkill, cachedTargetDirection, baseEnemy);
     }
@@ -349,10 +281,6 @@ public class EliteSkillController : MonoBehaviour
     {
         if (currentSkill == null) return;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"💥 [EliteSkillController] {gameObject.name}: {currentSkill.SkillName} 액션 실행");
-        }
         
         // ⭐ Phase 4: Damage만 호출 (VFX는 SpawnDamageArea()에서 자동 생성)
         ExecuteSkillDamageOnly();
@@ -378,16 +306,8 @@ public class EliteSkillController : MonoBehaviour
             {
                 animator.ResetTrigger("Attack");
                 
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"🧹 [EliteSkillController] {gameObject.name}: Attack 트리거 리셋!");
-                }
             }
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🎬 [EliteSkillController] {gameObject.name}: isSkillAction = false 설정!");
-            }
         }
         else
         {
@@ -407,10 +327,6 @@ public class EliteSkillController : MonoBehaviour
             skillCooldowns[currentSkill] = currentSkill.Cooldown;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [EliteSkillController] {gameObject.name}: {currentSkill.SkillName} 완료! (쿨다운: {currentSkill.Cooldown}초)");
-        }
         
         currentSkill = null;
     }
@@ -452,14 +368,6 @@ public class EliteSkillController : MonoBehaviour
         // Telegraph 생성 (위치 + 회전 적용)
         activeTelegraph = Instantiate(currentSkill.TelegraphPrefab, spawnPosition, rotation);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"📍 [EliteSkillController] Telegraph 생성: {activeTelegraph.name}");
-            Debug.Log($"   - Origin: {cachedOrigin}");
-            Debug.Log($"   - Rotation: {rotation.eulerAngles}");
-            Debug.Log($"   - Center Mode: {currentSkill.AoeCenterMode}");
-            Debug.Log($"   - Center Offset: {currentSkill.AoeCenterOffset}");
-        }
         
         // Telegraph 설정 (두 가지 타입 지원)
         float scaleMultiplier = 1.0f; // 엘리트는 기본값 1.0
@@ -474,10 +382,7 @@ public class EliteSkillController : MonoBehaviour
             if (currentSkill.TelegraphOffset == Vector2.zero)
                 AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"✅ [EliteSkillController] TelegraphIndicator 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
-            }
+            Dbg.Log($"✅ [EliteSkillController] TelegraphIndicator 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
         }
         else
         {
@@ -491,10 +396,7 @@ public class EliteSkillController : MonoBehaviour
                 if (currentSkill.TelegraphOffset == Vector2.zero)
                     AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
                 
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"✅ [EliteSkillController] TelegraphIndicatorMesh 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
-                }
+                Dbg.Log($"✅ [EliteSkillController] TelegraphIndicatorMesh 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
             }
             else
             {
@@ -527,10 +429,6 @@ public class EliteSkillController : MonoBehaviour
             // 오프셋이 여전히 0이면 경고 후 종료
             if (centerOffset <= 0f)
             {
-                if (enableDebugLogs)
-                {
-                    Debug.LogWarning($"⚠️ [EliteSkillController] ForwardAnchored 모드인데 Center Offset이 0입니다! SkillData에서 AoeCenterOffset을 설정해주세요.");
-                }
                 return;
             }
             
@@ -545,16 +443,6 @@ public class EliteSkillController : MonoBehaviour
             
             telegraph.transform.position = newPosition;
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🎯 [EliteSkillController] ForwardAnchored 모드 - Telegraph 위치 조정:");
-                Debug.Log($"   - Origin: {cachedOrigin}");
-                Debug.Log($"   - Center Offset: {centerOffset}");
-                Debug.Log($"   - Scale Multiplier: {scaleMultiplier}");
-                Debug.Log($"   - Final Offset: {finalOffset}");
-                Debug.Log($"   - Forward: {forward}");
-                Debug.Log($"   - New Position: {newPosition}");
-            }
         }
         // Centered 모드일 때는 Origin 위치 그대로 유지 (조정 불필요)
     }
@@ -581,12 +469,6 @@ public class EliteSkillController : MonoBehaviour
         // ⭐ 저장된 cachedTargetDirection 사용 (Telegraph와 동일한 방향)
         Quaternion rotation = CalculateTelegraphRotation();
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎨 [EliteSkillController] AOE 이펙트 생성: {currentSkill.AoeEffect.name}");
-            Debug.Log($"   - Center: {center}");
-            Debug.Log($"   - Rotation: {rotation.eulerAngles}");
-        }
         
         GameObject effect = Instantiate(currentSkill.AoeEffect, center, rotation);
         Destroy(effect, 2f);
@@ -605,10 +487,6 @@ public class EliteSkillController : MonoBehaviour
         Vector3 spawnPosition = cachedOrigin;
         Quaternion rotation = CalculateAOERotation();
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎨 [EliteSkillController] AOE 이펙트 생성 (Obsolete): {currentSkill.AoeEffect.name} at {spawnPosition}");
-        }
         
         GameObject effect = Instantiate(currentSkill.AoeEffect, spawnPosition, rotation);
         Destroy(effect, 2f);
@@ -658,24 +536,11 @@ public class EliteSkillController : MonoBehaviour
             policy: currentSkill.AoeDamagePolicy       // ⭐ SkillData에서 정책 읽어오기 (Once/Window/Tick)
         );
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [EliteSkillController] DamageArea 생성 완료:");
-            Debug.Log($"   - Skill: {currentSkill.SkillName}");
-            Debug.Log($"   - Origin: {cachedOrigin}");
-            Debug.Log($"   - Forward: {cachedTargetDirection}");
-        }
         
         // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성
         Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
         SpawnAOEEffectAtCenter(effectPosition);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎨 [EliteSkillController] VFX 이펙트 생성 완료:");
-            Debug.Log($"   - Position: {effectPosition}");
-            Debug.Log($"   - DamageArea와 VFX 위치 동기화 완료! (Left Pivot 보정 적용)");
-        }
         
         // ⭐ PerformDamage()는 Initialize() → ExecuteDamagePolicy() 내부에서 이미 호출됨
         // 여기서 다시 호출하면 Once 정책 기준 데미지가 2회 적용되므로 제거
@@ -685,10 +550,6 @@ public class EliteSkillController : MonoBehaviour
         float destroyDelay = currentSkill.AoeDuration + 0.5f;
         Destroy(damageAreaGO, destroyDelay);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏱️ [EliteSkillController] DamageArea 제거 예약: {destroyDelay}초 후 (Policy: {currentSkill.AoeDamagePolicy})");
-        }
     }
     
     #region ⚠️ Phase 2: 아래 메서드들은 제거 예정 (DamageArea로 대체됨)
@@ -724,10 +585,6 @@ public class EliteSkillController : MonoBehaviour
         
         if (hits == null || hits.Length == 0)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[EliteSkillController] AOE 데미지 대상 없음");
-            }
             return;
         }
         
@@ -776,10 +633,6 @@ public class EliteSkillController : MonoBehaviour
             }
             
             // 로그 출력
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[EliteSkillController] 기본 데미지 획득: {baseDamage} (from {(meleeAttack != null ? "MeleeAttack" : "RangedAttack")})");
-            }
         }
         
         // 스킬 데미지 계산 (기본 데미지 × 스킬 배율)
@@ -788,10 +641,6 @@ public class EliteSkillController : MonoBehaviour
         // 플레이어에게 데미지 적용
         playerHealth.TakeDamage(skillDamage, transform);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[EliteSkillController] 플레이어 피격: {skillDamage} 데미지 (기본: {baseDamage}, 배율: {currentSkill.DamageMultiplier}x)");
-        }
         
         // 타격 연출 — CueSystem 위임
         if (!string.IsNullOrEmpty(currentSkill.HitCueKey))
@@ -926,11 +775,6 @@ public class EliteSkillController : MonoBehaviour
         
         float correctedDistance = baseDistance * correctionFactor;
         
-        if (enableDebugLogs)
-        {
-            string directionName = GetDirectionName(angle);
-            Debug.Log($"🎯 [거리 보정] 방향: {directionName} ({angle:F1}°), 계수: {correctionFactor:F2}, 원본: {baseDistance:F2} → 보정: {correctedDistance:F2}");
-        }
         
         return correctedDistance;
     }
@@ -1019,7 +863,6 @@ public class EliteSkillController : MonoBehaviour
         {
             info += $"{kvp.Key.SkillName}: {kvp.Value:F1}초\n";
         }
-        Debug.Log(info);
     }
 
     #endregion

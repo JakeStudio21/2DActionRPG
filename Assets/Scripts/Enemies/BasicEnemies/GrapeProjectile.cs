@@ -78,7 +78,6 @@ public class GrapeProjectile : MonoBehaviour
         fallbackStarted = false;
         
         // ⭐ DelayedLaunch 제거: RangedAttack에서 목표를 설정하므로 불필요
-        Debug.Log("[GrapeProjectile] OnEnable: RangedAttack에서 목표 설정 대기 중");
     }
     
     private void Update()
@@ -102,12 +101,10 @@ public class GrapeProjectile : MonoBehaviour
             if (cachedPlayer != null)
             {
                 LaunchToTarget(cachedPlayer.transform.position);
-                Debug.Log("[GrapeProjectile] FallbackLaunch: 현재 플레이어 위치로 설정");
             }
             else
             {
                 LaunchToTarget(transform.position + Vector3.right * 5f);
-                Debug.Log("[GrapeProjectile] FallbackLaunch: 플레이어 없음, 기본 방향으로 발사");
             }
         }
     }
@@ -157,7 +154,6 @@ public class GrapeProjectile : MonoBehaviour
                 if (activeShadow != null)
                 {
                     StartCoroutine(MoveShadowCoroutine());
-                    Debug.Log("[GrapeProjectile] GamePoolManager에서 Grape_Shadow 생성 성공");
                 }
                 else
                 {
@@ -239,7 +235,6 @@ public class GrapeProjectile : MonoBehaviour
         if (GamePoolManager.Instance != null)
         {
             GamePoolManager.Instance.ReturnToPool("Grape_Shadow", activeShadow);
-            Debug.Log("[GrapeProjectile] Grape_Shadow를 GamePoolManager에 정상 반환");
         }
         else
         {
@@ -286,7 +281,6 @@ public class GrapeProjectile : MonoBehaviour
                 
                 if (splatter != null)
                 {
-                    Debug.Log("[GrapeProjectile] GamePoolManager에서 Grape Projectile Splatter 생성 성공");
                 }
                 else
                 {
@@ -360,11 +354,9 @@ public class GrapeProjectile : MonoBehaviour
                 // ⚙️ Phase 4-C: 면역 체크 (플레이어가 상태이상 저항 가능)
                 if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
                 {
-                    Debug.Log($"🛡️ [GrapeProjectile] 플레이어 면역 발동! 저항한 효과: {result.resistedEffects}");
                     // 상태이상 부여 차단됨
                 }
                 
-                Debug.Log($"[GrapeProjectile] 플레이어에게 {result.finalDamage} 데미지 적용!");
                 break; // 한 명만 데미지 적용
             }
         }

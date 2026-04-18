@@ -67,7 +67,6 @@ public class SimpleMobSplitter : SimpleMob
 
                 if (child == null)
                 {
-                    if (enableDebugLogs)
                         Debug.LogWarning($"[SimpleMobSplitter] 자식 스폰 실패 — 풀 태그 '{mobData.childPoolTag}'");
                     continue;
                 }
@@ -79,12 +78,6 @@ public class SimpleMobSplitter : SimpleMob
                     childSplitter.SetCanSplit(false);
             }
 
-            if (enableDebugLogs)
-                Debug.Log($"[SimpleMobSplitter] {gameObject.name} 분열 — {mobData.childCount}마리 스폰");
-        }
-        else if (!canSplit && enableDebugLogs)
-        {
-            Debug.Log($"[SimpleMobSplitter] {gameObject.name} 분열 스킵 (canSplit = false)");
         }
 
         // 기반 클래스에 나머지 사망 처리 위임 (애니메이션 + 풀 반환)

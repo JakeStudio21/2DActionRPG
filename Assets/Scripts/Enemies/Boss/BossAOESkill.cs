@@ -11,7 +11,6 @@ public class BossAOESkill : MonoBehaviour
     [SerializeField] private BaseEnemy baseEnemy;
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 기본값: false (필요시 Inspector에서 켜기)
     
     private BossSkillController skillController;
     
@@ -129,10 +128,6 @@ public class BossAOESkill : MonoBehaviour
         float destroyDelay = skillEntry.skillData.AoeDuration + 0.5f;
         Destroy(damageAreaGO, destroyDelay);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏱️ [BossAOESkill] DamageArea 제거 예약: {destroyDelay}초 후 (Policy: {skillEntry.skillData.AoeDamagePolicy})");
-        }
     }
     
     /// <summary>

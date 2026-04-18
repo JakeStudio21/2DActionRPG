@@ -21,7 +21,6 @@ public class EliteDashSkill : MonoBehaviour
     [SerializeField] private LayerMask obstacleLayer;
 
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
 
     // 진행 중인 대시 코루틴 (중복 실행 방지)
     private Coroutine dashCoroutine;
@@ -73,11 +72,6 @@ public class EliteDashSkill : MonoBehaviour
         // 이동 시간 계산 (거리 / 속도)
         float dashDuration = dashSpeed > 0f ? dashDistance / dashSpeed : skill.ActionDuration;
 
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏃 [EliteDashSkill] 돌진 시작: {startPosition} → {targetPosition}");
-            Debug.Log($"   거리: {dashDistance:F1}u, 속도: {dashSpeed:F1}u/s, 예상 시간: {dashDuration:F2}s");
-        }
 
         float elapsed = 0f;
 
@@ -104,8 +98,6 @@ public class EliteDashSkill : MonoBehaviour
         // 도착 지점 AOE 이펙트 생성
         SpawnAOEEffect(skill, direction);
 
-        if (enableDebugLogs)
-            Debug.Log($"🏁 [EliteDashSkill] 돌진 완료: {transform.position}");
 
         dashCoroutine = null;
     }
@@ -134,8 +126,6 @@ public class EliteDashSkill : MonoBehaviour
             alreadyHit.Add(hit);
             ApplyDamageToPlayer(hit.gameObject, skill);
 
-            if (enableDebugLogs)
-                Debug.Log($"💥 [EliteDashSkill] 플레이어 타격! (위치: {transform.position})");
         }
     }
 
@@ -155,8 +145,6 @@ public class EliteDashSkill : MonoBehaviour
 
         playerHealth.TakeDamage(skillDamage, transform);
 
-        if (enableDebugLogs)
-            Debug.Log($"[EliteDashSkill] 데미지 적용: {skillDamage} (기본: {baseDamage} x 배율: {skill.DamageMultiplier})");
 
         // 타격 연출 — CueSystem 위임
         if (!string.IsNullOrEmpty(skill.HitCueKey))
@@ -197,8 +185,6 @@ public class EliteDashSkill : MonoBehaviour
         GameObject effect = Instantiate(skill.AoeEffect, transform.position, rotation);
         Destroy(effect, 2f);
 
-        if (enableDebugLogs)
-            Debug.Log($"🎆 [EliteDashSkill] AOE 이펙트 생성: {skill.AoeEffect.name} at {transform.position}");
     }
 
     #region 디버그

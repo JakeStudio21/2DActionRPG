@@ -16,9 +16,6 @@ public class EliteSkillActionStateBehaviour : StateMachineBehaviour
     
     [Tooltip("State 진입 즉시 실행 (true: OnStateEnter에서 실행, false: normalizedTime 기반)")]
     [SerializeField] private bool executeOnEnter = false;
-    
-    [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
 
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -38,18 +35,10 @@ public class EliteSkillActionStateBehaviour : StateMachineBehaviour
         // executeOnEnter 옵션: State 진입 즉시 실행
         if (executeOnEnter)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"⚡ [SkillAction] 즉시 실행 모드 - ExecuteSkillAction() 호출!");
-            }
             skillController.ExecuteSkillAction();
             actionExecuted = true;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎬 [SkillAction] 시작 - {animator.name}");
-        }
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -58,20 +47,10 @@ public class EliteSkillActionStateBehaviour : StateMachineBehaviour
         
         float normalizedTime = stateInfo.normalizedTime % 1f;
         
-        // ⭐⭐ 디버깅: normalizedTime과 isSkillAction 상태 출력
-        if (enableDebugLogs && Time.frameCount % 30 == 0) // 30프레임마다 1번
-        {
-            bool isSkillActionParam = animator.GetBool("isSkillAction");
-            Debug.Log($"🔍 [SkillAction Update] Time: {normalizedTime:F2}, isSkillAction: {isSkillActionParam}");
-        }
         
         // 데미지 적용 타이밍
         if (!actionExecuted && normalizedTime >= damageTimingPoint)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"💥 [SkillAction] 데미지 적용! (Time: {normalizedTime:F2})");
-            }
             
             skillController.ExecuteSkillAction();
             actionExecuted = true;
@@ -85,17 +64,9 @@ public class EliteSkillActionStateBehaviour : StateMachineBehaviour
         // 안전장치: 타이밍을 놓친 경우 강제 실행
         if (!actionExecuted)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"⚠️ [SkillAction] 타이밍 놓침! Exit에서 강제 실행");
-            }
             skillController.ExecuteSkillAction();
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [SkillAction] 종료 - {animator.name}");
-        }
         
         skillController.OnSkillActionComplete();
     }

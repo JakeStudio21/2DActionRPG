@@ -53,7 +53,6 @@ public class GrapeLandSplatter : MonoBehaviour
             }
             
             spriteFade.StartFade();
-            Debug.Log($"[GrapeLandSplatter] VFX 페이드 시작: {gameObject.name}");
             
             // 🔑 페이드 완료 감지 코루틴 시작
             StartCoroutine(WaitForFadeComplete());
@@ -110,7 +109,6 @@ public class GrapeLandSplatter : MonoBehaviour
         if (GamePoolManager.Instance != null)
         {
             GamePoolManager.Instance.ReturnToPool("Grape Projectile Splatter", gameObject);
-            Debug.Log($"[GrapeLandSplatter] 풀에 정상 반환: {gameObject.name}");
         }
         else
         {

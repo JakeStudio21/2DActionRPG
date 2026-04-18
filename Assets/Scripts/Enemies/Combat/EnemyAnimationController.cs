@@ -16,7 +16,6 @@ public class EnemyAnimationController : MonoBehaviour
     [SerializeField] private bool useIsometricData = true; // 아이소메트릭 데이터 사용 여부
     
     [Header("디버그 설정")]
-    [SerializeField] private bool showDebugLogs = false;
     
     // 내부 참조
     private IEnemy enemy; // BaseEnemy 참조로 IsometricData 접근
@@ -83,7 +82,6 @@ public class EnemyAnimationController : MonoBehaviour
         if (!useIsometricData)
         {
             currentDirectionPreset = DirectionPreset.E4M; // 기본값
-            Debug.Log($"[EnemyAnimationController] {gameObject.name} - useIsometricData=false, E4M 기본값 사용");
             return;
         }
         
@@ -93,7 +91,6 @@ public class EnemyAnimationController : MonoBehaviour
         {
             currentDirectionPreset = baseEnemy.GetDirectionPreset();
             
-            Debug.Log($"[EnemyAnimationController] {gameObject.name} - DirectionPreset 초기화: {currentDirectionPreset}");
         }
         else
         {
@@ -119,13 +116,6 @@ public class EnemyAnimationController : MonoBehaviour
             
         UpdateMotionFlags(speed);
         
-        // ⭐ 디버그: 파라미터 업데이트 로그 (항상 출력)
-        if (showDebugLogs && Time.frameCount % 30 == 0)
-        {
-            Debug.Log($"🎬 [EnemyAnimController] {gameObject.name} - speed: {speed:F2}, isMoving: {speed > 0.01f}");
-            if (HasParameter("moveX"))
-                Debug.Log($"   moveX: {animator.GetFloat(MOVE_X_HASH):F2}, moveY: {animator.GetFloat(MOVE_Y_HASH):F2}");
-        }
         
         // 정지 시 마지막 방향 유지
         if (speed < 0.1f)
@@ -141,10 +131,6 @@ public class EnemyAnimationController : MonoBehaviour
         
         ApplyDirectionToAnimator(dir);
         
-        if (showDebugLogs && Time.frameCount % 60 == 0)
-        {
-            Debug.Log($"[EnemyAnimationController] {gameObject.name} - 이동 방향: ({dir.x:F2}, {dir.y:F2}), flipX: {spriteRenderer.flipX}");
-        }
     }
 
     /// <summary>
@@ -184,10 +170,6 @@ public class EnemyAnimationController : MonoBehaviour
         // ⭐ flipX가 이미 설정되었으므로 WithoutFlip 메서드 사용
         ApplyDirectionToAnimatorWithoutFlip(dirBlendTree);
 
-        if (showDebugLogs && Time.frameCount % 60 == 0)
-        {
-            Debug.Log($"[EnemyAnimationController] {gameObject.name} - 월드: ({dirWorld.x:F2}, {dirWorld.y:F2}), BlendTree: ({dirBlendTree.x:F2}, {dirBlendTree.y:F2}), flipX: {shouldFlipX}");
-        }
     }
     
     /// <summary>
@@ -207,10 +189,6 @@ public class EnemyAnimationController : MonoBehaviour
         
         ApplyDirectionToAnimator(dir);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🎯 [EnemyAnimController] {gameObject.name} - 공격 방향 설정: ({dir.x:F2}, {dir.y:F2})");
-        }
     }
     
     /// <summary>
@@ -236,9 +214,6 @@ public class EnemyAnimationController : MonoBehaviour
         // ⭐ 아이소메트릭 좌표계 방향 적용 (flipX 고려하여)
         ApplyDirectionToAnimatorWithoutFlip(dir);
         
-        Debug.Log($"🎯 [EnemyAnimController] {gameObject.name} - 방향+Flip 설정:");
-        Debug.Log($"   아이소메트릭 방향: ({dir.x:F2}, {dir.y:F2})");
-        Debug.Log($"   flipX: {shouldFlipX}");
     }
     
     /// <summary>
@@ -254,10 +229,6 @@ public class EnemyAnimationController : MonoBehaviour
         Vector2 dir = direction.normalized;
         ApplyDirectionToAnimator(dir);
         
-        if (showDebugLogs && Time.frameCount % 120 == 0)
-        {
-            Debug.Log($"[EnemyAnimationController] {gameObject.name} - Idle 방향: ({dir.x:F2}, {dir.y:F2})");
-        }
     }
 
     /// <summary>
@@ -287,10 +258,6 @@ public class EnemyAnimationController : MonoBehaviour
         isCurrentlyMoving = false;
         
         // ⚠️ SetIdleDirection 호출 안 함 → 방향 유지!
-        if (showDebugLogs && Time.frameCount % 30 == 0)
-        {
-            Debug.Log($"   🎯 [ForceIdleKeepDirection] {gameObject.name}: 방향 유지 중 (moveX={animator.GetFloat(MOVE_X_HASH):F2}, moveY={animator.GetFloat(MOVE_Y_HASH):F2})");
-        }
     }
 
     /// <summary>
@@ -335,7 +302,6 @@ public class EnemyAnimationController : MonoBehaviour
         Vector2 convertedDir = ConvertToDirection(dir);
         
         // ⭐ 강제 디버그: SetFloat 호출 전 값 확인
-        Debug.Log($"📍 [{gameObject.name}] ApplyDirectionToAnimator - 입력 방향: ({convertedDir.x:F2}, {convertedDir.y:F2})");
         
         // ⬅️ 좌측 방향: flipX = true, moveX는 양수로 변환
         if (convertedDir.x < -0.1f)
@@ -351,11 +317,6 @@ public class EnemyAnimationController : MonoBehaviour
                 animator.SetFloat(MOVE_Y_HASH, finalMoveY);
             
             // ⭐ 강제 디버그: SetFloat 호출 후 실제 값 확인
-            Debug.Log($"   ⬅️ 좌측 미러링 설정 완료:");
-            Debug.Log($"      - flipX = true");
-            Debug.Log($"      - SetFloat(moveX, {finalMoveX:F2})");
-            Debug.Log($"      - SetFloat(moveY, {finalMoveY:F2})");
-            Debug.Log($"      - 실제 Animator 값: moveX={animator.GetFloat(MOVE_X_HASH):F2}, moveY={animator.GetFloat(MOVE_Y_HASH):F2}");
         }
         // ➡️ 우측 방향: flipX = false, 그대로 사용
         else if (convertedDir.x > 0.1f)
@@ -371,11 +332,6 @@ public class EnemyAnimationController : MonoBehaviour
                 animator.SetFloat(MOVE_Y_HASH, finalMoveY);
             
             // ⭐ 강제 디버그: SetFloat 호출 후 실제 값 확인
-            Debug.Log($"   ➡️ 우측 설정 완료:");
-            Debug.Log($"      - flipX = false");
-            Debug.Log($"      - SetFloat(moveX, {finalMoveX:F2})");
-            Debug.Log($"      - SetFloat(moveY, {finalMoveY:F2})");
-            Debug.Log($"      - 실제 Animator 값: moveX={animator.GetFloat(MOVE_X_HASH):F2}, moveY={animator.GetFloat(MOVE_Y_HASH):F2}");
         }
         // ⬆️⬇️ 수직 방향: flipX 유지, moveX = 0
         else
@@ -389,11 +345,6 @@ public class EnemyAnimationController : MonoBehaviour
                 animator.SetFloat(MOVE_Y_HASH, finalMoveY);
             
             // ⭐ 강제 디버그: SetFloat 호출 후 실제 값 확인
-            Debug.Log($"   ⬆️⬇️ 수직 설정 완료:");
-            Debug.Log($"      - flipX 유지");
-            Debug.Log($"      - SetFloat(moveX, {finalMoveX:F2})");
-            Debug.Log($"      - SetFloat(moveY, {finalMoveY:F2})");
-            Debug.Log($"      - 실제 Animator 값: moveX={animator.GetFloat(MOVE_X_HASH):F2}, moveY={animator.GetFloat(MOVE_Y_HASH):F2}");
         }
     }
     
@@ -421,10 +372,6 @@ public class EnemyAnimationController : MonoBehaviour
         if (HasParameter("moveY"))
             animator.SetFloat(MOVE_Y_HASH, finalMoveY);
         
-        Debug.Log($"   📊 Animator 파라미터 설정:");
-        Debug.Log($"      - moveX = {finalMoveX:F2} (flipX={spriteRenderer.flipX})");
-        Debug.Log($"      - moveY = {finalMoveY:F2}");
-        Debug.Log($"      - 실제 Animator 값: moveX={animator.GetFloat(MOVE_X_HASH):F2}, moveY={animator.GetFloat(MOVE_Y_HASH):F2}");
     }
     
     /// <summary>
@@ -437,10 +384,6 @@ public class EnemyAnimationController : MonoBehaviour
         // ⭐ BlendTree 자동 보간 방식 사용 (권장)
         // BlendTree가 moveX, moveY 값으로 자동으로 가장 가까운 애니메이션을 선택하고 보간함
         // 5방향 애니메이션이든 8방향 애니메이션이든 상관없이 작동
-        if (showDebugLogs)
-        {
-            Debug.Log($"   🔍 [ConvertToDirection] DirectionPreset={currentDirectionPreset}, 원본 방향 사용: ({direction.x:F2}, {direction.y:F2})");
-        }
         
         return direction; // ⭐ 항상 원본 방향 반환
         
@@ -539,15 +482,6 @@ public class EnemyAnimationController : MonoBehaviour
         {
             animator.SetTrigger(ATTACK_TRIGGER_HASH);
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"[EnemyAnimationController] {gameObject.name} - Attack 트리거 실행!");
-                
-                if (animator.runtimeAnimatorController != null)
-                {
-                    Debug.Log($"[EnemyAnimationController] Controller: {animator.runtimeAnimatorController.name}");
-                }
-            }
         }
         else
         {
@@ -561,8 +495,6 @@ public class EnemyAnimationController : MonoBehaviour
         {
             animator.SetTrigger(HIT_TRIGGER_HASH);
             
-            if (showDebugLogs)
-                Debug.Log($"[EnemyAnimationController] {gameObject.name} - Hit 트리거 실행!");
         }
     }
     
@@ -572,8 +504,6 @@ public class EnemyAnimationController : MonoBehaviour
         {
             animator.SetTrigger(DIE_TRIGGER_HASH);
             
-            if (showDebugLogs)
-                Debug.Log($"[EnemyAnimationController] {gameObject.name} - Die 트리거 실행!");
         }
     }
     
@@ -596,14 +526,6 @@ public class EnemyAnimationController : MonoBehaviour
         return false;
     }
     
-    /// <summary>
-    /// 디버그 로그 토글
-    /// </summary>
-    public void SetDebugLogs(bool enabled)
-    {
-        showDebugLogs = enabled;
-    }
-    
     #endregion
     
     #region ⚡ 스킬 애니메이션 (엘리트/보스 전용)
@@ -618,8 +540,6 @@ public class EnemyAnimationController : MonoBehaviour
             animator.SetTrigger(SKILL_CAST_TRIGGER_HASH);
             animator.SetBool(IS_SKILL_CASTING_HASH, true);
             
-            if (showDebugLogs)
-                Debug.Log($"🔮 [EnemyAnimationController] {gameObject.name} - SkillCast 트리거 실행!");
         }
     }
     
@@ -634,8 +554,6 @@ public class EnemyAnimationController : MonoBehaviour
             animator.SetBool(IS_SKILL_CASTING_HASH, false);
             animator.SetBool(IS_SKILL_ACTION_HASH, true);
             
-            if (showDebugLogs)
-                Debug.Log($"💥 [EnemyAnimationController] {gameObject.name} - SkillAction 트리거 실행!");
         }
     }
     
@@ -648,8 +566,6 @@ public class EnemyAnimationController : MonoBehaviour
         {
             animator.SetBool(IS_SKILL_CASTING_HASH, value);
             
-            if (showDebugLogs)
-                Debug.Log($"[EnemyAnimationController] {gameObject.name} - isSkillCasting = {value}");
         }
     }
     
@@ -662,8 +578,6 @@ public class EnemyAnimationController : MonoBehaviour
         {
             animator.SetBool(IS_SKILL_ACTION_HASH, value);
             
-            if (showDebugLogs)
-                Debug.Log($"[EnemyAnimationController] {gameObject.name} - isSkillAction = {value}");
         }
     }
     
@@ -677,8 +591,6 @@ public class EnemyAnimationController : MonoBehaviour
             animator.SetBool(IS_SKILL_CASTING_HASH, false);
             animator.SetBool(IS_SKILL_ACTION_HASH, false);
             
-            if (showDebugLogs)
-                Debug.Log($"[EnemyAnimationController] {gameObject.name} - 스킬 상태 리셋");
         }
     }
     

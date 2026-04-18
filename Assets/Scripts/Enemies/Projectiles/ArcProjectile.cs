@@ -27,7 +27,6 @@ public class ArcProjectile : MonoBehaviour
     [SerializeField] private GameObject hitEffectPrefab;
     
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false;
     
     // 궤도 계산용
     private Vector3 startPosition;
@@ -92,8 +91,6 @@ public class ArcProjectile : MonoBehaviour
         totalDistance = Vector3.Distance(startPosition, targetPosition);
         isLaunched = true;
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [ArcProjectile] 발사! Start: {startPosition}, Target: {targetPosition}, Distance: {totalDistance:F2}");
     }
     
     /// <summary>
@@ -131,8 +128,6 @@ public class ArcProjectile : MonoBehaviour
         {
             attackerCueDomain = attacker.CueEmitDomain;
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [ArcProjectile] 공격자 설정: {attacker.gameObject.name}, Cue 도메인: {attackerCueDomain}");
         }
     }
     
@@ -234,8 +229,6 @@ public class ArcProjectile : MonoBehaviour
         {
             bool cueSuccess = CueSystem.CueEmitter.EmitAt(targetPosition, landingCueEventKey, attackerCueDomain);
             
-            if (showDebugLogs)
-                Debug.Log($"💥 [ArcProjectile] 착지 Cue 발행: '{landingCueEventKey}' (도메인: {attackerCueDomain}) → {(cueSuccess ? "성공" : "실패")}");
             
             // Cue가 성공적으로 처리되면 레거시 hitEffectPrefab은 스킵
             if (cueSuccess) return;
@@ -263,12 +256,8 @@ public class ArcProjectile : MonoBehaviour
                 {
                     attacker.ApplyStatusEffects(playerHealth, playerCollider.transform);
                     
-                    if (showDebugLogs)
-                        Debug.Log($"☠️ [ArcProjectile] 상태이상 적용 시도 (공격자: {attacker.gameObject.name})");
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"💥 [ArcProjectile] 플레이어에게 {projectileDamage} 데미지!");
                 
                 break; // 한 명만 데미지
             }
@@ -289,8 +278,6 @@ public class ArcProjectile : MonoBehaviour
                     transform.position, 
                     Quaternion.identity);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [ArcProjectile] Hit 이펙트 재생: {hitEffectPrefab.name}");
             }
             else
             {
@@ -311,8 +298,6 @@ public class ArcProjectile : MonoBehaviour
         
         if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
         {
-            if (showDebugLogs)
-                Debug.Log($"🧱 [ArcProjectile] 벽 충돌! {gameObject.name} → {other.name}");
             
             // 🎵 CueSystem: 벽 충돌 이펙트 + 사운드 재생
             Vector3 hitPosition = transform.position;

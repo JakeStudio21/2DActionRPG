@@ -13,7 +13,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
     private float deathCompleteTime = 0.05f;  // 5% 지점에서 즉시 사망 처리 (State 조기 종료 대응)
     
     [Header("🔧 Debug Settings")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 상태 플래그
     private bool deathCompleteTriggered = false;
@@ -26,10 +25,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
     /// </summary>
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (showDebugLogs)
-        {
-            Debug.Log($"💀 [EnemyDieStateBehaviour] {animator.gameObject.name} - Die State 진입 (길이: {stateInfo.length:F3}초)");
-        }
         
         // 상태 플래그 초기화
         deathCompleteTriggered = false;
@@ -45,10 +40,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
             }
             else
             {
-                if (showDebugLogs)
-                {
-                    Debug.Log($"🔍 [EnemyDieStateBehaviour] {animator.gameObject.name} - EnemyHealth 컴포넌트 발견");
-                }
             }
         }
         
@@ -58,10 +49,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
         {
             deathCompleteTriggered = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"⚡ [EnemyDieStateBehaviour] {animator.gameObject.name} - Die State 진입 시 즉시 사망 처리!");
-            }
             
             ExecuteDeathComplete(animator);
         }
@@ -79,10 +66,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
         {
             deathCompleteTriggered = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"💀 [EnemyDieStateBehaviour] {animator.gameObject.name} - 사망 처리 실행! (진행도: {normalizedTime:F3})");
-            }
             
             // 사망 처리 실행
             ExecuteDeathComplete(animator);
@@ -94,10 +77,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
     /// </summary>
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (showDebugLogs)
-        {
-            Debug.Log($"🚪 [EnemyDieStateBehaviour] {animator.gameObject.name} - Die State 종료 (최종 진행도: {stateInfo.normalizedTime:F3})");
-        }
         
         // 🔒 안전장치: 사망 처리가 실행되지 않았다면 강제 실행
         if (!deathCompleteTriggered)
@@ -123,10 +102,6 @@ public class EnemyDieStateBehaviour : StateMachineBehaviour
         // EnemyHealth의 OnDeathAnimationComplete() 메서드 호출
         cachedEnemyHealth.OnDeathAnimationComplete();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [EnemyDieStateBehaviour] {animator.gameObject.name} - OnDeathAnimationComplete() 호출 완료!");
-        }
     }
     
     #endregion

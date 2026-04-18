@@ -54,7 +54,6 @@ public class Boss_ForestElemental : BaseEnemy
             if (EnemyData != null)
             {
                 float range = EnemyData.DetectionRange;
-                Debug.Log($"[Boss_ForestElemental] {gameObject.name} DetectionRange: {range} (from EnemyData)");
                 return range;
             }
                 
@@ -70,7 +69,6 @@ public class Boss_ForestElemental : BaseEnemy
             if (EnemyData != null)
             {
                 float range = EnemyData.ChaseRange;
-                Debug.Log($"[Boss_ForestElemental] {gameObject.name} ChaseRange: {range} (from EnemyData)");
                 return range;
             }
                 
@@ -97,14 +95,14 @@ public class Boss_ForestElemental : BaseEnemy
         if (bossAttack == null)
             bossAttack = GetComponent<BossAttackBehaviour>();
             
-        Debug.Log($"[Boss_ForestElemental] {gameObject.name} Awake 초기화 완료");
+        Dbg.Log($"[Boss_ForestElemental] {gameObject.name} Awake 초기화 완료");
     }
     
     protected override void OnStartInitialize()
     {
         ApplyBossForestElementalSpecificSettings();
         
-        Debug.Log($"[Boss_ForestElemental] {gameObject.name} Start 초기화 완료");
+        Dbg.Log($"[Boss_ForestElemental] {gameObject.name} Start 초기화 완료");
         
         // ⭐ StageManager에 보스 스폰 알림 (모든 초기화 완료 후 마지막에 호출!)
         // 코루틴으로 1프레임 대기 후 호출하여 BaseEnemy.Start() 완전 완료 보장
@@ -131,7 +129,6 @@ public class Boss_ForestElemental : BaseEnemy
         if (StageSystem.StageManager.Instance != null)
         {
             StageSystem.StageManager.Instance.OnBossSpawned?.Invoke(gameObject);
-            Debug.Log($"🐲 [Boss_ForestElemental] StageManager에 보스 스폰 알림 완료!");
         }
         else
         {
@@ -142,7 +139,6 @@ public class Boss_ForestElemental : BaseEnemy
             if (stageUI != null)
             {
                 stageUI.ActivateBossHealthUI(gameObject);
-                Debug.Log($"🐲 [Boss_ForestElemental] StageUI 직접 연결 완료 (Fallback)");
             }
         }
     }
@@ -153,7 +149,7 @@ public class Boss_ForestElemental : BaseEnemy
         if (meleeAttack != null)
         {
             meleeAttack.Initialize();
-            Debug.Log($"[Boss_ForestElemental] {gameObject.name} MeleeAttack 시스템 초기화 완료");
+            Dbg.Log($"[Boss_ForestElemental] {gameObject.name} MeleeAttack 시스템 초기화 완료");
         }
         else
         {
@@ -164,7 +160,7 @@ public class Boss_ForestElemental : BaseEnemy
         if (bossAttack != null)
         {
             bossAttack.Initialize();
-            Debug.Log($"[Boss_ForestElemental] {gameObject.name} BossAttackBehaviour 시스템 초기화 완료");
+            Dbg.Log($"[Boss_ForestElemental] {gameObject.name} BossAttackBehaviour 시스템 초기화 완료");
         }
         else
         {
@@ -178,7 +174,6 @@ public class Boss_ForestElemental : BaseEnemy
         if (bossAttack != null && bossAttack.CanAttack())
         {
             bossAttack.Attack();
-            Debug.Log($"[Boss_ForestElemental] {gameObject.name} 보스 공격 실행 (평타 or 스킬)!");
         }
         else if (meleeAttack != null && meleeAttack.CanAttack())
         {
@@ -199,18 +194,11 @@ public class Boss_ForestElemental : BaseEnemy
     {
         if (EnemyData != null)
         {
-            Debug.Log($"[Boss_ForestElemental] {gameObject.name} 보스 전용 설정 적용:");
-            Debug.Log($"  - IsBoss: {EnemyData.IsBoss}");
-            Debug.Log($"  - EnemyType: {EnemyData.EnemyType}");
-            Debug.Log($"  - 체력: {GetScaledMaxHealth():F1}");
-            Debug.Log($"  - 공격범위: {AttackRange:F1}");
-            Debug.Log($"  - 감지범위: {DetectionRange:F1}");
-            Debug.Log($"  - 추적범위: {ChaseRange:F1}");
         }
         
         if (phaseController != null)
         {
-            Debug.Log($"[Boss_ForestElemental] 페이즈 시스템 활성화: {phaseController.TotalPhases}개 페이즈");
+            Dbg.Log($"[Boss_ForestElemental] 페이즈 시스템 활성화: {phaseController.TotalPhases}개 페이즈");
         }
     }
     

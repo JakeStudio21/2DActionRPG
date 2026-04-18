@@ -114,8 +114,6 @@ public class TelegraphIndicator : MonoBehaviour
         Vector3 forward = default)  // ⭐ 추가: Forward 방향
     {
         // 플레이어용 초기화 로그 제거 (불필요)
-        Debug.Log($"   표시 시간: {displayDuration}초");
-        Debug.Log($"   시전자: {casterType}");
 
         // 기본 설정
         this.skillData = null; // SkillData 없음
@@ -129,8 +127,6 @@ public class TelegraphIndicator : MonoBehaviour
             float offset = size.x / 2f * scaleMultiplier;
             adjustedPosition = position + forward.normalized * offset;
             
-            Debug.Log($"🎯 [TelegraphIndicator] Rectangle 감지 → ForwardAnchored (Offset: {offset})");
-            Debug.Log($"   Origin: {position} → Center: {adjustedPosition}");
         }
         
         // 위치 설정
@@ -178,7 +174,6 @@ public class TelegraphIndicator : MonoBehaviour
         var collider = GetComponent<Collider2D>();
         if (collider != null)
         {
-            Debug.Log($"   Collider: {collider.GetType().Name} (Is Trigger: {collider.isTrigger})");
         }
 
         // 페이드 인 → 대기 → 페이드 아웃 → 파괴
@@ -223,7 +218,6 @@ public class TelegraphIndicator : MonoBehaviour
             }
         }
         
-        Debug.Log($"✅ [TelegraphIndicator] Collider Trigger 설정 완료!");
     }
 
     /// <summary>
@@ -238,7 +232,6 @@ public class TelegraphIndicator : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[TelegraphIndicator] SetupSize: 스킬={skillData.SkillName}, 형태={skillData.AoeShape}, 반경={skillData.AoeRadius}, 스케일={scaleMultiplier}x");
 
         switch (skillData.AoeShape)
         {
@@ -246,14 +239,12 @@ public class TelegraphIndicator : MonoBehaviour
                 // ⭐ 원형: 반경을 그대로 사용 (DamageArea와 일치)
                 float circleRadius = skillData.AoeRadius * scaleMultiplier;
                 transform.localScale = new Vector3(circleRadius, circleRadius, 1f);
-                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={circleRadius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Triangle: // Fan (부채꼴)
                 // 부채꼴: 반경에 Phase 스케일 적용 (DamageArea와 일치)
                 float fanRadius = skillData.AoeRadius * scaleMultiplier;
                 transform.localScale = new Vector3(fanRadius, fanRadius, 1f);
-                Debug.Log($"[TelegraphIndicator] Fan 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={fanRadius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Rectangle:
@@ -261,7 +252,6 @@ public class TelegraphIndicator : MonoBehaviour
                 float rectX = skillData.AoeSize.x * scaleMultiplier;
                 float rectY = skillData.AoeSize.y * scaleMultiplier;
                 transform.localScale = new Vector3(rectX, rectY, 1f);
-                Debug.Log($"[TelegraphIndicator] Rectangle 크기 설정: 원본={skillData.AoeSize}, 배율={scaleMultiplier}x, 최종=({rectX}, {rectY}), Scale={transform.localScale}");
                 break;
         }
     }
@@ -271,7 +261,6 @@ public class TelegraphIndicator : MonoBehaviour
     /// </summary>
     private void SetupSizeManual(AOEShapeType shape, float radius, Vector2 size, float angle, float scaleMultiplier)
     {
-        Debug.Log($"[TelegraphIndicator] SetupSizeManual: 형태={shape}, 반경={radius}, 크기={size}, 스케일={scaleMultiplier}x");
 
         switch (shape)
         {
@@ -279,14 +268,12 @@ public class TelegraphIndicator : MonoBehaviour
                 // ⭐ 원형: 반경을 그대로 사용 (DamageArea와 일치)
                 float finalRadius = radius * scaleMultiplier;
                 transform.localScale = new Vector3(finalRadius, finalRadius, 1f);
-                Debug.Log($"[TelegraphIndicator] Circle 크기 설정: 반경={radius}, 배율={scaleMultiplier}x, 최종 반경={finalRadius}");
                 break;
 
             case AOEShapeType.Triangle: // Fan (부채꼴)
                 // 부채꼴: 반경에 스케일 적용
                 float fanRadius = radius * scaleMultiplier;
                 transform.localScale = new Vector3(fanRadius, fanRadius, 1f);
-                Debug.Log($"[TelegraphIndicator] Fan 크기 설정: 반경={radius}, 배율={scaleMultiplier}x, 최종 반경={fanRadius}");
                 break;
 
             case AOEShapeType.Rectangle:
@@ -294,7 +281,6 @@ public class TelegraphIndicator : MonoBehaviour
                 float rectX = size.x * scaleMultiplier;
                 float rectY = size.y * scaleMultiplier;
                 transform.localScale = new Vector3(rectX, rectY, 1f);
-                Debug.Log($"[TelegraphIndicator] Rectangle 크기 설정: 원본={size}, 배율={scaleMultiplier}x, 최종=({rectX}, {rectY})");
                 break;
         }
     }

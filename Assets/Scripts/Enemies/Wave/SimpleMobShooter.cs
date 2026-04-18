@@ -76,7 +76,6 @@ public class SimpleMobShooter : SimpleMob
     {
         if (string.IsNullOrEmpty(mobData.projectilePoolTag))
         {
-            if (enableDebugLogs)
                 Debug.LogWarning("[SimpleMobShooter] projectilePoolTag가 비어있어 발사 스킵");
             return;
         }
@@ -95,7 +94,6 @@ public class SimpleMobShooter : SimpleMob
 
         if (projectile == null)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[SimpleMobShooter] 투사체 스폰 실패 — 풀 태그 '{mobData.projectilePoolTag}'");
             return;
         }
@@ -113,8 +111,6 @@ public class SimpleMobShooter : SimpleMob
             if (proj != null) proj.SetAsEnemyProjectile(true);
         }
 
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMobShooter] 투사체 발사 → {direction}");
 
         if (animator != null)
             animator.SetTrigger("Attack");

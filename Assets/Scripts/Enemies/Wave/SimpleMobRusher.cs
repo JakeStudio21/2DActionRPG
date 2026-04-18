@@ -83,8 +83,6 @@ public class SimpleMobRusher : SimpleMob
         // 돌진 방향 설정 (플레이어 방향)
         rushDirection = (playerTransform.position - transform.position).normalized;
         
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMobRusher] {gameObject.name} 돌진 시작!");
         
         // 돌진 애니메이션
         if (animator != null)
@@ -141,8 +139,6 @@ public class SimpleMobRusher : SimpleMob
             spriteRenderer.color = Color.white;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMobRusher] {gameObject.name} 돌진 종료");
     }
     
     /// <summary>
@@ -166,8 +162,6 @@ public class SimpleMobRusher : SimpleMob
                 playerHealth.TakeDamage(Mathf.RoundToInt(finalDamage), transform);
                 lastAttackTime = Time.time;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[SimpleMobRusher] 플레이어 타격! 데미지: {finalDamage} (돌진: {isRushing})");
                 
                 // 돌진 중 충돌 시 돌진 종료
                 if (isRushing)

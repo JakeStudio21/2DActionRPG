@@ -12,7 +12,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
     #region 필드
     
     [Header("=== 디버그 설정 ===")]
-    [SerializeField] private bool enableDebugLogs = false;  // ⭐ Production: false
     
     /// <summary>
     /// 활성화된 상태이상 목록
@@ -60,8 +59,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
     /// </summary>
     private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        if (enableDebugLogs)
-            Debug.Log($"[StatusEffectManager] 씬 로드됨: {scene.name}, 플레이어 재탐색 시작...");
         
         // 🔄 동적 플레이어 생성 대응: 반복 재시도 방식
         StartCoroutine(FindPlayerCoroutine());
@@ -82,23 +79,17 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
             if (playerHealth != null)
             {
                 playerObject = playerHealth.gameObject;
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [StatusEffectManager] 플레이어 오브젝트 찾음: {playerObject.name} ({elapsed:F1}초 경과)");
                 yield break;  // 찾았으면 즉시 종료
             }
 
             elapsed += retryInterval;
             yield return new UnityEngine.WaitForSeconds(retryInterval);
             
-            if (enableDebugLogs && elapsed % 2f < retryInterval)
-                Debug.Log($"[StatusEffectManager] 플레이어 검색 중... ({elapsed:F1}초)");
         }
 
         if (playerObject == null)
         {
             // 플레이어가 없을 수 있음 (Lobby, Loading 씬 등)
-            if (enableDebugLogs)
-                Debug.Log($"[StatusEffectManager] 플레이어를 찾을 수 없습니다 ({timeout}초 타임아웃, Lobby 등 플레이어가 없는 씬일 수 있음)");
         }
     }
     
@@ -111,16 +102,12 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         if (playerHealth != null)
         {
             playerObject = playerHealth.gameObject;
-            if (enableDebugLogs)
-                Debug.Log($"✅ [StatusEffectManager] 플레이어 오브젝트 찾음: {playerObject.name}");
         }
         else
         {
             // 플레이어가 없을 수 있음 (Lobby, Loading 씬 등)
             playerObject = null;
             
-            if (enableDebugLogs)
-                Debug.Log($"[StatusEffectManager] PlayerHealth를 찾을 수 없습니다 (코루틴 재탐색 진행 중일 수 있음)");
         }
     }
     
@@ -193,9 +180,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         // 1️⃣ 🛡️ Phase 4-C: 기존 면역 체크 (버프/패시브 기반 면역)
         if (IsImmuneToEffect(newEffect.Target, newEffect.EffectType))
         {
-            if (enableDebugLogs)
-                Debug.Log($"🛡️ [StatusEffectManager] {newEffect.Target.name}이(가) " +
-                          $"{newEffect.EffectType}에 면역! (버프/패시브 면역) 차단됨.");
             return; // 면역이 있으면 상태이상 적용 차단
         }
         
@@ -203,9 +187,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         bool isFullyResisted = ApplyResistanceToEffect(newEffect);
         if (isFullyResisted)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🛡️ [StatusEffectManager] {newEffect.Target.name}이(가) " +
-                          $"{newEffect.EffectType}를 완전 저항! (100% 저항 or 지속시간 너무 짧음)");
             return; // 완전 저항 시 상태이상 적용 안 됨
         }
         
@@ -215,13 +196,9 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         if (existingEffect != null)
         {
             // 이미 존재하면 갱신/중첩
-            if (enableDebugLogs)
-                Debug.Log($"🔄 [StatusEffectManager] {newEffect.EffectType} 중첩 감지! RefreshOrStack() 호출 → {newEffect.Target.name}");
             
             existingEffect.RefreshOrStack(newEffect.RemainingDuration, newEffect.Value);
             
-            if (enableDebugLogs)
-                Debug.Log($"🔄 [StatusEffectManager] {newEffect.EffectType} RefreshOrStack() 완료 → {newEffect.Target.name}");
 
             // 중첩/갱신 팝업 표시 (상태이상 이펙트로 시각화되므로 비활성화)
             // DamageNumberManager.Instance?.ShowStatusEffectApplied(
@@ -232,14 +209,10 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         else
         {
             // 새로 추가
-            if (enableDebugLogs)
-                Debug.Log($"✅ [StatusEffectManager] {newEffect.EffectType} 신규 추가! Apply() 호출 → {newEffect.Target.name}");
             
             activeEffects.Add(newEffect);
             newEffect.Apply();
             
-            if (enableDebugLogs)
-                Debug.Log($"✅ [StatusEffectManager] {newEffect.EffectType} Apply() 완료 → {newEffect.Target.name} (지속: {newEffect.RemainingDuration:F1}초)");
 
             // 신규 적용 팝업 표시 (상태이상 이펙트로 시각화되므로 비활성화)
             // DamageNumberManager.Instance?.ShowStatusEffectApplied(
@@ -297,20 +270,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         
         // 저항 적용
         bool isFullyResisted = effect.ApplyResistance(resistance);
-        
-        if (enableDebugLogs && resistance > 0f)
-        {
-            if (isFullyResisted)
-            {
-                Debug.Log($"🛡️ [StatusEffectManager] {effect.Target.name} → {effect.EffectType} 완전 저항! " +
-                          $"(저항 {resistance * 100:F0}%)");
-            }
-            else
-            {
-                Debug.Log($"🛡️ [StatusEffectManager] {effect.Target.name} → {effect.EffectType} 부분 저항 적용 " +
-                          $"(저항 {resistance * 100:F0}%, 지속시간 감소)");
-            }
-        }
         
         return isFullyResisted;
     }
@@ -385,8 +344,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         {
             if (Random.Range(0f, 1f) < runtimeStats.FinalStatusResist)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"🔮 [StatusEffectManager] 상태이상 저항 성공! ({runtimeStats.FinalStatusResist:P1}) — {effectData.EffectType} 무효화");
 
                 // 저항 성공 팝업 표시
                 DamageNumberManager.Instance?.ShowStatusEffectResisted(
@@ -466,8 +423,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
                     spawnPosition, 
                     Quaternion.identity);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎨 [StatusEffectManager] Apply 이펙트 재생: {effectData.ApplyEffect.name}");
             }
             else
             {
@@ -475,8 +430,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
                 GameObject effectObj = Instantiate(effectData.ApplyEffect, spawnPosition, Quaternion.identity);
                 Destroy(effectObj, 3f); // 3초 후 제거
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎨 [StatusEffectManager] Apply 이펙트 재생 (Instantiate): {effectData.ApplyEffect.name}");
             }
         }
         
@@ -485,8 +438,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         {
             SoundManager.Instance.PlaySFX(effectData.ApplySound);
             
-            if (enableDebugLogs)
-                Debug.Log($"🔊 [StatusEffectManager] Apply 사운드 재생: {effectData.ApplySound.name}");
         }
         
         // TODO Phase 2: Persistent 이펙트 (지속 중 따라다니는 이펙트)
@@ -508,8 +459,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         effect.Remove();
         activeEffects.Remove(effect);
         
-        if (enableDebugLogs)
-            Debug.Log($"❌ [StatusEffectManager] {effect.EffectType} 제거 ← {(effect.Target != null ? effect.Target.name : "(destroyed)")}");
     }
     
     /// <summary>
@@ -546,8 +495,7 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
         
         activeEffects.Clear();
         
-        if (enableDebugLogs)
-            Debug.Log($"🧹 [StatusEffectManager] 모든 상태이상 제거됨 ({activeEffects.Count}개)");
+            Dbg.Log($"🧹 [StatusEffectManager] 모든 상태이상 제거됨 ({activeEffects.Count}개)");
     }
     
     /// <summary>
@@ -582,8 +530,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
             RemoveEffect(effect);
         }
         
-        if (enableDebugLogs && effectsToRemove.Count > 0)
-            Debug.Log($"🧹 [StatusEffectManager] {target.name}의 상태이상 {effectsToRemove.Count}개 제거됨");
         
         effectsToRemove.Clear();
     }
@@ -678,7 +624,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
     {
         if (activeEffects.Count == 0)
         {
-            Debug.Log("[StatusEffectManager] 활성 상태이상 없음");
             return;
         }
 
@@ -688,7 +633,6 @@ public class StatusEffectManager : Singleton<StatusEffectManager>
             info += $"  - {effect.EffectType}: {effect.RemainingDuration:F1}초 남음 (값: {effect.Value})\n";
         }
         
-        Debug.Log(info);
     }
     
     [ContextMenu("Print Active Effects")]

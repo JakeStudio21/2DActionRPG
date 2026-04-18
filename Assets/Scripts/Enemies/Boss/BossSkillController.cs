@@ -31,9 +31,6 @@ public class BossSkillController : MonoBehaviour
     private Vector3 cachedTargetDirection; // Cast 시작 시점의 플레이어 방향 (싱크 맞춤용)
     private Vector3 cachedTargetPosition;  // Cast 시작 시점의 플레이어 위치
     
-    [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
-    
     // 프로퍼티
     public bool IsCasting => isCasting;
     public bool IsActionExecuting => isActionExecuting;
@@ -64,10 +61,7 @@ public class BossSkillController : MonoBehaviour
     
     private void Start()
     {
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossSkillController] {gameObject.name} 초기화 완료");
-        }
+        Dbg.Log($"[BossSkillController] {gameObject.name} 초기화 완료");
     }
     
     /// <summary>
@@ -77,40 +71,23 @@ public class BossSkillController : MonoBehaviour
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogError($"[BossSkillController] SkillEntry 또는 SkillData가 null!");
-            }
             return;
         }
         
         if (isCasting || isActionExecuting)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossSkillController] 이미 스킬 실행 중!");
-            }
             return;
         }
         
         currentSkillEntry = skillEntry;
         isCasting = true;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🔮 [BossSkillController] {gameObject.name}: {skillEntry.skillData.SkillName} 캐스팅 시작!");
-            Debug.Log($"   스킬 스케일: {skillEntry.skillScaleMultiplier}x");
-        }
         
         // 애니메이션 트리거
         if (animController != null)
         {
             animController.TriggerSkillCast();
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"✅ [BossSkillController] SkillCast 트리거 실행!");
-            }
         }
         else
         {
@@ -338,10 +315,6 @@ public class BossSkillController : MonoBehaviour
         // 스킬 실행 중이 아니면 무시
         if (!isCasting && !isActionExecuting) return;
         
-        if (enableDebugLogs)
-        {
-            Debug.LogWarning($"[BossSkillController] {gameObject.name} 스킬 강제 취소 (isCasting: {isCasting}, isActionExecuting: {isActionExecuting})");
-        }
         
         // 상태 플래그 리셋
         isCasting = false;
@@ -401,10 +374,6 @@ public class BossSkillController : MonoBehaviour
         // ⭐ 이전 Telegraph가 있으면 제거
         if (activeTelegraph != null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"⚠️ [BossSkillController] 이전 Telegraph 남아있음! 제거합니다: ID={activeTelegraph.GetInstanceID()}");
-            }
             Destroy(activeTelegraph);
             activeTelegraph = null;
         }

@@ -25,7 +25,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
     [SerializeField] protected float attackCooldown = 0.5f;
     
     [Header("디버그")]
-    [SerializeField] protected bool enableDebugLogs = false;
     
     // 컴포넌트
     protected Rigidbody2D rb;
@@ -71,8 +70,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
             float jitterMax = mobData != null ? mobData.speedJitterMax : 1.2f;
             moveSpeed = speed * Random.Range(jitterMin, jitterMax);
 
-            if (enableDebugLogs)
-                Debug.Log($"[SimpleMob] {gameObject.name} 이동속도 설정: {moveSpeed:F2} (기준: {speed})");
         }
     }
     
@@ -91,8 +88,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
         moveSpeed = moveSpeed * (1f - Mathf.Clamp01(slowPercentage));
         _isSlowed = true;
         
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMob] {gameObject.name} 슬로우 적용: {_baseSpeedBeforeSlow:F2} → {moveSpeed:F2} ({slowPercentage:P0} 감소)");
     }
     
     /// <summary>
@@ -104,8 +99,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
         moveSpeed = _baseSpeedBeforeSlow;
         _isSlowed = false;
         
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMob] {gameObject.name} 슬로우 해제: moveSpeed = {moveSpeed:F2} 복원");
     }
     
     protected virtual void Awake()
@@ -381,8 +374,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
         isDead = true;
         rb.velocity = Vector2.zero;
         
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMob] {gameObject.name} 사망");
 
         // 체력바 즉시 숨김
         if (healthBar != null)
@@ -412,8 +403,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
             playerHealth.TakeDamage(Mathf.RoundToInt(contactDamage), transform, transform.position);
             lastAttackTime = Time.time;
             
-            if (enableDebugLogs)
-                Debug.Log($"[SimpleMob] 플레이어 타격! 데미지: {contactDamage}");
             
             // 공격 애니메이션
             if (animator != null)
@@ -502,9 +491,6 @@ public class SimpleMob : MonoBehaviour, ITargetable
         // 속도는 OnEnable에서 이미 jitter가 적용된 moveSpeed에 성장 배율을 곱함
         moveSpeed *= spdMult;
 
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMob] {gameObject.name} 레벨 초기화: Lv.{level} " +
-                      $"(HP:{maxHealth}, ATK:{contactDamage:F1}, SPD:{moveSpeed:F2})");
     }
 
     private void OnDrawGizmosSelected()

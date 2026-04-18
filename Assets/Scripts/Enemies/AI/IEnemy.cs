@@ -13,7 +13,6 @@ public interface IEnemy
     // �� 기존 FSM에서 사용하는 메서드들
     float DetectionRange { get; }
     float MoveSpeed { get; } // 🔑 추가
-    bool EnableDebugLogs { get; }
     string name { get; }
     
     bool IsPlayerInRange(float range);

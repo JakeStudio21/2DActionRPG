@@ -16,7 +16,6 @@ public class BossDashSkill : MonoBehaviour
     [SerializeField] private float baseDashSpeed = 8f;
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
     
     private BossSkillController skillController;
     
@@ -95,11 +94,6 @@ public class BossDashSkill : MonoBehaviour
         // 돌진 속도 계산 (페이즈별 속도 증가)
         float dashSpeed = baseDashSpeed * scaleMultiplier;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏃 돌진 시작: {startPosition} → {targetPosition}");
-            Debug.Log($"   거리: {dashDistance:F1}f, 속도: {dashSpeed:F1}f/s, 스케일: {scaleMultiplier}x");
-        }
         
         // 돌진 중 프레임 업데이트
         float elapsedTime = 0f;
@@ -125,10 +119,6 @@ public class BossDashSkill : MonoBehaviour
         // 최종 위치 보정
         transform.position = targetPosition;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏁 돌진 완료: {transform.position}");
-        }
         
         // AOE 이펙트 생성 (도착 지점, executeVFX가 true일 때만)
         if (executeVFX)
@@ -224,10 +214,6 @@ public class BossDashSkill : MonoBehaviour
         // 데미지 적용
         playerHealth.TakeDamage(skillDamage, transform);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossDashSkill] 플레이어 피격: {skillDamage} 데미지");
-        }
         
         // 타격 연출 — CueSystem 위임
         if (!string.IsNullOrEmpty(skill.HitCueKey))

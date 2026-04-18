@@ -15,7 +15,6 @@ public class EnemyDieState : IEnemyState
     public void Enter()
     {
         enemy.AnimationController?.PlayDie();
-        Debug.Log($"[EnemyDieState] {enemy.transform.name} 사망 상태 진입");
         
         // 사망 처리는 한 번만 실행
         if (!deathProcessed)
@@ -33,7 +32,6 @@ public class EnemyDieState : IEnemyState
 
     public void Exit()
     {
-        Debug.Log($"[EnemyDieState] {enemy.transform.name} 사망 상태 종료");
     }
 
     private void ProcessDeath()
@@ -47,7 +45,6 @@ public class EnemyDieState : IEnemyState
             // NavMeshAgent 정지
             baseEnemy.Agent.isStopped = true;
             baseEnemy.Agent.ResetPath();
-            Debug.Log($"[EnemyDieState] {enemy.transform.name} NavMeshAgent 정지");
         }
     }
 }

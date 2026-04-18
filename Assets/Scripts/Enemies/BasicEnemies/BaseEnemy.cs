@@ -59,7 +59,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         CueEmitDomain = $"Enemy_{id}";
         CueSystem.CueRegistry.Instance.RegisterProfile(CueEmitDomain, cueProfile);
 
-        Debug.Log($"🎵 [BaseEnemy] {gameObject.name} CueProfile 등록: 도메인={CueEmitDomain}");
     }
 
     #endregion
@@ -189,12 +188,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         
         if (enemyData != null)
         {
-            Debug.Log($"[{GetType().Name}] 런타임 스탯 계산:");
-            Debug.Log($"  - 레벨: {currentLevel}, 타입: {enemyData.EnemyType}");
-            Debug.Log($"  - 체력: {GetScaledMaxHealth():F1}");
-            Debug.Log($"  - 공격력: AttackData에서 관리됨");
-            Debug.Log($"  - 방어력: {GetScaledDefense():F1}");
-            Debug.Log($"  - 이동속도: {GetScaledMoveSpeed():F1}");
         }
         
         // ⭐ Phase 2-추가: 공격 데미지 캐시 무효화 (레벨 변경 시 필수!)
@@ -216,7 +209,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
                 attackBehaviour.InvalidateAttackCache();
             }
             
-            Debug.Log($"🔄 [BaseEnemy] {gameObject.name}: {attackBehaviours.Length}개 공격 시스템 캐시 무효화 완료");
         }
     }
 
@@ -254,7 +246,7 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             
             InitializeNavMeshAgent();
         }
-        else if (enableDebugLogs)
+        else
         {
             if (!useNavMesh)
                 Debug.LogWarning($"⚠️ [BaseEnemy] {gameObject.name}: useNavMesh = false! NavMesh 비활성화 상태!");
@@ -321,13 +313,12 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             if (TargetPlayer == null)
                 yield return new WaitForSeconds(0.1f);
         }
-        Debug.Log($"[{GetType().Name}] {gameObject.name}이 플레이어를 찾았습니다.");
         
         // FSM 초기 상태 진입
         if (FSMController != null)
         {
             FSMController.ChangeState(new EnemyIdleState(this));
-            Debug.Log($"[{GetType().Name}] {gameObject.name} FSM 시스템 시작 - Idle State");
+            Dbg.Log($"[{GetType().Name}] {gameObject.name} FSM 시스템 시작 - Idle State");
         }
     }
     
@@ -359,7 +350,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
     {
         CurrentLevel += 1;
         CalculateRuntimeStats();
-        Debug.Log($"[{GetType().Name}] 레벨업! 새 레벨: {CurrentLevel}");
     }
 
     /// <summary>
@@ -404,7 +394,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             info += "\n❌ PatrolTuning이 할당되지 않았습니다!\n";
         }
         
-        Debug.Log(info);
     }
     
     /// <summary>
@@ -418,7 +407,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         // 1. 최종 레벨 계산
         currentLevel = stageBaseLevel + levelOffset;
         
-        Debug.Log($"🎯 [BaseEnemy] {gameObject.name} 레벨 초기화: Stage Lv.{stageBaseLevel} + Offset {levelOffset} = 최종 Lv.{currentLevel}");
         
         // 2. 스탯 재계산 (SO 기반)
         CalculateRuntimeStats();
@@ -456,8 +444,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
     public virtual DirectionPreset GetDirectionPreset()
     {
         var isometricData = GetIsometricData();
-        if (enableDebugLogs && Time.frameCount % 300 == 0) // 5초마다
-            Debug.Log($"🧭 [{GetType().Name}] DirectionPreset: {isometricData.DirectionPreset}");
         return isometricData.DirectionPreset;
     }
     
@@ -467,8 +453,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
     public virtual Vector2 GetFootOffset()
     {
         var isometricData = GetIsometricData();
-        if (enableDebugLogs && Time.frameCount % 300 == 0) // 5초마다
-            Debug.Log($"🦶 [{GetType().Name}] FootOffset: {isometricData.FootOffset}");
         return isometricData.FootOffset;
     }
     
@@ -482,8 +466,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         var isometricData = GetIsometricData();
         int heightOffset = isometricData.CalculateHeightOffset(t);
         
-        if (enableDebugLogs && heightOffset != 0)
-            Debug.Log($"📈 [{GetType().Name}] HeightOffset: t={t:F2} → {heightOffset}");
             
         return heightOffset;
     }
@@ -496,8 +478,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         var defaultData = new IsometricCharacterData();
         defaultData.SetDefaults();
         
-        if (enableDebugLogs)
-            Debug.Log($"⚠️ [{GetType().Name}] 기본 IsometricData 생성됨 (ScriptableObject 할당 권장)");
         
         return defaultData;
     }
@@ -521,7 +501,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             if (rb.bodyType != RigidbodyType2D.Kinematic)
             {
                 rb.bodyType = RigidbodyType2D.Kinematic;
-                Debug.Log($"✅ [BaseEnemy] {gameObject.name}: NavMesh 사용 - Rigidbody2D를 Kinematic으로 전환 (넉백 비활성화)");
             }
         }
         else
@@ -550,10 +529,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         catch (System.Exception)
         {
             // AttackRange 접근 불가 시 기본값 사용 (나중에 Start()에서 재설정됨)
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BaseEnemy] {gameObject.name} AttackRange 접근 불가 (Awake 단계), 기본값 2.0f 사용");
-            }
         }
         Agent.stoppingDistance = Mathf.Max(0.1f, attackRange - 0.5f);
         
@@ -711,12 +686,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         FSMController?.ChangeState(newState);
     }
 
-    // BaseEnemy 클래스에 추가할 필드들
-    [Header("디버그")]
-    [SerializeField] protected bool enableDebugLogs = false; // NavMesh 통합 완료 후 비활성화
-
-    // EnableDebugLogs 프로퍼티 추가 (IEnemy 인터페이스용)
-    public bool EnableDebugLogs => enableDebugLogs;
 
     /// <summary>
     /// 패트롤 튜닝 데이터 접근
@@ -731,10 +700,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             }
             
             // 기본 PatrolTuning이 없으면 경고 (개발 중에만)
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[{gameObject.name}] PatrolTuning이 할당되지 않았습니다. 기본값 사용.");
-            }
             
             return null;
         } 
@@ -777,8 +742,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         // 스탯 재계산
         CalculateRuntimeStats();
         
-        Debug.Log($"🐲 [BaseEnemy] {gameObject.name}: EnemyData 동적 변경 완료 → {newEnemyData.name}");
-        Debug.Log($"🐲 [BaseEnemy] IsBoss: {enemyData.IsBoss}, EnemyType: {enemyData.EnemyType}");
     }
 
     #region 🎨 렌더링 소팅 시스템
@@ -811,7 +774,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         // 몬스터용 기본 설정 적용
         SetFootSorterSettings(footSorter);
         
-        Debug.Log($"🎨 [BaseEnemy] {gameObject.name}: FootPositionSorter 설정 완료");
     }
 
     /// <summary>
@@ -841,10 +803,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         updateIntervalField?.SetValue(footSorter, 0.1f);
 
-        // 디버그 설정 (개발 시에만)
-        var enableDebugLogsField = footSorter.GetType().GetField("enableDebugLogs", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        enableDebugLogsField?.SetValue(footSorter, false); // 배포 시 false
     }
 
     #endregion
@@ -861,7 +819,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         // NavMesh 미사용 몬스터는 기존 Knockback.cs가 처리하므로 스킵
         if (!IsUsingNavMesh)
         {
-            Debug.Log($"[BaseEnemy] {gameObject.name}: NavMesh 미사용 몬스터 → 기존 Knockback.cs 사용");
             yield break;
         }
         
@@ -876,7 +833,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
         Vector3 startPos = transform.position;
         Vector3 targetPos = startPos + (Vector3)knockbackDirection * retreatDistance;
         
-        Debug.Log($"🎯 [BaseEnemy] {gameObject.name} 연출 넉백 시작: {retreatDistance}m, {retreatDuration}초");
         
         // 부드러운 후퇴 애니메이션
         while (elapsed < retreatDuration)
@@ -907,7 +863,6 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             Agent.Warp(finalPos);
         }
         
-        Debug.Log($"✅ [BaseEnemy] {gameObject.name} 연출 넉백 완료 (위치 동기화됨)");
     }
     
     #endregion

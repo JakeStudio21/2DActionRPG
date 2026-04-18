@@ -23,7 +23,6 @@ public class BossPhaseController : MonoBehaviour
     [SerializeField] private bool isInvincible = false;
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
     
     // 이벤트
     public System.Action<BossPhaseData> OnPhaseChanged;
@@ -58,12 +57,9 @@ public class BossPhaseController : MonoBehaviour
         // 첫 페이즈 시작
         if (phases.Count > 0)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🐲 [BossPhaseController] {gameObject.name}: 페이즈 시스템 시작!");
-                Debug.Log($"🐲 총 페이즈: {phases.Count}");
-                Debug.Log(CurrentPhase.GetDebugInfo());
-            }
+            Dbg.Log($"🐲 [BossPhaseController] {gameObject.name}: 페이즈 시스템 시작!");
+            Dbg.Log($"🐲 총 페이즈: {phases.Count}");
+            Dbg.Log(CurrentPhase.GetDebugInfo());
         }
         else
         {
@@ -98,11 +94,8 @@ public class BossPhaseController : MonoBehaviour
             
             if (nextPhaseIndex != -1 && nextPhaseIndex != currentPhaseIndex)
             {
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"🔄 [BossPhaseController] HP {currentHpPercent * 100:F1}% ({enemyHealth.CurrentHealth}/{enemyHealth.MaxHealth}) → 페이즈 전환 감지!");
-                    Debug.Log($"   현재: {CurrentPhase.phaseName} → 다음: {phases[nextPhaseIndex].phaseName}");
-                }
+                Dbg.Log($"🔄 [BossPhaseController] HP {currentHpPercent * 100:F1}% ({enemyHealth.CurrentHealth}/{enemyHealth.MaxHealth}) → 페이즈 전환 감지!");
+                Dbg.Log($"   현재: {CurrentPhase.phaseName} → 다음: {phases[nextPhaseIndex].phaseName}");
                 
                 StartPhaseTransition(nextPhaseIndex);
             }
@@ -139,10 +132,6 @@ public class BossPhaseController : MonoBehaviour
         
         if (isTransitioning)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossPhaseController] 이미 전환 중입니다!");
-            }
             return;
         }
         
@@ -157,10 +146,7 @@ public class BossPhaseController : MonoBehaviour
         isTransitioning = true;
         BossPhaseData nextPhase = phases[nextPhaseIndex];
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🔄 [BossPhaseController] 페이즈 전환 시작: {CurrentPhase.phaseName} → {nextPhase.phaseName}");
-        }
+        Dbg.Log($"🔄 [BossPhaseController] 페이즈 전환 시작: {CurrentPhase.phaseName} → {nextPhase.phaseName}");
         
         // 전환 시작 이벤트
         OnPhaseTransitionStart?.Invoke();
@@ -220,11 +206,8 @@ public class BossPhaseController : MonoBehaviour
             ResetAllCooldowns();
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [BossPhaseController] 페이즈 전환 완료: {nextPhase.phaseName}");
-            Debug.Log(nextPhase.GetDebugInfo());
-        }
+        Dbg.Log($"✅ [BossPhaseController] 페이즈 전환 완료: {nextPhase.phaseName}");
+        Dbg.Log(nextPhase.GetDebugInfo());
         
         // 전환 완료 이벤트
         OnPhaseChanged?.Invoke(nextPhase);
@@ -243,10 +226,6 @@ public class BossPhaseController : MonoBehaviour
         {
             bossAttack.ResetAllCooldowns();
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🔄 [BossPhaseController] 모든 쿨다운 리셋!");
-            }
         }
     }
     
@@ -294,7 +273,6 @@ public class BossPhaseController : MonoBehaviour
         }
         else
         {
-            Debug.Log("[BossPhaseController] 이미 마지막 페이즈입니다!");
         }
     }
     
@@ -320,7 +298,6 @@ public class BossPhaseController : MonoBehaviour
             info += CurrentPhase.GetDebugInfo();
         }
         
-        Debug.Log(info);
     }
 }
 

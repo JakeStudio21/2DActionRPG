@@ -26,9 +26,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
     [Header("상태")]
     private bool isInitialized = false;
     private Coroutine fadeCoroutine;
-    
-    [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
 
     private void Awake()
     {
@@ -71,10 +68,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
         duration = displayDuration;
         isInitialized = true;
 
-        Debug.Log($"📍 [TelegraphIndicatorMesh] Initialize() 호출:");
-        Debug.Log($"   스킬: {skill.SkillName}");
-        Debug.Log($"   표시 시간: {displayDuration}초");
-        Debug.Log($"   스케일 배율: {scaleMultiplier}x");
 
         // 색상 설정
         if (meshMaterial != null)
@@ -83,7 +76,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
             startColor.a = 0f; // 초기 알파 0
             meshMaterial.color = startColor;
             
-            Debug.Log($"[TelegraphIndicatorMesh] 머티리얼 색상 설정: {startColor}");
         }
         else
         {
@@ -103,8 +95,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
         var collider = GetComponent<Collider2D>();
         if (collider != null)
         {
-            Debug.Log($"   Collider: {collider.GetType().Name} (Is Trigger: {collider.isTrigger})");
-            Debug.Log($"   Collider Bounds (초기화 직후): Center={collider.bounds.center}, Extents={collider.bounds.extents}");
         }
         else
         {
@@ -153,7 +143,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
             }
         }
         
-        Debug.Log($"✅ [TelegraphIndicatorMesh] Collider Trigger 설정 완료!");
     }
 
     /// <summary>
@@ -168,7 +157,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[TelegraphIndicatorMesh] SetupSize: 스킬={skillData.SkillName}, 형태={skillData.AoeShape}, 반경={skillData.AoeRadius}, 스케일={scaleMultiplier}x");
 
         switch (skillData.AoeShape)
         {
@@ -176,14 +164,12 @@ public class TelegraphIndicatorMesh : MonoBehaviour
                 // 원형: 반경에 Phase 스케일 적용 (DamageArea와 일치)
                 float radius = skillData.AoeRadius * scaleMultiplier;
                 transform.localScale = new Vector3(radius, radius, 1f);
-                Debug.Log($"[TelegraphIndicatorMesh] Circle 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={radius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Triangle: // Fan (부채꼴)
                 // 부채꼴: 반경에 Phase 스케일 적용 (DamageArea와 일치)
                 float fanRadius = skillData.AoeRadius * scaleMultiplier;
                 transform.localScale = new Vector3(fanRadius, fanRadius, 1f);
-                Debug.Log($"[TelegraphIndicatorMesh] Fan 크기 설정: 반경={skillData.AoeRadius}, 배율={scaleMultiplier}x, 최종 반경={fanRadius}, Scale={transform.localScale}");
                 break;
 
             case AOEShapeType.Rectangle:
@@ -191,7 +177,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
                 float rectX = skillData.AoeSize.x * scaleMultiplier;
                 float rectY = skillData.AoeSize.y * scaleMultiplier;
                 transform.localScale = new Vector3(rectX, rectY, 1f);
-                Debug.Log($"[TelegraphIndicatorMesh] Rectangle 크기 설정: 원본={skillData.AoeSize}, 배율={scaleMultiplier}x, 최종=({rectX}, {rectY}), Scale={transform.localScale}");
                 break;
         }
     }
@@ -223,10 +208,6 @@ public class TelegraphIndicatorMesh : MonoBehaviour
         float waitTime = Mathf.Max(duration - fadeInDuration - fadeOutDuration, 10f);
         if (waitTime > 0f)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[TelegraphIndicatorMesh] 대기 시작: {waitTime}초 (또는 수동 제거까지)");
-            }
             yield return new WaitForSeconds(waitTime);
         }
 

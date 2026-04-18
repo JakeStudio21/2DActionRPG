@@ -104,7 +104,6 @@ public class AutoDestroyParticle : MonoBehaviour
             try
             {
                 GamePoolManager.Instance.ReturnToPool(tag, gameObject);
-                Debug.Log($"[AutoDestroyParticle] {gameObject.name}을(를) 풀로 반환했습니다.");
             }
             catch (System.Exception e)
             {

@@ -25,9 +25,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
     [Header("⏱️ 스킬 개별 쿨다운")]
     private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();
     
-    [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
-    
     #region BaseAttackBehaviour 추상 메서드 구현
     
     protected override void OnInitialize()
@@ -54,21 +51,14 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             phaseController.OnPhaseChanged += OnPhaseChanged;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossAttackBehaviour] {gameObject.name} 초기화 완료");
-            Debug.Log($"  - meleeAttackRange: {meleeAttackRange}f");
-            Debug.Log($"  - globalAttackCooldown: {globalAttackCooldown}초");
-        }
+        Dbg.Log($"[BossAttackBehaviour] {gameObject.name} 초기화 완료");
+        Dbg.Log($"  - meleeAttackRange: {meleeAttackRange}f");
+        Dbg.Log($"  - globalAttackCooldown: {globalAttackCooldown}초");
     }
     
     protected override void ValidateAttackType()
     {
         // 보스는 평타 + 페이즈별 스킬 혼합
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossAttackBehaviour] {gameObject.name}: 보스 공격 타입 (평타 + 페이즈별 스킬)");
-        }
     }
     
     protected override void OnAttack()
@@ -76,20 +66,13 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // BaseEnemy 참조 확인
         if (baseEnemy == null || cachedPlayer == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossAttackBehaviour] BaseEnemy 또는 Player가 null!");
-            }
             return;
         }
         
         // 페이즈 전환 중이면 공격 안 함
         if (phaseController != null && phaseController.IsTransitioning)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[BossAttackBehaviour] 페이즈 전환 중 - 공격 불가");
-            }
+            Dbg.Log($"[BossAttackBehaviour] 페이즈 전환 중 - 공격 불가");
             return;
         }
         
@@ -97,10 +80,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         BossPhaseData currentPhase = phaseController?.CurrentPhase;
         if (currentPhase == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossAttackBehaviour] 현재 페이즈가 없습니다!");
-            }
             return;
         }
         
@@ -111,10 +90,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         BossSkillDistance distanceCategory = distanceToPlayer > meleeAttackRange ? 
             BossSkillDistance.Ranged : BossSkillDistance.Melee;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎯 [BossAttackBehaviour] 거리: {distanceToPlayer:F1}f → {distanceCategory}");
-        }
         
         // 공격 선택 (거리 기반 + 확률 기반)
         DecideAndExecuteAttack(currentPhase, distanceCategory, distanceToPlayer);
@@ -154,10 +129,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             }
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossAttackBehaviour] 총 가중치: {totalWeight} (평타: {meleeWeight}, 스킬: {usableSkills.Count}개, 거리: {distanceCategory})");
-        }
         
         // 가중치 기반 랜덤 선택
         float randomValue = Random.Range(0f, totalWeight);
@@ -185,19 +156,11 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // Fallback: 평타 범위 내에 있을 때만 평타 실행
         if (distanceToPlayer <= baseEnemy.AttackRange)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossAttackBehaviour] 공격 선택 실패 → 평타로 Fallback (거리: {distanceToPlayer:F2})");
-            }
             ExecuteMeleeAttack();
         }
         else
         {
             // 평타 범위 밖이면 공격하지 않음 (추격 상태로 유지)
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossAttackBehaviour] 공격 선택 실패, 평타 범위 밖 → 공격 불가 (거리: {distanceToPlayer:F2}, 범위: {baseEnemy.AttackRange:F2})");
-            }
         }
     }
     
@@ -217,14 +180,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             }
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[BossAttackBehaviour] {distanceCategory} 거리 스킬: {available.Count}개");
-            foreach (var skill in available)
-            {
-                Debug.Log($"  - {skill.skillData?.SkillName ?? "NULL"} (가중치: {skill.weight})");
-            }
-        }
         
         return available;
     }
@@ -236,26 +191,14 @@ public class BossAttackBehaviour : BaseAttackBehaviour
     {
         if (meleeAttack == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogError($"[BossAttackBehaviour] {gameObject.name}: MeleeAttack 컴포넌트 없음!");
-            }
             return;
         }
         
         if (!meleeAttack.CanAttack())
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossAttackBehaviour] {gameObject.name}: 평타 쿨다운 중");
-            }
             return;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⚔️ [BossAttackBehaviour] {gameObject.name}: 평타 실행");
-        }
         
         meleeAttack.Attack();
         
@@ -270,17 +213,9 @@ public class BossAttackBehaviour : BaseAttackBehaviour
     {
         if (skillEntry == null || skillEntry.skillData == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogError($"[BossAttackBehaviour] SkillEntry 또는 SkillData가 null!");
-            }
             return;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🔮 [BossAttackBehaviour] {gameObject.name}: {skillEntry.skillData.SkillName} 실행 (스케일: {skillEntry.skillScaleMultiplier}x)");
-        }
         
         // ⭐ BossSkillController로 스킬 실행
         if (skillController != null)
@@ -317,10 +252,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         if (skillCooldowns.ContainsKey(skill))
         {
             bool canUse = skillCooldowns[skill] <= 0f;
-            if (!canUse && enableDebugLogs)
-            {
-                Debug.Log($"[BossAttackBehaviour] {skill.SkillName} 쿨다운 중: {skillCooldowns[skill]:F1}초");
-            }
             return canUse;
         }
         
@@ -350,10 +281,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
                 if (skillCooldowns[skill] <= 0f)
                 {
                     skillCooldowns[skill] = 0f;
-                    if (enableDebugLogs)
-                    {
-                        Debug.Log($"[BossAttackBehaviour] {skill.SkillName} 쿨다운 완료!");
-                    }
                 }
             }
         }
@@ -363,10 +290,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
     {
         if (!CanAttack())
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[BossAttackBehaviour] {gameObject.name}: 공격 불가 상태");
-            }
             return;
         }
         
@@ -379,11 +302,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // ⭐ 전역 공격 쿨다운 체크
         if (Time.time < lastAttackTime + globalAttackCooldown)
         {
-            if (enableDebugLogs)
-            {
-                float remaining = (lastAttackTime + globalAttackCooldown) - Time.time;
-                Debug.Log($"[BossAttackBehaviour] 전역 쿨다운 중 (남은 시간: {remaining:F1}초)");
-            }
             return false;
         }
         
@@ -450,10 +368,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // ⭐⭐ 스킬 완료 시점에 전역 쿨다운 시작
         lastAttackTime = Time.time;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏰ [BossAttackBehaviour] {gameObject.name} 스킬 완료 → 전역 쿨다운 {globalAttackCooldown}초 시작!");
-        }
     }
     
     /// <summary>
@@ -471,10 +385,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // 전역 쿨다운 리셋
         lastAttackTime = -999f;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🔄 [BossAttackBehaviour] 모든 쿨다운 리셋 완료!");
-        }
     }
     
     /// <summary>
@@ -482,12 +392,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
     /// </summary>
     private void OnPhaseChanged(BossPhaseData newPhase)
     {
-        if (enableDebugLogs)
-        {
-            Debug.Log($"📊 [BossAttackBehaviour] 페이즈 변경: {newPhase.phaseName}");
-            Debug.Log($"   평타 확률: {newPhase.meleeAttackWeight}");
-            Debug.Log($"   스킬 개수: {newPhase.availableSkills.Count}");
-        }
         
         // 새 페이즈의 스킬들을 쿨다운 딕셔너리에 추가
         foreach (var skillEntry in newPhase.availableSkills)
@@ -531,7 +435,6 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             info += $"{kvp.Key.SkillName}: {kvp.Value:F1}초\n";
         }
         
-        Debug.Log(info);
     }
     
     #endregion

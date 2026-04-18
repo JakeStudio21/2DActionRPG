@@ -71,7 +71,6 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 새 시스템: 데이터 기반 체력 계산
         currentHealth = CalculateMaxHealth();
         
-        Debug.Log($"[EnemyHealth] {gameObject.name} 체력 초기화: {currentHealth}");
         
         // ⭐ 엘리트/보스 체력바 생성
         InitializeHealthBar();
@@ -85,7 +84,6 @@ public class EnemyHealth : MonoBehaviour
         if (baseEnemy != null)
         {
             float scaledHealth = baseEnemy.GetScaledMaxHealth();
-            Debug.Log($"[EnemyHealth] BaseEnemy 스케일된 체력 사용: {scaledHealth:F1}");
             return Mathf.RoundToInt(scaledHealth);
         }
         
@@ -102,7 +100,6 @@ public class EnemyHealth : MonoBehaviour
         if (baseEnemy?.EnemyData != null)
         {
             float knockBack = baseEnemy.EnemyData.KnockBackThrust;
-            Debug.Log($"[EnemyHealth] EnemyData 넉백 강도 사용: {knockBack}");
             return knockBack;
         }
         
@@ -195,7 +192,6 @@ public class EnemyHealth : MonoBehaviour
         int newMaxHealth = CalculateMaxHealth(); // baseEnemy.GetScaledMaxHealth() 호출
         currentHealth = newMaxHealth;
         
-        Debug.Log($"💚 [EnemyHealth] {gameObject.name} 체력 리셋: {currentHealth} (레벨 {baseEnemy?.CurrentLevel})");
         
         // 체력바 갱신 (비율 1.0 = 100%)
         if (activeHealthBar != null)
@@ -226,7 +222,6 @@ public class EnemyHealth : MonoBehaviour
                 GameObject vfxPrefab = Resources.Load<GameObject>(vfxPath);
                 if (vfxPrefab != null)
                 {
-                    Debug.Log($"[EnemyHealth] 사망 이펙트 로드 성공: {vfxPath}");
                     return vfxPrefab;
                 }
                 else
@@ -251,7 +246,6 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 이미 죽었거나 사망 애니메이션 중이면 데미지 무시
         if (isDead || isDeathAnimationPlaying) 
         {
-            Debug.Log($"[EnemyHealth] {gameObject.name}: 이미 죽었거나 사망 중이므로 데미지 무시");
             return;
         }
 
@@ -299,7 +293,6 @@ public class EnemyHealth : MonoBehaviour
                 StatusEffectManager.Instance.ClearEffectsOnTarget(gameObject);
             }
             
-            Debug.Log($"[EnemyHealth] {gameObject.name}: 사망 상태 진입, 넉백 스킵!");
             
             // ⭐ 사망 시 넉백 스킵 (Die 애니메이션 방해 방지)
             // Flash만 실행
@@ -323,7 +316,6 @@ public class EnemyHealth : MonoBehaviour
             {
                 // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행
                 // Knockback 컴포넌트 불필요!
-                Debug.Log($"[EnemyHealth] {gameObject.name} NavMesh 몬스터 - 연출 넉백 사용 (Knockback 컴포넌트 불필요)");
             }
             else
             {
@@ -332,7 +324,6 @@ public class EnemyHealth : MonoBehaviour
                 {
                     float knockBackThrust = CalculateKnockBackThrust();
                     knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
-                    Debug.Log($"[EnemyHealth] {gameObject.name} 물리 넉백 실행 (Knockback 컴포넌트 사용)");
                 }
                 else
                 {
@@ -363,7 +354,6 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 이미 죽었거나 사망 애니메이션 중이면 데미지 무시
         if (isDead || isDeathAnimationPlaying) 
         {
-            Debug.Log($"[EnemyHealth] {gameObject.name}: 이미 죽었거나 사망 중이므로 데미지 무시");
             return;
         }
 
@@ -403,14 +393,12 @@ public class EnemyHealth : MonoBehaviour
             currentResistedEffects = result.resistedEffects;
             immunityExpireTime = Time.time + immunityDuration;
             
-            Debug.Log($"🛡️ [EnemyHealth] {gameObject.name} 면역 발동! 저항한 효과: {result.resistedEffects}");
         }
         
         // 8️⃣ 💉 Phase 4-C: 회복 차단 처리
         if (result.healingBlockPercent > 0)
         {
             // TODO: 회복 차단 디버프 구현 (나중에 몬스터 회복 시스템 추가 시)
-            Debug.Log($"🚫 [EnemyHealth] {gameObject.name} 회복 차단 {result.healingBlockPercent * 100:F0}% (구현 예정)");
         }
         
         // FSM 기반 Hit/Die 상태 전환 (IEnemy 구현 몬스터만)
@@ -428,7 +416,6 @@ public class EnemyHealth : MonoBehaviour
                 StatusEffectManager.Instance.ClearEffectsOnTarget(gameObject);
             }
             
-            Debug.Log($"[EnemyHealth] {gameObject.name}: 사망 상태 진입, 넉백 스킵!");
             
             // ⭐ 사망 시 넉백 스킵 (Die 애니메이션 방해 방지)
             // Flash만 실행
@@ -452,7 +439,6 @@ public class EnemyHealth : MonoBehaviour
             {
                 // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행
                 // Knockback 컴포넌트 불필요!
-                Debug.Log($"[EnemyHealth] {gameObject.name} NavMesh 몬스터 - 연출 넉백 사용 (Knockback 컴포넌트 불필요)");
             }
             else
             {
@@ -461,7 +447,6 @@ public class EnemyHealth : MonoBehaviour
                 {
                     float knockBackThrust = CalculateKnockBackThrust();
                     knockback.GetKnockedBack(hitTransform, knockBackThrust);
-                    Debug.Log($"[EnemyHealth] {gameObject.name} 물리 넉백 실행 (Knockback 컴포넌트 사용)");
                 }
                 else
                 {
@@ -486,7 +471,7 @@ public class EnemyHealth : MonoBehaviour
 
     private IEnumerator DieRoutine()
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} DieRoutine 실행 시작!");
+        Dbg.Log($"[EnemyHealth] {gameObject.name} DieRoutine 실행 시작!");
         
         // ⭐ 플래그 초기화 (이미 TakeDamage에서 설정됨)
         deathEventTriggered = false;
@@ -502,7 +487,6 @@ public class EnemyHealth : MonoBehaviour
             rb.angularVelocity = 0f;
             // Rigidbody를 Kinematic으로 변경하여 물리 연산 완전 차단
             rb.bodyType = RigidbodyType2D.Kinematic;
-            Debug.Log($"[EnemyHealth] {gameObject.name} 물리 효과 중지 (Kinematic)");
         }
         
         // ⭐ 이동 시스템 중지 (NavMeshAgent)
@@ -511,7 +495,6 @@ public class EnemyHealth : MonoBehaviour
         {
             baseEnemy.Agent.isStopped = true;
             baseEnemy.Agent.ResetPath();
-            Debug.Log($"[EnemyHealth] {gameObject.name} NavMeshAgent 정지");
         }
 
         // ⭐ 사망 애니메이션 재생
@@ -523,7 +506,6 @@ public class EnemyHealth : MonoBehaviour
             // 사망 애니메이션 트리거
             animator.SetTrigger("Die");
             
-            Debug.Log($"[EnemyHealth] {gameObject.name} 사망 애니메이션 트리거!");
             
             // ⭐ Die State로 전환될 때까지 대기 (최대 0.5초)
             float waitTime = 0f;
@@ -537,7 +519,6 @@ public class EnemyHealth : MonoBehaviour
                 if (stateInfo.IsName("Die") || stateInfo.IsName("Death") || stateInfo.IsName("Dead"))
                 {
                     animationLength = stateInfo.length;
-                    Debug.Log($"[EnemyHealth] {gameObject.name} Die State 진입 확인! 길이: {animationLength:F2}초");
                     break;
                 }
                 
@@ -551,10 +532,8 @@ public class EnemyHealth : MonoBehaviour
             }
             
             // ⭐ 애니메이션이 완전히 재생되도록 대기
-            Debug.Log($"[EnemyHealth] {gameObject.name} Die 애니메이션 재생 중... ({animationLength:F2}초)");
             yield return new WaitForSeconds(animationLength);
             
-            Debug.Log($"[EnemyHealth] {gameObject.name} Die 애니메이션 재생 완료!");
         }
         else
         {
@@ -565,7 +544,7 @@ public class EnemyHealth : MonoBehaviour
         }
 
         // ⭐ 애니메이션 완료 후 즉시 사망 처리
-        Debug.Log($"[EnemyHealth] {gameObject.name} DieRoutine 애니메이션 대기 완료 → 사망 처리 호출");
+        Dbg.Log($"[EnemyHealth] {gameObject.name} DieRoutine 애니메이션 대기 완료 → 사망 처리 호출");
         OnDeathAnimationComplete();
     }
 
@@ -577,7 +556,6 @@ public class EnemyHealth : MonoBehaviour
         if (deathEventTriggered) return; // 중복 실행 방지
         
         deathEventTriggered = true;
-        Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event: 사망 처리 완료!");
 
         // ⭐ 경험치/골드 지급 (사망 처리의 최우선!)
         int experience = CalculateExperienceReward();
@@ -607,7 +585,6 @@ public class EnemyHealth : MonoBehaviour
         if (IsBoss())
         {
             string bossId = GetBossId();
-            Debug.Log($"[EnemyHealth] 보스 처치: {bossId}");
             
             // 🎁 Phase 2: 보스 처치 보상 지급
             if (BossRewardManager.Instance != null && baseEnemy != null && baseEnemy.EnemyData != null && baseEnemy.EnemyData.BossReward != null)
@@ -642,7 +619,6 @@ public class EnemyHealth : MonoBehaviour
         if (deathVFX != null)
         {
             Instantiate(deathVFX, transform.position, Quaternion.identity);
-            Debug.Log($"[EnemyHealth] {gameObject.name} 사망 이펙트 생성");
         }
 
         // ⭐ 새 드롭 시스템: DropResolver 사용
@@ -651,7 +627,6 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 최종 상태 정리
         isDeathAnimationPlaying = false; // 애니메이션 완료
         
-        Debug.Log($"[EnemyHealth] {gameObject.name} 페이드 아웃 시작 후 파괴!");
         
         // ⭐ 페이드 아웃 효과 후 파괴 (0.5~1초)
         StartCoroutine(FadeOutAndDestroy(0.7f));
@@ -662,7 +637,6 @@ public class EnemyHealth : MonoBehaviour
     /// </summary>
     public void OnDeathDropItems()
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event: 아이템 드롭!");
         ExecuteNewDropSystem();
     }
 
@@ -671,7 +645,6 @@ public class EnemyHealth : MonoBehaviour
     /// </summary>
     public void OnDeathEffect()
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} Animation Event: 사망 이펙트!");
         
         GameObject deathVFX = LoadDeathVFX();
         if (deathVFX != null)
@@ -685,7 +658,6 @@ public class EnemyHealth : MonoBehaviour
     /// </summary>
     private IEnumerator FadeOutAndDestroy(float fadeTime)
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} 페이드 아웃 시작 ({fadeTime}초)");
         
         // SpriteRenderer 찾기 (8방향 몬스터용)
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
@@ -710,7 +682,6 @@ public class EnemyHealth : MonoBehaviour
                 yield return null;
             }
             
-            Debug.Log($"[EnemyHealth] {gameObject.name} 페이드 아웃 완료, 파괴 실행");
         }
         else
         {
@@ -741,7 +712,6 @@ public class EnemyHealth : MonoBehaviour
             if (stateInfo.IsName(animName))
             {
                 float duration = stateInfo.length;
-                Debug.Log($"[EnemyHealth] 사망 애니메이션 '{animName}' 감지, 길이: {duration:F2}초");
                 return Mathf.Max(duration, 0.3f); // 최소 0.3초 보장
             }
         }
@@ -757,7 +727,6 @@ public class EnemyHealth : MonoBehaviour
                     if (clip.name.ToLower().Contains(deathName.ToLower()))
                     {
                         float duration = clip.length;
-                        Debug.Log($"[EnemyHealth] 사망 애니메이션 클립 '{clip.name}' 발견, 길이: {duration:F2}초");
                         return Mathf.Max(duration, 0.3f);
                     }
                 }
@@ -784,10 +753,6 @@ public class EnemyHealth : MonoBehaviour
         int dropRolls = baseEnemy.EnemyData.DropRolls;
         int currentStageLevel = GetCurrentStageLevel();
 
-        Debug.Log($"[EnemyHealth] {gameObject.name} 드롭 시스템 실행:");
-        Debug.Log($"  - DropGroupId: {dropGroupId}");
-        Debug.Log($"  - DropRolls: {dropRolls}");
-        Debug.Log($"  - StageLevel: {currentStageLevel}");
 
         if (string.IsNullOrEmpty(dropGroupId))
         {
@@ -807,11 +772,9 @@ public class EnemyHealth : MonoBehaviour
             List<DropResult> dropResults = DropResolver.ResolveDrop(dropGroupId, currentStageLevel);
             allDropResults.AddRange(dropResults);
             
-            Debug.Log($"[EnemyHealth] 드롭 시도 #{i + 1}: {dropResults.Count}개 드롭");
         }
 
         // 드롭 결과 로그
-        Debug.Log(DropResolver.GetDropResultsDebugInfo(allDropResults));
 
         // 실제 아이템 스폰 (순차적 드롭) — 재료 배율 함께 전달
         StartCoroutine(SpawnDroppedItemsCoroutine(allDropResults, materialAmountMultiplier));
@@ -955,7 +918,6 @@ public class EnemyHealth : MonoBehaviour
             else
                 pickup.Initialize(itemData);
             
-            Debug.Log($"💰 [EnemyHealth] 재화 드롭 성공: {itemData.itemName} x{(overrideAmount > 0 ? overrideAmount : 1)}");
         }
         else
         {
@@ -985,7 +947,6 @@ public class EnemyHealth : MonoBehaviour
         }
         
         // 🔍 디버그: ItemRarity 확인
-        Debug.Log($"🔍 [DEBUG] SpawnEquipmentItem 호출: itemId={itemId}, rarity={rarity}");
         
         // 2. Drop_Equipment 프리팹 스폰 (범용 프리팹) ⭐
         GameObject dropObj = GamePoolManager.Instance.SpawnFromPool("Drop_Equipment", spawnPosition, Quaternion.identity);
@@ -1001,7 +962,6 @@ public class EnemyHealth : MonoBehaviour
         if (pickup != null)
         {
             pickup.Initialize(equipData, rarity);
-            Debug.Log($"🎒 [EnemyHealth] 장비 드롭 성공: {equipData.equipmentName} (ItemRarity: {rarity})");
         }
         else
         {
@@ -1056,8 +1016,6 @@ public class EnemyHealth : MonoBehaviour
             
             pickup.Initialize(materialType, amount, spawnPosition);
             
-            Debug.Log($"📦 [EnemyHealth] 재료 드롭 성공: {materialType.GetDisplayName()} x{amount} " +
-                      $"(기본 {baseAmount} × 배율 {materialAmountMultiplier:F1})");
         }
         else
         {
@@ -1123,8 +1081,6 @@ public class EnemyHealth : MonoBehaviour
         // EquipmentRank → ItemRarity 변환 (enum 순서 동일: D=0 ~ TR=7)
         ItemRarity itemRarity = (ItemRarity)(int)genResult.rank;
 
-        Debug.Log($"🎲 [EnemyHealth] GEN_EQUIP 장비 결정: {genResult.templateId} " +
-                  $"| {genResult.rank.GetRankName()} | Soulbound: {genResult.isSoulbound}");
 
         // 기존 SpawnEquipmentItem 경로로 월드 픽업 스폰 (플레이어가 직접 줍는 방식)
         SpawnEquipmentItem(genResult.templateId, itemRarity, spawnPosition);
@@ -1212,7 +1168,6 @@ public class EnemyHealth : MonoBehaviour
             string domain = baseEnemy?.CueEmitDomain ?? "Enemy";
             bool success = CueSystem.CueEmitter.Emit(eventKey, domain, context);
             
-            Debug.Log($"🎵 [EnemyHealth] 사망 Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }
         catch (System.Exception ex)
         {
@@ -1252,7 +1207,6 @@ public class EnemyHealth : MonoBehaviour
         string domain = baseEnemy?.CueEmitDomain ?? "Enemy";
         bool success = CueSystem.CueEmitter.Emit(eventKey, domain, context);
         
-        Debug.Log($"🎨 [EnemyHealth] Hit 이펙트 발행: {eventKey} (등급: {attackerGrade}, 크리티컬: {isCritical}) → {success}");
     }
     
     #endregion
@@ -1306,7 +1260,6 @@ public class EnemyHealth : MonoBehaviour
             if (!string.IsNullOrEmpty(enemyName))
                 activeHealthBar.SetName(enemyName);
             
-            Debug.Log($"✅ [EnemyHealth] {gameObject.name} 엘리트 체력바 생성 완료 (이름: {enemyName ?? "없음"})");
         }
         else
         {
@@ -1336,7 +1289,6 @@ public class EnemyHealth : MonoBehaviour
             basicHealthBar.SetHealthImmediate(HealthRatio);
             basicHealthBar.HideHealthBar(); // ⭐ 초기에는 숨김
             
-            Debug.Log($"✅ [EnemyHealth] {gameObject.name} Basic 체력바 생성 완료 (초기: 숨김)");
         }
         else
         {
@@ -1415,7 +1367,6 @@ public class EnemyHealth : MonoBehaviour
             Destroy(activeHealthBar.gameObject);
             activeHealthBar = null;
             
-            Debug.Log($"🗑️ [EnemyHealth] {gameObject.name} 엘리트 체력바 제거");
         }
         
         // ⭐ Basic 체력바 제거
@@ -1424,7 +1375,6 @@ public class EnemyHealth : MonoBehaviour
             Destroy(basicHealthBar.gameObject);
             basicHealthBar = null;
             
-            Debug.Log($"🗑️ [EnemyHealth] {gameObject.name} Basic 체력바 제거");
         }
     }
     

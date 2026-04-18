@@ -55,7 +55,6 @@ public class MeleeAttack : BaseAttackBehaviour
 
     protected override void OnAttack()
     {
-        Debug.Log($"[MeleeAttack] {gameObject.name} - 근접 공격 준비 완료");
 
         // 공격자 책임: 스윙 모션 이펙트 (평타/크리티컬 무관)
         // transform.right는 flipX 방식 방향 전환에 영향받지 않으므로
@@ -110,12 +109,10 @@ public class MeleeAttack : BaseAttackBehaviour
     /// </summary>
     public void AttackHit()
     {
-        Debug.Log($"[MeleeAttack] {gameObject.name} - Animation Event 데미지 적용!");
         
         // 🧱 벽 차단 체크
         if (IsPlayerBlockedByWall())
         {
-            Debug.Log($"🚫 [MeleeAttack] {gameObject.name} - 벽에 막혀서 공격 실패");
             return;
         }
         
@@ -126,7 +123,6 @@ public class MeleeAttack : BaseAttackBehaviour
         // ⭐ 새 시스템: 공격 원점 계산 (오프셋 적용)
         Vector2 attackOrigin = GetAttackOrigin();
         
-        Debug.Log($"[MeleeAttack] 공격 실행 - 범위: {currentRange:F1}, 데미지: {currentDamage}, 원점: {attackOrigin}");
 
         // ⭐ 개선된 히트 감지 (각도 고려)
         List<Collider2D> hitTargets = GetHitTargets(attackOrigin, currentRange);
@@ -175,7 +171,6 @@ public class MeleeAttack : BaseAttackBehaviour
                 // 🛡️ Phase 1: 상태이상 적용 (저항 시스템 적용됨)
                 ApplyStatusEffects(playerHealth, hitCollider.transform);
                 
-                Debug.Log($"[MeleeAttack] {gameObject.name}이 플레이어에게 {result.finalDamage} 데미지를 입혔습니다. {(result.isCritical ? "(크리티컬!)" : "")}");
                 break; // 한 번에 하나의 플레이어만 타격
             }
         }
@@ -183,7 +178,6 @@ public class MeleeAttack : BaseAttackBehaviour
         // 미스인 경우 로그 출력
         if (!lastAttackHit)
         {
-            Debug.Log($"[MeleeAttack] {gameObject.name} - 공격 미스! (범위: {currentRange:F1}, 원점: {attackOrigin})");
         }
     }
     
@@ -208,7 +202,6 @@ public class MeleeAttack : BaseAttackBehaviour
         );
         
         // 🔍 디버그: 공격 원점 계산 과정 출력
-        Debug.Log($"🎯 [GetAttackOrigin] basePosition: {basePosition}, offset: {attackOriginOffset}, result: {offsetPosition}");
         
         return offsetPosition;
     }
@@ -318,7 +311,6 @@ public class MeleeAttack : BaseAttackBehaviour
         if (isCritical && criticalHitEffect != null)
         {
             GameObject critEffect = Instantiate(criticalHitEffect, hitPosition, Quaternion.identity);
-            Debug.Log($"[MeleeAttack] 크리티컬 히트 이펙트 재생!");
         }
         
         // 히트 사운드
@@ -332,12 +324,6 @@ public class MeleeAttack : BaseAttackBehaviour
     {
         if (AttackData != null)
         {
-            Debug.Log($"[MeleeAttack] AttackData 기반 근접 공격 설정:");
-            Debug.Log($"  - 공격명: {AttackData.AttackName}");
-            Debug.Log($"  - 기본 데미지: {AttackData.BaseDamage} → 스케일된 데미지: {GetScaledDamage()}");
-            Debug.Log($"  - 공격 범위: {AttackData.AttackRange}");
-            Debug.Log($"  - 크리티컬 확률: {AttackData.CriticalChance * 100:F1}%");
-            Debug.Log($"  - 상태이상 개수: {AttackData.OnHitEffects.Count}개");
             
             // 근접 공격에 맞지 않는 설정 경고
             if (AttackData.ProjectilePrefab != null)
@@ -347,9 +333,6 @@ public class MeleeAttack : BaseAttackBehaviour
         }
         else
         {
-            Debug.Log($"[MeleeAttack] 기존 방식 사용:");
-            Debug.Log($"  - 데미지: {meleeDamage}");
-            Debug.Log($"  - 범위: {attackRange}");
         }
     }
     
@@ -365,8 +348,6 @@ public class MeleeAttack : BaseAttackBehaviour
         try
         {
             // ✅ 디버깅: CuePlayer 상태 확인
-            Debug.Log($"🔍 [MeleeAttack] CuePlayer.Instance 존재: {CuePlayer.Instance != null}");
-            Debug.Log($"🔍 [MeleeAttack] CueRegistry.Instance 존재: {CueRegistry.Instance != null}");
             
             // CueContext 생성
             var context = new CueContext
@@ -387,12 +368,10 @@ public class MeleeAttack : BaseAttackBehaviour
             string eventKey = context.isCritical ? "attack.melee.crit" : "attack.melee.hit";
             
             // ✅ 디버깅: 발행 전 정보
-            Debug.Log($"🔍 [MeleeAttack] 발행 시도 - 도메인: '{cueEmitDomain}', 키: '{eventKey}'");
             
             // Cue 발행
             bool success = CueEmitter.Emit(eventKey, cueEmitDomain, context);
             
-            Debug.Log($"🎵 [MeleeAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }
         catch (System.Exception ex)
         {
@@ -440,7 +419,6 @@ public class MeleeAttack : BaseAttackBehaviour
         
         if (hit.collider != null)
         {
-            Debug.Log($"🧱 [MeleeAttack] {gameObject.name} - 벽 감지: {hit.collider.name}");
         }
         
         return hit.collider != null;
@@ -527,7 +505,6 @@ public class MeleeAttack : BaseAttackBehaviour
             info += $"Attack Range: {attackRange}";
         }
         
-        Debug.Log(info);
     }
     
     /// <summary>
@@ -540,15 +517,9 @@ public class MeleeAttack : BaseAttackBehaviour
         int baseDamage = GetScaledDamage();
         int finalDamage = isCritical ? GetCriticalDamage(baseDamage) : baseDamage;
         
-        Debug.Log($"[MeleeAttack] 크리티컬 테스트:");
-        Debug.Log($"  - 기본 데미지: {baseDamage}");
-        Debug.Log($"  - 크리티컬 여부: {(isCritical ? "성공!" : "실패")}");
-        Debug.Log($"  - 최종 데미지: {finalDamage}");
         
         if (AttackData != null)
         {
-            Debug.Log($"  - 크리티컬 확률: {AttackData.CriticalChance * 100:F1}%");
-            Debug.Log($"  - 크리티컬 배율: {AttackData.CriticalMultiplier}배");
         }
     }
     

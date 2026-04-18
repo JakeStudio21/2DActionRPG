@@ -22,7 +22,6 @@ public class SimpleMobManager : MonoBehaviour
     [SerializeField] private int separationMaxMobs = 80;
 
     [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     [SerializeField] private bool showGizmos = false;
     
     // 관리 중인 SimpleMob 리스트
@@ -51,8 +50,6 @@ public class SimpleMobManager : MonoBehaviour
         {
             activeMobs.Add(mob);
             
-            if (enableDebugLogs)
-                Debug.Log($"[SimpleMobManager] 몬스터 등록: {mob.name} (총 {activeMobs.Count}마리)");
         }
     }
     
@@ -65,8 +62,6 @@ public class SimpleMobManager : MonoBehaviour
         {
             activeMobs.Remove(mob);
             
-            if (enableDebugLogs)
-                Debug.Log($"[SimpleMobManager] 몬스터 제거: {mob.name} (남은 {activeMobs.Count}마리)");
         }
     }
     
@@ -121,10 +116,6 @@ public class SimpleMobManager : MonoBehaviour
             ApplySeparationToAll();
         }
         
-        if (enableDebugLogs && updatedCount > 0)
-        {
-            Debug.Log($"[SimpleMobManager] AI 업데이트: {updatedCount}/{activeMobs.Count}마리");
-        }
     }
 
     /// <summary>
@@ -236,8 +227,6 @@ public class SimpleMobManager : MonoBehaviour
         
         activeMobs.Clear();
         
-        if (enableDebugLogs)
-            Debug.Log("[SimpleMobManager] 모든 몬스터 제거 완료");
     }
     
     private void OnDrawGizmos()

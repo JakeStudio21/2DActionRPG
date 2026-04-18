@@ -82,7 +82,6 @@ public class RangedAttack : BaseAttackBehaviour
             
             animationController.UpdateAttackDirectionWithFlip(toPlayerBlendTree, shouldFlipX);
             
-            Debug.Log($"[RangedAttack] {gameObject.name} - 공격 방향 저장 및 설정: World({toPlayerWorld.x:F2}, {toPlayerWorld.y:F2}), flipX: {shouldFlipX}");
         }
         
         // ⭐ 새 시스템: 반동 효과
@@ -126,7 +125,6 @@ public class RangedAttack : BaseAttackBehaviour
     /// </summary>
     public void SpawnProjectileAnimEvent()
     {
-        Debug.Log($"[RangedAttack] {gameObject.name} - Animation Event 발사체 생성!");
         
         // ✅ 🎵 Cue 시스템 추가 - 이 줄을 추가하세요!
         EmitProjectileCues();
@@ -154,7 +152,6 @@ public class RangedAttack : BaseAttackBehaviour
             // 활성 발사체 목록에 추가 (추적용)
             activProjectiles.Add(proj);
             
-            Debug.Log($"[RangedAttack] 발사체 생성 완료: {proj.name} (데미지: {GetScaledDamage()})");
         }
     }
     
@@ -194,13 +191,11 @@ public class RangedAttack : BaseAttackBehaviour
             Vector3 localPos = projectileSpawnPoint.localPosition;
             spawnDistance = new Vector2(localPos.x, localPos.y).magnitude;
             
-            Debug.Log($"[RangedAttack] 발사 거리: {spawnDistance:F2} (ProjectileSpawnPoint 기준)");
         }
         
         // ⭐ 핵심 계산: 몬스터 중심 + (공격 방향 * 거리)
         Vector3 dynamicSpawnPosition = transform.position + (Vector3)(attackDirection * spawnDistance);
         
-        Debug.Log($"[RangedAttack] 동적 발사 위치 계산 - 방향: {attackDirection}, 거리: {spawnDistance:F2}, 최종 위치: {dynamicSpawnPosition}");
         
         return dynamicSpawnPosition;
     }
@@ -231,7 +226,6 @@ public class RangedAttack : BaseAttackBehaviour
         if (proj == null)
         {
             proj = Instantiate(prefab, spawnPosition, Quaternion.identity);
-            Debug.Log($"[RangedAttack] 프리팹을 직접 생성했습니다: {prefab.name}");
         }
         
         // 🧱 모든 투사체를 Projectile Layer로 설정
@@ -321,7 +315,6 @@ public class RangedAttack : BaseAttackBehaviour
         }
         
         float appliedRadius = (attackData != null && attackData.ExplosionRadius > 0f) ? attackData.ExplosionRadius : 1.5f;
-        Debug.Log($"🎯 [RangedAttack] ArcProjectile 설정 완료 - Target: {targetPosition}, Height: {attackData?.ArcHeight ?? 3f}, ExplosionRadius: {appliedRadius}");
     }
     
     /// <summary>
@@ -354,7 +347,6 @@ public class RangedAttack : BaseAttackBehaviour
             }
         }
         
-        Debug.Log($"🎯 [RangedAttack] StraightProjectile 설정 완료 - Direction: {direction}, Speed: {attackData?.ProjectileSpeed ?? 10f}");
     }
     
     /// <summary>
@@ -368,12 +360,10 @@ public class RangedAttack : BaseAttackBehaviour
         if (cachedPlayer != null)
         {
             targetPosition = cachedPlayer.transform.position;
-            Debug.Log($"[RangedAttack] Grape 발사체 설정 - 현재 플레이어 위치 사용: {targetPosition}");
         }
         else
         {
             targetPosition = transform.position + Vector3.right * 5f;
-            Debug.Log($"[RangedAttack] Grape 발사체 설정 - 플레이어 없음, 기본 방향 사용: {targetPosition}");
         }
         
         grapeProjectile.LaunchToTarget(targetPosition);
@@ -381,7 +371,6 @@ public class RangedAttack : BaseAttackBehaviour
         // ⭐ 새 시스템: 데이터 기반 데미지 및 속도 설정
         ConfigureProjectileStats(grapeProjectile.gameObject);
         
-        Debug.Log($"[RangedAttack] Grape 발사체 설정 완료 - 목표: {targetPosition}");
     }
     
     /// <summary>
@@ -403,7 +392,6 @@ public class RangedAttack : BaseAttackBehaviour
         // ⭐ 새 시스템: 데이터 기반 스탯 설정
         ConfigureProjectileStats(projectile);
         
-        Debug.Log($"[RangedAttack] 범용 발사체 설정 완료 - 저장된 방향 사용: ({direction.x:F2}, {direction.y:F2})");
     }
     
     /// <summary>
@@ -433,7 +421,6 @@ public class RangedAttack : BaseAttackBehaviour
             Destroy(projectile, currentLifetime);
         }
         
-        Debug.Log($"[RangedAttack] 발사체 스탯 설정: 데미지={currentDamage}, 속도={currentSpeed:F1}, 수명={currentLifetime:F1}");
     }
     
     #endregion
@@ -518,7 +505,6 @@ public class RangedAttack : BaseAttackBehaviour
         // 예측 위치 계산
         Vector3 predictedPosition = currentPlayerPos + (Vector3)(playerVelocity * projectileTravelTime * predictionFactor);
         
-        Debug.Log($"[RangedAttack] 저장된 방향 기반 예측: 현재({currentPlayerPos.x:F1},{currentPlayerPos.y:F1}) → 예측({predictedPosition.x:F1},{predictedPosition.y:F1})");
         
         return predictedPosition;
     }
@@ -586,7 +572,6 @@ public class RangedAttack : BaseAttackBehaviour
             Quaternion effectRotation = CalculateProjectileRotation();
             
             GameObject effect = Instantiate(effectToPlay, effectPosition, effectRotation);
-            Debug.Log($"[RangedAttack] 머즐 플래시 이펙트 재생: {effectToPlay.name} at {effectPosition}");
         }
     }
     
@@ -629,12 +614,6 @@ public class RangedAttack : BaseAttackBehaviour
     {
         if (AttackData != null)
         {
-            Debug.Log($"[RangedAttack] AttackData 기반 원거리 공격 설정:");
-            Debug.Log($"  - 공격명: {AttackData.AttackName}");
-            Debug.Log($"  - 기본 데미지: {AttackData.BaseDamage} → 스케일된 데미지: {GetScaledDamage()}");
-            Debug.Log($"  - 발사체 속도: {AttackData.ProjectileSpeed}");
-            Debug.Log($"  - 발사체 수명: {AttackData.ProjectileLifetime}초");
-            Debug.Log($"  - 상태이상 개수: {AttackData.OnHitEffects.Count}개");
             
             // 원거리 공격 검증
             if (AttackData.ProjectilePrefab == null && projectilePrefab == null)
@@ -649,10 +628,6 @@ public class RangedAttack : BaseAttackBehaviour
         }
         else
         {
-            Debug.Log($"[RangedAttack] 기존 방식 사용:");
-            Debug.Log($"  - 발사체: {(projectilePrefab != null ? projectilePrefab.name : "없음")}");
-            Debug.Log($"  - 속도: {projectileSpeed}");
-            Debug.Log($"  - 예측 계수: {predictionFactor}");
         }
     }
     
@@ -766,7 +741,6 @@ public class RangedAttack : BaseAttackBehaviour
             info += $"Lifetime: {projectileLifetime}";
         }
         
-        Debug.Log(info);
     }
     
     /// <summary>
@@ -785,11 +759,6 @@ public class RangedAttack : BaseAttackBehaviour
         Vector3 predictedPos = GetPredictedPlayerPosition();
         float distance = Vector3.Distance(currentPos, predictedPos);
         
-        Debug.Log($"[RangedAttack] 예측 조준 테스트:");
-        Debug.Log($"  - 현재 플레이어 위치: {currentPos}");
-        Debug.Log($"  - 예측 위치: {predictedPos}");
-        Debug.Log($"  - 예측 거리: {distance:F1}");
-        Debug.Log($"  - 예측 계수: {predictionFactor}");
     }
     
     #endregion
@@ -827,7 +796,6 @@ public class RangedAttack : BaseAttackBehaviour
             // Cue 발행
             bool success = CueEmitter.Emit(eventKey, cueEmitDomain, context);
             
-            Debug.Log($"🎵 [RangedAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }
         catch (System.Exception ex)
         {

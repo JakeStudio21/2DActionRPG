@@ -47,10 +47,6 @@ public class EnemyChaseState : IEnemyState
         if (enemy is BaseEnemy baseEnemy)
         {
             // 🔑 디버그 로그 추가
-            if (baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyChaseState] {enemy.name} 추격속도: {moveSpeed:F1} (기본속도 * 1.1)");
-            }
         }
         else
         {
@@ -78,10 +74,6 @@ public class EnemyChaseState : IEnemyState
                 baseEnemy.Agent.stoppingDistance = enemy.AttackRange * 0.7f;
             }
             
-            if (baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"✅ [EnemyChaseState] {enemy.transform.name} NavMeshAgent 활성화 (isStopped = false, stoppingDistance: {baseEnemy.Agent.stoppingDistance:F2})");
-            }
         }
         
         // ⭐ 보스 전용: 추격 시작 시간 기록
@@ -97,7 +89,6 @@ public class EnemyChaseState : IEnemyState
     {
         if (enemy.TargetPlayer == null)
         {
-            Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 플레이어 없음, Idle 상태로 전환");
             enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
             return;
         }
@@ -107,10 +98,6 @@ public class EnemyChaseState : IEnemyState
         bool usingNavMesh = baseEnemy != null && baseEnemy.IsUsingNavMesh;
         
         // 🔍 디버그: NavMesh 사용 여부 로그 (첫 실행 시에만)
-        if (baseEnemy != null && baseEnemy.EnableDebugLogs && Time.frameCount % 300 == 0)
-        {
-            Debug.Log($"🔍 [EnemyChaseState] {enemy.transform.name} NavMesh 사용: {usingNavMesh}");
-        }
         
         // ⭐ 보스 전용: 리드 타겟팅 (플레이어 앞쪽 오프셋 지점으로 이동)
         Vector2 targetPosition = enemy.TargetPlayer.transform.position;
@@ -181,7 +168,6 @@ public class EnemyChaseState : IEnemyState
                 isChasing = false;
                 isSpeedBoostActive = false; // 속도 증가 해제
                 moveSpeed = baseMoveSpeed * 1.1f;
-                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 평타 범위 도달! Attack 상태로 전환 (거리: {dist:F2}, 범위: {attackRange:F2})");
                 enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                 return;
             }
@@ -192,7 +178,6 @@ public class EnemyChaseState : IEnemyState
                 isChasing = false;
                 isSpeedBoostActive = false; // 속도 증가 해제
                 moveSpeed = baseMoveSpeed * 1.1f;
-                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 추격 중 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
                 enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                 return;
             }
@@ -211,7 +196,6 @@ public class EnemyChaseState : IEnemyState
                 var bossAttack = boss.GetComponent<BossAttackBehaviour>();
                 if (bossAttack != null && bossAttack.CanAttack())
                 {
-                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 원거리 스킬 범위 도달! Attack 상태로 전환 (거리: {dist:F2})");
                     enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                     return;
                 }
@@ -237,7 +221,6 @@ public class EnemyChaseState : IEnemyState
                 }
             }
             
-            Debug.Log($"[EnemyChaseState] {enemy.transform.name} - 공격 범위 도달! Attack 상태로 전환 (거리: {dist:F2}, 범위: {enemy.AttackRange:F2})");
             enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
         }
         else 
@@ -306,7 +289,6 @@ public class EnemyChaseState : IEnemyState
                 moveSpeed = baseMoveSpeed * 1.1f;
                 if (dist <= enemy.AttackRange)
                 {
-                    Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 평타 범위 진입, 속도 증가 해제");
                 }
             }
         }
@@ -320,7 +302,6 @@ public class EnemyChaseState : IEnemyState
                 isSpeedBoostActive = true;
                 speedBoostEndTime = currentTime + speedBoostDuration;
                 moveSpeed = baseMoveSpeed * 1.1f * speedBoostMultiplier;
-                Debug.Log($"[EnemyChaseState] {enemy.transform.name} (BOSS) - 추격 타임아웃! 속도 증가 활성화 ({moveSpeed:F2}, 지속: {speedBoostDuration}초)");
             }
         }
     }

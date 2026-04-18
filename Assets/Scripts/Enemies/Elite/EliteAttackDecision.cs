@@ -8,11 +8,8 @@ using System.Collections.Generic;
 /// </summary>
 public class EliteAttackDecision
 {
-    private bool enableDebugLogs;
-    
-    public EliteAttackDecision(bool debug = false)
+    public EliteAttackDecision()
     {
-        enableDebugLogs = debug;
     }
 
     /// <summary>
@@ -69,8 +66,6 @@ public class EliteAttackDecision
 
         if (playerOutOfMeleeRange)
         {
-            if (enableDebugLogs)
-                Debug.Log($"[EliteAttackDecision] 플레이어가 평타 사거리 밖 ({distanceToPlayer:F1} > {meleeRange:F1}) → 스킬만 시도");
 
             SkillData selectedSkill = null;
 
@@ -90,8 +85,6 @@ public class EliteAttackDecision
                 result.Reason = $"원거리({distanceToPlayer:F1}) + 스킬 쿨다운 → 공격 대기";
             }
 
-            if (enableDebugLogs)
-                Debug.Log($"[EliteAttackDecision] {result.Reason}");
 
             return result;
         }
@@ -126,8 +119,6 @@ public class EliteAttackDecision
             result.DecisionType = AttackDecisionType.MeleeAttack;
             result.Reason = $"확률 선택: 평타 ({meleeProb}/{total})";
 
-            if (enableDebugLogs)
-                Debug.Log($"[EliteAttackDecision] {result.Reason}");
 
             return result;
         }
@@ -142,8 +133,6 @@ public class EliteAttackDecision
                 result.SelectedSkill = selectedSkill;
                 result.Reason = $"스킬 선택: {selectedSkill.SkillName} ({skillProb}/{total})";
 
-                if (enableDebugLogs)
-                    Debug.Log($"[EliteAttackDecision] {result.Reason}");
             }
             else
             {
@@ -151,7 +140,6 @@ public class EliteAttackDecision
                 result.DecisionType = AttackDecisionType.MeleeAttack;
                 result.Reason = "스킬 사용 불가 → 평타로 fallback";
 
-                if (enableDebugLogs)
                     Debug.LogWarning($"[EliteAttackDecision] {result.Reason}");
             }
 
@@ -185,20 +173,12 @@ public class EliteAttackDecision
             // 쿨다운 체크
             if (skillController != null && !skillController.CanUseSkill(skill))
             {
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"[EliteAttackDecision] {skill.SkillName}: 쿨다운 중");
-                }
                 continue;
             }
 
             // 거리 체크
             if (!skill.IsInRange(distanceToPlayer))
             {
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"[EliteAttackDecision] {skill.SkillName}: 범위 밖 (현재: {distanceToPlayer:F1}, 범위: {skill.MinRange}~{skill.MaxRange})");
-                }
                 continue;
             }
 
@@ -213,20 +193,12 @@ public class EliteAttackDecision
         // 사용 가능한 스킬 없으면 null
         if (availableSkills.Count == 0)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[EliteAttackDecision] 사용 가능한 스킬 없음");
-            }
             return null;
         }
 
         // 스킬 1개면 바로 선택
         if (availableSkills.Count == 1)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[EliteAttackDecision] 유일한 스킬 선택: {availableSkills[0].SkillName}");
-            }
             return availableSkills[0];
         }
 
@@ -263,10 +235,6 @@ public class EliteAttackDecision
             
             if (randomValue < cumulativeWeight)
             {
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"[EliteAttackDecision] 가중치 선택: {skills[i].SkillName} ({probabilities[i]}/{totalWeight})");
-                }
                 return skills[i];
             }
         }

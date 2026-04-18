@@ -20,7 +20,6 @@ public class EnemyHitState : IEnemyState
         enemy.AnimationController?.PlayHit();
         hitTimer = 0f;
         
-        Debug.Log($"[EnemyHitState] {enemy.transform.name} 피격 상태 진입");
         
         // ⭐⭐⭐ NavMeshAgent 완전 정지 (핵심!)
         BaseEnemy baseEnemy = enemy as BaseEnemy;
@@ -30,7 +29,6 @@ public class EnemyHitState : IEnemyState
             baseEnemy.Agent.ResetPath();
             baseEnemy.Agent.isStopped = true;
             
-            Debug.Log($"🛑 [EnemyHitState] {enemy.transform.name} NavMeshAgent 완전 정지");
             
             // 플레이어 위치 가져오기
             PlayerController player = Object.FindObjectOfType<PlayerController>();
@@ -38,7 +36,6 @@ public class EnemyHitState : IEnemyState
             {
                 // 연출 넉백 코루틴 시작
                 baseEnemy.StartCoroutine(baseEnemy.PerformKnockbackEffect(player.transform.position));
-                Debug.Log($"🎯 [EnemyHitState] {enemy.transform.name} 연출 넉백 실행 요청");
             }
         }
     }
@@ -72,14 +69,12 @@ public class EnemyHitState : IEnemyState
 
     public void Exit()
     {
-        Debug.Log($"[EnemyHitState] {enemy.transform.name} 피격 상태 종료");
         
         // ⭐⭐⭐ NavMeshAgent 재개 (핵심!)
         BaseEnemy baseEnemy = enemy as BaseEnemy;
         if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
         {
             baseEnemy.Agent.isStopped = false;
-            Debug.Log($"▶️ [EnemyHitState] {enemy.transform.name} NavMeshAgent 재개");
         }
     }
 }

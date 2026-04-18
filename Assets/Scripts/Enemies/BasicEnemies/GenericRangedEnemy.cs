@@ -88,9 +88,7 @@ public class GenericRangedEnemy : BaseEnemy
     [ContextMenu("Test Ranged Damage")]
     private void TestRangedDamage()
     {
-        if (rangedAttack != null)
-            Debug.Log($"[GenericRangedEnemy] {gameObject.name} 실제 원거리 데미지: {rangedAttack.GetScaledDamage()}");
-        else
+        if (rangedAttack == null)
             Debug.LogError($"[GenericRangedEnemy] 공격 컴포넌트 없음");
     }
 

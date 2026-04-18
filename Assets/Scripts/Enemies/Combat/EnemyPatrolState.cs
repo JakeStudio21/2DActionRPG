@@ -57,10 +57,6 @@ public class EnemyPatrolState : IEnemyState
             homePosition = baseEnemy.HomePosition;
             patrolRadius = baseEnemy.PatrolRadius;
             
-            if (baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyPatrolState] {enemy.name} 기본속도: {baseSpeed:F1}, 목표속도: {targetSpeed:F1}");
-            }
         }
         else
         {
@@ -182,10 +178,6 @@ public class EnemyPatrolState : IEnemyState
         {
             targetSpeed = newTargetSpeed;
             
-            if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyPatrolState] {enemy.name} 목표속도 변경: {targetSpeed:F1}");
-            }
         }
     }
 
@@ -220,11 +212,6 @@ public class EnemyPatrolState : IEnemyState
         // 🔑 대기 중에는 속도를 0으로 설정
         targetSpeed = 0f;
         
-        if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
-        {
-            string pauseType = isWaypointPause ? "웨이포인트" : "이동 중";
-            Debug.Log($"[EnemyPatrolState] {enemy.name} {pauseType} 대기 시작: {pauseDuration:F1}초");
-        }
     }
 
     /// <summary>
@@ -238,10 +225,6 @@ public class EnemyPatrolState : IEnemyState
         // 🔑 대기 종료 후 새로운 목표 속도 설정
         UpdateTargetSpeed();
         
-        if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
-        {
-            Debug.Log($"[EnemyPatrolState] {enemy.name} 대기 종료, 새 목표속도: {targetSpeed:F1}");
-        }
     }
 
     /// <summary>
@@ -344,10 +327,6 @@ public class EnemyPatrolState : IEnemyState
         currentNoiseAngle = Mathf.LerpAngle(currentNoiseAngle, targetNoiseAngle, 
             Time.deltaTime / tuning.DirectionNoise.directionSmoothTime);
         
-        if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs && Random.Range(0f, 1f) < 0.05f) // 5% 확률로 로그
-        {
-            Debug.Log($"[DirectionNoise] {enemy.name} 노이즈각도: {currentNoiseAngle:F1}°, 강도: {tuning.DirectionNoise.noiseStrength:F1}");
-        }
     }
 
     /// <summary>
@@ -434,20 +413,12 @@ public class EnemyPatrolState : IEnemyState
             returningToHome = true;
             patrolTarget = homePosition;
             
-            if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyPatrolState] {enemy.name} 홈으로 복귀 중... 거리: {distToHome:F1}");
-            }
         }
         else
         {
             returningToHome = false;
             GenerateNewPatrolTarget();
             
-            if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 시작: {patrolTarget}");
-            }
         }
         
         patrolTimer = 0f;
@@ -491,10 +462,6 @@ public class EnemyPatrolState : IEnemyState
             
             if (distToPlayer < patrolDetectionRange)
             {
-                if (enemy.EnableDebugLogs)
-                {
-                    Debug.Log($"[EnemyPatrolState] {enemy.name} 플레이어 감지! 추격 시작");
-                }
                 
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
@@ -517,13 +484,9 @@ public class EnemyPatrolState : IEnemyState
         bool usingNavMesh = baseEnemy != null && baseEnemy.IsUsingNavMesh;
         
         // 🔍 디버그: NavMesh 사용 여부 로그 (첫 실행 시에만)
-        if (baseEnemy != null && baseEnemy.EnableDebugLogs && patrolTimer < 0.1f && !isPausing)
+        if (!usingNavMesh && patrolTimer < 0.1f && !isPausing)
         {
-            Debug.Log($"🔍 [EnemyPatrolState] {enemy.name} NavMesh 사용: {usingNavMesh}");
-            if (!usingNavMesh)
-            {
-                Debug.LogWarning($"⚠️ [EnemyPatrolState] {enemy.name}: NavMesh 비활성화! 직선 이동 방식 사용 중!");
-            }
+            Debug.LogWarning($"⚠️ [EnemyPatrolState] {enemy.name}: NavMesh 비활성화! 직선 이동 방식 사용 중!");
         }
         
         // 🔑 이동 로직 (노이즈 적용)
@@ -556,10 +519,6 @@ public class EnemyPatrolState : IEnemyState
                     
                     StartPause(true);
                     
-                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                    {
-                        Debug.Log($"[EnemyPatrolState] {enemy.name} 홈 도착! 새 순찰 목표: {patrolTarget}");
-                    }
                 }
             }
             // ⭐ 기존 직선 이동 방식 (NavMesh 없을 때)
@@ -593,10 +552,6 @@ public class EnemyPatrolState : IEnemyState
                 
                 StartPause(true);
                 
-                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                {
-                    Debug.Log($"[EnemyPatrolState] {enemy.name} 홈 도착! 새 순찰 목표: {patrolTarget}");
-                }
             }
                 }
         }
@@ -636,10 +591,6 @@ public class EnemyPatrolState : IEnemyState
                     
                     StartPause(true);
                     
-                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                    {
-                        Debug.Log($"[EnemyPatrolState] {enemy.name} 새 순찰 목표: {patrolTarget}, 속도: {currentSpeed:F1}");
-                    }
                 }
 
                 // 순찰 범위 체크
@@ -655,10 +606,6 @@ public class EnemyPatrolState : IEnemyState
                     
                     UpdateTargetSpeed();
                     
-                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                    {
-                        Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 범위 이탈! 홈으로 복귀");
-                    }
                 }
             }
             // ⭐ 기존 직선 이동 방식 (NavMesh 없을 때)
@@ -692,10 +639,6 @@ public class EnemyPatrolState : IEnemyState
                 
                 StartPause(true);
                 
-                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                {
-                    Debug.Log($"[EnemyPatrolState] {enemy.name} 새 순찰 목표: {patrolTarget}, 속도: {currentSpeed:F1}");
-                }
             }
 
                 // 순찰 범위 체크
@@ -711,10 +654,6 @@ public class EnemyPatrolState : IEnemyState
                     
                     UpdateTargetSpeed();
                     
-                    if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                    {
-                        Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 범위 이탈! 홈으로 복귀");
-                    }
                 }
             }
         }
@@ -722,11 +661,6 @@ public class EnemyPatrolState : IEnemyState
 
     public void Exit() 
     {
-        if (enemy.EnableDebugLogs)
-        {
-            string pauseStatus = isPausing ? "대기 중" : "이동 중";
-            Debug.Log($"[EnemyPatrolState] {enemy.name} 순찰 종료 - 상태: {pauseStatus}, 최종속도: {currentSpeed:F1}, 방향: {currentDirection}");
-        }
     }
 
     /// <summary>

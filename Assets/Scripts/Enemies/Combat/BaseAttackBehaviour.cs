@@ -94,7 +94,7 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         // 하위 클래스별 초기화
         OnInitialize();
         
-        Debug.Log($"[{GetType().Name}] {gameObject.name} 공격 시스템 초기화 완료");
+        Dbg.Log($"[{GetType().Name}] {gameObject.name} 공격 시스템 초기화 완료");
     }
 
     /// <summary>
@@ -104,16 +104,13 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
     {
         if (attackData != null)
         {
-            Debug.Log($"[{GetType().Name}] {gameObject.name} - AttackData 시스템 활성화: {attackData.AttackName}");
             
             // ⭐ GrowthProfile 기반 디버그 정보
             if (baseEnemy != null && baseEnemy.GrowthProfile != null)
             {
-                Debug.Log($"[{GetType().Name}] {attackData.GetDebugInfoWithProfile(GetCurrentLevel(), baseEnemy.GrowthProfile, baseEnemy.EnemyData?.EnemyType ?? EnemyType.Basic)}");
             }
             else
             {
-                Debug.Log($"[{GetType().Name}] {attackData.GetDebugInfo(GetCurrentLevel())}");
             }
             
             // 공격 타입 검증
@@ -121,7 +118,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         }
         else
         {
-            Debug.Log($"[{GetType().Name}] {gameObject.name} - 기존 방식 사용 (AttackData 없음)");
         }
     }
     
@@ -256,7 +252,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
             {
                 // 상태이상 적용 (실제 구현은 StatusEffectManager에서)
                 ApplySingleStatusEffect(effect, targetHealth, targetTransform);
-                Debug.Log($"[{GetType().Name}] {gameObject.name}이 {effect.EffectName} 상태이상을 적용했습니다!");
             }
         }
     }
@@ -270,7 +265,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         if (StatusEffectManager.Instance != null)
         {
             StatusEffectManager.Instance.ApplyStatusEffect(effect);
-            Debug.Log($"[{GetType().Name}] {effect.EffectName} 상태이상 적용! - {effect.Description}");
         }
         else
         {
@@ -317,7 +311,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         // 하위 클래스별 공격 로직
         OnAttack();
         
-        Debug.Log($"[{GetType().Name}] {gameObject.name} 공격 실행! (데미지: {GetScaledDamage()})");
         
         // ⭐ 새 시스템: 데이터 기반 쿨다운
         StartCoroutine(AttackCooldownRoutine(GetScaledCooldown()));
@@ -347,11 +340,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         Vector2 toPlayerBlendTree = toPlayerWorld;
         
         // ⭐ 강제 디버그 로그 (항상 출력)
-        Debug.Log($"🎯 [{GetType().Name}] {gameObject.name} - 공격 방향 설정:");
-        Debug.Log($"   플레이어 위치: {cachedPlayer.transform.position}");
-        Debug.Log($"   몬스터 위치: {transform.position}");
-        Debug.Log($"   월드 좌표 방향: ({toPlayerWorld.x:F2}, {toPlayerWorld.y:F2})");
-        Debug.Log($"   BlendTree 방향: ({toPlayerBlendTree.x:F2}, {toPlayerBlendTree.y:F2})");
         
         // ⭐ 월드 좌표계 기반 flipX 결정
         bool shouldFlipX = toPlayerWorld.x < 0;
@@ -380,7 +368,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         else if (animator != null)
         {
             animator.SetTrigger(triggerName);
-            Debug.Log($"[{GetType().Name}] 애니메이션 트리거: {triggerName}");
         }
     }
     
@@ -416,7 +403,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         if (attackData != null && attackData.AttackStartEffect != null)
         {
             GameObject effect = Instantiate(attackData.AttackStartEffect, transform.position, transform.rotation);
-            Debug.Log($"[{GetType().Name}] 공격 시작 이펙트 재생: {attackData.AttackStartEffect.name}");
         }
     }
     
@@ -436,7 +422,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
         if (effectToPlay != null)
         {
             GameObject effect = Instantiate(effectToPlay, hitPosition, Quaternion.identity);
-            Debug.Log($"[{GetType().Name}] 히트 이펙트 재생: {effectToPlay.name}");
         }
     }
     
@@ -483,7 +468,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
             if (cachedPlayer == null)
                 yield return new WaitForSeconds(0.1f);
         }
-        Debug.Log($"[{GetType().Name}] {gameObject.name}이 플레이어를 찾았습니다.");
     }
     
     /// <summary>
@@ -550,7 +534,6 @@ public abstract class BaseAttackBehaviour : MonoBehaviour, IAttackBehaviour
             info += $"  Range: {GetFallbackRange()}\n";
         }
         
-        Debug.Log(info);
     }
     
     #endregion

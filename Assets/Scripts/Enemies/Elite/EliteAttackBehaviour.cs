@@ -21,7 +21,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     private EliteAttackDecision.AttackStatistics statistics;
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
     [SerializeField] private bool trackStatistics = true;
 
     #region BaseAttackBehaviour 추상 메서드 구현
@@ -37,7 +36,7 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             meleeAttack = GetComponent<MeleeAttack>();
         
         // 공격 결정 시스템 초기화
-        attackDecision = new EliteAttackDecision(enableDebugLogs);
+        attackDecision = new EliteAttackDecision();
         
         // 통계 시스템 초기화
         if (trackStatistics)
@@ -51,19 +50,12 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             meleeAttack.Initialize();
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[EliteAttackBehaviour] {gameObject.name} 초기화 완료");
-        }
+        Dbg.Log($"[EliteAttackBehaviour] {gameObject.name} 초기화 완료");
     }
 
     protected override void ValidateAttackType()
     {
         // 엘리트는 평타 + 스킬 혼합이므로 특별한 검증 불필요
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[EliteAttackBehaviour] {gameObject.name}: 엘리트 공격 타입 (평타 + 스킬)");
-        }
     }
 
     protected override void OnAttack()
@@ -71,7 +63,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         // BaseEnemy 참조 확인
         if (baseEnemy == null || cachedPlayer == null)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[EliteAttackBehaviour] BaseEnemy 또는 Player가 null!");
             return;
         }
@@ -90,8 +81,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             meleeRange
         );
 
-        if (enableDebugLogs)
-            Debug.Log($"🎯 [EliteAttackBehaviour] {baseEnemy.gameObject.name}: {decision.Reason}");
 
         // 결정에 따라 실행
         if (decision.IsSkip)
@@ -99,8 +88,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             // 스킬 쿨다운 대기 중 - 짧은 재시도 타이머 설정
             lastAttackTime = Time.time - globalAttackCooldown * 0.5f;
 
-            if (enableDebugLogs)
-                Debug.Log($"⏸ [EliteAttackBehaviour] {baseEnemy.gameObject.name}: 공격 대기 (0.75s 후 재시도)");
 
             return;
         }
@@ -139,36 +126,20 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     {
         if (meleeAttack == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogError($"[EliteAttackBehaviour] {gameObject.name}: MeleeAttack 컴포넌트 없음!");
-            }
             return;
         }
 
         if (!meleeAttack.CanAttack())
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[EliteAttackBehaviour] {gameObject.name}: 평타 쿨다운 중");
-            }
             return;
         }
 
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⚔️ [EliteAttackBehaviour] {gameObject.name}: 평타 실행");
-        }
 
         meleeAttack.Attack();
         
         // ⭐ 평타 후 전역 쿨다운 시작 (1.5초)
         lastAttackTime = Time.time;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[EliteAttackBehaviour] {gameObject.name} 평타 완료 → {globalAttackCooldown}초 대기 시작");
-        }
     }
 
     /// <summary>
@@ -178,26 +149,14 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     {
         if (skillController == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogError($"[EliteAttackBehaviour] {gameObject.name}: EliteSkillController 없음!");
-            }
             return;
         }
 
         if (skill == null)
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogError($"[EliteAttackBehaviour] {gameObject.name}: Skill이 null!");
-            }
             return;
         }
 
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🔮 [EliteAttackBehaviour] {gameObject.name}: {skill.SkillName} 실행");
-        }
 
         skillController.StartSkillCast(skill);
         
@@ -211,25 +170,12 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     public override void Attack()
     {
         // ⭐ 초기화 상태 체크
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎯 [EliteAttackBehaviour] {gameObject.name} Attack() 호출!");
-            Debug.Log($"   - skillController: {(skillController != null ? "OK" : "NULL")}");
-            Debug.Log($"   - meleeAttack: {(meleeAttack != null ? "OK" : "NULL")}");
-            Debug.Log($"   - baseEnemy: {(baseEnemy != null ? "OK" : "NULL")}");
-            Debug.Log($"   - EnemyData: {(baseEnemy?.EnemyData != null ? "OK" : "NULL")}");
-            Debug.Log($"   - HasSkillData: {baseEnemy?.EnemyData?.HasSkillData ?? false}");
-        }
         
         // EliteAttackBehaviour는 attackData가 필요 없으므로
         // BaseAttackBehaviour.Attack()를 우회하고 직접 공격 로직 실행
         
         if (!CanAttack())
         {
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"[EliteAttackBehaviour] {gameObject.name}: 공격 불가 상태");
-            }
             return;
         }
         
@@ -242,11 +188,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         // ⭐ 전역 공격 쿨다운 체크 (스킬/평타 모두 1.5초 대기)
         if (Time.time < lastAttackTime + globalAttackCooldown)
         {
-            if (enableDebugLogs)
-            {
-                float remaining = (lastAttackTime + globalAttackCooldown) - Time.time;
-                Debug.Log($"[EliteAttackBehaviour] {gameObject.name} 전역 쿨다운 중 (남은 시간: {remaining:F1}초)");
-            }
             return false;
         }
         
@@ -264,21 +205,18 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     {
         if (skillController == null)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[EliteAttackBehaviour] HasAvailableSkill: skillController가 null!");
             return false;
         }
         
         if (baseEnemy?.EnemyData == null)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[EliteAttackBehaviour] HasAvailableSkill: EnemyData가 null!");
             return false;
         }
         
         if (!baseEnemy.EnemyData.HasSkillData)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[EliteAttackBehaviour] HasAvailableSkill: SkillDataList가 비어있음!");
             return false;
         }
@@ -286,12 +224,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         float distanceToPlayer = cachedPlayer != null ? 
             Vector2.Distance(baseEnemy.transform.position, cachedPlayer.transform.position) : 999f;
 
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[EliteAttackBehaviour] HasAvailableSkill 체크:");
-            Debug.Log($"  - 플레이어 거리: {distanceToPlayer:F2}");
-            Debug.Log($"  - 스킬 개수: {baseEnemy.EnemyData.SkillDataList.Count}");
-        }
 
         // 하나라도 사용 가능한 스킬이 있으면 true
         foreach (var skill in baseEnemy.EnemyData.SkillDataList)
@@ -301,20 +233,13 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             bool canUse = skillController.CanUseSkill(skill);
             bool inRange = skill.IsInRange(distanceToPlayer);
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"  - {skill.SkillName}: CanUse={canUse}, InRange={inRange} (범위: {skill.MinRange}-{skill.MaxRange})");
-            }
             
             if (canUse && inRange)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"  ✅ {skill.SkillName} 사용 가능!");
                 return true;
             }
         }
 
-        if (enableDebugLogs)
             Debug.LogWarning($"[EliteAttackBehaviour] 사용 가능한 스킬 없음!");
         return false;
     }
@@ -345,10 +270,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         // ⭐⭐ 스킬 완료 시점에 전역 쿨다운 시작
         lastAttackTime = Time.time;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏰ [EliteAttackBehaviour] {gameObject.name} 스킬 완료 → 전역 쿨다운 {globalAttackCooldown}초 시작!");
-        }
     }
 
     #region 디버그 도구
@@ -361,11 +282,9 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     {
         if (statistics != null)
         {
-            Debug.Log(statistics.GetSummary());
         }
         else
         {
-            Debug.Log("[EliteAttackBehaviour] 통계 추적 비활성화 상태");
         }
     }
 
@@ -378,7 +297,7 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         if (statistics != null)
         {
             statistics.Reset();
-            Debug.Log("[EliteAttackBehaviour] 통계 초기화 완료");
+            Dbg.Log("[EliteAttackBehaviour] 통계 초기화 완료");
         }
     }
 
@@ -432,7 +351,6 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             info += $"Skill: {baseEnemy.EnemyData.SkillUseProbability}%\n";
         }
         
-        Debug.Log(info);
     }
 
     #endregion

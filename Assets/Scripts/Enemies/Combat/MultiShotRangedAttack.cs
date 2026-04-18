@@ -73,7 +73,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
             
             animationController.UpdateAttackDirectionWithFlip(toPlayerBlendTree, shouldFlipX);
             
-            Debug.Log($"[MultiShotRangedAttack] {gameObject.name} - 공격 방향 저장: World({toPlayerWorld.x:F2}, {toPlayerWorld.y:F2}), flipX: {shouldFlipX}");
         }
     }
     
@@ -98,7 +97,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
     /// </summary>
     public void SpawnProjectileAnimEvent()
     {
-        Debug.Log($"[MultiShotRangedAttack] {gameObject.name} - Animation Event 멀티샷 발사!");
         
         // ✅ Cue 시스템 발행
         EmitMultiShotCues();
@@ -129,7 +127,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
             return;
         }
         
-        Debug.Log($"[MultiShotRangedAttack] 멀티샷 시작: {projectileCount}발, 각도범위: {angleSpread}도");
         
         // ⭐ 플레이어 방향 기준 각도 계산
         float baseAngle = GetTargetAngle();
@@ -156,7 +153,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         {
             // 1발: 중앙만
             FireSingleProjectile(prefab, centerAngle);
-            Debug.Log($"[MultiShotRangedAttack] 단일 발사: {centerAngle:F1}도");
         }
         else
         {
@@ -168,7 +164,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
             {
                 float currentAngle = startAngle + (angleStep * i);
                 FireSingleProjectile(prefab, currentAngle);
-                Debug.Log($"[MultiShotRangedAttack] 발사체 {i+1}/{count}: {currentAngle:F1}도");
             }
         }
     }
@@ -184,7 +179,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         {
             float currentAngle = startAngle + (angleStep * i);
             FireSingleProjectile(prefab, currentAngle);
-            Debug.Log($"[MultiShotRangedAttack] 360도 발사 {i+1}/{count}: {currentAngle:F1}도");
         }
     }
     
@@ -238,7 +232,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         if (proj == null)
         {
             proj = Instantiate(prefab, spawnPosition, Quaternion.identity);
-            Debug.Log($"[MultiShotRangedAttack] 프리팹을 직접 생성했습니다: {prefab.name}");
         }
         
         // 🧱 모든 투사체를 Projectile Layer로 설정
@@ -266,7 +259,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         {
             float speed = GetCurrentProjectileSpeed();
             rb.velocity = direction * speed;
-            Debug.Log($"[MultiShotRangedAttack] 발사체 속도 설정: {speed}, 방향: ({direction.x:F2}, {direction.y:F2})");
         }
         
         // 데미지 설정
@@ -303,7 +295,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
             enemyDamage.damageAmount = currentDamage;
         }
         
-        Debug.Log($"[MultiShotRangedAttack] 발사체 데미지 설정: {currentDamage}");
     }
     
     #endregion
@@ -466,7 +457,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
             string eventKey = "attack.multishot.burst";
             bool success = CueEmitter.Emit(eventKey, "Enemy", context);
             
-            Debug.Log($"🎵 [MultiShotRangedAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }
         catch (System.Exception ex)
         {
@@ -485,12 +475,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
     {
         if (AttackData != null)
         {
-            Debug.Log($"[MultiShotRangedAttack] AttackData 기반 멀티샷 설정:");
-            Debug.Log($"  - 공격명: {AttackData.AttackName}");
-            Debug.Log($"  - 발사체 수: {GetCurrentProjectileCount()}개");
-            Debug.Log($"  - 각도 범위: {GetCurrentAngleSpread():F1}도");
-            Debug.Log($"  - 발사체 속도: {GetCurrentProjectileSpeed():F1}");
-            Debug.Log($"  - 데미지: {GetScaledDamage()}");
             
             if (GetCurrentProjectileCount() == 1)
             {
@@ -499,10 +483,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
         }
         else
         {
-            Debug.Log($"[MultiShotRangedAttack] Fallback 설정 사용:");
-            Debug.Log($"  - 발사체: {(projectilePrefab != null ? projectilePrefab.name : "없음")}");
-            Debug.Log($"  - 발사체 수: {fallbackProjectileCount}개");
-            Debug.Log($"  - 각도: {fallbackAngleSpread}도");
         }
     }
     
@@ -619,7 +599,6 @@ public class MultiShotRangedAttack : BaseAttackBehaviour
             info += $"Count: {fallbackProjectileCount}, Angle: {fallbackAngleSpread}도";
         }
         
-        Debug.Log(info);
     }
     
     #endregion

@@ -34,7 +34,6 @@ public class FinalBossSpawner : MonoBehaviour
     }
     else if (bossId == "FinalBossC")
     {
-        Debug.Log("모든 보스 처치! 엔딩 연출 등");
 
         StartCoroutine(ShowVictoryPopupAfterDelay(1.5f));
     // FindObjectOfType<ResultPopupController>().Show(true); // Victory

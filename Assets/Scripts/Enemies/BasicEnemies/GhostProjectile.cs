@@ -99,11 +99,9 @@ public class GhostProjectile : MonoBehaviour
                 // ⚙️ Phase 4-C: 면역 체크 (플레이어가 상태이상 저항 가능)
                 if (result.hasImmunity && !string.IsNullOrEmpty(result.resistedEffects))
                 {
-                    Debug.Log($"🛡️ [GhostProjectile] 플레이어 면역 발동! 저항한 효과: {result.resistedEffects}");
                     // 상태이상 부여 차단됨
                 }
                 
-                Debug.Log($"[GhostProjectile] 플레이어에게 {result.finalDamage} 데미지를 입혔습니다.");
                 
                 OnHitEffect();
                 DestroyProjectile();

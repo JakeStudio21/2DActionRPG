@@ -17,7 +17,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
     private float attackCompleteTime = 0.8f; // 80% 지점에서 공격 완료
     
     [Header("🔧 Debug Settings")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 상태 플래그
     private bool attackExecuteTriggered = false;
@@ -34,10 +33,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
     /// </summary>
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (showDebugLogs)
-        {
-            Debug.Log($"🎬 [EnemyAttackStateBehaviour] {animator.gameObject.name} - Attack State 진입 (길이: {stateInfo.length:F3}초)");
-        }
         
         // 상태 플래그 초기화
         attackExecuteTriggered = false;
@@ -63,10 +58,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
         {
             attackExecuteTriggered = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🎯 [EnemyAttackStateBehaviour] {animator.gameObject.name} - 공격 실행! (진행도: {normalizedTime:F3})");
-            }
             
             // 공격 실행
             ExecuteAttack(animator);
@@ -77,10 +68,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
         {
             attackCompleteTriggered = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🏁 [EnemyAttackStateBehaviour] {animator.gameObject.name} - 공격 완료 (진행도: {normalizedTime:F3})");
-            }
             
             // 공격 완료 처리 (필요시 추가)
             OnAttackComplete(animator);
@@ -92,10 +79,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
     /// </summary>
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (showDebugLogs)
-        {
-            Debug.Log($"🚪 [EnemyAttackStateBehaviour] {animator.gameObject.name} - Attack State 종료 (최종 진행도: {stateInfo.normalizedTime:F3})");
-        }
         
         // 🔒 안전장치: 공격이 실행되지 않았다면 강제 실행
         if (!attackExecuteTriggered)
@@ -119,16 +102,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
         cachedRangedAttack = obj.GetComponent<RangedAttack>();
         cachedMultiShotAttack = obj.GetComponent<MultiShotRangedAttack>();
         
-        if (showDebugLogs)
-        {
-            string foundComponents = "";
-            if (cachedAOEAttack != null) foundComponents += "AOEAttack ";
-            if (cachedMeleeAttack != null) foundComponents += "MeleeAttack ";
-            if (cachedRangedAttack != null) foundComponents += "RangedAttack ";
-            if (cachedMultiShotAttack != null) foundComponents += "MultiShotRangedAttack ";
-            
-            Debug.Log($"🔍 [EnemyAttackStateBehaviour] {obj.name} - 공격 컴포넌트 발견: {foundComponents}");
-        }
     }
     
     /// <summary>
@@ -144,10 +117,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
             cachedAOEAttack.SpawnAOEEffect();
             attackExecuted = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"✅ [EnemyAttackStateBehaviour] {animator.gameObject.name} - AOE 공격 실행!");
-            }
         }
         // 2순위: MultiShotRangedAttack (Ghost 등)
         else if (cachedMultiShotAttack != null)
@@ -155,10 +124,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
             cachedMultiShotAttack.SpawnProjectileAnimEvent();
             attackExecuted = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"✅ [EnemyAttackStateBehaviour] {animator.gameObject.name} - MultiShot 공격 실행!");
-            }
         }
         // 3순위: RangedAttack (Grape 등)
         else if (cachedRangedAttack != null)
@@ -166,10 +131,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
             cachedRangedAttack.SpawnProjectileAnimEvent();
             attackExecuted = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"✅ [EnemyAttackStateBehaviour] {animator.gameObject.name} - Ranged 공격 실행!");
-            }
         }
         // 4순위: MeleeAttack (BlueSlime 등)
         else if (cachedMeleeAttack != null)
@@ -177,10 +138,6 @@ public class EnemyAttackStateBehaviour : StateMachineBehaviour
             cachedMeleeAttack.AttackHit();
             attackExecuted = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"✅ [EnemyAttackStateBehaviour] {animator.gameObject.name} - Melee 공격 실행!");
-            }
         }
         
         // 공격 컴포넌트를 찾지 못한 경우

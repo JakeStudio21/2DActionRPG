@@ -59,7 +59,6 @@ public class DamageArea : MonoBehaviour
     [SerializeField] private string hitCueKey;                  // 피격 연출 키 (VFX/SFX/Shake 통합)
     
     [Header("🎮 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;  // ⭐ 릴리즈용: false (테스트 시 true로 변경)
     [SerializeField] private bool enableDebugGizmos = true;
     [SerializeField] private bool showGizmosInPlayMode = false;  // ⭐ 기본값: false (필요시 Inspector에서 켜기)
     
@@ -96,8 +95,6 @@ public class DamageArea : MonoBehaviour
             if (wallLayerIndex != -1)
             {
                 wallLayer = 1 << wallLayerIndex; // LayerMask 값으로 변환
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [DamageArea] wallLayer 자동 설정: Wall (Layer {wallLayerIndex})");
             }
             else
             {
@@ -148,10 +145,6 @@ public class DamageArea : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [DamageArea] 엘리트용 초기화 시작 - {skillData.SkillName}, Scale: {scaleMultiplier}, Policy: {policy}");
-        }
         
         // ⭐ 정책 설정 (InitializeCommon 호출 전에 설정)
         damagePolicy = policy;
@@ -190,10 +183,6 @@ public class DamageArea : MonoBehaviour
             Vector2 aoeOffset = skillData.AoeOffset;
             centerOffset = aoeOffset.magnitude;
             
-            if (enableDebugLogs && centerOffset > 0f)
-            {
-                Debug.Log($"[DamageArea] AoeCenterOffset이 0이므로 AoeOffset.magnitude({centerOffset}) 사용");
-            }
         }
         
         // 데미지 배율 설정
@@ -225,19 +214,16 @@ public class DamageArea : MonoBehaviour
         // 생성 시간 기록 (Gizmos 표시 시간 제어용)
         spawnTime = Time.time;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [DamageArea] 초기화 완료:");
-            Debug.Log($"   - Skill: {skillData.SkillName}");
-            Debug.Log($"   - Origin: {origin}");
-            Debug.Log($"   - Forward: {forward}");
-            Debug.Log($"   - Shape: {aoeShape}, Center Mode: {centerMode}");
-            Debug.Log($"   - Base Size: Radius={baseRadius}, Size={baseSize}, Angle={baseAngle}");
-            Debug.Log($"   - Scale: {scaleMultiplier}x");
-            Debug.Log($"   - Center Offset: {centerOffset}");
-            Debug.Log($"   - Damage: Base={baseDamage}, Multiplier={damageMultiplier}x");
-            Debug.Log($"   - Policy: {damagePolicy}"); // ⭐ Phase 4: 정책 로그 추가
-        }
+            Dbg.Log($"✅ [DamageArea] 초기화 완료:");
+            Dbg.Log($"   - Skill: {skillData.SkillName}");
+            Dbg.Log($"   - Origin: {origin}");
+            Dbg.Log($"   - Forward: {forward}");
+            Dbg.Log($"   - Shape: {aoeShape}, Center Mode: {centerMode}");
+            Dbg.Log($"   - Base Size: Radius={baseRadius}, Size={baseSize}, Angle={baseAngle}");
+            Dbg.Log($"   - Scale: {scaleMultiplier}x");
+            Dbg.Log($"   - Center Offset: {centerOffset}");
+            Dbg.Log($"   - Damage: Base={baseDamage}, Multiplier={damageMultiplier}x");
+            Dbg.Log($"   - Policy: {damagePolicy}"); // ⭐ Phase 4: 정책 로그 추가
         
         // ⭐ Phase 4: damagePolicy는 Initialize()에서 이미 설정됨 (중복 설정 제거)
         // casterType은 여기서 설정
@@ -285,21 +271,10 @@ public class DamageArea : MonoBehaviour
         
         if (hits == null || hits.Length == 0)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[DamageArea] 데미지 판정: 히트 없음");
-            }
             return;
         }
         
         // 피격 대상에게 데미지 적용
-        if (enableDebugLogs)
-        {
-            Debug.Log($"💥 [DamageArea] 데미지 판정 실행:");
-            Debug.Log($"   - 히트 수: {hits.Length}");
-            Debug.Log($"   - Center: {calculatedCenter}");
-            Debug.Log($"   - Shape: {aoeShape}");
-        }
         
         HashSet<GameObject> processedTargets = new HashSet<GameObject>();
         int blockedCount = 0; // 🧱 벽에 막힌 타겟 수
@@ -321,8 +296,6 @@ public class DamageArea : MonoBehaviour
             if (checkWallBlocking && IsBlockedByWall(hit.transform))
             {
                 blockedCount++;
-                if (enableDebugLogs)
-                    Debug.Log($"🚫 [DamageArea] {hit.name} - 벽에 막힘");
                 continue; // 이 타겟은 스킵
             }
             
@@ -336,16 +309,9 @@ public class DamageArea : MonoBehaviour
                 string hitDomain = casterType == AOECasterType.Player ? "Player" : "Enemy";
                 CueEmitter.Emit(hitCueKey, hitDomain, new CueContext { position = hit.transform.position });
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎵 [DamageArea] Emit: key={hitCueKey}, domain={hitDomain}, pos={hit.transform.position}");
             }
         }
         
-        // 🧱 벽 차단 통계 로그
-        if (enableDebugLogs && (blockedCount > 0 || hitCount > 0))
-        {
-            Debug.Log($"📊 [DamageArea] 결과: {hitCount}개 타격, {blockedCount}개 벽에 막힘");
-        }
     }
     
     #region ⭐ Phase 1: 플레이어 스킬 지원 + 정책 시스템
@@ -402,15 +368,12 @@ public class DamageArea : MonoBehaviour
         // 생성 시간 기록
         spawnTime = Time.time;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [DamageArea] 플레이어용 초기화 완료:");
-            Debug.Log($"   - Skill: {skillData.SkillName}");
-            Debug.Log($"   - Policy: {policy}");
-            Debug.Log($"   - Base Damage: {playerBaseDamage}");
-            Debug.Log($"   - Damage Multiplier: {damageMultiplier}x");
-            Debug.Log($"   - PlayerRuntimeStats: {(playerRuntimeStats != null ? "연결됨" : "❌ 없음")}");
-        }
+        Dbg.Log($"✅ [DamageArea] 플레이어용 초기화 완료:");
+        Dbg.Log($"   - Skill: {skillData.SkillName}");
+        Dbg.Log($"   - Policy: {policy}");
+        Dbg.Log($"   - Base Damage: {playerBaseDamage}");
+        Dbg.Log($"   - Damage Multiplier: {damageMultiplier}x");
+        Dbg.Log($"   - PlayerRuntimeStats: {(playerRuntimeStats != null ? "연결됨" : "❌ 없음")}");
         
         // ⭐ 정책 실행
         ExecuteDamagePolicy();
@@ -449,8 +412,6 @@ public class DamageArea : MonoBehaviour
             this.centerMode = AOECenterMode.ForwardAnchored;
             this.centerOffset = size.x / 2f; // 사각형 가로 길이의 절반
             
-            if (enableDebugLogs)
-                Debug.Log($"🎯 [DamageArea] Rectangle 감지 → ForwardAnchored 모드 (Offset: {this.centerOffset})");
         }
         else
         {
@@ -484,11 +445,6 @@ public class DamageArea : MonoBehaviour
         // 생성 시간 기록
         spawnTime = Time.time;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [DamageArea] 플레이어 {shape} AOE 생성 (Policy: {policy}, Damage: {playerBaseDamage})");
-            Debug.Log($"   - PlayerRuntimeStats: {(playerRuntimeStats != null ? "연결됨" : "❌ 없음")}");
-        }
         
         // ⭐ 정책 실행
         ExecuteDamagePolicy();
@@ -503,20 +459,14 @@ public class DamageArea : MonoBehaviour
         {
             case AOEDamagePolicy.Once:
                 PerformDamage(); // 기존 방식 그대로
-                if (enableDebugLogs)
-                    Debug.Log($"[DamageArea] Policy: Once - 즉시 1회 판정");
                 break;
                 
             case AOEDamagePolicy.Window:
                 StartCoroutine(WindowDamageRoutine());
-                if (enableDebugLogs)
-                    Debug.Log($"[DamageArea] Policy: Window - {windowDuration}초 동안 1회만");
                 break;
                 
             case AOEDamagePolicy.Tick:
                 StartCoroutine(TickDamageRoutine());
-                if (enableDebugLogs)
-                    Debug.Log($"[DamageArea] Policy: Tick - {tickInterval}초마다 반복");
                 break;
         }
     }
@@ -529,8 +479,6 @@ public class DamageArea : MonoBehaviour
         hitTargets.Clear();
         float elapsed = 0f;
         
-        if (enableDebugLogs)
-            Debug.Log($"[DamageArea] Window 시작 - {windowDuration}초");
         
         while (elapsed < windowDuration)
         {
@@ -539,10 +487,6 @@ public class DamageArea : MonoBehaviour
             yield return null;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[DamageArea] Window 종료 - 총 타격: {hitTargets.Count}명");
-        }
     }
     
     /// <summary>
@@ -553,27 +497,17 @@ public class DamageArea : MonoBehaviour
         int tickCount = 0;
         float elapsed = 0f;
         
-        if (enableDebugLogs)
-            Debug.Log($"[DamageArea] Tick 시작 - {tickInterval}초마다, 총 {windowDuration}초");
         
         while (elapsed < windowDuration)
         {
             PerformDamage(); // 매 틱마다 판정
             tickCount++;
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[DamageArea] Tick #{tickCount} - {elapsed:F2}초");
-            }
             
             yield return new WaitForSeconds(tickInterval);
             elapsed += tickInterval;
         }
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[DamageArea] Tick 종료 - 총 {tickCount}회 판정");
-        }
     }
     
     /// <summary>
@@ -623,8 +557,6 @@ public class DamageArea : MonoBehaviour
     {
         int rawDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
         
-        if (enableDebugLogs)
-            Debug.Log($"🔥 [DamageArea] ApplyDamageToTarget: {hit.name}, CasterType={casterType}, RawDamage={rawDamage}");
         
         if (casterType == AOECasterType.Enemy)
         {
@@ -632,8 +564,6 @@ public class DamageArea : MonoBehaviour
             PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [DamageArea] PlayerHealth 발견! 데미지 적용: {rawDamage}");
                 
                 playerHealth.TakeDamage(rawDamage, baseEnemy != null ? baseEnemy.transform : transform);
             }
@@ -709,8 +639,6 @@ public class DamageArea : MonoBehaviour
         
         enemyHealth.TakeDamage(result, transform);
         
-        if (enableDebugLogs)
-            Debug.Log($"💥 [DamageArea] AOE 스킬 최종 데미지: {result.finalDamage} (크리티컬: {result.isCritical}) → {hit.name}");
     }
     
     /// <summary>
@@ -748,8 +676,6 @@ public class DamageArea : MonoBehaviour
         var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
         simpleMob.TakeDamage(result.finalDamage);
         
-        if (enableDebugLogs)
-            Debug.Log($"💥 [DamageArea] AOE 스킬 SimpleMob 데미지: {result.finalDamage} → {hit.name}");
     }
     
     /// <summary>
@@ -798,22 +724,8 @@ public class DamageArea : MonoBehaviour
             float halfWidth = baseSize.x * scaleMultiplier * 0.5f;
             Vector3 correctedPosition = center - forward * halfWidth;
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🎨 [DamageArea] Left Pivot 이펙트 위치 보정:");
-                Debug.Log($"   - Center: {center}");
-                Debug.Log($"   - Width: {baseSize.x * scaleMultiplier}, Half: {halfWidth}");
-                Debug.Log($"   - Corrected Position: {correctedPosition}");
-                Debug.Log($"   - Offset: {halfWidth} (왼쪽으로 이동)");
-            }
             
             return correctedPosition;
-        }
-        
-        // Circle/Triangle은 Center Pivot 가정 (보정 불필요)
-        if (enableDebugLogs && (aoeShape == AOEShapeType.Circle || aoeShape == AOEShapeType.Triangle))
-        {
-            Debug.Log($"🎨 [DamageArea] {aoeShape} - Center Pivot 이펙트, 보정 불필요");
         }
         
         return center;
@@ -833,8 +745,6 @@ public class DamageArea : MonoBehaviour
             float offset = centerOffset * scaleMultiplier;
             Vector3 calculatedCenter = origin + forward * offset;
             
-            if (enableDebugLogs)
-                Debug.Log($"📍 [DamageArea] ForwardAnchored: Origin={origin}, Offset={offset}, Center={calculatedCenter}");
             
             return calculatedCenter;
         }
@@ -848,10 +758,6 @@ public class DamageArea : MonoBehaviour
         float finalRadius = baseRadius * scaleMultiplier;
         Collider2D[] hits = Physics2D.OverlapCircleAll(center, finalRadius, targetLayerMask);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[DamageArea] Circle Overlap: Center={center}, Radius={finalRadius}, Hits={hits.Length}");
-        }
         
         return hits;
     }
@@ -901,10 +807,6 @@ public class DamageArea : MonoBehaviour
         // forward 방향을 각도로 변환
         float angle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"[DamageArea] Rectangle Overlap: Center={center}, Size={finalSize}, Angle={angle}°");
-        }
         
         return Physics2D.OverlapBoxAll(center, finalSize, angle, targetLayerMask);
     }
@@ -1241,7 +1143,6 @@ public class DamageArea : MonoBehaviour
     {
         if (wallLayer == 0)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning("🚨 [DamageArea] wallLayer가 설정되지 않았습니다! checkWallBlocking은 true인데 Layer가 없음!");
             return false;
         }
@@ -1255,8 +1156,6 @@ public class DamageArea : MonoBehaviour
         
         if (hit.collider != null)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🧱 [DamageArea] 벽 차단: {target.name} ← {hit.collider.name} (거리: {hit.distance:F2})");
             return true;
         }
         

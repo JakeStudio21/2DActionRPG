@@ -18,7 +18,6 @@ using CueSystem;
 public class DotDamageArea : MonoBehaviour
 {
     [Header("🔧 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     [Header("🔵 Gizmos 설정")]
     [Tooltip("Scene View에서 장판 범위 시각화 여부")]
@@ -63,8 +62,6 @@ public class DotDamageArea : MonoBehaviour
         // duration 경과 후 자동 파괴 (Tick 코루틴 완료보다 약간 길게 설정)
         Destroy(gameObject, duration + tickRate);
         
-        if (enableDebugLogs)
-            Debug.Log($"☠️ [DotDamageArea] 초기화: radius={radius}, damage={damage}/tick, duration={duration}s, tickRate={tickRate}s, slow={slowPercentage:P0}");
     }
     
     // ─────────────────────────────────────────────
@@ -129,8 +126,6 @@ public class DotDamageArea : MonoBehaviour
             }
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"☠️ [DotDamageArea] Tick 판정: {hits.Length}명 감지");
     }
     
     private void ApplyDamageToSimpleMob(SimpleMob simpleMob, Collider2D hit)
@@ -165,8 +160,6 @@ public class DotDamageArea : MonoBehaviour
         var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
         simpleMob.TakeDamage(result.finalDamage);
         
-        if (enableDebugLogs)
-            Debug.Log($"☠️ [DotDamageArea] SimpleMob 데미지: {result.finalDamage} (크리티컬: {result.isCritical}) → {hit.name}");
     }
     
     private void ApplyDamageToEnemy(EnemyHealth enemyHealth, Collider2D hit)
@@ -205,8 +198,6 @@ public class DotDamageArea : MonoBehaviour
         result.hitPosition = hit.transform.position;
         enemyHealth.TakeDamage(result, transform);
         
-        if (enableDebugLogs)
-            Debug.Log($"☠️ [DotDamageArea] EnemyHealth 데미지: {result.finalDamage} (크리티컬: {result.isCritical}) → {hit.name}");
     }
     
     private void EmitHitCue(Vector3 position)
@@ -246,8 +237,6 @@ public class DotDamageArea : MonoBehaviour
             slowedTargets.Add(other.gameObject);
             baseEnemy.Agent.speed *= (1f - Mathf.Clamp01(slowPercentage));
             
-            if (enableDebugLogs)
-                Debug.Log($"☠️ [DotDamageArea] BaseEnemy 슬로우 적용: {other.name}, speed={baseEnemy.Agent.speed:F2}");
         }
     }
     
@@ -274,8 +263,6 @@ public class DotDamageArea : MonoBehaviour
         }
         slowedTargets.Clear();
         
-        if (enableDebugLogs)
-            Debug.Log($"☠️ [DotDamageArea] 소멸 — 잔여 슬로우 모두 해제 완료");
     }
     
     private void RemoveSlowFromTarget(GameObject target)
@@ -294,8 +281,6 @@ public class DotDamageArea : MonoBehaviour
         {
             baseEnemy.Agent.speed = baseEnemy.GetScaledMoveSpeed();
             
-            if (enableDebugLogs)
-                Debug.Log($"☠️ [DotDamageArea] BaseEnemy 슬로우 해제: {target.name}, speed={baseEnemy.Agent.speed:F2}");
         }
     }
     

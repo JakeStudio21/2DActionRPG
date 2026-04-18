@@ -18,7 +18,6 @@ public class StraightProjectile : MonoBehaviour
     [SerializeField] private GameObject hitEffectPrefab;
     
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false;
     
     // 이동 관리
     private Vector3 startPosition;
@@ -81,8 +80,6 @@ public class StraightProjectile : MonoBehaviour
         float angle = Mathf.Atan2(fireDirection.y, fireDirection.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [StraightProjectile] 발사! 방향: {fireDirection}, 각도: {angle:F1}도");
     }
     
     /// <summary>
@@ -99,9 +96,6 @@ public class StraightProjectile : MonoBehaviour
     public void SetAttacker(BaseAttackBehaviour attackerBehaviour)
     {
         attacker = attackerBehaviour;
-        
-        if (showDebugLogs && attacker != null)
-            Debug.Log($"🎯 [StraightProjectile] 공격자 설정: {attacker.gameObject.name}");
     }
     
     /// <summary>
@@ -153,8 +147,6 @@ public class StraightProjectile : MonoBehaviour
         
         if (currentDistance > projectileRange)
         {
-            if (showDebugLogs)
-                Debug.Log($"📏 [StraightProjectile] 사거리 초과: {currentDistance:F2} > {projectileRange:F2}");
             
             ReturnToPool();
         }
@@ -172,8 +164,6 @@ public class StraightProjectile : MonoBehaviour
         
         if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
         {
-            if (showDebugLogs)
-                Debug.Log($"🧱 [StraightProjectile] 벽 충돌! {gameObject.name} → {other.name}");
             
             // 🎵 CueSystem: 벽 충돌 이펙트 + 사운드 재생
             Vector3 hitPosition = transform.position;
@@ -211,12 +201,8 @@ public class StraightProjectile : MonoBehaviour
                 {
                     attacker.ApplyStatusEffects(playerHealth, other.transform);
                     
-                    if (showDebugLogs)
-                        Debug.Log($"☠️ [StraightProjectile] 상태이상 적용 시도 (공격자: {attacker.gameObject.name})");
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"💥 [StraightProjectile] 플레이어에게 {projectileDamage} 데미지!");
                 
                 ReturnToPool();
                 return;
@@ -227,8 +213,6 @@ public class StraightProjectile : MonoBehaviour
         Indestructible indestructible = other.GetComponent<Indestructible>();
         if (!other.isTrigger && indestructible)
         {
-            if (showDebugLogs)
-                Debug.Log($"🧱 [StraightProjectile] Indestructible 장애물 충돌: {other.gameObject.name}");
 
             var context = new CueSystem.CueContext
             {

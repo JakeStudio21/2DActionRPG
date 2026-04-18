@@ -82,9 +82,7 @@ public class GenericMeleeEnemy : BaseEnemy
     [ContextMenu("Test Melee Damage")]
     private void TestMeleeDamage()
     {
-        if (meleeAttack != null)
-            Debug.Log($"[GenericMeleeEnemy] {gameObject.name} 실제 근접 데미지: {meleeAttack.GetScaledDamage()}");
-        else
+        if (meleeAttack == null)
             Debug.LogError($"[GenericMeleeEnemy] MeleeAttack 없음");
     }
 

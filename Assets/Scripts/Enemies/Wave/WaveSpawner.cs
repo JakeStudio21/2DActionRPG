@@ -22,7 +22,6 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private float waveStartDelay = 1f;
     
     [Header("Debug")]
-    [SerializeField] private bool enableDebugLogs = false;
     [SerializeField] private bool showSpawnGizmos = false;
     
     // 웨이브 상태
@@ -87,8 +86,7 @@ public class WaveSpawner : MonoBehaviour
         totalKilledCount = 0;
         spawnedMobs.Clear();
         
-        if (enableDebugLogs)
-            Debug.Log($"🌊 [WaveSpawner] Wave {currentWaveNumber} 시작!");
+            Dbg.Log($"🌊 [WaveSpawner] Wave {currentWaveNumber} 시작!");
         
         OnWaveStart?.Invoke(currentWaveNumber);
         
@@ -100,8 +98,7 @@ public class WaveSpawner : MonoBehaviour
     /// </summary>
     public void StartWaveExternal(WaveData waveData)
     {
-        if (enableDebugLogs)
-            Debug.Log($"📞 [WaveSpawner] StartWaveExternal() 호출됨 - WaveData: {waveData?.name ?? "null"}");
+            Dbg.Log($"📞 [WaveSpawner] StartWaveExternal() 호출됨 - WaveData: {waveData?.name ?? "null"}");
         
         StartWave(waveData);
     }
@@ -117,8 +114,7 @@ public class WaveSpawner : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"📞 [WaveSpawner] TriggerStart() 호출됨 - WaveData: {currentWaveData.name}");
+            Dbg.Log($"📞 [WaveSpawner] TriggerStart() 호출됨 - WaveData: {currentWaveData.name}");
         
         StartWave(currentWaveData);
     }
@@ -130,8 +126,7 @@ public class WaveSpawner : MonoBehaviour
     {
         customSpawnCenter = spawnCenter;
         
-        if (enableDebugLogs)
-            Debug.Log($"📍 [WaveSpawner] 커스텀 스폰 중심 설정: {spawnCenter.name}");
+            Dbg.Log($"📍 [WaveSpawner] 커스텀 스폰 중심 설정: {spawnCenter.name}");
     }
     
     /// <summary>
@@ -160,8 +155,7 @@ public class WaveSpawner : MonoBehaviour
             }
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [WaveSpawner] 스폰 완료: {totalSpawnedCount}마리");
+            Dbg.Log($"✅ [WaveSpawner] 스폰 완료: {totalSpawnedCount}마리");
         
         // 클리어 조건 체크 시작
         StartCoroutine(CheckClearConditionCoroutine());
@@ -216,8 +210,7 @@ public class WaveSpawner : MonoBehaviour
                 simpleMob.InitializeLevel(stageLevel);
             }
             
-            if (enableDebugLogs)
-                Debug.Log($"📍 [WaveSpawner] 스폰: {mob.name} at {spawnPosition}");
+                Dbg.Log($"📍 [WaveSpawner] 스폰: {mob.name} at {spawnPosition}");
         }
     }
     
@@ -324,8 +317,7 @@ public class WaveSpawner : MonoBehaviour
             // ⭐ 경계에서 안쪽으로 이격 (1.5m 최소 거리 보장)
             Vector3 safePosition = EnsureDistanceFromEdge(hit.position, 1.5f);
             
-            if (enableDebugLogs)
-                Debug.Log($"✅ [WaveSpawner] NavMesh 안전 위치: {targetPosition} → {safePosition}");
+                Dbg.Log($"✅ [WaveSpawner] NavMesh 안전 위치: {targetPosition} → {safePosition}");
             
             return safePosition;
         }
@@ -339,8 +331,7 @@ public class WaveSpawner : MonoBehaviour
             {
                 Vector3 safePosition = EnsureDistanceFromEdge(hit.position, 1.5f);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"⚠️ [WaveSpawner] NavMesh 위치 (범위 {searchRadius}f): {safePosition}");
+                    Dbg.Log($"⚠️ [WaveSpawner] NavMesh 위치 (범위 {searchRadius}f): {safePosition}");
                 
                 return safePosition;
             }
@@ -378,8 +369,7 @@ public class WaveSpawner : MonoBehaviour
         
         if (maxEdgeDistance > 0f)
         {
-            if (enableDebugLogs)
-                Debug.Log($"⚠️ [WaveSpawner] 최적 위치 선택 (경계 거리: {maxEdgeDistance:F1}m): {bestPosition}");
+                Dbg.Log($"⚠️ [WaveSpawner] 최적 위치 선택 (경계 거리: {maxEdgeDistance:F1}m): {bestPosition}");
             
             return bestPosition;
         }
@@ -414,8 +404,7 @@ public class WaveSpawner : MonoBehaviour
         NavMeshHit hit;
         if (NavMesh.SamplePosition(safePosition, out hit, 2f, NavMesh.AllAreas))
         {
-            if (enableDebugLogs)
-                Debug.Log($"🔧 [WaveSpawner] 경계 이격 보정: {edgeHit.distance:F2}m → {minDistanceFromEdge}m");
+                Dbg.Log($"🔧 [WaveSpawner] 경계 이격 보정: {edgeHit.distance:F2}m → {minDistanceFromEdge}m");
             
             return hit.position;
         }
@@ -431,8 +420,7 @@ public class WaveSpawner : MonoBehaviour
     {
         float startTime = Time.time;
         
-        if (enableDebugLogs)
-            Debug.Log($"🔄 [WaveSpawner] 클리어 조건 체크 시작 - 조건: {currentWaveData.clearCondition}, 총 스폰: {totalSpawnedCount}마리");
+            Dbg.Log($"🔄 [WaveSpawner] 클리어 조건 체크 시작 - 조건: {currentWaveData.clearCondition}, 총 스폰: {totalSpawnedCount}마리");
         
         while (true)
         {
@@ -449,8 +437,7 @@ public class WaveSpawner : MonoBehaviour
                 
                 case WaveClearCondition.TimeLimit:
                     isCleared = Time.time - startTime >= currentWaveData.timeLimitSeconds;
-                    if (enableDebugLogs)
-                        Debug.Log($"⏱️ [WaveSpawner] 시간 체크: {Time.time - startTime:F1}/{currentWaveData.timeLimitSeconds}초");
+                        Dbg.Log($"⏱️ [WaveSpawner] 시간 체크: {Time.time - startTime:F1}/{currentWaveData.timeLimitSeconds}초");
                     break;
                 
                 case WaveClearCondition.KillCount:
@@ -487,16 +474,11 @@ public class WaveSpawner : MonoBehaviour
             }
         }
         
-        if (enableDebugLogs && (beforeCount != afterCount || aliveCount > 0))
-        {
-            Debug.Log($"🔍 [WaveSpawner] 클리어 체크 - 스폰된 몬스터: {beforeCount}→{afterCount}, 살아있는 몬스터: {aliveCount}");
-        }
-        
         bool isCleared = aliveCount == 0 && afterCount == 0;
         
-        if (isCleared && enableDebugLogs)
+        if (isCleared)
         {
-            Debug.Log($"✅ [WaveSpawner] 모든 몬스터 처치 완료! 웨이브 클리어!");
+            Dbg.Log($"✅ [WaveSpawner] 모든 몬스터 처치 완료! 웨이브 클리어!");
         }
         
         return isCleared;
@@ -509,23 +491,18 @@ public class WaveSpawner : MonoBehaviour
     {
         isSpawning = false;
         
-        if (enableDebugLogs)
-            Debug.Log($"🏆 [WaveSpawner] Wave {currentWaveNumber} 완료!");
+            Dbg.Log($"🏆 [WaveSpawner] Wave {currentWaveNumber} 완료!");
         
         // 보상 지급
         GiveRewards();
         
         // 이벤트 발동
-        if (enableDebugLogs)
-        {
-            int listenerCount = OnWaveComplete?.GetInvocationList()?.Length ?? 0;
-            Debug.Log($"📣 [WaveSpawner] OnWaveComplete 이벤트 발동 - 구독자 {listenerCount}명");
-        }
+        int listenerCount = OnWaveComplete?.GetInvocationList()?.Length ?? 0;
+        Dbg.Log($"📣 [WaveSpawner] OnWaveComplete 이벤트 발동 - 구독자 {listenerCount}명");
         
         OnWaveComplete?.Invoke(currentWaveNumber);
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [WaveSpawner] 웨이브 완료 처리 끝!");
+        Dbg.Log($"✅ [WaveSpawner] 웨이브 완료 처리 끝!");
     }
     
     /// <summary>
@@ -537,16 +514,14 @@ public class WaveSpawner : MonoBehaviour
         {
             PlayerDataManager.Instance.AddGold(currentWaveData.rewardGold);
             
-            if (enableDebugLogs)
-                Debug.Log($"💰 [WaveSpawner] 골드 획득: {currentWaveData.rewardGold}");
+                Dbg.Log($"💰 [WaveSpawner] 골드 획득: {currentWaveData.rewardGold}");
         }
         
         if (currentWaveData.rewardExp > 0)
         {
             PlayerDataManager.Instance.AddExp(currentWaveData.rewardExp);
             
-            if (enableDebugLogs)
-                Debug.Log($"⭐ [WaveSpawner] 경험치 획득: {currentWaveData.rewardExp}");
+                Dbg.Log($"⭐ [WaveSpawner] 경험치 획득: {currentWaveData.rewardExp}");
         }
     }
     
@@ -575,8 +550,7 @@ public class WaveSpawner : MonoBehaviour
         spawnedMobs.Clear();
         isSpawning = false;
         
-        if (enableDebugLogs)
-            Debug.Log("[WaveSpawner] 웨이브 강제 중지");
+            Dbg.Log("[WaveSpawner] 웨이브 강제 중지");
     }
     
     private void OnDrawGizmos()

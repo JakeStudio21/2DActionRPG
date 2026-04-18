@@ -62,13 +62,13 @@ public class Elite_SandGolem : BaseEnemy
         if (eliteAttack == null)
             eliteAttack = GetComponent<EliteAttackBehaviour>();
             
-        Debug.Log($"[Elite_SandGolem] {gameObject.name} Awake 초기화 완료");
+        Dbg.Log($"[Elite_SandGolem] {gameObject.name} Awake 초기화 완료");
     }
 
     protected override void OnStartInitialize()
     {
         ApplyEliteSandGolemSpecificSettings();
-        Debug.Log($"[Elite_SandGolem] {gameObject.name} Start 초기화 완료");
+        Dbg.Log($"[Elite_SandGolem] {gameObject.name} Start 초기화 완료");
     }
 
     protected override void InitializeAttackSystem()
@@ -77,7 +77,7 @@ public class Elite_SandGolem : BaseEnemy
         if (meleeAttack != null)
         {
             meleeAttack.Initialize();
-            Debug.Log($"[Elite_SandGolem] {gameObject.name} MeleeAttack 시스템 초기화 완료");
+            Dbg.Log($"[Elite_SandGolem] {gameObject.name} MeleeAttack 시스템 초기화 완료");
         }
         else
         {
@@ -88,7 +88,7 @@ public class Elite_SandGolem : BaseEnemy
         if (eliteAttack != null)
         {
             eliteAttack.Initialize();
-            Debug.Log($"[Elite_SandGolem] {gameObject.name} EliteAttackBehaviour 시스템 초기화 완료");
+            Dbg.Log($"[Elite_SandGolem] {gameObject.name} EliteAttackBehaviour 시스템 초기화 완료");
         }
         else
         {
@@ -102,7 +102,6 @@ public class Elite_SandGolem : BaseEnemy
         if (eliteAttack != null && eliteAttack.CanAttack())
         {
             eliteAttack.Attack();
-            Debug.Log($"[Elite_SandGolem] {gameObject.name} 엘리트 공격 실행 (평타 or 스킬)!");
         }
         else if (meleeAttack != null && meleeAttack.CanAttack())
         {
@@ -123,24 +122,14 @@ public class Elite_SandGolem : BaseEnemy
     {
         if (EnemyData != null)
         {
-            Debug.Log($"[Elite_SandGolem] {gameObject.name} 전용 설정 적용:");
-            Debug.Log($"  - 타입: {EnemyData.EnemyType} (Elite)");
-            Debug.Log($"  - 레벨: {CurrentLevel}");
-            Debug.Log($"  - 체력: {GetScaledMaxHealth():F1}");
-            Debug.Log($"  - 공격력: AttackData에서 관리됨");
-            Debug.Log($"  - 방어력: {GetScaledDefense():F1}");
-            Debug.Log($"  - 이동속도: {GetScaledMoveSpeed():F1}");
-            Debug.Log($"  - 특성: 엘리트 모래 골렘, 평타 60% + 스킬 40%");
             
             // 스킬 정보 출력
             if (EnemyData.HasSkillData)
             {
-                Debug.Log($"  - 스킬 개수: {EnemyData.SkillDataList.Count}");
                 for (int i = 0; i < EnemyData.SkillDataList.Count; i++)
                 {
                     if (EnemyData.SkillDataList[i] != null)
                     {
-                        Debug.Log($"    └─ {EnemyData.SkillDataList[i].SkillName}");
                     }
                 }
             }
@@ -155,10 +144,6 @@ public class Elite_SandGolem : BaseEnemy
     {
         if (EnemyData != null)
         {
-            Debug.Log($"[Elite_SandGolem] 타입 확인: {EnemyData.EnemyType}");
-            Debug.Log($"[Elite_SandGolem] Elite 체력: {GetScaledMaxHealth():F1}");
-            Debug.Log($"[Elite_SandGolem] 평타 확률: {EnemyData.MeleeAttackProbability}%");
-            Debug.Log($"[Elite_SandGolem] 스킬 확률: {EnemyData.SkillUseProbability}%");
         }
     }
 
@@ -171,7 +156,6 @@ public class Elite_SandGolem : BaseEnemy
         if (meleeAttack != null)
         {
             int actualDamage = meleeAttack.GetScaledDamage();
-            Debug.Log($"[Elite_SandGolem] 실제 근접 데미지: {actualDamage}");
         }
         else
         {
@@ -227,9 +211,6 @@ public class Elite_SandGolem : BaseEnemy
         // 새 스탯 계산
         ApplyEliteSandGolemSpecificSettings();
         
-        Debug.Log($"[Elite_SandGolem] {gameObject.name} 레벨업! 새 레벨: {CurrentLevel}");
-        Debug.Log($"[Elite_SandGolem] 새 체력: {GetScaledMaxHealth():F1}");
-        Debug.Log($"[Elite_SandGolem] 공격력은 AttackData에서 관리됨");
     }
 
     #endregion
@@ -270,7 +251,6 @@ public class Elite_SandGolem : BaseEnemy
             info += "\n❌ AttackData가 할당되지 않았습니다!\n";
         }
         
-        Debug.Log(info);
     }
 
     #endregion

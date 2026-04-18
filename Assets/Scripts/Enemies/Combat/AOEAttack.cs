@@ -70,7 +70,6 @@ public class AOEAttack : BaseAttackBehaviour
             
             animationController.UpdateAttackDirectionWithFlip(toPlayerBlendTree, shouldFlipX);
             
-            Debug.Log($"[AOEAttack] {gameObject.name} - 공격 방향 저장: World({toPlayerWorld.x:F2}, {toPlayerWorld.y:F2}), flipX: {shouldFlipX}");
         }
     }
     
@@ -95,7 +94,6 @@ public class AOEAttack : BaseAttackBehaviour
     /// </summary>
     public void SpawnAOEEffect()
     {
-        Debug.Log($"[AOEAttack] {gameObject.name} - Animation Event AOE 이펙트 생성!");
         
         // ✅ Cue 시스템 발행
         EmitAOECues();
@@ -146,7 +144,6 @@ public class AOEAttack : BaseAttackBehaviour
             // 추적 목록에 추가
             activeAOEEffect = aoeEffect;
             
-            Debug.Log($"[AOEAttack] AOE 이펙트 생성 완료: {aoeEffect.name} at {spawnPosition} (골렘 위치에서 시작)");
         }
     }
     
@@ -190,7 +187,6 @@ public class AOEAttack : BaseAttackBehaviour
         if (effect == null)
         {
             effect = Instantiate(prefab, spawnPosition, rotation);
-            Debug.Log($"[AOEAttack] 프리팹을 직접 생성했습니다: {prefab.name}");
         }
         
         return effect;
@@ -207,7 +203,6 @@ public class AOEAttack : BaseAttackBehaviour
             Vector3 directionToPlayer = (cachedPlayer.transform.position - transform.position).normalized;
             float angle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
             
-            Debug.Log($"[AOEAttack] 플레이어 방향 회전: {angle:F1}도, 방향: {directionToPlayer}");
             return Quaternion.AngleAxis(angle, Vector3.forward);
         }
         
@@ -215,12 +210,10 @@ public class AOEAttack : BaseAttackBehaviour
         if (savedAttackDirection != Vector2.zero)
         {
             float angle = Mathf.Atan2(savedAttackDirection.y, savedAttackDirection.x) * Mathf.Rad2Deg;
-            Debug.Log($"[AOEAttack] 저장된 방향 회전: {angle:F1}도, 방향: {savedAttackDirection}");
             return Quaternion.AngleAxis(angle, Vector3.forward);
         }
         
         // 기본값: 동쪽 방향 (E)
-        Debug.Log($"[AOEAttack] 기본 방향 회전: 0도 (동쪽)");
         return Quaternion.identity;
     }
     
@@ -243,7 +236,6 @@ public class AOEAttack : BaseAttackBehaviour
                 scale.y = -Mathf.Abs(scale.y); // Y축을 음수로 만들어 Flip
                 aoeEffect.transform.localScale = scale;
                 
-                Debug.Log($"[AOEAttack] AOE 이펙트 Y축 Flip 적용: 서쪽 방향 땅 솟아오름 효과");
             }
         }
     }
@@ -270,7 +262,6 @@ public class AOEAttack : BaseAttackBehaviour
             Destroy(aoeEffect, duration);
         }
         
-        Debug.Log($"[AOEAttack] AOE 이펙트 설정 완료: 크기={currentScale:F1}, 지속시간={duration:F1}초");
     }
     
     /// <summary>
@@ -299,7 +290,6 @@ public class AOEAttack : BaseAttackBehaviour
             enemyDamage.damageAmount = currentDamage;
         }
         
-        Debug.Log($"[AOEAttack] AOE 데미지 설정: {currentDamage}, 넉백 강도: {GetKnockbackThrust()}");
     }
     
     /// <summary>
@@ -427,7 +417,6 @@ public class AOEAttack : BaseAttackBehaviour
             string eventKey = "attack.aoe.explosion";
             bool success = CueEmitter.Emit(eventKey, "Enemy", context);
             
-            Debug.Log($"🎵 [AOEAttack] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
         }
         catch (System.Exception ex)
         {
@@ -446,12 +435,6 @@ public class AOEAttack : BaseAttackBehaviour
     {
         if (AttackData != null)
         {
-            Debug.Log($"[AOEAttack] AttackData 기반 AOE 설정:");
-            Debug.Log($"  - 공격명: {AttackData.AttackName}");
-            Debug.Log($"  - AOE 지속시간: {GetCurrentAOEDuration():F1}초");
-            Debug.Log($"  - AOE 모양: {GetCurrentAOEShape()}");
-            Debug.Log($"  - AOE 크기: {GetCurrentAOEScale():F1}");
-            Debug.Log($"  - 데미지: {GetScaledDamage()}");
             
             if (GetCurrentAOEPrefab() == null)
             {
@@ -460,10 +443,6 @@ public class AOEAttack : BaseAttackBehaviour
         }
         else
         {
-            Debug.Log($"[AOEAttack] Fallback 설정 사용:");
-            Debug.Log($"  - AOE 프리팹: {(aoeEffectPrefab != null ? aoeEffectPrefab.name : "없음")}");
-            Debug.Log($"  - 지속시간: {fallbackAOEDuration}");
-            Debug.Log($"  - 모양: {fallbackAOEShape}, 크기: {fallbackAOEScale}");
         }
     }
     
@@ -537,7 +516,6 @@ public class AOEAttack : BaseAttackBehaviour
             info += $"Shape: {fallbackAOEShape}, Scale: {fallbackAOEScale}";
         }
         
-        Debug.Log(info);
     }
     
     #endregion

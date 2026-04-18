@@ -24,10 +24,6 @@ public class EnemyReturnToHomeState : IEnemyState
             homePosition = baseEnemy.HomePosition;
             
             // 🔑 디버그 로그 추가
-            if (baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 복귀속도: {moveSpeed:F1} (기본속도 * 1.2)");
-            }
         }
         else
         {
@@ -39,10 +35,6 @@ public class EnemyReturnToHomeState : IEnemyState
     public void Enter()
     {
         // 🔑 디버그 로그 추가
-        if (enemy.EnableDebugLogs)
-        {
-            Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 집으로 돌아가는 중...");
-        }
     }
 
     public void Execute() // 🔑 Update() → Execute()로 변경
@@ -61,10 +53,6 @@ public class EnemyReturnToHomeState : IEnemyState
             if (distToPlayer < returnDetectionRange)
             {
                 // 🔑 디버그 로그 추가
-                if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-                {
-                    Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 복귀 중 플레이어 감지! 추격 시작");
-                }
                 
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 return;
@@ -87,10 +75,6 @@ public class EnemyReturnToHomeState : IEnemyState
         if (distanceToHome < 1f)
         {
             // 🔑 디버그 로그 추가
-            if (baseEnemy != null && baseEnemy.EnableDebugLogs)
-            {
-                Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 집 도착! 대기 상태로 전환");
-            }
             
             enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
         }
@@ -99,10 +83,6 @@ public class EnemyReturnToHomeState : IEnemyState
     public void Exit()
     {
         // 🔑 디버그 로그 추가
-        if (enemy is BaseEnemy baseEnemy && baseEnemy.EnableDebugLogs)
-        {
-            Debug.Log($"[EnemyReturnToHomeState] {enemy.name} 복귀 상태 종료");
-        }
     }
 
     /// <summary>

@@ -73,7 +73,6 @@ public class AOEDamage : MonoBehaviour
     public void SetDamage(int newDamage)
     {
         damageAmount = newDamage;
-        Debug.Log($"[AOEDamage] 데미지 설정: {damageAmount}");
     }
     
     /// <summary>
@@ -83,7 +82,6 @@ public class AOEDamage : MonoBehaviour
     {
         aoeShape = newShape;
         ConfigureAOECollider();
-        Debug.Log($"[AOEDamage] AOE 모양 설정: {aoeShape}");
     }
     
     
@@ -93,7 +91,6 @@ public class AOEDamage : MonoBehaviour
     public void SetKnockbackThrust(float newThrust)
     {
         knockbackThrust = newThrust;
-        Debug.Log($"[AOEDamage] 넉백 강도 설정: {knockbackThrust}");
     }
     
     /// <summary>
@@ -102,7 +99,6 @@ public class AOEDamage : MonoBehaviour
     public void SetKnockbackSource(Transform source)
     {
         knockbackSource = source;
-        Debug.Log($"[AOEDamage] 넉백 소스 설정: {(source != null ? source.name : "없음")}");
     }
     
     /// <summary>
@@ -171,7 +167,6 @@ public class AOEDamage : MonoBehaviour
         // ⭐ 콜라이더 크기는 Inspector에서 Edit Collider로 직접 설정
         // aoeRange는 더 이상 사용하지 않음
         
-        Debug.Log($"[AOEDamage] 콜라이더 설정 완료: {aoeShape} (크기는 Inspector에서 설정)");
     }
     
     #endregion
@@ -216,7 +211,6 @@ public class AOEDamage : MonoBehaviour
                 // ⭐ 넉백 소스가 설정되어 있으면 해당 소스 사용, 없으면 이펙트 Transform 사용
                 Transform damageSource = knockbackSource != null ? knockbackSource : transform;
                 playerHealth.TakeDamage(damageAmount, damageSource);
-                Debug.Log($"[AOEDamage] 플레이어에게 {damageAmount} 데미지 적용! ({playerCollider.name})");
             }
         }
     }
@@ -240,7 +234,6 @@ public class AOEDamage : MonoBehaviour
                 // ⭐ 넉백 소스가 설정되어 있으면 해당 소스 사용, 없으면 이펙트 Transform 사용
                 Transform damageSource = knockbackSource != null ? knockbackSource : transform;
                 playerHealth.TakeDamage(damageAmount, damageSource);
-                Debug.Log($"[AOEDamage] 플레이어에게 {damageAmount} 데미지 적용! ({playerCollider.name})");
             }
         }
     }
@@ -264,7 +257,6 @@ public class AOEDamage : MonoBehaviour
                 // ⭐ 넉백 소스가 설정되어 있으면 해당 소스 사용, 없으면 이펙트 Transform 사용
                 Transform damageSource = knockbackSource != null ? knockbackSource : transform;
                 playerHealth.TakeDamage(damageAmount, damageSource);
-                Debug.Log($"[AOEDamage] 플레이어에게 {damageAmount} 데미지를 입혔습니다. ({other.name})");
                 
                 if (damageOnce)
                 {
@@ -291,7 +283,6 @@ public class AOEDamage : MonoBehaviour
                     // ⭐ 넉백 소스가 설정되어 있으면 해당 소스 사용, 없으면 이펙트 Transform 사용
                     Transform damageSource = knockbackSource != null ? knockbackSource : transform;
                     playerHealth.TakeDamage(damageAmount, damageSource);
-                    Debug.Log($"[AOEDamage] 지속 데미지: {damageAmount} ({other.name})");
                     lastDamageTime = Time.time;
                 }
             }
@@ -357,7 +348,6 @@ public class AOEDamage : MonoBehaviour
         info += $"Has Damaged: {hasDamaged}\n";
         info += $"Collider: {(aoeCollider != null ? aoeCollider.GetType().Name : "없음")}\n";
         
-        Debug.Log(info);
     }
     
     #endregion

@@ -88,8 +88,6 @@ public class SimpleMobExploder : SimpleMob
         isExploding = true;
         rb.velocity = Vector2.zero;
         
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMobExploder] {gameObject.name} 자폭 시작!");
         
         // 자폭 애니메이션
         if (animator != null)
@@ -129,8 +127,6 @@ public class SimpleMobExploder : SimpleMob
     /// </summary>
     private void Explode()
     {
-        if (enableDebugLogs)
-            Debug.Log($"[SimpleMobExploder] 💥 폭발! 반경: {explosionRadius}");
         
         // 범위 내 플레이어 데미지
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius);
@@ -144,8 +140,6 @@ public class SimpleMobExploder : SimpleMob
                 {
                     playerHealth.TakeDamage(Mathf.RoundToInt(explosionDamage), transform);
                     
-                    if (enableDebugLogs)
-                        Debug.Log($"[SimpleMobExploder] 플레이어에게 폭발 데미지: {explosionDamage}");
                 }
             }
         }
