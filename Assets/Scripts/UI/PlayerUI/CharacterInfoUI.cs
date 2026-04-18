@@ -59,14 +59,20 @@ public class CharacterInfoUI : MonoBehaviour
             return;
         }
         
-        // ⭐ 캐릭터 정보창용 LobbyEquippedItemsUI를 읽기 전용 모드로 설정
-        SetEquippedItemsUIReadOnlyMode(true);
-        
         InitializeCharacterInfoUI();
     }
     
+    private void OnDisable()
+    {
+        // ⭐ 패널이 닫힐 때 ReadOnly 해제 — 로비 인벤토리가 정상 동작하도록
+        equippedItemsUI?.SetReadOnly(false);
+    }
+
     private void OnEnable()
     {
+        // ⭐ 패널이 열릴 때 ReadOnly 설정
+        equippedItemsUI?.SetReadOnly(true);
+
         // �� 패널이 활성화될 때마다 상태 갱신
         if (PlayerDataManager.Instance != null)
         {
@@ -686,31 +692,4 @@ public class CharacterInfoUI : MonoBehaviour
             Debug.Log($"✅ [CharacterInfoUI] 슬롯 {currentSlot} UI 갱신 완료 (데이터 재로딩 없음)");
     }
     
-    /// <summary>
-    /// ⭐ LobbyEquippedItemsUI 읽기 전용 모드 설정
-    /// </summary>
-    private void SetEquippedItemsUIReadOnlyMode(bool isReadOnly)
-    {
-        if (equippedItemsUI == null)
-        {
-            Debug.LogWarning("⚠️ [CharacterInfoUI] equippedItemsUI가 null입니다!");
-            return;
-        }
-        
-        // Reflection을 사용하여 private 필드 접근
-        var fieldInfo = equippedItemsUI.GetType().GetField("isReadOnly", 
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        
-        if (fieldInfo != null)
-        {
-            fieldInfo.SetValue(equippedItemsUI, isReadOnly);
-            
-            if (showDebugLogs)
-                Debug.Log($"📖 [CharacterInfoUI] LobbyEquippedItemsUI 읽기 전용 모드 설정: {isReadOnly}");
-        }
-        else
-        {
-            Debug.LogError("❌ [CharacterInfoUI] LobbyEquippedItemsUI.isReadOnly 필드를 찾을 수 없습니다!");
-        }
-    }
 }

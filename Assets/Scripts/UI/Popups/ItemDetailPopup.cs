@@ -86,6 +86,7 @@ namespace UI.Popups
         private ItemDetailContext currentContext;
         private int currentSlotIndex = -1; // 슬롯 인덱스 (인벤토리/장비창용)
         private ItemInstanceID currentItemInstanceID; // V2: 아이템 인스턴스 ID (귀속 체크용)
+        private EquipmentSlot? currentEquipmentSlot = null; // 장착 슬롯 (Ring1/Ring2 구분용, 해제 시 사용)
         
         // ⭐ 원본 UI 색상 저장 (복구용)
         private Color originalPrimaryButtonTextColor;
@@ -216,7 +217,7 @@ namespace UI.Popups
         /// <summary>
         /// 팝업 표시 (컨텍스트 기반)
         /// </summary>
-        public void Show(EquipmentData data, ItemDetailContext context, int slotIndex = -1, ItemInstanceID instanceId = default)
+        public void Show(EquipmentData data, ItemDetailContext context, int slotIndex = -1, ItemInstanceID instanceId = default, EquipmentSlot? equipmentSlot = null)
         {
             if (data == null)
             {
@@ -228,6 +229,7 @@ namespace UI.Popups
             currentContext = context;
             currentSlotIndex = slotIndex;
             currentItemInstanceID = instanceId; // V2: 아이템 인스턴스 ID 저장
+            currentEquipmentSlot = equipmentSlot; // 장착 슬롯 저장 (Ring1/Ring2 구분)
             
             // UI 업데이트
             UpdateItemInfo(data);
@@ -323,6 +325,7 @@ namespace UI.Popups
             currentMaterial = null; // 📦 재료 상태 초기화
             currentSlotIndex = -1;
             currentItemInstanceID = default; // V2: ItemInstanceID 초기화
+            currentEquipmentSlot = null; // 장착 슬롯 초기화
             
             Log("🔒 [ItemDetailPopup] 팝업 닫기 (코루틴 정지 + UI 리셋 + 가격/일괄판매 숨김)");
         }
@@ -744,23 +747,31 @@ namespace UI.Popups
                 return;
             }
             
-            // 컨텍스트 자동 감지
-            ItemDetailContext detectedContext = DetectContext();
+            // 컨텍스트 자동 감지 (장착 여부에 따라 Equipment/Inventory 구분)
+            ItemDetailContext detectedContext = DetectContext(instanceId);
             
             // 팝업 표시 (V2: ItemInstanceID 전달)
             Show(equipmentData, detectedContext, slotIndex, instanceId);
         }
         
         /// <summary>
-        /// 현재 활성화된 UI에 따라 컨텍스트 자동 감지
+        /// instanceId 기준으로 아이템 장착 여부를 확인하여 컨텍스트 결정
+        /// 장착 중 → Equipment("해제" 버튼), 미장착 → Inventory("착용" 버튼)
         /// </summary>
-        private ItemDetailContext DetectContext()
+        private ItemDetailContext DetectContext(ItemInstanceID instanceId = default)
         {
-            // TODO: 현재 어떤 UI가 열려있는지 감지
-            // 현재는 기본값으로 Inventory 반환
-            // 추후 LobbyPanelManager 등과 연동하여 현재 활성 패널 감지
-            
-            // 임시: 항상 Inventory로 처리
+            if (!instanceId.IsEmpty && PlayerDataManager.Instance?.selectedPlayerData != null)
+            {
+                var equippedIds = PlayerDataManager.Instance.selectedPlayerData.RuntimeEquippedInstanceIds;
+                if (equippedIds != null)
+                {
+                    foreach (var kvp in equippedIds)
+                    {
+                        if (kvp.Value.Equals(instanceId))
+                            return ItemDetailContext.Equipment;
+                    }
+                }
+            }
             return ItemDetailContext.Inventory;
         }
         
@@ -1113,12 +1124,16 @@ namespace UI.Popups
             var playerData = PlayerDataManager.Instance;
             var slotData = playerData.GetSlotData(playerData.CurrentSlotIndex);
             
+            // ⭐ Hide() 전에 필요한 데이터 캡처 (Hide() 호출 시 필드 초기화됨)
+            var capturedInstanceId = currentItemInstanceID;
+            var capturedSlot = currentEquipmentSlot ?? DetermineEquipmentSlot(currentItem);
+
             // 경고 데이터 생성 (BindWarningData 재사용)
             var warningData = new Systems.BindWarningData(
-                currentItemInstanceID,
+                capturedInstanceId,
                 instance.templateName,
                 instance.enhancementLevel,
-                DetermineEquipmentSlot(currentItem),
+                capturedSlot,
                 playerData.CurrentSlotIndex,
                 slotData?.playerName ?? "Unknown"
             );
@@ -1144,8 +1159,8 @@ namespace UI.Popups
                 {
                     if (confirmed)
                     {
-                        // 사용자 확인 → 삭제 진행
-                        ExecuteUnequipBoundItemWithCapturedData(currentItemInstanceID);
+                        // 사용자 확인 → 삭제 진행 (캡처된 데이터 사용)
+                        ExecuteUnequipBoundItemWithCapturedData(capturedInstanceId, capturedSlot);
                     }
                     // 취소 시 아무것도 하지 않음 (ItemDetailPopup은 이미 닫혔음)
                 });
@@ -1162,7 +1177,8 @@ namespace UI.Popups
                 return;
             }
             
-            EquipmentSlot targetSlot = DetermineEquipmentSlot(currentItem);
+            // currentEquipmentSlot이 있으면 정확한 슬롯 사용 (Ring1/Ring2 구분), 없으면 타입 기반 추측
+            EquipmentSlot targetSlot = currentEquipmentSlot ?? DetermineEquipmentSlot(currentItem);
             
             // ⭐ V2 시스템: ItemInstanceID 기반 해제
             bool success = PlayerDataManager.Instance.UnequipItemV2(targetSlot, currentItemInstanceID);
@@ -1188,7 +1204,7 @@ namespace UI.Popups
                 return;
             }
             
-            EquipmentSlot targetSlot = DetermineEquipmentSlot(currentItem);
+            EquipmentSlot targetSlot = currentEquipmentSlot ?? DetermineEquipmentSlot(currentItem);
             
             // ⭐ 귀속 아이템 삭제 (명예의 전당은 나중에)
             bool success = PlayerDataManager.Instance.UnequipAndDeleteBoundItem(targetSlot, currentItemInstanceID);
@@ -1206,7 +1222,7 @@ namespace UI.Popups
         /// <summary>
         /// ⭐ 귀속 아이템 해제 실행 (캡처된 데이터 사용)
         /// </summary>
-        private void ExecuteUnequipBoundItemWithCapturedData(ItemInstanceID capturedInstanceId)
+        private void ExecuteUnequipBoundItemWithCapturedData(ItemInstanceID capturedInstanceId, EquipmentSlot? capturedSlot = null)
         {
             if (PlayerDataManager.Instance == null || AccountDataManager.Instance == null)
             {
@@ -1230,7 +1246,8 @@ namespace UI.Popups
                 return;
             }
             
-            EquipmentSlot targetSlot = DetermineEquipmentSlot(equipment);
+            // 캡처된 슬롯 우선 사용, 없으면 타입 기반 추측 (Ring1/Ring2 구분 보장)
+            EquipmentSlot targetSlot = capturedSlot ?? DetermineEquipmentSlot(equipment);
             
             // ⭐ 귀속 아이템 삭제
             bool success = PlayerDataManager.Instance.UnequipAndDeleteBoundItem(

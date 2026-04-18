@@ -105,6 +105,9 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         Debug.Log($"🔄 [LobbyInventoryUI] OnEnable() 호출됨 - 인벤토리 새로고침 예약");
         
+        // ⭐ 인벤토리 패널이 열릴 때 장착 슬롯을 항상 해제 가능 모드로 설정
+        equippedItemsUI?.SetReadOnly(false);
+        
         // ⭐ 탭 버튼 상태 업데이트 (장비탭 활성화)
         UpdateTabButtonStates();
         

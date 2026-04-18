@@ -61,6 +61,11 @@ public class LobbyEquippedItemsUI : MonoBehaviour
 
     [Header("🔒 읽기 전용 모드")]
     [SerializeField] private bool isReadOnly = false; // true: 캐릭터 정보창 (읽기 전용), false: 인벤토리창 (읽기/쓰기)
+
+    /// <summary>
+    /// 읽기 전용 모드 설정 (CharacterInfoUI에서 호출)
+    /// </summary>
+    public void SetReadOnly(bool value) => isReadOnly = value;
     
     [Header("📊 디버그")]
     [SerializeField] private bool showDebugLogs = true;
@@ -274,9 +279,9 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             return;
         }
         
-        // ⭐ ReadOnly 컨텍스트로 팝업 열기 (ItemInstanceID는 필요하지 않음, 읽기 전용이므로)
-        // slotIndex는 의미 없으므로 -1 전달
-        popup.Show(equipmentData, ItemDetailContext.ReadOnly, -1, default);
+        // ⭐ ReadOnly 컨텍스트로 팝업 열기 — instanceId가 있어야 V2 동적 스탯(공격력/방어력)이 표시됨
+        ItemInstanceID instanceId = GetItemInstanceIDForSlot(slot);
+        popup.Show(equipmentData, ItemDetailContext.ReadOnly, -1, instanceId);
         
         if (showDebugLogs)
             Debug.Log($"📖 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (읽기 전용)");
@@ -305,8 +310,8 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         // ⭐ ItemInstanceID 가져오기
         ItemInstanceID instanceId = GetItemInstanceIDForSlot(slot);
         
-        // ⭐ Equipment 컨텍스트로 팝업 열기
-        popup.Show(equipmentData, ItemDetailContext.Equipment, -1, instanceId);
+        // ⭐ Equipment 컨텍스트로 팝업 열기 (slot 명시 전달 → Ring1/Ring2 정확히 구분)
+        popup.Show(equipmentData, ItemDetailContext.Equipment, -1, instanceId, slot);
         
         if (showDebugLogs)
             Debug.Log($"🎒 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (해제 모드, ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
