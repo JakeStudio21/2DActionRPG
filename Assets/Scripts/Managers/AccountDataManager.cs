@@ -511,9 +511,7 @@ public class AccountDataManager
     /// </summary>
     public bool RemoveFromMailbox(ItemInstanceID id)
     {
-        bool removed = accountData.mailboxIds.Remove(id);
-        if (removed)
-        return removed;
+        return accountData.mailboxIds.Remove(id);
     }
     
     // ========================================
@@ -862,8 +860,7 @@ public class AccountDataManager
         };
 
 
-        if (result.IsValid)
-        else
+        if (!result.IsValid)
             Debug.LogWarning($"⚠️ [AccountDataManager] 정합성 문제 {result.totalIssues}건 발견");
 
         return result;

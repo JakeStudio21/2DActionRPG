@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Text;
 
@@ -339,7 +339,6 @@ public class StatDebugOverrideWindow : EditorWindow
         if (GUILayout.Button(currentFlag ? "■ ON  (클릭 → OFF)" : "□ OFF (클릭 → ON)", GUILayout.Height(24)))
         {
             CombatFormula._forceDetailedLog = !currentFlag;
-            Debug.Log($"🎯 [StatDebug] CombatFormula 상세 로그: {(CombatFormula._forceDetailedLog ? "✅ 활성" : "❌ 비활성")}");
         }
         GUI.backgroundColor = Color.white;
         EditorGUILayout.EndHorizontal();
@@ -456,10 +455,6 @@ public class StatDebugOverrideWindow : EditorWindow
         };
         
         s.SetDebugBonus(bonus);
-        
-        Debug.Log($"🔧 [StatDebug] 오버라이드 적용 완료 — " +
-                  $"ATK+{_dAtkFlat:F1}(x{1f+_dAtkPercent:F2}), HP+{_dMaxHp:F0}, DEF+{_dDefense:F1}");
-        
         Repaint();
     }
     
@@ -470,7 +465,6 @@ public class StatDebugOverrideWindow : EditorWindow
         _dHpRegen = _dLifeSteal = _dArmorPen = _dDodge = _dBlock = _dExpGain = _dStatusResist = _dPierceRetention = 0f;
         
         s.ClearDebugBonus();
-        Debug.Log("🔧 [StatDebug] 모든 오버라이드 초기화 완료 → PlayerRuntimeStats 재계산");
         Repaint();
     }
     
@@ -533,6 +527,5 @@ public class StatDebugOverrideWindow : EditorWindow
         }
         
         sb.AppendLine("   ====================================================");
-        Debug.Log(sb.ToString());
     }
 }

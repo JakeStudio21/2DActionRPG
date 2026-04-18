@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
@@ -12,10 +12,6 @@ public class CreateMaterialDatabase
     [MenuItem("Tools/Create Material Database")]
     public static void CreateDatabase()
     {
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log("🔧 [CreateMaterialDatabase] MaterialDatabase 생성 시작");
-        Debug.Log("═══════════════════════════════════════════════════════");
-        
         // 1. 폴더 생성
         string dataFolder = "Assets/Resources/Data";
         string materialsFolder = $"{dataFolder}/Materials";
@@ -120,11 +116,9 @@ public class CreateMaterialDatabase
         {
             database = ScriptableObject.CreateInstance<MaterialDatabase>();
             AssetDatabase.CreateAsset(database, databasePath);
-            Debug.Log($"✅ MaterialDatabase 생성: {databasePath}");
         }
         else
         {
-            Debug.Log($"⚠️ MaterialDatabase 이미 존재: {databasePath}");
         }
         
         // 4. MaterialData들을 Database에 등록
@@ -133,11 +127,6 @@ public class CreateMaterialDatabase
         
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log($"✅ MaterialDatabase 생성 완료: {materialDataList.Count}개 재료 등록");
-        Debug.Log("═══════════════════════════════════════════════════════");
-        
         // 5. 검증
         database.ValidateDatabase();
         
@@ -184,12 +173,10 @@ public class CreateMaterialDatabase
             
             AssetDatabase.CreateAsset(data, path);
             EditorUtility.SetDirty(data);
-            Debug.Log($"  ✅ {fileName}.asset 생성 (초기값 설정 완료)");
         }
         else
         {
             // ⏭️ 이미 존재: Inspector에서 수정한 값 유지 (덮어쓰지 않음)
-            Debug.Log($"  ⏭️ {fileName}.asset 이미 존재 (기존 값 유지)");
         }
         
         return data;
@@ -201,7 +188,6 @@ public class CreateMaterialDatabase
         {
             Directory.CreateDirectory(path);
             AssetDatabase.Refresh();
-            Debug.Log($"📁 폴더 생성: {path}");
         }
     }
 }

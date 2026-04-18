@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -192,7 +192,6 @@ public class MinimapNavMeshExtractor : EditorWindow
 
         _statusMessage = $"저장 완료: {savePath}";
         _statusType    = MessageType.Info;
-        Debug.Log($"[MinimapExtractor] {_statusMessage}");
         Repaint();
     }
 
@@ -216,7 +215,6 @@ public class MinimapNavMeshExtractor : EditorWindow
 
         EditorUtility.SetDirty(data);
         AssetDatabase.SaveAssets();
-        Debug.Log($"[MinimapExtractor] MinimapData 저장: {dataPath}");
     }
 
     // ────────────────────────────────────────────────────────────────

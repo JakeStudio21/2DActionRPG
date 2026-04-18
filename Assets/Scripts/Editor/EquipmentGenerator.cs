@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
@@ -598,8 +598,6 @@ public class EquipmentGenerator : EditorWindow
         
         // Asset 생성
         AssetDatabase.CreateAsset(equipment, fullPath);
-        
-        Debug.Log($"✅ [EquipmentGenerator] 생성 완료: {fileName}");
         return true;
     }
     
@@ -909,7 +907,6 @@ public class EquipmentGenerator : EditorWindow
         
         if (sprite != null)
         {
-            Debug.Log($"✅ [SingleFile] 스프라이트 할당 성공: {spriteFileName}");
         }
         else
         {
@@ -1016,7 +1013,6 @@ public class EquipmentGenerator : EditorWindow
         
         if (result != null)
         {
-            Debug.Log($"✅ [{category}] 스프라이트 할당 성공 (이름 패턴): {namePattern}");
             return result;
         }
         
@@ -1027,7 +1023,6 @@ public class EquipmentGenerator : EditorWindow
         
         if (result != null)
         {
-            Debug.Log($"✅ [{category}] 스프라이트 할당 성공 (인덱스 패턴): {indexPattern} (인덱스 {index})");
             return result;
         }
         

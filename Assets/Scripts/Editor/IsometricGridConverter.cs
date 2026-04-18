@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.SceneManagement;
@@ -19,9 +19,6 @@ public class IsometricGridConverter : EditorWindow
     public static void ShowProjectSettings()
     {
         SettingsService.OpenProjectSettings("Project/Graphics");
-        Debug.Log("📋 [IsometricConverter] Graphics 설정을 열었습니다.");
-        Debug.Log("   → Transparency Sort Mode를 'Custom Axis'로 변경하세요.");
-        Debug.Log("   → Transparency Sort Axis를 (0, 1, 0)으로 설정하세요.");
     }
 
     private void OnGUI()
@@ -73,7 +70,6 @@ public class IsometricGridConverter : EditorWindow
                 converted++;
                 
                 EditorUtility.SetDirty(grid);
-                Debug.Log($"🔄 [IsometricConverter] {grid.name} Grid를 Isometric으로 변경했습니다.");
             }
         }
         
@@ -81,8 +77,6 @@ public class IsometricGridConverter : EditorWindow
         {
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
         }
-        
-        Debug.Log($"✅ [IsometricConverter] 현재 씬에서 {converted}개의 Grid를 변환했습니다.");
     }
     
     private void ConvertAllSceneGrids()
@@ -140,9 +134,6 @@ public class IsometricGridConverter : EditorWindow
         {
             EditorSceneManager.OpenScene(currentScenePath);
         }
-        
-        Debug.Log($"🎉 [IsometricConverter] 전체 프로젝트에서 {totalConverted}개의 Grid를 변환했습니다.");
-        
         EditorUtility.DisplayDialog("변환 완료", 
             $"{totalConverted}개의 Grid가 성공적으로 변환되었습니다.", 
             "확인");

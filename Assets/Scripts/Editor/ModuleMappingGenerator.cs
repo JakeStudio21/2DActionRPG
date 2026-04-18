@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
@@ -206,8 +206,6 @@ namespace LevelDesignEditor
                     matchedCount++;
                 }
             }
-
-            Debug.Log($"[MappingGenerator] 스캔 완료: Source {sourcePrefabs.Count}개, Target {targetPrefabs.Count}개, 매칭 {matchedCount}개");
         }
 
         private GameObject FindTargetPrefab(string targetName)
@@ -266,9 +264,6 @@ namespace LevelDesignEditor
             // 저장된 에셋 선택
             EditorGUIUtility.PingObject(mapping);
             Selection.activeObject = mapping;
-
-            Debug.Log($"[MappingGenerator] 매핑 에셋 생성 완료: {assetPath} ({matchedCount}개 매핑)");
-            
             EditorUtility.DisplayDialog(
                 "Success",
                 $"Mapping asset created successfully!\n\n" +

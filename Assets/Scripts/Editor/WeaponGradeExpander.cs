@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
 
@@ -112,7 +112,6 @@ public class WeaponGradeExpander : EditorWindow
             
             // Asset 생성
             AssetDatabase.CreateAsset(newWeapon, fullPath);
-            Debug.Log($"✅ [WeaponGradeExpander] 생성 완료: {fileName}");
             count++;
         }
         

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
 
@@ -45,9 +45,6 @@ public class CreateDismantleRewardData
         AssetDatabase.CreateAsset(data, assetPath);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        
-        Debug.Log($"✅ [CreateDismantleRewardData] 생성 완료: {assetPath}");
-        
         // Inspector에서 선택
         Selection.activeObject = data;
         EditorGUIUtility.PingObject(data);

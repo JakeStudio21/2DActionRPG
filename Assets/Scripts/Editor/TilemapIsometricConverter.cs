@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
@@ -70,11 +70,8 @@ public class TilemapIsometricConverter : EditorWindow
                 converted++;
                 
                 EditorUtility.SetDirty(grid);
-                Debug.Log($"🔄 [TilemapConverter] {grid.name} Grid → Isometric 변환");
             }
         }
-        
-        Debug.Log($"✅ [TilemapConverter] {converted}개 Grid 변환 완료");
     }
     
     /// <summary>
@@ -111,8 +108,6 @@ public class TilemapIsometricConverter : EditorWindow
                 Debug.LogWarning($"⚠️ [TilemapConverter] {tilemap.name}을 Ground Layer로 분류했습니다.");
             }
         }
-        
-        Debug.Log("🗂️ [TilemapConverter] 타일맵 레이어 분리 완료");
     }
     
     /// <summary>
@@ -152,8 +147,6 @@ public class TilemapIsometricConverter : EditorWindow
         
         EditorUtility.SetDirty(tilemap);
         EditorUtility.SetDirty(renderer);
-        
-        Debug.Log($"🌍 [TilemapConverter] {tilemap.name} → Ground Layer 설정 완료");
     }
     
     /// <summary>
@@ -185,8 +178,6 @@ public class TilemapIsometricConverter : EditorWindow
         
         EditorUtility.SetDirty(tilemap);
         EditorUtility.SetDirty(renderer);
-        
-        Debug.Log($"🎨 [TilemapConverter] {tilemap.name} → Decoration Layer 설정 완료");
     }
     
     /// <summary>
@@ -212,8 +203,6 @@ public class TilemapIsometricConverter : EditorWindow
         
         EditorUtility.SetDirty(tilemap);
         EditorUtility.SetDirty(renderer);
-        
-        Debug.Log($"🖼️ [TilemapConverter] {tilemap.name} → Background Layer 설정 완료");
     }
     
     /// <summary>
@@ -222,16 +211,6 @@ public class TilemapIsometricConverter : EditorWindow
     private void SetupSortingLayers()
     {
         // Sorting Layer는 코드로 생성 불가, 수동 안내
-        Debug.Log("📋 [TilemapConverter] Sorting Layer 설정 가이드:");
-        Debug.Log("   1. Edit → Project Settings → Tags & Layers");
-        Debug.Log("   2. Sorting Layers에 추가:");
-        Debug.Log("      - Background (Order: -100)");
-        Debug.Log("      - Ground (Order: 0)");
-        Debug.Log("      - Character (Order: 100)");
-        Debug.Log("      - Decoration (Order: 200)");
-        Debug.Log("      - Effects (Order: 300)");
-        Debug.Log("      - UI (Order: 400)");
-        
         // Project Settings 창 열기
         SettingsService.OpenProjectSettings("Project/Tags and Layers");
     }
@@ -248,9 +227,6 @@ public class TilemapIsometricConverter : EditorWindow
         {
             return;
         }
-        
-        Debug.Log("🚀 [TilemapConverter] 전체 타일맵 변환 시작");
-        
         // 1단계: Grid 변환
         ConvertSceneGrids();
         
@@ -259,10 +235,6 @@ public class TilemapIsometricConverter : EditorWindow
         
         // 3단계: 소팅 레이어 안내
         SetupSortingLayers();
-        
-        Debug.Log("🎉 [TilemapConverter] 전체 변환 완료!");
-        Debug.Log("📝 [TilemapConverter] 다음 단계: 아이소메트릭 타일셋으로 교체 필요");
-        
         EditorUtility.DisplayDialog("변환 완료", 
             "타일맵 변환이 완료되었습니다.\n" +
             "Sorting Layer를 수동으로 설정하고,\n" +

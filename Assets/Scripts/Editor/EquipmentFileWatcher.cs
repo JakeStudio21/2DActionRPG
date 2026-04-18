@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -29,11 +29,9 @@ public class EquipmentFileWatcher
                         window.Reset(); // 안전한 리셋만 수행
                     }
                 }
-                Debug.Log("✅ [Manual] EquipmentDataManager 수동 새로고침 완료");
             }
             else
             {
-                Debug.Log("📭 [Manual] 열린 EquipmentDataManager 창이 없습니다");
             }
         }
         catch (System.Exception ex)
@@ -55,14 +53,11 @@ public class EquipmentFileWatcher
                     window.Close();
                 }
             }
-            Debug.Log($"🔒 [Force] {windows.Length}개 EquipmentDataManager 창 강제 종료");
         }
         
         // 가비지 컬렉션 강제 실행
         System.GC.Collect();
         System.GC.WaitForPendingFinalizers();
         System.GC.Collect();
-        
-        Debug.Log("🧹 [Force] 메모리 정리 완료");
     }
 }

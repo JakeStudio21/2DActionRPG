@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -23,7 +23,6 @@ public class StatBudgetSettingsEditor : Editor
             settings.ParseAllCSVData();
             EditorUtility.SetDirty(settings); // 변경사항 저장
             AssetDatabase.SaveAssets();
-            Debug.Log("✅ [Editor] CSV 파싱 완료! 데이터가 저장되었습니다.");
         }
 
         GUILayout.Space(10);

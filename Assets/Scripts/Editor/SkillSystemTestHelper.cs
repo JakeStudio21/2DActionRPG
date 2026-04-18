@@ -108,14 +108,10 @@ public class SkillSystemTestHelper : EditorWindow
         skillManager = playerObject.GetComponent<PlayerSkillManager>();
         runtimeStats = playerObject.GetComponent<PlayerRuntimeStats>();
         
-        if (skillManager != null)
-            Debug.Log("✅ PlayerSkillManager 발견");
-        else
+        if (skillManager == null)
             Debug.LogWarning("❌ PlayerSkillManager 없음");
         
-        if (runtimeStats != null)
-            Debug.Log("✅ PlayerRuntimeStats 발견");
-        else
+        if (runtimeStats == null)
             Debug.LogWarning("❌ PlayerRuntimeStats 없음");
     }
     
@@ -124,7 +120,6 @@ public class SkillSystemTestHelper : EditorWindow
         if (skillManager == null)
         {
             skillManager = playerObject.AddComponent<PlayerSkillManager>();
-            Debug.Log("✅ PlayerSkillManager 추가됨");
         }
         
         if (runtimeStats == null)
@@ -159,15 +154,12 @@ public class SkillSystemTestHelper : EditorWindow
         if (!skillManager.unlockedPassiveSkills.Exists(s => s.skillData.skillID == passiveData.skillID))
         {
             skillManager.unlockedPassiveSkills.Add(skillInstance);
-            Debug.Log($"✅ '{passiveData.skillName}' 패시브 추가됨 (Lv.1)");
         }
         
         // 패시브 슬롯 0에 장착
         bool equipped = skillManager.EquipPassiveSkill(skillInstance, 0);
         if (equipped)
         {
-            Debug.Log($"✅ '{passiveData.skillName}' 패시브 슬롯 0에 장착됨");
-            Debug.Log($"📊 기대 효과: 공격력 +5% (ATK_PERCENT)");
         }
         
         EditorUtility.SetDirty(skillManager);
@@ -179,15 +171,6 @@ public class SkillSystemTestHelper : EditorWindow
     private void PrintCurrentStats()
     {
         if (runtimeStats == null) return;
-        
-        Debug.Log("📊 ========== 현재 스탯 ==========");
-        Debug.Log($"⚔️ 공격력: {runtimeStats.FinalAttackDamage:F2}");
-        Debug.Log($"🛡️ 방어력: {runtimeStats.FinalDefense:F2}");
-        Debug.Log($"❤️ 최대 체력: {runtimeStats.FinalMaxHealth:F0}");
-        Debug.Log($"🏃 이동속도: {runtimeStats.FinalMoveSpeed:F2}");
-        Debug.Log($"🎯 크리티컬: {runtimeStats.FinalCriticalChance:P1} (x{runtimeStats.FinalCriticalDamage:F1})");
-        Debug.Log($"⚡ 공격속도: {runtimeStats.FinalAttackSpeed:F2}");
-        Debug.Log("================================");
     }
     
     private void ResetTestData()
@@ -203,7 +186,5 @@ public class SkillSystemTestHelper : EditorWindow
         skillManager.usedSP = 0;
         
         EditorUtility.SetDirty(skillManager);
-        
-        Debug.Log("🗑️ 테스트 데이터 초기화 완료");
     }
 }

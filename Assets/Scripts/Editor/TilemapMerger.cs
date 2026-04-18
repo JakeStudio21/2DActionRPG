@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
@@ -204,8 +204,6 @@ namespace LevelDesignEditor
                     totalTileCount += GetTileCount(tilemap);
                 }
             }
-
-            Debug.Log($"[TilemapMerger] 스캔 완료: 모듈 {foundModules.Count}개, Tilemap {tilemapsByLayer.Values.Sum(list => list.Count)}개, 타일 {totalTileCount}개");
         }
 
         private void SearchModulesRecursive(GameObject obj)
@@ -321,9 +319,6 @@ namespace LevelDesignEditor
                         }
                     }
                 }
-
-                Debug.Log($"[TilemapMerger] 레이어 '{layerKey}' 병합 완료: {copiedTileCount}개 타일");
-
                 // CompositeCollider2D 추가
                 if (addCompositeCollider)
                 {
@@ -366,8 +361,6 @@ namespace LevelDesignEditor
                 {
                     Undo.DestroyObjectImmediate(grid);
                 }
-
-                Debug.Log($"[TilemapMerger] 원본 Grid {gridsToDelete.Count}개 삭제");
             }
 
             // 결과 표시
@@ -400,7 +393,6 @@ namespace LevelDesignEditor
             
             if (AssetDatabase.CopyAsset(currentScenePath, backupPath))
             {
-                Debug.Log($"[TilemapMerger] 백업 Scene 생성: {backupPath}");
             }
             else
             {

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using StageSystem;
 using System.IO;
@@ -105,7 +105,6 @@ public class StageConfigGenerator : EditorWindow
         if (autoCreateFolders && !Directory.Exists(outputPath))
         {
             Directory.CreateDirectory(outputPath);
-            Debug.Log($"📁 [Generator] 폴더 생성: {outputPath}");
         }
         
         int totalCreated = 0;
@@ -244,7 +243,6 @@ public class StageConfigGenerator : EditorWindow
                     EditorUtility.CopySerialized(config, existingConfig);
                     EditorUtility.SetDirty(existingConfig);
                     totalUpdated++;
-                    Debug.Log($"🔄 [Generator] 업데이트: {stageId}");
                 }
                 else
                 {
@@ -253,7 +251,6 @@ public class StageConfigGenerator : EditorWindow
                     config.name = Path.GetFileNameWithoutExtension(fileName); // "CH01_ST10_Config"
                     AssetDatabase.CreateAsset(config, fullPath);
                     totalCreated++;
-                    Debug.Log($"✅ [Generator] 생성: {stageId}");
                 }
             }
         }
@@ -270,8 +267,6 @@ public class StageConfigGenerator : EditorWindow
             $"• 총계: {totalCreated + totalUpdated + totalSkipped}/50개";
         
         EditorUtility.DisplayDialog("완료", resultMessage, "OK");
-        
-        Debug.Log($"🎉 [Generator] 작업 완료! 생성: {totalCreated}, 업데이트: {totalUpdated}, 스킵: {totalSkipped}");
     }
     
     private void DeleteAllConfigs()
@@ -299,7 +294,6 @@ public class StageConfigGenerator : EditorWindow
                 {
                     AssetDatabase.DeleteAsset(fullPath);
                     totalDeleted++;
-                    Debug.Log($"🗑️ [Generator] 삭제: {stageId}");
                 }
             }
         }
@@ -307,7 +301,6 @@ public class StageConfigGenerator : EditorWindow
         AssetDatabase.Refresh();
         
         EditorUtility.DisplayDialog("완료", $"{totalDeleted}개 StageConfig 삭제 완료!", "OK");
-        Debug.Log($"🗑️ [Generator] 총 {totalDeleted}개 삭제 완료!");
     }
 }
 

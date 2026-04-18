@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 
@@ -55,10 +55,6 @@ public class IsometricSortingEditor : Editor
         
         if (Application.isPlaying && GUILayout.Button("소팅 정보 로그"))
         {
-            Debug.Log($"📊 [SortingEditor] {sorter.name} 소팅 정보:");
-            Debug.Log($"   - 현재 Order: {sorter.GetCurrentSortingOrder()}");
-            Debug.Log($"   - Y 위치: {sorter.transform.position.y:F2}");
-            Debug.Log($"   - Grid Cell Y: {IsometricSorting.GetGridCellSizeY()}");
         }
     }
 }

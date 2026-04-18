@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using CutsceneSystem;
 using System.IO;
@@ -62,7 +62,6 @@ public class CutsceneDataGenerator : EditorWindow
         if (!Directory.Exists(outputPath))
         {
             Directory.CreateDirectory(outputPath);
-            Debug.Log($"📁 [CutsceneDataGenerator] 폴더 생성: {outputPath}");
         }
         
         int createdCount = 0;
@@ -129,8 +128,6 @@ public class CutsceneDataGenerator : EditorWindow
             "✅ CH01_START\n" +
             "✅ CH01_CLEAR",
             "확인");
-        
-        Debug.Log($"🎉 [CutsceneDataGenerator] 컷신 데이터 생성 완료: {createdCount}개");
     }
     
     /// <summary>
@@ -198,8 +195,6 @@ public class CutsceneDataGenerator : EditorWindow
         
         // 에셋 생성
         AssetDatabase.CreateAsset(cutsceneData, fullPath);
-        
-        Debug.Log($"✅ [CutsceneDataGenerator] 생성: {fileName}");
         return true;
     }
     
@@ -228,7 +223,6 @@ public class CutsceneDataGenerator : EditorWindow
             if (AssetDatabase.DeleteAsset(relativePath))
             {
                 deletedCount++;
-                Debug.Log($"🗑️ [CutsceneDataGenerator] 삭제: {Path.GetFileName(file)}");
             }
         }
         
@@ -237,8 +231,6 @@ public class CutsceneDataGenerator : EditorWindow
         EditorUtility.DisplayDialog("삭제 완료",
             $"컷신 데이터 {deletedCount}개 삭제 완료!",
             "확인");
-        
-        Debug.Log($"✅ [CutsceneDataGenerator] 삭제 완료: {deletedCount}개");
     }
 }
 

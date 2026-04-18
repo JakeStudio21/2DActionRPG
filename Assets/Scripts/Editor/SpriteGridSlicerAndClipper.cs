@@ -1,4 +1,4 @@
-// SpriteGridSlicerAndClipper.cs (UI)
+﻿// SpriteGridSlicerAndClipper.cs (UI)
 // Unity Editor tool — auto-slice 8xN sprite grids and auto-create AnimationClips
 // Put under: Assets/Editor/SpriteGridSlicerAndClipper.cs
 // Menu: Tools ▶ Sprites ▶ Slice 8xN & Create Clips (Window)
@@ -290,8 +290,6 @@ public class SpriteGridSlicerAndClipper : EditorWindow
                 string clipPath = (gridDir + "/Clips/" + clipName).Replace('\\','/');
                 AssetDatabase.CreateAsset(clip, clipPath);
             }
-
-            Debug.Log("[Clips] Created " + byDir.Count + " clips for state '" + state + "' @ " + fps + " FPS.");
         }
     }
 
@@ -342,9 +340,6 @@ public class SpriteGridSlicerAndClipper : EditorWindow
     private static void CreateCombinedClip(List<Sprite> sprites, string sheetPath, string state, int cols, int rows, int fps, HashSet<string> loopSet, int maxFrameCount)
     {
         if (sprites.Count == 0) return;
-        
-        Debug.Log(string.Format("[Sheet Clip] Starting with {0} sprites, Cols:{1}, Rows:{2}", sprites.Count, cols, rows));
-
         // Sort sprites in grid order (row-major: top→bottom, left→right)
         List<Sprite> sortedSprites = new List<Sprite>(sprites);
         sortedSprites.Sort((a, b) => {
@@ -371,7 +366,6 @@ public class SpriteGridSlicerAndClipper : EditorWindow
         if (maxFrameCount > 0 && sortedSprites.Count > maxFrameCount)
         {
             sortedSprites = sortedSprites.GetRange(0, maxFrameCount);
-            Debug.Log(string.Format("[Sheet Clip] Limited to {0} frames (from {1} total)", maxFrameCount, sprites.Count));
         }
 
         // Filter out null/empty sprites
@@ -386,15 +380,12 @@ public class SpriteGridSlicerAndClipper : EditorWindow
         sortedSprites = validSprites;
 
         // Debug: Log final sprite order
-        Debug.Log(string.Format("[Sheet Clip Debug] Final sprites: {0}, Cols: {1}, MaxFrameCount: {2}", sortedSprites.Count, cols, maxFrameCount));
         for (int i = 0; i < Mathf.Min(sortedSprites.Count, 10); i++) // Show first 10
         {
             string dir = ExtractDirToken(sortedSprites[i].name);
             int frame = ExtractFrameNumber(sortedSprites[i].name);
             int row = Array.IndexOf(DIR_ROW_ORDER, dir);
             int gridPos = row * cols + (frame - 1);
-            Debug.Log(string.Format("  [{0:00}] {1} → Dir:{2} Frame:{3} Row:{4} GridPos:{5}", 
-                i, sortedSprites[i].name, dir, frame, row, gridPos));
         }
 
         // Create combined animation clip
@@ -421,7 +412,5 @@ public class SpriteGridSlicerAndClipper : EditorWindow
         string clipName = string.Format("{0}_Sheet.anim", state);
         string clipPath = (gridDir + "/Clips/" + clipName).Replace('\\','/');
         AssetDatabase.CreateAsset(clip, clipPath);
-
-        Debug.Log("[Sheet Clip] Created sheet clip: " + clipName + " with " + sortedSprites.Count + " frames @ " + fps + " FPS.");
     }
 }

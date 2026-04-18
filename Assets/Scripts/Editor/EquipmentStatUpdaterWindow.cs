@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -297,19 +297,13 @@ public class EquipmentStatUpdaterWindow : EditorWindow
 
         // 무기 타입(Bow/Sword/Staff)과 방어구/악세사리를 구분
         string equipmentKey = BalanceCalculator.GetEquipmentKey(targetEquipment);
-        Debug.Log($"🔍 [EquipmentStatUpdater] 장비 키: {equipmentKey}");
-        
         // AllowedStatsPerType 디버깅
         var allowedStatsDict = budgetSettings.AllowedStatsPerType;
-        Debug.Log($"🔍 [EquipmentStatUpdater] AllowedStatsPerType 개수: {allowedStatsDict.Count}");
         foreach (var key in allowedStatsDict.Keys)
         {
-            Debug.Log($"   - Key: '{key}', 스탯 개수: {allowedStatsDict[key].Count}");
         }
         
         allowedStats = BalanceCalculator.GetAllowedStats(equipmentKey, budgetSettings);
-        Debug.Log($"✅ [EquipmentStatUpdater] '{equipmentKey}' 허용 스탯: {allowedStats.Count}개");
-        
         if (allowedStats.Count == 0)
         {
             Debug.LogWarning($"⚠️ [EquipmentStatUpdater] '{equipmentKey}'에 대한 허용 스탯이 없습니다!");
@@ -378,12 +372,6 @@ public class EquipmentStatUpdaterWindow : EditorWindow
         // 변경사항 저장
         EditorUtility.SetDirty(targetEquipment);
         AssetDatabase.SaveAssets();
-
-        Debug.Log($"✅ [EquipmentStatUpdater] {targetEquipment.equipmentName}의 스탯이 업데이트되었습니다!");
-        Debug.Log($"   - 총 예산: {totalBudget}");
-        Debug.Log($"   - 사용 예산: {usedBudget}");
-        Debug.Log($"   - 생성된 스탯: {newStats.Count}개");
-
         EditorUtility.DisplayDialog(
             "스탯 업데이트 완료",
             $"{targetEquipment.equipmentName}의 스탯이 업데이트되었습니다!\n\n" +

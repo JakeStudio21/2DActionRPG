@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using StageSystem;
 using System.IO;
@@ -58,7 +58,6 @@ public class ChapterDataGenerator : EditorWindow
         if (!Directory.Exists(outputPath))
         {
             Directory.CreateDirectory(outputPath);
-            Debug.Log($"📁 [ChapterDataGenerator] 폴더 생성: {outputPath}");
         }
         
         string[] chapterTitles = new string[]
@@ -133,7 +132,6 @@ public class ChapterDataGenerator : EditorWindow
             AssetDatabase.CreateAsset(chapterData, fullPath);
             
             createdCount++;
-            Debug.Log($"✅ [ChapterDataGenerator] 생성: {fileName}");
         }
         
         // AssetDatabase 저장 및 갱신
@@ -144,8 +142,6 @@ public class ChapterDataGenerator : EditorWindow
             $"챕터 데이터 {createdCount}개 생성 완료!\n" +
             $"경로: {outputPath}",
             "확인");
-        
-        Debug.Log($"🎉 [ChapterDataGenerator] 챕터 데이터 생성 완료: {createdCount}개");
     }
     
     /// <summary>
@@ -173,7 +169,6 @@ public class ChapterDataGenerator : EditorWindow
             if (AssetDatabase.DeleteAsset(relativePath))
             {
                 deletedCount++;
-                Debug.Log($"🗑️ [ChapterDataGenerator] 삭제: {Path.GetFileName(file)}");
             }
         }
         
@@ -182,8 +177,6 @@ public class ChapterDataGenerator : EditorWindow
         EditorUtility.DisplayDialog("삭제 완료",
             $"챕터 데이터 {deletedCount}개 삭제 완료!",
             "확인");
-        
-        Debug.Log($"✅ [ChapterDataGenerator] 삭제 완료: {deletedCount}개");
     }
 }
 

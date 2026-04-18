@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
 
@@ -37,9 +37,6 @@ public class SkillSystemSOCreator : EditorWindow
         
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        
-        Debug.Log("✅ 샘플 스킬 SO 생성 완료!");
-        Debug.Log($"   - 위치: {folderPath}");
     }
     
     private static void CreateSpiritResonancePassive(string folderPath)
@@ -49,7 +46,6 @@ public class SkillSystemSOCreator : EditorWindow
         // 이미 존재하면 스킵
         if (File.Exists(assetPath))
         {
-            Debug.Log($"⚠️ '{assetPath}' 이미 존재함. 스킵.");
             return;
         }
         
@@ -77,7 +73,6 @@ public class SkillSystemSOCreator : EditorWindow
         };
         
         AssetDatabase.CreateAsset(passive, assetPath);
-        Debug.Log($"✅ '{passive.skillName}' 패시브 생성됨: {assetPath}");
     }
     
     private static void CreateBasicActiveSkill(string folderPath)
@@ -87,7 +82,6 @@ public class SkillSystemSOCreator : EditorWindow
         // 이미 존재하면 스킵
         if (File.Exists(assetPath))
         {
-            Debug.Log($"⚠️ '{assetPath}' 이미 존재함. 스킵.");
             return;
         }
         
@@ -118,6 +112,5 @@ public class SkillSystemSOCreator : EditorWindow
         active.projectileCount = 3;
         
         AssetDatabase.CreateAsset(active, assetPath);
-        Debug.Log($"✅ '{active.skillName}' 액티브 생성됨: {assetPath}");
     }
 }

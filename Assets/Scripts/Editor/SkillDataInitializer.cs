@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
@@ -12,11 +12,6 @@ public class SkillDataInitializer
     [MenuItem("Tools/Skills/📚 테스트용 스킬 데이터 초기화")]
     public static void InitializeTestSkillData()
     {
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log("📚 테스트용 스킬 데이터 초기화 시작 (Phase 3.5)");
-        Debug.Log("⚠️ 스킬은 이제 캐릭터별로 저장됩니다!");
-        Debug.Log("═══════════════════════════════════════════════════════");
-        
         // PlayerDataManager 초기화
         if (PlayerDataManager.Instance == null)
         {
@@ -64,9 +59,6 @@ public class SkillDataInitializer
             );
             return;
         }
-        
-        Debug.Log($"📂 발견된 스킬 데이터: {allSkills.Length}개");
-        
         int addedCount = 0;
         
         // 모든 스킬을 AccountData에 추가
@@ -82,7 +74,6 @@ public class SkillDataInitializer
             
             if (existing != null)
             {
-                Debug.Log($"   ⚠️ 이미 존재: {skillData.skillName} (스킵)");
                 continue;
             }
             
@@ -95,8 +86,6 @@ public class SkillDataInitializer
             };
             slotData.skills.Add(newSkillSave);
             addedCount++;
-            
-            Debug.Log($"   ✅ 추가: {skillData.skillName} (ID: {skillData.skillID})");
         }
         
         // 테스트용 SP 추가 (레벨 기반)
@@ -106,16 +95,6 @@ public class SkillDataInitializer
         
         // 저장
         playerDataManager.SaveCurrentSlot();
-        
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log($"✅ 테스트용 스킬 데이터 초기화 완료!");
-        Debug.Log($"   - 캐릭터: {slotData.playerName} (슬롯 {slotData.slotIndex})");
-        Debug.Log($"   - 추가된 스킬: {addedCount}개");
-        Debug.Log($"   - 총 스킬: {slotData.skills.Count}개");
-        Debug.Log($"   - SP: {slotData.usedSP}/{slotData.totalSP}");
-        Debug.Log($"   - 레벨: {slotData.level}");
-        Debug.Log("═══════════════════════════════════════════════════════");
-        
         // 결과 다이얼로그
         EditorUtility.DisplayDialog(
             "초기화 완료!",
@@ -161,9 +140,6 @@ public class SkillDataInitializer
         
         // 저장
         PlayerDataManager.Instance.SaveCurrentSlot();
-        
-        Debug.Log($"🗑️ [{slotData.playerName}] 스킬 데이터 {beforeCount}개 삭제 완료");
-        
         EditorUtility.DisplayDialog(
             "삭제 완료",
             $"✅ {beforeCount}개의 스킬이 삭제되었습니다.",
@@ -189,14 +165,8 @@ public class SkillDataInitializer
         
         int activeCount = 0;
         int passiveCount = 0;
-        
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log($"📊 현재 스킬 데이터 - {slotData.playerName} (슬롯 {slotData.slotIndex})");
-        Debug.Log("═══════════════════════════════════════════════════════");
-        
         if (slotData.skills != null)
         {
-            Debug.Log($"\n📋 전체 스킬: {slotData.skills.Count}개");
             foreach (var saveData in slotData.skills)
             {
                 var skill = saveData.ToSkillInstance();
@@ -205,22 +175,14 @@ public class SkillDataInitializer
                     if (skill.IsActiveSkill)
                     {
                         activeCount++;
-                        Debug.Log($"   ⚔️ {skill.skillData.skillName} (Lv.{skill.currentLevel}/{skill.skillData.maxLevel}) {(skill.isEquipped ? "[장착]" : "")}");
                     }
                     else if (skill.IsPassiveSkill)
                     {
                         passiveCount++;
-                        Debug.Log($"   🛡️ {skill.skillData.skillName} (Lv.{skill.currentLevel}/{skill.skillData.maxLevel}) {(skill.isEquipped ? "[장착]" : "")}");
                     }
                 }
             }
         }
-        
-        Debug.Log($"\n💎 SP: {slotData.usedSP}/{slotData.totalSP}");
-        Debug.Log($"🎮 레벨: {slotData.level}");
-        
-        Debug.Log("═══════════════════════════════════════════════════════");
-        
         string message = $"캐릭터: {slotData.playerName}\n\n" +
                         $"⚔️ 액티브 스킬: {activeCount}개\n" +
                         $"🛡️ 패시브 스킬: {passiveCount}개\n\n" +

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using LevelDesign;
@@ -244,8 +244,6 @@ namespace LevelDesignEditor
                     }
                 }
             }
-
-            Debug.Log($"[PrefabReplacer] 스캔 완료: {foundModules.Count}개 발견, {replaceInfos.Count}개 교체 가능");
         }
 
         private void ReplaceModules()
@@ -332,8 +330,6 @@ namespace LevelDesignEditor
                              $"Failed: {failCount}";
 
             EditorUtility.DisplayDialog("Replace Complete", message, "OK");
-            Debug.Log($"[PrefabReplacer] 교체 완료: 성공 {successCount}개, 실패 {failCount}개");
-
             // 재스캔
             hasScanned = false;
             ScanModules();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -57,8 +57,6 @@ public class EquipmentDataManager : EditorWindow
         {
             allEquipmentObjects = new List<EquipmentData>();
         }
-        
-        Debug.Log("✅ [EquipmentDataManager] 기본 초기화 완료 (자동 로드 비활성화)");
     }
 
     private void OnGUI()
@@ -102,7 +100,6 @@ public class EquipmentDataManager : EditorWindow
             headerStyle = new GUIStyle(EditorStyles.boldLabel);
             headerStyle.fontSize = 14;
             buttonStyle = new GUIStyle(GUI.skin.button);
-            Debug.Log("✅ [EquipmentDataManager] UI 스타일 초기화 완료");
         }
         catch (System.Exception ex)
         {
@@ -494,8 +491,6 @@ public class EquipmentDataManager : EditorWindow
         
         try
         {
-            Debug.Log("🔄 [Reset] 시스템 초기화 시작");
-            
             selectedItemIndex = -1;
             searchFilter = "";
             autoDetected = false;
@@ -515,8 +510,6 @@ public class EquipmentDataManager : EditorWindow
             allEquipmentObjects = new List<EquipmentData>();
             
             Repaint();
-            
-            Debug.Log("✅ [Reset] 시스템 초기화 완료");
         }
         catch (System.Exception ex)
         {
@@ -528,8 +521,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log("🔍 [Auto-Detect] JSON 파일 자동 감지 시작");
-            
             sheetFilePaths.Clear();
             
             if (!Directory.Exists(jsonFolderPath))
@@ -539,8 +530,6 @@ public class EquipmentDataManager : EditorWindow
             }
             
             string[] jsonFiles = Directory.GetFiles(jsonFolderPath, "*.json", SearchOption.TopDirectoryOnly);
-            Debug.Log($"🔍 [Auto-Detect] 찾은 JSON 파일 수: {jsonFiles.Length}개");
-            
             foreach (string filePath in jsonFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
@@ -551,11 +540,6 @@ public class EquipmentDataManager : EditorWindow
                 {
                     unityPath = "Assets" + unityPath.Substring(Application.dataPath.Length);
                 }
-                
-                Debug.Log($"🔍 [Auto-Detect] 처리 중: {fileName}");
-                Debug.Log($"🔍 [Auto-Detect] 원본 경로: {filePath}");
-                Debug.Log($"🔍 [Auto-Detect] Unity 경로: {unityPath}");
-                
                 // AssetDatabase로 파일 존재 확인
                 TextAsset testAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(unityPath);
                 if (testAsset == null)
@@ -563,18 +547,14 @@ public class EquipmentDataManager : EditorWindow
                     Debug.LogWarning($"⚠️ [Auto-Detect] AssetDatabase에서 로드 실패: {unityPath}");
                     continue;
                 }
-                Debug.Log($"✅ [Auto-Detect] AssetDatabase 로드 성공: {unityPath}");
-                
                 string sheetName = InferSheetNameFromFileName(fileName);
                 if (!string.IsNullOrEmpty(sheetName))
                 {
                     sheetFilePaths[sheetName] = unityPath;
-                    Debug.Log($"✅ [Auto-Detect] 매핑: {sheetName} ← {fileName} → {unityPath}");
                 }
             }
             
             autoDetected = true;
-            Debug.Log($"✅ [Auto-Detect] 완료: {sheetFilePaths.Count}개 파일 감지");
             Repaint();
         }
         catch (System.Exception ex)
@@ -591,16 +571,10 @@ public class EquipmentDataManager : EditorWindow
         
         try
         {
-            Debug.Log("📥 [LoadJSON] JSON 데이터 로드 시작");
-            
             if (!autoDetected)
             {
-                Debug.Log("🔍 [LoadJSON] Auto-Detect가 실행되지 않았으므로 먼저 실행합니다.");
                 AutoDetectJsonFiles();
             }
-            
-            Debug.Log($"🔍 [LoadJSON] 감지된 파일 수: {sheetFilePaths.Count}개");
-            
             if (sheetFilePaths.Count == 0)
             {
                 Debug.LogWarning("⚠️ [LoadJSON] 감지된 JSON 파일이 없습니다");
@@ -610,7 +584,6 @@ public class EquipmentDataManager : EditorWindow
             // 감지된 파일들 출력
             foreach (var file in sheetFilePaths)
             {
-                Debug.Log($"📁 [LoadJSON] 감지된 파일: {file.Key} → {file.Value}");
             }
             
             jsonData = new EquipmentJsonData();
@@ -620,18 +593,12 @@ public class EquipmentDataManager : EditorWindow
             {
                 string sheetName = sheet.Key;
                 string filePath = sheet.Value;
-                
-                Debug.Log($"🔄 [LoadJSON] 처리 중: {sheetName} ← {filePath}");
-                
                 // 🔧 Unity 방식으로 파일 읽기
                 if (!File.Exists(filePath))
                 {
                     Debug.LogError($"❌ [LoadJSON] 파일이 존재하지 않습니다: {filePath}");
                     continue;
                 }
-                
-                Debug.Log($"✅ [LoadJSON] 파일 존재 확인: {filePath}");
-                
                 try
                 {
                     // 🔧 Unity AssetDatabase 방식으로 읽기
@@ -644,12 +611,9 @@ public class EquipmentDataManager : EditorWindow
                     }
                     
                     string content = jsonAsset.text;
-                    Debug.Log($"✅ [LoadJSON] 파일 읽기 성공: {content.Length}자");
-                    
                     if (LoadSheetData(sheetName, content))
                     {
                         loadedSheets++;
-                        Debug.Log($"✅ [LoadJSON] {sheetName} 로드 성공!");
                     }
                     else
                     {
@@ -661,21 +625,11 @@ public class EquipmentDataManager : EditorWindow
                     Debug.LogError($"❌ [LoadJSON] {sheetName} 처리 중 예외: {ex.Message}");
                 }
             }
-            
-            Debug.Log($"✅ [LoadJSON] 완료: {loadedSheets}/{sheetFilePaths.Count}개 파일");
-            
             // 로드 결과 출력
             int totalItems = (jsonData.WeaponBaseTable?.Count ?? 0) +
                             (jsonData.MeleeWeaponTable?.Count ?? 0) +
                             (jsonData.ProjectileWeaponTable?.Count ?? 0) +
                             (jsonData.ProjectileDataTable?.Count ?? 0);
-            
-            Debug.Log($"📊 [LoadJSON] 총 {totalItems}개 아이템 로드됨");
-            Debug.Log($"📊 [LoadJSON] WeaponBase: {jsonData.WeaponBaseTable?.Count ?? 0}개");
-            Debug.Log($"📊 [LoadJSON] MeleeWeapon: {jsonData.MeleeWeaponTable?.Count ?? 0}개");
-            Debug.Log($"📊 [LoadJSON] ProjectileWeapon: {jsonData.ProjectileWeaponTable?.Count ?? 0}개");
-            Debug.Log($"📊 [LoadJSON] ProjectileData: {jsonData.ProjectileDataTable?.Count ?? 0}개");
-            
             Repaint();
         }
         catch (System.Exception ex)
@@ -697,8 +651,6 @@ public class EquipmentDataManager : EditorWindow
         
         try
         {
-            Debug.Log("🔄 [RefreshUnity] Unity 장비 객체 새로고침 시작");
-            
             if (allEquipmentObjects == null)
                 allEquipmentObjects = new List<EquipmentData>();
             
@@ -719,9 +671,6 @@ public class EquipmentDataManager : EditorWindow
                     allEquipmentObjects.Add(equipment);
                 }
             }
-            
-            Debug.Log($"✅ [RefreshUnity] {allEquipmentObjects.Count}개 장비 객체 로드됨");
-            
             selectedItemIndex = -1; // 선택 초기화
             Repaint();
         }
@@ -745,8 +694,6 @@ public class EquipmentDataManager : EditorWindow
         
         try
         {
-            Debug.Log("🏭 [Generate] JSON에서 Unity 객체 생성 시작");
-            
             int createdCount = 0;
             
             foreach (var weaponBase in jsonData.WeaponBaseTable)
@@ -766,8 +713,6 @@ public class EquipmentDataManager : EditorWindow
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             RefreshEquipmentObjects();
-            
-            Debug.Log($"✅ [Generate] {createdCount}개 장비 생성/업데이트 완료");
         }
         catch (System.Exception ex)
         {
@@ -829,32 +774,24 @@ public class EquipmentDataManager : EditorWindow
 
     private string InferSheetNameFromFileName(string fileName)
     {
-        Debug.Log($"🔍 [InferSheetName] 입력 파일명: '{fileName}'");
-        
         string lowerFileName = fileName.ToLower();
-        Debug.Log($"🔍 [InferSheetName] 소문자 변환: '{lowerFileName}'");
-        
         if (lowerFileName.Contains("weaponbasetable") || lowerFileName.Contains("weaponbase"))
         {
-            Debug.Log($"✅ [InferSheetName] WeaponBaseTable로 매핑됨");
             return "WeaponBaseTable";
         }
         
         if (lowerFileName.Contains("meleeweapontable") || lowerFileName.Contains("meleeweapon"))
         {
-            Debug.Log($"✅ [InferSheetName] MeleeWeaponTable로 매핑됨");
             return "MeleeWeaponTable";
         }
         
         if (lowerFileName.Contains("projectileweapontable") || lowerFileName.Contains("projectileweapon"))
         {
-            Debug.Log($"✅ [InferSheetName] ProjectileWeaponTable로 매핑됨");
             return "ProjectileWeaponTable";
         }
         
         if (lowerFileName.Contains("projectiledatatable") || lowerFileName.Contains("projectiledata"))
         {
-            Debug.Log($"✅ [InferSheetName] ProjectileDataTable로 매핑됨");
             return "ProjectileDataTable";
         }
         
@@ -866,30 +803,22 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($"🔄 [LoadSheetData] 시작: {sheetName}");
-            Debug.Log($"🔄 [LoadSheetData] switch문 진입 전");
-            
             switch (sheetName)
             {
                 case "WeaponBaseTable":
-                    Debug.Log("🎯 [LoadSheetData] WeaponBaseTable case 선택됨");
                     return LoadWeaponBaseTable(content);
                     
                 case "MeleeWeaponTable":
-                    Debug.Log("🎯 [LoadSheetData] MeleeWeaponTable case 선택됨");
                     return LoadMeleeWeaponTable(content);
                     
                 case "ProjectileWeaponTable":
-                    Debug.Log("🎯 [LoadSheetData] ProjectileWeaponTable case 선택됨");
                     return LoadProjectileWeaponTable(content);
                     
                 case "ProjectileDataTable":
-                    Debug.Log("🎯 [LoadSheetData] ProjectileDataTable case 선택됨");
                     return LoadProjectileDataTable(content);
                     
                 default:
                     Debug.LogWarning($"⚠️ [LoadSheetData] 알 수 없는 시트: '{sheetName}'");
-                    Debug.Log($"🔍 [LoadSheetData] 가능한 값들: WeaponBaseTable, MeleeWeaponTable, ProjectileWeaponTable, ProjectileDataTable");
                     return false;
             }
         }
@@ -905,13 +834,7 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($" [WeaponBase] JSON 파싱 시작");
-            Debug.Log($"🔍 [WeaponBase] 파일 크기: {content.Length} 문자");
-            Debug.Log($"🔍 [WeaponBase] 첫 200자: {content.Substring(0, Math.Min(200, content.Length))}");
-            
             // 🔧 단계별 디버깅
-            Debug.Log("🔧 [WeaponBase] JsonUtility.FromJson 시도 중...");
-            
             var wrapper = JsonUtility.FromJson<WeaponBaseTableWrapper>(content);
             
             if (wrapper == null)
@@ -919,12 +842,10 @@ public class EquipmentDataManager : EditorWindow
                 Debug.LogError("❌ [WeaponBase] JsonUtility.FromJson이 null을 반환했습니다!");
                 
                 // 🔧 테스트: 간단한 JSON으로 시도
-                Debug.Log("🔧 [WeaponBase] 테스트용 간단한 JSON으로 시도...");
                 string testJson = "{\"WeaponBaseTable\":[{\"ItemID\":\"TEST\",\"EquipmentName\":\"Test\"}]}";
                 var testWrapper = JsonUtility.FromJson<WeaponBaseTableWrapper>(testJson);
                 if (testWrapper != null)
                 {
-                    Debug.Log("✅ [WeaponBase] 테스트 JSON은 성공했습니다. 원본 JSON에 문제가 있을 수 있습니다.");
                 }
                 else
                 {
@@ -932,22 +853,15 @@ public class EquipmentDataManager : EditorWindow
                 }
                 return false;
             }
-            
-            Debug.Log($"✅ [WeaponBase] JsonUtility.FromJson 성공!");
-            
             if (wrapper.WeaponBaseTable == null)
             {
                 Debug.LogError("❌ [WeaponBase] wrapper.WeaponBaseTable이 null입니다!");
                 return false;
             }
-            
-            Debug.Log($"✅ [WeaponBase] 배열 파싱 성공! 총 {wrapper.WeaponBaseTable.Length}개 아이템");
-            
             // 첫 번째 아이템 디버깅
             if (wrapper.WeaponBaseTable.Length > 0)
             {
                 var firstItem = wrapper.WeaponBaseTable[0];
-                Debug.Log($"🔍 [WeaponBase] 첫 번째 아이템: ItemID={firstItem.ItemID}, EquipmentName={firstItem.EquipmentName}");
             }
             
             // 🔧 완전한 타입 정보 제거 로직
@@ -960,22 +874,15 @@ public class EquipmentDataManager : EditorWindow
                 !item.ItemID.ToLower().Contains("float") &&   // 안전장치
                 !item.ItemID.ToLower().Contains("enum") &&    // 안전장치
                 item.ItemID.StartsWith("ITEM_")).ToList();
-            
-            Debug.Log($"🔍 [WeaponBase] 필터링 결과: {validData.Count}개 유효한 아이템");
-            
             if (validData.Count == 0)
             {
                 Debug.LogWarning("⚠️ [WeaponBase] 필터링 후 유효한 데이터가 없습니다!");
-                Debug.Log("🔍 [WeaponBase] 필터 조건을 확인합니다...");
-                
                 foreach (var item in wrapper.WeaponBaseTable.Take(3))
                 {
-                    Debug.Log($"   - ItemID: '{item.ItemID}' (isEmpty: {string.IsNullOrEmpty(item.ItemID)}, isString: {item.ItemID == "string"}, startsWithITEM: {item.ItemID?.StartsWith("ITEM_")})");
                 }
             }
             
             jsonData.WeaponBaseTable = validData;
-            Debug.Log($"✅ [WeaponBase] {validData.Count}개 로드 성공!");
             return validData.Count > 0;
         }
         catch (System.Exception ex)
@@ -990,8 +897,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($"🔍 [MeleeWeapon] JSON 내용 확인 (첫 100자): {content.Substring(0, Math.Min(100, content.Length))}...");
-            
             // 🔧 객체 형태 파싱: {"MeleeWeaponTable": [...]}
             var wrapper = JsonUtility.FromJson<MeleeWeaponTableWrapper>(content);
             if (wrapper != null && wrapper.MeleeWeaponTable != null && wrapper.MeleeWeaponTable.Length > 0)
@@ -1002,7 +907,6 @@ public class EquipmentDataManager : EditorWindow
                     item.ItemID.StartsWith("ITEM_")).ToList();
                 
                 jsonData.MeleeWeaponTable = validData;
-                Debug.Log($"✅ [MeleeWeapon] {validData.Count}개 로드 성공 (전체 {wrapper.MeleeWeaponTable.Length}개에서 필터링)");
                 return validData.Count > 0;
             }
             else
@@ -1023,8 +927,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($"🔍 [ProjectileWeapon] JSON 내용 확인 (첫 100자): {content.Substring(0, Math.Min(100, content.Length))}...");
-            
             // 🔧 객체 형태 파싱: {"ProjectileWeaponTable": [...]}
             var wrapper = JsonUtility.FromJson<ProjectileWeaponTableWrapper>(content);
             if (wrapper != null && wrapper.ProjectileWeaponTable != null && wrapper.ProjectileWeaponTable.Length > 0)
@@ -1035,7 +937,6 @@ public class EquipmentDataManager : EditorWindow
                     item.ItemID.StartsWith("ITEM_")).ToList();
                 
                 jsonData.ProjectileWeaponTable = validData;
-                Debug.Log($"✅ [ProjectileWeapon] {validData.Count}개 로드 성공 (전체 {wrapper.ProjectileWeaponTable.Length}개에서 필터링)");
                 return validData.Count > 0;
             }
             else
@@ -1056,8 +957,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($"🔍 [ProjectileData] JSON 내용 확인 (첫 100자): {content.Substring(0, Math.Min(100, content.Length))}...");
-            
             // 🔧 객체 형태 파싱: {"ProjectileDataTable": [...]}
             var wrapper = JsonUtility.FromJson<ProjectileDataTableWrapper>(content);
             if (wrapper != null && wrapper.ProjectileDataTable != null && wrapper.ProjectileDataTable.Length > 0)
@@ -1068,7 +967,6 @@ public class EquipmentDataManager : EditorWindow
                     item.ProjectileId.StartsWith("ITEM_")).ToList();
                 
                 jsonData.ProjectileDataTable = validData;
-                Debug.Log($"✅ [ProjectileData] {validData.Count}개 로드 성공 (전체 {wrapper.ProjectileDataTable.Length}개에서 필터링)");
                 return validData.Count > 0;
             }
             else
@@ -1114,8 +1012,6 @@ public class EquipmentDataManager : EditorWindow
                 allEquipmentObjects = new List<EquipmentData>();
             
             allEquipmentObjects.Add(newEquipment);
-            
-            Debug.Log($"🆕 [Create] 새 장비 생성: {itemID}");
             return newEquipment;
         }
         catch (System.Exception ex)
@@ -1173,7 +1069,6 @@ public class EquipmentDataManager : EditorWindow
         {
             ApplyJsonToEquipment(weaponBase, equipment);
             EditorUtility.SetDirty(equipment);
-            Debug.Log($"🔄 [Sync] {equipment.itemID} 동기화 완료");
         }
         else
         {
@@ -1192,8 +1087,6 @@ public class EquipmentDataManager : EditorWindow
         // 🆕 Update JSON 실행 전 최신 JSON 데이터 로드
         if (jsonData == null || jsonData.WeaponBaseTable == null || jsonData.WeaponBaseTable.Count == 0)
         {
-            Debug.Log("�� [UpdateJSON] JSON 데이터가 없어서 자동 로드를 실행합니다.");
-            
             // Auto-Detect가 실행되지 않았다면 먼저 실행
             if (sheetFilePaths.Count == 0)
             {
@@ -1213,14 +1106,6 @@ public class EquipmentDataManager : EditorWindow
 
         try
         {
-            Debug.Log($"📤 [UpdateJSON] {equipment.itemID} JSON 업데이트 시작");
-            Debug.Log($"🔍 [UpdateJSON] 장비 정보 확인:");
-            Debug.Log($"   - equipmentName: {equipment.equipmentName}");
-            Debug.Log($"   - equipmentPrefab: {(equipment.equipmentPrefab != null ? equipment.equipmentPrefab.name : "null")}");
-            Debug.Log($"   - icon: {(equipment.icon != null ? equipment.icon.name : "null")}");
-            Debug.Log($"   - IsWeapon: {equipment.IsWeapon}");
-            Debug.Log($"   - IsSword: {equipment.IsSword}");
-
             bool updated = false;
 
             // 1. WeaponBaseTable 업데이트
@@ -1243,7 +1128,6 @@ public class EquipmentDataManager : EditorWindow
             {
                 // 3. JSON 파일에 저장
                 SaveUpdatedJsonData();
-                Debug.Log($"✅ [UpdateJSON] {equipment.itemID} JSON 업데이트 완료");
             }
             else
             {
@@ -1271,7 +1155,6 @@ public class EquipmentDataManager : EditorWindow
         {
             // 기존 항목 업데이트
             UpdateWeaponBaseDataFromEquipment(existingEntry, equipment);
-            Debug.Log($"🔄 [UpdateJSON] WeaponBaseTable 기존 항목 업데이트: {equipment.itemID}");
             return true;
         }
         else
@@ -1279,7 +1162,6 @@ public class EquipmentDataManager : EditorWindow
             // 새 항목 추가
             var newEntry = CreateWeaponBaseDataFromEquipment(equipment);
             jsonData.WeaponBaseTable.Add(newEntry);
-            Debug.Log($"🆕 [UpdateJSON] WeaponBaseTable 새 항목 추가: {equipment.itemID}");
             return true;
         }
     }
@@ -1296,14 +1178,12 @@ public class EquipmentDataManager : EditorWindow
         if (existingEntry != null)
         {
             UpdateMeleeWeaponDataFromEquipment(existingEntry, equipment);
-            Debug.Log($"🔄 [UpdateJSON] MeleeWeaponTable 기존 항목 업데이트: {equipment.itemID}");
             return true;
         }
         else
         {
             var newEntry = CreateMeleeWeaponDataFromEquipment(equipment);
             jsonData.MeleeWeaponTable.Add(newEntry);
-            Debug.Log($"🆕 [UpdateJSON] MeleeWeaponTable 새 항목 추가: {equipment.itemID}");
             return true;
         }
     }
@@ -1320,14 +1200,12 @@ public class EquipmentDataManager : EditorWindow
         if (existingEntry != null)
         {
             UpdateProjectileWeaponDataFromEquipment(existingEntry, equipment);
-            Debug.Log($"🔄 [UpdateJSON] ProjectileWeaponTable 기존 항목 업데이트: {equipment.itemID}");
             return true;
         }
         else
         {
             var newEntry = CreateProjectileWeaponDataFromEquipment(equipment);
             jsonData.ProjectileWeaponTable.Add(newEntry);
-            Debug.Log($"🆕 [UpdateJSON] ProjectileWeaponTable 새 항목 추가: {equipment.itemID}");
             return true;
         }
     }
@@ -1336,8 +1214,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log("💾 [SaveJSON] JSON 파일 저장 시작");
-
             int savedFiles = 0;
 
             // 각 테이블별로 개별 파일에 저장
@@ -1353,7 +1229,6 @@ public class EquipmentDataManager : EditorWindow
                     {
                         SaveSheetToFile(sheetName, sheetData, filePath);
                         savedFiles++;
-                        Debug.Log($"✅ [SaveJSON] {sheetName} 저장 완료: {filePath}");
                     }
                     catch (System.Exception ex)
                     {
@@ -1364,7 +1239,6 @@ public class EquipmentDataManager : EditorWindow
 
             // AssetDatabase 갱신
             AssetDatabase.Refresh();
-            Debug.Log($"✅ [SaveJSON] 전체 저장 완료: {savedFiles}개 파일");
         }
         catch (System.Exception ex)
         {
@@ -1376,8 +1250,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($"💾 [SaveSheet] {sheetName} 저장 시작: {filePath}");
-            
             // 새로운 JSON 생성 (List를 Array로 변환 필요!)
             string newJsonContent = "";
             switch (sheetName)
@@ -1410,7 +1282,6 @@ public class EquipmentDataManager : EditorWindow
             System.IO.File.WriteAllText(absolutePath, newJsonContent, System.Text.Encoding.UTF8);
             
             AssetDatabase.Refresh();
-            Debug.Log($"✅ [SaveSheet] {sheetName} 저장 완료");
         }
         catch (System.Exception ex)
         {
@@ -1422,8 +1293,6 @@ public class EquipmentDataManager : EditorWindow
     {
         try
         {
-            Debug.Log($"🔧 [FormatJSON] 엑셀 스타일로 변환 중...");
-            
             string result = jsonContent;
             
             // 1. 정수 필드: .0 제거 (20.0 → 20)
@@ -1450,8 +1319,6 @@ public class EquipmentDataManager : EditorWindow
                     return match.Value;
                 }
             );
-            
-            Debug.Log($"✅ [FormatJSON] 엑셀 스타일 변환 완료");
             return result;
         }
         catch (System.Exception ex)
@@ -1481,14 +1348,11 @@ public class EquipmentDataManager : EditorWindow
     // Unity 객체 → JSON 데이터 변환 메서드들 (안전한 버전)
     private WeaponBaseData CreateWeaponBaseDataFromEquipment(EquipmentData equipment)
     {
-        Debug.Log($"🔄 [CreateWeaponBase] {equipment.itemID} 변환 시작");
-        
         // null 체크 및 안전한 변환
         string equipmentPrefabName = "";
         if (equipment.equipmentPrefab != null)
         {
             equipmentPrefabName = equipment.equipmentPrefab.name + ".prefab";
-            Debug.Log($"🔄 [CreateWeaponBase] equipmentPrefab: {equipmentPrefabName}");
         }
         else
         {
@@ -1499,7 +1363,6 @@ public class EquipmentDataManager : EditorWindow
         if (equipment.icon != null)
         {
             iconName = equipment.icon.name + ".png";
-            Debug.Log($"🔄 [CreateWeaponBase] icon: {iconName}");
         }
         else
         {
@@ -1530,8 +1393,6 @@ public class EquipmentDataManager : EditorWindow
 
     private void UpdateWeaponBaseDataFromEquipment(WeaponBaseData target, EquipmentData source)
     {
-        Debug.Log($"🔄 [UpdateWeaponBase] {source.itemID} 업데이트 시작");
-        
         target.EquipmentName = source.equipmentName ?? "";
         target.WeaponType = source.WeaponType.ToString();
         target.AttackType = source.IsSword ? "Melee" : "Ranged";
@@ -1551,7 +1412,6 @@ public class EquipmentDataManager : EditorWindow
         if (source.equipmentPrefab != null)
         {
             target.EquipmentPrefab = source.equipmentPrefab.name + ".prefab";
-            Debug.Log($"🔄 [UpdateWeaponBase] equipmentPrefab 업데이트: {target.EquipmentPrefab}");
         }
         else
         {
@@ -1563,7 +1423,6 @@ public class EquipmentDataManager : EditorWindow
         if (source.icon != null)
         {
             target.Icon = source.icon.name + ".png";
-            Debug.Log($"🔄 [UpdateWeaponBase] icon 업데이트: {target.Icon}");
         }
         else
         {
@@ -1574,8 +1433,6 @@ public class EquipmentDataManager : EditorWindow
 
     private MeleeWeaponData CreateMeleeWeaponDataFromEquipment(EquipmentData equipment)
     {
-        Debug.Log($"🔄 [CreateMeleeWeapon] {equipment.itemID} 변환 시작");
-        
         return new MeleeWeaponData
         {
             ItemID = equipment.itemID ?? "",
@@ -1591,8 +1448,6 @@ public class EquipmentDataManager : EditorWindow
 
     private void UpdateMeleeWeaponDataFromEquipment(MeleeWeaponData target, EquipmentData source)
     {
-        Debug.Log($"🔄 [UpdateMeleeWeapon] {source.itemID} 업데이트 시작");
-        
         target.Cooldown = source.WeaponCooldown;
         target.AttackDamage = source.attackDamage;
         target.AttackSpeed = source.attackSpeed;
@@ -1604,8 +1459,6 @@ public class EquipmentDataManager : EditorWindow
 
     private ProjectileWeaponData CreateProjectileWeaponDataFromEquipment(EquipmentData equipment)
     {
-        Debug.Log($"🔄 [CreateProjectileWeapon] {equipment.itemID} 변환 시작");
-        
         return new ProjectileWeaponData
         {
             ItemID = equipment.itemID ?? "",
@@ -1618,8 +1471,6 @@ public class EquipmentDataManager : EditorWindow
 
     private void UpdateProjectileWeaponDataFromEquipment(ProjectileWeaponData target, EquipmentData source)
     {
-        Debug.Log($"🔄 [UpdateProjectileWeapon] {source.itemID} 업데이트 시작");
-        
         target.ProjectileId = source.projectileId ?? "";
         target.criticalChance = source.criticalChance;
         target.criticalDamage = source.criticalDamage;

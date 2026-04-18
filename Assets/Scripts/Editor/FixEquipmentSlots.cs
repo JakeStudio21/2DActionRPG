@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -31,7 +31,6 @@ public class FixEquipmentSlots : EditorWindow
                 {
                     equipment.equipmentSlot = correctSlot;
                     needsFix = true;
-                    Debug.Log($"✅ [Fix] {equipment.equipmentName}: {equipment.ArmorType} → {correctSlot}");
                 }
             }
             // Weapon 타입인 경우 MainWeapon으로 설정
@@ -41,7 +40,6 @@ public class FixEquipmentSlots : EditorWindow
                 {
                     equipment.equipmentSlot = EquipmentSlot.MainWeapon;
                     needsFix = true;
-                    Debug.Log($"✅ [Fix] {equipment.equipmentName}: Weapon → MainWeapon");
                 }
             }
             // Accessory 타입인 경우 AccessoryType에 맞게 슬롯 설정
@@ -52,7 +50,6 @@ public class FixEquipmentSlots : EditorWindow
                 {
                     equipment.equipmentSlot = correctSlot;
                     needsFix = true;
-                    Debug.Log($"✅ [Fix] {equipment.equipmentName}: {equipment.AccessoryType} → {correctSlot}");
                 }
             }
 
@@ -64,11 +61,6 @@ public class FixEquipmentSlots : EditorWindow
         }
 
         AssetDatabase.SaveAssets();
-        Debug.Log($"========================================");
-        Debug.Log($"✅ [Fix Equipment Slots] 완료!");
-        Debug.Log($"   수정된 장비: {fixedCount}개");
-        Debug.Log($"========================================");
-
         EditorUtility.DisplayDialog(
             "슬롯 자동 수정 완료",
             $"{fixedCount}개의 장비 슬롯이 수정되었습니다!",

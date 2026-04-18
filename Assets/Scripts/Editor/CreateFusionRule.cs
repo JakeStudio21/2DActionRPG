@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using Systems;
 
@@ -34,8 +34,6 @@ public static class CreateFusionRule
         AssetDatabase.CreateAsset(asset, fullPath);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-
-        Debug.Log($"✨ [CreateFusionRule] FusionRule 에셋 생성 완료: {fullPath}");
     }
 }
 

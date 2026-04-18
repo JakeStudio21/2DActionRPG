@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace LevelDesignEditor
@@ -77,7 +77,6 @@ namespace LevelDesignEditor
             {
                 colliderMapObj = new GameObject(colliderMapName);
                 Undo.RegisterCreatedObjectUndo(colliderMapObj, "Create ColliderMap");
-                Debug.Log($"[CompositeColliderSetup] ColliderMap 생성: {colliderMapName}");
             }
             else if (colliderMapObj == null)
             {
@@ -97,7 +96,6 @@ namespace LevelDesignEditor
                 rb = colliderMapObj.AddComponent<Rigidbody2D>();
                 rb.bodyType = RigidbodyType2D.Static;
                 Undo.RegisterCreatedObjectUndo(rb, "Add Rigidbody2D");
-                Debug.Log("[CompositeColliderSetup] Rigidbody2D 추가 (Static)");
             }
 
             // CompositeCollider2D 확인/추가
@@ -107,7 +105,6 @@ namespace LevelDesignEditor
                 compositeCollider = colliderMapObj.AddComponent<CompositeCollider2D>();
                 compositeCollider.geometryType = geometryType;
                 Undo.RegisterCreatedObjectUndo(compositeCollider, "Add CompositeCollider2D");
-                Debug.Log($"[CompositeColliderSetup] CompositeCollider2D 추가 (GeometryType: {geometryType})");
             }
 
             // Scene의 모든 루트 오브젝트 검색
@@ -130,8 +127,6 @@ namespace LevelDesignEditor
                              $"Colliders: {colliderCount}";
 
             EditorUtility.DisplayDialog("Setup Complete", message, "OK");
-            Debug.Log($"[CompositeColliderSetup] 설정 완료: 모듈 {moduleCount}개, 콜라이더 {colliderCount}개");
-
             // ColliderMap 선택
             Selection.activeGameObject = colliderMapObj;
             EditorGUIUtility.PingObject(colliderMapObj);

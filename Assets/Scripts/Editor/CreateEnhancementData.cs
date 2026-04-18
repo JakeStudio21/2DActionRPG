@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using Systems;
 
@@ -56,8 +56,6 @@ public static class CreateEnhancementData
         AssetDatabase.CreateAsset(asset, fullPath);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-
-        Debug.Log($"✨ [CreateEnhancementData] EnhancementData 에셋 생성 완료: {fullPath}");
     }
 }
 

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -19,8 +19,6 @@ namespace StageSystem
         [UnityEditor.MenuItem("Tools/Stage System/Generate All Stage Pool Configs")]
         public static void GenerateAllStagePoolConfigs()
         {
-            Debug.Log("🔧 [StagePoolConfigGenerator] 모든 스테이지 풀 설정 자동 생성 시작...");
-            
             // Resources/Stages/Configs에서 모든 스테이지 찾기
             StageConfig[] allStageConfigs = Resources.LoadAll<StageConfig>("Stages/Configs");
             
@@ -35,7 +33,6 @@ namespace StageSystem
                     if (success)
                     {
                         successCount++;
-                        Debug.Log($"✅ [StagePoolConfigGenerator] {stageConfig.StageID} 생성 성공");
                     }
                     else
                     {
@@ -49,9 +46,6 @@ namespace StageSystem
                     Debug.LogError($"❌ [StagePoolConfigGenerator] {stageConfig.StageID} 생성 오류: {ex.Message}");
                 }
             }
-            
-            Debug.Log($"🎯 [StagePoolConfigGenerator] 완료: 성공 {successCount}개, 실패 {failCount}개");
-            
             // 에셋 데이터베이스 새로고침
             UnityEditor.AssetDatabase.Refresh();
         }
@@ -83,8 +77,6 @@ namespace StageSystem
                 
                 // 5단계: 메모리 사용량 체크
                 float memoryMB = StagePoolCalculator.EstimateMemoryUsage(requirements);
-                Debug.Log($"📊 [StagePoolConfigGenerator] {stageId} 예상 메모리: {memoryMB:F1}MB");
-                
                 return true;
             }
             catch (System.Exception ex)
@@ -148,7 +140,6 @@ namespace StageSystem
                     prefab = Resources.Load<GameObject>(altPath);
                     if (prefab != null)
                     {
-                        Debug.Log($"[StagePoolConfigGenerator] 대체 경로에서 발견: {altPath}");
                         break;
                     }
                 }
@@ -169,8 +160,6 @@ namespace StageSystem
                 clearOnSceneExit = false,
                 maxInstancesPerFrame = requirement.isBoss ? 1 : 5
             };
-            
-            Debug.Log($"[StagePoolConfigGenerator] 풀 설정 생성: {requirement.poolTag} (사이즈: {requirement.recommendedSize})");
             return poolSetting;
         }
         
@@ -279,13 +268,11 @@ namespace StageSystem
                 existingAsset.requiredPools = poolConfig.requiredPools;
                 existingAsset.sceneName = poolConfig.sceneName;
                 UnityEditor.EditorUtility.SetDirty(existingAsset);
-                Debug.Log($"[StagePoolConfigGenerator] 기존 에셋 업데이트: {assetPath}");
             }
             else
             {
                 // 새 에셋 생성
                 UnityEditor.AssetDatabase.CreateAsset(poolConfig, assetPath);
-                Debug.Log($"[StagePoolConfigGenerator] 새 에셋 생성: {assetPath}");
             }
             
             UnityEditor.AssetDatabase.SaveAssets();
@@ -302,11 +289,9 @@ namespace StageSystem
             foreach (string assetPath in assetPaths)
             {
                 UnityEditor.AssetDatabase.DeleteAsset(assetPath);
-                Debug.Log($"[StagePoolConfigGenerator] 삭제됨: {assetPath}");
             }
             
             UnityEditor.AssetDatabase.Refresh();
-            Debug.Log($"🗑️ [StagePoolConfigGenerator] {assetPaths.Length}개 풀 설정 삭제 완료");
         }
     }
 }

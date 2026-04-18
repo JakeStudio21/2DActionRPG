@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,8 +45,6 @@ public class BatchSpritePivotChanger : EditorWindow
                 targetTextures.Add(texture);
             }
         }
-        
-        Debug.Log($"[BatchSpritePivotChanger] {targetTextures.Count}개의 Multiple Sprite 텍스처 로드됨");
     }
 
     private void OnGUI()
@@ -333,8 +331,6 @@ public class BatchSpritePivotChanger : EditorWindow
             
             processedTextures++;
             processedSprites += spriteCount;
-            
-            Debug.Log($"[BatchSpritePivotChanger] {texture.name}: {spriteCount}개 스프라이트 피봇 변경 완료");
         }
         
         // 결과 표시
@@ -347,8 +343,6 @@ public class BatchSpritePivotChanger : EditorWindow
             $"🎯 새 피봇: ({customPivot.x:F2}, {customPivot.y:F2})",
             "확인"
         );
-        
-        Debug.Log($"[BatchSpritePivotChanger] 일괄 변경 완료 - 텍스처 {processedTextures}개, 스프라이트 {processedSprites}개");
     }
 }
 
