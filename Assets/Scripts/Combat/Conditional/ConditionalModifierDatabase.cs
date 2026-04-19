@@ -35,7 +35,7 @@ public static class ConditionalModifierDatabase
         LoadFromCSV();
         
         isInitialized = true;
-        Debug.Log($"[ConditionalModifierDatabase] 초기화 완료. 총 {allModifiers.Count}개 모디파이어 로드됨.");
+        Dbg.Log($"[ConditionalModifierDatabase] 초기화 완료. 총 {allModifiers.Count}개 모디파이어 로드됨.");
     }
     
     /// <summary>
@@ -140,7 +140,6 @@ public static class ConditionalModifierDatabase
             modifiersByPhase[modifier.applyPhase].Add(modifier);
         }
         
-        Debug.Log($"[ConditionalModifierDatabase] Phase별 그룹화 완료. {modifiersByPhase.Count}개 Phase");
     }
     
     #endregion
@@ -268,28 +267,5 @@ public static class ConditionalModifierDatabase
     
     #endregion
     
-    #region 디버그
-    
-    /// <summary>
-    /// 로드된 모디파이어 정보 출력 (디버그용)
-    /// </summary>
-    public static void PrintDebugInfo()
-    {
-        if (!isInitialized) Initialize();
-        
-        Debug.Log($"=== ConditionalModifierDatabase ===");
-        Debug.Log($"총 {allModifiers.Count}개 모디파이어");
-        
-        foreach (var kvp in modifiersByPhase.OrderBy(x => x.Key))
-        {
-            Debug.Log($"  Phase {kvp.Key}: {kvp.Value.Count}개");
-            foreach (var mod in kvp.Value)
-            {
-                Debug.Log($"    - {mod.modifierId}: {mod.displayName} ({mod.effectType})");
-            }
-        }
-    }
-    
-    #endregion
 }
 

@@ -45,7 +45,6 @@ public class EquipmentManager : MonoBehaviour
     /// <summary>
     /// 디버그 로그 출력 여부
     /// </summary>
-    [SerializeField] private bool showDebugLogs = true;
     
     private void Start()
     {
@@ -113,7 +112,7 @@ public class EquipmentManager : MonoBehaviour
         // 5. 이벤트 발행
         OnEquipmentChanged?.Invoke(slot, item);
         
-        Debug.Log($"[EquipmentManager] {item} 착용 완료 (슬롯: {slot})");
+        Dbg.Log($"[EquipmentManager] {item} 착용 완료 (슬롯: {slot})");
         
         return true;
     }
@@ -138,7 +137,7 @@ public class EquipmentManager : MonoBehaviour
         // 3. 이벤트 발행
         OnEquipmentChanged?.Invoke(slot, null);
         
-        Debug.Log($"[EquipmentManager] {item} 해제 완료 (슬롯: {slot})");
+        Dbg.Log($"[EquipmentManager] {item} 해제 완료 (슬롯: {slot})");
         
         return true;
     }
@@ -183,7 +182,6 @@ public class EquipmentManager : MonoBehaviour
             // 이벤트 발행 (UI 알림용)
             OnItemBound?.Invoke(item.instanceId, item.EquipmentData.equipmentName);
             
-            Debug.Log($"[EquipmentManager] {item.EquipmentData.equipmentName} 귀속됨! (Grade: {item.EquipmentData.itemGrade})");
         }
     }
     
@@ -204,18 +202,15 @@ public class EquipmentManager : MonoBehaviour
         
         var modifiers = item.GetStatModifiers();
         
-        Debug.Log($"📦 [EquipmentManager] {item.EquipmentData.equipmentName} - {modifiers.Count}개 StatModifier 가져옴");
         
         foreach (var modifier in modifiers)
         {
-            Debug.Log($"   → {modifier.statType}: {modifier.value} ({modifier.unit})");
             playerStats.AddStatModifier(modifier);
         }
         
         // 전투 스탯 재계산
         playerStats.RecalculateAllStats();
         
-        Debug.Log($"✅ [EquipmentManager] {modifiers.Count}개 StatModifier 적용 완료");
     }
     
     /// <summary>
@@ -239,7 +234,6 @@ public class EquipmentManager : MonoBehaviour
         // 전투 스탯 재계산
         playerStats.RecalculateAllStats();
         
-        Debug.Log($"[EquipmentManager] {modifiers.Count}개 StatModifier 제거 완료");
     }
     
     /// <summary>
@@ -258,7 +252,6 @@ public class EquipmentManager : MonoBehaviour
         // 스탯 재계산
         playerStats.RecalculateAllStats();
         
-        Debug.Log("[EquipmentManager] 모든 장비 스탯 재계산 완료");
     }
     
     /// <summary>
@@ -276,17 +269,9 @@ public class EquipmentManager : MonoBehaviour
                 var modifiers = kvp.Value.GetStatModifiers();
                 allModifiers.AddRange(modifiers);
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log($"📦 [EquipmentManager] {kvp.Key}: {kvp.Value.EquipmentData.equipmentName} - {modifiers.Count}개 StatModifier");
-                }
             }
         }
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [EquipmentManager] 총 {allModifiers.Count}개 StatModifier 반환");
-        }
         
         return allModifiers;
     }
@@ -301,16 +286,13 @@ public class EquipmentManager : MonoBehaviour
     [ContextMenu("Debug Equipment Info")]
     public void DebugEquipmentInfo()
     {
-        Debug.Log("=== 장착된 장비 ===");
         
         foreach (var kvp in equippedItems)
         {
-            Debug.Log($"{kvp.Key}: {kvp.Value}");
         }
         
         if (equippedItems.Count == 0)
         {
-            Debug.Log("장착된 장비 없음");
         }
     }
     

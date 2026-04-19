@@ -66,16 +66,11 @@ public static class DynamicEquipmentGenerator
             return null;
         }
         
-        Debug.Log("========================================");
-        Debug.Log($"📊 [EquipmentGenerator] {baseData.equipmentName} ({grade}) 생성 시작");
-        Debug.Log("========================================");
         
         // ===== Step 2: 등급별 설정 로드 (부옵션 개수) =====
         GradeConfig config = gradeConfigs[grade];
         int subStatCount = config.subStatCount;
         
-        Debug.Log($"⚙️ [EquipmentGenerator] 등급 설정:");
-        Debug.Log($"   - 부옵션 개수: {subStatCount}개");
         
         // ===== Step 3: 스탯 풀 가져오기 =====
         var (mainStatType, subStatPool) = GetStatPool(baseData);
@@ -86,9 +81,6 @@ public static class DynamicEquipmentGenerator
             return null;
         }
         
-        Debug.Log($"🎲 [EquipmentGenerator] 스탯 풀:");
-        Debug.Log($"   - 주옵션: {mainStatType}");
-        Debug.Log($"   - 부옵션 후보: {subStatPool.Count}개");
         
         // ===== Step 4: CSV 기반 예산 및 가중치 로드 (Single Source of Truth) =====
         // ⚠️ 중요: 모든 예산/가중치는 CSV에서 관리됨 (SO 하드코딩 제거)
@@ -100,12 +92,6 @@ public static class DynamicEquipmentGenerator
         float mainStatBudget = totalBudget * mainWeight;
         float subStatBudgetPerSlot = subStatCount > 0 ? totalBudget * subWeight : 0f;
         
-        Debug.Log($"💰 [EquipmentGenerator] CSV 기반 예산:");
-        Debug.Log($"   - 등급: {grade}, 슬롯: {baseData.equipmentSlot}");
-        Debug.Log($"   - 총 예산: {totalBudget:F2} (CSV 직접 로드)");
-        Debug.Log($"   - 가중치: 주옵션 {mainWeight} / 부옵션 {subWeight} (CSV 로드)");
-        Debug.Log($"   - 주옵션 예산: {mainStatBudget:F2}");
-        Debug.Log($"   - 부옵션 예산/슬롯: {subStatBudgetPerSlot:F2}");
         
         // ===== Step 5: 인스턴스 생성 =====
         EquipmentInstance newInstance = new EquipmentInstance(
@@ -122,11 +108,6 @@ public static class DynamicEquipmentGenerator
         float mainRawValue = mainAdjustedBudget / mainUnitCost;
         newInstance.finalMainStatValue = Mathf.Round(mainRawValue * 10f) / 10f;
         
-        Debug.Log($"⚔️ [EquipmentGenerator] 주옵션 생성:");
-        Debug.Log($"   - 타입: {mainStatType}");
-        Debug.Log($"   - 예산: {mainStatBudget:F1} → {mainAdjustedBudget:F1} (×{mainRandomFactor:F2})");
-        Debug.Log($"   - 단가: {mainUnitCost}");
-        Debug.Log($"   - 최종: {newInstance.finalMainStatValue} ({mainRawValue:F2} → 반올림)");
         
         // ===== Step 7: 부옵션 생성 =====
         newInstance.randomSubStats = new Dictionary<EStatType, float>();
@@ -142,7 +123,6 @@ public static class DynamicEquipmentGenerator
                 subStatCount = availablePool.Count; // 실제 개수로 조정
             }
             
-            Debug.Log($"🎲 [EquipmentGenerator] 부옵션 생성: {subStatCount}개");
             
             // 중복 없이 랜덤 추출
             for (int i = 0; i < subStatCount; i++)
@@ -166,22 +146,16 @@ public static class DynamicEquipmentGenerator
                 // Dictionary에 추가
                 newInstance.randomSubStats[selectedStat] = finalValue;
                 
-                Debug.Log($"   [{i+1}] {selectedStat}: {finalValue} (예산 {adjustedBudget:F1} ÷ 단가 {unitCost})");
             }
         }
         else
         {
-            Debug.Log($"🎲 [EquipmentGenerator] 부옵션 없음 (C/D 등급)");
         }
         
         // ===== Step 8: 캐시 무효화 및 반환 =====
         newInstance.InvalidateCache();
         
-        Debug.Log("========================================");
-        Debug.Log($"✅ [EquipmentGenerator] {baseData.equipmentName} ({grade}) 생성 완료!");
-        Debug.Log($"   - 주옵션: {mainStatType} = {newInstance.finalMainStatValue}");
-        Debug.Log($"   - 부옵션: {newInstance.randomSubStats.Count}개");
-        Debug.Log("========================================");
+        Dbg.Log($"✅ [EquipmentGenerator] {baseData.equipmentName} ({grade}) 생성 완료!");
         
         return newInstance;
     }
@@ -222,16 +196,12 @@ public static class DynamicEquipmentGenerator
         if (baseData.availableSubStats != null && baseData.availableSubStats.Count > 0)
         {
             subStats = new List<EStatType>(baseData.availableSubStats);
-            Debug.Log($"📋 [EquipmentGenerator] {baseData.equipmentName}: 부옵션 수동 풀 사용 ({subStats.Count}개)");
         }
         else
         {
             subStats = csvSubStats;
-            Debug.Log($"🤖 [EquipmentGenerator] {baseData.equipmentName}: 부옵션 CSV 풀 사용 (키: {poolId}, {subStats.Count}개)");
         }
         
-        Debug.Log($"   - MainStat: {mainStat}");
-        Debug.Log($"   - SubStats: {subStats.Count}개");
         
         return (mainStat, subStats);
     }

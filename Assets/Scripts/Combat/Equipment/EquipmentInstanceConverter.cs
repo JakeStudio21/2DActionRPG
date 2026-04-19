@@ -30,7 +30,6 @@ public static class EquipmentInstanceConverter
             });
         }
         
-        Debug.Log($"🔄 [Converter] Dictionary → List 변환: {subStats.Count}개 → {result.Count}개");
         return result;
     }
     
@@ -61,7 +60,6 @@ public static class EquipmentInstanceConverter
             }
         }
         
-        Debug.Log($"🔄 [Converter] List → Dictionary 변환: {subStats.Count}개 → {result.Count}개");
         return result;
     }
     
@@ -91,9 +89,6 @@ public static class EquipmentInstanceConverter
         // 부옵션 복사 (Dictionary → List)
         instanceData.randomSubStats = ConvertToSaveData(generatedInstance.randomSubStats);
         
-        Debug.Log($"✅ [Converter] 동적 스탯 적용 완료:");
-        Debug.Log($"   - 주옵션: {instanceData.finalMainStatValue}");
-        Debug.Log($"   - 부옵션: {instanceData.randomSubStats.Count}개");
     }
     
     /// <summary>
@@ -122,9 +117,6 @@ public static class EquipmentInstanceConverter
         // 부옵션 복원 (List → Dictionary)
         equipmentInstance.randomSubStats = ConvertToDictionary(instanceData.randomSubStats);
         
-        Debug.Log($"✅ [Converter] 동적 스탯 복원 완료:");
-        Debug.Log($"   - 주옵션: {equipmentInstance.finalMainStatValue}");
-        Debug.Log($"   - 부옵션: {equipmentInstance.randomSubStats.Count}개");
     }
 }
 

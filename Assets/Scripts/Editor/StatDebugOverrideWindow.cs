@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Text;
 
@@ -15,7 +15,6 @@ public class StatDebugOverrideWindow : EditorWindow
     // ─── 섹션 Foldout 상태 ────────────────────────────────────────────
     private bool _showCurrentStats = true;
     private bool _showOverride     = true;
-    private bool _showCombatLog    = true;
     
     // ─── 스크롤 ───────────────────────────────────────────────────────
     private Vector2 _scroll;
@@ -139,7 +138,6 @@ public class StatDebugOverrideWindow : EditorWindow
         EditorGUILayout.Space(6);
         
         // ── Section 3: 전투 로그 설정 ────────────────────────────────
-        DrawCombatLogSection();
         
         EditorGUILayout.EndScrollView();
     }
@@ -314,48 +312,6 @@ public class StatDebugOverrideWindow : EditorWindow
         EditorGUILayout.EndFoldoutHeaderGroup();
     }
     
-    // ═══════════════════════════════════════════════════════════════════
-    // Section 3 — 전투 로그 설정
-    // ═══════════════════════════════════════════════════════════════════
-    private void DrawCombatLogSection()
-    {
-        _showCombatLog = EditorGUILayout.BeginFoldoutHeaderGroup(_showCombatLog, "🎯 CombatFormula 전투 로그");
-        if (!_showCombatLog) { EditorGUILayout.EndFoldoutHeaderGroup(); return; }
-        
-        EditorGUILayout.BeginVertical("box");
-        
-        EditorGUILayout.HelpBox(
-            "활성화 시 매 타격마다 Step 1~7 전 과정 + Phase 7 흡혈이 콘솔에 출력됩니다.\n" +
-            "CombatFormulaConfig 에셋은 변경되지 않으므로 저장 안됩니다.",
-            MessageType.Info);
-        
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("상세 전투 로그 (Step 1~7):", GUILayout.Width(200));
-        
-        bool currentFlag = CombatFormula._forceDetailedLog;
-        var toggleColor  = currentFlag ? new Color(0.4f, 0.9f, 0.4f) : new Color(0.8f, 0.8f, 0.8f);
-        GUI.backgroundColor = toggleColor;
-        
-        if (GUILayout.Button(currentFlag ? "■ ON  (클릭 → OFF)" : "□ OFF (클릭 → ON)", GUILayout.Height(24)))
-        {
-            CombatFormula._forceDetailedLog = !currentFlag;
-        }
-        GUI.backgroundColor = Color.white;
-        EditorGUILayout.EndHorizontal();
-        
-        if (currentFlag)
-        {
-            EditorGUILayout.HelpBox(
-                "📋 로그 항목:\n" +
-                "  Step 1: 기본 공격력\n  Step 2: 스킬 배율\n  Step 3: 버서커 등 동적 보너스\n" +
-                "  Step 4: 백어택\n  Step 5: 크리티컬\n" +
-                "  Step 6: 방어관통 + 방어력 감소\n  Phase 7: 흡혈",
-                MessageType.None);
-        }
-        
-        EditorGUILayout.EndVertical();
-        EditorGUILayout.EndFoldoutHeaderGroup();
-    }
     
     // ═══════════════════════════════════════════════════════════════════
     // UI 헬퍼 메서드

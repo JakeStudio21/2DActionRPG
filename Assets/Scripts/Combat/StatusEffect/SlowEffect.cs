@@ -89,8 +89,6 @@ public class SlowEffect : BaseStatusEffect
             
             wasSlowApplied = true;
             
-            if (enableDebugLogs)
-                Debug.Log($"🐌 [SlowEffect] 플레이어 둔화 적용 ({slowPercent * 100:F0}% 감소) - {remainingDuration:F1}초");
         }
         // 👾 몬스터 처리
         else if (baseEnemy != null)
@@ -105,14 +103,11 @@ public class SlowEffect : BaseStatusEffect
                 
                 wasSlowApplied = true;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🐌 [SlowEffect] 몬스터 {target.name} 둔화 적용 ({slowPercent * 100:F0}% 감소) - {remainingDuration:F1}초");
             }
             else
             {
                 // NavMesh를 사용하지 않는 몬스터
                 // TODO: FSM 기반 이동속도 제어 로직 추가
-                if (enableDebugLogs)
                     Debug.LogWarning($"[SlowEffect] {target.name}은 NavMesh를 사용하지 않습니다. FSM 기반 이동 제어 필요.");
             }
         }
@@ -140,16 +135,12 @@ public class SlowEffect : BaseStatusEffect
             playerStats.RemoveTemporaryMoveSpeed(-reducedAmount);
             playerStats.RecalculateAllStats();
             
-            if (enableDebugLogs)
-                Debug.Log($"✅ [SlowEffect] 플레이어 둔화 해제 (속도 복구)");
         }
         // 👾 몬스터 복구
         else if (baseEnemy != null && navMeshAgent != null)
         {
             navMeshAgent.speed = originalMoveSpeed;
             
-            if (enableDebugLogs)
-                Debug.Log($"✅ [SlowEffect] 몬스터 {target.name} 둔화 해제 (속도 복구)");
         }
         
         wasSlowApplied = false;
@@ -170,8 +161,6 @@ public class SlowEffect : BaseStatusEffect
             
             Apply(); // 새 효과 적용
             
-            if (enableDebugLogs)
-                Debug.Log($"🔄 [SlowEffect] 둔화 강화: {newValue * 100:F0}% 감소");
         }
         else
         {

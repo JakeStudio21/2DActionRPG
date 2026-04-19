@@ -39,7 +39,7 @@ public static class StatDefinitions
         ParseCSV(csvFile.text);
         
         isInitialized = true;
-        Debug.Log($"[StatDefinitions] {definitions.Count}개 스탯 정의 로드 완료");
+        Dbg.Log($"[StatDefinitions] {definitions.Count}개 스탯 정의 로드 완료");
     }
     
     /// <summary>

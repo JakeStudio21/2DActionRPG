@@ -35,7 +35,7 @@ public static class ItemDatabase
         LoadAllEquipmentData();
         
         isInitialized = true;
-        Debug.Log($"[ItemDatabase] 초기화 완료 - {equipmentCache.Count}개 장비 데이터");
+        Dbg.Log($"[ItemDatabase] 초기화 완료 - {equipmentCache.Count}개 장비 데이터");
     }
     
     /// <summary>
@@ -158,25 +158,5 @@ public static class ItemDatabase
     
     #endregion
     
-    #region 디버그
-    
-    /// <summary>
-    /// 전체 캐시 정보 출력
-    /// </summary>
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void DebugCacheInfo()
-    {
-        if (!isInitialized) return;
-        
-        Debug.Log($"=== ItemDatabase 캐시 정보 ===");
-        Debug.Log($"총 {equipmentCache.Count}개 EquipmentData:");
-        
-        foreach (var kvp in equipmentCache)
-        {
-            Debug.Log($"  - {kvp.Key}: {kvp.Value.equipmentName} (Grade: {kvp.Value.itemGrade})");
-        }
-    }
-    
-    #endregion
 }
 

@@ -17,7 +17,6 @@ public abstract class BaseStatusEffect : IStatusEffect
     protected float originalDuration; // 원래 지속시간 (디버그/로그용)
     
     // 디버그용
-    protected bool enableDebugLogs = false; // ⭐ Production: false
     
     #endregion
     
@@ -75,8 +74,6 @@ public abstract class BaseStatusEffect : IStatusEffect
         
         if (remainingDuration <= 0f)
         {
-            if (enableDebugLogs)
-                Debug.Log($"[StatusEffect] {effectType} 지속시간 만료 ({target?.name})");
             
             return true; // 만료됨
         }
@@ -95,8 +92,6 @@ public abstract class BaseStatusEffect : IStatusEffect
         {
             remainingDuration = newDuration;
             
-            if (enableDebugLogs)
-                Debug.Log($"[StatusEffect] {effectType} 지속시간 갱신: {remainingDuration:F1}초");
         }
         
         // 값은 기본적으로 갱신하지 않음 (파생 클래스에서 오버라이드 가능)
@@ -122,8 +117,6 @@ public abstract class BaseStatusEffect : IStatusEffect
         // 2. 100% 저항 = 완전 면역
         if (resistance >= 1.0f)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🛡️ [BaseStatusEffect] {effectType} 완전 저항! (100% 저항) → {target?.name}");
             
             remainingDuration = 0f;
             return true; // 효과 무효화
@@ -138,21 +131,12 @@ public abstract class BaseStatusEffect : IStatusEffect
         const float MIN_DURATION = 0.1f;
         if (remainingDuration < MIN_DURATION)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🛡️ [BaseStatusEffect] {effectType} 저항으로 지속시간 너무 짧음! " +
-                          $"{beforeDuration:F2}초 → {remainingDuration:F2}초 (< {MIN_DURATION}초) → 무효화");
             
             remainingDuration = 0f;
             return true; // 효과 무효화
         }
         
         // 5. 디버그 로그 (부분 저항)
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🛡️ [BaseStatusEffect] {effectType} 저항 적용: " +
-                      $"{originalDuration:F1}초 → {remainingDuration:F1}초 " +
-                      $"(저항 {resistance * 100:F0}%, {(1f - reductionMultiplier) * 100:F0}% 감소) → {target?.name}");
-        }
         
         return false; // 부분 저항 (효과 적용됨)
     }

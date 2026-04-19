@@ -21,10 +21,6 @@ public class CombatFormulaConfig : ScriptableObject
     [Tooltip("최대 데미지 (0 = 제한 없음)")]
     public int maxDamage = 0;
     
-    [Header("디버그 설정")]
-    [Tooltip("상세 로그 활성화 (Step별 데미지 추적)")]
-    public bool enableDetailedLogs = true;
-    
     [Header("정보 (읽기 전용)")]
     [TextArea(5, 10)]
     public string info = "전투 공식 표준 설정 - Dynamic K 시스템\n\n" +

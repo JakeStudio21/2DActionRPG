@@ -71,8 +71,6 @@ public class BurnEffect : BaseStatusEffect
         
         lastTickTime = Time.time;
         
-        if (enableDebugLogs)
-            Debug.Log($"🔥 [BurnEffect] 화상 적용: {value} 데미지/{tickInterval}초, {remainingDuration:F1}초 지속 → {target.name}");
     }
     
     /// <summary>
@@ -80,8 +78,6 @@ public class BurnEffect : BaseStatusEffect
     /// </summary>
     public override void Remove()
     {
-        if (enableDebugLogs && target != null)
-            Debug.Log($"✅ [BurnEffect] 화상 해제 → {target.name}");
     }
     
     /// <summary>
@@ -134,16 +130,12 @@ public class BurnEffect : BaseStatusEffect
         {
             playerHealth.TakeDamage(damageResult, target.transform);
             
-            if (enableDebugLogs)
-                Debug.Log($"🔥 [BurnEffect] 플레이어 화상 틱 데미지: {damage}");
         }
         // 👾 몬스터에게 틱 데미지
         else if (enemyHealth != null)
         {
             enemyHealth.TakeDamage(damageResult, target.transform);
             
-            if (enableDebugLogs)
-                Debug.Log($"🔥 [BurnEffect] 몬스터 {target.name} 화상 틱 데미지: {damage}");
         }
         
         // 🎨 틱 이펙트 재생
@@ -189,8 +181,6 @@ public class BurnEffect : BaseStatusEffect
         {
             remainingDuration = newDuration;
             
-            if (enableDebugLogs)
-                Debug.Log($"🔥 [BurnEffect] 화상 지속시간 갱신: {remainingDuration:F1}초");
         }
         
         // 더 강한 데미지로 덮어쓰기
@@ -198,8 +188,6 @@ public class BurnEffect : BaseStatusEffect
         {
             value = newValue;
             
-            if (enableDebugLogs)
-                Debug.Log($"🔥 [BurnEffect] 화상 데미지 강화: {value} 데미지/틱");
         }
     }
     

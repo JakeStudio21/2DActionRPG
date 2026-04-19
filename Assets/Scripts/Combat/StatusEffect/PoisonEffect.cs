@@ -75,10 +75,6 @@ public class PoisonEffect : BaseStatusEffect
         lastTickTime = Time.time;
         tickCount = 0; // 틱 카운터 초기화
         
-        if (enableDebugLogs)
-            Debug.Log($"☠️ [PoisonEffect] 중독 적용: {value} 데미지/{tickInterval}초 간격, " +
-                      $"지속시간 {remainingDuration:F1}초 → {target.name} " +
-                      $"(현재시각: {Time.time:F1}초)");
     }
     
     /// <summary>
@@ -86,9 +82,6 @@ public class PoisonEffect : BaseStatusEffect
     /// </summary>
     public override void Remove()
     {
-        if (enableDebugLogs && target != null)
-            Debug.Log($"✅ [PoisonEffect] 중독 해제 → {target.name} " +
-                      $"(총 {tickCount}회 틱 데미지, 현재시각: {Time.time:F1}초)");
     }
     
     /// <summary>
@@ -104,9 +97,6 @@ public class PoisonEffect : BaseStatusEffect
         {
             tickCount++;
             
-            if (enableDebugLogs)
-                Debug.Log($"☠️ [PoisonEffect] {tickCount}차 틱 데미지 (Time: {Time.time:F1}초, " +
-                          $"남은시간: {remainingDuration:F2}초)");
             
             ApplyTickDamage();
             lastTickTime = Time.time;
@@ -148,16 +138,12 @@ public class PoisonEffect : BaseStatusEffect
         {
             playerHealth.TakeDamage(damageResult, target.transform);
             
-            if (enableDebugLogs)
-                Debug.Log($"☠️ [PoisonEffect] 플레이어 중독 틱 데미지: {damage}");
         }
         // 👾 몬스터에게 틱 데미지
         else if (enemyHealth != null)
         {
             enemyHealth.TakeDamage(damageResult, target.transform);
             
-            if (enableDebugLogs)
-                Debug.Log($"☠️ [PoisonEffect] 몬스터 {target.name} 중독 틱 데미지: {damage}");
         }
         
         // 🎨 틱 이펙트 재생 (Persistent Effect)
@@ -182,8 +168,6 @@ public class PoisonEffect : BaseStatusEffect
                 spawnPosition,
                 Quaternion.identity);
             
-            if (enableDebugLogs)
-                Debug.Log($"🎨 [PoisonEffect] 틱 이펙트 재생: {tickEffectPrefab.name} (틱 #{tickCount})");
         }
         else
         {
@@ -191,8 +175,6 @@ public class PoisonEffect : BaseStatusEffect
             GameObject effectObj = Object.Instantiate(tickEffectPrefab, spawnPosition, Quaternion.identity);
             Object.Destroy(effectObj, 2f);
             
-            if (enableDebugLogs)
-                Debug.Log($"🎨 [PoisonEffect] 틱 이펙트 재생 (Instantiate): {tickEffectPrefab.name}");
         }
     }
     
@@ -218,14 +200,10 @@ public class PoisonEffect : BaseStatusEffect
             // 🔧 중첩 시 지속시간은 유지 (갱신하지 않음)
             // remainingDuration은 변경하지 않음
             
-            if (enableDebugLogs)
-                Debug.Log($"☠️💀 [PoisonEffect] 중독 중첩: {GetCurrentStacks()}스택 (틱당 {value} 데미지, 남은시간: {remainingDuration:F1}초 유지)");
         }
         else
         {
             // 최대 스택이면 아무것도 안 함 (지속시간도 갱신하지 않음)
-            if (enableDebugLogs)
-                Debug.Log($"☠️ [PoisonEffect] 중독 최대 스택 ({maxStacks}), 중첩 무시 (남은시간: {remainingDuration:F1}초 유지)");
         }
     }
     
