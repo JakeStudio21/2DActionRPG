@@ -125,7 +125,7 @@ public class ShopInventoryUI : MonoBehaviour
         }
         shopInventorySlots.Clear();
 
-        int maxSlots = 64;
+        int maxSlots = 128;
         if (AccountDataManager.IsInitialized())
             maxSlots = AccountDataManager.Instance.GetAccountData().maxSharedInventorySize;
 

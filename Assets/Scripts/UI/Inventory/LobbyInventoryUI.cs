@@ -272,8 +272,8 @@ public class LobbyInventoryUI : MonoBehaviour
         }
         lobbySlots.Clear();
 
-        // ⭐ AccountData에서 최대 크기 가져오기 (기본 64칸, 확장 가능)
-        int maxSlots = 64; // 기본값 (8x8 그리드)
+        // ⭐ AccountData에서 최대 크기 가져오기 (기본 128칸, 확장 가능)
+        int maxSlots = 128; // 기본값 (8x16 그리드)
         if (AccountDataManager.IsInitialized())
         {
             maxSlots = AccountDataManager.Instance.GetAccountData().maxSharedInventorySize;
@@ -995,7 +995,7 @@ public class LobbyInventoryUI : MonoBehaviour
 
         int maxSlots = AccountDataManager.IsInitialized() 
             ? AccountDataManager.Instance.GetAccountData().maxSharedInventorySize 
-            : 64;
+            : 128;
         
         // ⭐ ScrollRect Position 복원 (다음 프레임에 실행하여 Layout 재계산 완료 후 적용)
         if (hasScrollRect)

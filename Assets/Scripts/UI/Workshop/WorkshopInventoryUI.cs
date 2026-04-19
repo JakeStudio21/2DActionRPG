@@ -360,6 +360,10 @@ namespace UI.Workshop
             }
             inventorySlots.Clear();
             
+            // ⭐ AccountData에서 최대 슬롯 수 동기화 (인벤 확장 자동 반영)
+            if (AccountDataManager.IsInitialized())
+                maxSlots = AccountDataManager.Instance.GetAccountData().maxSharedInventorySize;
+
             // 새 슬롯 생성
             for (int i = 0; i < maxSlots; i++)
             {

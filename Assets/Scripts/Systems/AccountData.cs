@@ -14,11 +14,11 @@ public class AccountData
     public int gold = 0;
     
     [Header("🎒 계정 공유 창고")]
-    [Tooltip("모든 캐릭터가 공유하는 창고 (기본 64칸, 8x8 그리드)")]
+    [Tooltip("모든 캐릭터가 공유하는 창고 (기본 128칸, 8x16 그리드)")]
     public List<ItemInstanceID> sharedInventoryIds = new List<ItemInstanceID>();
     
-    [Tooltip("보관창고 최대 크기 (확장 가능: 64 → 128 → 256)")]
-    public int maxSharedInventorySize = 64; // 기본 64칸 (8열 x 8행)
+    [Tooltip("보관창고 최대 크기 (확장 가능: 128 → 256)")]
+    public int maxSharedInventorySize = 128; // 기본 128칸 (8열 x 16행)
     
     [Tooltip("현재 공유 창고 아이템 개수 (JSON 가독성용, 자동 생성)")]
     public int currentSharedInventoryCount = 0; // sharedInventoryIds.Count
@@ -99,7 +99,6 @@ public class AccountData
     /// </summary>
     public int GetNextExpansionSize()
     {
-        if (maxSharedInventorySize == 64) return 128;   // 64 → 128 (8x16)
         if (maxSharedInventorySize == 128) return 256;  // 128 → 256 (8x32)
         return maxSharedInventorySize; // 이미 최대
     }
@@ -109,7 +108,6 @@ public class AccountData
     /// </summary>
     public int GetExpansionCost()
     {
-        if (maxSharedInventorySize == 64) return 20000;   // 64→128: 20,000 골드
         if (maxSharedInventorySize == 128) return 100000; // 128→256: 100,000 골드
         return 0; // 이미 최대
     }
@@ -130,7 +128,7 @@ public class AccountData
     /// </summary>
     public override string ToString()
     {
-        return $"AccountData: Items={itemInstances.Count}, Shared={sharedInventoryIds.Count}/{maxSharedInventorySize}, Mailbox={mailboxIds.Count}, Binds={binds.Count}, Materials={materials.Count}, Stamina={currentStamina}/50";
+        return $"AccountData: Items={itemInstances.Count}, Shared={sharedInventoryIds.Count}/{maxSharedInventorySize}(max256), Mailbox={mailboxIds.Count}, Binds={binds.Count}, Materials={materials.Count}, Stamina={currentStamina}/50";
     }
 }
 
