@@ -158,16 +158,40 @@ public class PlayerUIController : MonoBehaviour
             }
         }
         
-        // Skill1Button 찾기  // SkillButton → 변경
+        // Skill1Button 찾기
         if (skill1Button == null)
         {
-            GameObject skillButtonObj = GameObject.Find("Skill1Button");  // "SkillButton" → 변경
+            GameObject skillButtonObj = GameObject.Find("Skill1Button");
             if (skillButtonObj != null)
             {
                 skill1Button = skillButtonObj.GetComponent<Button>();
             }
+            else
+            {
+                Debug.LogWarning("[PlayerUIController] Skill1Button GameObject를 찾을 수 없습니다.");
+            }
         }
-        
+
+        // Skill2Button 찾기
+        if (skill2Button == null)
+        {
+            GameObject skill2ButtonObj = GameObject.Find("Skill2Button");
+            if (skill2ButtonObj != null)
+            {
+                skill2Button = skill2ButtonObj.GetComponent<Button>();
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerUIController] Skill2Button GameObject를 찾을 수 없습니다.");
+            }
+        }
+
+        // 쿨다운 Radial 찾기
+        if (skill1Button_Radial == null && skill1Button != null)
+        {
+            skill1Button_Radial = skill1Button.transform.Find("Skill1Button_Radial")?.GetComponent<Image>();
+        }
+
         if (skill2Button_Radial == null && skill2Button != null)
         {
             skill2Button_Radial = skill2Button.transform.Find("Skill2Button_Radial")?.GetComponent<Image>();

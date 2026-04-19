@@ -19,9 +19,6 @@ public class Sword : MonoBehaviour, IWeapon
     // private float baseSwordX = 0.2f; // 오른손 기준 위치 [미사용]
     // private float baseColliderX = 0.2f; // 오른손 기준 위치 [미사용]
 
-    [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false; // Inspector에서 조절 가능
-
     private void Awake() {
         // ⭐ Sword 자체 Animator 참조 복원
         myAnimator = GetComponent<Animator>();
@@ -31,7 +28,6 @@ public class Sword : MonoBehaviour, IWeapon
         }
         else
         {
-            Debug.Log("✅ [Sword] Animator 컴포넌트 연결됨");
         }
     }
 
@@ -55,11 +51,8 @@ public class Sword : MonoBehaviour, IWeapon
         Quaternion effectRotation = GetWeaponColliderRotation();
         Vector2 effectDirection = GetWeaponFacingDirection();
 
-        Debug.Log("🔵 [Sword] Attack() 시작 - 순수 공격 로직");
         // 🔍 디버깅: CueContext 전달값 확인 (중복 방지)
-        Debug.Log($"🎯 [Sword] HitSpark 생성 - 위치: {effectPosition}, 회전: {effectRotation.eulerAngles.z:F1}도, 방향: {effectDirection}");
         
-
 
         // 🆕 Cue 이벤트 발행 - 공격 시작 시점 (등급별)
         string eventKey = GetMeleeAttackEventKey();
@@ -76,13 +69,11 @@ public class Sword : MonoBehaviour, IWeapon
         };
         
         bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
-        Debug.Log($"🎬 [Sword] Slash Cue 발행: {eventKey} (등급: {equipmentData?.itemGrade}, 강도: {magnitude}) → {cueSuccess}");
 
         // ⭐ Sword 애니메이션 트리거 복원
         if (myAnimator != null)
         {
             myAnimator.SetTrigger("Attack");
-            Debug.Log("🎬 [Sword] SwingDown 애니메이션 트리거 실행");
         }
         else
         {
@@ -93,7 +84,6 @@ public class Sword : MonoBehaviour, IWeapon
         var warrior = GetComponentInParent<Warrior>();
         if (warrior != null && warrior.IsActiveClass)
         {
-            Debug.Log("⚔️ [Sword] Warrior 감지! 전용 기능 활성화");
             PerformWarriorSwordAttack(warrior);
         }
         else
@@ -108,7 +98,6 @@ public class Sword : MonoBehaviour, IWeapon
     /// </summary>
     private void PerformWarriorSwordAttack(Warrior warrior)
     {
-        Debug.Log("⚔️ [Sword] Warrior 전용 공격 실행!");
         
         // 기본 공격 로직 실행
         PerformSwordAttack();
@@ -116,7 +105,6 @@ public class Sword : MonoBehaviour, IWeapon
         // Warrior 전용 추가 효과
         if (warrior.IsInBerserkerMode())
         {
-            Debug.Log("🔥 [Sword] 버서커 모드! 추가 공격 효과");
             
             // 🆕 버서커 모드 전용 Cue 이벤트 발행
             var berserkerContext = new CueContext
@@ -130,14 +118,12 @@ public class Sword : MonoBehaviour, IWeapon
             };
             
             bool berserkerCueSuccess = CueEmitter.Emit("attack.player.critical", "Player", berserkerContext);
-            Debug.Log($"🔥 [Sword] 버서커 Cue 발행 결과: {berserkerCueSuccess}");
             
             // ✅ [완전 삭제] 중복 버서커 슬래시 제거 (방안 1)
             // CueSystem의 "attack.player.critical" → PlayerCritVFX가 이미 완벽한 크리티컬 이펙트 제공
         }
         
         // 블록 확률과 반격 확률 정보 출력 (디버깅용)
-        Debug.Log($"🛡️ [Sword] Warrior 상태 - 블록: {warrior.GetBlockChance() * 100:F1}%, 반격: {warrior.GetCounterAttackChance() * 100:F1}%");
     }
     
     /// <summary>
@@ -145,13 +131,11 @@ public class Sword : MonoBehaviour, IWeapon
     /// </summary>
     public void PerformSwordAttack()
     {
-        Debug.Log("🎯 [Sword] PerformSwordAttack() - CueSystem 전용 모드");
         
         // WeaponCollider 활성화 (히트박스 관리)
         if (weaponCollider != null)
         {
             weaponCollider.gameObject.SetActive(true);
-            Debug.Log("✅ [Sword] WeaponCollider 활성화");
             
             // 일정 시간 후 자동 비활성화
             StartCoroutine(DeactivateWeaponAfterDelay());
@@ -161,7 +145,6 @@ public class Sword : MonoBehaviour, IWeapon
         // CueSystem의 HitSpark가 attack.player.melee 이벤트로 이미 생성되므로 불필요
         // WeaponCollider 회전 방향도 CueSystem에서 자동 적용됨
         
-        Debug.Log("🎬 [Sword] CueSystem 전용 공격 완료");
     }
 
     public void DoneAttackingAnimEnvet() {
@@ -209,14 +192,8 @@ public class Sword : MonoBehaviour, IWeapon
             // mySpriteRender.flipX = facingLeft;
             spriteRenderer.flipX = facingLeft;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"⚔️ [Sword] 캐릭터와 동일한 방향 전환:");
-                Debug.Log($"   - facingLeft: {facingLeft}");
-                Debug.Log($"   - spriteRenderer.flipX: {facingLeft}");
-            }
         }
-        else if (showDebugLogs)
+        else
         {
             Debug.LogWarning("🟡 [Sword] SpriteRenderer를 찾을 수 없습니다!");
         }
@@ -237,7 +214,6 @@ public class Sword : MonoBehaviour, IWeapon
             Transform weaponColliderTransform = playerController.GetWeaponCollider();
             if (weaponColliderTransform != null)
             {
-                Debug.Log($"🧭 [GetWeaponColliderRotation] 콜라이더 회전: {weaponColliderTransform.eulerAngles.z:F1}도");
                 return weaponColliderTransform.rotation;
             }
             else
@@ -251,7 +227,6 @@ public class Sword : MonoBehaviour, IWeapon
         }
         
         // Fallback: 기본 회전값
-        Debug.Log("🔄 [GetWeaponColliderRotation] Fallback: Quaternion.identity 사용");
         return Quaternion.identity;
     }
     
@@ -267,7 +242,6 @@ public class Sword : MonoBehaviour, IWeapon
             if (weaponColliderTransform != null)
             {
                 Vector2 facingDir = weaponColliderTransform.right;
-                Debug.Log($"🧭 [Sword] WeaponCollider 방향: {facingDir}");
                 return facingDir;
             }
         }
@@ -287,7 +261,6 @@ public class Sword : MonoBehaviour, IWeapon
         if (weaponCollider != null)
         {
             weaponCollider.gameObject.SetActive(false);
-            Debug.Log("⏰ [Sword] WeaponCollider 자동 비활성화 완료");
         }
         else
         {
@@ -365,21 +338,15 @@ public class Sword : MonoBehaviour, IWeapon
             Vector2 baseSize = new Vector2(1.5f, 0.8f); // 검의 기본 크기
             boxCollider.size = baseSize * sizeMultiplier;
             
-            if (showDebugLogs)
-                Debug.Log($"⚔️ [Sword] BoxCollider 크기 조절: {boxCollider.size} (등급: {equipmentData.itemGrade}, 배율: {sizeMultiplier})");
         }
         else if (polygonCollider != null)
         {
             // PolygonCollider는 localScale로 조절
             weaponCollider.localScale = Vector3.one * sizeMultiplier;
             
-            if (showDebugLogs)
-                Debug.Log($"⚔️ [Sword] PolygonCollider 스케일 조절: {sizeMultiplier} (등급: {equipmentData.itemGrade})");
         }
         else
         {
-            if (showDebugLogs)
-                Debug.LogWarning("🟡 [Sword] WeaponCollider에 BoxCollider2D나 PolygonCollider2D가 없습니다.");
         }
     }
     

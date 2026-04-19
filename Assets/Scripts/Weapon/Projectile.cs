@@ -14,8 +14,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
     // 스킬 레벨별 이펙트 프리팹 배열 (Inspector에서 할당)
     public GameObject[] arrowEffectPrefabs;
     
-    [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false;
     
     [Header("🧱 벽 충돌 설정")]
     [SerializeField] private LayerMask wallLayer; // Inspector에서 Wall 선택
@@ -110,7 +108,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
             if (trailRenderer != null)
             {
                 trailRenderer.Clear();
-                Debug.Log("🔧 [Projectile] 위치 설정 후 TrailRenderer 최종 초기화");
             }
         }
         MoveProjectile();
@@ -316,7 +313,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         float currentDistance = Vector3.Distance(transform.position, startPosition);
         
         if (currentDistance > projectileRange) {
-            Debug.Log($"🏹 [DetectFireDistance] 직선 발사체 사거리 초과: {currentDistance:F2} > {projectileRange:F2}");
             SpawnExplosion(transform.position);
             ReturnProjectileToPool();
         }
@@ -379,7 +375,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
     // 🔑 풀에서 다시 사용할 때 초기화 - startPosition 업데이트 플래그 설정
     // private void OnEnable()
     // {
-    //     Debug.Log("🔵🔵🔵 [PROJECTILE DEBUG] OnEnable() 호출됨!");
         
     //     isReturningToPool = false;
     //     needsStartPositionUpdate = true;
@@ -430,7 +425,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         StartCoroutine(DelayedTrailInitialization());
     }
 
-
     /// <summary>
     /// 궤도 초기화
     /// </summary>
@@ -450,8 +444,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
             // ⭐ 거리는 projectileRange 고정 (3D Distance 사용 안 함)
             totalDistance = projectileRange;
             
-            Debug.Log($"🏹 [Projectile] 포물선 궤도 초기화 - Start: {transform.position}, Target: {targetPosition}, 고정거리: {totalDistance:F2}");
-            Debug.Log($"🎯 [Projectile] 정규화 방향: {initialDirection}, 회전: {transform.rotation.eulerAngles}");
         }
     }
 
@@ -484,7 +476,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         {
             // 1단계: TrailRenderer 일시 비활성화
             trailRenderer.emitting = false;
-            Debug.Log("🔧 [Projectile] TrailRenderer 일시 비활성화");
             
             // 2단계: 한 프레임 대기 (위치 설정 완료까지)
             yield return null;
@@ -492,10 +483,8 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
             // 3단계: 궤적 완전 제거 + 재활성화
             trailRenderer.Clear();
             trailRenderer.emitting = true;
-            Debug.Log("🔧 [Projectile] TrailRenderer 재활성화 완료");
         }
     }
-
 
     private void MoveProjectile()
     {
@@ -533,7 +522,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         {
             Vector2 direction2D = (targetPosition - startPosition).normalized;
             string directionName = GetDirectionName(direction2D);
-            Debug.Log($"🏹 [MoveInArc] 포물선 이동 시작 [{directionName}] - Start: {startPosition}, Target: {targetPosition}, 거리: {totalDistance:F2}");
         }
         
         // 거리 업데이트
@@ -558,7 +546,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         {
             float actualDistance = Vector2.Distance(new Vector2(startPosition.x, startPosition.y), 
                                                     new Vector2(transform.position.x, transform.position.y));
-            Debug.Log($"🎯 [MoveInArc] 포물선 착탄! progress: {progress:F3}, 실제거리: {actualDistance:F2}, 목표거리: {totalDistance:F2}");
             SpawnExplosion(transform.position);
             ReturnProjectileToPool();
             return;
@@ -590,8 +577,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         projectileGrade = grade;
         weaponType = type;
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [Projectile] 초기화: 등급={grade}, 타입={type}");
     }
     
     #endregion
@@ -650,7 +635,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         
         Destroy(daGO, 2f);
         
-        Debug.Log($"💥 [Projectile] 폭발 생성: pos={hitPosition}, radius={explosionRadius}, damage={explosionDamageAmount}");
     }
     
     #endregion
@@ -720,8 +704,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
             var result = CombatFormula.CalculatePlayerToEnemyDamage(ctx);
             simpleMob.TakeDamage(result.finalDamage);
             
-            if (showDebugLogs)
-                Debug.Log($"⛓️ [Projectile] 체인 SimpleMob 데미지: {result.finalDamage} (배율 {currentChainMultiplier:F2}) → {hit.name}");
         }
         else if (enemyHealth != null)
         {
@@ -740,8 +722,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
             result.hitPosition = hit.transform.position;
             enemyHealth.TakeDamage(result, transform);
             
-            if (showDebugLogs)
-                Debug.Log($"⛓️ [Projectile] 체인 EnemyHealth 데미지: {result.finalDamage} (배율 {currentChainMultiplier:F2}) → {hit.name}");
         }
     }
     
@@ -813,7 +793,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         
         if (bestTarget == null)
         {
-            if (showDebugLogs) Debug.Log("⛓️ [Projectile] 유효한 다음 체인 타겟 없음 → 소멸");
             return false;
         }
         
@@ -825,8 +804,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         // 사거리 리셋 — 새 타겟까지 날아가야 하므로 startPosition 갱신
         startPosition = transform.position;
         
-        if (showDebugLogs)
-            Debug.Log($"⛓️ [Projectile] 체인 방향 전환 → {bestTarget.name} (거리 {bestDistance:F2}, 배율 {currentChainMultiplier:F2})");
         
         return true;
     }
@@ -873,8 +850,6 @@ public class Projectile : MonoBehaviour, IPoolTagReceiver
         // 투사체 반환
         ReturnProjectileToPool();
         
-        if (showDebugLogs)
-            Debug.Log($"🧱 [Projectile] 벽 충돌로 파괴됨: {gameObject.name}");
     }
     
     #endregion

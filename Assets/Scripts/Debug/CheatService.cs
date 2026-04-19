@@ -86,7 +86,7 @@ namespace DebugTools
             // 6. UI 갱신 이벤트 발생 (보관창고/상점/강화패널 모두 갱신)
             PlayerDataManager.Instance?.NotifyInventoryChanged();
             
-            Debug.Log($"🎮 [CheatService] {message}");
+            Dbg.Log($"🎮 [CheatService] {message}");
             
             return CheatResult.SuccessWithItems(message, createdIds);
         }
@@ -126,7 +126,7 @@ namespace DebugTools
             string materialName = materialType.GetDisplayName();
             string message = $"✅ {materialName} x{count} 추가 완료";
             
-            Debug.Log($"🎮 [CheatService] {message}");
+            Dbg.Log($"🎮 [CheatService] {message}");
             
             return CheatResult.Success(message);
         }
@@ -165,7 +165,7 @@ namespace DebugTools
             // 3. 결과 메시지
             string message = $"✅ 골드 {amount:N0}G 추가 완료 (잔액: {newGold:N0}G)";
             
-            Debug.Log($"🎮 [CheatService] {message}");
+            Dbg.Log($"🎮 [CheatService] {message}");
             
             return CheatResult.Success(message)
                 .WithMetadata("oldGold", oldGold)
@@ -217,7 +217,7 @@ namespace DebugTools
             // 6. 결과 메시지
             string message = $"✅ {itemName} 강화 레벨 변경: +{oldLevel} → +{level}";
             
-            Debug.Log($"🎮 [CheatService] {message}");
+            Dbg.Log($"🎮 [CheatService] {message}");
             
             return CheatResult.Success(message)
                 .WithMetadata("instanceId", instanceId)

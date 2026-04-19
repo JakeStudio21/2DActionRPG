@@ -30,7 +30,6 @@ namespace Shop
         private bool isInitialized = false;
         
         // 디버그 로그
-        private bool showDebugLogs = true;
         
         #endregion
         
@@ -294,10 +293,6 @@ namespace Shop
         /// </summary>
         private void Log(string message)
         {
-            if (showDebugLogs)
-            {
-                Debug.Log(message);
-            }
         }
         
         #endregion

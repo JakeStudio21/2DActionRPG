@@ -18,8 +18,6 @@ public class AlphaFader : MonoBehaviour
     [SerializeField] private SpriteRenderer[] spriteRenderers; // 수동 설정용
     [SerializeField] private TilemapRenderer[] tilemapRenderers; // 수동 설정용
     
-    [Header("🐛 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 페이드 상태
     private bool isFading = false;
@@ -37,8 +35,6 @@ public class AlphaFader : MonoBehaviour
         InitializeRenderers();
         CacheOriginalAlpha();
         
-        if (enableDebugLogs)
-            Debug.Log($"🎨 [AlphaFader] {gameObject.name} 초기화 완료 - 렌더러: {cachedSpriteRenderers.Length} Sprite, {cachedTilemapRenderers.Length} Tilemap");
     }
     
     /// <summary>
@@ -98,8 +94,6 @@ public class AlphaFader : MonoBehaviour
         StopCurrentFade();
         currentFadeCoroutine = StartCoroutine(FadeToAlpha(targetAlpha, true));
         
-        if (enableDebugLogs)
-            Debug.Log($"🌅 [AlphaFader] {gameObject.name} 페이드아웃 시작 → {targetAlpha}");
     }
     
     /// <summary>
@@ -112,8 +106,6 @@ public class AlphaFader : MonoBehaviour
         StopCurrentFade();
         currentFadeCoroutine = StartCoroutine(FadeToAlpha(originalAlpha, false));
         
-        if (enableDebugLogs)
-            Debug.Log($"🌄 [AlphaFader] {gameObject.name} 페이드인 시작 → {originalAlpha}");
     }
     
     /// <summary>
@@ -156,8 +148,6 @@ public class AlphaFader : MonoBehaviour
         isFadedOut = fadingOut;
         currentFadeCoroutine = null;
         
-        if (enableDebugLogs)
-            Debug.Log($"🎨 [AlphaFader] {gameObject.name} 페이드 완료: {targetAlphaValue}");
     }
     
     /// <summary>
@@ -241,8 +231,6 @@ public class AlphaFader : MonoBehaviour
         SetAlpha(originalAlpha);
         isFadedOut = false;
         
-        if (enableDebugLogs)
-            Debug.Log($"🔄 [AlphaFader] {gameObject.name} 즉시 원래 상태로 복구");
     }
     
     /// <summary>

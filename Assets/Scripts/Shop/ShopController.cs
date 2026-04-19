@@ -35,8 +35,6 @@ public class ShopController : MonoBehaviour
     // Public 접근자
     public ShopItemPool ItemPool => itemPool;
     
-    [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 이벤트 시스템
     public event Action<string> OnItemPurchased;     // 아이템 구매 완료
@@ -63,60 +61,6 @@ public class ShopController : MonoBehaviour
         InitializeShop();
     }
     
-
-
-
-
-// ShopController.cs에 추가 (Update 메서드)
-void Update()
-{
-#if UNITY_EDITOR || UNITY_STANDALONE
-    if (Input.GetKeyDown(KeyCode.B))
-        TestBuyItem();
-#endif
-}
-
-private void TestBuyItem()
-{
-    Debug.Log("=== 🧪 구매 테스트 시작 ===");
-    
-    // Assasin 클래스 데이터 조회
-    var assasinData = GetShopDataByClass(PlayerClass.Assasin);
-    
-    if (assasinData.Count > 0 && assasinData[0].items.Count > 0)
-    {
-        var firstItem = assasinData[0].items[0];
-        
-        Debug.Log($"💰 구매 시도: {firstItem.equipmentData.equipmentName} (가격: {firstItem.equipmentData.buyPrice})");
-        Debug.Log($"💰 현재 골드: {PlayerDataManager.Instance.CurrentGold}"); // ⭐ V2: 계정 공유 골드
-        
-        bool success = BuyItemV2(firstItem.displayInstanceId);
-        
-        if (success)
-        {
-            Debug.Log($"✅ 구매 성공!");
-            Debug.Log($"💰 남은 골드: {PlayerDataManager.Instance.CurrentGold}"); // ⭐ V2: 계정 공유 골드
-        }
-        else
-        {
-            Debug.Log($"❌ 구매 실패!");
-        }
-    }
-    else
-    {
-        Debug.Log("⚠️ 구매할 아이템이 없습니다!");
-    }
-    
-    Debug.Log("=== ✅ 구매 테스트 완료 ===");
-}
-
-
-
-
-
-
-
-
     /// <summary>
     /// 가격 제공자 초기화
     /// </summary>
@@ -131,8 +75,6 @@ private void TestBuyItem()
             }
             else
             {
-                if (showDebugLogs)
-                    Debug.Log($"✅ [ShopController] 가격 제공자 연결: {priceProviderBehaviour.GetType().Name}");
             }
         }
         else
@@ -148,16 +90,12 @@ private void TestBuyItem()
     {
         if (priceProvider == null || PlayerDataManager.Instance == null)
         {
-            if (showDebugLogs)
-                Debug.LogError("❌ [ShopController] 필수 컴포넌트가 없습니다!");
             return false;
         }
         
         // 구매 가능 여부 확인
         if (!priceProvider.IsItemAvailable(itemID))
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [ShopController] {itemID}는 구매할 수 없는 아이템입니다!");
             OnTransactionFailed?.Invoke(itemID);
             return false;
         }
@@ -167,8 +105,6 @@ private void TestBuyItem()
         // 골드 확인
         if (PlayerDataManager.Instance.CurrentGold < buyPrice)
         {
-            if (showDebugLogs)
-                // Debug.LogWarning($"💸 [ShopController] 골드 부족! 필요: {buyPrice}, 보유: {PlayerDataManager.Instance.CurrentGold}");
                 Debug.LogWarning($"💸 [ShopController] Gold shortage! (Required: {buyPrice}, 보유: {PlayerDataManager.Instance.CurrentGold}");
             OnTransactionFailed?.Invoke(itemID);
             return false;
@@ -182,8 +118,6 @@ private void TestBuyItem()
         // 골드 차감
         if (!PlayerDataManager.Instance.SpendGold(buyPrice))
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"💰 [ShopController] 골드 부족!");
             OnTransactionFailed?.Invoke(itemID);
             return false;
         }
@@ -197,8 +131,6 @@ private void TestBuyItem()
             // 실패 시 골드 환불
             PlayerDataManager.Instance.AddGold(buyPrice);
             
-            if (showDebugLogs)
-                Debug.LogError($"❌ [ShopController] {itemID} 인스턴스 생성 실패! (골드 환불 완료)");
             OnTransactionFailed?.Invoke(itemID);
             return false;
         }
@@ -218,8 +150,6 @@ private void TestBuyItem()
                 {
                     EquipmentInstanceConverter.ApplyDynamicStats(instanceData, dynamicInstance);
                     
-                    if (showDebugLogs)
-                        Debug.Log($"🎲 [ShopController] 동적 스탯 생성 완료: 주옵션={instanceData.finalMainStatValue}, 부옵션={instanceData.randomSubStats.Count}개");
                 }
             }
         }
@@ -230,8 +160,6 @@ private void TestBuyItem()
         if (!addedToShared)
         {
             // 창고 가득 참 → 우편함으로 전송
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [ShopController] 보관창고 가득 참! 우편함으로 전송: {itemID}");
             
             AccountDataManager.Instance.MoveToMailbox(newItemId);  // 🔧 수정: TryAddToMailbox → MoveToMailbox
         }
@@ -239,11 +167,7 @@ private void TestBuyItem()
         // 3. 계정 데이터 저장
         AccountDataManager.Instance.Save();
         
-        if (showDebugLogs)
-        {
-            string destination = addedToShared ? "보관창고" : "우편함";
-            Debug.Log($"✅ [ShopController] {itemID} 구매 성공 (V2)! 가격: {buyPrice}, 위치: {destination}, ID: {newItemId.Value.Substring(0, 8)}...");
-        }
+        Dbg.Log($"✅ [ShopController] {itemID} 구매 성공 (V2)! 가격: {buyPrice}, 위치: {(addedToShared ? "공유창고" : "우편함")}, ID: {newItemId.Value.Substring(0, 8)}...");
         
         OnItemPurchased?.Invoke(itemID);
         return true;
@@ -256,16 +180,12 @@ private void TestBuyItem()
     {
         if (priceProvider == null || PlayerDataManager.Instance == null || equipment == null)
         {
-            if (showDebugLogs)
-                Debug.LogError("❌ [ShopController] 필수 컴포넌트가 없습니다!");
             return false;
         }
         
         // 판매 가능 여부 확인
         if (!equipment.isTradable)
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [ShopController] {equipment.itemID}는 판매할 수 없는 아이템입니다!");
             OnTransactionFailed?.Invoke(equipment.itemID);
             return false;
         }
@@ -273,8 +193,6 @@ private void TestBuyItem()
         // 🆕 V2: ItemInstanceID 유효성 검사
         if (instanceId.IsEmpty)
         {
-            if (showDebugLogs)
-                Debug.LogError($"❌ [ShopController] 잘못된 ItemInstanceID!");
             OnTransactionFailed?.Invoke(equipment.itemID);
             return false;
         }
@@ -288,8 +206,6 @@ private void TestBuyItem()
         // 창고에 없는 아이템은 판매 거부 (존재 여부 = sharedInventoryIds 포함 여부로 판단)
         if (!account.IsInSharedInventory(instanceId))
         {
-            if (showDebugLogs)
-                Debug.LogError($"❌ [ShopController] {equipment.itemID} 판매 실패! (보관창고에 아이템 없음)");
             OnTransactionFailed?.Invoke(equipment.itemID);
             return false;
         }
@@ -297,9 +213,6 @@ private void TestBuyItem()
         account.DestroyItemInstance(instanceId);    // ① 원본(itemInstances) + 모든 참조 동시 제거
         PlayerDataManager.Instance.AddGold(sellPrice);
         account.Save();                             // ② 디스크 반영
-
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopController] {equipment.itemID} 판매 성공! 가격: {sellPrice}, ID: {instanceId.Value.Substring(0, 8)}...");
 
         OnItemSold?.Invoke(equipment.itemID);
         return true;
@@ -333,14 +246,10 @@ private void TestBuyItem()
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log("🏪 [ShopController] 상점 초기화 시작...");
         
         itemPool = new ShopItemPool();
         itemPool.Initialize();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopController] 상점 초기화 완료! (전시용 Instance: {itemPool.DisplayInstanceCount}개)");
     }
     
     /// <summary>
@@ -351,7 +260,6 @@ private void TestBuyItem()
     /// </summary>
     public List<ShopInventoryData> GetShopDataByClass(PlayerClass playerClass)
     {
-        Debug.Log($"🔄 [ShopController] GetShopDataByClass({playerClass}) 시작");
         
         // ✅ 자동 초기화 보장 (Unity Start() 순서 문제 해결)
         if (itemPool == null || !itemPool.IsInitialized)
@@ -368,10 +276,10 @@ private void TestBuyItem()
                 return new List<ShopInventoryData>();
             }
             
-            Debug.Log("   ✅ 상점 자동 초기화 완료");
+            Dbg.Log("   ✅ 상점 자동 초기화 완료");
         }
         
-        Debug.Log("   ✅ itemPool 확인됨 (초기화 완료)");
+        Dbg.Log("   ✅ itemPool 확인됨 (초기화 완료)");
         
         // 1. 모든 D/C/B/A 등급 장비 로드
         EquipmentData[] allEquipments = Resources.LoadAll<EquipmentData>("Equipment");
@@ -385,8 +293,6 @@ private void TestBuyItem()
              eq.itemGrade == ItemGrade.B || eq.itemGrade == ItemGrade.A)
         ).ToList();
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [ShopController] {playerClass} 클래스 장비: {filteredEquipments.Count}개");
         
         // 3. 6개 카테고리별로 그룹화
         var result = new List<ShopInventoryData>();
@@ -417,8 +323,6 @@ private void TestBuyItem()
             
             result.Add(shopData);
             
-            if (showDebugLogs)
-                Debug.Log($"  📦 {ShopCategoryHelper.GetCategoryName(category)}: {shopData.items.Count}개");
         }
         
         return result;
@@ -434,8 +338,6 @@ private void TestBuyItem()
         
         if (displayInstanceId.IsEmpty)
         {
-            if (showDebugLogs)
-                Debug.LogError("❌ [ShopController] 잘못된 displayInstanceId입니다!");
             failReason = PurchaseFailReason.InvalidItem;
             return false;
         }
@@ -443,8 +345,6 @@ private void TestBuyItem()
         // ✅ 자동 초기화 보장
         if (itemPool == null || !itemPool.IsInitialized)
         {
-            if (showDebugLogs)
-                Debug.LogWarning("⚠️ [ShopController] 구매 시도 시 상점 자동 초기화...");
             
             InitializeShop();
             
@@ -480,8 +380,6 @@ private void TestBuyItem()
         int currentGold = PlayerDataManager.Instance.CurrentGold; // ⭐ V2: 계정 공유 골드
         if (currentGold < buyPrice)
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"⚠️ [ShopController] 골드 부족! 필요: {buyPrice}, 보유: {currentGold}");
             OnTransactionFailed?.Invoke(templateName);
             failReason = PurchaseFailReason.InsufficientGold;
             return false;
@@ -522,8 +420,6 @@ private void TestBuyItem()
             {
                 EquipmentInstanceConverter.ApplyDynamicStats(instanceData, clonedInstance);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎲 [ShopController] 캐시된 동적 스탯 복제 완료: 주옵션={instanceData.finalMainStatValue:F1}, 부옵션={instanceData.randomSubStats.Count}개 (원본 ID: {displayInstanceId.Value.Substring(0, 8)}... → 새 ID: {newInstanceId.Value.Substring(0, 8)}...)");
             }
         }
         
@@ -548,8 +444,6 @@ private void TestBuyItem()
         // 8. UI 새로고침 이벤트 발생 (보관창고 업데이트)
         PlayerDataManager.Instance.NotifyInventoryChanged();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopController] 구매 성공! {templateName} (가격: {buyPrice}, ID: {newInstanceId.Value.Substring(0, 8)}...)");
         
         // 9. 이벤트 발생
         OnItemPurchased?.Invoke(templateName);

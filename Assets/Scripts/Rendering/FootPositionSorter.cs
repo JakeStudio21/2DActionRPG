@@ -27,7 +27,6 @@ public class FootPositionSorter : MonoBehaviour
     [Header("디버그")]
     [SerializeField] private bool showDebugGizmo = false;
     [SerializeField] private bool showOrderInInspector = false;
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 컴포넌트 캐시
     private SortingGroup sortingGroup;
@@ -81,10 +80,6 @@ public class FootPositionSorter : MonoBehaviour
         // 초기 소팅 설정
         UpdateSortingOrderImmediate();
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🦶 [FootPositionSorter] {gameObject.name} 초기화 완료 - Order: {GetCurrentSortingOrder()}");
-        }
     }
     
     private void Update()
@@ -177,10 +172,6 @@ public class FootPositionSorter : MonoBehaviour
             int curveHeightOffset = playerClass.CalculateHeightOffset(heightTime);
             dynamicHeightOffset += curveHeightOffset;
             
-            if (enableDebugLogs && curveHeightOffset != 0)
-            {
-                Debug.Log($"📈 [FootPositionSorter] {gameObject.name} - 동적 높이: {curveHeightOffset} (t={heightTime:F2})");
-            }
         }
         
         int newSortingOrder = IsometricSorting.CalculateSortingOrder(
@@ -196,10 +187,6 @@ public class FootPositionSorter : MonoBehaviour
             SetSortingOrder(newSortingOrder);
             lastSortingOrder = newSortingOrder;
             
-            if (enableDebugLogs)
-            {
-                IsometricSorting.LogSortingInfo(gameObject.name, footWorldPos.y, newSortingOrder, baseLayer);
-            }
         }
     }
     
@@ -325,8 +312,6 @@ public class FootPositionSorter : MonoBehaviour
     {
         if (!useIsometricData)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🗺️ [FootPositionSorter] {gameObject.name} - 아이소메트릭 데이터 사용 안함");
             return;
         }
         
@@ -345,19 +330,13 @@ public class FootPositionSorter : MonoBehaviour
             {
                 footOffset = dataFootOffset;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🗺️ [FootPositionSorter] {gameObject.name} - FootOffset 업데이트: {footOffset}");
             }
             
             isIsometricDataInitialized = true;
             
-            if (enableDebugLogs)
-                Debug.Log($"✅ [FootPositionSorter] {gameObject.name} - 아이소메트릭 데이터 연동 성공: {playerClass.ClassName}");
         }
         else
         {
-            if (enableDebugLogs)
-                Debug.LogWarning($"⚠️ [FootPositionSorter] {gameObject.name} - 플레이어 클래스 없음, 기본값 사용");
         }
     }
     

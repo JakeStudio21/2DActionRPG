@@ -29,7 +29,6 @@ namespace DebugTools
                         _instance = go.AddComponent<DebugCheatManager>();
                         DontDestroyOnLoad(go);
                         
-                        Debug.Log("🎮 [DebugCheatManager] 싱글톤 생성 완료");
                     }
                 }
                 return _instance;
@@ -65,14 +64,12 @@ namespace DebugTools
                 return CheatResult.Fail("❌ 명령어가 비어있습니다.");
             }
             
-            Debug.Log($"🎮 [CheatManager] 명령어 실행 시도: {commandText}");
             
             try
             {
                 // 1. 명령어 파싱
                 var command = ParseCommand(commandText);
                 
-                Debug.Log($"📋 [CheatManager] 파싱 결과: {command}");
                 
                 // 2. 명령어 타입별 실행
                 CheatResult result = command.commandType switch
@@ -97,7 +94,6 @@ namespace DebugTools
                     _ => CheatResult.Fail($"❌ 알 수 없는 명령어: {command.commandType}")
                 };
                 
-                Debug.Log($"📊 [CheatManager] 실행 결과: {result}");
                 
                 return result;
             }

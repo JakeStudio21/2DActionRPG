@@ -28,8 +28,6 @@ public class TutorialSpotlight : MonoBehaviour
     [SerializeField] private RectTransform skill1ButtonTarget;   // 스킬1 버튼
     [SerializeField] private RectTransform skill2ButtonTarget;   // 스킬2 버튼
     
-    [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private bool isActive = false;
@@ -62,8 +60,6 @@ public class TutorialSpotlight : MonoBehaviour
             if (joystickObj != null)
             {
                 joystickTarget = joystickObj.GetComponent<RectTransform>();
-                if (showDebugLogs)
-                    Debug.Log("[TutorialSpotlight] 조이스틱 자동 탐색 성공");
             }
         }
         
@@ -73,8 +69,6 @@ public class TutorialSpotlight : MonoBehaviour
             if (attackObj != null)
             {
                 attackButtonTarget = attackObj.GetComponent<RectTransform>();
-                if (showDebugLogs)
-                    Debug.Log("[TutorialSpotlight] 공격버튼 자동 탐색 성공");
             }
         }
         
@@ -84,8 +78,6 @@ public class TutorialSpotlight : MonoBehaviour
             if (dashObj != null)
             {
                 dashButtonTarget = dashObj.GetComponent<RectTransform>();
-                if (showDebugLogs)
-                    Debug.Log("[TutorialSpotlight] 대시버튼 자동 탐색 성공");
             }
         }
         
@@ -95,8 +87,6 @@ public class TutorialSpotlight : MonoBehaviour
             if (skill1Obj != null)
             {
                 skill1ButtonTarget = skill1Obj.GetComponent<RectTransform>();
-                if (showDebugLogs)
-                    Debug.Log("[TutorialSpotlight] 스킬1버튼 자동 탐색 성공");
             }
         }
         
@@ -106,8 +96,6 @@ public class TutorialSpotlight : MonoBehaviour
             if (skill2Obj != null)
             {
                 skill2ButtonTarget = skill2Obj.GetComponent<RectTransform>();
-                if (showDebugLogs)
-                    Debug.Log("[TutorialSpotlight] 스킬2버튼 자동 탐색 성공");
             }
         }
         
@@ -124,17 +112,11 @@ public class TutorialSpotlight : MonoBehaviour
                 holeRadius = spotlightMaterial.GetFloat(HoleRadiusID);
                 softEdge = spotlightMaterial.GetFloat(SoftEdgeID);
                 
-                if (showDebugLogs)
-                    Debug.Log($"[TutorialSpotlight] Material에서 값 읽음: Radius={holeRadius}, SoftEdge={softEdge}");
             }
             else
             {
-                if (showDebugLogs)
-                    Debug.Log($"[TutorialSpotlight] Inspector 값 사용: Radius={holeRadius}, SoftEdge={softEdge}");
             }
             
-            if (showDebugLogs)
-                Debug.Log("[TutorialSpotlight] 초기화 완료");
         }
         else
         {
@@ -155,14 +137,10 @@ public class TutorialSpotlight : MonoBehaviour
         
         if (target == null)
         {
-            if (showDebugLogs)
-                Debug.LogWarning($"[TutorialSpotlight] {step} 단계의 타겟을 찾을 수 없습니다!");
             HideSpotlight();
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"[TutorialSpotlight] 💡 스포트라이트 활성화: {step} → {target.name}");
         
         // Dimmer 활성화
         if (!isActive)
@@ -183,8 +161,6 @@ public class TutorialSpotlight : MonoBehaviour
         if (dimmerImage == null)
             return;
         
-        if (showDebugLogs)
-            Debug.Log("[TutorialSpotlight] 스포트라이트 비활성화");
         
         dimmerImage.gameObject.SetActive(false);
         isActive = false;
@@ -243,8 +219,6 @@ public class TutorialSpotlight : MonoBehaviour
         targetHoleCenter = normalizedPos;
         targetRadius = holeRadius;
         
-        if (showDebugLogs)
-            Debug.Log($"[TutorialSpotlight] 타겟 위치: {target.name} → Screen({screenPos}) → Normalized({normalizedPos})");
         
         // 전환 애니메이션 시작
         if (transitionCoroutine != null)

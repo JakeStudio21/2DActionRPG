@@ -18,8 +18,6 @@ public class OcclusionDetector : MonoBehaviour
     [Header("📏 소팅 비교 설정")]
     [SerializeField] private int sortingOrderBuffer = 50; // 소팅 오더 여유값
     
-    [Header("🐛 디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     [SerializeField] private bool showDetectionGizmo = false;
     
     // 컴포넌트 참조
@@ -43,8 +41,6 @@ public class OcclusionDetector : MonoBehaviour
             Debug.LogWarning($"⚠️ [OcclusionDetector] {gameObject.name}에 FootPositionSorter가 없습니다! 소팅 비교 불가");
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"🔍 [OcclusionDetector] {gameObject.name} 초기화 완료");
     }
     
     void Update()
@@ -103,10 +99,6 @@ public class OcclusionDetector : MonoBehaviour
                 // 플레이어가 Occluder 뒤에 있음
                 currentOccluders.Add(fader);
                 
-                if (enableDebugLogs && !activeOccluders.Contains(fader))
-                {
-                    Debug.Log($"🔍 [OcclusionDetector] {gameObject.name} → {hit.name} 뒤로 들어감 (Order: {occluderSortingOrder} vs {playerSortingOrder})");
-                }
             }
         }
         
@@ -126,10 +118,6 @@ public class OcclusionDetector : MonoBehaviour
             {
                 fader.StartFadeIn();
                 
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"🔍 [OcclusionDetector] {gameObject.name} → {fader.name} 뒤에서 나옴");
-                }
             }
         }
         
@@ -181,8 +169,6 @@ public class OcclusionDetector : MonoBehaviour
         
         activeOccluders.Clear();
         
-        if (enableDebugLogs)
-            Debug.Log($"🔍 [OcclusionDetector] {gameObject.name} - 모든 오클루전 상태 초기화");
     }
     
     #if UNITY_EDITOR

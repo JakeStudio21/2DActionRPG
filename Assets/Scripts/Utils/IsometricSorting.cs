@@ -64,7 +64,6 @@ public static class IsometricSorting
     /// </summary>
     public static void LogSortingInfo(string objName, float footY, int sortingOrder, int baseLayer)
     {
-        Debug.Log($"🔢 [IsometricSorting] {objName}: Y={footY:F2} → Order={sortingOrder} (base={baseLayer})");
     }
 
     /// <summary>
@@ -85,7 +84,6 @@ public static class IsometricSorting
         // 모든 렌더러 컴포넌트에 소팅 적용
         ApplySortingToAllRenderers(effectObject, sortingOrder);
         
-        Debug.Log($"🎨 [IsometricSorting] {effectObject.name} 이펙트 소팅 적용: Y={position.y:F2} → Order={sortingOrder}");
     }
     
     /// <summary>
@@ -99,7 +97,6 @@ public static class IsometricSorting
         {
             renderer.sortingLayerName = "Effects"; // Effects 소팅 레이어 사용
             renderer.sortingOrder = sortingOrder;
-            Debug.Log($"   └ ParticleSystemRenderer: {renderer.name} → Layer=Effects, Order={sortingOrder}");
         }
         
         // SpriteRenderer 처리
@@ -108,7 +105,6 @@ public static class IsometricSorting
         {
             renderer.sortingLayerName = "Effects";
             renderer.sortingOrder = sortingOrder;
-            Debug.Log($"   └ SpriteRenderer: {renderer.name} → Layer=Effects, Order={sortingOrder}");
         }
         
         // 기타 렌더러들도 처리

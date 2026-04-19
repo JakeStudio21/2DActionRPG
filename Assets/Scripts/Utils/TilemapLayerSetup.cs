@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-
 /// <summary>
 /// 타일맵 레이어 설정 헬퍼 (런타임 지원)
 /// </summary>
@@ -47,7 +46,6 @@ public static class TilemapLayerSetup
         
         tilemap.gameObject.layer = LayerMask.NameToLayer("Ground");
         
-        Debug.Log($"🌍 [TilemapLayerSetup] {tilemap.name} → Ground Layer 설정");
     }
     
     /// <summary>
@@ -69,7 +67,6 @@ public static class TilemapLayerSetup
         tilemap.gameObject.tag = "Occluder";
         tilemap.gameObject.layer = LayerMask.NameToLayer("Decoration");
         
-        Debug.Log($"🎨 [TilemapLayerSetup] {tilemap.name} → Decoration Layer 설정");
     }
     
     /// <summary>
@@ -89,7 +86,6 @@ public static class TilemapLayerSetup
         
         tilemap.gameObject.layer = LayerMask.NameToLayer("Background");
         
-        Debug.Log($"🖼️ [TilemapLayerSetup] {tilemap.name} → Background Layer 설정");
     }
     
     /// <summary>
@@ -121,6 +117,5 @@ public static class TilemapLayerSetup
             }
         }
         
-        Debug.Log($"🗂️ [TilemapLayerSetup] {setupCount}개 타일맵 자동 설정 완료");
     }
 }

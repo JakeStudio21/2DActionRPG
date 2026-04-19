@@ -225,7 +225,6 @@ public class EightCams_8Dir_BatchCapture : MonoBehaviour
         animator.applyRootMotion = _prevApplyRootMotion;
         animator.enabled = _animatorPrevEnabled;
 
-        Debug.Log($"[EightCams] Done → {root}");
     }
 
     // ============ Helpers ============

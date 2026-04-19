@@ -16,13 +16,9 @@ public class SceneBGMStarter : MonoBehaviour
     [Tooltip("씬 로드 후 지연 시간 (초)")]
     [SerializeField] private float delay = 0.5f;
     
-    [Header("=== 디버그 ===")]
-    [SerializeField] private bool enableDebugLogs = true;
     
     private void Start()
     {
-        if (enableDebugLogs)
-            Debug.Log($"[SceneBGMStarter] Start 호출됨 - Key: {bgmEventKey}, StageId: '{stageId}', Delay: {delay}s");
         
         if (delay > 0f)
         {
@@ -36,8 +32,6 @@ public class SceneBGMStarter : MonoBehaviour
     
     private void PlayBGM()
     {
-        if (enableDebugLogs)
-            Debug.Log($"🎬 [SceneBGMStarter] PlayBGM() 시작 - Key: {bgmEventKey}, StageId: '{stageId}'");
         
         if (BGMController.Instance == null)
         {
@@ -51,24 +45,16 @@ public class SceneBGMStarter : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"🎵 [SceneBGMStarter] BGM 재생 요청 전송: {bgmEventKey} (StageId: '{stageId}')");
         
         // 스테이지 ID가 있으면 전달
         if (!string.IsNullOrEmpty(stageId))
         {
-            if (enableDebugLogs)
-                Debug.Log($"   → PlayDefaultBGM('{bgmEventKey}', '{stageId}') 호출");
             BGMController.Instance.PlayDefaultBGM(bgmEventKey, stageId);
         }
         else
         {
-            if (enableDebugLogs)
-                Debug.Log($"   → PlayDefaultBGM('{bgmEventKey}') 호출 (StageId 없음)");
             BGMController.Instance.PlayDefaultBGM(bgmEventKey);
         }
-        
-        if (enableDebugLogs)
-            Debug.Log($"✅ [SceneBGMStarter] BGM 재생 요청 완료: {bgmEventKey}");
+        Dbg.Log($"✅ [SceneBGMStarter] BGM 재생 요청 완료: {bgmEventKey}");
     }
 }

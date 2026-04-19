@@ -52,6 +52,7 @@ public class TutorialStepController : MonoBehaviour
     private TutorialStep currentStep = TutorialStep.Move;
     private float tutorialStartTime = 0f;
     private Vector3 lastPosition;
+    private bool tutorialStarted = false;
     
     // 이동 관련
     private float totalMovedDistance = 0f;
@@ -99,7 +100,7 @@ public class TutorialStepController : MonoBehaviour
         if (tutorialSpotlight == null)
         {
             tutorialSpotlight = FindObjectOfType<TutorialSpotlight>();
-            
+            if (tutorialSpotlight == null)
                 Debug.LogWarning("[TutorialStep] ⚠️ TutorialSpotlight를 찾을 수 없습니다!");
         }
         
@@ -112,12 +113,13 @@ public class TutorialStepController : MonoBehaviour
     
     public void StartTutorial()
     {
+        tutorialStarted = true;
         
         // ⭐ 플레이어가 스폰된 후 호출되므로 여기서 재탐색!
         if (playerController == null)
         {
             playerController = FindObjectOfType<PlayerController>();
-            
+            if (playerController == null)
                 Debug.LogError("[TutorialStep] ❌ PlayerController를 찾을 수 없습니다!");
         }
         
@@ -155,14 +157,15 @@ public class TutorialStepController : MonoBehaviour
     
     void Update()
     {
+        if (!tutorialStarted)
+            return;
+        
         if (currentStep == TutorialStep.Completed)
             return;
         
         // 최소 시간 경과 체크
         if (Time.time - tutorialStartTime < minTimePerStep)
             return;
-        
-        // 디버그: Update 실행 확인 (5초마다)
         
         CheckStepProgress();
     }
@@ -404,20 +407,6 @@ public class TutorialStepController : MonoBehaviour
         if (skill1StepCompleted)
             return;
         
-        // 스킬1 입력 체크 (S키 또는 UI 버튼)
-        bool skill1KeyDown = false;
-#if UNITY_EDITOR || UNITY_STANDALONE
-        skill1KeyDown = Input.GetKeyDown(KeyCode.S);
-#endif
-        if (!hasUsedSkill1 && (skill1KeyDown || CheckSkill1ButtonPressed()))
-        {
-            hasUsedSkill1 = true;
-            
-            
-            // 스킬 발동 후 몬스터 피격 체크 (타임아웃)
-            StartCoroutine(CheckSkill1HitAfterDelay());
-        }
-        
         // ⭐ 몬스터 피격 체크 (OnEnemyHit 콜백에서 플래그 설정됨)
         if (skill1HitMonster)
         {
@@ -474,20 +463,6 @@ public class TutorialStepController : MonoBehaviour
     {
         if (skill2StepCompleted)
             return;
-        
-        // 스킬2 입력 체크 (D키 또는 UI 버튼)
-        bool skill2KeyDown = false;
-#if UNITY_EDITOR || UNITY_STANDALONE
-        skill2KeyDown = Input.GetKeyDown(KeyCode.D);
-#endif
-        if (!hasUsedSkill2 && (skill2KeyDown || CheckSkill2ButtonPressed()))
-        {
-            hasUsedSkill2 = true;
-            
-            
-            // 스킬 발동 후 몬스터 피격 체크 (타임아웃)
-            StartCoroutine(CheckSkill2HitAfterDelay());
-        }
         
         // ⭐ 몬스터 피격 체크 (OnEnemyHit 콜백에서 플래그 설정됨)
         if (skill2HitMonster)

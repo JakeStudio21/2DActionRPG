@@ -15,8 +15,6 @@ public class EquipmentPriceProvider : MonoBehaviour, IPriceProvider
     [SerializeField] private bool enableCaching = true;          // 캐싱 활성화
     [SerializeField] private int maxCacheSize = 100;             // 최대 캐시 크기
     
-    [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 캐싱 시스템
     private Dictionary<string, EquipmentData> equipmentCache = new Dictionary<string, EquipmentData>();
@@ -34,8 +32,6 @@ public class EquipmentPriceProvider : MonoBehaviour, IPriceProvider
             basePrice = Mathf.RoundToInt(basePrice * (1f - discountRate));
         }
         
-        if (showDebugLogs)
-            Debug.Log($"💰 [EquipmentPriceProvider] {itemID} 구매가: {basePrice}");
             
         return basePrice;
     }
@@ -47,8 +43,6 @@ public class EquipmentPriceProvider : MonoBehaviour, IPriceProvider
         
         int sellPrice = equipment.sellPrice;
         
-        if (showDebugLogs)
-            Debug.Log($"💰 [EquipmentPriceProvider] {itemID} 판매가: {sellPrice}");
             
         return sellPrice;
     }
@@ -106,7 +100,5 @@ public class EquipmentPriceProvider : MonoBehaviour, IPriceProvider
     public void SetDiscountRate(float rate)
     {
         discountRate = Mathf.Clamp01(rate);
-        if (showDebugLogs)
-            Debug.Log($"💰 [EquipmentPriceProvider] 할인율 설정: {rate * 100}%");
     }
 }

@@ -31,7 +31,6 @@ public class Knockback : MonoBehaviour
         defaultKnockBackThrust = thrust;
         knockBackTime = time;
         
-        Debug.Log($"🔧 [Knockback] 설정 적용: Thrust={thrust}, Time={time}초");
     }
 
     public void GetKnockedBack(Transform damageSource, float knockBackThrust) {

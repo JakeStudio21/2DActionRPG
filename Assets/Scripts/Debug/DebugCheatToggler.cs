@@ -27,7 +27,6 @@ namespace DebugTools
         
         [Header("⚙️ 설정")]
         [SerializeField] private KeyCode toggleKey = KeyCode.F1;
-        [SerializeField] private bool showDebugLogs = true;
         
         private void Start()
         {
@@ -36,10 +35,6 @@ namespace DebugTools
             {
                 lobbyPanelManager = FindObjectOfType<LobbyPanelManager>();
                 
-                if (lobbyPanelManager != null && showDebugLogs)
-                {
-                    Debug.Log($"🎮 [CheatToggler] LobbyPanelManager 자동 검색 성공");
-                }
             }
             
             // lobbyPanel 자동 찾기
@@ -47,10 +42,6 @@ namespace DebugTools
             {
                 lobbyPanel = lobbyPanelManager.lobbyPanel;
                 
-                if (lobbyPanel != null && showDebugLogs)
-                {
-                    Debug.Log($"🎮 [CheatToggler] LobbyPanel 자동 검색 성공: {lobbyPanel.name}");
-                }
             }
             
             // 패널 변경 이벤트 구독
@@ -58,10 +49,6 @@ namespace DebugTools
             {
                 lobbyPanelManager.OnPanelChanged += OnLobbyPanelChanged;
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log($"🎮 [CheatToggler] 패널 변경 이벤트 구독 완료");
-                }
             }
             
             // 모바일 버튼 초기 설정
@@ -135,40 +122,14 @@ namespace DebugTools
             
             mobileDebugButton.SetActive(shouldShow);
             
-            if (showDebugLogs)
-            {
-                string reason = shouldShow ? "표시" : "숨김";
-                string panelName = lobbyPanelManager?.GetCurrentActivePanel()?.name ?? "알 수 없음";
-                Debug.Log($"🎮 [CheatToggler] 모바일 버튼 {reason} (현재 패널: {panelName})");
-            }
         }
         
-        private void Update()
-        {
-#if UNITY_EDITOR || UNITY_STANDALONE
-            if (Input.GetKeyDown(toggleKey))
-            {
-                if (showDebugLogs) Debug.Log($"🔑 [CheatToggler] {toggleKey} 키 입력 감지됨");
-                TogglePanel();
-            }
-
-            if (cheatPanel != null && cheatPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
-            {
-                cheatPanel.SetActive(false);
-                if (showDebugLogs) Debug.Log($"🔑 [CheatToggler] ESC 키로 패널 닫힘");
-            }
-#endif
-        }
         
         /// <summary>
         /// 모바일 버튼 클릭 이벤트 (public - Inspector에서 연결 가능)
         /// </summary>
         public void OnMobileButtonClicked()
         {
-            if (showDebugLogs)
-            {
-                Debug.Log($"📱 [CheatToggler] 모바일 버튼 클릭됨");
-            }
             TogglePanel();
         }
         
@@ -183,11 +144,6 @@ namespace DebugTools
             bool newState = !cheatPanel.activeSelf;
             cheatPanel.SetActive(newState);
             
-            if (showDebugLogs)
-            {
-                string stateText = newState ? "열림" : "닫힘";
-                Debug.Log($"🎮 [CheatToggler] 치트 패널 {stateText}");
-            }
         }
         
         /// <summary>

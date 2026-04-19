@@ -131,7 +131,6 @@ public class AnimationRenderer8Direction : MonoBehaviour
             if (sourceRoot != null)
             {
                 CreateCharacterShadow(sourceRoot);
-                Debug.Log("[AnimationRenderer8Direction] 캐릭터 실루엣 그림자 생성 완료");
             }
             else
             {
@@ -148,7 +147,6 @@ public class AnimationRenderer8Direction : MonoBehaviour
             if (sourceRoot != null)
             {
                 CreateCharacterOutline(sourceRoot);
-                Debug.Log("[AnimationRenderer8Direction] 캐릭터 아웃라인 생성 완료");
             }
             else
             {
@@ -297,7 +295,6 @@ public class AnimationRenderer8Direction : MonoBehaviour
         }
 
         Time.captureFramerate = prevCap;
-        Debug.Log("[AnimationRenderer8Direction] Done → " + statePath);
     }
 
     void CreateCharacterShadow(Transform sourceRoot)
@@ -323,7 +320,6 @@ public class AnimationRenderer8Direction : MonoBehaviour
             shadowPelvisBone = FindPelvisBone(shadowInstance.transform);
             if (shadowPelvisBone != null)
             {
-                Debug.Log($"[Shadow] Bip Pelvis 본 발견: {shadowPelvisBone.name}, 초기 localPosition: {shadowPelvisBone.localPosition}");
             }
             else
             {
@@ -378,7 +374,6 @@ public class AnimationRenderer8Direction : MonoBehaviour
                 Destroy(s);
         }
 
-        Debug.Log($"[AnimationRenderer8Direction] 그림자 생성: {renderers.Length}개 렌더러를 검은색으로 변경");
     }
 
     // ★ Bip001 Pelvis 본을 찾는 함수 (Bip 방식 전용)
@@ -494,7 +489,6 @@ public class AnimationRenderer8Direction : MonoBehaviour
                 Destroy(s);
         }
 
-        Debug.Log($"[AnimationRenderer8Direction] 아웃라인 생성: {renderers.Length}개 렌더러, 두께 {outlineThickness}배");
     }
 
     void OnDestroy()

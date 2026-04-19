@@ -79,7 +79,6 @@ public class ParticleAutoReturn : MonoBehaviour, IPoolTagReceiver
         {
             // ✅ 올바른 풀 반환
             GamePoolManager.Instance.ReturnToPool(tagToUse, gameObject);
-            Debug.Log($"[ParticleAutoReturn] {tagToUse} VFX를 풀에 정상 반환");
         }
         else
         {

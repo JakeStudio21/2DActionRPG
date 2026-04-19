@@ -41,7 +41,6 @@ public static class WallLayerSetup
                 // ⭐ 부모와 모든 자식에게 Layer 할당
                 SetLayerRecursively(tilemap.gameObject, wallLayerIndex);
                 wallCount++;
-                Debug.Log($"✅ [WallLayerSetup] {tilemap.name} (및 자식들) → Wall Layer 할당");
             }
         }
         
@@ -52,7 +51,6 @@ public static class WallLayerSetup
             // ⭐ 부모와 모든 자식에게 Layer 할당
             SetLayerRecursively(barricade.gameObject, wallLayerIndex);
             wallCount++;
-            Debug.Log($"✅ [WallLayerSetup] {barricade.name} (Barricade 및 자식들) → Wall Layer 할당");
         }
         
         // 3️⃣ "Wall" 태그가 있는 GameObject
@@ -62,7 +60,6 @@ public static class WallLayerSetup
             // ⭐ 부모와 모든 자식에게 Layer 할당
             SetLayerRecursively(wall, wallLayerIndex);
             wallCount++;
-            Debug.Log($"✅ [WallLayerSetup] {wall.name} (Tag: Wall 및 자식들) → Wall Layer 할당");
         }
         
         if (wallCount == 0)
@@ -71,7 +68,6 @@ public static class WallLayerSetup
         }
         else
         {
-            Debug.Log($"🎉 [WallLayerSetup] {wallCount}개 벽(및 자식들)에 Wall Layer 할당 완료!");
         }
     }
     
@@ -159,7 +155,6 @@ public static class WallLayerSetup
             report += "❌ Layer가 생성되지 않아 Collision Matrix를 확인할 수 없습니다.\n";
         }
         
-        Debug.Log(report);
         EditorUtility.DisplayDialog("Physics Matrix 검증", report, "OK");
     }
     
@@ -227,7 +222,6 @@ public static class WallLayerSetup
             report += "Tools → Wall System → Assign Wall Layer를 먼저 실행하세요.\n";
         }
         
-        Debug.Log(report);
         EditorUtility.DisplayDialog("벽 Collider 검증", report, "OK");
     }
     #endif

@@ -26,9 +26,6 @@ public class ScreenShakeManager : Singleton<ScreenShakeManager>
     [Tooltip("중복 호출 방어 기본 쿨다운 (초)\n동등·이하 강도의 연속 호출을 이 시간 동안 무시")]
     [SerializeField] private float shakeCooldown = 0.05f;
 
-    [Header("🔧 디버그")]
-    [SerializeField] private bool showDebugLogs = false;
-
     // ───────────────────────────────────────────
     //  Internal State
     // ───────────────────────────────────────────
@@ -85,8 +82,6 @@ public class ScreenShakeManager : Singleton<ScreenShakeManager>
         {
             if (finalIntensity <= _currentIntensity)
             {
-                if (showDebugLogs)
-                    Debug.Log($"[ScreenShakeManager] 쿨다운 중 무시 (현재: {_currentIntensity:F2}, 요청: {finalIntensity:F2})");
                 return;
             }
 
@@ -97,8 +92,6 @@ public class ScreenShakeManager : Singleton<ScreenShakeManager>
                 _delayedShakeCoroutine = null;
             }
 
-            if (showDebugLogs)
-                Debug.Log($"[ScreenShakeManager] Override (현재: {_currentIntensity:F2} → 새 강도: {finalIntensity:F2})");
         }
 
         if (data.delay > 0f)
@@ -171,8 +164,6 @@ public class ScreenShakeManager : Singleton<ScreenShakeManager>
         _cooldownTimer    = shakeCooldown;
         _currentIntensity = finalIntensity;
 
-        if (showDebugLogs)
-            Debug.Log($"[ScreenShakeManager] 진동 발생 — 강도: {finalIntensity:F2}, 지속: {duration:F2}s");
     }
 
     /// <summary>

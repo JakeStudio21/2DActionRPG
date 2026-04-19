@@ -27,7 +27,6 @@ public class Flash : MonoBehaviour
     {
         restoreDefaultMatTime = flashDuration;
         
-        Debug.Log($"🔧 [Flash] 설정 적용: Duration={flashDuration}초");
     }
 
     public float GetRestoreMatTime() {

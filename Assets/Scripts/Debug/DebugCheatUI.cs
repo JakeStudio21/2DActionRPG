@@ -36,8 +36,6 @@ namespace DebugTools
         [SerializeField] private Button btnAdd100kGold;
         [SerializeField] private Button btnAdd1mGold;
         
-        [Header("⚙️ 설정")]
-        [SerializeField] private bool showDebugLogs = true;
         [SerializeField] private float resultDisplayDuration = 3f;
         
         private void Start()
@@ -136,14 +134,10 @@ namespace DebugTools
             string helpText = DebugCheatManager.Instance.GetHelpText();
             ShowResult(helpText, true);
             
-            if (showDebugLogs)
-                Debug.Log(helpText);
         }
         
         private void ExecutePreset(string command, string description)
         {
-            if (showDebugLogs)
-                Debug.Log($"🎮 [CheatUI] 프리셋 실행: {description} ({command})");
             
             // InputField에 명령어 표시
             if (commandInputField != null)
@@ -181,13 +175,6 @@ namespace DebugTools
                 resultText.color = success ? Color.green : Color.red;
             }
             
-            if (showDebugLogs)
-            {
-                if (success)
-                    Debug.Log($"✅ [CheatUI] {message}");
-                else
-                    Debug.LogWarning($"❌ [CheatUI] {message}");
-            }
         }
         
         /// <summary>

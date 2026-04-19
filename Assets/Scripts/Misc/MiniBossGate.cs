@@ -17,7 +17,6 @@ public class MiniBossGate : MonoBehaviour
         {
             if (gateObject != null && gateObject.activeSelf)
             {
-                Debug.Log($"{targetBossId} 처치! 문 열림!");
                 gateObject.SetActive(false);
             }
         }

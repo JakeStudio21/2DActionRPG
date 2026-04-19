@@ -15,7 +15,6 @@ public class TutorialManager : MonoBehaviour
     
     [Header("Tutorial 설정")]
     [SerializeField] private PlayerType defaultPlayerClass = PlayerType.Assasin;
-    [SerializeField] private bool showDebugLogs = true;
     
     [Header("기본 무기 데이터")]
     [SerializeField] private EquipmentData bowEquipment;   // Assasin용
@@ -48,10 +47,6 @@ public class TutorialManager : MonoBehaviour
         // 🎯 중요: DontDestroyOnLoad 사용 안 함!
         // Tutorial 씬 종료 시 자동으로 파괴됨
         
-        if (showDebugLogs)
-        {
-            Debug.Log("[TutorialManager] Tutorial 씬 전용 매니저 생성");
-        }
     }
     
     void Start()
@@ -73,10 +68,6 @@ public class TutorialManager : MonoBehaviour
         {
             tutorialPlayerData.SetDefaultWeapon(defaultWeapon);
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"[TutorialManager] 기본 무기 할당: {defaultWeapon.equipmentName}");
-            }
         }
         else
         {
@@ -87,17 +78,8 @@ public class TutorialManager : MonoBehaviour
         tutorialPlayerData.tutorialSkill1 = defaultSkill1;
         tutorialPlayerData.tutorialSkill2 = defaultSkill2;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"[TutorialManager] 기본 스킬 할당: " +
-                      $"슬롯0={defaultSkill1?.skillName ?? "없음"}, " +
-                      $"슬롯1={defaultSkill2?.skillName ?? "없음"}");
-        }
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"[TutorialManager] Tutorial 초기화 완료: {tutorialPlayerData}");
-        }
+            Dbg.Log($"[TutorialManager] Tutorial 초기화 완료: {tutorialPlayerData}");
         
         // BGM 재생
         PlayTutorialBGM();
@@ -131,10 +113,6 @@ public class TutorialManager : MonoBehaviour
         {
             BGMController.Instance.PlayDefaultBGM("bgm.tutorial", null);
             
-            if (showDebugLogs)
-            {
-                Debug.Log("[TutorialManager] Tutorial BGM 재생");
-            }
         }
     }
     
@@ -148,10 +126,7 @@ public class TutorialManager : MonoBehaviour
         
         isTutorialCompleted = true;
         
-        if (showDebugLogs)
-        {
-            Debug.Log("[TutorialManager] Tutorial 완료!");
-        }
+            Dbg.Log("[TutorialManager] Tutorial 완료!");
     }
     
     /// <summary>
@@ -159,10 +134,7 @@ public class TutorialManager : MonoBehaviour
     /// </summary>
     public void ReturnToLobby()
     {
-        if (showDebugLogs)
-        {
-            Debug.Log("[TutorialManager] Lobby로 복귀 중...");
-        }
+            Dbg.Log("[TutorialManager] Lobby로 복귀 중...");
         
         // 🔧 의미 있는 이벤트: 로비 복귀 → 저장
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
@@ -199,10 +171,6 @@ public class TutorialManager : MonoBehaviour
         {
             tutorialPlayerData.SetDefaultWeapon(newWeapon);
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"[TutorialManager] 클래스 변경: {newClass}, 무기: {newWeapon.equipmentName}");
-            }
         }
     }
     
@@ -212,10 +180,6 @@ public class TutorialManager : MonoBehaviour
         {
             instance = null;
             
-            if (showDebugLogs)
-            {
-                Debug.Log("[TutorialManager] Tutorial 매니저 파괴 (씬 종료)");
-            }
         }
     }
     
@@ -229,9 +193,6 @@ public class TutorialManager : MonoBehaviour
     {
         if (tutorialPlayerData != null)
         {
-            Debug.Log("=== Tutorial Status ===");
-            Debug.Log(tutorialPlayerData.ToString());
-            Debug.Log($"Tutorial Completed: {isTutorialCompleted}");
         }
         else
         {

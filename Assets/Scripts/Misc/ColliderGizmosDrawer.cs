@@ -22,12 +22,10 @@ public class ColliderGizmosDrawer : MonoBehaviour
             if (kb.f1Key.wasPressedThisFrame)
             {
                 showGizmos = !showGizmos;
-                Debug.Log("콜라이더 표시: " + (showGizmos ? "ON" : "OFF") + " (Shift+F1로 토글)");
             }
             if (kb.f2Key.wasPressedThisFrame)
             {
                 showMonsterRanges = !showMonsterRanges;
-                Debug.Log("몬스터 범위 표시: " + (showMonsterRanges ? "ON" : "OFF") + " (Shift+F2로 토글)");
             }
         }
 #endif

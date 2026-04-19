@@ -418,11 +418,6 @@ public static class IsometricHelper
         Vector3 snappedPos = GridToWorld(gridPos, grid);
         Vector3 cellSize = GetCellSize(grid);
         
-        Debug.Log($"🗺️ [IsometricHelper] {name}:");
-        Debug.Log($"   World: {worldPos}");
-        Debug.Log($"   Grid: {gridPos}");
-        Debug.Log($"   Snapped: {snappedPos}");
-        Debug.Log($"   CellSize: {cellSize}");
     }
     
     #if UNITY_EDITOR

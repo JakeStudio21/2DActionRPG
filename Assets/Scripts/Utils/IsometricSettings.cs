@@ -29,11 +29,6 @@ public class IsometricSettings : ScriptableObject
         #if UNITY_EDITOR
         // Transparency Sort 설정은 GraphicsSettings에 있지만 직접 접근할 수 없음
         // 수동으로 Project Settings → Graphics에서 설정해야 함
-        Debug.Log("🎯 [IsometricSettings] 아이소메트릭 설정 가이드:");
-        Debug.Log("   1. Edit → Project Settings → Graphics 열기");
-        Debug.Log("   2. Transparency Sort Mode → Custom Axis 선택");
-        Debug.Log($"   3. Transparency Sort Axis → {transparencySortAxis} 입력");
-        Debug.Log("   4. 설정 완료!");
         
         // Grid 설정은 자동으로 적용 가능
         ApplyGridSettingsToScene();
@@ -62,7 +57,6 @@ public class IsometricSettings : ScriptableObject
         
         if (updated > 0)
         {
-            Debug.Log($"✅ [IsometricSettings] {updated}개의 Grid 설정이 업데이트되었습니다.");
         }
     }
     #endif

@@ -46,7 +46,7 @@ public class EconomyManager : Singleton<EconomyManager>
         if (goldText != null)
         {
             goldText.text = currentGold.ToString("D3");
-            Debug.Log($"[EconomyManager] 씬 로드시 골드 UI 초기화: {currentGold}");
+            Dbg.Log($"[EconomyManager] 씬 로드시 골드 UI 초기화: {currentGold}");
         }
     }
 

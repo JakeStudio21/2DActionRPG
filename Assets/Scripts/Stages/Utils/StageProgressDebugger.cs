@@ -84,15 +84,5 @@ namespace StageSystem
             
         }
         
-        private void Update()
-        {
-#if UNITY_EDITOR
-            if (!enableDebugKeys) return;
-
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.U)) UnlockAllStages();
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C)) CompleteAllStages();
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R)) ResetAllProgress();
-#endif
-        }
     }
 }

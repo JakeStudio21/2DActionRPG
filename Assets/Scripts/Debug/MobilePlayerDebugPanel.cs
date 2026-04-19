@@ -111,7 +111,7 @@ namespace DebugTools
         {
             if (!CheckReady()) return;
             PlayerDataManager.Instance.AddExp(amount);
-            Debug.Log($"✅ [MobileDebug] 경험치 +{amount}");
+            Dbg.Log($"✅ [MobileDebug] 경험치 +{amount}");
             RefreshStatus();
         }
 
@@ -127,7 +127,7 @@ namespace DebugTools
         {
             if (!CheckReady()) return;
             AccountDataManager.Instance.AddGold(amount);
-            Debug.Log($"✅ [MobileDebug] 골드 +{amount}");
+            Dbg.Log($"✅ [MobileDebug] 골드 +{amount}");
             RefreshStatus();
         }
 
@@ -145,7 +145,7 @@ namespace DebugTools
             acc.currentStamina       = 50;
             acc.lastStaminaUpdateTime = "";
             AccountDataManager.Instance.Save();
-            Debug.Log("✅ [MobileDebug] 스태미나 MAX(50)");
+            Dbg.Log("✅ [MobileDebug] 스태미나 MAX(50)");
             RefreshStatus();
         }
 
@@ -157,7 +157,7 @@ namespace DebugTools
             acc.currentStamina = Mathf.Min(50, acc.currentStamina + amount);
             if (acc.currentStamina >= 50) acc.lastStaminaUpdateTime = "";
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] 스태미나 +{amount} (현재: {acc.currentStamina}/50)");
+            Dbg.Log($"✅ [MobileDebug] 스태미나 +{amount} (현재: {acc.currentStamina}/50)");
             RefreshStatus();
         }
 
@@ -173,7 +173,7 @@ namespace DebugTools
         {
             if (ContentEntryManager.Instance == null) { Debug.LogWarning("[MobileDebug] ContentEntryManager 없음"); return; }
             ContentEntryManager.Instance.AddDungeonTickets(amount);
-            Debug.Log($"✅ [MobileDebug] 던전 티켓 +{amount}장");
+            Dbg.Log($"✅ [MobileDebug] 던전 티켓 +{amount}장");
             RefreshStatus();
         }
 
@@ -192,7 +192,7 @@ namespace DebugTools
             slot.usedSP  = 0;
             if (selected != null) { selected.totalSP = slot.totalSP; selected.usedSP = 0; }
             PlayerDataManager.Instance.SaveCurrentSlot();
-            Debug.Log($"✅ [MobileDebug] SP 초기화 (레벨과 동기화: {slot.totalSP})");
+            Dbg.Log($"✅ [MobileDebug] SP 초기화 (레벨과 동기화: {slot.totalSP})");
             RefreshStatus();
         }
 
@@ -204,7 +204,7 @@ namespace DebugTools
             slot.totalSP += amount;
             if (selected != null) selected.totalSP = slot.totalSP;
             PlayerDataManager.Instance.SaveCurrentSlot();
-            Debug.Log($"✅ [MobileDebug] SP +{amount} (현재: {slot.totalSP})");
+            Dbg.Log($"✅ [MobileDebug] SP +{amount} (현재: {slot.totalSP})");
             RefreshStatus();
         }
 
@@ -235,7 +235,7 @@ namespace DebugTools
 
             PlayerDataManager.Instance.TriggerLevelChanged(level);
             PlayerDataManager.Instance.SaveCurrentSlot();
-            Debug.Log($"✅ [MobileDebug] 레벨 → {level} (SP: {level})");
+            Dbg.Log($"✅ [MobileDebug] 레벨 → {level} (SP: {level})");
             RefreshStatus();
         }
 
@@ -259,7 +259,7 @@ namespace DebugTools
             if (AccountDataManager.Instance == null) return;
             AccountDataManager.Instance.AddMaterial(type, amount);
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] {type} +{amount}");
+            Dbg.Log($"✅ [MobileDebug] {type} +{amount}");
         }
 
         private void AddAllRuneFragments(int amount)
@@ -274,7 +274,7 @@ namespace DebugTools
             AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER,   amount);
             AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_LIFESTEAL,        amount);
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] 모든 룬 조각 +{amount} (8종)");
+            Dbg.Log($"✅ [MobileDebug] 모든 룬 조각 +{amount} (8종)");
         }
 
         // ================================================
@@ -298,7 +298,7 @@ namespace DebugTools
             if (AccountDataManager.Instance == null) return;
             AccountDataManager.Instance.AddMaterial(type, amount);
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] {type} +{amount}");
+            Dbg.Log($"✅ [MobileDebug] {type} +{amount}");
         }
 
         private void AddAllMaterials(int amount)
@@ -314,7 +314,7 @@ namespace DebugTools
             AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryCrystal,  amount);
             AccountDataManager.Instance.AddMaterial(MaterialType.AccessoryCore,     amount);
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] 모든 강화 재료 +{amount} (9종)");
+            Dbg.Log($"✅ [MobileDebug] 모든 강화 재료 +{amount} (9종)");
         }
 
         // ================================================
@@ -333,7 +333,7 @@ namespace DebugTools
             if (AccountDataManager.Instance == null) return;
             AccountDataManager.Instance.AddMaterial(type, amount);
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] {type} +{amount}");
+            Dbg.Log($"✅ [MobileDebug] {type} +{amount}");
         }
 
         private void AddAllSpiritEssences(int amount)
@@ -344,7 +344,7 @@ namespace DebugTools
             AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_EARTH,  amount);
             AccountDataManager.Instance.AddMaterial(MaterialType.SPIRIT_ESSENCE_WATER,  amount);
             AccountDataManager.Instance.Save();
-            Debug.Log($"✅ [MobileDebug] 모든 정령의 정수 +{amount} (4종)");
+            Dbg.Log($"✅ [MobileDebug] 모든 정령의 정수 +{amount} (4종)");
         }
 
         // ================================================
@@ -366,12 +366,12 @@ namespace DebugTools
             var pm = StageSystem.StageProgressManager.Instance;
             if (pm == null) { Debug.LogError("❌ [MobileDebug] StageProgressManager 없음"); return; }
 
-            if (!pm.IsStageUnlocked(stageId)) { pm.UnlockStage(stageId); Debug.Log($"🔓 [MobileDebug] {stageId} 강제 해금"); }
+            if (!pm.IsStageUnlocked(stageId)) { pm.UnlockStage(stageId); Dbg.Log($"🔓 [MobileDebug] {stageId} 강제 해금"); }
 
             if (!pm.IsStageCompleted(stageId))
             {
                 pm.CompleteStage(stageId, completionTime: 60f, isFirstClear: true);
-                Debug.Log($"✅ [MobileDebug] {stageId} 클리어 처리 완료");
+                Dbg.Log($"✅ [MobileDebug] {stageId} 클리어 처리 완료");
             }
             else
             {
@@ -417,7 +417,7 @@ namespace DebugTools
             PlayerDataManager.Instance?.TriggerInventoryChanged();
 
             string dest = addedToShared ? "공유 창고" : "우편함";
-            Debug.Log($"✅ [MobileDebug] 장비 획득 성공: {itemId} → {dest}");
+            Dbg.Log($"✅ [MobileDebug] 장비 획득 성공: {itemId} → {dest}");
         }
 
         // ================================================
@@ -427,7 +427,7 @@ namespace DebugTools
         {
             PlayerDataManager.Instance?.SaveCurrentSlot();
             AccountDataManager.Instance?.Save();
-            Debug.Log("✅ [MobileDebug] 저장 완료");
+            Dbg.Log("✅ [MobileDebug] 저장 완료");
             RefreshStatus();
         }
 

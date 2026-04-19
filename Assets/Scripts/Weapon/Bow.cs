@@ -7,9 +7,6 @@ public class Bow : MonoBehaviour, IWeapon
     [SerializeField] private GameObject arrowPrefab;
     [SerializeField] private Transform arrowSpawnPoint;
 
-    [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false;
-
     private Vector2 lastAttackDirection = Vector2.right;
     private Quaternion lastAttackRotation = Quaternion.identity;
 
@@ -56,8 +53,6 @@ public class Bow : MonoBehaviour, IWeapon
             // ⭐ Phase 1-2: 등급 정보 전달
             projectile.Initialize(equipmentData.itemGrade, equipmentData.WeaponType);
             
-            if (showDebugLogs)
-                Debug.Log($"🏹 [Bow] 발사체 스폰: {projectilePoolKey} (등급: {equipmentData.itemGrade})");
         }
         else
         {
@@ -117,8 +112,6 @@ public class Bow : MonoBehaviour, IWeapon
         
         bool cueSuccess = CueEmitter.Emit(eventKey, "Player", context);
         
-        if (showDebugLogs)
-            Debug.Log($"🏹 [Bow] Muzzle Flash Cue 발행: {eventKey} (등급: {equipmentData?.itemGrade}, 강도: {magnitude}) → {cueSuccess}");
     }
     
     /// <summary>
@@ -144,8 +137,6 @@ public class Bow : MonoBehaviour, IWeapon
                 .Replace("ARROW_", "Arrow_")
                 .Replace("MAGICBULLET_", "MagicBullet_");
             
-            if (showDebugLogs)
-                Debug.Log($"🔑 [Bow] projectileId: {equipmentData.projectileId} → poolKey: {poolKey}");
             
             return poolKey;
         }

@@ -207,7 +207,6 @@ namespace Shop
             }
             else
             {
-                UnityEngine.Debug.Log($"✅ [ShopCategoryHelper] 아이콘 로드 성공: {resourcePath}");
             }
             
             return sprite;

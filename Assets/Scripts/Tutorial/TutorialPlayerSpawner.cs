@@ -19,8 +19,6 @@ public class TutorialPlayerSpawner : MonoBehaviour
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private bool waitForTutorialManager = true;
     
-    [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     private GameObject spawnedPlayer;
     
@@ -44,23 +42,15 @@ public class TutorialPlayerSpawner : MonoBehaviour
         // TutorialManager 대기
         while (TutorialManager.Instance == null)
         {
-            if (showDebugLogs)
-                Debug.Log("[TutorialPlayerSpawner] TutorialManager 대기 중...");
             yield return new WaitForSeconds(0.1f);
         }
         
         // TutorialPlayerData 대기
         while (TutorialManager.Instance.TutorialPlayerData == null)
         {
-            if (showDebugLogs)
-                Debug.Log("[TutorialPlayerSpawner] TutorialPlayerData 대기 중...");
             yield return new WaitForSeconds(0.1f);
         }
         
-        if (showDebugLogs)
-        {
-            Debug.Log("[TutorialPlayerSpawner] TutorialManager 준비 완료, 스폰 시작");
-        }
         
         SpawnPlayer();
     }
@@ -100,10 +90,7 @@ public class TutorialPlayerSpawner : MonoBehaviour
         spawnedPlayer = Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity);
         spawnedPlayer.name = $"Player_{playerData.playerClass}";
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"[TutorialPlayerSpawner] 플레이어 스폰 완료: {playerData.playerClass} at {spawnPosition}");
-        }
+            Dbg.Log($"[TutorialPlayerSpawner] 플레이어 스폰 완료: {playerData.playerClass} at {spawnPosition}");
         
         // 무기 장착 및 후처리
         StartCoroutine(SetupPlayerAfterSpawn(playerData));
@@ -129,7 +116,7 @@ public class TutorialPlayerSpawner : MonoBehaviour
     }
     
     /// <summary>
-    /// 플레이어 스폰 후 후처리 (무기, 스킬, 카메라)
+    /// 플레이어 스폰 후 후처리 (무기, 스킬, 카메라, 공격 바인딩)
     /// </summary>
     private IEnumerator SetupPlayerAfterSpawn(TutorialPlayerData playerData)
     {
@@ -144,11 +131,47 @@ public class TutorialPlayerSpawner : MonoBehaviour
         
         // 카메라 설정
         SetupCamera();
-        
-        if (showDebugLogs)
+
+        // 공격 버튼 바인딩 (PlayerSpawner와 동일한 방식)
+        AddPlayerAttackInput();
+        BindAttackButtonController();
+    }
+
+    /// <summary>
+    /// 스폰된 플레이어에 PlayerAttackInput 컴포넌트 추가
+    /// </summary>
+    private void AddPlayerAttackInput()
+    {
+        if (spawnedPlayer == null) return;
+
+        var existing = spawnedPlayer.GetComponent<PlayerAttackInput>();
+        if (existing != null) return;
+
+        spawnedPlayer.AddComponent<PlayerAttackInput>();
+    }
+
+    /// <summary>
+    /// AttackButtonController에 PlayerAttackInput 참조 주입
+    /// </summary>
+    private void BindAttackButtonController()
+    {
+        if (spawnedPlayer == null) return;
+
+        var input = spawnedPlayer.GetComponent<PlayerAttackInput>();
+        if (input == null)
         {
-            Debug.Log("[TutorialPlayerSpawner] 플레이어 후처리 완료");
+            Debug.LogWarning("[TutorialPlayerSpawner] PlayerAttackInput을 찾을 수 없어 AttackButtonController 바인딩 생략.");
+            return;
         }
+
+        var attackButtonController = FindObjectOfType<AttackButtonController>();
+        if (attackButtonController == null)
+        {
+            Debug.LogWarning("[TutorialPlayerSpawner] AttackButtonController를 찾을 수 없습니다. HUD가 씬에 있는지 확인하세요.");
+            return;
+        }
+
+        attackButtonController.Bind(input);
     }
     
     /// <summary>
@@ -167,10 +190,6 @@ public class TutorialPlayerSpawner : MonoBehaviour
         
         skillManager.SetTutorialSkills(playerData.tutorialSkill1, playerData.tutorialSkill2);
         
-        if (showDebugLogs)
-        {
-            Debug.Log("[TutorialPlayerSpawner] Tutorial 스킬 주입 완료");
-        }
     }
     
     /// <summary>
@@ -196,10 +215,6 @@ public class TutorialPlayerSpawner : MonoBehaviour
         // 무기 장착
         activeWeapon.EquipWeapon(weapon);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"[TutorialPlayerSpawner] 무기 장착 완료: {weapon.equipmentName}");
-        }
     }
     
     /// <summary>
@@ -215,17 +230,9 @@ public class TutorialPlayerSpawner : MonoBehaviour
         {
             CameraController.Instance.SetPlayerCameraFollow();
             
-            if (showDebugLogs)
-            {
-                Debug.Log("[TutorialPlayerSpawner] 카메라 설정 완료");
-            }
         }
         else
         {
-            if (showDebugLogs)
-            {
-                Debug.LogWarning("[TutorialPlayerSpawner] CameraController를 찾을 수 없습니다 (Tutorial은 카메라 없어도 작동)");
-            }
         }
     }
     

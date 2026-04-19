@@ -19,8 +19,6 @@ public class ShopInventoryManager : MonoBehaviour
     [SerializeField] private bool sortByGradeAscending = true;   // 등급 낮은 순으로 정렬
     [SerializeField] private bool showOnlyTradableItems = true;  // 거래 가능한 아이템만 표시
     
-    [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 캐시된 상점 아이템들
     private Dictionary<EquipmentType, List<EquipmentData>> shopItemsByType = new Dictionary<EquipmentType, List<EquipmentData>>();
@@ -43,8 +41,6 @@ public class ShopInventoryManager : MonoBehaviour
     void Start()
     {
         // 🔧 수정: 게임 시작 시에는 로드하지 않음 (Lazy Loading)
-        if (showDebugLogs)
-            Debug.Log("🏪 [ShopInventoryManager] 준비 완료 - 상점 열기 시 로드 예정");
     }
     
     /// <summary>
@@ -55,11 +51,7 @@ public class ShopInventoryManager : MonoBehaviour
         LoadShopItems();
         OrganizeItemsByType();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [ShopInventoryManager] 상점 재고 초기화 완료");
-            Debug.Log($"📦 [ShopInventoryManager] 총 {allShopItems.Count}개 아이템 로드됨");
-        }
+            Dbg.Log($"✅ [ShopInventoryManager] 상점 재고 초기화 완료");
     }
     
     /// <summary>
@@ -82,8 +74,6 @@ public class ShopInventoryManager : MonoBehaviour
                 }
             }
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [ShopInventoryManager] Resources에서 {allEquipment.Length}개 중 {allShopItems.Count}개 선택됨");
         }
         
         // 수동 설정 아이템 추가
@@ -162,20 +152,6 @@ public class ShopInventoryManager : MonoBehaviour
         shopItemsByType[EquipmentType.Armor] = armorItems;
         shopItemsByType[EquipmentType.Accessory] = bootsItems;  // 🔧 신발을 Accessory 탭에 할당
 
-        if (showDebugLogs)
-        {
-            Debug.Log($"🗂️ [ShopInventoryManager] 무기: {weaponItems.Count}개, 방어구: {armorItems.Count}개, 신발: {bootsItems.Count}개, 악세서리: {accessoryItems.Count}개");
-            
-            // 🔍 디버그: 갑옷 가격 순서 확인
-            Debug.Log($"═══════════════════════════════════════════════════════");
-            Debug.Log($"🔍 [DEBUG] 갑옷 아이템 정렬 순서 (등급 → 가격):");
-            for (int i = 0; i < armorItems.Count && i < 12; i++)  // 최대 12개만 출력
-            {
-                var item = armorItems[i];
-                Debug.Log($"   [{i}] {item.equipmentName} | 등급: {item.itemGrade} | 가격: {item.buyPrice} | 클래스: {item.usableClass}");
-            }
-            Debug.Log($"═══════════════════════════════════════════════════════");
-        }
     }
     
     /// <summary>
@@ -251,8 +227,6 @@ public class ShopInventoryManager : MonoBehaviour
     {
         InitializeShopInventory();
         
-        if (showDebugLogs)
-            Debug.Log("🔄 [ShopInventoryManager] 상점 재고 새로고침 완료");
     }
     
     /// <summary>
@@ -270,8 +244,6 @@ public class ShopInventoryManager : MonoBehaviour
             RefreshInventory();
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryManager] 상점용 아이템 로드 완료: {allShopItems.Count}개");
     }
     
     /// <summary>

@@ -132,7 +132,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
             if (sourceRoot != null)
             {
                 CreateCharacterOutline(sourceRoot);
-                Debug.Log("[AnimationRenderer8Direction_Rotate] 캐릭터 아웃라인 생성 완료");
             }
             else
             {
@@ -247,7 +246,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
         }
 
         Time.captureFramerate = prevCap;
-        Debug.Log("[AnimationRenderer8Direction_Rotate] Done → " + statePath);
     }
 
     void InitializeShadowCatcher()
@@ -264,7 +262,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
             var collider = groundPlane.GetComponent<Collider>();
             if (collider) Destroy(collider);
             
-            Debug.Log("[AnimationRenderer8Direction_Rotate] Ground Plane 자동 생성 완료");
         }
 
         // Shadow Catcher Material 생성 또는 적용
@@ -277,7 +274,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
                 shadowCatcherMaterial.name = "ShadowCatcher_Runtime";
                 shadowCatcherMaterial.SetColor("_ShadowColor", shadowColor);
                 shadowCatcherMaterial.SetFloat("_ShadowIntensity", shadowColor.a);
-                Debug.Log("[AnimationRenderer8Direction_Rotate] Shadow Catcher Material 자동 생성 완료");
             }
             else
             {
@@ -307,7 +303,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
             shadowLight.transform.position = followTarget ? followTarget.position + new Vector3(0, 10f, 0) : new Vector3(0, 10f, 0);
             shadowLight.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             
-            Debug.Log("[AnimationRenderer8Direction_Rotate] Shadow Light 자동 생성 완료");
         }
 
         // 캐릭터 그림자 설정 확인
@@ -319,10 +314,8 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On; // 그림자 생성
                 r.receiveShadows = false; // 캐릭터는 그림자 안 받음
             }
-            Debug.Log($"[AnimationRenderer8Direction_Rotate] 캐릭터 {renderers.Length}개 렌더러 그림자 설정 완료");
         }
 
-        Debug.Log("[AnimationRenderer8Direction_Rotate] Shadow Catcher 시스템 초기화 완료");
     }
 
     void CreateCharacterOutline(Transform sourceRoot)
@@ -340,7 +333,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
         outlineInstance.transform.localScale = Vector3.one;
         
         // 디버그: 아웃라인 부모 설정 확인
-        Debug.Log($"[AnimationRenderer8Direction_Rotate] 아웃라인 부모 설정: {outlineInstance.transform.parent.name}");
 
         // Animator 찾기 (애니메이션 동기화용)
         outlineAnimator = outlineInstance.GetComponent<Animator>();
@@ -404,7 +396,6 @@ public class AnimationRenderer8Direction_Rotate : MonoBehaviour
                 Destroy(s);
         }
 
-        Debug.Log($"[AnimationRenderer8Direction_Rotate] 아웃라인 생성: {renderers.Length}개 렌더러, 두께 {outlineThickness}배");
     }
 
     void OnDestroy()

@@ -68,7 +68,6 @@ public class GrassAutoSpawner : MonoBehaviour
         {
             // Collider 타입 로그
             string colliderType = areaCollider.GetType().Name;
-            Debug.Log($"[GrassAutoSpawner] {colliderType} 영역 감지됨 ({gameObject.name})");
         }
         else
         {
@@ -110,11 +109,9 @@ public class GrassAutoSpawner : MonoBehaviour
         
         PrepareSpawnRoot();
         
-        Debug.Log($"[GrassAutoSpawner] 풀 생성 시작... (목표: {spawnCount}개)");
         
         List<Vector2> spawnPoints = GenerateSpawnPoints();
         
-        Debug.Log($"[GrassAutoSpawner] 유효한 스폰 포인트 생성 완료: {spawnPoints.Count}개");
         
         int successCount = 0;
         
@@ -140,7 +137,6 @@ public class GrassAutoSpawner : MonoBehaviour
             successCount++;
         }
         
-        Debug.Log($"[GrassAutoSpawner] 풀 생성 완료! ✅ 성공: {successCount}개 / 목표: {spawnCount}개");
     }
     
     /// <summary>
@@ -165,7 +161,6 @@ public class GrassAutoSpawner : MonoBehaviour
 #endif
         }
         
-        Debug.Log($"[GrassAutoSpawner] {count}개의 풀 삭제 완료 🗑️");
     }
     
     /// <summary>
@@ -176,11 +171,9 @@ public class GrassAutoSpawner : MonoBehaviour
         if (!ValidateSetup())
             return new List<Vector2>();
         
-        Debug.Log($"[GrassAutoSpawner] 프리뷰 포인트 생성 중... (목표: {spawnCount}개)");
         
         List<Vector2> points = GenerateSpawnPoints();
         
-        Debug.Log($"[GrassAutoSpawner] 프리뷰 포인트 생성 완료: {points.Count}개 👁️");
         
         return points;
     }
@@ -386,7 +379,6 @@ public class GrassAutoSpawner : MonoBehaviour
             container.transform.localPosition = Vector3.zero;
             spawnRoot = container.transform;
             
-            Debug.Log($"[GrassAutoSpawner] spawnRoot 자동 생성: {container.name}");
         }
     }
     
