@@ -26,8 +26,6 @@ namespace CutsceneSystem
         [SerializeField] private float defaultTypingSpeed = 20f;
         
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool enableDebugLogs = false;
-        
         // 현재 상태
         private bool isTyping = false;
         private string currentFullText = "";
@@ -130,9 +128,6 @@ namespace CutsceneSystem
             // 타이핑 효과 시작
             currentFullText = text;
             
-            if (enableDebugLogs)
-                Debug.Log($"[DialoguePanel] 대사 표시 시작: {speakerName} - {text.Substring(0, Mathf.Min(20, text.Length))}..., typingSpeed: {typingSpeed}");
-            
             if (typingSpeed > 0)
             {
                 StartTyping(text, typingSpeed);
@@ -144,8 +139,6 @@ namespace CutsceneSystem
                     dialogueText.text = text;
             }
             
-            if (enableDebugLogs)
-                Debug.Log($"[DialoguePanel] 대사 표시: {speakerName} - {text.Substring(0, Mathf.Min(20, text.Length))}...");
         }
         
         /// <summary>
@@ -183,8 +176,6 @@ namespace CutsceneSystem
                     speakerNameText.text = "";
             }
             
-            if (enableDebugLogs)
-                Debug.Log("[DialoguePanel] 대사 숨김");
         }
         
         /// <summary>
@@ -213,13 +204,10 @@ namespace CutsceneSystem
                         isTyping = false;
                     });
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DialoguePanel] DOText 사용: {duration:F2}초");
             }
             catch
             {
                 // 2순위: 코루틴 Fallback
-                if (enableDebugLogs)
                     Debug.LogWarning("[DialoguePanel] DOText 실패, 코루틴 Fallback 사용");
                 
                 dialogueText.text = "";
@@ -271,8 +259,6 @@ namespace CutsceneSystem
             
             isTyping = false;
             
-            if (enableDebugLogs)
-                Debug.Log("[DialoguePanel] 타이핑 즉시 완료");
         }
         
         /// <summary>

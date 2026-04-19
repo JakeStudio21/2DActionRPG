@@ -175,7 +175,6 @@ public class StageEndItemTransfer : MonoBehaviour
     {
         if (enableLogs)
         {
-            Debug.Log($"[StageEndItemTransfer] {message}");
         }
     }
     

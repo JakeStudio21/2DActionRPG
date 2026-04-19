@@ -42,11 +42,9 @@ public static class GradeBudgetDataLoader
     {
         if (IsInitialized)
         {
-            Debug.Log("✅ [GradeBudgetDataLoader] 이미 초기화됨 (캐시 사용)");
             return;
         }
         
-        Debug.Log("📊 [GradeBudgetDataLoader] CSV 파싱 시작...");
         
         BudgetTable = new Dictionary<ItemGrade, Dictionary<EquipmentSlot, float>>();
         
@@ -81,7 +79,6 @@ public static class GradeBudgetDataLoader
             if (slot.HasValue)
             {
                 columnIndexToSlot[col] = slot.Value;
-                Debug.Log($"   📍 Column {col} ({headerColumns[col]}) → {slot.Value}");
             }
         }
         
@@ -131,14 +128,10 @@ public static class GradeBudgetDataLoader
             BudgetTable[grade.Value] = slotBudgets;
             parsedCount++;
             
-            Debug.Log($"✅ [GradeBudgetDataLoader] {grade.Value}: {slotBudgets.Count}개 슬롯 로드");
         }
         
         IsInitialized = true;
         
-        Debug.Log("========================================");
-        Debug.Log($"✅ [GradeBudgetDataLoader] 초기화 완료: {parsedCount}개 등급 로드");
-        Debug.Log("========================================");
     }
     
     #endregion
@@ -163,7 +156,6 @@ public static class GradeBudgetDataLoader
             BudgetTable[grade].ContainsKey(slot))
         {
             float budget = BudgetTable[grade][slot];
-            Debug.Log($"💰 [GradeBudgetDataLoader] {grade} {slot} = {budget:F2}");
             return budget;
         }
         

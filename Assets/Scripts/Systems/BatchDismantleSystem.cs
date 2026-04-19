@@ -160,7 +160,6 @@ namespace Systems
                 }
             }
             
-            Debug.Log($"🔨 [BatchDismantle] 일괄 분해 완료: {result.successCount}/{result.totalItems} 성공");
             
             return result;
         }
@@ -201,7 +200,6 @@ namespace Systems
                 return new BatchDismantleResult();
             }
             
-            Debug.Log($"🔍 [BatchDismantle] 조건에 맞는 아이템 {targets.Count}개 발견");
             
             return ExecuteBatchDismantle(targets);
         }

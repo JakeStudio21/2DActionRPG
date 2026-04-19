@@ -40,7 +40,6 @@ namespace CueSystem
             BuildLookupTables();
             BuildMergedCache();
             
-            Debug.Log($"🎭 [CueProfile] {profileId} 초기화 완료 - 엔트리: {entries.Count}개, VFX: {vfxCatalog.Count}개, SFX: {sfxCatalog.Count}개");
         }
         
         /// <summary>
@@ -50,17 +49,13 @@ namespace CueSystem
         {
             if (_mergedCache == null)
             {
-                Debug.Log($"🔍 [CueProfile] {profileId} - 캐시가 null, Initialize() 호출");
                 Initialize();
             }
             
             // ✅ 디버깅: 캐시 내용 확인
-            Debug.Log($"🔍 [CueProfile] {profileId} - 캐시된 키들: [{string.Join(", ", _mergedCache.Keys)}]");
-            Debug.Log($"🔍 [CueProfile] {profileId} - 요청 키: '{eventKey}'");
             
             bool found = _mergedCache.TryGetValue(eventKey, out CueSlot slot);
             
-            Debug.Log($"🔍 [CueProfile] {profileId} - 키 '{eventKey}' 찾기 결과: {found}");
             
             return slot; // null이면 빈 슬롯
         }
@@ -98,7 +93,6 @@ namespace CueSystem
             _vfxLookup = null;
             _sfxLookup = null;
             
-            Debug.Log($"🔄 [CueProfile] {profileId} 캐시 무효화");
         }
         
         #region Private Methods

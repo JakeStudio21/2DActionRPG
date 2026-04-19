@@ -38,7 +38,6 @@ namespace CueSystem
                 return false;
             }
             
-            Debug.Log($"🎯 [CueEmitter] Cue 발행: {eventKey} (도메인: {domain})");
             
             // 기존 로직 실행
             return CuePlayer.Instance.Play(eventKey, domain, context);

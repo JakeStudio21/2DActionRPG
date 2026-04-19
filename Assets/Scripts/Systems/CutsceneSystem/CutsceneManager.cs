@@ -30,8 +30,6 @@ namespace CutsceneSystem
         [SerializeField] private bool autoRegisterCueProfile = true;
         
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool enableDebugLogs = true;
-        
         // 현재 상태
         private bool isPlaying = false;
         private CutsceneData currentCutsceneData;
@@ -81,8 +79,6 @@ namespace CutsceneSystem
                 RegisterCutsceneCueProfile();
             }
             
-            if (enableDebugLogs)
-                Debug.Log("[CutsceneManager] ✅ 초기화 완료 (확장 버전)");
         }
         
         /// <summary>
@@ -92,7 +88,6 @@ namespace CutsceneSystem
         {
             if (CueSystem.CueRegistry.Instance == null)
             {
-                if (enableDebugLogs)
                     Debug.LogWarning("[CutsceneManager] CueRegistry를 찾을 수 없습니다. CueProfile 자동 등록을 건너뜁니다.");
                 return;
             }
@@ -102,8 +97,6 @@ namespace CutsceneSystem
             {
                 CueSystem.CueRegistry.Instance.RegisterProfile("Cutscene", cutsceneCueProfile);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[CutsceneManager] CueProfile 등록 완료: {cutsceneCueProfile.profileId}");
                 return;
             }
             
@@ -113,12 +106,9 @@ namespace CutsceneSystem
             {
                 CueSystem.CueRegistry.Instance.RegisterProfile("Cutscene", profile);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[CutsceneManager] CueProfile 자동 로드 및 등록 완료: {profile.profileId}");
             }
             else
             {
-                if (enableDebugLogs)
                     Debug.LogWarning("[CutsceneManager] 컷신용 CueProfile을 찾을 수 없습니다. " +
                                    "Inspector에서 할당하거나 Resources/CueProfiles/Cutscene_CutsceneProfile.asset을 생성해주세요.");
             }
@@ -141,8 +131,6 @@ namespace CutsceneSystem
             {
                 RegisterCutsceneCueProfile();
                 
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] ✅ CueProfile 등록 확인 완료 (컷신 재생 전)");
             }
         }
         
@@ -173,7 +161,6 @@ namespace CutsceneSystem
         {
             if (isPlaying)
             {
-                if (enableDebugLogs)
                     Debug.LogWarning($"[CutsceneManager] 이미 컷신이 재생 중입니다: {currentCutsceneData?.cutsceneId}");
                 return;
             }
@@ -196,7 +183,6 @@ namespace CutsceneSystem
         {
             if (isPlaying)
             {
-                if (enableDebugLogs)
                     Debug.LogWarning($"[CutsceneManager] 이미 컷신이 재생 중입니다: {currentCutsceneData?.cutsceneId}");
                 return;
             }
@@ -218,9 +204,7 @@ namespace CutsceneSystem
             
             currentCutsceneData = data;
             isPlaying = true;
-            
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneManager] 컷신 재생 시작: {data.cutsceneId}");
+            Dbg.Log($"[CutsceneManager] 컷씬 시작: {data.cutsceneId}");
             
             // 🎵 컷신 전용 BGM 재생
             if (!string.IsNullOrEmpty(data.bgmEventKey))
@@ -229,8 +213,6 @@ namespace CutsceneSystem
                 {
                     BGMController.Instance.AddState(BGMController.BGMPriority.Cutscene, data.bgmEventKey);
                     
-                    if (enableDebugLogs)
-                        Debug.Log($"🎵 [CutsceneManager] 컷신 BGM 재생: {data.bgmEventKey}");
                 }
                 else
                 {
@@ -318,8 +300,6 @@ namespace CutsceneSystem
             
             currentSequence.Pause();
             
-            if (enableDebugLogs)
-                Debug.Log("[CutsceneManager] 컷신 일시정지");
         }
         
         /// <summary>
@@ -332,8 +312,6 @@ namespace CutsceneSystem
             
             currentSequence.Play();
             
-            if (enableDebugLogs)
-                Debug.Log("[CutsceneManager] 컷신 재개");
         }
         
         /// <summary>
@@ -343,9 +321,6 @@ namespace CutsceneSystem
         {
             if (!isPlaying)
                 return;
-            
-            if (enableDebugLogs)
-                Debug.Log("[CutsceneManager] ⏭️ 컷신 강제 종료 (ESC 스킵)");
             
             // Executor 스킵 처리
             if (stepExecutor != null && currentContext != null)
@@ -383,9 +358,6 @@ namespace CutsceneSystem
             
             string cutsceneId = currentCutsceneData?.cutsceneId ?? "Unknown";
             
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneManager] ✅ 컷신 완료: {cutsceneId}");
-            
             // 🎵 컷신 BGM 복귀 처리
             if (currentCutsceneData != null && 
                 !string.IsNullOrEmpty(currentCutsceneData.bgmEventKey) && 
@@ -395,8 +367,6 @@ namespace CutsceneSystem
                 {
                     BGMController.Instance.RemoveState(BGMController.BGMPriority.Cutscene);
                     
-                    if (enableDebugLogs)
-                        Debug.Log($"🎵 [CutsceneManager] 컷신 BGM 종료, 이전 BGM으로 복귀");
                 }
             }
             
@@ -422,6 +392,7 @@ namespace CutsceneSystem
             isPlaying = false;
             currentSequence = null;
             currentCutsceneData = null;
+            Dbg.Log($"[CutsceneManager] ✅ 컷씬 완료: {cutsceneId}");
             
             // 종료 이벤트
             OnCutsceneEnd?.Invoke(cutsceneId);
@@ -552,9 +523,6 @@ namespace CutsceneSystem
                 dialoguePanel.CompleteTyping();
                 isWaitingForSecondClick = true;
                 
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 1차 클릭: 타이핑 즉시 완료");
-                
                 return;
             }
             
@@ -562,23 +530,16 @@ namespace CutsceneSystem
             if (isWaitingForSecondClick)
             {
                 // Dialogue 2차 클릭
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 2차 클릭: 다음 Step으로 이동");
-                
                 isWaitingForSecondClick = false;
             }
             else
             {
                 // 다른 Step들의 1차 클릭
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 1차 클릭: 다음 Step으로 이동");
             }
             
             // 현재 Step이 아직 시작되지 않았으면 무시
             if (currentContext == null || currentContext.currentStepTween == null)
             {
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] ⚠️ 현재 Step이 아직 시작되지 않음 - 클릭 무시");
                 return;
             }
             
@@ -664,8 +625,6 @@ namespace CutsceneSystem
             // 1. 컷신 ID가 비어있으면 재생 안 함
             if (string.IsNullOrEmpty(cutsceneId))
             {
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 컷신 ID가 비어있어 재생하지 않습니다.");
                 return false;
             }
             
@@ -673,15 +632,11 @@ namespace CutsceneSystem
             // ✅ 수정: isReplaySkipCutscene이 true일 때만 HasSeenCutscene 체크
             if (isReplay && isReplaySkipCutscene && HasSeenCutscene(cutsceneId))
             {
-                if (enableDebugLogs)
-                    Debug.Log($"[CutsceneManager] 재입장 자동 스킵 (이미 시청): {cutsceneId}");
                 return false;
             }
             
             // 3. 위 조건을 모두 통과하면 재생
             // ✅ isReplaySkipCutscene = false이면 이미 본 컷신도 재생됨
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneManager] 컷신 재생 예정: {cutsceneId}");
             return true;
         }
         
@@ -699,8 +654,6 @@ namespace CutsceneSystem
             // playOnce 옵션이 true면 이미 본 컷신은 스킵
             if (cutsceneData.playOnce && HasSeenCutscene(cutsceneData.cutsceneId))
             {
-                if (enableDebugLogs)
-                    Debug.Log($"[CutsceneManager] playOnce=true, 이미 시청한 컷신: {cutsceneData.cutsceneId}");
                 return false;
             }
             
@@ -733,8 +686,6 @@ namespace CutsceneSystem
                 
                 playerController.SetMovementLocked(true);
                 
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 플레이어 입력 차단");
             }
             
             // UI 버튼 비활성화
@@ -757,8 +708,6 @@ namespace CutsceneSystem
                     playerController.SetMovementLocked(false);
                 }
                 
-                if (enableDebugLogs)
-                    Debug.Log("[CutsceneManager] 플레이어 입력 복구");
             }
             
             // UI 버튼 활성화
@@ -793,8 +742,6 @@ namespace CutsceneSystem
                 button.interactable = false;
             }
             
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneManager] UI 버튼 비활성화: {originalButtonStates.Count}개 버튼 상태 저장");
         }
         
         /// <summary>
@@ -811,9 +758,6 @@ namespace CutsceneSystem
                     kvp.Key.interactable = kvp.Value; // 원래 상태로 복원
                 }
             }
-            
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneManager] UI 버튼 복원: {originalButtonStates.Count}개 버튼 원래 상태로");
             
             // 상태 정리
             originalButtonStates.Clear();

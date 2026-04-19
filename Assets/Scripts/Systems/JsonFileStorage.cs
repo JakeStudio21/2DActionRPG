@@ -17,7 +17,6 @@ public class JsonFileStorage : IStorage
         if (!Directory.Exists(basePath))
         {
             Directory.CreateDirectory(basePath);
-            Debug.Log($"📁 [JsonFileStorage] 저장 폴더 생성: {basePath}");
         }
     }
     
@@ -27,14 +26,12 @@ public class JsonFileStorage : IStorage
         
         if (!File.Exists(filePath))
         {
-            Debug.Log($"📁 [JsonFileStorage] 파일 없음: {key}");
             return null;
         }
         
         try
         {
             string data = File.ReadAllText(filePath);
-            Debug.Log($"📥 [JsonFileStorage] 로드 성공: {key} ({data.Length} bytes)");
             return data;
         }
         catch (System.Exception e)
@@ -51,7 +48,6 @@ public class JsonFileStorage : IStorage
         try
         {
             File.WriteAllText(filePath, data);
-            Debug.Log($"💾 [JsonFileStorage] 저장 성공: {key} ({data.Length} bytes)");
         }
         catch (System.Exception e)
         {
@@ -74,7 +70,6 @@ public class JsonFileStorage : IStorage
             try
             {
                 File.Delete(filePath);
-                Debug.Log($"🗑️ [JsonFileStorage] 삭제 성공: {key}");
             }
             catch (System.Exception e)
             {

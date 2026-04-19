@@ -216,7 +216,6 @@ namespace Systems
             if (templateName.EndsWith("_Equipment"))
             {
                 templateName = templateName.Substring(0, templateName.Length - "_Equipment".Length);
-                Debug.Log($"🔧 [FusionSystem] _Equipment 접미사 제거: {baseItem.templateName} → {templateName}");
             }
             
             // ⭐ 2단계: 마지막 언더스코어 이후 등급 문자열 교체
@@ -234,7 +233,6 @@ namespace Systems
                 resultTemplateName = templateName + "_" + nextGrade.ToString();
             }
             
-            Debug.Log($"🔄 [FusionSystem] 합성 결과 템플릿: {baseItem.templateName} ({baseTemplate.itemGrade}) → {resultTemplateName} ({nextGrade})");
 
             try
             {
@@ -245,7 +243,6 @@ namespace Systems
                     Debug.LogError($"❌ [FusionSystem] 골드 소모 실패: {fusionCost} (잔액 부족)");
                     return false;
                 }
-                Debug.Log($"💰 [FusionSystem] 골드 소모: -{fusionCost}");
 
                 // 2. 재료 아이템 삭제
                 foreach (var materialId in materialIds)
@@ -256,7 +253,6 @@ namespace Systems
                     // 아이템 인스턴스 삭제 (RemoveInstance가 자동으로 귀속도 제거함)
                     account.RemoveInstance(materialId);
                 }
-                Debug.Log($"🗑️ [FusionSystem] 재료 {materialIds.Count}개 소모");
 
                 // 3. 결과 아이템 생성 (강화 +0)
                 resultId = account.RegisterNewInstance(resultTemplateName);
@@ -273,7 +269,6 @@ namespace Systems
                     if (dynamicResult != null)
                     {
                         EquipmentInstanceConverter.ApplyDynamicStats(resultData, dynamicResult);
-                        Debug.Log($"🎲 [FusionSystem] 동적 스탯 생성 완료: 주옵션={resultData.finalMainStatValue}, 부옵션={resultData.randomSubStats.Count}개");
                     }
                 }
 
@@ -287,19 +282,17 @@ namespace Systems
                     resultId = default;
                     return false;
                 }
-                Debug.Log($"📦 [FusionSystem] 결과 아이템 추가: {resultTemplateName} (ID: {resultId})");
 
                 // 5. 저장
                 account.Save();
+                Dbg.Log($"[FusionSystem] ✅ 합성 성공: {baseTemplate.itemGrade} {baseTemplate.equipmentType} → {nextGrade}");
                 
                 // 6. ⭐ UI 이벤트 발생 (상점 UI 갱신용)
                 if (PlayerDataManager.Instance != null)
                 {
                     PlayerDataManager.Instance.NotifyInventoryChanged();
-                    Debug.Log("🔔 [FusionSystem] OnInventoryChanged 이벤트 발생 (상점 UI 갱신)");
                 }
                 
-                Debug.Log($"✨ [FusionSystem] 합성 성공: {baseTemplate.itemGrade} {baseTemplate.equipmentType} x{materialIds.Count} → {nextGrade} {baseTemplate.equipmentType} (결과 ID: {resultId})");
                 return true;
             }
             catch (System.Exception ex)

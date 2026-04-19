@@ -31,7 +31,6 @@ namespace CutsceneSystem
                 }
                 else
                 {
-                    Debug.Log($"[ImageStepExecutor] 동적 플레이어 포트레이트 로드 성공: {targetSprite.name}");
                 }
             }
             

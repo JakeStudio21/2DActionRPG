@@ -55,7 +55,6 @@ namespace CutsceneSystem
             {
                 string playerName = GetPlayerName();
                 text = text.Replace("{PLAYER_NAME}", playerName);
-                Debug.Log($"[DialogueStepExecutor] 키워드 치환: {{PLAYER_NAME}} → {playerName}");
             }
             
             // {PLAYER_CLASS} → 클래스 이름 (예: "전사", "암살자")
@@ -63,7 +62,6 @@ namespace CutsceneSystem
             {
                 string className = GetPlayerClassName();
                 text = text.Replace("{PLAYER_CLASS}", className);
-                Debug.Log($"[DialogueStepExecutor] 키워드 치환: {{PLAYER_CLASS}} → {className}");
             }
             
             // {PLAYER} → 간편 버전 (클래스 이름)
@@ -71,7 +69,6 @@ namespace CutsceneSystem
             {
                 string className = GetPlayerClassName();
                 text = text.Replace("{PLAYER}", className);
-                Debug.Log($"[DialogueStepExecutor] 키워드 치환: {{PLAYER}} → {className}");
             }
             
             return text;
@@ -139,7 +136,6 @@ namespace CutsceneSystem
         {
             if (context.dialoguePanel != null && context.dialoguePanel.IsTyping)
             {
-                Debug.Log("[DialogueStepExecutor] ⏭️ 타이핑 즉시 완료");
                 context.dialoguePanel.CompleteTyping();
             }
         }

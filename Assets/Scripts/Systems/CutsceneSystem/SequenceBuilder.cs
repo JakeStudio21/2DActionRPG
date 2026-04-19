@@ -74,7 +74,6 @@ namespace CutsceneSystem
                 }
             }
             
-            Debug.Log($"[SequenceBuilder] ✅ Sequence 생성 완료: {data.cutsceneId} ({data.steps.Count}개 Step)");
             
             return sequence;
         }

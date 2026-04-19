@@ -23,8 +23,6 @@ namespace CutsceneSystem
         [SerializeField] private bool playOnce = true;
         
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool enableDebugLogs = true;
-        
         // 재생 여부 추적
         private static System.Collections.Generic.HashSet<string> playedCutscenes = new System.Collections.Generic.HashSet<string>();
         private bool hasPlayed = false;
@@ -53,8 +51,6 @@ namespace CutsceneSystem
                 string key = GetCutsceneKey();
                 if (playedCutscenes.Contains(key))
                 {
-                    if (enableDebugLogs)
-                        Debug.Log($"[SceneStartTrigger] 이미 재생한 컷신: {key}");
                     return;
                 }
                 
@@ -74,16 +70,12 @@ namespace CutsceneSystem
                 // 직접 할당된 데이터 사용
                 CutsceneManager.Instance.PlayCutscene(cutsceneData);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[SceneStartTrigger] 컷신 재생: {cutsceneData.cutsceneId}");
             }
             else if (!string.IsNullOrEmpty(cutsceneId))
             {
                 // ID로 재생
                 CutsceneManager.Instance.PlayCutscene(cutsceneId);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[SceneStartTrigger] 컷신 재생: {cutsceneId}");
             }
             else
             {
@@ -109,7 +101,6 @@ namespace CutsceneSystem
         {
             playedCutscenes.Clear();
             hasPlayed = false;
-            Debug.Log("[SceneStartTrigger] 재생 기록 초기화 완료");
         }
     }
 }

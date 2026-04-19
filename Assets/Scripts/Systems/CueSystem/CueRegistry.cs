@@ -19,7 +19,6 @@ namespace CueSystem
         public CueProfile globalDefaults;  // 글로벌 기본값
         
         [Header("🔧 디버그 설정")]
-        public bool showDebugLogs = true;
         public MissingKeyPolicy missingKeyPolicy = MissingKeyPolicy.WarnAndGlobalDefault;
         
         // 런타임 프로필 딕셔너리
@@ -50,8 +49,6 @@ namespace CueSystem
             RegisterProfile("BGM", bgmProfile);
             RegisterProfile("Global", globalDefaults);
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [CueRegistry] 초기화 완료 - 등록된 프로필: {_profileRegistry.Count}개");
         }
         
         /// <summary>
@@ -61,7 +58,6 @@ namespace CueSystem
         {
             if (profile == null)
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [CueRegistry] {domain} 프로필이 null입니다");
                 return;
             }
@@ -74,8 +70,6 @@ namespace CueSystem
             _profileRegistry[domain] = profile;
             profile.Initialize(); // 머지-캐시 생성
             
-            if (showDebugLogs)
-                Debug.Log($"📝 [CueRegistry] {domain} 프로필 등록: {profile.profileId}");
         }
         
         /// <summary>
@@ -89,7 +83,6 @@ namespace CueSystem
             // 1. 도메인 프로필 조회
             if (!_profileRegistry.TryGetValue(domain, out CueProfile profile))
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [CueRegistry] HasKey() - 도메인 '{domain}' 프로필 없음");
                 return false;
             }
@@ -97,9 +90,6 @@ namespace CueSystem
             // 2. 프로필에서 키 존재 확인
             var slot = profile.Resolve(eventKey);
             bool exists = slot != null && !slot.IsEmpty;
-            
-            if (showDebugLogs)
-                Debug.Log($"🔍 [CueRegistry] HasKey({domain}.{eventKey}) = {exists}");
             
             return exists;
         }
@@ -112,8 +102,6 @@ namespace CueSystem
             _totalResolves++;
             
             // ✅ 디버깅: 등록된 도메인들 확인
-            Debug.Log($"🔍 [CueRegistry] 해석 요청 - 도메인: '{domain}', 키: '{eventKey}'");
-            Debug.Log($"🔍 [CueRegistry] 등록된 도메인들: [{string.Join(", ", _profileRegistry.Keys)}]");
             
             // 1. 도메인 프로필 조회
             if (!_profileRegistry.TryGetValue(domain, out CueProfile profile))
@@ -123,7 +111,6 @@ namespace CueSystem
                 return null;
             }
             
-            Debug.Log($"🔍 [CueRegistry] 도메인 '{domain}' 프로필 발견: {profile.name}");
             
             // 2. 프로필에서 키 해석
             var slot = profile.Resolve(eventKey);
@@ -140,7 +127,6 @@ namespace CueSystem
                 slot = globalDefaults.Resolve(eventKey);
                 if (slot != null && !slot.IsEmpty)
                 {
-                    if (showDebugLogs)
                         Debug.LogWarning($"⚠️ [CueRegistry] {domain}.{eventKey} 누락 → 글로벌 기본값 사용");
                     
                     _cacheHits++;
@@ -162,8 +148,6 @@ namespace CueSystem
             if (_profileRegistry.TryGetValue(domain, out CueProfile profile))
             {
                 profile.InvalidateCache();
-                if (showDebugLogs)
-                    Debug.Log($"🔄 [CueRegistry] {domain} 캐시 무효화");
             }
         }
         
@@ -177,8 +161,6 @@ namespace CueSystem
                 profile?.InvalidateCache();
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🔄 [CueRegistry] 전체 캐시 무효화");
         }
         
         /// <summary>
@@ -188,19 +170,13 @@ namespace CueSystem
         {
             float hitRate = _totalResolves > 0 ? (float)_cacheHits / _totalResolves * 100f : 0f;
             
-            Debug.Log($"📊 [CueRegistry] 성능 통계:");
-            Debug.Log($"   총 해석: {_totalResolves}회");
-            Debug.Log($"   캐시 히트: {_cacheHits}회 ({hitRate:F1}%)");
-            Debug.Log($"   캐시 미스: {_cacheMisses}회");
             
-            Debug.Log($"📈 [CueRegistry] 인기 키 TOP 5:");
             var sortedStats = new List<KeyValuePair<string, int>>(_resolveStats);
             sortedStats.Sort((a, b) => b.Value.CompareTo(a.Value));
             
             for (int i = 0; i < Mathf.Min(5, sortedStats.Count); i++)
             {
                 var kvp = sortedStats[i];
-                Debug.Log($"   {i + 1}. {kvp.Key}: {kvp.Value}회");
             }
         }
         

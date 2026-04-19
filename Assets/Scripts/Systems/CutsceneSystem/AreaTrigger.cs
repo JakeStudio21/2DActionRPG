@@ -39,8 +39,6 @@ namespace CutsceneSystem
         [SerializeField] private bool hideVisualOnComplete = true;
         
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool enableDebugLogs = true;
-        
         // 재생 여부 추적
         private bool hasPlayed = false;
         private Collider2D triggerCollider;
@@ -74,13 +72,8 @@ namespace CutsceneSystem
             // 한 번만 재생 체크
             if (playOnce && hasPlayed)
             {
-                if (enableDebugLogs)
-                    Debug.Log("[AreaTrigger] 이미 재생한 컷신입니다.");
                 return;
             }
-            
-            if (enableDebugLogs)
-                Debug.Log($"[AreaTrigger] Player 진입 감지 - {gameObject.name}");
             
             // 지연 시간이 있으면 코루틴으로 재생
             if (delay > 0f)
@@ -118,9 +111,6 @@ namespace CutsceneSystem
         /// </summary>
         private IEnumerator DelayedPlayCutscene()
         {
-            if (enableDebugLogs)
-                Debug.Log($"[AreaTrigger] {delay}초 후 컷신 재생...");
-            
             yield return new WaitForSeconds(delay);
             
             PlayCutscene();
@@ -145,16 +135,12 @@ namespace CutsceneSystem
                 // 직접 할당된 데이터 사용
                 CutsceneManager.Instance.PlayCutscene(cutsceneData);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[AreaTrigger] 컷신 재생: {cutsceneData.cutsceneId}");
             }
             else if (!string.IsNullOrEmpty(cutsceneId))
             {
                 // ID로 재생
                 CutsceneManager.Instance.PlayCutscene(cutsceneId);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[AreaTrigger] 컷신 재생: {cutsceneId}");
             }
             else
             {
@@ -177,8 +163,6 @@ namespace CutsceneSystem
                 waitingForCutsceneEnd = true;
                 CutsceneManager.Instance.OnCutsceneEnd += OnCutsceneCompleted;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[AreaTrigger] 컷신 완료 대기 중... (Visual Element: {visualElement.name})");
             }
         }
         
@@ -206,9 +190,6 @@ namespace CutsceneSystem
             {
                 // 시각적 요소 비활성화
                 visualElement.SetActive(false);
-                
-                if (enableDebugLogs)
-                    Debug.Log($"[AreaTrigger] 컷신 완료 - 시각적 요소 비활성화: {visualElement.name}");
                 
                 // 이벤트 구독 해제
                 CutsceneManager.Instance.OnCutsceneEnd -= OnCutsceneCompleted;
@@ -255,7 +236,6 @@ namespace CutsceneSystem
                 visualElement.SetActive(true);
             }
             
-            Debug.Log("[AreaTrigger] 재생 기록 초기화 완료");
         }
         
         /// <summary>

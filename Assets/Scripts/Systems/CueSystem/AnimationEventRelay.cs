@@ -15,8 +15,6 @@ namespace CueSystem
         [SerializeField] private bool autoDetectDomain = true;
         
         [Header("🔧 디버그 설정")]
-        [SerializeField] private bool showDebugLogs = true;
-        
         // 도메인 캐시 (성능 최적화)
         private string _cachedDomain;
         
@@ -32,8 +30,6 @@ namespace CueSystem
                 _cachedDomain = defaultDomain;
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🎬 [AnimationEventRelay] 초기화: {gameObject.name} → 도메인: {_cachedDomain}");
         }
         
         /// <summary>
@@ -51,8 +47,6 @@ namespace CueSystem
             var context = CueContext.From(transform);
             bool success = CueEmitter.Emit(eventKey, _cachedDomain, context);
             
-            if (showDebugLogs)
-                Debug.Log($"🎬 [AnimationEventRelay] {gameObject.name}: {eventKey} → {_cachedDomain} (성공: {success})");
         }
         
         /// <summary>
@@ -75,8 +69,6 @@ namespace CueSystem
             var context = CueContext.From(transform, magnitude);
             bool success = CueEmitter.Emit(eventKey, _cachedDomain, context);
             
-            if (showDebugLogs)
-                Debug.Log($"🎬 [AnimationEventRelay] {gameObject.name}: {eventKey} (강도: {magnitude}) → {_cachedDomain} (성공: {success})");
         }
         
         /// <summary>
@@ -99,8 +91,6 @@ namespace CueSystem
             var context = CueContext.From(transform);
             bool success = CueEmitter.Emit(eventKey, domain, context);
             
-            if (showDebugLogs)
-                Debug.Log($"🎬 [AnimationEventRelay] {gameObject.name}: {eventKey} → {domain} (성공: {success})");
         }
         
         /// <summary>
@@ -157,8 +147,6 @@ namespace CueSystem
         public void SetDomain(string newDomain)
         {
             _cachedDomain = newDomain;
-            if (showDebugLogs)
-                Debug.Log($"🔄 [AnimationEventRelay] 도메인 변경: {gameObject.name} → {newDomain}");
         }
     }
 }

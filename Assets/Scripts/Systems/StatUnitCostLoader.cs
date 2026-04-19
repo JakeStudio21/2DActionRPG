@@ -44,11 +44,9 @@ public static class StatUnitCostLoader
     {
         if (IsInitialized)
         {
-            Debug.Log("✅ [StatUnitCostLoader] 이미 초기화됨 (캐시 사용)");
             return;
         }
 
-        Debug.Log("📊 [StatUnitCostLoader] CSV 파싱 시작...");
 
         UnitCostTable = new Dictionary<EStatType, float>();
 
@@ -104,7 +102,6 @@ public static class StatUnitCostLoader
             {
                 UnitCostTable[statType] = unitCost;
                 parsedCount++;
-                Debug.Log($"   ✅ {statType}: unitCost = {unitCost}");
             }
             else
             {
@@ -114,9 +111,6 @@ public static class StatUnitCostLoader
 
         IsInitialized = true;
 
-        Debug.Log("========================================");
-        Debug.Log($"✅ [StatUnitCostLoader] 초기화 완료: {parsedCount}개 단가 로드");
-        Debug.Log("========================================");
     }
 
     #endregion

@@ -23,7 +23,6 @@ public static class ItemTemplateResolver
     public static void SetResolver(IEquipmentResolver resolver)
     {
         _customResolver = resolver;
-        Debug.Log($"✨ [ItemTemplateResolver] 커스텀 리졸버 설정: {resolver?.GetType().Name ?? "null"}");
     }
     
     /// <summary>
@@ -193,7 +192,6 @@ public class CachedEquipmentResolver : IEquipmentResolver
     public void ClearCache()
     {
         _cache.Clear();
-        Debug.Log("🗑️ [CachedResolver] 캐시 클리어");
     }
 }
 

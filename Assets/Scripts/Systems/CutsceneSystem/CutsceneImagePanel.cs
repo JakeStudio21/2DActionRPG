@@ -26,8 +26,6 @@ namespace CutsceneSystem
         [SerializeField] private float scaleDuration = 0.3f;
         
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool enableDebugLogs = false;
-        
         // 현재 활성 트윈 추적
         private Tween currentBackgroundTween;
         private Tween currentPortraitTween;
@@ -126,9 +124,6 @@ namespace CutsceneSystem
             targetImage.sprite = sprite;
             targetImage.gameObject.SetActive(true);
             
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneImagePanel] {layerName} 이미지 표시 시작: {sprite.name}, duration: {duration}초");
-            
             // 위치 설정
             if (position != default)
             {
@@ -165,8 +160,6 @@ namespace CutsceneSystem
             // 자동 숨김 제거: 명시적으로 숨기고 싶을 때는 별도 Image Step 사용
             // (duration 파라미터는 Sequence 타이밍 제어용으로만 사용됨)
             
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneImagePanel] {layerName} 이미지 표시: {sprite.name}");
         }
         
         /// <summary>
@@ -226,8 +219,6 @@ namespace CutsceneSystem
             }
             
             string layerName = isFade ? "Fade" : (isPortrait ? "초상" : "배경");
-            if (enableDebugLogs)
-                Debug.Log($"[CutsceneImagePanel] {layerName} 이미지 숨김");
         }
         
         /// <summary>

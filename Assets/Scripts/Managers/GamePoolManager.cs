@@ -766,7 +766,6 @@ public class GamePoolManager : Singleton<GamePoolManager>
         // 임시 기본 설정 생성
         ScenePoolConfig defaultConfig = ScriptableObject.CreateInstance<ScenePoolConfig>();
         defaultConfig.sceneName = sceneName;
-        defaultConfig.enableDebugLogs = enableDebugMode;
         
         // ⭐ 핵심 개선: 씬 타입별 지능적 기본 설정
         if (sceneName.Equals("Lobby", System.StringComparison.OrdinalIgnoreCase))

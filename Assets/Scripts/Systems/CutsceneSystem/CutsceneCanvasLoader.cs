@@ -55,7 +55,6 @@ namespace CutsceneSystem
             scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
             
-            Debug.Log($"[CutsceneCanvasLoader] Canvas 로드 완료: {prefabPath}");
             
             return currentCanvasInstance;
         }
@@ -77,7 +76,6 @@ namespace CutsceneSystem
             {
                 Object.Destroy(currentCanvasInstance);
                 currentCanvasInstance = null;
-                Debug.Log("[CutsceneCanvasLoader] Canvas 정리 완료");
             }
         }
         

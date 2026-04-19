@@ -235,7 +235,6 @@ namespace Systems
                     return result;
                 }
                 
-                Debug.Log($"💎 [EnhancementSystem] 재료 소모: {materialType.GetDisplayName()} -{materialAmount}");
                 
                 // ⭐ 2. 골드 소모 (새 SO) - V2 계정 공유 골드
                 int goldCost = LevelTable.GetGoldCost(targetLevel); // ⭐ 새 SO
@@ -248,14 +247,12 @@ namespace Systems
                     return result;
                 }
                 
-                Debug.Log($"💰 [EnhancementSystem] 골드 소모: -{goldCost} (잔액: {playerData.CurrentGold})");
                 
                 // ⭐ 3. 성공/실패 판정 (새 SO)
                 float successRate = LevelTable.GetSuccessRate(targetLevel); // ⭐ 새 SO (0~100%)
                 float randomValue = Random.Range(0f, 100f);
                 bool enhancementSuccess = randomValue <= successRate;
                 
-                Debug.Log($"🎲 [EnhancementSystem] 판정: {randomValue:F2}% (성공률: {successRate:F2}%) → {(enhancementSuccess ? "성공" : "실패")}");
                 
                 // 4. 결과 적용
                 if (enhancementSuccess)
@@ -267,8 +264,7 @@ namespace Systems
                     result.success = true;
                     result.newLevel = targetLevel;
                     result.wasDestroyed = false;
-                    
-                    Debug.Log($"✨ [EnhancementSystem] 강화 성공: {template.equipmentName} +{currentLevel} → +{targetLevel}");
+                    Dbg.Log($"[EnhancementSystem] ✅ 강화 성공: +{currentLevel} → +{targetLevel}");
                 }
                 else
                 {
@@ -283,7 +279,6 @@ namespace Systems
                             result.success = false;
                             result.newLevel = currentLevel;
                             result.wasDestroyed = false;
-                            Debug.Log($"⚠️ [EnhancementSystem] 강화 실패 (유지): {template.equipmentName} +{currentLevel}");
                             break;
                             
                         case EnhancementFailureType.Downgrade:
@@ -292,7 +287,6 @@ namespace Systems
                             result.success = false;
                             result.newLevel = itemData.enhancementLevel;
                             result.wasDestroyed = false;
-                            Debug.Log($"⬇️ [EnhancementSystem] 강화 실패 (하락): {template.equipmentName} +{currentLevel} → +{itemData.enhancementLevel}");
                             break;
                             
                         case EnhancementFailureType.Destroy:
@@ -307,7 +301,6 @@ namespace Systems
                             // 아이템 인스턴스 삭제
                             account.RemoveInstance(instanceId);
                             
-                            Debug.Log($"💥 [EnhancementSystem] 강화 실패 (파괴): {template.equipmentName} +{currentLevel}");
                             break;
                     }
                 }

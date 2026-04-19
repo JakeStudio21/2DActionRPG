@@ -31,9 +31,6 @@ public class ScenePoolConfig : ScriptableObject
     [Header("Optional Pools (Load on Demand)")]
     public List<PoolSettings> optionalPools = new List<PoolSettings>();
     
-    [Header("Debug")]
-    public bool enableDebugLogs = false;
-    
     /// <summary>
     /// 모든 풀 설정 가져오기 (필수 + 선택적)
     /// </summary>

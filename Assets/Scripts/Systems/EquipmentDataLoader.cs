@@ -77,7 +77,6 @@ public class EquipmentDataLoader : MonoBehaviour
             }
 
             if (debugMode)
-                Debug.Log($"📊 [EquipmentDataLoader] 장비 데이터 로드 완료: {equipmentData.equipment.Length}개");
 
             // 각 장비 데이터 적용
             foreach (var equipment in equipmentData.equipment)
@@ -91,7 +90,6 @@ public class EquipmentDataLoader : MonoBehaviour
             // 결과 요약
             LogLoadingSummary();
             
-            Debug.Log("✅ [EquipmentDataLoader] 모든 장비 데이터 적용 완료!");
         }
         catch (Exception e)
         {
@@ -147,8 +145,6 @@ public class EquipmentDataLoader : MonoBehaviour
 
         if (debugMode)
         {
-            Debug.Log($"🔄 [EquipmentDataLoader] {entry.itemName} 업데이트 완료");
-            Debug.Log($"   📊 타입: {entry.equipmentType}, 등급: {entry.itemGrade}");
         }
     }
 
@@ -227,11 +223,6 @@ public class EquipmentDataLoader : MonoBehaviour
 
     private void LogLoadingSummary()
     {
-        Debug.Log($"📈 [EquipmentDataLoader] 로딩 결과 요약:");
-        Debug.Log($"   ⚔️ 무기: {loadedWeapons}개");
-        Debug.Log($"   🛡️ 방어구: {loadedArmors}개");
-        Debug.Log($"   💍 악세서리: {loadedAccessories}개");
-        Debug.Log($"   📦 총합: {totalLoadedItems}개");
     }
 
     [ContextMenu("Print Current Equipment Stats")]
@@ -242,22 +233,18 @@ public class EquipmentDataLoader : MonoBehaviour
         string[] guids = UnityEditor.AssetDatabase.FindAssets("t:EquipmentData");
         int equipmentCount = guids.Length;
         
-        Debug.Log($"🔍 [EquipmentDataLoader] 프로젝트 내 장비 파일 수: {equipmentCount}개");
         
         // 처음 5개만 예시로 출력 (메모리 절약)
         for (int i = 0; i < Mathf.Min(5, equipmentCount); i++)
         {
             string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[i]);
             string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
-            Debug.Log($"   📋 {i+1}. {fileName} ({path})");
         }
         
         if (equipmentCount > 5)
         {
-            Debug.Log($"   ... 외 {equipmentCount - 5}개 더");
         }
         #else
-        Debug.Log("⚠️ [EquipmentDataLoader] 에디터에서만 사용 가능한 기능입니다.");
         #endif
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
@@ -95,7 +95,6 @@ namespace StageSystem
             var poolConfig = ScriptableObject.CreateInstance<ScenePoolConfig>();
             // poolConfig.sceneName = $"Stage_{stageId}";
             poolConfig.sceneName = stageId.Replace("STAGE_", "Stage_");
-            poolConfig.enableDebugLogs = false;
             poolConfig.requiredPools = new List<ScenePoolConfig.PoolSettings>();
             
             // 각 요구사항을 PoolSettings으로 변환

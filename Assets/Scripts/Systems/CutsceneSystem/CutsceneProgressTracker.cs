@@ -157,7 +157,6 @@ namespace CutsceneSystem
             // PlayerDataManager에 즉시 저장
             PlayerDataManager.Instance.SaveOnMeaningfulEvent($"Cutscene_{cutsceneId}");
             
-            Debug.Log($"✅ [CutsceneProgressTracker] 컷신 시청 기록 및 저장 완료: {cutsceneId} (카테고리: {category})");
         }
         
         /// <summary>
@@ -199,7 +198,6 @@ namespace CutsceneSystem
                 (upperCutsceneId.Contains("_START") || upperCutsceneId.Contains("_ENTER")))
             {
                 #if UNITY_EDITOR
-                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → STAGE_ENTER");
                 #endif
                 return "STAGE_ENTER";
             }
@@ -210,7 +208,6 @@ namespace CutsceneSystem
                 upperCutsceneId.Contains("_CLEAR"))
             {
                 #if UNITY_EDITOR
-                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → STAGE_CLEAR");
                 #endif
                 return "STAGE_CLEAR";
             }
@@ -220,7 +217,6 @@ namespace CutsceneSystem
             if (upperCutsceneId.Contains("_START"))
             {
                 #if UNITY_EDITOR
-                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_START");
                 #endif
                 return "CHAPTER_START";
             }
@@ -230,7 +226,6 @@ namespace CutsceneSystem
             if (upperCutsceneId.Contains("_CLEAR"))
             {
                 #if UNITY_EDITOR
-                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_CLEAR");
                 #endif
                 return "CHAPTER_CLEAR";
             }
@@ -239,14 +234,12 @@ namespace CutsceneSystem
             if (upperCutsceneId == "PROLOGUE" || upperCutsceneId.Contains("INTRO"))
             {
                 #if UNITY_EDITOR
-                Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_START (프롤로그)");
                 #endif
                 return "CHAPTER_START"; // 프롤로그는 챕터 시작으로 분류
             }
             
             // 기본값: 챕터 시작으로 분류
             #if UNITY_EDITOR
-            Debug.Log($"[CutsceneProgressTracker] {cutsceneId} → CHAPTER_START (기본값)");
             #endif
             return "CHAPTER_START";
         }
@@ -315,7 +308,6 @@ namespace CutsceneSystem
             PlayerDataManager.Instance.MarkDirty();
             PlayerDataManager.Instance.SaveCurrentSlot();
             
-            Debug.Log("🗑️ [CutsceneProgressTracker] 모든 컷신 시청 기록 초기화 완료");
         }
     }
 }

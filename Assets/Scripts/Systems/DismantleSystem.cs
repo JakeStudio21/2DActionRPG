@@ -198,7 +198,7 @@ namespace Systems
                     PlayerDataManager.Instance.NotifyInventoryChanged();
                 }
                 
-                Debug.Log($"✅ [DismantleSystem] 분해 완료: {itemData.templateName} → {string.Join(", ", rewards)}");
+                Dbg.Log($"✅ [DismantleSystem] 분해 완료: {itemData.templateName} → {string.Join(", ", rewards)}");
                 
                 return rewards;
             }
@@ -222,7 +222,6 @@ namespace Systems
             if (accountData.sharedInventoryIds.Contains(instanceId))
             {
                 accountData.sharedInventoryIds.Remove(instanceId);
-                Debug.Log($"[DismantleSystem] 계정 창고에서 제거: {instanceId}");
                 return true;
             }
             
@@ -230,7 +229,6 @@ namespace Systems
             if (accountData.mailboxIds.Contains(instanceId))
             {
                 accountData.mailboxIds.Remove(instanceId);
-                Debug.Log($"[DismantleSystem] 우편함에서 제거: {instanceId}");
                 return true;
             }
             
@@ -248,7 +246,6 @@ namespace Systems
                     {
                         slotData.characterBagInstanceIds.Remove(instanceId);
                         playerData.SaveSlotData(slotData);
-                        Debug.Log($"[DismantleSystem] 슬롯 {i} 가방에서 제거: {instanceId}");
                         return true;
                     }
                 }

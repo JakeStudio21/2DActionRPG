@@ -24,9 +24,6 @@ public abstract class BaseBuffEffect : IBuffEffect
     [SerializeField] protected int stackCount = 1;
     [SerializeField] protected int maxStackCount = 1;
     
-    [Header("🔧 디버그")]
-    [SerializeField] protected bool showDebugLogs = true;
-    
     // IBuffEffect 구현
     public virtual string EffectID => effectID;
     public virtual string EffectName => effectName;
@@ -46,8 +43,6 @@ public abstract class BaseBuffEffect : IBuffEffect
         remainingTime = duration;
         stackCount = 1;
         
-        if (showDebugLogs)
-            Debug.Log($"🔥 [BuffEffect] {effectName} 초기화 - 지속시간: {duration}초");
     }
     
     /// <summary>
@@ -61,8 +56,6 @@ public abstract class BaseBuffEffect : IBuffEffect
         
         if (remainingTime <= 0)
         {
-            if (showDebugLogs)
-                Debug.Log($"⏰ [BuffEffect] {effectName} 만료됨");
             return true; // 만료
         }
         
@@ -78,8 +71,6 @@ public abstract class BaseBuffEffect : IBuffEffect
         {
             // 중첩 불가능하면 지속시간 갱신
             remainingTime = duration;
-            if (showDebugLogs)
-                Debug.Log($"🔄 [BuffEffect] {effectName} 지속시간 갱신");
             return;
         }
         
@@ -88,15 +79,11 @@ public abstract class BaseBuffEffect : IBuffEffect
             stackCount++;
             remainingTime = Mathf.Max(remainingTime, newEffect.Duration); // 더 긴 시간으로
             
-            if (showDebugLogs)
-                Debug.Log($"📚 [BuffEffect] {effectName} 중첩 증가: {stackCount}/{maxStackCount}");
         }
         else
         {
             // 최대 중첩에서는 지속시간만 갱신
             remainingTime = newEffect.Duration;
-            if (showDebugLogs)
-                Debug.Log($"🔄 [BuffEffect] {effectName} 최대 중첩 상태에서 지속시간 갱신");
         }
     }
     

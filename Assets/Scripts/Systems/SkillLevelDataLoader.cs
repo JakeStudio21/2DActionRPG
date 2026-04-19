@@ -27,8 +27,6 @@ public class SkillLevelDataLoader : MonoBehaviour
     public string csvFileName = "SkillLevelData";
     
     [Header("🔧 디버그")]
-    public bool showDebugLogs = true;
-    
     // 캐시: SkillID → (Level → SkillLevelInfo)
     private Dictionary<string, Dictionary<int, SkillLevelInfo>> skillLevelCache;
     
@@ -102,8 +100,6 @@ public class SkillLevelDataLoader : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [SkillLevelDataLoader] 스킬 레벨 데이터 로드 완료: {skillLevelCache.Count}개 스킬");
     }
     
     /// <summary>
@@ -113,14 +109,12 @@ public class SkillLevelDataLoader : MonoBehaviour
     {
         if (skillLevelCache == null || !skillLevelCache.ContainsKey(skillID))
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [SkillLevelDataLoader] 스킬 '{skillID}'의 데이터를 찾을 수 없습니다.");
             return default;
         }
         
         if (!skillLevelCache[skillID].ContainsKey(level))
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [SkillLevelDataLoader] 스킬 '{skillID}' 레벨 {level} 데이터를 찾을 수 없습니다.");
             return default;
         }

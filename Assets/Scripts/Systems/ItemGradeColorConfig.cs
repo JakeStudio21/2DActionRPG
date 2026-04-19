@@ -43,9 +43,6 @@ namespace Systems
             new GradeColorEntry(ItemGrade.TR, new Color(1f, 0f, 0f, 1f))            // 빨간색
         };
         
-        [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = false;
-        
         /// <summary>
         /// 등급별 색상 가져오기
         /// </summary>
@@ -56,15 +53,11 @@ namespace Systems
             {
                 if (gradeColors[i].grade == grade)
                 {
-                    if (showDebugLogs)
-                        Debug.Log($"[ItemGradeColorConfig] {grade} 등급 색상: {gradeColors[i].color}");
-                    
                     return gradeColors[i].color;
                 }
             }
             
             // 기본값: 흰색
-            if (showDebugLogs)
                 Debug.LogWarning($"[ItemGradeColorConfig] {grade} 등급 색상 없음 - 기본값(흰색) 반환");
             
             return Color.white;

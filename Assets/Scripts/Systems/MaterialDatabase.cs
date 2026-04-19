@@ -62,7 +62,7 @@ public class MaterialDatabase : ScriptableObject
             _cache[mat.materialType] = mat;
         }
         
-        Debug.Log($"[MaterialDatabase] 캐시 빌드 완료: {_cache.Count}개 재료");
+        Dbg.Log($"[MaterialDatabase] 캐시 빌드 완료: {_cache.Count}개 재료");
     }
     
     /// <summary>
@@ -161,9 +161,6 @@ public class MaterialDatabase : ScriptableObject
     [ContextMenu("Validate Database")]
     public void ValidateDatabase()
     {
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log("🔍 [MaterialDatabase] 유효성 검사 시작");
-        Debug.Log("═══════════════════════════════════════════════════════");
         
         int validCount = 0;
         int nullCount = 0;
@@ -217,26 +214,16 @@ public class MaterialDatabase : ScriptableObject
             }
             
             validCount++;
-            Debug.Log($"✅ {mat.materialType}: {mat.displayName} [{mat.rarity}] (ID: {mat.materialId}, 정렬: {mat.sortOrder})");
         }
         
-        Debug.Log("═══════════════════════════════════════════════════════");
-        Debug.Log($"📊 검사 결과:");
-        Debug.Log($"  - 유효: {validCount}개");
-        Debug.Log($"  - Null: {nullCount}개");
-        Debug.Log($"  - 중복: {duplicateCount}개");
-        Debug.Log($"  - materialId 없음: {missingIdCount}개");
-        Debug.Log($"  - 아이콘 없음: {missingIconCount}개");
         
         if (validCount == 9 && nullCount == 0 && duplicateCount == 0)
         {
-            Debug.Log("✅ 데이터베이스 완벽!");
         }
         else
         {
             Debug.LogWarning("⚠️ 데이터베이스에 문제가 있습니다.");
         }
-        Debug.Log("═══════════════════════════════════════════════════════");
     }
 }
 

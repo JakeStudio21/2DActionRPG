@@ -30,7 +30,6 @@ namespace CutsceneSystem
                 { CutsceneStepType.Callback, new CallbackStepExecutor() }
             };
             
-            Debug.Log($"[CutsceneStepExecutor] ✅ Executor 초기화 완료: {_executors.Count}개 타입");
         }
         
         public Tween ExecuteStep(CutsceneStep step, CutsceneContext context)
@@ -58,7 +57,6 @@ namespace CutsceneSystem
         
         public void OnSkipAll(CutsceneContext context)
         {
-            Debug.Log("[CutsceneStepExecutor] ⏭️ 모든 Executor 스킵 처리");
             
             foreach (var executor in _executors.Values)
             {

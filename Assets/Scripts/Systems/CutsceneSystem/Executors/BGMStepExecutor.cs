@@ -9,21 +9,14 @@ namespace CutsceneSystem
     /// </summary>
     public class BGMStepExecutor : ICutsceneStepExecutor
     {
-        private bool enableDebugLogs = true;
-        
         public Tween Execute(CutsceneStep step, CutsceneContext context)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🎵 [BGMStepExecutor] BGM Step 시작 - Key: '{step.bgmEventKey}', Fade: {step.bgmFadeTime}초");
-            
             // BGM 전환 요청
             if (BGMController.Instance != null)
             {
                 // 컷신 우선순위로 BGM 전환
                 BGMController.Instance.AddState(BGMController.BGMPriority.Cutscene, step.bgmEventKey);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [BGMStepExecutor] BGM 전환 요청 완료: {step.bgmEventKey}");
             }
             else
             {
@@ -43,8 +36,6 @@ namespace CutsceneSystem
             // 대기 시간만큼 Tween 생성
             return DOVirtual.DelayedCall(totalWaitTime, () => 
             {
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [BGMStepExecutor] BGM Step 완료: {step.bgmEventKey}");
             }, false)
             .SetUpdate(true);
         }
@@ -52,8 +43,6 @@ namespace CutsceneSystem
         public void OnSkip(CutsceneContext context)
         {
             // BGM 전환은 이미 시작되었으므로 스킵 시 추가 작업 없음
-            if (enableDebugLogs)
-                Debug.Log($"⏭️ [BGMStepExecutor] BGM Step 스킵");
         }
     }
 }

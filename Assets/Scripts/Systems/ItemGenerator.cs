@@ -160,7 +160,6 @@ public class ItemGenerator : MonoBehaviour
 
         if (result.isValid)
         {
-            Debug.Log($"✅ [ItemGenerator] 생성 완료: {itemId} | {rank.GetRankName()} | Slot: {slot} | Soulbound: {isSoulbound}");
         }
 
         return result;

@@ -41,8 +41,6 @@ public class AttackPowerBuff : BaseBuffEffect
         float totalBonus = attackDamageBonus * stackCount;
         stats.AddTemporaryAttackDamage(totalBonus);
         
-        if (showDebugLogs)
-            Debug.Log($"🗡️ [AttackPowerBuff] 공격력 +{totalBonus} 적용 (중첩: {stackCount})");
     }
     
     public override void Remove(PlayerRuntimeStats stats)
@@ -53,8 +51,6 @@ public class AttackPowerBuff : BaseBuffEffect
         float totalBonus = attackDamageBonus * stackCount;
         stats.RemoveTemporaryAttackDamage(totalBonus);
         
-        if (showDebugLogs)
-            Debug.Log($"🗡️ [AttackPowerBuff] 공격력 +{totalBonus} 제거");
     }
     
     public override IBuffEffect Clone()

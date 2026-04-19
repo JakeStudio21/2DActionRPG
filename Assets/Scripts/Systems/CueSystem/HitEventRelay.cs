@@ -14,9 +14,6 @@ namespace CueSystem
         [SerializeField] private bool enableAutoHitDetection = true;
         [SerializeField] private float criticalThreshold = 1.5f; // 크리티컬 판정 배율
         
-        [Header("🔧 디버그 설정")]
-        [SerializeField] private bool showDebugLogs = true;
-        
         /// <summary>
         /// 💥 데미지 히트 이벤트 (외부에서 호출)
         /// </summary>
@@ -31,11 +28,9 @@ namespace CueSystem
             // 히트 이벤트 발행
             bool success = CueEmitter.EmitHit(attacker, transform, isCritical, damage);
             
-            if (showDebugLogs)
             {
                 string hitType = isCritical ? "크리티컬" : "일반";
                 string attackerName = attacker != null ? attacker.name : "Unknown";
-                Debug.Log($"💥 [HitEventRelay] {gameObject.name}: {hitType} 히트 (데미지: {damage}, 공격자: {attackerName}) → 성공: {success}");
             }
         }
         
@@ -62,10 +57,8 @@ namespace CueSystem
             
             bool success = CueEmitter.Emit(eventKey, domain, context);
             
-            if (showDebugLogs)
             {
                 string critText = isCritical ? "크리티컬" : "일반";
-                Debug.Log($"💥 [HitEventRelay] {gameObject.name}: {critText} {surfaceType} 히트 (데미지: {damage}) → 성공: {success}");
             }
         }
         
@@ -83,8 +76,6 @@ namespace CueSystem
             string domain = DetermineDomain();
             bool success = CueEmitter.Emit(eventKey, domain, context);
             
-            if (showDebugLogs)
-                Debug.Log($"🔥 [HitEventRelay] {gameObject.name}: 특수 히트 {effectType} (강도: {magnitude}) → 성공: {success}");
         }
         
         /// <summary>
@@ -99,8 +90,6 @@ namespace CueSystem
             string domain = DetermineDomain();
             bool success = CueEmitter.Emit(eventKey, domain, context);
             
-            if (showDebugLogs)
-                Debug.Log($"🛡️ [HitEventRelay] {gameObject.name}: 블록 (데미지: {blockedDamage}) → 성공: {success}");
         }
         
         public void OnDodge()
@@ -111,8 +100,6 @@ namespace CueSystem
             string domain = DetermineDomain();
             bool success = CueEmitter.Emit(eventKey, domain, context);
             
-            if (showDebugLogs)
-                Debug.Log($"🏃 [HitEventRelay] {gameObject.name}: 회피 → 성공: {success}");
         }
         
         #region Helper Methods
@@ -161,8 +148,6 @@ namespace CueSystem
             enableAutoHitDetection = enableDetection;
             criticalThreshold = newCriticalThreshold;
             
-            if (showDebugLogs)
-                Debug.Log($"🔧 [HitEventRelay] 설정 업데이트: 감지({enableDetection}), 크리티컬 임계값({newCriticalThreshold})");
         }
     }
 }

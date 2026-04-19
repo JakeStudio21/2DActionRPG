@@ -18,7 +18,6 @@ namespace CueSystem
         [SerializeField] private float defaultCooldown = 0.05f; // 50ms
         
         [Header("🔧 디버그 설정")]
-        [SerializeField] private bool showDebugLogs = true;
         [SerializeField] private bool enableCongestionControl = true;
         
         // 활성 이펙트 추적
@@ -45,8 +44,6 @@ namespace CueSystem
             // 씬 전환 이벤트 구독
             SceneManager.sceneLoaded += OnSceneLoaded;
             
-            if (showDebugLogs)
-                Debug.Log("🎵 [CuePlayer] 초기화 완료 - 직참조 차단 활성화");
         }
         
         protected override void OnDestroy()
@@ -64,8 +61,6 @@ namespace CueSystem
         {
             CleanupNullReferences();
             
-            if (showDebugLogs)
-                Debug.Log($"🧹 [CuePlayer] 씬 전환 감지: {scene.name} - null 참조 정리 완료");
         }
         
         /// <summary>
@@ -76,10 +71,6 @@ namespace CueSystem
             int vfxRemoved = _activeVFX.RemoveAll(obj => obj == null);
             int sfxRemoved = _activeSFX.RemoveAll(source => source == null);
             
-            if (showDebugLogs && (vfxRemoved > 0 || sfxRemoved > 0))
-            {
-                Debug.Log($"🧹 [CuePlayer] null 참조 제거: VFX {vfxRemoved}개, SFX {sfxRemoved}개");
-            }
         }
         
         private void Update()
@@ -106,7 +97,6 @@ namespace CueSystem
             var slot = CueRegistry.Instance.Resolve(domain, eventKey, context);
             if (slot == null || slot.IsEmpty)
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [CuePlayer] 빈 슬롯: {domain}.{eventKey}");
                 return false;
             }
@@ -116,8 +106,6 @@ namespace CueSystem
             if (IsOnCooldown(fullKey))
             {
                 _droppedByCooldown++;
-                if (showDebugLogs)
-                    Debug.Log($"⏱️ [CuePlayer] 쿨다운 중: {fullKey}");
                 return false;
             }
             
@@ -142,8 +130,7 @@ namespace CueSystem
             {
                 if (ScreenShakeManager.Instance != null)
                     ScreenShakeManager.Instance.PlayShake(slot.shakeData);
-                else if (showDebugLogs)
-                    Debug.LogWarning("⚠️ [CuePlayer] ScreenShakeManager 인스턴스 없음 — shakeData 무시됨");
+                else                    Debug.LogWarning("⚠️ [CuePlayer] ScreenShakeManager 인스턴스 없음 — shakeData 무시됨");
             }
 
             // 6. 쿨다운 설정
@@ -151,12 +138,6 @@ namespace CueSystem
             SetCooldown(fullKey, cooldown);
             
             _totalPlayed++;
-            
-            if (showDebugLogs && (vfxSuccess || sfxSuccess))
-            {
-                bool shook = slot.shakeData != null && slot.shakeData.useShake;
-                Debug.Log($"🎵 [CuePlayer] 재생: {fullKey} (VFX: {slot.vfxCues.Count}, SFX: {slot.sfxCues.Count}, Shake: {shook})");
-            }
             
             return vfxSuccess || sfxSuccess;
         }
@@ -173,7 +154,6 @@ namespace CueSystem
                 if (_activeVFX.Count >= limit)
                 {
                     _droppedByCongestion++;
-                    if (showDebugLogs)
                         Debug.LogWarning($"🚦 [CuePlayer] VFX 혼잡 제어: {vfxCue.vfxId} (활성: {_activeVFX.Count}/{limit})");
                     return false;
                 }
@@ -288,7 +268,6 @@ namespace CueSystem
                 if (_activeSFX.Count >= limit)
                 {
                     _droppedByCongestion++;
-                    if (showDebugLogs)
                         Debug.LogWarning($"🚦 [CuePlayer] SFX 혼잡 제어: {sfxCue.sfxId} (활성: {_activeSFX.Count}/{limit})");
                     return false;
                 }
@@ -390,9 +369,6 @@ namespace CueSystem
                 // ✅ 이전 BGM 즉시 정지
                 if (_currentLoopBGM != null)
                 {
-                    if (showDebugLogs)
-                        Debug.Log($"🛑 [CuePlayer] 이전 BGM 정지: {_currentLoopBGMObject?.name}");
-                    
                     _currentLoopBGM.Stop();
                     _activeSFX.Remove(_currentLoopBGM);
                     
@@ -413,9 +389,8 @@ namespace CueSystem
             
             _activeSFX.Add(newAudioSource);
             
-            if (showDebugLogs)
             {
-                Debug.Log($"🎵 [CuePlayer] 루프 BGM 시작: {sfxCue.sfxId} (Volume: {sfxCue.volume}, Fade: {fadeTime}s, Clip: {sfxCue.audioClip?.name})");
+                Dbg.Log($"🎵 [CuePlayer] 루프 BGM 시작: {sfxCue.sfxId} (Volume: {sfxCue.volume}, Fade: {fadeTime}s, Clip: {sfxCue.audioClip?.name})");
                 
                 // ✅ 디버깅: AudioSource 상태 확인
                 StartCoroutine(CheckAudioSourceState(newAudioSource, sfxCue.sfxId));
@@ -431,9 +406,6 @@ namespace CueSystem
         {
             AudioSource oldBGM = _currentLoopBGM;
             GameObject oldBGMObject = _currentLoopBGMObject;
-            
-            if (showDebugLogs)
-                Debug.Log($"🎵 [CuePlayer] BGM Fade 시작: {oldBGMObject?.name} → {newBGM.gameObject.name} ({fadeTime}초)");
             
             // 새 BGM Fade In 시작 (볼륨 0에서 시작)
             newBGM.volume = 0f;
@@ -480,12 +452,9 @@ namespace CueSystem
                     Destroy(oldBGMObject);
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"✅ [CuePlayer] 이전 BGM 정리 완료: {oldBGMObject?.name}");
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [CuePlayer] BGM Fade 완료: {newBGM.gameObject.name}");
+                Dbg.Log($"✅ [CuePlayer] BGM Fade 완료: {newBGM.gameObject.name}");
         }
         
         /// <summary>
@@ -495,9 +464,6 @@ namespace CueSystem
         {
             if (_currentLoopBGM != null)
             {
-                if (showDebugLogs)
-                    Debug.Log($"🛑 [CuePlayer] BGM 정지 요청: {_currentLoopBGMObject?.name}");
-                
                 _currentLoopBGM.Stop();
                 _activeSFX.Remove(_currentLoopBGM);
                 
@@ -526,7 +492,6 @@ namespace CueSystem
             var slot = CueRegistry.Instance.Resolve(domain, eventKey);
             if (slot == null || slot.IsEmpty)
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [CuePlayer] 빈 슬롯: {domain}.{eventKey}");
                 return false;
             }
@@ -534,7 +499,6 @@ namespace CueSystem
             // 2. SFX Cue 찾기 (BGM은 첫 번째 SFX Cue)
             if (slot.sfxCues.Count == 0)
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [CuePlayer] SFX Cue 없음: {domain}.{eventKey}");
                 return false;
             }
@@ -560,22 +524,10 @@ namespace CueSystem
             }
             else
             {
-                Debug.Log($"✅ [CuePlayer] AudioListener 발견: {listener.gameObject.name}");
             }
             
             if (audioSource != null)
             {
-                Debug.Log($"🔍 [CuePlayer] AudioSource 상태 체크 [{sfxId}]:\n" +
-                          $"  - Is Playing: {audioSource.isPlaying}\n" +
-                          $"  - Volume: {audioSource.volume}\n" +
-                          $"  - Clip: {audioSource.clip?.name}\n" +
-                          $"  - Clip Length: {audioSource.clip?.length}s\n" +
-                          $"  - Loop: {audioSource.loop}\n" +
-                          $"  - Mute: {audioSource.mute}\n" +
-                          $"  - Time: {audioSource.time}\n" +
-                          $"  - Spatial Blend: {audioSource.spatialBlend}\n" +
-                          $"  - Output: {(audioSource.outputAudioMixerGroup != null ? audioSource.outputAudioMixerGroup.name : "Default")}");
-                
                 if (!audioSource.isPlaying)
                 {
                     Debug.LogWarning($"⚠️ [CuePlayer] AudioSource가 재생 중이 아닙니다! [{sfxId}]");
@@ -652,8 +604,6 @@ namespace CueSystem
                 _cooldowns.Remove(key);
             }
             
-            if (expiredKeys.Count > 0 && showDebugLogs)
-                Debug.Log($"🧹 [CuePlayer] 만료된 쿨다운 {expiredKeys.Count}개 정리");
         }
         
         /// <summary>
@@ -664,13 +614,6 @@ namespace CueSystem
             float congestionRate = _totalPlayed > 0 ? (float)_droppedByCongestion / _totalPlayed * 100f : 0f;
             float cooldownRate = _totalPlayed > 0 ? (float)_droppedByCooldown / _totalPlayed * 100f : 0f;
             
-            Debug.Log($"📊 [CuePlayer] 재생 통계:");
-            Debug.Log($"   총 재생 요청: {_totalPlayed}회");
-            Debug.Log($"   혼잡 제어 드랍: {_droppedByCongestion}회 ({congestionRate:F1}%)");
-            Debug.Log($"   쿨다운 드랍: {_droppedByCooldown}회 ({cooldownRate:F1}%)");
-            Debug.Log($"   현재 활성 VFX: {_activeVFX.Count}개 (상한: {maxVFX})");
-            Debug.Log($"   현재 활성 SFX: {_activeSFX.Count}개 (상한: {maxSFX})");
-            Debug.Log($"   활성 쿨다운: {_cooldowns.Count}개");
         }
         
         /// <summary>
@@ -683,8 +626,6 @@ namespace CueSystem
             maxUI = newMaxUI;
             defaultCooldown = newDefaultCooldown;
             
-            if (showDebugLogs)
-                Debug.Log($"🔧 [CuePlayer] 설정 업데이트: VFX({maxVFX}), SFX({maxSFX}), UI({maxUI}), 쿨다운({defaultCooldown}s)");
         }
         
         #region Cleanup Coroutines

@@ -42,11 +42,9 @@ public static class SlotWeightDataLoader
     {
         if (IsInitialized)
         {
-            Debug.Log("✅ [SlotWeightDataLoader] 이미 초기화됨 (캐시 사용)");
             return;
         }
         
-        Debug.Log("📊 [SlotWeightDataLoader] CSV 파싱 시작...");
         
         WeightTable = new Dictionary<EquipmentSlot, (float, float)>();
         
@@ -95,9 +93,6 @@ public static class SlotWeightDataLoader
             Debug.LogWarning("⚠️ [SlotWeightDataLoader] mainStatWeight 또는 subStatWeight 컬럼이 없습니다. 기본값(1.0, 0.3) 사용");
         }
         
-        Debug.Log($"   📍 slotName: Column {slotNameColIndex}");
-        Debug.Log($"   📍 mainStatWeight: Column {mainWeightColIndex}");
-        Debug.Log($"   📍 subStatWeight: Column {subWeightColIndex}");
         
         // ===== 데이터 행 파싱 =====
         int parsedCount = 0;
@@ -145,14 +140,10 @@ public static class SlotWeightDataLoader
             WeightTable[slot.Value] = (mainWeight, subWeight);
             parsedCount++;
             
-            Debug.Log($"✅ [SlotWeightDataLoader] {slot.Value}: Main={mainWeight}, Sub={subWeight}");
         }
         
         IsInitialized = true;
         
-        Debug.Log("========================================");
-        Debug.Log($"✅ [SlotWeightDataLoader] 초기화 완료: {parsedCount}개 슬롯 로드");
-        Debug.Log("========================================");
     }
     
     #endregion

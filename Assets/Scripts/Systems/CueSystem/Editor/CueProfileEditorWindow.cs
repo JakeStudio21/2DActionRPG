@@ -143,7 +143,6 @@ namespace CueSystem.Editor
                 Debug.LogWarning("⚠️ SFX CSV 파일을 찾을 수 없습니다: " + sfxCSVPath);
             }
             
-            Debug.Log("✅ CSV 파일 유효성 검사 완료!");
         }
         
         private void ImportCSV()
@@ -165,7 +164,6 @@ namespace CueSystem.Editor
             
             var result = CueProfileImporter.ImportFromCSV(metaCSVPath, entriesCSVPath, vfxPath, sfxPath);
             
-            Debug.Log($"📊 임포트 결과: {result.GetSummary()}");
             
             foreach (var error in result.Errors)
             {
@@ -179,18 +177,15 @@ namespace CueSystem.Editor
             
             foreach (var created in result.CreatedAssets)
             {
-                Debug.Log($"✅ 생성됨: {created}");
             }
             
             foreach (var updated in result.UpdatedAssets)
             {
-                Debug.Log($"🔄 업데이트됨: {updated}");
             }
             
             if (result.Success)
             {
                 AssetDatabase.Refresh();
-                Debug.Log("🎉 임포트 완료! Project 창을 확인하세요.");
             }
         }
     }

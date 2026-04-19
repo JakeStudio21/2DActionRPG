@@ -267,12 +267,10 @@ public class PlayerSlotData
         data._extraStats = null; // Dictionary 재생성 강제
         
         // ⚠️ Phase B 진단: equippedRecords 로드 확인
-        Debug.Log($"🔍 [PlayerSlotData.FromJson] equippedRecords 역직렬화 결과: {(data.equippedRecords == null ? "null" : $"{data.equippedRecords.Count}개")}");
         if (data.equippedRecords != null && data.equippedRecords.Count > 0)
         {
             foreach (var record in data.equippedRecords)
             {
-                Debug.Log($"  📦 {record.slot} → {record.instanceId.Value}");
             }
         }
         
@@ -354,7 +352,6 @@ public class PlayerSlotData
         totalSP = level;
         usedSP = 0;
         
-        Debug.Log($"🎯 [PlayerSlotData.InitializeDefaultSkills] SP 초기화: totalSP={totalSP}, level={level}");
         
         // 클래스별 기본 액티브 스킬 ID 목록
         string[] defaultActiveSkillIds = GetDefaultActiveSkillIds(classType);
@@ -379,7 +376,6 @@ public class PlayerSlotData
                 };
                 skills.Add(saveData);
                 
-                Debug.Log($"✅ [PlayerSlotData] 기본 스킬 추가: {skillData.skillName} (Lv.1)");
             }
             else
             {
@@ -393,11 +389,10 @@ public class PlayerSlotData
             if (!string.IsNullOrEmpty(defaultActiveSkillIds[i]))
             {
                 equippedActiveSkillIds[i] = defaultActiveSkillIds[i];
-                Debug.Log($"🎯 [PlayerSlotData] 액티브 슬롯 {i}에 장착: {defaultActiveSkillIds[i]}");
             }
         }
         
-        Debug.Log($"✅ [PlayerSlotData] {classType} 기본 스킬 초기화 완료 (총 {skills.Count}개, SP: {totalSP})");
+        Dbg.Log($"✅ [PlayerSlotData] {classType} 기본 스킬 초기화 완료 (총 {skills.Count}개, SP: {totalSP})");
     }
     
     /// <summary>
@@ -444,7 +439,6 @@ public class PlayerSlotData
         if (!clearedChapters.Contains(chapterId))
         {
             clearedChapters.Add(chapterId);
-            Debug.Log($"✅ [PlayerSlotData] 챕터 {chapterId} 클리어 기록");
         }
     }
     
@@ -484,7 +478,6 @@ public class PlayerSlotData
                 if (!seenChapterStart.Contains(cutsceneId))
                 {
                     seenChapterStart.Add(cutsceneId);
-                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (챕터 시작)");
                 }
                 break;
                 
@@ -492,7 +485,6 @@ public class PlayerSlotData
                 if (!seenChapterClear.Contains(cutsceneId))
                 {
                     seenChapterClear.Add(cutsceneId);
-                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (챕터 종료)");
                 }
                 break;
                 
@@ -500,7 +492,6 @@ public class PlayerSlotData
                 if (!seenStageEnter.Contains(cutsceneId))
                 {
                     seenStageEnter.Add(cutsceneId);
-                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (스테이지 입장)");
                 }
                 break;
                 
@@ -508,7 +499,6 @@ public class PlayerSlotData
                 if (!seenStageClear.Contains(cutsceneId))
                 {
                     seenStageClear.Add(cutsceneId);
-                    Debug.Log($"🎬 [PlayerSlotData] 컷신 시청 기록: {cutsceneId} (스테이지 클리어)");
                 }
                 break;
                 

@@ -43,7 +43,6 @@ public static class BalanceCalculator
         // 3. 최종 슬롯 예산 = 총 예산 × 슬롯 가중치
         float slotBudget = totalBudget * slotWeight;
 
-        Debug.Log($"📐 [BalanceCalculator] {grade} {slot} 예산: {totalBudget} × {slotWeight} = {slotBudget}");
         return slotBudget;
     }
 
@@ -80,7 +79,6 @@ public static class BalanceCalculator
         // 최종 수치 = 할당 예산 / 단가
         float statValue = allocatedBudget / unitCost;
 
-        Debug.Log($"📐 [BalanceCalculator] {statId}: {allocatedBudget} / {unitCost} = {statValue}");
         return statValue;
     }
 
@@ -101,9 +99,6 @@ public static class BalanceCalculator
         List<ItemStat> resultStats = new List<ItemStat>();
         float totalUsedBudget = 0f;
 
-        Debug.Log("========================================");
-        Debug.Log("📐 [BalanceCalculator] 스탯 일괄 계산 시작");
-        Debug.Log("========================================");
 
         foreach (var allocation in statBudgetAllocations)
         {
@@ -119,13 +114,8 @@ public static class BalanceCalculator
             resultStats.Add(stat);
 
             totalUsedBudget += allocatedBudget;
-            Debug.Log($"✅ {statId}: {statValue} (예산: {allocatedBudget})");
         }
 
-        Debug.Log("========================================");
-        Debug.Log($"📊 총 사용 예산: {totalUsedBudget}");
-        Debug.Log($"📊 생성된 스탯: {resultStats.Count}개");
-        Debug.Log("========================================");
 
         return resultStats;
     }
@@ -263,7 +253,6 @@ public static class BalanceCalculator
             allocations[statIds[i]] = budgetPerStat;
         }
 
-        Debug.Log($"📐 [BalanceCalculator] 자동 배분: {totalBudget} 예산 → {actualCount}개 스탯 × {budgetPerStat}");
         return allocations;
     }
 }

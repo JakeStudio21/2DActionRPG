@@ -176,7 +176,6 @@ namespace CueSystem.Editor
                     result.Add(row);
                 }
                 
-                Debug.Log($"✅ [ParseCSV] 파싱 완료: {result.Count}개 행, 파일: {Path.GetFileName(filePath)}");
             }
             catch (System.Exception ex)
             {
@@ -529,7 +528,6 @@ namespace CueSystem.Editor
             
             var result = ImportFromCSV(metaPath, entriesPath, vfxPathToUse, sfxPathToUse);
             
-            Debug.Log($"📊 임포트 결과: {result.GetSummary()}");
             
             if (vfxPathToUse == null)
                 Debug.LogWarning("⚠️ VFX_Catalog.csv를 찾을 수 없습니다. VFX 카탈로그가 비어있을 수 있습니다.");
@@ -543,7 +541,6 @@ namespace CueSystem.Editor
             
             foreach (var created in result.CreatedAssets)
             {
-                Debug.Log($"✅ 생성됨: {created}");
             }
         }
 

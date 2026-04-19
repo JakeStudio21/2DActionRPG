@@ -191,12 +191,9 @@ namespace CutsceneSystem
         [ContextMenu("컷신 정보 출력")]
         private void PrintCutsceneInfo()
         {
-            Debug.Log($"=== {cutsceneName} ===\n{GetSummary()}");
             
-            Debug.Log("\n=== Step 목록 ===");
             for (int i = 0; i < steps.Count; i++)
             {
-                Debug.Log($"{i + 1}. {steps[i].GetDisplayName()}");
             }
         }
         
@@ -205,7 +202,6 @@ namespace CutsceneSystem
         {
             if (IsValid(out string errorMessage))
             {
-                Debug.Log($"✅ [{cutsceneName}] 유효성 검증 통과!");
             }
             else
             {
