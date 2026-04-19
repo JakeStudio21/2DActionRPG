@@ -35,7 +35,6 @@ namespace StageSystem
         {
             var requirements = new Dictionary<string, StagePoolRequirement>();
             
-            Debug.Log($"🔍 [StagePoolCalculator] {stageId} 풀 요구사항 계산 시작...");
             
             // 스테이지 설정 로드
             StageConfig stageConfig = LoadStageConfig(stageId);
@@ -45,26 +44,21 @@ namespace StageSystem
                 return new List<StagePoolRequirement>();
             }
             
-            Debug.Log($"🔍 [StagePoolCalculator] StageConfig 로드 성공: {stageConfig.WaveConfigs.Count}개 웨이브");
             
             // 모든 웨이브의 스폰 그룹 분석
             foreach (var waveConfig in stageConfig.WaveConfigs)
             {
-                Debug.Log($"🔍 [StagePoolCalculator] 웨이브 분석: {waveConfig.WaveID} ({waveConfig.SpawnGroups.Count}개 그룹)");
                 AnalyzeWaveRequirements(waveConfig, requirements);
             }
             
-            Debug.Log($"🔍 [StagePoolCalculator] 중간 결과: {requirements.Count}개 풀 태그 발견");
             
             // 최종 권장 사이즈 계산
             CalculateRecommendedSizes(requirements);
             
             var result = requirements.Values.ToList();
             
-            Debug.Log($"📊 [StagePoolCalculator] {stageId} 최종 풀 요구사항 ({result.Count}개):");
             foreach (var req in result)
             {
-                Debug.Log($"  {req}");
             }
             
             return result;
@@ -97,11 +91,9 @@ namespace StageSystem
         private static void AnalyzeSpawnGroupRequirements(SpawnGroup spawnGroup, 
                                                          Dictionary<string, StagePoolRequirement> requirements)
         {
-            Debug.Log($"🔍 [StagePoolCalculator] 스폰 그룹 분석: {spawnGroup.SpawnGroupID} ({spawnGroup.Monsters.Count}개 몬스터)");
             
             foreach (var monsterData in spawnGroup.Monsters)
             {
-                Debug.Log($"🔍 [StagePoolCalculator] 몬스터 데이터: {monsterData.MonsterID} x{monsterData.Count}");
                 
                 string poolTag = MonsterIdMapper.GetPoolTag(monsterData.MonsterID);
                 
@@ -111,7 +103,6 @@ namespace StageSystem
                     continue;
                 }
                 
-                Debug.Log($"🔍 [StagePoolCalculator] 풀 태그 변환: {monsterData.MonsterID} → {poolTag}");
                 
                 if (!requirements.ContainsKey(poolTag))
                 {
@@ -124,7 +115,6 @@ namespace StageSystem
                         isBoss = monsterData.IsBoss
                     };
                     
-                    Debug.Log($"✅ [StagePoolCalculator] 새 풀 요구사항 생성: {poolTag}");
                 }
                 
                 var requirement = requirements[poolTag];
@@ -143,7 +133,6 @@ namespace StageSystem
                     requirement.isBoss = true;
                 }
                 
-                Debug.Log($"📊 [StagePoolCalculator] {poolTag} 업데이트: 기본{requirement.baseCount}, 동시{requirement.maxSimultaneous}");
             }
         }
         
@@ -259,7 +248,6 @@ namespace StageSystem
                     }
                 }
                 
-                Debug.Log($"[StagePoolCalculator] {stageId} 난이도 조정 적용: x{difficultyMultiplier:F1}");
             }
         }
     }

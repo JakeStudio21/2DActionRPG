@@ -94,7 +94,6 @@ namespace StageSystem
             {
                 if (IsValid && !HasWarnings)
                 {
-                    Debug.Log("✅ [StageProgressValidator] 모든 검증 통과");
                 }
                 else
                 {

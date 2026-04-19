@@ -14,7 +14,6 @@ namespace StageSystem
         public static RewardSystem Instance { get; private set; }
         
         [Header("보상 설정")]
-        [SerializeField] private bool enableDebugLogs = true;
         
         [Header("골드/EXP 커브")]
         [SerializeField] private float goldMultiplier = 1.0f;
@@ -39,10 +38,8 @@ namespace StageSystem
             
             Instance = this;
             
-            if (enableDebugLogs)
-            {
-                Debug.Log("�� [RewardSystem] 초기화 완료");
-            }
+            Dbg.Log("�� [RewardSystem] 초기화 완료");
+
         }
         
         /// <summary>
@@ -52,9 +49,7 @@ namespace StageSystem
         {
             var result = new RewardResult();
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"🎁 [RewardSystem] 보상 처리 시작: {stageConfig.StageID} (첫클리어: {isFirstClear})");
             }
             
             // 1. 기본 보상 계산 (골드/EXP)
@@ -69,9 +64,7 @@ namespace StageSystem
             // 4. 이벤트 발생
             OnRewardsProcessed?.Invoke(result);
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"🎁 [RewardSystem] 보상 처리 완료: 골드 {result.Gold}, EXP {result.Exp}, 아이템 {result.Items.Count}개");
             }
             
             return result;
@@ -125,10 +118,7 @@ namespace StageSystem
                 Debug.LogWarning("[RewardSystem] RewardCalculator.Instance 가 null 입니다. 레벨 구간 배율이 적용되지 않습니다.");
             }
 
-            if (enableDebugLogs)
             {
-                Debug.Log($"💰 [RewardSystem] 기본 보상: 골드 {result.Gold}, EXP {result.Exp} " +
-                          $"(rawGold={rawGold}, rawExp={rawExp}, timeBonus={timeBonus:F2})");
             }
         }
         
@@ -163,9 +153,7 @@ namespace StageSystem
                 var droppedItems = rewardTable.RollDrops(isFirstClear);
                 result.Items = droppedItems;
                 
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"�� [RewardSystem] 아이템 드롭: {droppedItems.Count}개 (첫클리어: {isFirstClear})");
                 }
             }
         }
@@ -181,9 +169,7 @@ namespace StageSystem
                 if (PlayerDataManager.Instance != null)
                 {
                     PlayerDataManager.Instance.AddGold(result.Gold);
-                    if (enableDebugLogs)
                     {
-                        Debug.Log($"💰 [RewardSystem] 골드 지급 완료: +{result.Gold}");
                     }
                 }
                 else
@@ -199,9 +185,7 @@ namespace StageSystem
                 if (PlayerDataManager.Instance != null)
                 {
                     PlayerDataManager.Instance.AddExp(result.Exp);
-                    if (enableDebugLogs)
                     {
-                        Debug.Log($"✨ [RewardSystem] 경험치 지급 완료: +{result.Exp}");
                     }
                 }
                 else
@@ -214,16 +198,10 @@ namespace StageSystem
             // 아이템 지급 (V2 시스템 사용 - 장비 + 재료)
             if (result.Items.Count > 0)
             {
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                    Debug.Log($"🔍 [DEBUG - RewardSystem] 아이템 보상 처리 시작!");
-                    Debug.Log($"  result.Items.Count: {result.Items.Count}");
                     for (int debugIdx = 0; debugIdx < result.Items.Count; debugIdx++)
                     {
-                        Debug.Log($"    [{debugIdx}] ItemID: {result.Items[debugIdx].ItemID}, Amount: {result.Items[debugIdx].Amount}");
                     }
-                    Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                 }
                 
                 if (PlayerDataManager.Instance != null && AccountDataManager.Instance != null)
@@ -277,10 +255,6 @@ namespace StageSystem
                                 }
                             }
                             
-                            if (itemSuccessCount > 0 && enableDebugLogs)
-                            {
-                                Debug.Log($"🎁 [RewardSystem] 장비 지급 완료: {rawId} x{itemSuccessCount}");
-                            }
                         }
                         else
                         {
@@ -301,9 +275,7 @@ namespace StageSystem
                                 };
                                 result.MaterialRewards.Add(materialStack);
                                 
-                                if (enableDebugLogs)
                                 {
-                                    Debug.Log($"🎁 [RewardSystem] 재료 지급 완료: {materialData.displayName} x{itemData.Amount} (MaterialType: {materialData.materialType})");
                                 }
                             }
                             else
@@ -316,9 +288,7 @@ namespace StageSystem
                     }
                     
                     // 최종 요약 로그
-                    if (enableDebugLogs)
                     {
-                        Debug.Log($"🎁 [RewardSystem] 아이템 지급 완료: 장비 {equipmentCount}개, 재료 {materialCount}개, 미확인 {unknownCount}개");
                     }
                 }
                 else
@@ -386,10 +356,7 @@ namespace StageSystem
                 {
                     result.ItemInstanceIds.Add(newItemId);
 
-                    if (enableDebugLogs)
                     {
-                        Debug.Log($"🎁 [RewardSystem] GEN_EQUIP 지급: {genResult.templateId} " +
-                                  $"| {genResult.rank.GetRankName()} | Soulbound: {genResult.isSoulbound}");
                     }
                 }
                 else
@@ -441,7 +408,7 @@ namespace StageSystem
             }
             
             // 3. 로드 실패 시 디버그 정보
-            if (equipment == null && enableDebugLogs)
+            if (equipment == null)
             {
                 Debug.LogWarning($"⚠️ [RewardSystem] EquipmentData 로드 실패: {itemId}");
                 Debug.LogWarning($"   시도한 경로들:");

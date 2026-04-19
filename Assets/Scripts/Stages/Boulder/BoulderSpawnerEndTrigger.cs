@@ -47,7 +47,6 @@ public class BoulderSpawnerEndTrigger : MonoBehaviour
         }
 
         target.StopSpawning();
-        Debug.Log($"[BoulderSpawnerEndTrigger] {name}: {target.name} 스폰 중지 신호 전달");
 
         if (disableAfterTrigger)
             gameObject.SetActive(false);

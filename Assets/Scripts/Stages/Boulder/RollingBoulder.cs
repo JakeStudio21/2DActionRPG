@@ -146,9 +146,7 @@ public class RollingBoulder : MonoBehaviour, ITargetable
         float remainingDuration = pathData.duration * durationRatio;
 
         // 진단 로그: 웨이포인트 좌표 및 현재 위치 출력
-        Debug.Log($"[RollingBoulder] 이동 시작 — 현재위치: {transform.position}, Duration: {remainingDuration:F1}초, 웨이포인트 수: {remainingPath.Length}");
         for (int i = 0; i < remainingPath.Length; i++)
-            Debug.Log($"[RollingBoulder]   WP{i}: {remainingPath[i]}");
 
         // DOPath: 메인 transform이 경로를 따라 이동
         moveTween = transform.DOPath(remainingPath, remainingDuration, PathType.CatmullRom)

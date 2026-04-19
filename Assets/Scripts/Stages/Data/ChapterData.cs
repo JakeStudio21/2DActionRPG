@@ -117,7 +117,6 @@ namespace StageSystem
             if (!string.IsNullOrEmpty(name) && !name.StartsWith("CH"))
             {
                 // 에셋 이름을 CH01_Data 형식으로 변경 권장
-                Debug.Log($"[ChapterData] 에셋 이름을 'CH{chapterId:D2}_Data'로 변경하는 것을 권장합니다.");
             }
 #endif
         }

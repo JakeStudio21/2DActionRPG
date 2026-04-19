@@ -77,13 +77,11 @@ namespace StageSystem
                 if (group != null && group.WaveID == WaveID)
                 {
                     SpawnGroups.Add(group);
-                    Debug.Log($"✅ [WaveConfig] SpawnGroup 자동 로드: {groupId}");
                 }
             }
             
             if (SpawnGroups.Count > 0)
             {
-                Debug.Log($"🔗 [WaveConfig] {WaveID}: {SpawnGroups.Count}개 SpawnGroup 자동 연결 완료");
             }
             else
             {

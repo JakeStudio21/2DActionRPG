@@ -24,7 +24,6 @@ namespace StageSystem
         [SerializeField] private float blinkSpeed = 2f;
         
         [Header("디버그")]
-        [SerializeField] private bool enableDebugLogs = false;
         
         // 타이머 상태
         private float totalTime;
@@ -60,9 +59,6 @@ namespace StageSystem
             
             gameObject.SetActive(true);
             
-            if (enableDebugLogs)
-                Debug.Log($"⏰ [StageTimerUI] 타이머 시작: {timeLimitSec}초");
-            
             // 기존 코루틴 정지
             if (timerCoroutine != null)
                 StopCoroutine(timerCoroutine);
@@ -92,8 +88,6 @@ namespace StageSystem
             
             gameObject.SetActive(false);
             
-            if (enableDebugLogs)
-                Debug.Log("⏰ [StageTimerUI] 타이머 정지");
         }
         
         /// <summary>
@@ -246,9 +240,6 @@ namespace StageSystem
         /// </summary>
         private void OnTimerExpired()
         {
-            if (enableDebugLogs)
-                Debug.Log("⏰ [StageTimerUI] 제한시간 종료!");
-            
             // 타이머 텍스트를 00:00으로 설정
             if (timerText != null)
                 timerText.text = "00:00";

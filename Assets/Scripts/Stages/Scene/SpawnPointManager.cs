@@ -18,7 +18,6 @@ namespace StageSystem
         public Transform playerSpawnPoint; // 기존 PlayerSpawnPoint 참조
         
         [Header("디버그")]
-        public bool enableDebugLogs = true;
         public bool showAllGizmos = true;
         
         private void Start()
@@ -37,10 +36,7 @@ namespace StageSystem
             // 기존 PlayerSpawner 시스템 연동
             ValidatePlayerSpawnSystem();
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"🎯 [SpawnPointManager] 초기화 완료: {spawnPoints.Count}개 스폰 포인트, " +
-                         $"플레이어 스폰: {(playerSpawnPoint != null ? "연결됨" : "없음")}");
             }
         }
         
@@ -81,13 +77,6 @@ namespace StageSystem
                 }
             }
             
-            if (enableDebugLogs)
-            {
-                if (playerSpawner == null)
-                    Debug.LogWarning("⚠️ [SpawnPointManager] PlayerSpawner를 찾을 수 없습니다.");
-                if (playerSpawnPoint == null)
-                    Debug.LogWarning("⚠️ [SpawnPointManager] PlayerSpawnPoint를 찾을 수 없습니다.");
-            }
         }
         
         /// <summary>
@@ -189,16 +178,9 @@ namespace StageSystem
         [ContextMenu("Print Spawn Points Info")]
         public void PrintSpawnPointsInfo()
         {
-            Debug.Log($"📊 [SpawnPointManager] 스폰 포인트 정보:");
-            Debug.Log($"  총 개수: {spawnPoints.Count}");
-            Debug.Log($"  활성화: {GetActiveSpawnPoints().Count}");
-            Debug.Log($"  Point 타입: {GetSpawnPointsByType(SpawnType.Point).Count}");
-            Debug.Log($"  Circle 타입: {GetSpawnPointsByType(SpawnType.Circle).Count}");
-            Debug.Log($"  Rectangle 타입: {GetSpawnPointsByType(SpawnType.Rectangle).Count}");
             
             foreach (var sp in spawnPoints)
             {
-                Debug.Log($"    {sp.spawnPointID}: {sp.spawnType}, 활성:{sp.isActive}");
             }
         }
         

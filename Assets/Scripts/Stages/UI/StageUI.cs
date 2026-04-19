@@ -30,7 +30,6 @@ namespace StageSystem
         [SerializeField] private SettingsUIController settingsUIController;
 
         [Header("디버그")]
-        [SerializeField] private bool enableDebugLogs = true;
         
         // 현재 상태
         private StageConfig currentStage;
@@ -63,7 +62,6 @@ namespace StageSystem
             }
             else
             {
-                Debug.Log("📱 [StageUI] BossHealthUI 연결 확인됨: " + bossHealthUI.name);
             }
             
             if (stageTimerUI == null)
@@ -84,8 +82,6 @@ namespace StageSystem
             // 개별 UI 컨트롤러는 이미 Inspector에서 연결됨
             isInitialized = true;
             
-            if (enableDebugLogs)
-                Debug.Log("📱 [StageUI] UI 초기화 완료 (직접 참조 방식)");
         }
         
         /// <summary>
@@ -103,7 +99,6 @@ namespace StageSystem
                 // ⭐ 보스 스폰 이벤트 구독 추가 (누락되었던 부분)
                 StageManager.Instance.OnBossSpawned += OnBossSpawned;
                 
-                Debug.Log("📱 [StageUI] StageManager 이벤트 구독 완료 (보스 이벤트 포함)");
             }
             else
             {
@@ -135,11 +130,7 @@ namespace StageSystem
         {
             currentStage = stageConfig;
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"📱 [StageUI] 스테이지 UI 활성화: {stageConfig.StageID}");
-                Debug.Log($"📱 [StageUI] Victory: {stageConfig.Victory}, hasTimeLimit: {stageConfig.hasTimeLimit}");
-                Debug.Log($"📱 [StageUI] TimeLimitSec: {stageConfig.TimeLimitSec}");
             }
             
             // 승리 조건별 UI 설정
@@ -164,17 +155,12 @@ namespace StageSystem
             
             if (shouldShowTimer)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"📱 [StageUI] 타이머 활성화: {stageConfig.TimeLimitSec}초 (카운트다운: {isCountdown})");
-                
                 ActivateTimerUI(stageConfig.TimeLimitSec);
             }
             
             // 처치 목표가 있는 경우 킬 카운트 활성화
             if (stageConfig.Victory == VictoryCondition.KillAll)
             {
-                if (enableDebugLogs)
-                    Debug.Log("📱 [StageUI] 킬 카운트 UI 활성화");
                 ActivateKillCountUI();
             }
         }
@@ -274,9 +260,6 @@ namespace StageSystem
         /// </summary>
         public void ActivateBossHealthUI(GameObject bossObject)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [StageUI] 보스 HP UI 활성화 시도: {bossObject?.name}");
-            
             // ⭐ null 체크 (Awake에서 이미 검증됨)
             if (bossHealthUI == null)
             {
@@ -287,13 +270,9 @@ namespace StageSystem
             if (bossPanel != null)
             {
                 bossPanel.SetActive(true);  // ⭐ 필요 시에만 활성화
-                if (enableDebugLogs)
-                    Debug.Log($"🐲 [StageUI] BossPanel 활성화 완료");
             }
             
             bossHealthUI.SetBoss(bossObject);
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [StageUI] BossHealthUI.SetBoss() 호출 완료");
         }
         
         /// <summary>
@@ -301,8 +280,6 @@ namespace StageSystem
         /// </summary>
         private void OnWaveChanged(WaveConfig waveConfig)
         {
-            if (enableDebugLogs)
-                Debug.Log($"📱 [StageUI] 웨이브 변경: {waveConfig.WaveID}");
         }
         
         /// <summary>
@@ -311,9 +288,6 @@ namespace StageSystem
         /// </summary>
         private void OnDisplayWaveIndexChanged(int current, int total)
         {
-            if (enableDebugLogs)
-                Debug.Log($"📱 [StageUI] 웨이브 표시 업데이트: {current} / {total}");
-            
             // TODO: Wave 카운터 TextMeshPro가 있으면 여기서 업데이트
             // 예: waveCounterText.text = $"Wave {current} / {total}";
         }
@@ -323,9 +297,6 @@ namespace StageSystem
         /// </summary>
         private void OnBossSpawned(GameObject bossObject)
         {
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [StageUI] 보스 스폰 이벤트 수신: {bossObject.name}");
-            
             // 보스 HP UI 활성화
             ActivateBossHealthUI(bossObject);
         }
@@ -335,9 +306,6 @@ namespace StageSystem
         /// </summary>
         private void OnStageCompleted(StageConfig stageConfig, bool success)
         {
-            if (enableDebugLogs)
-                Debug.Log($"📱 [StageUI] 스테이지 {(success ? "성공" : "실패")}: {stageConfig.StageID}");
-            
             // 모든 UI 비활성화
             if (timerPanel != null) timerPanel.SetActive(false);
             if (bossPanel != null) bossPanel.SetActive(false);
@@ -373,7 +341,6 @@ namespace StageSystem
             if (bossHealthUI != null)
             {
                 bossHealthUI.SetBossManually("Test Boss", 800f, 1000f);
-                Debug.Log("🐲 [StageUI] 보스 UI 테스트 활성화");
             }
         }
     }

@@ -132,7 +132,6 @@ namespace StageSystem
         private void TestSpawn()
         {
             Vector3 testPos = spawnPoint.GetSafeSpawnPosition();
-            Debug.Log($"[SpawnPointEditor] {spawnPoint.spawnPointID} 테스트 스폰 위치: {testPos}");
             
             // Scene View에서 임시 표시
             SceneView.RepaintAll();

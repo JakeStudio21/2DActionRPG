@@ -51,35 +51,28 @@ public class BoulderSpawner : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"[BoulderSpawner] OnTriggerEnter2D 호출 - 진입 오브젝트: {other.gameObject.name} (Layer: {other.gameObject.layer} / {LayerMask.LayerToName(other.gameObject.layer)})");
 
         if (isStopped)
         {
-            Debug.Log($"[BoulderSpawner] ❌ 스폰 중지됨 (StopSpawning 호출됨)");
             return;
         }
         if ((playerLayer.value & (1 << other.gameObject.layer)) == 0)
         {
-            Debug.Log($"[BoulderSpawner] ❌ 레이어 불일치 — PlayerLayer 설정값: {playerLayer.value}, 진입 레이어 비트: {1 << other.gameObject.layer}");
             return;
         }
         if (isTriggered && respawnCooldown <= 0f)
         {
-            Debug.Log($"[BoulderSpawner] ❌ 이미 트리거됨 (1회 제한)");
             return;
         }
         if (Time.time - lastSpawnTime < respawnCooldown)
         {
-            Debug.Log($"[BoulderSpawner] ❌ 쿨타임 중 ({respawnCooldown - (Time.time - lastSpawnTime):F1}초 남음)");
             return;
         }
         if (activeBoulderCount >= maxActiveBoulders)
         {
-            Debug.Log($"[BoulderSpawner] ❌ 최대 활성 바위 수 초과 ({activeBoulderCount}/{maxActiveBoulders})");
             return;
         }
 
-        Debug.Log($"[BoulderSpawner] ✅ 스폰 조건 통과 → SpawnBoulder 호출");
         isTriggered = true;
 
         if (spawnDelay > 0f)
@@ -112,7 +105,6 @@ public class BoulderSpawner : MonoBehaviour
             if (isStopped) yield break;
             if (activeBoulderCount >= maxActiveBoulders)
             {
-                Debug.Log($"[BoulderSpawner] AutoRepeat: 최대 활성 바위 수 초과 ({activeBoulderCount}/{maxActiveBoulders}) — 이번 주기 스킵");
                 continue;
             }
 
@@ -128,7 +120,6 @@ public class BoulderSpawner : MonoBehaviour
     {
         isStopped = true;
         StopAllCoroutines();
-        Debug.Log($"[BoulderSpawner] {name}: 스폰 중지됨");
     }
 
     /// <summary>
@@ -137,7 +128,6 @@ public class BoulderSpawner : MonoBehaviour
     public void ResumeSpawning()
     {
         isStopped = false;
-        Debug.Log($"[BoulderSpawner] {name}: 스폰 재개됨");
     }
 
     private void SpawnBoulder()

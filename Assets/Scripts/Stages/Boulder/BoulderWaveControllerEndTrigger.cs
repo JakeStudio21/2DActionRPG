@@ -43,7 +43,6 @@ public class BoulderWaveControllerEndTrigger : MonoBehaviour
         }
 
         target.StopWave();
-        Debug.Log($"[BoulderWaveControllerEndTrigger] {name}: {target.name} 웨이브 중지 신호 전달");
 
         if (disableAfterTrigger)
             gameObject.SetActive(false);

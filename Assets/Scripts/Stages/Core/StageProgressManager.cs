@@ -12,7 +12,6 @@ namespace StageSystem
         public static StageProgressManager Instance { get; private set; }
 
         [Header("📊 진행도 관리")]
-        [SerializeField] private bool enableDebugLogs = true;
         private int currentSlotIndex = -1; // 슬롯 전환 감지용
         [SerializeField] private bool isInitialized = false;
         
@@ -54,9 +53,6 @@ namespace StageSystem
         /// </summary>
         private void InitializeProgressSystem()
         {
-            if (enableDebugLogs)
-                Debug.Log("[StageProgressManager] 진행도 시스템 초기화 시작");
-            
             // 현재 선택된 슬롯 인덱스 가져오기
             if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
             {
@@ -64,7 +60,6 @@ namespace StageSystem
             }
             else
             {
-                if (enableDebugLogs)
                     Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다. 기본값(0) 사용");
                 currentSlotIndex = 0;
             }
@@ -75,8 +70,6 @@ namespace StageSystem
             
             isInitialized = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[StageProgressManager] 진행도 시스템 초기화 완료");
         }
         
         /// <summary>
@@ -94,11 +87,9 @@ namespace StageSystem
             StageConfig[] dungeonConfigs = Resources.LoadAll<StageConfig>("Stages/Configs/Dungeons");
             allStageConfigs.AddRange(dungeonConfigs);
             
-            if (enableDebugLogs)
             {
                 int chapterCount = chapterConfigs.Length;
                 int dungeonCount = dungeonConfigs.Length;
-                Debug.Log($"[StageProgressManager] 스테이지 {chapterCount}개, 던전 {dungeonCount}개 로드 완료 (총 {allStageConfigs.Count}개)");
             }
         }
         
@@ -107,9 +98,6 @@ namespace StageSystem
         /// </summary>
         private void InitializeProgressCache()
         {
-            if (enableDebugLogs)
-                Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex} 캐시 초기화");
-            
             LoadCurrentSlotProgress();
         }
         
@@ -120,7 +108,6 @@ namespace StageSystem
         {
             if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
             {
-                if (enableDebugLogs)
                     Debug.LogWarning("[StageProgressManager] PlayerDataManager 또는 선택된 슬롯이 없습니다");
                 return;
             }
@@ -129,16 +116,11 @@ namespace StageSystem
             int newSlotIndex = PlayerDataManager.Instance.CurrentSlotIndex;
             if (newSlotIndex != currentSlotIndex)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"[StageProgressManager] 슬롯 전환 감지: {currentSlotIndex} → {newSlotIndex}");
                 progressCache.Clear();
                 currentSlotIndex = newSlotIndex;
             }
             
             var savedProgresses = PlayerDataManager.Instance.GetStageProgresses();
-            if (enableDebugLogs)
-                Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex}에서 로드된 진행도 개수: {savedProgresses.Count}");
-            
             // 저장된 데이터로 캐시 업데이트
             foreach (var progress in savedProgresses)
             {
@@ -185,11 +167,7 @@ namespace StageSystem
                     progress.CompleteStage((int)completionTime, isFirstClear); // ⭐ isFirstClear 전달
                 }
                 
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"[StageProgressManager] 스테이지 완료: {stageId}");
-                    Debug.Log($"   - 첫 클리어: {isFirstClear}");
-                    Debug.Log($"   - 첫 클리어 보상 지급: {progress.isFirstClearRewarded}");
                 }
                 
                 CheckAutoUnlocks();
@@ -209,8 +187,6 @@ namespace StageSystem
                             selectedData.currentChapterId = chapterId;
                             selectedData.lastPlayedStageId = stageId;
                             
-                            if (enableDebugLogs)
-                                Debug.Log($"📍 [StageProgressManager] 마지막 플레이 위치 업데이트: Chapter {chapterId}, Stage {stageId}");
                         }
                     }
                 }
@@ -222,9 +198,6 @@ namespace StageSystem
                     if (stageIndex == 10)
                     {
                         int chapterId = StageIdValidator.ExtractChapterId(stageId);
-                        
-                        if (enableDebugLogs)
-                            Debug.Log($"🎉 [StageProgressManager] 챕터 {chapterId} 최종 스테이지 클리어!");
                         
                         // 챕터 완료는 Phase 5에서 처리 (로비 복귀 후 컷신 재생)
                         // 여기서는 다음 챕터 해금만 체크
@@ -241,16 +214,10 @@ namespace StageSystem
         /// </summary>
         private void CheckAutoUnlocks()
         {
-            if (enableDebugLogs)
-                Debug.Log($"[StageProgressManager] 자동 해금 체크 시작 - 설정된 스테이지 수: {allStageConfigs.Count}");
-            
             bool hasNewUnlocks = false;
             
             foreach (var config in allStageConfigs)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"[StageProgressManager] {config.StageID} 체크 중 - UnlockCondition: '{config.UnlockCondition}'");
-                
                 if (!IsStageUnlocked(config.StageID))
                 {
                     if (config.UnlockCondition == "AlwaysUnlocked" || 
@@ -263,10 +230,6 @@ namespace StageSystem
                 }
             }
             
-            if (!hasNewUnlocks && enableDebugLogs)
-            {
-                Debug.Log("[StageProgressManager] 새로 해금된 스테이지 없음");
-            }
         }
         
         /// <summary>
@@ -277,9 +240,6 @@ namespace StageSystem
             if (progressCache.ContainsKey(stageId))
             {
                 progressCache[stageId].isUnlocked = true;
-                
-                if (enableDebugLogs)
-                    Debug.Log($"[StageProgressManager] 자동 해금: {stageId}");
                 
                 OnStageUnlocked?.Invoke(stageId);
                 SaveProgressesToPlayerData();
@@ -337,8 +297,6 @@ namespace StageSystem
                 // 🔧 의미 있는 이벤트: 스테이지 진행도 변경 → 즉시 저장
                 PlayerDataManager.Instance.SaveOnMeaningfulEvent("StageProgressUpdated");
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[StageProgressManager] 슬롯 {currentSlotIndex} 진행도 저장 완료");
             }
         }
         
@@ -347,17 +305,12 @@ namespace StageSystem
         /// </summary>
         public void InitializeFor(int slotIndex)
         {
-            if (enableDebugLogs)
-                Debug.Log($"[StageProgressManager] 슬롯 {slotIndex}로 강제 재초기화");
-            
             LoadAllStageConfigs();
             InitializeProgressCache();
             CheckAutoUnlocks();
             
             isInitialized = true;
             
-            if (enableDebugLogs)
-                Debug.Log($"[StageProgressManager] 슬롯 {slotIndex} 초기화 완료");
         }
         
         /// <summary>
@@ -370,8 +323,6 @@ namespace StageSystem
                 progressCache.Clear();
                 currentSlotIndex = -1;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[StageProgressManager] 진행도 캐시 완전 초기화 (currentSlotIndex → -1)");
             }
         }
         
@@ -401,9 +352,6 @@ namespace StageSystem
             if (progressCache.ContainsKey(stageId))
             {
                 progressCache[stageId].isUnlocked = true;
-                
-                if (enableDebugLogs)
-                    Debug.Log($"[StageProgressManager] 강제 해금: {stageId}");
                 
                 OnStageUnlocked?.Invoke(stageId);
                 SaveProgressesToPlayerData();
@@ -484,8 +432,6 @@ namespace StageSystem
                     // ✅ 수정: 이미 클리어된 챕터는 다시 기록하지 않음
                     if (slotData.IsChapterCleared(chapterId))
                     {
-                        if (enableDebugLogs)
-                            Debug.Log($"⚠️ [StageProgressManager] 챕터 {chapterId}는 이미 클리어됨");
                         return;
                     }
                     
@@ -499,14 +445,9 @@ namespace StageSystem
                     {
                         selectedData.clearedChapters.Add(chapterId);
                         
-                        if (enableDebugLogs)
-                            Debug.Log($"📊 [StageProgressManager] SelectedPlayerData.clearedChapters 업데이트: {chapterId} 추가");
                     }
                     
                     PlayerDataManager.Instance.SaveCurrentSlot();
-                    
-                    if (enableDebugLogs)
-                        Debug.Log($"✅ [StageProgressManager] 챕터 {chapterId} 완료 기록!");
                     
                     // ✅ 수정: CheckChapterUnlocks() 호출 제거 (무한 재귀 방지)
                     // CompleteChapter()는 명시적 호출이므로 자동 해금은 하지 않음
@@ -542,7 +483,6 @@ namespace StageSystem
             
             if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
             {
-                if (enableDebugLogs)
                     Debug.LogWarning("[StageProgressManager] CheckChapterUnlocks - 슬롯이 선택되지 않음");
                 return;
             }
@@ -550,7 +490,6 @@ namespace StageSystem
             var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
             if (slotData == null)
             {
-                if (enableDebugLogs)
                     Debug.LogWarning("[StageProgressManager] CheckChapterUnlocks - slotData가 null");
                 return;
             }
@@ -574,16 +513,11 @@ namespace StageSystem
                     {
                         slotData.MarkChapterAsCleared(prevChapter);
                         
-                        if (enableDebugLogs)
-                            Debug.Log($"✅ [StageProgressManager] 챕터 {prevChapter} 자동 완료 기록 (Stage 10 클리어)");
                     }
                     
                     // 현재 챕터의 첫 스테이지 해금
                     string currentChapterFirstStage = $"CH{chapter:D2}_ST01";
                     AutoUnlockStage(currentChapterFirstStage);
-                    
-                    if (enableDebugLogs)
-                        Debug.Log($"🎉 [StageProgressManager] 챕터 {chapter} 해금! (챕터 {prevChapter} 완료)");
                     
                     // ✅ 추가: 변경사항 저장
                     PlayerDataManager.Instance.SaveCurrentSlot();
@@ -636,8 +570,6 @@ namespace StageSystem
             {
                 playerData.clearedDungeons.Add(dungeonId);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎉 [StageProgressManager] 🏰 던전 첫 클리어: {dungeonId}");
             }
             
             // DungeonProgress 업데이트
@@ -660,13 +592,7 @@ namespace StageSystem
             // 이벤트 발행 (기존 OnStageCompleted 재사용)
             OnStageCompleted?.Invoke(dungeonId, isFirstClear);
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"✅ [StageProgressManager] 🏰 던전 완료 기록: {dungeonId}");
-                Debug.Log($"   - 클리어 횟수: {progress.clearCount}");
-                Debug.Log($"   - 최단 시간: {progress.bestClearTime}초");
-                Debug.Log($"   - 첫 클리어: {isFirstClear}");
-                Debug.Log($"   - 첫 클리어 보상 지급: {progress.isFirstClearRewarded}");
             }
         }
     }

@@ -27,7 +27,6 @@ namespace StageSystem
         [SerializeField] private Vector3 scaleUpSize = Vector3.one * 1.2f;
         
         [Header("디버그")]
-        [SerializeField] private bool enableDebugLogs = false;
         
         // 카운트 상태
         private int currentKillCount = 0;
@@ -75,8 +74,6 @@ namespace StageSystem
             // WaveController 이벤트 구독
             SubscribeToEnemyEvents();
             
-            if (enableDebugLogs)
-                Debug.Log($"🎯 [KillCountUI] 초기화 완료 - 목표: {targetKillCount}마리");
         }
         
         /// <summary>
@@ -137,9 +134,6 @@ namespace StageSystem
             
             // 킬 카운트 즉시 증가 (애니메이션과 분리)
             currentKillCount++;
-            
-            if (enableDebugLogs)
-                Debug.Log($"🎯 [KillCountUI] 적 처치: {enemy.name} - {currentKillCount}/{targetKillCount}");
             
             // UI 업데이트 (애니메이션 없이 즉시)
             UpdateKillCountDisplay();
@@ -247,9 +241,6 @@ namespace StageSystem
         {
             if (currentKillCount >= targetKillCount)
             {
-                if (enableDebugLogs)
-                    Debug.Log("🎯 [KillCountUI] 목표 달성! 모든 적 처치 완료");
-                
                 // 목표 달성 이벤트 (필요시 추가)
                 OnObjectiveComplete();
             }

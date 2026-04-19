@@ -16,7 +16,6 @@ namespace StageSystem
         [Header("🔧 설정")]
         [SerializeField] private string chapterResourcePath = "Stages/Chapters";
         [SerializeField] private bool autoLoadOnStart = true;
-        [SerializeField] private bool enableDebugLogs = true;
         
         [Header("📊 런타임 정보")]
         [SerializeField] private bool isInitialized = false;
@@ -43,8 +42,6 @@ namespace StageSystem
         {
             if (isInitialized)
             {
-                if (enableDebugLogs)
-                    Debug.Log("[ChapterManager] 이미 초기화되었습니다.");
                 return;
             }
             
@@ -87,8 +84,6 @@ namespace StageSystem
                 
                 isInitialized = true;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [ChapterManager] 챕터 데이터 로드 완료: {chapterDataCache.Count}개");
             }
             catch (System.Exception ex)
             {
@@ -116,7 +111,6 @@ namespace StageSystem
                 return data;
             }
             
-            if (enableDebugLogs)
                 Debug.LogWarning($"[ChapterManager] 챕터 {chapterId} 데이터를 찾을 수 없습니다.");
             
             return null;
@@ -292,7 +286,6 @@ namespace StageSystem
             var chapter = GetChapterData(chapterId);
             if (chapter == null)
             {
-                Debug.Log($"[ChapterManager] 챕터 {chapterId} 데이터 없음");
                 return;
             }
             
@@ -301,12 +294,6 @@ namespace StageSystem
             float progress = GetChapterProgress(chapterId);
             int clearedStages = GetClearedStageCount(chapterId);
             
-            Debug.Log($"=== Chapter {chapterId} 정보 ===\n" +
-                      $"제목: {chapter.chapterTitle}\n" +
-                      $"해금: {unlocked}, 클리어: {cleared}\n" +
-                      $"진행률: {progress * 100:F1}% ({clearedStages}/{chapter.stageCount})\n" +
-                      $"다음 플레이: {GetNextPlayableStage(chapterId)}\n" +
-                      $"설명: {chapter.description}");
         }
         
         #endregion

@@ -32,7 +32,6 @@ public class WaveTriggerZone : MonoBehaviour
     [SerializeField] private Color gizmoColor = new Color(1f, 0.5f, 0f, 0.3f); // 주황색 반투명
     
     [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = true;
     
     // 상태
     private bool hasTriggered = false;
@@ -70,9 +69,7 @@ public class WaveTriggerZone : MonoBehaviour
                 Debug.LogWarning($"[WaveTriggerZone] {gameObject.name} — forceCompleteCurrentWave=true인데 WaveController를 찾을 수 없습니다.");
         }
         
-        if (enableDebugLogs)
         {
-            Debug.Log($"✅ [WaveTriggerZone] {gameObject.name} 초기화 완료 - Trigger ID: {triggerIdToActivate}");
         }
     }
     
@@ -87,8 +84,6 @@ public class WaveTriggerZone : MonoBehaviour
         // 이미 발동했는지 체크
         if (triggerOnce && hasTriggered)
         {
-            if (enableDebugLogs)
-                Debug.Log($"⏭️ [WaveTriggerZone] {gameObject.name} - 이미 발동됨 (무시)");
             return;
         }
         
@@ -103,23 +98,16 @@ public class WaveTriggerZone : MonoBehaviour
     {
         hasTriggered = true;
         
-        if (enableDebugLogs)
-            Debug.Log($"🎯 [WaveTriggerZone] {gameObject.name} 발동! Trigger ID: {triggerIdToActivate}");
-        
         // [OR 조건] 현재 웨이브 강제 클리어 (몬스터가 남아있어도 다음 웨이브로 진행)
         if (forceCompleteCurrentWave && waveController != null)
         {
             waveController.ForceCompleteCurrentWave();
-            if (enableDebugLogs)
-                Debug.Log($"⏭️ [WaveTriggerZone] {gameObject.name} → 현재 웨이브 강제 클리어");
         }
         
         // [방식 B] 직접 연결된 WaveSpawner가 있으면 StageManager 없이 직접 트리거
         if (directWaveSpawner != null)
         {
             directWaveSpawner.TriggerStart();
-            if (enableDebugLogs)
-                Debug.Log($"🚀 [WaveTriggerZone] {gameObject.name} → WaveSpawner 직접 트리거: {directWaveSpawner.name}");
         }
         else if (!forceCompleteCurrentWave)
         {
@@ -144,9 +132,6 @@ public class WaveTriggerZone : MonoBehaviour
         // 비활성화
         if (disableAfterTrigger)
         {
-            if (enableDebugLogs)
-                Debug.Log($"💤 [WaveTriggerZone] {gameObject.name} 비활성화");
-            
             gameObject.SetActive(false);
         }
     }
@@ -159,8 +144,6 @@ public class WaveTriggerZone : MonoBehaviour
         hasTriggered = false;
         gameObject.SetActive(true);
         
-        if (enableDebugLogs)
-            Debug.Log($"🔄 [WaveTriggerZone] {gameObject.name} 리셋 완료");
     }
     
     private void OnDrawGizmos()

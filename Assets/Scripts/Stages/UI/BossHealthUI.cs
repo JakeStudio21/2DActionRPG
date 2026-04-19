@@ -42,7 +42,6 @@ public class BossHealthUI : MonoBehaviour
         [SerializeField] private float shakeDuration = 0.2f;
         
         [Header("디버그")]
-        [SerializeField] private bool enableDebugLogs = false;
         
         // 보스 상태
         private GameObject currentBoss;
@@ -90,9 +89,6 @@ public class BossHealthUI : MonoBehaviour
                 return;
             }
             
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [BossHealthUI] SetBoss: {bossObject.name}");
-            
             currentBoss = bossObject;
             bossHealth = bossObject.GetComponent<EnemyHealth>();
             phaseController = bossObject.GetComponent<BossPhaseController>();
@@ -110,8 +106,6 @@ public class BossHealthUI : MonoBehaviour
                 phaseController.OnPhaseChanged += OnPhaseChanged;
                 currentPhase = phaseController.CurrentPhaseIndex + 1;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🐲 [BossHealthUI] BossPhaseController 연결, Phase {currentPhase}");
             }
             
             // ⭐ 보스 정보 설정 - EnemyData의 enemyName 우선 사용
@@ -120,7 +114,6 @@ public class BossHealthUI : MonoBehaviour
             if (baseEnemy != null && baseEnemy.EnemyData != null)
             {
                 bossName = baseEnemy.EnemyData.EnemyName; // ⭐ EnemyData의 한글 이름 사용
-                Debug.Log($"🐲 [BossHealthUI] EnemyData 이름 사용: {bossName}");
             }
             else
             {
@@ -131,7 +124,6 @@ public class BossHealthUI : MonoBehaviour
             maxHealth = bossHealth.MaxHealth;
             currentHealth = bossHealth.CurrentHealth;
             
-            Debug.Log($"🐲 [BossHealthUI] 보스 정보 설정 완료 - 이름: {bossName}, HP: {currentHealth}/{maxHealth}");
             
             // UI 활성화
             gameObject.SetActive(true);
@@ -163,9 +155,6 @@ public class BossHealthUI : MonoBehaviour
         /// </summary>
         private IEnumerator MonitorBossHealth()
         {
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [BossHealthUI] MonitorBossHealth 코루틴 시작!");
-            
             while (isActive && currentBoss != null && bossHealth != null)
             {
                 float newHealth = bossHealth.CurrentHealth;
@@ -175,9 +164,6 @@ public class BossHealthUI : MonoBehaviour
                 {
                     float previousHealth = currentHealth;
                     currentHealth = newHealth;
-                    
-                    if (enableDebugLogs)
-                        Debug.Log($"🐲 [BossHealthUI] HP 변화: {previousHealth:F0} → {newHealth:F0}");
                     
                     // HP 감소 시 데미지 효과
                     if (newHealth < previousHealth)
@@ -245,7 +231,6 @@ public class BossHealthUI : MonoBehaviour
                 // ⭐ EnemyData에서 이미 한글 이름을 가져왔으므로 그대로 사용
                 bossNameText.text = bossName;
                 
-                Debug.Log($"🐲 [BossHealthUI] 보스 이름 표시: {bossName}");
             }
             else
             {
@@ -281,8 +266,6 @@ public class BossHealthUI : MonoBehaviour
             // HP 색상 업데이트
             UpdateHealthColor(hpRatio);
             
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [BossHealthUI] HP 업데이트: {currentHealth:F0}/{maxHealth:F0} ({hpRatio:P0})");
         }
         
         /// <summary>
@@ -375,9 +358,6 @@ public class BossHealthUI : MonoBehaviour
                 currentPhase = 2;
             else if (phaseName.Contains("3"))
                 currentPhase = 3;
-            
-            if (enableDebugLogs)
-                Debug.Log($"🐲 [BossHealthUI] 페이즈 변경: Phase {currentPhase}");
             
             // 즉시 색상 업데이트
             float hpRatio = maxHealth > 0 ? currentHealth / maxHealth : 0f;

@@ -36,7 +36,6 @@ namespace StageSystem
                 manager.UnlockStage(config.StageID);
             }
             
-            Debug.Log($"🔓 [StageProgressDebugger] {configs.Length}개 스테이지 모두 해금됨");
         }
         
         [ContextMenu("모든 스테이지 완료")]
@@ -56,7 +55,6 @@ namespace StageSystem
                 manager.CompleteStage(config.StageID, Random.Range(120, 300)); // 랜덤 클리어 시간
             }
             
-            Debug.Log($"🏆 [StageProgressDebugger] {configs.Length}개 스테이지 모두 완료됨");
         }
         
         [ContextMenu("진행도 초기화")]
@@ -72,7 +70,6 @@ namespace StageSystem
             var emptyProgresses = new List<StageProgress>();
             PlayerDataManager.Instance.UpdateStageProgresses(emptyProgresses);
             
-            Debug.Log("🔄 [StageProgressDebugger] 모든 진행도 초기화됨");
         }
         
         [ContextMenu("STAGE_001만 해금")]
@@ -85,7 +82,6 @@ namespace StageSystem
             
             PlayerDataManager.Instance.UpdateStageProgresses(progresses);
             
-            Debug.Log("🎯 [StageProgressDebugger] STAGE_001만 해금된 상태로 초기화");
         }
         
         private void Update()

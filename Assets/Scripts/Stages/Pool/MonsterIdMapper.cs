@@ -58,7 +58,6 @@ namespace StageSystem
             // 2순위: 수동 매핑 테이블 확인
             if (manualMappings.TryGetValue(monsterId, out string manualTag))
             {
-                Debug.Log($"[MonsterIdMapper] 수동 매핑 사용: {monsterId} → {manualTag}");
                 return manualTag;
             }
             
@@ -93,7 +92,6 @@ namespace StageSystem
                     // 변환 결과 검증
                     if (IsValidPoolTag(poolTag))
                     {
-                        Debug.Log($"[MonsterIdMapper] 자동 매핑 성공: {monsterId} → {poolTag}");
                         return poolTag;
                     }
                 }
@@ -171,7 +169,6 @@ namespace StageSystem
                 prefabPaths[poolTag] = prefabPath;
             }
             
-            Debug.Log($"[MonsterIdMapper] 새 수동 매핑 추가: {monsterId} → {poolTag}");
         }
         
         /// <summary>
@@ -180,10 +177,8 @@ namespace StageSystem
         [RuntimeInitializeOnLoadMethod]
         public static void PrintAllMappings()
         {
-            Debug.Log("🗺️ [MonsterIdMapper] 현재 매핑 테이블:");
             foreach (var mapping in manualMappings)
             {
-                Debug.Log($"  {mapping.Key} → {mapping.Value}");
             }
         }
     }

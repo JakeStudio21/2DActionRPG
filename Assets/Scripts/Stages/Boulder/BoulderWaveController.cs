@@ -80,7 +80,6 @@ public class BoulderWaveController : MonoBehaviour
         if ((playerLayer.value & (1 << other.gameObject.layer)) == 0) return;
         if (oneShot && hasStarted) return;
 
-        Debug.Log($"[BoulderWaveController] {name}: 플레이어 진입 감지 → 웨이브 시작");
         StartWave();
     }
 
@@ -93,11 +92,9 @@ public class BoulderWaveController : MonoBehaviour
 
         if (oneShot && hasStarted)
         {
-            Debug.Log($"[BoulderWaveController] {name}: AutoStart — 이미 웨이브 시작됨, 스킵");
             yield break;
         }
 
-        Debug.Log($"[BoulderWaveController] {name}: AutoStart 발동 (딜레이: {autoStartDelay}초)");
         StartWave();
     }
 
@@ -109,14 +106,12 @@ public class BoulderWaveController : MonoBehaviour
     {
         if (oneShot && hasStarted)
         {
-            Debug.Log($"[BoulderWaveController] {name}: StartWave 무시 — oneShot 이미 발동됨");
             return;
         }
 
         hasStarted = true;
         entryCoroutines.Clear();
 
-        Debug.Log($"[BoulderWaveController] {name}: 웨이브 시작 — 엔트리 수: {spawnEntries.Length}");
 
         foreach (var entry in spawnEntries)
         {
@@ -141,7 +136,6 @@ public class BoulderWaveController : MonoBehaviour
             if (co != null) StopCoroutine(co);
         }
         entryCoroutines.Clear();
-        Debug.Log($"[BoulderWaveController] {name}: 웨이브 중단");
     }
 
     /// <summary>
@@ -151,7 +145,6 @@ public class BoulderWaveController : MonoBehaviour
     {
         StopWave();
         hasStarted = false;
-        Debug.Log($"[BoulderWaveController] {name}: 웨이브 리셋 완료");
     }
 
     // ── 엔트리별 독립 코루틴 ─────────────────────────────────────────────────
@@ -161,7 +154,6 @@ public class BoulderWaveController : MonoBehaviour
         // 첫 스폰 전 초기 딜레이
         if (entry.delay > 0f)
         {
-            Debug.Log($"[BoulderWaveController] {entry.spawner.name} → 첫 스폰까지 {entry.delay:F1}초 대기");
             yield return new WaitForSeconds(entry.delay);
         }
 
@@ -170,7 +162,6 @@ public class BoulderWaveController : MonoBehaviour
         while (entry.repeatCount == 0 || fired < entry.repeatCount)
         {
             string countLabel = entry.repeatCount == 0 ? "∞" : $"{fired + 1}/{entry.repeatCount}";
-            Debug.Log($"[BoulderWaveController] {entry.spawner.name} → 스폰 ({countLabel})");
 
             entry.spawner.ForceSpawn();
             fired++;
@@ -178,11 +169,9 @@ public class BoulderWaveController : MonoBehaviour
             if (entry.repeatCount != 0 && fired >= entry.repeatCount)
                 break;
 
-            Debug.Log($"[BoulderWaveController] {entry.spawner.name} → 다음 스폰까지 {entry.repeatInterval:F1}초 대기");
             yield return new WaitForSeconds(entry.repeatInterval);
         }
 
-        Debug.Log($"[BoulderWaveController] {entry.spawner.name} → 스폰 완료");
     }
 
 #if UNITY_EDITOR

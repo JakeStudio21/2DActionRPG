@@ -12,7 +12,6 @@ namespace StageSystem
 public class WaveController : MonoBehaviour
 {
         [Header("웨이브 설정")]
-        public bool enableDebugLogs = false; // NavMesh 통합 완료 후 비활성화
         public bool showSpawnGizmos = true;
         
         [Header("스폰 제어")]
@@ -72,9 +71,7 @@ public class WaveController : MonoBehaviour
             currentWaveEnemies.Clear();
             groupEnemies.Clear();
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"🌊 [WaveController] 웨이브 시작: {waveConfig.WaveID} ({waveConfig.SpawnGroups.Count}개 그룹)");
             }
             
             OnWaveStarted?.Invoke(waveConfig);
@@ -93,8 +90,6 @@ public class WaveController : MonoBehaviour
                     
                 case WaveStartCondition.OnTrigger:
                     // 트리거 대기 상태 (외부에서 TriggerWave 호출)
-                    if (enableDebugLogs)
-                        Debug.Log($"🌊 [WaveController] 트리거 대기 중: {waveConfig.TriggerId}");
                     break;
             }
         }
@@ -106,9 +101,6 @@ public class WaveController : MonoBehaviour
         {
             if (currentWave != null && currentWave.TriggerId == triggerId)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"🎯 [WaveController] 트리거 발동: {triggerId}");
-                    
                 StartCoroutine(ExecuteWaveWithDelay(0));
             }
         }
@@ -124,8 +116,6 @@ public class WaveController : MonoBehaviour
         {
             if (!isWaveActive)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"⏭️ [WaveController] ForceCompleteCurrentWave 무시 — 이미 완료된 웨이브: {currentWave?.WaveID}");
                 return;
             }
             
@@ -138,9 +128,6 @@ public class WaveController : MonoBehaviour
             
             // 남은 적 리스트는 건드리지 않음 (플레이어가 돌아와서 처치 가능)
             isWaveActive = false;
-            
-            if (enableDebugLogs)
-                Debug.Log($"⏭️ [WaveController] 웨이브 강제 클리어: {currentWave?.WaveID} (남은 적 {currentWaveEnemies.Count}마리 유지)");
             
             OnWaveCompleted?.Invoke(currentWave);
         }
@@ -162,9 +149,6 @@ public class WaveController : MonoBehaviour
         {
             var parallelEnemies = new List<GameObject>();
             parallelWaveEnemies[wave] = parallelEnemies;
-            
-            if (enableDebugLogs)
-                Debug.Log($"⚡ [WaveController] 병렬 웨이브 스폰 시작: {wave.WaveID}");
             
             if (wave.UseSimpleMobWave)
             {
@@ -252,17 +236,11 @@ public class WaveController : MonoBehaviour
                 }
             }
             
-            if (enableDebugLogs)
-                Debug.Log($"⏳ [WaveController] 병렬 웨이브 완료 대기: {parallelEnemies.Count}마리 ({wave.WaveID})");
-            
             // 모든 병렬 적이 소멸할 때까지 대기
             while (parallelEnemies.Count > 0)
                 yield return new WaitForSeconds(0.5f);
             
             parallelWaveEnemies.Remove(wave);
-            
-            if (enableDebugLogs)
-                Debug.Log($"🏆 [WaveController] 병렬 웨이브 완료: {wave.WaveID}");
             
             onAllCleared?.Invoke(wave);
         }
@@ -283,9 +261,6 @@ public class WaveController : MonoBehaviour
         {
             if (delaySec > 0)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"⏰ [WaveController] {delaySec}초 대기 중...");
-                    
                 yield return new WaitForSeconds(delaySec);
             }
             
@@ -294,9 +269,6 @@ public class WaveController : MonoBehaviour
             {
                 if (currentWave.SimpleMobWaveData != null)
                 {
-                    if (enableDebugLogs)
-                        Debug.Log($"🌊 [WaveController] SimpleMob 웨이브 시작: {currentWave.WaveID}");
-                    
                     // WaveSpawner 찾기 또는 생성
                     WaveSpawner waveSpawner = FindObjectOfType<WaveSpawner>();
                     if (waveSpawner == null)
@@ -309,21 +281,14 @@ public class WaveController : MonoBehaviour
                         if (currentWave.SimpleMobSpawnCenter != null)
                         {
                             waveSpawner.SetSpawnCenter(currentWave.SimpleMobSpawnCenter);
-                            if (enableDebugLogs)
-                                Debug.Log($"📍 [WaveController] 커스텀 스폰 위치 설정: {currentWave.SimpleMobSpawnCenter.name}");
                         }
                         
                         // WaveSpawner의 OnWaveComplete 이벤트 구독
                         waveSpawner.OnWaveComplete += OnSimpleMobWaveComplete;
                         
-                        if (enableDebugLogs)
-                            Debug.Log($"🔗 [WaveController] WaveSpawner 이벤트 구독 완료");
-                        
                         // SimpleMob 웨이브 시작
                         waveSpawner.StartWaveExternal(currentWave.SimpleMobWaveData);
                         
-                        if (enableDebugLogs)
-                            Debug.Log($"🚀 [WaveController] SimpleMob 웨이브 스폰 시작 명령 전송!");
                     }
                     
                     yield break; // SimpleMob 웨이브는 여기서 종료
@@ -342,17 +307,13 @@ public class WaveController : MonoBehaviour
                 yield break;
             }
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"🔍 [WaveController] WaveID: {currentWave.WaveID}, SpawnGroups: {currentWave.SpawnGroups.Count}개");
             }
             
             // 각 그룹별 스폰 실행
             foreach (var group in currentWave.SpawnGroups)
             {
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"📦 [WaveController] 그룹 스폰 시작: {group.SpawnGroupID} ({group.Monsters.Count}종 몬스터)");
                 }
                 
                 // 🆕 SpawnPoint에서 직접 위치 계산 (SpawnShapeCalculator 제거)
@@ -432,9 +393,7 @@ public class WaveController : MonoBehaviour
             }
             
             // 🆕 웨이브 완료 대기 시작
-            if (enableDebugLogs)
             {
-                Debug.Log($"⏳ [WaveController] 웨이브 완료 대기 시작: {currentWaveEnemies.Count}마리 적");
             }
             
             waitForCompletionCoroutine = StartCoroutine(WaitForWaveCompletion());
@@ -449,9 +408,7 @@ public class WaveController : MonoBehaviour
             {
                 SpawnGroup group = currentWave.SpawnGroups[i];
                 
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"👥 [WaveController] 그룹 {i+1}/{currentWave.SpawnGroups.Count} 스폰: {group.SpawnGroupID}");
                 }
                 
                 // 그룹 스폰 딜레이
@@ -487,10 +444,6 @@ public class WaveController : MonoBehaviour
             
             for (int repeat = 0; repeat < repeatCount; repeat++)
             {
-                if (enableDebugLogs && repeatCount > 1)
-                {
-                    Debug.Log($"🔄 [WaveController] 반복 {repeat+1}/{repeatCount}");
-                }
                 
                 // 스폰 위치 계산
                 Vector3 spawnCenter = GetGroupSpawnCenter(group);
@@ -557,9 +510,7 @@ public class WaveController : MonoBehaviour
             
             if (enemy != null)
             {
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"👹 [WaveController] 몬스터 스폰: {monsterId} → {poolTag} at {position}");
                 }
                 
                 // ⭐ 보스 전용 EnemyData 동적 할당
@@ -577,7 +528,6 @@ public class WaveController : MonoBehaviour
                     // ⭐ 보스 감지 및 UI 알림 추가
                     if (enemyHealth.IsBoss())
                     {
-                        Debug.Log($"🐲 [WaveController] 보스 스폰 감지: {enemy.name}");
                         
                         // StageManager에 보스 스폰 알림
                         if (StageManager.Instance != null)
@@ -622,7 +572,6 @@ public class WaveController : MonoBehaviour
                 // BaseEnemy의 EnemyData를 동적으로 변경
                 baseEnemy.SetEnemyData(bossData);
                 
-                Debug.Log($"🐲 [WaveController] 보스 데이터 할당 성공: {enemy.name} → {bossDataPath}");
             }
             else
             {
@@ -676,9 +625,7 @@ public class WaveController : MonoBehaviour
             
             if (targetSpawnPoint != null)
             {
-                if (enableDebugLogs)
                 {
-                    Debug.Log($"🎯 [WaveController] '{spawnGroup.SpawnGroupID}' → SpawnPoint '{targetSpawnPoint.spawnPointID}' 매칭");
                 }
                 
                 // SpawnPoint의 설정을 사용하여 위치 계산
@@ -686,7 +633,6 @@ public class WaveController : MonoBehaviour
             }
             
             // Fallback: 랜덤 SpawnPoint
-            if (enableDebugLogs)
             {
                 Debug.LogWarning($"⚠️ [WaveController] SpawnGroup '{spawnGroup.SpawnGroupID}'에 할당된 SpawnPoint 없음. 랜덤 사용.");
             }
@@ -756,9 +702,7 @@ public class WaveController : MonoBehaviour
                     {
                         OnGroupCompleted?.Invoke(groupPair.Key);
                         
-                        if (enableDebugLogs)
                         {
-                            Debug.Log($"✅ [WaveController] 그룹 완료: {groupPair.Key.SpawnGroupID}");
                         }
                     }
                     break;
@@ -786,9 +730,7 @@ public class WaveController : MonoBehaviour
             // 웨이브 완료
             isWaveActive = false;
             
-            if (enableDebugLogs)
             {
-                Debug.Log($"🏆 [WaveController] 웨이브 완료: {currentWave.WaveID}");
             }
             
             OnWaveCompleted?.Invoke(currentWave);
@@ -835,7 +777,6 @@ public class WaveController : MonoBehaviour
             
             isWaveActive = false;
             
-            Debug.Log($"⏹️ [WaveController] 웨이브 강제 정지: {currentWave?.WaveID}");
         }
         
         /// <summary>
@@ -865,9 +806,7 @@ public class WaveController : MonoBehaviour
         /// </summary>
         private void OnSimpleMobWaveComplete(int waveNumber)
         {
-            if (enableDebugLogs)
             {
-                Debug.Log($"🏆 [WaveController] SimpleMob 웨이브 완료 콜백 받음: {currentWave.WaveID} (Wave {waveNumber})");
             }
             
             // WaveSpawner 이벤트 구독 해제
@@ -875,23 +814,17 @@ public class WaveController : MonoBehaviour
             if (waveSpawner != null)
             {
                 waveSpawner.OnWaveComplete -= OnSimpleMobWaveComplete;
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [WaveController] WaveSpawner 이벤트 구독 해제 완료");
             }
             
             // 웨이브 완료 처리
             isWaveActive = false;
             
-            if (enableDebugLogs)
             {
                 int listenerCount = OnWaveCompleted?.GetInvocationList()?.Length ?? 0;
-                Debug.Log($"📣 [WaveController] OnWaveCompleted 이벤트 발동 - 구독자 {listenerCount}명 (StageManager 등)");
             }
             
             OnWaveCompleted?.Invoke(currentWave);
             
-            if (enableDebugLogs)
-                Debug.Log($"✅ [WaveController] SimpleMob 웨이브 완료 처리 끝!");
         }
         
         /// <summary>

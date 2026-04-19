@@ -76,7 +76,6 @@ namespace StageSystem
                 audioSource.PlayOneShot(portalOpenSound);
             }
             
-            Debug.Log("🚪 [StageExitPortal] 포털 활성화됨");
         }
         
         /// <summary>
@@ -154,7 +153,6 @@ namespace StageSystem
             
             OnPortalEntered?.Invoke();
             
-            Debug.Log("🏆 [StageExitPortal] 플레이어가 포털에 진입함");
             
             // FSMStageController에 스테이지 완료 알림
             var stageController = FindObjectOfType<FSMStageController>();
@@ -169,7 +167,6 @@ namespace StageSystem
         /// </summary>
         private void OnPlayerEnterRange()
         {
-            Debug.Log("🚪 [StageExitPortal] 플레이어가 포털 근처에 진입");
             // UI 표시 등 처리
         }
         
@@ -178,7 +175,6 @@ namespace StageSystem
         /// </summary>
         private void OnPlayerExitRange()
         {
-            Debug.Log("🚪 [StageExitPortal] 플레이어가 포털에서 이탈");
             // UI 숨김 등 처리
         }
         

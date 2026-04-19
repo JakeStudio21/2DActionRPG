@@ -220,7 +220,6 @@ namespace StageSystem
                     chapterId = StageIdValidator.ExtractChapterId(StageID);
                     stageIndexInChapter = StageIdValidator.ExtractStageIndex(StageID);
                     
-                    Debug.Log($"✅ [StageConfig] {StageID} → Chapter {chapterId}, Stage {stageIndexInChapter}");
                 }
             }
 #endif
