@@ -29,7 +29,6 @@ public class ShopCategoryRow : MonoBehaviour
     [SerializeField] private int maxItemsPerRow = 4;        // 최대 4개 (D/C/B/A)
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = false;
     
     // 내부 상태
     private ShopCategory category;
@@ -44,7 +43,6 @@ public class ShopCategoryRow : MonoBehaviour
     /// </summary>
     public void SetupCategory(ShopCategory category, List<ShopItemEntry> items)
     {
-        Debug.Log($"🔄 [ShopCategoryRow] SetupCategory({category}) 시작 - 아이템 {items?.Count ?? 0}개");
         
         this.category = category;
         this.currentItems = items ?? new List<ShopItemEntry>();
@@ -55,8 +53,6 @@ public class ShopCategoryRow : MonoBehaviour
             categoryNameText.text = ShopCategoryHelper.GetCategoryName(category);
             categoryNameText.gameObject.SetActive(true);
             
-            if (showDebugLogs)
-                Debug.Log($"   ✅ 카테고리 이름 설정: {categoryNameText.text}");
         }
         else
         {
@@ -73,7 +69,6 @@ public class ShopCategoryRow : MonoBehaviour
                 categoryIcon.sprite = iconSprite;
                 categoryIcon.gameObject.SetActive(true);
                 
-                Debug.Log($"   ✅ 카테고리 아이콘 설정: {category}");
             }
             else
             {
@@ -91,8 +86,6 @@ public class ShopCategoryRow : MonoBehaviour
         }
         else
         {
-            if (showDebugLogs)
-                Debug.Log($"   ⚠️ categoryIcon이 null (Inspector에서 할당 필요)");
         }
         
         // 슬롯 생성/업데이트
@@ -106,8 +99,6 @@ public class ShopCategoryRow : MonoBehaviour
         
         UpdateSlots();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopCategoryRow] 카테고리 설정 완료: {category} ({currentItems.Count}개 아이템)");
     }
     
     /// <summary>
@@ -115,8 +106,6 @@ public class ShopCategoryRow : MonoBehaviour
     /// </summary>
     private void EnsureSlotsExist()
     {
-        if (showDebugLogs)
-            Debug.Log($"[ShopCategoryRow] EnsureSlotsExist() - 슬롯: {itemSlots.Count}/{maxItemsPerRow}");
         
         if (itemSlotsContainer == null)
         {
@@ -136,8 +125,6 @@ public class ShopCategoryRow : MonoBehaviour
             CreateNewSlot();
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopCategoryRow] 슬롯 생성 완료 - 총 {itemSlots.Count}개");
     }
     
     /// <summary>
@@ -161,8 +148,6 @@ public class ShopCategoryRow : MonoBehaviour
             // 클릭 이벤트 연결 (ItemInstanceID 버전)
             slot.OnItemClickedV2 += HandleItemClicked;
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopCategoryRow] 슬롯 생성 완료 - 총 {itemSlots.Count}개");
         }
         else
         {
@@ -176,8 +161,6 @@ public class ShopCategoryRow : MonoBehaviour
     /// </summary>
     private void UpdateSlots()
     {
-        if (showDebugLogs)
-            Debug.Log($"[ShopCategoryRow] UpdateSlots() - 아이템: {currentItems.Count}개");
         
         // 등급순 정렬 (D → C → B → A)
         currentItems.Sort((a, b) => a.grade.CompareTo(b.grade));
@@ -204,8 +187,6 @@ public class ShopCategoryRow : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopCategoryRow] UpdateSlots() 완료 - {itemCount}개 표시");
     }
     
     /// <summary>
@@ -213,8 +194,6 @@ public class ShopCategoryRow : MonoBehaviour
     /// </summary>
     private void HandleItemClicked(ItemInstanceID instanceId)
     {
-        if (showDebugLogs)
-            Debug.Log($"🛒 [ShopCategoryRow] 아이템 클릭: {instanceId.Value}");
         
         OnItemClicked?.Invoke(instanceId);
     }

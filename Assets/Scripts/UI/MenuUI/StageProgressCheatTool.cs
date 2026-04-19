@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using StageSystem;
 
 /// <summary>
@@ -32,9 +32,6 @@ public class StageProgressCheatTool : MonoBehaviour
     [Header("=== 설정 ===")]
     [Tooltip("치트 기능 활성화")]
     public bool enableCheats = true;
-    
-    [Tooltip("치트 사용 시 로그 출력")]
-    public bool showLogs = true;
     
     private void Update()
     {
@@ -70,9 +67,6 @@ public class StageProgressCheatTool : MonoBehaviour
             return;
         }
         
-        if (showLogs)
-            Debug.Log($"[StageProgressCheatTool] 🎮 치트: Chapter {chapterId} 모든 스테이지 클리어");
-        
         // 모든 스테이지 클리어
         for (int i = 1; i <= chapterData.stageCount; i++)
         {
@@ -87,9 +81,6 @@ public class StageProgressCheatTool : MonoBehaviour
         
         // 챕터 클리어 처리
         StageProgressManager.Instance.CompleteChapter(chapterId);
-        
-        if (showLogs)
-            Debug.Log($"[StageProgressCheatTool] ✅ Chapter {chapterId} 클리어 완료! Chapter {chapterId + 1} 해금됨");
         
         // UI 갱신
         RefreshUI();
@@ -111,9 +102,6 @@ public class StageProgressCheatTool : MonoBehaviour
             Debug.LogWarning("[StageProgressCheatTool] 슬롯이 선택되지 않았습니다.");
             return;
         }
-        
-        if (showLogs)
-            Debug.Log("[StageProgressCheatTool] 🔄 치트: 모든 진행도 초기화");
         
         // 현재 슬롯 데이터 가져오기
         var slotData = PlayerDataManager.Instance.GetCurrentSlotData();
@@ -138,9 +126,6 @@ public class StageProgressCheatTool : MonoBehaviour
             int currentSlot = PlayerDataManager.Instance.GetCurrentSlotIndex();
             StageProgressManager.Instance.InitializeFor(currentSlot);
         }
-        
-        if (showLogs)
-            Debug.Log("[StageProgressCheatTool] ✅ 진행도 초기화 완료! CH01_ST01만 해금됨");
         
         // UI 갱신
         RefreshUI();
@@ -183,16 +168,11 @@ public class StageProgressCheatTool : MonoBehaviour
             {
                 StageProgressManager.Instance.UnlockStage(stageId);
                 
-                if (showLogs)
-                    Debug.Log($"[StageProgressCheatTool] 🔓 치트: {stageId} 해금");
-                
                 RefreshUI();
                 return;
             }
         }
         
-        if (showLogs)
-            Debug.Log($"[StageProgressCheatTool] ℹ️ Chapter {currentChapterId}의 모든 스테이지가 이미 해금되었습니다.");
     }
     
     /// <summary>
@@ -223,18 +203,12 @@ public class StageProgressCheatTool : MonoBehaviour
             return;
         }
         
-        if (showLogs)
-            Debug.Log($"[StageProgressCheatTool] 🔓 치트: Chapter {currentChapterId} 모든 스테이지 해금");
-        
         // 모든 스테이지 해금
         for (int i = 1; i <= chapterData.stageCount; i++)
         {
             string stageId = chapterData.GetStageId(i);
             StageProgressManager.Instance.UnlockStage(stageId);
         }
-        
-        if (showLogs)
-            Debug.Log($"[StageProgressCheatTool] ✅ Chapter {currentChapterId} 모든 스테이지 해금 완료");
         
         RefreshUI();
     }

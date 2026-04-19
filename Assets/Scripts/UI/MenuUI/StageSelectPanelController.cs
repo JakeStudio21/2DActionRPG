@@ -66,14 +66,12 @@ public class StageSelectPanelController : MonoBehaviour
         {
             StageProgressManager.Instance.OnStageUnlocked += OnStageUnlocked;
             StageProgressManager.Instance.OnStageCompleted += OnStageCompleted;
-            Debug.Log("[StageSelectPanelController] StageProgressManager 이벤트 구독 완료");
         }
         
         // ChapterMapUI 이벤트 구독
         if (chapterMapUI != null)
         {
             chapterMapUI.OnChapterChanged += OnChapterChanged;
-            Debug.Log("[StageSelectPanelController] ChapterMapUI 이벤트 구독 완료");
         }
     }
     
@@ -84,14 +82,12 @@ public class StageSelectPanelController : MonoBehaviour
         {
             StageProgressManager.Instance.OnStageUnlocked -= OnStageUnlocked;
             StageProgressManager.Instance.OnStageCompleted -= OnStageCompleted;
-            Debug.Log("[StageSelectPanelController] StageProgressManager 이벤트 구독 해제");
         }
         
         // ChapterMapUI 이벤트 구독 해제
         if (chapterMapUI != null)
         {
             chapterMapUI.OnChapterChanged -= OnChapterChanged;
-            Debug.Log("[StageSelectPanelController] ChapterMapUI 이벤트 구독 해제");
         }
     }
     
@@ -120,7 +116,6 @@ public class StageSelectPanelController : MonoBehaviour
         if (playButton != null) playButton.onClick.AddListener(OnPlayButton);
         if (backButton != null) backButton.onClick.AddListener(OnBack);
         
-        Debug.Log($"[StageSelectPanelController] 버튼 이벤트 등록 완료");
     }
     
     /// <summary>
@@ -130,9 +125,7 @@ public class StageSelectPanelController : MonoBehaviour
     {
         if (stageSelectPanel != null)
         {
-            Debug.Log("[StageSelectPanelController] 패널 표시 시작");
             stageSelectPanel.SetActive(true);
-            Debug.Log($"[StageSelectPanelController] 패널 활성화 완료: {stageSelectPanel.name}, Active={stageSelectPanel.activeSelf}");
         }
         else
         {
@@ -182,7 +175,6 @@ public class StageSelectPanelController : MonoBehaviour
     public void SetSelectedSlotIndex(int slotIndex)
     {
         selectedSlotIndex = slotIndex;
-        Debug.Log($"[StageSelectPanelController] 선택된 슬롯 인덱스: {slotIndex}");
     }
     
     // ========================================
@@ -206,7 +198,6 @@ public class StageSelectPanelController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"[StageSelectPanelController] 챕터 {chapterId} 스테이지 버튼 생성 시작");
         
         // 기존 버튼 제거
         DestroyStageButtons();
@@ -244,10 +235,8 @@ public class StageSelectPanelController : MonoBehaviour
             
             activeStageButtons.Add(buttonUI);
             
-            Debug.Log($"[StageSelectPanelController] 버튼 생성: {stageId} (Index: {i}, Unlocked: {isUnlocked}, Cleared: {isCleared}, Boss: {isBoss})");
         }
         
-        Debug.Log($"[StageSelectPanelController] 스테이지 버튼 생성 완료: {activeStageButtons.Count}개");
     }
     
     /// <summary>
@@ -255,7 +244,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void DestroyStageButtons()
     {
-        Debug.Log($"[StageSelectPanelController] 스테이지 버튼 제거: {activeStageButtons.Count}개");
         
         foreach (var button in activeStageButtons)
         {
@@ -274,7 +262,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnChapterChanged(int newChapterId)
     {
-        Debug.Log($"[StageSelectPanelController] 챕터 전환: {currentChapterId} → {newChapterId}");
         
         currentChapterId = newChapterId;
         
@@ -313,7 +300,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     public void RefreshStageProgressUI()
     {
-        Debug.Log("[StageSelectPanelController] RefreshStageProgressUI 호출됨");
         
         if (StageProgressManager.Instance == null)
         {
@@ -348,7 +334,6 @@ public class StageSelectPanelController : MonoBehaviour
             chapterMapUI.ForceRefresh();
         }
         
-        Debug.Log("[StageSelectPanelController] 스테이지 진행도 UI 갱신 완료");
     }
     
     /// <summary>
@@ -387,7 +372,6 @@ public class StageSelectPanelController : MonoBehaviour
         // Play 버튼 활성화
         UpdatePlayButtonState();
         
-        Debug.Log($"[StageSelectPanelController] 스테이지 선택됨: {stageId}");
     }
     
     /// <summary>
@@ -395,7 +379,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void DisplayStageInfo(string stageId)
     {
-        Debug.Log($"[StageSelectPanelController] DisplayStageInfo 호출: {stageId}");
         
         var stageConfig = LoadStageConfig(stageId);
         var progress = StageProgressManager.Instance?.GetStageProgress(stageId);
@@ -406,13 +389,11 @@ public class StageSelectPanelController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"[StageSelectPanelController] StageConfig 로드 성공: {stageConfig.StageName}");
         
         // 스테이지 이름
         if (stageNameText != null)
         {
             stageNameText.text = stageConfig.StageName;
-            Debug.Log($"[StageSelectPanelController] 스테이지 이름 설정: {stageConfig.StageName}");
         }
         else
         {
@@ -453,7 +434,6 @@ public class StageSelectPanelController : MonoBehaviour
         
         // 씬 이름 저장
         selectedSceneName = stageConfig.SceneName;
-        Debug.Log($"[StageSelectPanelController] 씬 이름 저장: {selectedSceneName}");
     }
     
     /// <summary>
@@ -475,7 +455,6 @@ public class StageSelectPanelController : MonoBehaviour
             }
             else
             {
-                Debug.Log($"[StageSelectPanelController] StageConfig 로드 성공 (챕터): {path} -> {config.StageName}");
             }
         }
         // ❌ Phase 6: 레거시 시스템 제거됨 (STAGE_001~003)
@@ -494,7 +473,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void RefreshStageSelectionUI()
     {
-        Debug.Log($"[StageSelectPanelController] RefreshStageSelectionUI 호출 (selectedStageId={selectedStageId})");
         
         // Phase 6: 동적 버튼 선택 상태 업데이트
         foreach (var button in activeStageButtons)
@@ -517,7 +495,6 @@ public class StageSelectPanelController : MonoBehaviour
         {
             bool canPlay = !string.IsNullOrEmpty(selectedStageId) && !string.IsNullOrEmpty(selectedSceneName);
             playButton.interactable = canPlay;
-            Debug.Log($"[StageSelectPanelController] Play 버튼 상태 업데이트: interactable={canPlay}, stageId={selectedStageId}, sceneName={selectedSceneName}");
         }
         else
         {
@@ -530,7 +507,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnPlayButton()
     {
-        Debug.Log($"[StageSelectPanelController] OnPlayButton 호출됨 (stageId={selectedStageId}, scene={selectedSceneName})");
         
         if (string.IsNullOrEmpty(selectedStageId) || string.IsNullOrEmpty(selectedSceneName))
         {
@@ -538,7 +514,6 @@ public class StageSelectPanelController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"[StageSelectPanelController] 게임 시작 이벤트 발생: {selectedSceneName}");
         
         // 이벤트 발생
         OnPlayButtonClicked?.Invoke(selectedSceneName);
@@ -549,7 +524,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnBack()
     {
-        Debug.Log("[StageSelectPanelController] 뒤로 가기");
         
         // 이벤트 발생
         OnBackButtonClicked?.Invoke();
@@ -560,7 +534,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnStageUnlocked(string stageId)
     {
-        Debug.Log($"[StageSelectPanelController] 스테이지 해금됨: {stageId}");
         RefreshStageProgressUI();
     }
     
@@ -569,7 +542,6 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnStageCompleted(string stageId, bool isFirstClear)
     {
-        Debug.Log($"[StageSelectPanelController] 스테이지 완료됨: {stageId} (첫클리어: {isFirstClear})");
         RefreshStageProgressUI();
         
         // 현재 선택된 스테이지라면 정보 갱신
@@ -593,13 +565,11 @@ public class StageSelectPanelController : MonoBehaviour
             // 유효성 검사 (1~5 범위)
             if (lastChapter >= 1 && lastChapter <= 5)
             {
-                Debug.Log($"📍 [StageSelectPanelController] 마지막 플레이 챕터 로드: Chapter {lastChapter}");
                 return lastChapter;
             }
         }
         
         // 기본값: 챕터 1
-        Debug.Log($"📍 [StageSelectPanelController] 기본 챕터1 사용");
         return 1;
     }
     
@@ -624,7 +594,6 @@ public class StageSelectPanelController : MonoBehaviour
         
         if (string.IsNullOrEmpty(stageConfig.chapterStartCutsceneId))
         {
-            Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 없음");
             return;
         }
         
@@ -642,12 +611,10 @@ public class StageSelectPanelController : MonoBehaviour
         
         if (hasSeen)
         {
-            Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 스킵 (이미 시청)");
             return;
         }
         
         // 최초 시청 - 컷신 재생
-        Debug.Log($"🎬 [StageSelectPanelController] 챕터 {chapterId} 시작 컷신 재생: {stageConfig.chapterStartCutsceneId}");
         StartCoroutine(PlayChapterStartCutsceneCoroutine(stageConfig.chapterStartCutsceneId));
     }
     
@@ -656,14 +623,12 @@ public class StageSelectPanelController : MonoBehaviour
     /// </summary>
     private IEnumerator PlayChapterStartCutsceneCoroutine(string cutsceneId)
     {
-        Debug.Log($"🎬 [StageSelectPanelController] 컷신 재생 시작: {cutsceneId}");
         
         CutsceneSystem.CutsceneManager.Instance.PlayCutscene(cutsceneId);
         
         // 컷신 종료 대기
         yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
         
-        Debug.Log($"🎬 [StageSelectPanelController] 컷신 재생 완료: {cutsceneId}");
     }
 }
 

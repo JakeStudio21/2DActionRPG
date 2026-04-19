@@ -34,7 +34,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void Initialize()
     {
-        Debug.Log("[LobbyPanelManager] 초기화 시작");
         
         // 패널 검증
         if (lobbyPanel == null) Debug.LogError("[LobbyPanelManager] lobbyPanel 누락!");
@@ -49,7 +48,6 @@ public class LobbyPanelManager : MonoBehaviour
         // 초기 활성 패널 설정 (로비)
         currentActivePanel = lobbyPanel;
         
-        Debug.Log("[LobbyPanelManager] 초기화 완료");
     }
     
     /// <summary>
@@ -57,7 +55,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowLobbyPanel()
     {
-        Debug.Log("🏠 [LobbyPanelManager] ShowLobbyPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitPanelCloseCue();
@@ -65,7 +62,6 @@ public class LobbyPanelManager : MonoBehaviour
         // 패널 전환
         BringPanelToFront(lobbyPanel);
         
-        Debug.Log("[LobbyPanelManager] 로비 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -73,7 +69,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowShopPanel()
     {
-        Debug.Log("🏪 [LobbyPanelManager] ShowShopPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitButtonClickCue();
@@ -82,7 +77,6 @@ public class LobbyPanelManager : MonoBehaviour
         // 패널 전환
         BringPanelToFront(shopPanel);
         
-        Debug.Log("[LobbyPanelManager] 상점 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -90,7 +84,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowInventoryPanel()
     {
-        Debug.Log("🎒 [LobbyPanelManager] ShowInventoryPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitButtonClickCue();
@@ -99,7 +92,6 @@ public class LobbyPanelManager : MonoBehaviour
         // 패널 전환
         BringPanelToFront(inventoryPanel);
         
-        Debug.Log("[LobbyPanelManager] 인벤토리 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -107,7 +99,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowCharacterInfoPanel()
     {
-        Debug.Log("👤 [LobbyPanelManager] ShowCharacterInfoPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitButtonClickCue();
@@ -116,7 +107,6 @@ public class LobbyPanelManager : MonoBehaviour
         // 패널 전환
         BringPanelToFront(characterInfoPanel);
         
-        Debug.Log("[LobbyPanelManager] 캐릭터 정보 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -124,7 +114,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowStageSelectPanel()
     {
-        Debug.Log("🎯 [LobbyPanelManager] ShowStageSelectPanel 호출됨");
         
         // 패널 전환
         BringPanelToFront(stageSelectPanel);
@@ -139,7 +128,6 @@ public class LobbyPanelManager : MonoBehaviour
             Debug.LogError("[LobbyPanelManager] stageSelectPanelController가 null입니다!");
         }
         
-        Debug.Log("[LobbyPanelManager] 스테이지 선택 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -147,7 +135,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowDungeonSelectPanel()
     {
-        Debug.Log("🏰 [LobbyPanelManager] ShowDungeonSelectPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitButtonClickCue();
@@ -166,7 +153,6 @@ public class LobbyPanelManager : MonoBehaviour
             Debug.LogError("[LobbyPanelManager] dungeonSelectPanelController가 null입니다!");
         }
         
-        Debug.Log("[LobbyPanelManager] 던전 선택 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -174,7 +160,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowWorkshopPanel()
     {
-        Debug.Log("🏭 [LobbyPanelManager] ShowWorkshopPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitButtonClickCue();
@@ -194,7 +179,6 @@ public class LobbyPanelManager : MonoBehaviour
             Debug.LogError("[LobbyPanelManager] WorkshopUI 컴포넌트를 찾을 수 없습니다!");
         }
         
-        Debug.Log("[LobbyPanelManager] 공방 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -202,7 +186,6 @@ public class LobbyPanelManager : MonoBehaviour
     /// </summary>
     public void ShowSkillBookPanel()
     {
-        Debug.Log("📚 [LobbyPanelManager] ShowSkillBookPanel 호출됨");
         
         // Cue 이벤트 발행
         EmitButtonClickCue();
@@ -222,7 +205,6 @@ public class LobbyPanelManager : MonoBehaviour
             Debug.LogError("[LobbyPanelManager] SkillBookPanelUI 컴포넌트를 찾을 수 없습니다!");
         }
         
-        Debug.Log("[LobbyPanelManager] 스킬북 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -245,7 +227,6 @@ public class LobbyPanelManager : MonoBehaviour
         // 이벤트 발행
         OnPanelChanged?.Invoke();
         
-        Debug.Log($"🔝 [LobbyPanelManager] {panel.name} 패널을 최상위로 이동");
     }
     
     /// <summary>

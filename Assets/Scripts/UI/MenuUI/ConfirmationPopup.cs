@@ -47,7 +47,6 @@ public class ConfirmationPopup : MonoBehaviour
     /// </summary>
     private void InitializeUI()
     {
-        Debug.Log("[ConfirmationPopup] 초기화 시작");
         
         // 버튼 이벤트 연결
         if (confirmButton != null)
@@ -72,16 +71,13 @@ public class ConfirmationPopup : MonoBehaviour
         if (popupPanel != null)
         {
             popupPanel.SetActive(false);
-            Debug.Log("[ConfirmationPopup] 초기 상태: popupPanel 비활성화");
         }
         
         if (backgroundDim != null)
         {
             backgroundDim.SetActive(false);
-            Debug.Log("[ConfirmationPopup] 초기 상태: backgroundDim 비활성화");
         }
         
-        Debug.Log("[ConfirmationPopup] ✅ 초기화 완료 (팝업 숨김 상태)");
     }
     
     /// <summary>
@@ -94,7 +90,6 @@ public class ConfirmationPopup : MonoBehaviour
     /// <param name="onCancel">취소 버튼 클릭 시 실행할 콜백 (optional)</param>
     public void Show(string title, string message, string detail, Action onConfirm, Action onCancel = null)
     {
-        Debug.Log($"[ConfirmationPopup] 팝업 표시: {title}");
         
         // 텍스트 설정
         if (titleText != null)
@@ -129,21 +124,17 @@ public class ConfirmationPopup : MonoBehaviour
     if (backgroundDim != null)
     {
         backgroundDim.SetActive(true);
-        Debug.Log("[ConfirmationPopup] ✅ backgroundDim 활성화");
     }
     
     if (popupPanel != null)
     {
         popupPanel.SetActive(true);
-        Debug.Log("[ConfirmationPopup] ✅ popupPanel 활성화");
     }
     
     // 🎯 핵심 수정 2: ConfirmationPopup 자체를 최상위로! (Z-Order)
     // BackgroundDim, PopupPanel은 자식이므로 부모만 이동시키면 됨!
     transform.SetAsLastSibling();
     
-    Debug.Log($"[ConfirmationPopup] 🔝 ConfirmationPopup 전체를 최상위로 이동 (Sibling Index: {transform.GetSiblingIndex()})");
-    Debug.Log("[ConfirmationPopup] ✅ 팝업 표시 완료 (SetActive + Z-Order)");
     }
     
     /// <summary>
@@ -159,26 +150,22 @@ public class ConfirmationPopup : MonoBehaviour
     /// </summary>
     public void Hide()
     {
-        Debug.Log("[ConfirmationPopup] 팝업 숨기기");
         
         // 🎯 팝업 UI 비활성화
         if (popupPanel != null)
         {
             popupPanel.SetActive(false);
-            Debug.Log("[ConfirmationPopup] ✅ popupPanel 비활성화");
         }
         
         if (backgroundDim != null)
         {
             backgroundDim.SetActive(false);
-            Debug.Log("[ConfirmationPopup] ✅ backgroundDim 비활성화");
         }
         
         // 🎯 콜백 초기화
         onConfirmCallback = null;
         onCancelCallback = null;
         
-        Debug.Log("[ConfirmationPopup] ✅ 팝업 숨김 완료");
     }
     
     /// <summary>
@@ -186,7 +173,6 @@ public class ConfirmationPopup : MonoBehaviour
     /// </summary>
     private void OnConfirmButtonClicked()
     {
-        Debug.Log("[ConfirmationPopup] 확인 버튼 클릭");
         
         // ⭐ 콜백이 다시 Show()를 호출할 수 있으므로, Hide()를 1프레임 지연
         Action callbackToExecute = onConfirmCallback;
@@ -213,7 +199,6 @@ public class ConfirmationPopup : MonoBehaviour
         yield return null; // 1프레임 대기
         
         callback?.Invoke();
-        Debug.Log("[ConfirmationPopup] ✅ 확인 콜백 실행 완료 (1프레임 지연)");
     }
     
     /// <summary>
@@ -221,13 +206,11 @@ public class ConfirmationPopup : MonoBehaviour
     /// </summary>
     private void OnCancelButtonClicked()
     {
-        Debug.Log("[ConfirmationPopup] 취소 버튼 클릭");
         
         // 콜백 실행 (있으면)
         if (onCancelCallback != null)
         {
             onCancelCallback.Invoke();
-            Debug.Log("[ConfirmationPopup] ✅ 취소 콜백 실행 완료");
         }
         
         // 팝업 닫기
@@ -239,11 +222,6 @@ public class ConfirmationPopup : MonoBehaviour
     /// </summary>
     public void DebugCurrentState()
     {
-        Debug.Log($"[ConfirmationPopup] === 현재 상태 ===");
-        Debug.Log($"popupPanel: {(popupPanel != null ? popupPanel.activeSelf.ToString() : "null")}");
-        Debug.Log($"backgroundDim: {(backgroundDim != null ? backgroundDim.activeSelf.ToString() : "null")}");
-        Debug.Log($"onConfirmCallback: {(onConfirmCallback != null ? "등록됨" : "null")}");
-        Debug.Log($"onCancelCallback: {(onCancelCallback != null ? "등록됨" : "null")}");
     }
 }
 

@@ -19,7 +19,6 @@ namespace UI.Popups
         [SerializeField] private Toggle dontShowAgainToggle;
         
         [Header("Settings")]
-        [SerializeField] private bool enableDebugLogs = false;
         
         private BindWarningData _currentWarningData;
         private System.Action<bool> _onUserResponse;
@@ -168,10 +167,6 @@ namespace UI.Popups
         
         private void Log(string message)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log(message);
-            }
         }
     }
 }

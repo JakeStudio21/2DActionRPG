@@ -57,7 +57,6 @@ public class LoadingProgressController : MonoBehaviour
         UpdateProgressText(0f);
         UpdateLoadingMessage("시스템 준비 중...");
         
-        Debug.Log("✅ [LoadingProgressController] UI 초기화 완료");
     }
     
     /// <summary>
@@ -170,7 +169,6 @@ public class LoadingProgressController : MonoBehaviour
             tipText.text = "게임을 시작하세요!";
         }
         
-        Debug.Log("✅ [LoadingProgressController] 로딩 완료 처리");
     }
     
     private void OnDestroy()

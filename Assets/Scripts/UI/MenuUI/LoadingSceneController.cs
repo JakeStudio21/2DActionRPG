@@ -56,12 +56,11 @@ public class LoadingSceneController : MonoBehaviour
         // 🆕 Phase 3: nextSceneName이 비어있다면, GameManager의 로그인 판정 사용
         if (string.IsNullOrEmpty(nextSceneName))
         {
-            Debug.Log("[LoadingSceneController] nextSceneName이 비어있음 - 로그인 씬으로 추정");
             // nextSceneName을 설정하지 않음 (Tap to Start 버튼에서 처리)
         }
         else
         {
-            Debug.Log($"[LoadingSceneController] 다음 로드할 씬: {nextSceneName}");
+            Dbg.Log($"[LoadingSceneController] 다음 로드할 씬: {nextSceneName}");
         }
 
         // 'Tap to Start' 오브젝트가 연결되어 있고 활성화 되어야 할 때만 보여줌
@@ -73,7 +72,6 @@ public class LoadingSceneController : MonoBehaviour
                 loadingText.text = "Tap to Start!";
             if(progressBar != null) 
                 progressBar.value = 0f;
-            Debug.Log("[LoadingSceneController] Tap to Start 모드로 초기화");
         }
         else // 'Tap to Start'가 없거나, 게임 중 씬 전환일 경우 (Stage → Loading → Stage)
         {
@@ -81,11 +79,10 @@ public class LoadingSceneController : MonoBehaviour
                 tapToStartObj.SetActive(false);
             if(loadingText != null) 
                 loadingText.text = "Loading...";
-            Debug.Log("[LoadingSceneController] 자동 로딩 모드로 시작");
             StartCoroutine(LoadSceneProcess());
         }
         
-        Debug.Log("[LoadingSceneController] 초기화 완료");
+        Dbg.Log("[LoadingSceneController] 초기화 완료");
     }
     
     // "Tap to Start" 버튼이 눌렸을 때 호출됩니다.
@@ -93,12 +90,10 @@ public class LoadingSceneController : MonoBehaviour
     {
         if (isLoading) 
         {
-            Debug.Log("[LoadingSceneController] 이미 로딩 중입니다.");
             return;
         }
         
         isLoading = true;
-        Debug.Log("[LoadingSceneController] Tap to Start 버튼이 눌렸습니다.");
 
         if(tapToStartObj != null) 
             tapToStartObj.SetActive(false);
@@ -108,7 +103,6 @@ public class LoadingSceneController : MonoBehaviour
         // 🆕 Phase 3: nextSceneName이 비어있으면 GameManager의 로그인 판정 사용
         if (string.IsNullOrEmpty(nextSceneName))
         {
-            Debug.Log("[LoadingSceneController] 로그인 완료 - GameManager로 플로우 판정");
             
             if (GameManager.Instance != null)
             {
@@ -129,13 +123,11 @@ public class LoadingSceneController : MonoBehaviour
     // 다른 씬에서 이 함수를 호출하여 씬 전환을 시작합니다.
     public static void LoadScene(string sceneName, string loadingSceneName = "Loading")
     {
-        Debug.Log($"[LoadingSceneController] 씬 전환 요청: {sceneName}");
         SceneManager.LoadScene(sceneName); // 동기 방식으로 바로 씬 전환
     }
 
     private IEnumerator LoadSceneProcess()
     {
-        Debug.Log($"[LoadingSceneController] {nextSceneName} 씬 로딩 시작");
         
         // 🆕 로비 씬인 경우 프리로딩 시스템 사용
         if (nextSceneName == "Lobby" && preloadManager != null && progressController != null)
@@ -154,7 +146,6 @@ public class LoadingSceneController : MonoBehaviour
     /// </summary>
     private IEnumerator LoadLobbyWithPreloading()
     {
-        Debug.Log("🚀 [LoadingSceneController] 로비 프리로딩 시스템 시작");
         
         // 🔧 프리로딩 매니저 null 체크 강화
         if (preloadManager == null)
@@ -171,7 +162,6 @@ public class LoadingSceneController : MonoBehaviour
             yield break;
         }
         
-        Debug.Log("✅ [LoadingSceneController] 프리로딩 컴포넌트 확인 완료");
         
         // 프리로딩 매니저 이벤트 연결
         preloadManager.OnProgressUpdated.AddListener(progressController.UpdateProgress);
@@ -179,14 +169,11 @@ public class LoadingSceneController : MonoBehaviour
         preloadManager.OnPreloadingComplete.AddListener(OnPreloadingComplete);
         preloadManager.OnPreloadingFailed.AddListener(OnPreloadingFailed);
         
-        Debug.Log("✅ [LoadingSceneController] 이벤트 연결 완료");
         
         // 🔧 먼저 프리로딩 시작 (씬 로드와 병렬 진행)
-        Debug.Log("🚀 [LoadingSceneController] 프리로딩 시작");
         preloadManager.StartPreloading();
         
         // 🔧 비동기 씬 로드 시작
-        Debug.Log("🔄 [LoadingSceneController] 비동기 씬 로드 시작");
         AsyncOperation sceneLoadOp = SceneManager.LoadSceneAsync(nextSceneName);
         sceneLoadOp.allowSceneActivation = false;
         
@@ -199,14 +186,12 @@ public class LoadingSceneController : MonoBehaviour
             // 씬 로드 상태 확인
             if (!sceneLoadComplete && sceneLoadOp.progress >= 0.9f)
             {
-                Debug.Log("✅ [LoadingSceneController] 씬 로드 90% 완료");
                 sceneLoadComplete = true;
             }
             
             // 프리로딩 상태 확인
             if (!preloadingComplete && preloadManager.IsPreloadingComplete)
             {
-                Debug.Log("✅ [LoadingSceneController] 프리로딩 완료");
                 preloadingComplete = true;
             }
             
@@ -214,7 +199,6 @@ public class LoadingSceneController : MonoBehaviour
         }
         
         // 🔧 모든 작업 완료 후 씬 활성화
-        Debug.Log("🎯 [LoadingSceneController] 씬 활성화 시작");
         sceneLoadOp.allowSceneActivation = true;
         
         // 씬 활성화 완료 대기
@@ -223,7 +207,6 @@ public class LoadingSceneController : MonoBehaviour
             yield return null;
         }
         
-        Debug.Log("✅ [LoadingSceneController] 로비 진입 완료");
     }
     
     /// <summary>
@@ -232,7 +215,6 @@ public class LoadingSceneController : MonoBehaviour
     private void OnPreloadingComplete()
     {
         progressController.OnLoadingComplete();
-        Debug.Log("✅ [LoadingSceneController] 프리로딩 완료 - 로비 진입 준비됨");
     }
     
     /// <summary>
@@ -273,7 +255,6 @@ public class LoadingSceneController : MonoBehaviour
                     if (progressBar.value >= 0.99f)
                     {
                         progressBar.value = 1.0f;
-                        Debug.Log($"[LoadingSceneController] {nextSceneName} 씬 로딩 완료, 씬 활성화");
                         op.allowSceneActivation = true;
                         yield break;
                     }

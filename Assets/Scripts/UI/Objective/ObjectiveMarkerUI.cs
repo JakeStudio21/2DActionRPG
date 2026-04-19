@@ -93,7 +93,6 @@ public class ObjectiveMarkerUI : MonoBehaviour
         if (config.usePulseAnimation)
             pulseCoroutine = StartCoroutine(PulseRoutine());
 
-        Debug.Log($"[ObjectiveMarkerUI] Initialize 완료 - pos:{transform.localPosition} scale:{transform.localScale} active:{gameObject.activeSelf}");
     }
 
     /// <summary>

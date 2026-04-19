@@ -26,7 +26,6 @@ public class PlayerNameUI : MonoBehaviour
             _nameText.text = playerName;
             _isSubscribed = true;
             
-            Debug.Log($"🎯 [PlayerNameUI] 플레이어 이름 설정: {playerName}");
         }
     }
 }

@@ -23,12 +23,9 @@ public class SkillEquipSlotUI : MonoBehaviour, IPointerClickHandler
     [Header("🎨 기본 스프라이트")]
     [SerializeField] private Sprite emptySlotSprite;
     
-    [Header("🔗 데이터")]
     private SkillInstance equippedSkill;
     private SkillTabController tabController;
     
-    [Header("🔧 디버그")]
-    public bool showDebugLogs = false;
     
     void Start()
     {
@@ -119,12 +116,6 @@ public class SkillEquipSlotUI : MonoBehaviour, IPointerClickHandler
                 backgroundImage.color = Color.white;
         }
         
-        if (showDebugLogs)
-        {
-            string slotType = isActiveSlot ? "액티브" : "패시브";
-            string skillName = equippedSkill?.skillData?.skillName ?? "비어있음";
-            Debug.Log($"🎯 [{slotType} 슬롯 {slotIndex}] {skillName}");
-        }
     }
     
     /// <summary>
@@ -139,8 +130,6 @@ public class SkillEquipSlotUI : MonoBehaviour, IPointerClickHandler
             {
                 tabController.UnequipSkill(equippedSkill);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔓 [{equippedSkill.skillData.skillName}] 장착 해제");
             }
             // 좌클릭: 상세 정보 표시
             else

@@ -56,7 +56,6 @@ public class ClassSelectionView : MonoBehaviour
         if (panel != null)
         {
             panel.SetActive(true);
-            Debug.Log("[ClassSelectionView] 패널 표시");
         }
     }
     
@@ -68,7 +67,6 @@ public class ClassSelectionView : MonoBehaviour
         if (panel != null)
         {
             panel.SetActive(false);
-            Debug.Log("[ClassSelectionView] 패널 숨김");
         }
     }
     
@@ -80,7 +78,6 @@ public class ClassSelectionView : MonoBehaviour
         selectedClass = playerType;
         OnClassSelected?.Invoke(playerType);
         
-        Debug.Log($"[ClassSelectionView] 클래스 선택: {playerType}");
     }
     
     /// <summary>
@@ -89,7 +86,6 @@ public class ClassSelectionView : MonoBehaviour
     private void ConfirmClass()
     {
         OnClassConfirmed?.Invoke(selectedClass);
-        Debug.Log($"[ClassSelectionView] 클래스 확정: {selectedClass}");
     }
     
     /// <summary>

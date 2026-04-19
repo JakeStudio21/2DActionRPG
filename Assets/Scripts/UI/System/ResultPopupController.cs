@@ -28,8 +28,6 @@ public class ResultPopupController : MonoBehaviour
     [SerializeField] private float largeSpacing = 20f;   // 큰 슬롯 간격
     [SerializeField] private float smallSpacing = 15f;   // 작은 슬롯 간격
     
-    [Header("Settings")]
-    [SerializeField] private bool enableDebugLogs = false;
 
     void Awake()
     {
@@ -68,10 +66,6 @@ public class ResultPopupController : MonoBehaviour
     {
         if (gameObject == null) return;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🏆 [ResultPopupController] 승리 팝업 표시 - 골드: {resultData.goldReward}, EXP: {resultData.expReward}, 아이템: {resultData.itemRewards.Count}개");
-        }
 
         popupPanel.SetActive(true);
         
@@ -104,10 +98,6 @@ public class ResultPopupController : MonoBehaviour
     {
         if (gameObject == null) return;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"💀 [ResultPopupController] 실패 팝업 표시");
-        }
 
         popupPanel.SetActive(true);
         
@@ -157,10 +147,6 @@ public class ResultPopupController : MonoBehaviour
             .SetEase(Ease.OutQuad)
             .SetDelay(delay);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🎬 [ResultPopupController] 슬롯 #{index} 애니메이션 시작 (딜레이: {delay}초)");
-        }
     }
     
     /// <summary>
@@ -188,10 +174,6 @@ public class ResultPopupController : MonoBehaviour
             gridLayout.spacing = new Vector2(largeSpacing, largeSpacing);
             gridLayout.constraintCount = 6; // 한 줄 최대 6개
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"📐 [ResultPopupController] 레이아웃: 큰 크기 ({largeSlotSize}), 한 줄 최대 6개, 아이템: {itemCount}개");
-            }
         }
         else // 7~12개
         {
@@ -200,10 +182,6 @@ public class ResultPopupController : MonoBehaviour
             gridLayout.spacing = new Vector2(smallSpacing, smallSpacing);
             gridLayout.constraintCount = 6; // 한 줄 최대 6개 (2줄)
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"📐 [ResultPopupController] 레이아웃: 작은 크기 ({smallSlotSize}), 2줄 (최대 6개/줄), 아이템: {itemCount}개");
-            }
         }
         
         // ⭐ 가운데 정렬 (아이템이 가운데서부터 좌우로 늘어남)
@@ -271,10 +249,6 @@ public class ResultPopupController : MonoBehaviour
             // 보상이 없으면 컨테이너 숨김
             if (totalRewardCount == 0)
             {
-                if (enableDebugLogs)
-                {
-                    Debug.Log($"📦 [ResultPopupController] 보상 아이템이 없습니다.");
-                }
                 
                 rewardItemsContainer.gameObject.SetActive(false);
                 return;
@@ -286,10 +260,6 @@ public class ResultPopupController : MonoBehaviour
             // 아이템 개수에 따라 레이아웃 조정
             AdjustItemLayout(totalRewardCount);
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"📦 [ResultPopupController] 보상 표시: 장비 {equipmentCount}개 + 재료 {materialCount}개 = 총 {totalRewardCount}개");
-            }
             
             int slotIndex = 0;
             
@@ -317,10 +287,6 @@ public class ResultPopupController : MonoBehaviour
                             // ⭐ 등장 애니메이션 (페이드 인 + 스케일 업)
                             AnimateItemSlot(slotObj, slotIndex);
                             
-                            if (enableDebugLogs)
-                            {
-                                Debug.Log($"✅ [ResultPopupController] 장비 슬롯 생성: {itemReward.itemId} (등급: {equipmentData.itemGrade})");
-                            }
                             
                             slotIndex++; // 다음 슬롯 인덱스
                         }
@@ -364,10 +330,6 @@ public class ResultPopupController : MonoBehaviour
                 }
             }
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"📦 [ResultPopupController] 슬롯 생성 완료: 장비 {equipmentCount}개 + 재료 {materialCount}개");
-            }
         }
         else
         {
@@ -398,10 +360,6 @@ public class ResultPopupController : MonoBehaviour
         // ⭐ 등장 애니메이션 (페이드 인 + 스케일 업)
         AnimateItemSlot(slotObj, slotIndex);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [ResultPopupController] 재료 슬롯 생성 완료: {materialStack.materialType.GetDisplayName()} x{materialStack.count}");
-        }
     }
     
     void OnConfirm()

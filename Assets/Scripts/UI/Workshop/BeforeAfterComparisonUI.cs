@@ -15,7 +15,6 @@ namespace UI.Workshop
     public class BeforeAfterComparisonUI : MonoBehaviour
     {
         [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = true;
         
         [Header("🔗 연동 컴포넌트")]
         [SerializeField] private WorkshopUI workshopUI; // ⭐ 공방 메인 UI
@@ -42,8 +41,6 @@ namespace UI.Workshop
         
         void Awake()
         {
-            if (showDebugLogs)
-                Debug.Log("🔄 [BeforeAfterComparisonUI] Awake() - 제작 전후 비교 UI 초기화");
             
             // 초기 상태: 모든 슬롯 비활성화
             ClearAll();
@@ -65,8 +62,6 @@ namespace UI.Workshop
                 // 탭별 슬롯 설정 적용
                 SetupForWorkshopTab(currentTab);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔗 [BeforeAfterComparisonUI] WorkshopUI 이벤트 구독 (현재 탭: {currentTab})");
             }
             else
             {
@@ -84,8 +79,6 @@ namespace UI.Workshop
             {
                 workshopUI.OnTabChanged -= OnWorkshopTabChanged;
                 
-                if (showDebugLogs)
-                    Debug.Log("🔄 [BeforeAfterComparisonUI] WorkshopUI 이벤트 구독 해제");
             }
         }
         
@@ -96,8 +89,6 @@ namespace UI.Workshop
         {
             currentTab = newTab;
             
-            if (showDebugLogs)
-                Debug.Log($"🔄 [BeforeAfterComparisonUI] 공방 탭 변경: {newTab}");
             
             // ⭐ 1. 먼저 모든 슬롯 초기화
             ClearAll();
@@ -157,8 +148,6 @@ namespace UI.Workshop
             
             currentMode = WorkshopMode.None;
             
-            if (showDebugLogs)
-                Debug.Log("🔄 [BeforeAfterComparisonUI] 모든 슬롯 초기화");
         }
         
         /// <summary>
@@ -177,8 +166,6 @@ namespace UI.Workshop
                     if (afterLabel != null)
                         afterLabel.text = "강화 후";
                     
-                    if (showDebugLogs)
-                        Debug.Log("🔨 [BeforeAfterComparisonUI] 강화 탭 - Before 1개, After 1개");
                     break;
                     
                 case WorkshopUI.WorkshopTabType.Fusion:
@@ -191,8 +178,6 @@ namespace UI.Workshop
                     if (afterLabel != null)
                         afterLabel.text = "합성 결과";
                     
-                    if (showDebugLogs)
-                        Debug.Log("⚗️ [BeforeAfterComparisonUI] 합성 탭 - Before 3개, After 1개");
                     break;
                     
                 case WorkshopUI.WorkshopTabType.Dismantle:
@@ -204,8 +189,6 @@ namespace UI.Workshop
                     if (afterLabel != null)
                         afterLabel.text = "분해 재료";
                     
-                    if (showDebugLogs)
-                        Debug.Log("🔧 [BeforeAfterComparisonUI] 분해 탭 - Before 3개, After 0개");
                     break;
             }
         }
@@ -235,8 +218,6 @@ namespace UI.Workshop
             if (arrowIcon != null)
                 arrowIcon.SetActive(afterCount > 0);
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [BeforeAfterComparisonUI] 슬롯 활성화 - Before: {beforeCount}개, After: {afterCount}개");
         }
         
         // ========================================
@@ -287,8 +268,6 @@ namespace UI.Workshop
             
             // 화살표는 SetupForWorkshopTab에서 이미 설정됨
             
-            if (showDebugLogs)
-                Debug.Log($"🔨 [BeforeAfterComparisonUI] 강화 모드 설정: {equipmentData.equipmentName} +{itemData.enhancementLevel} → +{itemData.enhancementLevel + 1}");
         }
         
         /// <summary>
@@ -328,8 +307,6 @@ namespace UI.Workshop
                 afterSlot3.ClearSlot();
             }
             
-            if (showDebugLogs)
-                Debug.Log("🔄 [BeforeAfterComparisonUI] 활성화된 슬롯만 초기화 (레이아웃 유지)");
         }
         
         /// <summary>
@@ -429,8 +406,6 @@ namespace UI.Workshop
             if (beforeLabel != null) beforeLabel.text = "분해 대상";
             if (afterLabel != null) afterLabel.text = "획득 재료";
             
-            if (showDebugLogs)
-                Debug.Log($"🔧 [BeforeAfterComparisonUI] 분해 모드 설정: {equipmentData.equipmentName} → 재료 {rewards.Count}종류");
         }
         
         /// <summary>
@@ -515,8 +490,6 @@ namespace UI.Workshop
             if (beforeLabel != null) beforeLabel.text = $"분해 대상 ({itemIds.Count}개)";
             if (afterLabel != null) afterLabel.text = "획득 재료";
             
-            if (showDebugLogs)
-                Debug.Log($"🔧 [BeforeAfterComparisonUI] 일괄 분해 모드 설정: {itemIds.Count}개 → 재료 {totalRewards.Count}종류");
         }
         
         // ========================================
@@ -590,8 +563,6 @@ namespace UI.Workshop
             if (beforeLabel != null) beforeLabel.text = $"재료 ({materialIds.Count}개)";
             if (afterLabel != null) afterLabel.text = "합성 결과";
             
-            if (showDebugLogs)
-                Debug.Log($"⚗️ [BeforeAfterComparisonUI] 합성 모드 설정: {materialIds.Count}개 → 1개");
         }
         
         /// <summary>
@@ -650,10 +621,6 @@ namespace UI.Workshop
             // ⭐ ItemTemplateResolver 사용 (LobbyInventoryUI와 동일)
             var equipment = ItemTemplateResolver.Load(templateName);
             
-            if (equipment == null && showDebugLogs)
-            {
-                Debug.LogWarning($"⚠️ [BeforeAfterComparisonUI] EquipmentData 로드 실패: {templateName}");
-            }
             
             return equipment;
         }

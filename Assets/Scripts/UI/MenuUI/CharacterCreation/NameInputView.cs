@@ -55,7 +55,6 @@ public class NameInputView : MonoBehaviour
             }
             
             ClearError();
-            Debug.Log("[NameInputView] 패널 표시");
         }
     }
     
@@ -68,7 +67,6 @@ public class NameInputView : MonoBehaviour
         {
             panel.SetActive(false);
             ClearError();
-            Debug.Log("[NameInputView] 패널 숨김");
         }
     }
     
@@ -87,7 +85,6 @@ public class NameInputView : MonoBehaviour
     {
         string inputName = GetInputName();
         OnNameConfirmed?.Invoke(inputName);
-        Debug.Log($"[NameInputView] 이름 확정: '{inputName}'");
     }
     
     /// <summary>
@@ -96,7 +93,6 @@ public class NameInputView : MonoBehaviour
     private void CancelName()
     {
         OnNameCancelled?.Invoke();
-        Debug.Log("[NameInputView] 이름 입력 취소");
     }
     
     /// <summary>

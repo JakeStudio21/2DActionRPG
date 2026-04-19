@@ -24,7 +24,6 @@ public class SkillListItemUI : MonoBehaviour
     [SerializeField] private Button equipButton;
     [SerializeField] private TextMeshProUGUI equipButtonText;
     
-    [Header("🎨 스킬 타입별 배경색")]
     [Tooltip("스킬 타입 구분을 위한 배경 이미지 (BackgroundImage 뒤에 배치)")]
     [SerializeField] private Image typeBackgroundImage;
     [Tooltip("패시브 스킬 배경색 (파란색 계열)")]
@@ -40,15 +39,12 @@ public class SkillListItemUI : MonoBehaviour
     [SerializeField] private Color equippedColor = new Color(1f, 0.8f, 0.3f, 1f);
     [SerializeField] private Color selectedColor = new Color(0.8f, 0.9f, 1f, 1f);
     
-    [Header("🎨 미해금 스킬 Material")]
     [Tooltip("미해금 스킬 아이콘에 적용할 Grayscale Material (Assets/Materials/UI/UI_Grayscale)")]
     [SerializeField] private Material grayscaleMaterial;
     
-    [Header("🎨 전체 UI 회색 처리 설정")]
     [Tooltip("전체 Prefab (텍스트+아이콘+배경+버튼)을 회색으로 처리")]
     [SerializeField] private bool applyGrayscaleToAllChildren = true;
     
-    [Header("🎚️ 밝기 & 투명도 조절")]
     [Tooltip("미해금 스킬의 밝기 (0.0 = 완전히 어두움, 1.0 = 원본 밝기)")]
     [SerializeField] [Range(0f, 1f)] private float lockedBrightness = 0.6f;
     
@@ -61,14 +57,11 @@ public class SkillListItemUI : MonoBehaviour
     private Dictionary<TextMeshProUGUI, Color> originalTextColors = new Dictionary<TextMeshProUGUI, Color>();
     private bool isGrayscaleApplied = false;
     
-    [Header("🔗 데이터")]
     private SkillInstance skillInstance;
     private int currentPlayerLevel;
     private SkillTabController tabController;
     private bool isSelected = false;
     
-    [Header("🔧 디버그")]
-    public bool showDebugLogs = false;
     
     void Awake()
     {
@@ -189,8 +182,6 @@ public class SkillListItemUI : MonoBehaviour
         // 버튼 상태
         UpdateButtonStates(isLevelInsufficient);
         
-        if (showDebugLogs)
-            Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName} UI 갱신 완료");
     }
     
     /// <summary>
@@ -210,8 +201,6 @@ public class SkillListItemUI : MonoBehaviour
                 ApplyGrayscaleToAllChildren();
                 isGrayscaleApplied = true;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 Grayscale (레벨 미달)");
             }
         }
         // 2️⃣ 레벨 도달, 해금 가능 → 전체 Grayscale + UpgradeButton만 컬러 ⭐ 신규
@@ -229,8 +218,6 @@ public class SkillListItemUI : MonoBehaviour
             // UpgradeButton만 원본 색상으로 복구 (강조)
             RestoreUpgradeButtonColor();
             
-            if (showDebugLogs)
-                Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 Grayscale + UpgradeButton만 컬러 (해금 가능)");
         }
         // 3️⃣ 해금 완료 → 전체 정상 색상 (현재와 동일)
         else if (isUnlocked)
@@ -241,8 +228,6 @@ public class SkillListItemUI : MonoBehaviour
                 RestoreOriginalColors();
                 isGrayscaleApplied = false;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: 전체 원본 색상 복구 (해금 완료)");
             }
             
             if (isSelected)
@@ -324,8 +309,6 @@ public class SkillListItemUI : MonoBehaviour
             upgradeButtonText.color = originalTextColors[upgradeButtonText];
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎨 [SkillListItemUI] {skillInstance.skillData.skillName}: UpgradeButton 색상 복구 완료");
     }
     
     /// <summary>
@@ -412,8 +395,6 @@ public class SkillListItemUI : MonoBehaviour
                 tabController.ShowSkillDetail(skillInstance);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [SkillListItemUI] {skillInstance.skillData.skillName} 레벨업 성공!");
         }
     }
     
@@ -430,8 +411,6 @@ public class SkillListItemUI : MonoBehaviour
         {
             tabController.UnequipSkill(skillInstance);
             
-            if (showDebugLogs)
-                Debug.Log($"🔓 [SkillListItemUI] {skillInstance.skillData.skillName} 해제 시도");
         }
         // 미장착 스킬 → 장착 시도
         else
@@ -443,8 +422,6 @@ public class SkillListItemUI : MonoBehaviour
                 // 액티브 스킬: 슬롯이 찬 경우에도 바로 교체 (EquipActiveSkill 내부에서 기존 스킬 자동 해제)
                 tabController.EquipSkill(skillInstance);
 
-                if (showDebugLogs)
-                    Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 액티브 장착 시도 (기존 스킬 교체 포함)");
             }
             else
             {
@@ -454,7 +431,6 @@ public class SkillListItemUI : MonoBehaviour
                 {
                     tabController.ShowWarningMessage($"⚠️ 패시브 스킬 슬롯이 가득 찼습니다!\n먼저 패시브 스킬을 해제해주세요.");
 
-                    if (showDebugLogs)
                         Debug.LogWarning($"⚠️ [SkillListItemUI] {skillInstance.skillData.skillName} 장착 실패: 패시브 슬롯이 가득 참!");
 
                     return;
@@ -462,8 +438,6 @@ public class SkillListItemUI : MonoBehaviour
 
                 tabController.EquipSkill(skillInstance);
 
-                if (showDebugLogs)
-                    Debug.Log($"🎯 [SkillListItemUI] {skillInstance.skillData.skillName} 패시브 장착 시도 (빈 슬롯: {emptySlotIndex})");
             }
         }
     }
@@ -480,8 +454,6 @@ public class SkillListItemUI : MonoBehaviour
             tabController.ShowSkillDetail(skillInstance);
             tabController.SetSelectedSkillItem(this);
             
-            if (showDebugLogs)
-                Debug.Log($"🖱️ [SkillListItemUI] {skillInstance.skillData.skillName} 선택됨");
         }
     }
     
@@ -544,8 +516,6 @@ public class SkillListItemUI : MonoBehaviour
             text.color = new Color(gray, gray, gray, text.color.a * lockedOpacity);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎨 [SkillListItemUI] 회색 처리 완료 - 밝기: {lockedBrightness:F2}, 투명도: {lockedOpacity:F2}");
     }
     
     /// <summary>

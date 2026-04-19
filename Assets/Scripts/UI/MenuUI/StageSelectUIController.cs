@@ -87,7 +87,6 @@ public class StageSelectUIController : MonoBehaviour
         // 초기 상태 설정
         ResetStageSelection();
         
-        Debug.Log("[StageSelectUIController] 초기화 완료 (StageProgressManager 연동)");
     }
     
     // 🆕 스테이지 배열 초기화
@@ -128,7 +127,6 @@ public class StageSelectUIController : MonoBehaviour
             // 시각적 피드백 업데이트
             UpdateStageButtonVisual(stageImages[i], isUnlocked, isCompleted, false);
             
-            Debug.Log($"[StageSelectUIController] {stageId}: 해금={isUnlocked}, 완료={isCompleted}");
         }
     }
     
@@ -197,7 +195,6 @@ public class StageSelectUIController : MonoBehaviour
             if (playerData != null && playerData.selectedPlayerType != PlayerType.None)
             {
                 string characterName = playerData.selectedPlayerType.ToString();
-                Debug.Log($"[StageSelectUIController] 선택된 캐릭터: {characterName}, 무기: {playerData.weaponName}");
             }
             else
             {
@@ -234,7 +231,6 @@ public class StageSelectUIController : MonoBehaviour
         // 🆕 스테이지 상세 정보 표시
         DisplayStageInfo(stageId);
         
-        Debug.Log($"[StageSelectUIController] 스테이지 {stageNumber} ({stageId}) 선택됨");
     }
     
     // 🆕 스테이지 상세 정보 표시
@@ -276,7 +272,6 @@ public class StageSelectUIController : MonoBehaviour
                 DisplayRewardPreview(stageConfig, progress);
             }
             
-            Debug.Log($"[StageSelectUIController] {stageId} 정보 표시 완료");
         }
         else
         {
@@ -429,8 +424,6 @@ public class StageSelectUIController : MonoBehaviour
         
         GameManager.Instance.SetSelectedStage(selectedStageNumber, selectedSceneName);
         
-        Debug.Log($"[StageSelectUIController] 스테이지 {selectedStageNumber} ({selectedSceneName})로 게임 시작");
-        Debug.Log($"[StageSelectUIController] 플레이어 정보: {playerData.selectedPlayerType}, {playerData.weaponName}");
         
         // 🎬 Phase 4: 챕터 시작 컷신 체크 (Stage 1 첫 진입 시)
         if (stageConfig.stageIndexInChapter == 1)
@@ -444,7 +437,6 @@ public class StageSelectUIController : MonoBehaviour
                 
                 if (!hasSeen)
                 {
-                    Debug.Log($"🎬 [StageSelectUIController] 챕터 시작 컷신 재생: {chapterData.chapterStartCutsceneId}");
                     
                     // 챕터 시작 컷신 재생
                     if (CutsceneSystem.CutsceneManager.Instance != null)
@@ -486,7 +478,6 @@ public class StageSelectUIController : MonoBehaviour
         
         if (stageConfig != null)
         {
-            Debug.Log($"[StageSelectUIController] {stageId} → {stageConfig.SceneName}");
             return stageConfig.SceneName;
         }
         
@@ -501,7 +492,6 @@ public class StageSelectUIController : MonoBehaviour
     /// </summary>
     public void OnBackToLobbyClicked()
     {
-        Debug.Log("[StageSelectUIController] 로비로 돌아갑니다");
         
         if (GameManager.Instance != null)
         {
@@ -525,7 +515,6 @@ public class StageSelectUIController : MonoBehaviour
     // 🆕 스테이지 해금 이벤트 처리
     private void OnStageUnlocked(string stageId)
     {
-        Debug.Log($"[StageSelectUIController] 스테이지 해금됨: {stageId}");
         UpdateStageProgressUI(); // UI 갱신
         
         // 현재 선택된 스테이지 정보도 갱신
@@ -538,7 +527,6 @@ public class StageSelectUIController : MonoBehaviour
     // 🆕 스테이지 완료 이벤트 처리
     private void OnStageCompleted(string stageId, bool isFirstClear)
     {
-        Debug.Log($"[StageSelectUIController] 스테이지 완료됨: {stageId} (첫클리어: {isFirstClear})");
         UpdateStageProgressUI(); // UI 갱신
         
         // 현재 선택된 스테이지가 완료된 스테이지라면 정보 갱신

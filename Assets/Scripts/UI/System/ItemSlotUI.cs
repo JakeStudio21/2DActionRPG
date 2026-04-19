@@ -13,18 +13,12 @@ public class ItemSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI itemCountText; // 수량 텍스트 "×3"
     [SerializeField] private GameObject countPanel;    // 수량 배경 패널 (선택사항)
     
-    [Header("Settings")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     /// <summary>
     /// 아이템 데이터 설정
     /// </summary>
     public void Setup(string itemId, int amount)
     {
-        if (enableDebugLogs)
-        {
-            Debug.Log($"📦 [ItemSlotUI] Setup - ItemID: {itemId}, Amount: {amount}");
-        }
         
         // 아이템 아이콘 로드
         LoadItemIcon(itemId);
@@ -73,20 +67,12 @@ public class ItemSlotUI : MonoBehaviour
             itemIcon.sprite = equipmentData.icon;
             itemIcon.enabled = true;
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($"✅ [ItemSlotUI] 아이콘 로드 성공: {itemId}");
-            }
         }
         else
         {
             // 기본 아이콘 또는 숨김 처리
             itemIcon.enabled = false;
             
-            if (enableDebugLogs)
-            {
-                Debug.LogWarning($"⚠️ [ItemSlotUI] 아이콘 로드 실패: {itemId}");
-            }
         }
     }
     

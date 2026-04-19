@@ -19,7 +19,6 @@ public class GoldUI : MonoBehaviour
     [SerializeField] private string goldSuffix = ""; // 골드 뒤에 붙일 텍스트
     
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private bool isInitialized = false;
@@ -75,17 +74,9 @@ public class GoldUI : MonoBehaviour
         if (goldText != null)
         {
             isInitialized = true;
-            if (showDebugLogs)
-            {
-                Debug.Log("✅ [GoldUI] Gold Text 초기화 완료");
-            }
         }
         else
         {
-            if (showDebugLogs)
-            {
-                Debug.LogWarning("⚠️ [GoldUI] Gold Text를 찾을 수 없습니다.");
-            }
         }
     }
     
@@ -104,10 +95,6 @@ public class GoldUI : MonoBehaviour
             UpdateGoldUI(playerDataManager.CurrentGold);
             isGoldSubscribed = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🔗 [GoldUI] PlayerDataManager 연결 완료: {playerDataManager.CurrentGold} 골드");
-            }
         }
     }
     
@@ -121,10 +108,6 @@ public class GoldUI : MonoBehaviour
         string formattedGold = currentGold.ToString(goldFormat);
         goldText.text = $"{goldPrefix}{formattedGold}{goldSuffix}";
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"💰 [GoldUI] 골드 UI 업데이트: {currentGold} → {goldText.text}");
-        }
     }
     
     /// <summary>
@@ -142,10 +125,6 @@ public class GoldUI : MonoBehaviour
             UpdateGoldUI(playerDataManager.CurrentGold);
         }
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔧 [GoldUI] 골드 형식 변경: {prefix}{format}{suffix}");
-        }
     }
     
     /// <summary>

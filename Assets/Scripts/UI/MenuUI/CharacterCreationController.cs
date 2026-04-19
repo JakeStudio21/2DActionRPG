@@ -86,7 +86,6 @@ public class CharacterCreationController : MonoBehaviour
     
     private void InitializeUI()
     {
-        Debug.Log("[CharacterCreationController] UI 초기화 시작");
         
         // LobbyUIController 참조 검증
         if (lobbyUIController == null)
@@ -128,7 +127,6 @@ public class CharacterCreationController : MonoBehaviour
         // 초기 상태 설정
         HideAllPanels();
         
-        Debug.Log("[CharacterCreationController] UI 초기화 완료");
     }
     
     /// <summary>
@@ -136,7 +134,6 @@ public class CharacterCreationController : MonoBehaviour
     /// </summary>
     public void StartCharacterCreation(int slotIndex)
     {
-        Debug.Log($"[CharacterCreation] 캐릭터 생성 시작: Slot {slotIndex}");
         
         // 슬롯 유효성 검사
         if (!IsValidSlotForCreation(slotIndex))
@@ -162,7 +159,6 @@ public class CharacterCreationController : MonoBehaviour
             nameInputView.HidePanel();
         }
         
-        Debug.Log($"[CharacterCreation] 캐릭터 생성 시작 완료: Slot {slotIndex}");
     }
     
     /// <summary>
@@ -182,7 +178,6 @@ public class CharacterCreationController : MonoBehaviour
         // 로비의 다른 패널들보다 앞으로
         characterCreationPanel.transform.SetAsLastSibling();
         
-        Debug.Log("[CharacterCreation] 캐릭터 생성 패널을 최상위로 이동 완료");
     }
     
     /// <summary>
@@ -229,7 +224,6 @@ public class CharacterCreationController : MonoBehaviour
             classSelectionView.UpdateClassInfo(classInfo);
         }
         
-        Debug.Log($"[CharacterCreationController] 클래스 선택: {playerType}");
     }
     
     /// <summary>
@@ -251,7 +245,6 @@ public class CharacterCreationController : MonoBehaviour
             nameInputView.ShowPanel();
         }
         
-        Debug.Log($"[CharacterCreationController] 클래스 확정: {selectedClass}");
     }
     
     /// <summary>
@@ -294,7 +287,6 @@ public class CharacterCreationController : MonoBehaviour
             classSelectionView.ShowPanel();
         }
         
-        Debug.Log("[CharacterCreationController] 이름 입력 취소");
     }
     
     /// <summary>
@@ -302,7 +294,7 @@ public class CharacterCreationController : MonoBehaviour
     /// </summary>
     private void CreateCharacter()
     {
-        Debug.Log($"[CharacterCreationController] 캐릭터 생성: 슬롯{targetSlotIndex}, {selectedClass}, {inputPlayerName}");
+        Dbg.Log($"[CharacterCreationController] 캐릭터 생성: 슬롯{targetSlotIndex}, {selectedClass}, {inputPlayerName}");
         
         if (PlayerDataManager.Instance == null)
         {
@@ -315,7 +307,6 @@ public class CharacterCreationController : MonoBehaviour
         
         if (success)
         {
-            Debug.Log($"[CharacterCreationController] ✅ 캐릭터 생성 성공!");
             OnBackToLobby();
         }
         else
@@ -335,7 +326,6 @@ public class CharacterCreationController : MonoBehaviour
     /// </summary>
     private void OnBackToLobby()
     {
-        Debug.Log("[CharacterCreationController] 로비로 돌아갑니다");
         
         // 전체 캐릭터 생성 패널 숨기기
         HideAllPanels();
@@ -350,7 +340,6 @@ public class CharacterCreationController : MonoBehaviour
             lobbyUIController.OnBackToLobby();
         }
         
-        Debug.Log("[CharacterCreationController] 로비로 복귀 완료");
     }
 }
 

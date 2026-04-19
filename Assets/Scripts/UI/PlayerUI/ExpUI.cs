@@ -14,7 +14,6 @@ public class ExpUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI expText; // 경험치 숫자 표시 (선택사항)
     [SerializeField] private bool autoFindSlider = true;
     [SerializeField] private bool autoFindText = true; // 텍스트 자동 찾기
-    [SerializeField] private bool showDebugLogs = false;
     
     private bool _isSubscribed = false;
     

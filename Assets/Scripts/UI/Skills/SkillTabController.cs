@@ -35,7 +35,6 @@ public class SkillTabController : MonoBehaviour
     private PlayerDataManager playerDataManager;
     
     [Header("🔧 디버그")]
-    public bool showDebugLogs = true;
     
     // 생성된 스킬 아이템 캐시
     private List<SkillListItemUI> activeItemUIList = new List<SkillListItemUI>();
@@ -80,8 +79,6 @@ public class SkillTabController : MonoBehaviour
         // UI 갱신
         RefreshUI();
         
-        if (showDebugLogs)
-            Debug.Log("✅ [SkillTabController] 초기화 완료");
     }
     
     /// <summary>
@@ -124,8 +121,6 @@ public class SkillTabController : MonoBehaviour
         // 장착 슬롯 갱신
         RefreshEquipSlots();
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [SkillTabController] UI 전체 갱신 완료");
     }
     
     /// <summary>
@@ -151,8 +146,6 @@ public class SkillTabController : MonoBehaviour
             
             spText.text = $"{availableSP}/{maxDisplaySP}";
             
-            if (showDebugLogs)
-                Debug.Log($"📊 [SkillTabController] SP 표시 갱신: {availableSP}/{maxDisplaySP} (실제 totalSP: {totalSP}, 사용: {usedSP})");
         }
         
         if (playerLevelText != null)
@@ -160,8 +153,6 @@ public class SkillTabController : MonoBehaviour
             int playerLevel = slotData.level;
             playerLevelText.text = $"Lv.{playerLevel}";
             
-            if (showDebugLogs)
-                Debug.Log($"📊 [SkillTabController] 레벨 표시 갱신: Lv.{playerLevel}");
         }
     }
     
@@ -181,8 +172,6 @@ public class SkillTabController : MonoBehaviour
         
         // 액티브 스킬 목록
         List<SkillInstance> activeSkills = GetActiveSkillsFromSlotData(slotData);
-        if (showDebugLogs)
-            Debug.Log($"📋 [SkillTabController] 액티브 스킬 목록: {activeSkills.Count}개");
         
         RefreshSkillCategory(
             activeSkills,
@@ -193,8 +182,6 @@ public class SkillTabController : MonoBehaviour
         
         // 패시브 스킬 목록
         List<SkillInstance> passiveSkills = GetPassiveSkillsFromSlotData(slotData);
-        if (showDebugLogs)
-            Debug.Log($"📋 [SkillTabController] 패시브 스킬 목록: {passiveSkills.Count}개");
         
         RefreshSkillCategory(
             passiveSkills,
@@ -214,8 +201,6 @@ public class SkillTabController : MonoBehaviour
         // 1. Resources 폴더에서 모든 액티브 스킬 SO 로드
         ActiveSkillData[] allActiveSkills = Resources.LoadAll<ActiveSkillData>("Skills/Active");
         
-        if (showDebugLogs)
-            Debug.Log($"📚 [SkillTabController] Resources/Skills/Active에서 {allActiveSkills.Length}개 스킬 로드");
         
         // 2. 각 스킬 SO에 대해 SkillInstance 생성
         foreach (var skillSO in allActiveSkills)
@@ -234,15 +219,11 @@ public class SkillTabController : MonoBehaviour
             {
                 // 해금됨: 저장된 레벨/장착 상태 사용
                 skill = saveData.ToSkillInstance();
-                if (showDebugLogs)
-                    Debug.Log($"  ✅ 해금된 스킬: {skillSO.skillName} (Lv.{skill.currentLevel})");
             }
             else
             {
                 // 미해금: Lv.0 상태로 생성
                 skill = new SkillInstance(skillSO, level: 0, equipped: false);
-                if (showDebugLogs)
-                    Debug.Log($"  🔒 미해금 스킬: {skillSO.skillName} (해금 레벨: Lv.{skillSO.unlockLevel})");
             }
             
             activeSkills.Add(skill);
@@ -263,8 +244,6 @@ public class SkillTabController : MonoBehaviour
             return a.skillData.unlockLevel.CompareTo(b.skillData.unlockLevel);
         });
         
-        if (showDebugLogs)
-            Debug.Log($"📋 [SkillTabController] 액티브 스킬 목록: {activeSkills.Count}개 (정렬 완료)");
         
         return activeSkills;
     }
@@ -279,8 +258,6 @@ public class SkillTabController : MonoBehaviour
         // 1. Resources 폴더에서 모든 패시브 스킬 SO 로드
         PassiveSkillData[] allPassiveSkills = Resources.LoadAll<PassiveSkillData>("Skills/Passive");
         
-        if (showDebugLogs)
-            Debug.Log($"📚 [SkillTabController] Resources/Skills/Passive에서 {allPassiveSkills.Length}개 스킬 로드");
         
         // 2. 각 스킬 SO에 대해 SkillInstance 생성
         foreach (var skillSO in allPassiveSkills)
@@ -299,15 +276,11 @@ public class SkillTabController : MonoBehaviour
             {
                 // 해금됨: 저장된 레벨/장착 상태 사용
                 skill = saveData.ToSkillInstance();
-                if (showDebugLogs)
-                    Debug.Log($"  ✅ 해금된 스킬: {skillSO.skillName} (Lv.{skill.currentLevel})");
             }
             else
             {
                 // 미해금: Lv.0 상태로 생성
                 skill = new SkillInstance(skillSO, level: 0, equipped: false);
-                if (showDebugLogs)
-                    Debug.Log($"  🔒 미해금 스킬: {skillSO.skillName} (해금 레벨: Lv.{skillSO.unlockLevel})");
             }
             
             passiveSkills.Add(skill);
@@ -319,8 +292,6 @@ public class SkillTabController : MonoBehaviour
             return a.skillData.unlockLevel.CompareTo(b.skillData.unlockLevel);
         });
         
-        if (showDebugLogs)
-            Debug.Log($"📋 [SkillTabController] 패시브 스킬 목록: {passiveSkills.Count}개 (정렬 완료)");
         
         return passiveSkills;
     }
@@ -437,8 +408,6 @@ public class SkillTabController : MonoBehaviour
         int playerLevel = slotData.level;
         skillDetailPanel.ShowSkillDetail(skill, playerLevel);
         
-        if (showDebugLogs)
-            Debug.Log($"📖 [SkillTabController] {skill.skillData.skillName} 상세 정보 표시");
     }
     
     /// <summary>
@@ -519,10 +488,6 @@ public class SkillTabController : MonoBehaviour
         // UI 갱신
         RefreshUI();
         
-        Debug.Log($"✅ [{skill.skillData.skillName}] 레벨업 성공!");
-        Debug.Log($"   Lv.{skill.currentLevel - 1} → Lv.{skill.currentLevel}");
-        Debug.Log($"   소모 SP: {requiredSP}");
-        Debug.Log($"   SP 현황: {availableSP - requiredSP}/{slotData.totalSP} (사용: {slotData.usedSP})");
         
         return true;
     }
@@ -590,7 +555,6 @@ public class SkillTabController : MonoBehaviour
         
         if (skill.isEquipped)
         {
-            Debug.Log($"⚠️ [{skill.skillData.skillName}] 이미 장착 중입니다.");
             return;
         }
         
@@ -619,12 +583,6 @@ public class SkillTabController : MonoBehaviour
         {
             UnequipSkillByID(slotData, oldSkillID);
             
-            if (showDebugLogs)
-            {
-                var oldSkill = GetEquippedActiveSkill(slotData, targetSlotIndex);
-                if (oldSkill != null)
-                    Debug.Log($"🔄 [액티브 슬롯 {targetSlotIndex}] {oldSkill.skillData.skillName} → {skill.skillData.skillName} 교체");
-            }
         }
         
         // 새 스킬 장착
@@ -642,8 +600,6 @@ public class SkillTabController : MonoBehaviour
         
         playerDataManager.SaveCurrentSlot();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [{skill.skillData.skillName}] 액티브 슬롯 {targetSlotIndex} (Skill{targetSlotIndex + 1})에 장착됨 - 타입: {activeData.skillType.ToKoreanString()}");
     }
     
     /// <summary>
@@ -669,7 +625,6 @@ public class SkillTabController : MonoBehaviour
         
         if (skill.isEquipped)
         {
-            Debug.Log($"⚠️ [{skill.skillData.skillName}] 이미 장착 중입니다.");
             return;
         }
         
@@ -681,10 +636,6 @@ public class SkillTabController : MonoBehaviour
         {
             emptySlotIndex = 0;
             var oldSkill = GetEquippedPassiveSkill(slotData, 0);
-            if (oldSkill != null && showDebugLogs)
-            {
-                Debug.Log($"🔄 [패시브 슬롯 {emptySlotIndex}] {oldSkill.skillData.skillName} → {skill.skillData.skillName} 교체");
-            }
         }
         
         // 기존 장착 스킬 해제
@@ -709,8 +660,6 @@ public class SkillTabController : MonoBehaviour
         
         playerDataManager.SaveCurrentSlot();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [{skill.skillData.skillName}] 패시브 슬롯 {emptySlotIndex}에 장착됨");
     }
     
     /// <summary>
@@ -774,8 +723,6 @@ public class SkillTabController : MonoBehaviour
         // UI 갱신
         RefreshUI();
         
-        if (showDebugLogs)
-            Debug.Log($"🔓 [{skill.skillData.skillName}] 장착 해제 완료");
     }
     
     /// <summary>
@@ -829,8 +776,6 @@ public class SkillTabController : MonoBehaviour
     {
         RefreshUI();
         
-        if (showDebugLogs)
-            Debug.Log("✅ [SkillTabController] 스킬 탭 활성화");
     }
     
     /// <summary>
@@ -851,8 +796,6 @@ public class SkillTabController : MonoBehaviour
             skillDetailPanel.Hide();
         }
         
-        if (showDebugLogs)
-            Debug.Log("🔒 [SkillTabController] 스킬 탭 비활성화");
     }
     
     /// <summary>
@@ -875,8 +818,6 @@ public class SkillTabController : MonoBehaviour
         selectedData.totalSP = slotData.totalSP;
         selectedData.usedSP = slotData.usedSP;
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [SkillTabController] SelectedPlayerData 스킬 동기화: {selectedData.skills.Count}개, SP: {selectedData.usedSP}/{selectedData.totalSP}");
     }
     
     /// <summary>
@@ -900,10 +841,6 @@ public class SkillTabController : MonoBehaviour
         // 일정 시간 후 자동 숨김
         StartCoroutine(HideWarningMessageAfterDelay());
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"[SkillTabController] 경고 메시지: {message}");
-        }
     }
     
     /// <summary>

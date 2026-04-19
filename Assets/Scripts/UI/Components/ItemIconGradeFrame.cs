@@ -31,7 +31,6 @@ namespace UI.Components
         [SerializeField] private Color defaultColor = Color.white;
         
         [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = false;
         
         #endregion
         
@@ -80,8 +79,6 @@ namespace UI.Components
                 }
                 else
                 {
-                    if (showDebugLogs)
-                        Debug.Log($"✅ [ItemIconGradeFrame] Image 컴포넌트 자동 찾기 완료: {gameObject.name}");
                 }
             }
             
@@ -103,8 +100,6 @@ namespace UI.Components
             currentGrade = grade;
             UpdateColor();
             
-            if (showDebugLogs)
-                Debug.Log($"🎨 [ItemIconGradeFrame] 등급 설정: {grade} → {gameObject.name}");
         }
         
         /// <summary>
@@ -121,8 +116,6 @@ namespace UI.Components
             {
                 backgroundImage.color = customColor;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [ItemIconGradeFrame] 커스텀 색상 설정: {grade} → {customColor}");
             }
         }
         
@@ -143,8 +136,6 @@ namespace UI.Components
             {
                 backgroundImage.color = defaultColor;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔄 [ItemIconGradeFrame] 색상 초기화: {defaultColor}");
             }
         }
         
@@ -159,8 +150,6 @@ namespace UI.Components
                 color.a = alpha;
                 backgroundImage.color = color;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [ItemIconGradeFrame] 알파값 설정: {alpha}");
             }
         }
         
@@ -175,7 +164,6 @@ namespace UI.Components
         {
             if (backgroundImage == null)
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [ItemIconGradeFrame] backgroundImage가 null입니다: {gameObject.name}");
                 return;
             }
@@ -183,7 +171,6 @@ namespace UI.Components
             // ItemGradeColorManager에서 색상 가져오기
             if (ItemGradeColorManager.Instance == null)
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [ItemIconGradeFrame] ItemGradeColorManager.Instance가 null입니다");
                 
                 // 기본 색상 사용
@@ -202,10 +189,6 @@ namespace UI.Components
             
             backgroundImage.color = gradeColor;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🎨 [ItemIconGradeFrame] 색상 업데이트: {currentGrade} → {gradeColor} ({gameObject.name})");
-            }
         }
         
         #endregion

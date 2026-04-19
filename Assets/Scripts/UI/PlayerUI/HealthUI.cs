@@ -14,7 +14,6 @@ public class HealthUI : MonoBehaviour
     [SerializeField] private bool autoFindSlider = true;
     
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private bool isInitialized = false;
@@ -71,17 +70,9 @@ public class HealthUI : MonoBehaviour
         if (healthSlider != null)
         {
             isInitialized = true;
-            if (showDebugLogs)
-            {
-                Debug.Log("✅ [HealthUI] Health Slider 초기화 완료");
-            }
         }
         else
         {
-            if (showDebugLogs)
-            {
-                Debug.LogWarning("⚠️ [HealthUI] Health Slider를 찾을 수 없습니다.");
-            }
         }
     }
     
@@ -97,10 +88,6 @@ public class HealthUI : MonoBehaviour
             UpdateHealthUI(playerHealth.CurrentHealth, playerHealth.MaxHealth);
             isHealthSubscribed = true;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🔗 [HealthUI] PlayerHealth와 연결 완료 - 체력: {playerHealth.CurrentHealth}/{playerHealth.MaxHealth}");
-            }
         }
     }
     
@@ -114,10 +101,6 @@ public class HealthUI : MonoBehaviour
         healthSlider.maxValue = maxHealth;
         healthSlider.value = currentHealth;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"❤️ [HealthUI] 체력 UI 업데이트: {currentHealth}/{maxHealth} ({(float)currentHealth/maxHealth*100:F0}%)");
-        }
     }
     
     /// <summary>
@@ -129,10 +112,6 @@ public class HealthUI : MonoBehaviour
         
         healthSlider.value = healthSlider.maxValue * Mathf.Clamp01(healthRatio);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"❤️ [HealthUI] 체력 비율 업데이트: {healthRatio*100:F0}%");
-        }
     }
     
     /// <summary>
@@ -144,10 +123,6 @@ public class HealthUI : MonoBehaviour
         
         healthSlider.maxValue = maxHealth;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔧 [HealthUI] 최대 체력 설정: {maxHealth}");
-        }
     }
     
     /// <summary>
@@ -159,10 +134,6 @@ public class HealthUI : MonoBehaviour
         
         healthSlider.value = currentHealth;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"❤️ [HealthUI] 현재 체력 업데이트: {currentHealth}");
-        }
     }
     
     /// <summary>

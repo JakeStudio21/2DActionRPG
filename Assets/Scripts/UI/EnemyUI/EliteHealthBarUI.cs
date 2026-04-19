@@ -31,7 +31,6 @@ public class EliteHealthBarUI : MonoBehaviour
     [SerializeField] private bool enableBillboard = true;
     
     [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 내부 상태
     private float targetHealthRatio = 1f;
@@ -68,10 +67,6 @@ public class EliteHealthBarUI : MonoBehaviour
         // 초기화
         UpdateHealthBar(1f);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [EliteHealthBarUI] {gameObject.name} 초기화 완료");
-        }
     }
     
     private void Update()
@@ -108,10 +103,6 @@ public class EliteHealthBarUI : MonoBehaviour
         
         UpdateHealthColor(targetHealthRatio);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🩹 [EliteHealthBarUI] 체력바 업데이트: {targetHealthRatio:P0}");
-        }
     }
     
     /// <summary>

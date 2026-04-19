@@ -46,7 +46,6 @@ public class EquippedItemsUI : MonoBehaviour
     [SerializeField] private Sprite wizardClassIcon;
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 참조
     private PlayerRuntimeStats playerRuntimeStats;
@@ -70,13 +69,9 @@ public class EquippedItemsUI : MonoBehaviour
         if (playerRuntimeStats != null)
         {
             SubscribeToStatsEvents();
-            if (showDebugLogs)
-                Debug.Log("✅ [EquippedItemsUI] 기존 PlayerRuntimeStats 발견하여 즉시 연결");
         }
         else
         {
-            if (showDebugLogs)
-                Debug.Log("⏳ [EquippedItemsUI] PlayerRuntimeStats 대기 중...");
         }
         
         // 🆕 각 슬롯의 클릭 이벤트 구독
@@ -98,8 +93,6 @@ public class EquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnPlayerRuntimeStatsReady(PlayerRuntimeStats runtimeStats)
     {
-        if (showDebugLogs)
-            Debug.Log("🎉 [EquippedItemsUI] PlayerRuntimeStats 준비 완료! 이벤트 연결 시작");
             
         playerRuntimeStats = runtimeStats;
         SubscribeToStatsEvents();
@@ -116,12 +109,9 @@ public class EquippedItemsUI : MonoBehaviour
         if (playerRuntimeStats != null)
         {
             playerRuntimeStats.OnStatsRecalculated += UpdatePlayerStats; // 스탯 변경 시 즉시 업데이트
-            if (showDebugLogs)
-                Debug.Log("🎯 [EquippedItemsUI] PlayerRuntimeStats 이벤트 연결 완료");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [EquippedItemsUI] PlayerRuntimeStats를 찾을 수 없습니다!");
         }
     }
@@ -139,8 +129,6 @@ public class EquippedItemsUI : MonoBehaviour
         if (playerNameText != null)
         {
             playerNameText.text = playerData.playerName;
-            if (showDebugLogs)
-                Debug.Log($"�� [EquippedItemsUI] 플레이어명 업데이트: {playerData.playerName}");
         }
         
         // 2. 클래스 이미지 표시
@@ -154,8 +142,6 @@ public class EquippedItemsUI : MonoBehaviour
                 _ => null
             };
             
-            if (showDebugLogs)
-                Debug.Log($"🎮 [EquippedItemsUI] 클래스 아이콘 업데이트: {playerData.selectedPlayerType}");
         }
     }
     
@@ -170,7 +156,6 @@ public class EquippedItemsUI : MonoBehaviour
             playerRuntimeStats = FindObjectOfType<PlayerRuntimeStats>();
             if (playerRuntimeStats == null) 
             {
-                if (showDebugLogs)
                     Debug.LogWarning("⚠️ [EquippedItemsUI] PlayerRuntimeStats를 찾을 수 없어 능력치 업데이트 실패!");
                 return;
             }
@@ -205,10 +190,6 @@ public class EquippedItemsUI : MonoBehaviour
             finalMoveSpeedText.text = $"MoveSpeed {playerRuntimeStats.FinalMoveSpeed:F1}";
         }
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"📊 [EquippedItemsUI] 능력치 업데이트 완료 - 공격력:{playerRuntimeStats.FinalAttackDamage:F0}, 방어력:{playerRuntimeStats.FinalDefense:F0}, 공속:{playerRuntimeStats.FinalAttackSpeed:F1}, 이속:{playerRuntimeStats.FinalMoveSpeed:F1}");
-        }
     }
     
     /// <summary>
@@ -251,12 +232,10 @@ public class EquippedItemsUI : MonoBehaviour
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     public void TestForceStatsUpdate()
     {
-        Debug.Log("🧪 [EquippedItemsUI] 수동 능력치 업데이트 테스트 시작");
         
         UpdatePlayerInfo();
         UpdatePlayerStats();
         
-        Debug.Log("🧪 [EquippedItemsUI] 수동 능력치 업데이트 테스트 완료");
     }
     
     /// <summary>
@@ -267,8 +246,6 @@ public class EquippedItemsUI : MonoBehaviour
         UpdatePlayerInfo(); // 레벨 변경 시 플레이어 정보 갱신
         UpdatePlayerStats(); // 레벨업으로 인한 스탯 변화 반영
         
-        if (showDebugLogs)
-            Debug.Log($"🆙 [EquippedItemsUI] 플레이어 레벨 변경: {newLevel}");
     }
     
     /// <summary>
@@ -276,16 +253,12 @@ public class EquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnPlayerSlotChanged(int newSlotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [EquippedItemsUI] 플레이어 슬롯 전환됨: {newSlotIndex}");
         
         // 플레이어 정보 및 장비 정보 전체 갱신
         UpdatePlayerInfo();
         RefreshAllEquippedItems();
         UpdatePlayerStats();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [EquippedItemsUI] 플레이어 전환 갱신 완료");
     }
     
     /// <summary>
@@ -308,8 +281,6 @@ public class EquippedItemsUI : MonoBehaviour
         UpdateSlot(ring2Slot, EquipmentSlot.Ring2, equippedItems);
         UpdateSlot(necklaceSlot, EquipmentSlot.Necklace, equippedItems);
         
-        if (showDebugLogs)
-            Debug.Log("🎮 [EquippedItemsUI] 모든 착용 장비 슬롯 새로고침 완료");
     }
     
     /// <summary>
@@ -328,8 +299,6 @@ public class EquippedItemsUI : MonoBehaviour
         SetupSlotClickEvent(ring2Slot, EquipmentSlot.Ring2);
         SetupSlotClickEvent(necklaceSlot, EquipmentSlot.Necklace);
         
-        if (showDebugLogs)
-            Debug.Log("🖱️ [EquippedItemsUI] 모든 슬롯 클릭 이벤트 설정 완료");
     }
     
     /// <summary>
@@ -347,8 +316,6 @@ public class EquippedItemsUI : MonoBehaviour
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnEquippedSlotClicked(equipmentSlot));
             
-            if (showDebugLogs)
-                Debug.Log($"🖱️ [EquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결");
         }
         else
         {
@@ -361,8 +328,6 @@ public class EquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnEquippedSlotClicked(EquipmentSlot slot)
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [EquippedItemsUI] {slot} 슬롯 클릭됨");
         
         // PlayerDataManager에서 해당 슬롯의 장비 확인
         if (PlayerDataManager.Instance == null) return;
@@ -372,27 +337,20 @@ public class EquippedItemsUI : MonoBehaviour
         {
             var equippedItem = equippedItems[slot];
             
-            if (showDebugLogs)
-                Debug.Log($"🖱️ [EquippedItemsUI] {slot}에서 {equippedItem.equipmentName} 해제 시도");
             
             // 장비 해제 실행
             bool success = PlayerDataManager.Instance.UnequipItem(slot);
             
             if (success)
             {
-                if (showDebugLogs)
-                    Debug.Log($"✅ [EquippedItemsUI] {equippedItem.equipmentName} 해제 성공");
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [EquippedItemsUI] {equippedItem.equipmentName} 해제 실패 (인벤토리가 가득참?)");
             }
         }
         else
         {
-            if (showDebugLogs)
-                Debug.Log($"🖱️ [EquippedItemsUI] {slot} 슬롯이 비어있습니다");
         }
     }
     
@@ -408,16 +366,12 @@ public class EquippedItemsUI : MonoBehaviour
             // 장착된 아이템 표시
             uiSlot.SetEquipmentData(equippedItems[equipmentSlot]);
             
-            if (showDebugLogs)
-                Debug.Log($"🎮 [EquippedItemsUI] {equipmentSlot} 슬롯 업데이트: {equippedItems[equipmentSlot].equipmentName}");
         }
         else
         {
             // 빈 슬롯 표시
             uiSlot.SetEquipmentData(null);
             
-            if (showDebugLogs)
-                Debug.Log($"🎮 [EquippedItemsUI] {equipmentSlot} 슬롯 비움");
         }
     }
     
@@ -463,8 +417,6 @@ public class EquippedItemsUI : MonoBehaviour
         // 🗑️ 제거: 중복 UpdatePlayerStats() 호출 제거
         // PlayerRuntimeStats의 OnStatsRecalculated 이벤트에만 의존
         
-        if (showDebugLogs)
-            Debug.Log($"🎮 [EquippedItemsUI] {slot} 슬롯에 {item.equipmentName} 장착 완료 - 스탯 업데이트는 OnStatsRecalculated 이벤트에서 처리");
     }
     
     /// <summary>
@@ -507,8 +459,6 @@ public class EquippedItemsUI : MonoBehaviour
         // 🗑️ 제거: 중복 UpdatePlayerStats() 호출 제거  
         // PlayerRuntimeStats의 OnStatsRecalculated 이벤트에만 의존
         
-        if (showDebugLogs)
-            Debug.Log($"🎮 [EquippedItemsUI] {slot} 슬롯에서 {item.equipmentName} 해제 완료 - 스탯 업데이트는 OnStatsRecalculated 이벤트에서 처리");
     }
     
     /// <summary>
@@ -517,12 +467,10 @@ public class EquippedItemsUI : MonoBehaviour
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     public void TestEventSubscriptions()
     {
-        Debug.Log("🧪 [EquippedItemsUI] === 이벤트 구독 상태 테스트 ===");
         
         // PlayerDataManager 이벤트 확인
         if (PlayerDataManager.Instance != null)
         {
-            Debug.Log("✅ [EquippedItemsUI] PlayerDataManager.Instance 연결됨");
         }
         else
         {
@@ -532,18 +480,15 @@ public class EquippedItemsUI : MonoBehaviour
         // PlayerRuntimeStats 이벤트 확인
         if (playerRuntimeStats != null)
         {
-            Debug.Log("✅ [EquippedItemsUI] PlayerRuntimeStats 연결됨");
             
             // OnStatsRecalculated 구독자 수 확인
             int subscribers = playerRuntimeStats.OnStatsRecalculated?.GetInvocationList().Length ?? 0;
-            Debug.Log($"📊 [EquippedItemsUI] OnStatsRecalculated 구독자 수: {subscribers}");
         }
         else
         {
             Debug.LogError("❌ [EquippedItemsUI] PlayerRuntimeStats가 null입니다!");
         }
         
-        Debug.Log("🧪 [EquippedItemsUI] === 테스트 완료 ===");
     }
 
     // Inspector에서 테스트할 수 있는 메서드들
@@ -566,9 +511,7 @@ public class EquippedItemsUI : MonoBehaviour
     [ContextMenu("🎮 플레이어 정보 갱신")]
     private void TestPlayerInfoRefresh()
     {
-        Debug.Log("🧪 [EquippedItemsUI] 플레이어 정보 갱신 테스트");
         UpdatePlayerInfo();
-        Debug.Log("🧪 [EquippedItemsUI] 플레이어 정보 갱신 완료");
     }
     #endif
     

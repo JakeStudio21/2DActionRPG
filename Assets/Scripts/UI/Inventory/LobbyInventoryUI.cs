@@ -83,7 +83,6 @@ public class LobbyInventoryUI : MonoBehaviour
     [SerializeField] private TMP_Text goldText;             // 플레이어 골드 표시
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = false; // ⭐ 프로덕션 기본값
     
     [Header("🎒 착용 장비 UI 연동")]
     [SerializeField] private LobbyEquippedItemsUI equippedItemsUI; // 🆕 장비창 UI 참조
@@ -93,17 +92,12 @@ public class LobbyInventoryUI : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log($"🚨🚨🚨 [LobbyInventoryUI] 이 로그가 나오면 스크립트가 실행되고 있다는 뜻! GameObject 이름: {gameObject.name}");
-        Debug.Log($"🆔 [LobbyInventoryUI] 인스턴스 ID: {GetInstanceID()}");
-        Debug.Log($" [LobbyInventoryUI] Awake() 호출됨");
         SetupEventListeners();
         SetupControllerEvents();
-        Debug.Log($"✅ [LobbyInventoryUI] Awake() 완료");
     }
 
     void OnEnable()
     {
-        Debug.Log($"🔄 [LobbyInventoryUI] OnEnable() 호출됨 - 인벤토리 새로고침 예약");
         
         // ⭐ 인벤토리 패널이 열릴 때 장착 슬롯을 항상 해제 가능 모드로 설정
         equippedItemsUI?.SetReadOnly(false);
@@ -143,7 +137,6 @@ public class LobbyInventoryUI : MonoBehaviour
 
     void Start()
     {
-        Debug.Log($"🏠 [LobbyInventoryUI] Start() 호출됨");
         
         // 슬롯 생성
         SetupSlots();
@@ -151,8 +144,6 @@ public class LobbyInventoryUI : MonoBehaviour
         // ⭐ 골드 초기화 (OnEnable이 호출되지 않을 경우 대비)
         InitializeGoldDisplay();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [LobbyInventoryUI] Start() 완료");
     }
     
     // ========================================
@@ -196,10 +187,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void InitializeGoldDisplay()
     {
-        Debug.Log($"🔍 [LobbyInventoryUI] InitializeGoldDisplay() 시작");
-        Debug.Log($"   - PlayerDataManager: {(PlayerDataManager.Instance != null ? "있음" : "NULL")}");
-        Debug.Log($"   - AccountDataManager: {(AccountDataManager.Instance != null ? "있음" : "NULL")}");
-        Debug.Log($"   - goldText: {(goldText != null ? "할당됨" : "NULL")}");
         
         // ⭐ goldText가 null인 경우 자동으로 찾기 시도
         if (goldText == null)
@@ -219,7 +206,6 @@ public class LobbyInventoryUI : MonoBehaviour
                 goldText = goldTextTransform.GetComponent<TMP_Text>();
                 if (goldText != null)
                 {
-                    Debug.Log($"✅ [LobbyInventoryUI] goldText 자동 할당 성공: {goldTextTransform.name}");
                 }
                 else
                 {
@@ -234,11 +220,6 @@ public class LobbyInventoryUI : MonoBehaviour
         
         if (goldText != null)
         {
-            Debug.Log($"📋 [LobbyInventoryUI] goldText 상세 정보:");
-            Debug.Log($"   - GameObject 이름: {goldText.gameObject.name}");
-            Debug.Log($"   - 활성화 상태: {goldText.gameObject.activeInHierarchy}");
-            Debug.Log($"   - 부모: {(goldText.transform.parent != null ? goldText.transform.parent.name : "없음")}");
-            Debug.Log($"   - 경로: {GetGameObjectPath(goldText.gameObject)}");
         }
         
         // 골드 변경 이벤트 구독 (PlayerDataManager)
@@ -247,7 +228,6 @@ public class LobbyInventoryUI : MonoBehaviour
             // 중복 구독 방지
             PlayerDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
             PlayerDataManager.Instance.OnGoldChanged += UpdateGoldDisplay;
-            Debug.Log($"✅ [LobbyInventoryUI] PlayerDataManager.OnGoldChanged 구독 완료");
         }
         else
         {
@@ -260,7 +240,6 @@ public class LobbyInventoryUI : MonoBehaviour
             // 중복 구독 방지
             AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
             AccountDataManager.Instance.OnGoldChanged += UpdateGoldDisplay;
-            Debug.Log($"✅ [LobbyInventoryUI] AccountDataManager.OnGoldChanged 구독 완료");
         }
         else
         {
@@ -269,7 +248,6 @@ public class LobbyInventoryUI : MonoBehaviour
         
         // 초기 골드 표시
         int currentGold = PlayerDataManager.Instance?.CurrentGold ?? 0;
-        Debug.Log($"🔍 [LobbyInventoryUI] 현재 골드: {currentGold}");
         UpdateGoldDisplay(currentGold);
     }
 
@@ -315,8 +293,6 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
 
-        if (showDebugLogs)
-            Debug.Log($"✅ [LobbyInventoryUI] {lobbySlots.Count}개 슬롯 생성 완료 (최대: {maxSlots})");
         
         // 🔧 중요: SetupSlotClickEvents() 호출 제거
         // InventorySlot.Awake()의 기본 리스너 사용 (UIButtonClickEffect 호환)
@@ -329,7 +305,6 @@ public class LobbyInventoryUI : MonoBehaviour
         if (inventoryToggleButton != null)
         {
             inventoryToggleButton.onClick.AddListener(() => {
-                Debug.Log($"🖱️ [LobbyInventoryUI] 가방버튼 클릭됨!");
                 
                 // 🔧 수정: LobbyInventoryController를 통해 처리
                 var lobbyInventoryController = FindObjectOfType<LobbyInventoryController>();
@@ -342,7 +317,6 @@ public class LobbyInventoryUI : MonoBehaviour
                     Debug.LogWarning("⚠️ [LobbyInventoryUI] LobbyInventoryController를 찾을 수 없음");
                 }
             });
-            Debug.Log($"✅ [LobbyInventoryUI] 가방버튼 이벤트 연결 완료");
         }
         else
         {
@@ -359,13 +333,11 @@ public class LobbyInventoryUI : MonoBehaviour
         if (equipmentTabButton != null)
         {
             equipmentTabButton.onClick.AddListener(() => SwitchTab(InventoryTabType.Equipment));
-            Debug.Log("✅ [LobbyInventoryUI] 장비 탭 버튼 이벤트 연결 완료");
         }
         
         if (materialTabButton != null)
         {
             materialTabButton.onClick.AddListener(() => SwitchTab(InventoryTabType.Material));
-            Debug.Log("✅ [LobbyInventoryUI] 재료 탭 버튼 이벤트 연결 완료");
         }
 
         // PlayerDataManager 이벤트 구독 (지연 갱신 지원)
@@ -386,7 +358,6 @@ public class LobbyInventoryUI : MonoBehaviour
         if (AccountDataManager.Instance != null)
         {
             AccountDataManager.Instance.OnMaterialChanged += OnMaterialChangedHandler;
-            Debug.Log("✅ [LobbyInventoryUI] AccountDataManager 재료 이벤트 구독 완료");
         }
     }
     
@@ -395,8 +366,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnMaterialChangedHandler(MaterialType materialType, int newCount)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyInventoryUI] 재료 변경 감지: {materialType.GetDisplayName()} = {newCount}개");
         
         // 재료 탭이 활성화된 경우에만 갱신
         if (currentTab == InventoryTabType.Material && inventoryPanel != null && inventoryPanel.activeInHierarchy)
@@ -410,8 +379,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnSlotLazyLoaded(int slotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyInventoryUI] 슬롯 {slotIndex} 지연 로드 완료 - 인벤토리 갱신");
         
         // 인벤토리 패널이 활성화된 상태에서만 갱신
         if (inventoryPanel != null && inventoryPanel.activeInHierarchy)
@@ -428,8 +395,6 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         if (PlayerDataManager.Instance == null) return false;
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [LobbyInventoryUI] 보관창고에서 착용 시도: {equipment.equipmentName} (슬롯 인덱스: {uiSlotIndex})");
         
         // 🆕 V2: UI 슬롯에서 ItemInstanceID 가져오기
         if (uiSlotIndex < 0 || uiSlotIndex >= lobbySlots.Count)
@@ -445,14 +410,11 @@ public class LobbyInventoryUI : MonoBehaviour
             return false;
         }
         
-        Debug.Log($"   - ItemInstanceID: {itemId.Value.Substring(0, 8)}...");
         
         // ⭐ V2: 클래스 호환성 체크는 EquipItemFromSharedStorage()에서 처리
         // 보관창고 → 직접 장착 (단일 소스: PlayerDataManager.Instance.selectedPlayerData)
         bool success = PlayerDataManager.Instance.EquipItemFromSharedStorage(itemId);  // 🆕 ID 전달
         
-        if (showDebugLogs)
-            Debug.Log($"{(success ? "✅" : "❌")} [LobbyInventoryUI] 보관창고 착용 {(success ? "성공" : "실패")}: {equipment.equipmentName}");
         
         return success;
     }
@@ -549,10 +511,7 @@ public class LobbyInventoryUI : MonoBehaviour
                 detailItemIcon.sprite = equipmentData.icon;
                 detailItemIcon.color = Color.white;
                 detailItemIcon.gameObject.SetActive(true);
-                if (showDebugLogs)
-                    Debug.Log($"🖼️ [LobbyInventoryUI] 아이템 이미지 설정 성공: {equipmentData.equipmentName}");
             }
-            else if (showDebugLogs) // 🔧 수정: defaultItemIcon 제거
                 Debug.LogWarning($"⚠️ [LobbyInventoryUI] 표시할 이미지 없음: {equipmentData.equipmentName}");
         }
 
@@ -590,14 +549,8 @@ public class LobbyInventoryUI : MonoBehaviour
         // �� 추가 디버깅: 버튼 상태 재확인
         if (equipButton != null)
         {
-            Debug.Log($"🔘 [LobbyInventoryUI] 아이템 선택 후 버튼 상태:");
-            Debug.Log($"   - interactable: {equipButton.interactable}");
-            Debug.Log($"   - activeInHierarchy: {equipButton.gameObject.activeInHierarchy}");
-            Debug.Log($"   - 호환성: {isCompatible}");
         }
 
-        if (showDebugLogs)
-            Debug.Log($"✅ [LobbyInventoryUI] 상세 정보 패널 표시 완료: {equipmentData.equipmentName}");
     }
     
     /// <summary>
@@ -635,8 +588,6 @@ public class LobbyInventoryUI : MonoBehaviour
                 equipWarningText.text = "현재 클래스가 사용할 수 없는 장비입니다";
                 equipWarningText.gameObject.SetActive(true);
                 
-                if (showDebugLogs)
-                    Debug.Log("⚠️ [LobbyInventoryUI] 착용불가 메시지 표시");
             }
             else
             {
@@ -671,19 +622,15 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         if (currentSelectedItem == null)
         {
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [LobbyInventoryUI] 착용할 아이템이 선택되지 않음");
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [LobbyInventoryUI] 착용 버튼 클릭: {currentSelectedItem.equipmentName}");
         
         // 클래스 호환성 체크
         if (!IsItemCompatibleWithCurrentClass(currentSelectedItem))
         {
             // 🔧 착용 불가능한 클래스 - 일시적 경고 메시지 표시
-            Debug.Log($"🚫 [LobbyInventoryUI] {currentSelectedItem.equipmentName}는 현재 클래스가 사용할 수 없는 장비입니다!");
             
             // 🆕 착용 실패 메시지 표시 (착용 성공과 동일한 방식)
             if (equipWarningText != null)
@@ -753,8 +700,6 @@ public class LobbyInventoryUI : MonoBehaviour
                 else
                 {
                     // 사용자 취소 → 장착 중단
-                    if (showDebugLogs)
-                        Debug.Log($"🚫 [LobbyInventoryUI] 사용자가 장착 취소: {equipment.equipmentName}");
                     
                     if (equipWarningText != null)
                     {
@@ -779,8 +724,6 @@ public class LobbyInventoryUI : MonoBehaviour
         
         if (equipped)
         {
-            if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] 아이템 착용 성공: {equipment.equipmentName}");
             
             // 🔧 착용 성공 후 빈 상태 DetailPanel 표시
             ShowEmptyDetailPanel();
@@ -796,7 +739,6 @@ public class LobbyInventoryUI : MonoBehaviour
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [LobbyInventoryUI] 아이템 착용 실패: {equipment.equipmentName}");
                 
             // 🆕 착용 실패 메시지 표시
@@ -820,8 +762,6 @@ public class LobbyInventoryUI : MonoBehaviour
         equipWarningText.color = color;
         equipWarningText.fontSize = 8f;
         
-        if (showDebugLogs)
-            Debug.Log($"📢 [LobbyInventoryUI] 메시지 표시: {message}");
         
         // 지정된 시간만큼 대기
         yield return new WaitForSeconds(duration);
@@ -829,8 +769,6 @@ public class LobbyInventoryUI : MonoBehaviour
         // 메시지 숨김
         equipWarningText.gameObject.SetActive(false);
         
-        if (showDebugLogs)
-            Debug.Log($"📢 [LobbyInventoryUI] 메시지 숨김: {message}");
     }
 
     /// <summary>
@@ -921,8 +859,6 @@ public class LobbyInventoryUI : MonoBehaviour
         currentTab = InventoryTabType.Equipment;
         UpdateTabButtonStates();
         
-        if (showDebugLogs)
-            Debug.Log($"🏠 [LobbyInventoryUI] ClosePanel 호출 - 로비로 전환 시작 (탭 리셋: 장비)");
         
         // ✅ 수정: OnBackToLobby() 호출하여 저장 로직 실행
         // LobbyUIController를 찾아서 로비 전환 요청
@@ -932,8 +868,6 @@ public class LobbyInventoryUI : MonoBehaviour
             // ✅ ShowLobbyPanel() 대신 OnBackToLobby() 호출 (저장 포함)
             lobbyUIController.OnBackToLobby();
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] 로비 전환 완료");
         }
         else
         {
@@ -950,8 +884,6 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         // 🔧 수정: DetailPanel 비활성화 로직 제거
         // DetailPanel은 항상 활성화 상태 유지
-        if (showDebugLogs)
-            Debug.Log($"🎯 [LobbyInventoryUI] DetailPanel 활성화 상태 유지 (비활성화하지 않음)");
     }
 
     */
@@ -961,9 +893,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     public void RefreshInventoryUI()
     {
-        Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"🔄 [LobbyInventoryUI] RefreshInventoryUI() 호출 (V2: 계정 공유 창고)");
-        Debug.Log($"═══════════════════════════════════════════════════════");
         
         // ⭐ ScrollRect Position 저장 (스크롤 위치 유지)
         Vector2 savedScrollPosition = Vector2.zero;
@@ -971,7 +900,6 @@ public class LobbyInventoryUI : MonoBehaviour
         if (hasScrollRect)
         {
             savedScrollPosition = scrollRect.normalizedPosition;
-            Debug.Log($"💾 [LobbyInventoryUI] 스크롤 위치 저장: {savedScrollPosition} (vertical: {savedScrollPosition.y})");
         }
         else
         {
@@ -988,7 +916,6 @@ public class LobbyInventoryUI : MonoBehaviour
         // 🆕 슬롯이 생성되지 않았으면 생성 후 재시도
         if (lobbySlots == null || lobbySlots.Count == 0)
         {
-            Debug.Log("🔄 [LobbyInventoryUI] 슬롯이 없음 - 슬롯 생성 후 재시도");
             
             SetupSlots();
             
@@ -1004,10 +931,6 @@ public class LobbyInventoryUI : MonoBehaviour
         var accountData = AccountDataManager.Instance.GetAccountData();
         var sharedInventoryIds = accountData?.sharedInventoryIds;
         
-        Debug.Log($"📦 [LobbyInventoryUI] 계정 공유 창고 데이터 확인:");
-        Debug.Log($"   - 공유 창고 아이템 수: {sharedInventoryIds?.Count ?? 0}");
-        Debug.Log($"   - 슬롯 수: {lobbySlots?.Count ?? 0}");
-        Debug.Log($"🔍 [LobbyInventoryUI] accountData 해시코드: {accountData?.GetHashCode() ?? 0}");
         
         // 🆕 V2: ItemInstanceID → EquipmentData 변환 (ID도 함께 저장)
         List<(EquipmentData equipment, ItemInstanceID instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceID)>();
@@ -1033,7 +956,6 @@ public class LobbyInventoryUI : MonoBehaviour
                                 string idPreview = instanceId.Value != null && instanceId.Value.Length >= 8 
                                     ? instanceId.Value.Substring(0, 8) 
                                     : instanceId.Value;
-                                Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {idPreview}...)");
                             }
                         }
                         else
@@ -1064,8 +986,6 @@ public class LobbyInventoryUI : MonoBehaviour
             {
                 lobbySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);  // 🆕 ID 전달
                 
-                if (inventoryItems[i].equipment != null && showDebugLogs)
-                    Debug.Log($"   ✅ UI 슬롯 {i}에 설정: {inventoryItems[i].equipment.equipmentName}");
             }
             else
             {
@@ -1073,12 +993,9 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
 
-        Debug.Log($"═══════════════════════════════════════════════════════");
         int maxSlots = AccountDataManager.IsInitialized() 
             ? AccountDataManager.Instance.GetAccountData().maxSharedInventorySize 
             : 64;
-        Debug.Log($"✅ [LobbyInventoryUI] 계정 공유 창고 새로고침 완료: {inventoryItems.Count}/{maxSlots}");
-        Debug.Log($"═══════════════════════════════════════════════════════");
         
         // ⭐ ScrollRect Position 복원 (다음 프레임에 실행하여 Layout 재계산 완료 후 적용)
         if (hasScrollRect)
@@ -1092,7 +1009,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private IEnumerator RestoreScrollPositionNextFrame(Vector2 position)
     {
-        Debug.Log($"⏳ [LobbyInventoryUI] 스크롤 복원 대기 중... (목표: {position})");
         
         yield return null; // 1프레임 대기 (Layout 재계산 완료)
         
@@ -1102,11 +1018,6 @@ public class LobbyInventoryUI : MonoBehaviour
             scrollRect.normalizedPosition = position;
             Vector2 afterPosition = scrollRect.normalizedPosition;
             
-            Debug.Log($"🔄 [LobbyInventoryUI] 스크롤 위치 복원 시도:");
-            Debug.Log($"   - 목표 위치: {position}");
-            Debug.Log($"   - 복원 전: {beforePosition}");
-            Debug.Log($"   - 복원 후: {afterPosition}");
-            Debug.Log($"   - 성공 여부: {Vector2.Distance(afterPosition, position) < 0.01f}");
         }
         else
         {
@@ -1140,8 +1051,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnItemAdded(EquipmentData item)
     {
-        if (showDebugLogs)
-            Debug.Log($"➕ [LobbyInventoryUI] 아이템 추가됨: {item.equipmentName}");
         RefreshInventoryUI();
     }
 
@@ -1150,8 +1059,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnItemRemoved(EquipmentData item)
     {
-        if (showDebugLogs)
-            Debug.Log($"➖ [LobbyInventoryUI] 아이템 제거됨: {item.equipmentName}");
         RefreshInventoryUI();
     }
 
@@ -1161,8 +1068,6 @@ public class LobbyInventoryUI : MonoBehaviour
     private void SetupControllerEvents()
     {
         // 로비에서는 LobbyInventoryController가 직접 UI 제어
-        if (showDebugLogs)
-            Debug.Log($"ℹ️ [LobbyInventoryUI] 로비 전용 UI 초기화 완료");
     }
     
     // 🗑️ 완전 제거: 주석 처리된 메서드들 삭제
@@ -1187,43 +1092,16 @@ public class LobbyInventoryUI : MonoBehaviour
         return -1; // 찾지 못함
     }
 
-    /// <summary>
-    /// 🔍 인벤토리 상태 로깅 (디버깅용)
-    /// </summary>
-    private void LogInventoryState(string phase)
-    {
-        if (!showDebugLogs) return;
-        
-        Debug.Log($"📊 [LobbyInventoryUI] 인벤토리 상태 ({phase}):");
-        
-        if (PlayerDataManager.Instance?.InventoryItems != null)
-        {
-            var items = PlayerDataManager.Instance.InventoryItems;
-            for (int i = 0; i < Mathf.Min(items.Count, 8); i++)
-            {
-                Debug.Log($"   [{i}]: {items[i]?.equipmentName ?? "빈 슬롯"}");
-            }
-            Debug.Log($"   총 {items.Count}개 아이템");
-        }
-        else
-        {
-            Debug.Log("   인벤토리 없음");
-        }
-    }
 
     /// <summary>
     /// 🆕 외부에서 호출 가능한 인벤토리 새로고침 메서드
     /// </summary>
     public void ForceRefreshInventory()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [LobbyInventoryUI] 강제 인벤토리 새로고침");
         
         // 현재 선택된 캐릭터 기준으로 갱신
         RefreshInventoryUI();
         
-        if (showDebugLogs)
-            Debug.Log("✅ [LobbyInventoryUI] 강제 인벤토리 새로고침 완료");
     }
     
     /// <summary>
@@ -1231,19 +1109,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     public void LogSlotStatus()
     {
-        if (showDebugLogs)
-        {
-            Debug.Log($"📊 [LobbyInventoryUI] 슬롯 상태:");
-            Debug.Log($"   - 총 슬롯 수: {lobbySlots.Count}");
-            Debug.Log($"   - 인벤토리 아이템 수: {(PlayerDataManager.Instance?.InventoryItems?.Count ?? 0)}");
-            
-            for (int i = 0; i < lobbySlots.Count && i < 5; i++) // 처음 5개만 로그
-            {
-                var slot = lobbySlots[i];
-                var equipmentData = slot.GetEquipmentData();
-                Debug.Log($"   - 슬롯 {i}: {(equipmentData?.equipmentName ?? "비어있음")}");
-            }
-        }
     }
 
     /// <summary>
@@ -1251,8 +1116,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     public void ForceRefreshWithLobbySelectedCharacter(int lobbySelectedSlot)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyInventoryUI] 로비 선택 캐릭터 {lobbySelectedSlot}로 강제 갱신");
         
         // 1. PlayerDataManager의 선택 슬롯을 로비 선택과 동기화
         if (PlayerDataManager.Instance != null)
@@ -1265,8 +1128,6 @@ public class LobbyInventoryUI : MonoBehaviour
                 // 🔧 수정: 완전 로드로 변경하여 데이터 손상 방지
                 PlayerDataManager.Instance.SelectSlot(lobbySelectedSlot);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔄 [LobbyInventoryUI] 캐릭터 슬롯 동기화 및 로드: {currentSlot} → {lobbySelectedSlot}");
             }
             
             // 3. 인벤토리 UI 갱신
@@ -1277,12 +1138,9 @@ public class LobbyInventoryUI : MonoBehaviour
             {
                 equippedItemsUI.ForceRefreshEquippedItems();
                 
-                if (showDebugLogs)
-                    Debug.Log($"✅ [LobbyInventoryUI] 패널 전환 시 장비창 UI 갱신 완료");
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning("⚠️ [LobbyInventoryUI] equippedItemsUI 참조가 null입니다!");
             }
             
@@ -1298,18 +1156,12 @@ public class LobbyInventoryUI : MonoBehaviour
             {
                 ShowEmptyDetailPanel();
                 
-                if (showDebugLogs)
-                    Debug.Log($"🎯 [LobbyInventoryUI] 인벤토리 열 때 DetailPanel 초기화 완료");
             }
             else
             {
-                if (showDebugLogs)
-                    Debug.Log($"⏭️ [LobbyInventoryUI] DetailPanel 초기화 건너뜀 (아이템 선택 상태 유지: {currentSelectedItem.equipmentName})");
             }
             */
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] 로비 선택 캐릭터 {lobbySelectedSlot} 인벤토리 갱신 완료");
         }
     }
 
@@ -1346,8 +1198,6 @@ public class LobbyInventoryUI : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [LobbyInventoryUI] {lobbySlots.Count}개 슬롯 클릭 이벤트 재연결 완료");
     }
 
     /// <summary>
@@ -1371,8 +1221,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnItemEquippedHandler(EquipmentSlot slot, EquipmentData item)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyInventoryUI] 장비 착용 감지: {item.equipmentName} → {slot}");
         
         // 1. 인벤토리 UI 갱신
         RefreshInventoryUI();
@@ -1381,12 +1229,9 @@ public class LobbyInventoryUI : MonoBehaviour
         if (equippedItemsUI != null)
         {
             equippedItemsUI.ForceRefreshEquippedItems();
-            if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] 장비창 UI 갱신 완료");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [LobbyInventoryUI] equippedItemsUI 참조가 null입니다!");
         }
     }
@@ -1396,8 +1241,6 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void OnItemUnequippedHandler(EquipmentSlot slot, EquipmentData item)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyInventoryUI] 장비 해제 감지: {item.equipmentName} ← {slot}");
         
         // 1. 인벤토리 UI 갱신
         RefreshInventoryUI();
@@ -1406,12 +1249,9 @@ public class LobbyInventoryUI : MonoBehaviour
         if (equippedItemsUI != null)
         {
             equippedItemsUI.ForceRefreshEquippedItems();
-            if (showDebugLogs)
-                Debug.Log($"✅ [LobbyInventoryUI] 장비창 UI 갱신 완료");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [LobbyInventoryUI] equippedItemsUI 참조가 null입니다!");
         }
     }
@@ -1438,8 +1278,6 @@ public class LobbyInventoryUI : MonoBehaviour
             AccountDataManager.Instance.OnMaterialChanged -= OnMaterialChangedHandler; // 🔧 수정: 추가된 이벤트 구독 해제
         }
         
-        if (showDebugLogs)
-            Debug.Log("🔄 [LobbyInventoryUI] 이벤트 구독 해제 완료");
     }
     
     /// <summary>
@@ -1447,22 +1285,14 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private void UpdateGoldDisplay(int gold)
     {
-        Debug.Log($"🔍 [LobbyInventoryUI] UpdateGoldDisplay 호출됨 - gold: {gold}, goldText: {(goldText != null ? "할당됨" : "NULL")}");
         
         if (goldText != null)
         {
             // 상세 정보 출력
-            Debug.Log($"📋 [LobbyInventoryUI] goldText 상세 정보:");
-            Debug.Log($"   - GameObject 이름: {goldText.gameObject.name}");
-            Debug.Log($"   - 활성화 상태: {goldText.gameObject.activeInHierarchy}");
-            Debug.Log($"   - 부모: {(goldText.transform.parent != null ? goldText.transform.parent.name : "없음")}");
-            Debug.Log($"   - 현재 텍스트 (업데이트 전): '{goldText.text}'");
             
             // 텍스트 업데이트
             goldText.text = gold.ToString();
             
-            Debug.Log($"   - 업데이트 후 텍스트: '{goldText.text}'");
-            Debug.Log($"💰 [LobbyInventoryUI] 골드 텍스트 업데이트 완료: {gold}");
         }
         else
         {
@@ -1481,15 +1311,11 @@ public class LobbyInventoryUI : MonoBehaviour
     {
         if (currentTab == tabType)
         {
-            if (showDebugLogs)
-                Debug.Log($"📑 [LobbyInventoryUI] 이미 {tabType} 탭이 활성화되어 있습니다.");
             return;
         }
         
         currentTab = tabType;
         
-        if (showDebugLogs)
-            Debug.Log($"📑 [LobbyInventoryUI] 탭 전환: {tabType}");
         
         RefreshCurrentTab();
         UpdateTabButtonStates();
@@ -1538,8 +1364,6 @@ public class LobbyInventoryUI : MonoBehaviour
         
         var materials = AccountDataManager.Instance.GetMaterialsForDisplay();
         
-        if (showDebugLogs)
-            Debug.Log($"📦 [LobbyInventoryUI] 재료 탭 갱신: {materials.Count}개 재료");
         
         // 슬롯 초기화 (16칸만 사용: 8칸 x 2행)
         int maxMaterialSlots = 16;
@@ -1588,7 +1412,5 @@ public class LobbyInventoryUI : MonoBehaviour
             materialTabText.color = color;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"📑 [LobbyInventoryUI] 탭 버튼 상태 업데이트 완료 (현재: {currentTab})");
     }
 }

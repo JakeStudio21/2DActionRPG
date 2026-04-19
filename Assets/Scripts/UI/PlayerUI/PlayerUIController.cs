@@ -33,7 +33,6 @@ public class PlayerUIController : MonoBehaviour
     [Header("스킬 설정")]
     
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private bool isInitialized = false;
@@ -69,8 +68,6 @@ public class PlayerUIController : MonoBehaviour
     /// </summary>
     private void InitializePlayerUI()
     {
-        if (showDebugLogs)
-            Debug.Log("[PlayerUIController] 플레이어 UI 초기화 시작");
         
         // UI 요소 자동 탐색 (Inspector에서 할당되지 않은 경우)
         if (levelText == null || attackButton == null || skill1Button == null || skill2Button == null || 
@@ -84,8 +81,7 @@ public class PlayerUIController : MonoBehaviour
         
         isInitialized = true;
         
-        if (showDebugLogs)
-            Debug.Log("[PlayerUIController] 플레이어 UI 초기화 완료");
+            Dbg.Log("[PlayerUIController] 플레이어 UI 초기화 완료");
     }
 
     /// <summary>
@@ -93,8 +89,6 @@ public class PlayerUIController : MonoBehaviour
     /// </summary>
     private void AutoFindUIElements()
     {
-        if (showDebugLogs)
-            Debug.Log("[PlayerUIController] UI 요소 자동 탐색 시작");
 
         // Level Text 자동 탐색
         if (levelText == null)
@@ -103,12 +97,9 @@ public class PlayerUIController : MonoBehaviour
             if (levelObject != null)
             {
                 levelText = levelObject.GetComponent<TextMeshProUGUI>();
-                if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] Level Text 자동 탐색 완료");
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning("[PlayerUIController] Level Text GameObject를 찾을 수 없습니다.");
             }
         }
@@ -127,12 +118,9 @@ public class PlayerUIController : MonoBehaviour
                     healthUI = healthSliderObject.AddComponent<HealthUI>();
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] Health UI 자동 탐색 완료 (Slider 방식)");
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning("[PlayerUIController] Health Slider GameObject를 찾을 수 없습니다.");
             }
         }
@@ -149,12 +137,9 @@ public class PlayerUIController : MonoBehaviour
                     goldUI = goldAmountObject.AddComponent<GoldUI>();
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] Gold UI 자동 탐색 완료");
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning("[PlayerUIController] Gold Amount Text GameObject를 찾을 수 없습니다.");
             }
         }
@@ -166,8 +151,6 @@ public class PlayerUIController : MonoBehaviour
             if (attackButtonObj != null)
             {
                 attackButton = attackButtonObj.GetComponent<Button>();
-                if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] AttackButton 자동 탐색 완료");
             }
             else
             {
@@ -182,52 +165,18 @@ public class PlayerUIController : MonoBehaviour
             if (skillButtonObj != null)
             {
                 skill1Button = skillButtonObj.GetComponent<Button>();
-                if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] Skill1Button 자동 탐색 완료");  // 로그 메시지 변경
             }
-            else
-            {
-                Debug.LogWarning("[PlayerUIController] Skill1Button GameObject를 찾을 수 없습니다.");  // 로그 메시지 변경
-            }
-        }
-        
-        // Skill2Button 찾기  // SkillButton2 → 변경
-        if (skill2Button == null)
-        {
-            GameObject skill2ButtonObj = GameObject.Find("Skill2Button");  // "SkillButton2" → 변경
-            if (skill2ButtonObj != null)
-            {
-                skill2Button = skill2ButtonObj.GetComponent<Button>();
-                if (showDebugLogs)
-                    Debug.Log("[PlayerUIController] Skill2Button 자동 탐색 완료");  // 로그 메시지 변경
-            }
-            else
-            {
-                Debug.LogWarning("[PlayerUIController] Skill2Button GameObject를 찾을 수 없습니다.");  // 로그 메시지 변경
-            }
-        }
-        
-        // 쿨다운 이미지들 찾기 - 심플하게 변경
-        if (skill1Button_Radial == null && skill1Button != null)
-        {
-            skill1Button_Radial = skill1Button.transform.Find("Skill1Button_Radial")?.GetComponent<Image>();
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] Skill1Button_Radial 탐색: {(skill1Button_Radial != null ? "성공" : "실패")}");
         }
         
         if (skill2Button_Radial == null && skill2Button != null)
         {
             skill2Button_Radial = skill2Button.transform.Find("Skill2Button_Radial")?.GetComponent<Image>();
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] Skill2Button_Radial 탐색: {(skill2Button_Radial != null ? "성공" : "실패")}");
         }
         
         // 기본공격 Radial 자동 탐색 (선택적)
         if (attackButton_Radial == null && attackButton != null)
         {
             attackButton_Radial = attackButton.transform.Find("AttackButton_Radial")?.GetComponent<Image>();
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] AttackButton_Radial 탐색: {(attackButton_Radial != null ? "성공" : "없음(선택적)")}");
         }
         
         // 대시 Radial 자동 탐색 (선택적)
@@ -236,8 +185,6 @@ public class PlayerUIController : MonoBehaviour
             GameObject dashButtonObj = GameObject.Find("DashButton");
             if (dashButtonObj != null)
                 dashButton_Radial = dashButtonObj.transform.Find("DashButton_Radial")?.GetComponent<Image>();
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] DashButton_Radial 탐색: {(dashButton_Radial != null ? "성공" : "없음(선택적)")}");
         }
     }
 
@@ -256,16 +203,12 @@ public class PlayerUIController : MonoBehaviour
         if (healthUI != null)
         {
             healthUI.InitializeHealthSlider(); // HealthUI 내부에서 자동 탐색 및 초기화
-            if (showDebugLogs)
-                Debug.Log("[PlayerUIController] HealthUI 컴포넌트 초기화 완료");
         }
 
         // GoldUI 초기화
         if (goldUI != null)
         {
             goldUI.InitializeGoldText(); // GoldUI 내부에서 자동 탐색 및 초기화
-            if (showDebugLogs)
-                Debug.Log("[PlayerUIController] GoldUI 컴포넌트 초기화 완료");
         }
     }
 
@@ -281,16 +224,12 @@ public class PlayerUIController : MonoBehaviour
         {
             skill1Button.onClick.RemoveAllListeners();
             skill1Button.onClick.AddListener(OnSkill1ButtonPressed);
-            if (showDebugLogs)
-                Debug.Log("[PlayerUIController] Skill1Button 이벤트 연결 완료");
         }
         
         if (skill2Button != null)
         {
             skill2Button.onClick.RemoveAllListeners();
             skill2Button.onClick.AddListener(OnSkill2ButtonPressed);
-            if (showDebugLogs)
-                Debug.Log("[PlayerUIController] Skill2Button 이벤트 연결 완료");
         }
     }
 
@@ -316,21 +255,15 @@ public class PlayerUIController : MonoBehaviour
             
             if (skillController != null)
             {
-                if (showDebugLogs)
-                    Debug.Log($"[PlayerUIController] SkillController 찾음! (시도 {i + 1}회)");
                 break;
             }
             
-            if (showDebugLogs && i < 3) // 처음 3회만 로그 출력
-                Debug.Log($"[PlayerUIController] SkillController 검색 중... (시도 {i + 1}/{maxRetries})");
             
             yield return new WaitForSeconds(retryInterval);
         }
         
         if (skillController != null)
         {
-            if (showDebugLogs)
-                Debug.Log("[PlayerUIController] SkillController 초기화 완료 - ScriptableObject 기반 쿨다운 사용");
         }
         else
         {
@@ -348,8 +281,6 @@ public class PlayerUIController : MonoBehaviour
             PlayerDataManager.Instance.OnLevelChanged += UpdateLevelText;
             isLevelUISubscribed = true;
             UpdateLevelText(PlayerDataManager.Instance.CurrentLevel);
-            if (showDebugLogs)
-                Debug.Log("[PlayerUIController] LevelUI 이벤트 구독 완료");
         }
     }
 
@@ -403,8 +334,6 @@ public class PlayerUIController : MonoBehaviour
         if (levelText != null)
         {
             levelText.text = $"Lv. {newLevel}";
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] 레벨 UI 업데이트: Lv. {newLevel}");
         }
     }
 
@@ -431,8 +360,6 @@ public class PlayerUIController : MonoBehaviour
         {
             healthUI.UpdateHealthUI(currentHealth, maxHealth);
             
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] Health UI 외부 업데이트: {currentHealth}/{maxHealth}");
         }
     }
 
@@ -458,8 +385,6 @@ public class PlayerUIController : MonoBehaviour
         {
             goldUI.UpdateGoldUI(currentGold);
             
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] Gold UI 외부 업데이트: {currentGold}");
         }
     }
 
@@ -473,16 +398,12 @@ public class PlayerUIController : MonoBehaviour
 
     private void OnSkill1ButtonPressed()
     {
-        if (showDebugLogs)
-            Debug.Log("🔥 [PlayerUIController] 스킬1 버튼 클릭!");
         
         // ⭐ 키보드 S키와 동일한 경로 사용
         var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
         if (playerAnimationController != null)
         {
             bool success = playerAnimationController.TriggerSkill1();
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] 스킬1 버튼 실행: {success}");
         }
         else
         {
@@ -492,16 +413,12 @@ public class PlayerUIController : MonoBehaviour
 
     private void OnSkill2ButtonPressed()
     {
-        if (showDebugLogs)
-            Debug.Log("🔥 [PlayerUIController] 스킬2 버튼 클릭!");
         
         // ⭐ 키보드 D키와 동일한 경로 사용
         var playerAnimationController = FindObjectOfType<PlayerAnimationController>();
         if (playerAnimationController != null)
         {
             bool success = playerAnimationController.TriggerSkill2();
-            if (showDebugLogs)
-                Debug.Log($"[PlayerUIController] 스킬2 버튼 실행: {success}");
         }
         else
         {

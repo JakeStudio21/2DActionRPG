@@ -213,12 +213,6 @@ namespace UI.Utils
                 return;
             }
             
-            Debug.Log($"[StatFormatHelper] 스탯 정보:\n" +
-                     $"  - 타입: {statType}\n" +
-                     $"  - 이름: {definition.displayName}\n" +
-                     $"  - 단위: {definition.unit}\n" +
-                     $"  - 값: {value}\n" +
-                     $"  - 포맷: {FormatStat(statType, value)}");
         }
         
         #endregion

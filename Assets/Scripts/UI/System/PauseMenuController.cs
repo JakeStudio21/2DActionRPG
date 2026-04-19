@@ -96,7 +96,6 @@ public class PauseMenuController : MonoBehaviour
         // Sequential Save (AccountData → SlotData) 는 TransferItemsToAccount() 내부에서 보장.
         if (StageManager.Instance != null)
         {
-            Debug.Log("🎒 [PauseMenuController] 포기 → 가방 아이템 공유창고 이관 시작");
             StageManager.Instance.TransferItemsToAccount();
         }
         else
@@ -113,7 +112,6 @@ public class PauseMenuController : MonoBehaviour
         if (resultPopupController != null)
         {
             resultPopupController.ShowDefeat();
-            Debug.Log("💀 [PauseMenuController] 게임 포기 → 패배 화면 표시");
         }
         else
         {

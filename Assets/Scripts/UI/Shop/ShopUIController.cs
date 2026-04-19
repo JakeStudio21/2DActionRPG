@@ -28,7 +28,6 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private bool enableShopInLobbyOnly = true;  // 로비에서만 활성화
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 컨트롤러 참조
     private LobbyUIController lobbyUIController;
@@ -41,8 +40,6 @@ public class ShopUIController : MonoBehaviour
             !SceneManager.GetActiveScene().name.Contains("Lobby"))
         {
             this.enabled = false;
-            if (showDebugLogs)
-                Debug.Log("🔒 [ShopUIController] 인게임에서 비활성화됨");
             return;
         }
         
@@ -63,10 +60,6 @@ public class ShopUIController : MonoBehaviour
         
         // ✅ ShopController.Start()에서 이미 초기화 수행
         // GetShopDataByClass()에서 자동 초기화 보장하므로 여기서는 불필요
-        if (showDebugLogs && ShopController.Instance != null)
-        {
-            Debug.Log("✅ [ShopUIController] ShopController 준비 완료 (자동 초기화 시스템)");
-        }
         
         // ❌ 구버전 이벤트 설정 비활성화 (Phase 2 신버전 사용)
         // SetupShopUIEvents();  // 구버전 ShopUI 이벤트
@@ -82,8 +75,6 @@ public class ShopUIController : MonoBehaviour
         
         SetupShopBuyPanelEvents();  // ✅ Phase 2: ShopBuyPanel 이벤트 설정 (신버전)
         
-        if (showDebugLogs)
-            Debug.Log("✅ [ShopUIController] 상점 컨트롤러 초기화 완료");
     }
     
     /// <summary>
@@ -91,7 +82,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     public void InitializeShopForCharacter(int characterSlotIndex)
     {
-        Debug.Log($"🔄 [ShopUIController] 캐릭터별 상점 초기화 시작 - 슬롯 {characterSlotIndex}");
         
         StartCoroutine(InitializeShopForCharacterCoroutine(characterSlotIndex));
     }
@@ -123,7 +113,6 @@ public class ShopUIController : MonoBehaviour
         // 4. 상점 데이터 갱신
         RefreshShopData();
         
-        Debug.Log($"✅ [ShopUIController] 캐릭터별 상점 초기화 완료 - 슬롯 {characterSlotIndex}");
     }
 
     /// <summary>
@@ -131,7 +120,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private IEnumerator RefreshShopInventoryReferences()
     {
-        Debug.Log("🔄 [ShopUIController] ShopInventoryUI 참조 재설정 시작");
         
         // 기존 참조 초기화
         playerInventoryUI = null;
@@ -143,7 +131,6 @@ public class ShopUIController : MonoBehaviour
         playerInventoryUI = FindObjectOfType<ShopInventoryUI>();
         if (playerInventoryUI != null)
         {
-            Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (FindObjectOfType)");
             yield break;
         }
         
@@ -154,7 +141,6 @@ public class ShopUIController : MonoBehaviour
             playerInventoryUI = shopInventoryObj.GetComponent<ShopInventoryUI>();
             if (playerInventoryUI != null)
             {
-                Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (GameObject.Find)");
                 yield break;
             }
         }
@@ -165,7 +151,6 @@ public class ShopUIController : MonoBehaviour
         //     playerInventoryUI = shopUI.GetComponentInChildren<ShopInventoryUI>();
         //     if (playerInventoryUI != null)
         //     {
-        //         Debug.Log("✅ [ShopUIController] ShopInventoryUI 참조 재설정 성공 (GetComponentInChildren)");
         //         yield break;
         //     }
         // }
@@ -178,7 +163,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private bool ValidateShopUIStructure()
     {
-        Debug.Log("🔍 [ShopUIController] 상점 UI 구조 검증 시작");
         
         // 필수 컴포넌트 검증
         // ❌ 구버전 제거: shopUI는 더 이상 사용하지 않음
@@ -208,7 +192,6 @@ public class ShopUIController : MonoBehaviour
             return false;
         }
         
-        Debug.Log("✅ [ShopUIController] 상점 UI 구조 검증 성공");
         return true;
     }
 
@@ -217,7 +200,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void RefreshShopData()
     {
-        Debug.Log("🔄 [ShopUIController] 상점 데이터 갱신 시작");
         
         // 플레이어 인벤토리 갱신
         if (playerInventoryUI != null)
@@ -228,7 +210,6 @@ public class ShopUIController : MonoBehaviour
         // 상점 아이템 목록 갱신 (기본 무기 탭으로)
         RefreshShopItems(EquipmentType.Weapon);
         
-        Debug.Log("✅ [ShopUIController] 상점 데이터 갱신 완료");
     }
     
     /// <summary>
@@ -262,8 +243,6 @@ public class ShopUIController : MonoBehaviour
             closeShopButton.onClick.RemoveAllListeners(); // 중복 방지
             closeShopButton.onClick.AddListener(HandleCloseShop);
             
-            if (showDebugLogs)
-                Debug.Log("✅ [ShopUIController] CloseShopButton 이벤트 연결 완료");
         }
         else
         {
@@ -291,8 +270,6 @@ public class ShopUIController : MonoBehaviour
         {
             shopBuyPanel.OnItemClicked += HandleShopBuyItemClicked;
             
-            if (showDebugLogs)
-                Debug.Log("✅ [ShopUIController] ShopBuyPanel 이벤트 연결 완료");
         }
         else
         {
@@ -313,8 +290,6 @@ public class ShopUIController : MonoBehaviour
         {
             playerInventoryUI.OnInventoryItemClicked += HandleInventoryItemClicked;
             
-            if (showDebugLogs)
-                Debug.Log("✅ [ShopUIController] ShopInventoryUI 이벤트 연결 완료");
         }
         
         // 🆕 PlayerDataManager 이벤트 구독 (추가 확인)
@@ -323,8 +298,6 @@ public class ShopUIController : MonoBehaviour
             PlayerDataManager.Instance.OnInventoryChanged += RefreshPlayerInventory;
             // PlayerDataManager.Instance.OnSlotClicked는 ShopInventoryUI에서 처리하므로 중복 구독 불필요
             
-            if (showDebugLogs)
-                Debug.Log("✅ [ShopUIController] PlayerDataManager 이벤트 구독 완료");
         }
     }
     
@@ -358,8 +331,6 @@ public class ShopUIController : MonoBehaviour
             lobbyUIController.OnBackToLobby();
         }
         
-        if (showDebugLogs)
-            Debug.Log("🏠 [ShopUIController] 상점 닫기 → 로비로 돌아가기");
     }
     
     /// <summary>
@@ -367,8 +338,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     public void OnShopOpened()
     {
-        if (showDebugLogs)
-            Debug.Log("🚀 [ShopUIController] OnShopOpened 시작");
     
         // 기본 유효성 검증
         if (!ValidateShopSystem())
@@ -384,8 +353,6 @@ public class ShopUIController : MonoBehaviour
         if (shopBuyPanel != null && !shopBuyPanel.gameObject.activeSelf)
         {
             shopBuyPanel.gameObject.SetActive(true);
-            if (showDebugLogs)
-                Debug.Log("🔧 [ShopUIController] ShopBuyPanel 활성화 (초기 진입)");
         }
         
         // ShopInventoryUI (판매 탭) 초기화
@@ -394,8 +361,6 @@ public class ShopUIController : MonoBehaviour
             playerInventoryUI.RefreshInventoryUI();
         }
         
-        if (showDebugLogs)
-            Debug.Log("✅ [ShopUIController] OnShopOpened 완료");
     }
 
     /// <summary>
@@ -421,8 +386,6 @@ public class ShopUIController : MonoBehaviour
             playerInventoryUI.ForceRefreshInventory();
         }
         
-        if (showDebugLogs)
-            Debug.Log("✅ [ShopUIController] 상점 UI 초기화 완료 (모든 탭)");
     }
 
     /// <summary>
@@ -430,8 +393,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator QuickInitializeAllTabs()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [ShopUIController] 빠른 탭 전환 초기화 시작");
         
         // 각 탭을 빠르게 전환하면서 초기화 (깜빡임 최소화)
         EquipmentType[] allTabs = { EquipmentType.Weapon, EquipmentType.Armor, EquipmentType.Accessory };
@@ -442,8 +403,6 @@ public class ShopUIController : MonoBehaviour
         //     shopUI.SwitchTab(tabType);
         //     // 프레임 대기 없이 바로 다음 탭으로 (빠른 전환)
         //     
-        //     if (showDebugLogs)
-        //         Debug.Log($"✅ [ShopUIController] {tabType} 탭 초기화 완료");
         // }
         // 
         // // 마지막에 무기 탭으로 설정
@@ -452,8 +411,6 @@ public class ShopUIController : MonoBehaviour
         // 1프레임만 대기 (모든 초기화 완료 후)
         yield return null;
         
-        if (showDebugLogs)
-            Debug.Log("✅ [ShopUIController] 빠른 탭 전환 초기화 완료");
     }
     
     /// <summary>
@@ -461,8 +418,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator LoadAllTabsData()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [ShopUIController] 모든 탭 데이터 로드 시작");
         
         // 각 탭별로 데이터 로드
         EquipmentType[] allTabs = { EquipmentType.Weapon, EquipmentType.Armor, EquipmentType.Accessory };
@@ -477,12 +432,8 @@ public class ShopUIController : MonoBehaviour
             
             yield return null; // 1프레임 대기 (성능 분산)
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopUIController] {tabType} 탭 데이터 로드 완료");
         }
         
-        if (showDebugLogs)
-            Debug.Log("✅ [ShopUIController] 모든 탭 데이터 로드 완료");
     }
     
     /// <summary>
@@ -490,7 +441,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void CheckPlayerDataManagerStatus()
     {
-        Debug.Log("📊 [ShopUIController] PlayerDataManager 상태 확인:");
         
         if (PlayerDataManager.Instance == null)
         {
@@ -498,17 +448,12 @@ public class ShopUIController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"✅ PlayerDataManager.Instance 존재함");
-        Debug.Log($"📦 현재 골드: {PlayerDataManager.Instance.CurrentGold}");
-        Debug.Log($"📦 인벤토리 아이템 수: {PlayerDataManager.Instance.InventoryItems?.Count ?? -1}");
-        Debug.Log($"📦 인벤토리 가득참 여부: {PlayerDataManager.Instance.IsInventoryFull}");
         
         if (PlayerDataManager.Instance.InventoryItems != null)
         {
             for (int i = 0; i < Mathf.Min(PlayerDataManager.Instance.InventoryItems.Count, 3); i++)
             {
                 var item = PlayerDataManager.Instance.InventoryItems[i];
-                Debug.Log($"📦 인벤토리 아이템 {i}: {(item != null ? item.equipmentName : "null")}");
             }
         }
     }
@@ -518,7 +463,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void CheckPlayerInventoryUIStatus()
     {
-        Debug.Log("📊 [ShopUIController] playerInventoryUI 상태 확인:");
         
         if (playerInventoryUI == null)
         {
@@ -526,14 +470,10 @@ public class ShopUIController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"✅ playerInventoryUI 존재함: {playerInventoryUI.name}");
-        Debug.Log($"🎮 GameObject 활성화 상태: {playerInventoryUI.gameObject.activeInHierarchy}");
-        Debug.Log($"🎮 Component 활성화 상태: {playerInventoryUI.enabled}");
         
         // 🔧 수정: 경고 대신 정보 로그 (Unity 생명주기 타이밍 문제)
         if (!playerInventoryUI.gameObject.activeInHierarchy)
         {
-            Debug.Log("ℹ️ [ShopUIController] ShopInventoryUI가 아직 활성화 중입니다 (Unity 생명주기 지연)");
         }
     }
     
@@ -557,8 +497,6 @@ public class ShopUIController : MonoBehaviour
         // 해당 탭의 아이템 목록 새로고침
         RefreshShopItems(tabType);
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [ShopUIController] 탭 변경됨: {tabType}");
     }
     
     /// <summary>
@@ -566,8 +504,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void HandleShopItemClicked(string itemID)
     {
-        if (showDebugLogs)
-            Debug.Log($"🛒 [ShopUIController] 상점 아이템 클릭: {itemID}");
         
         if (ShopController.Instance != null)
         {
@@ -595,8 +531,6 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void HandleShopBuyItemClicked(ItemInstanceID displayInstanceId)
     {
-        if (showDebugLogs)
-            Debug.Log($"🛒 [ShopUIController] 상점 구매 아이템 클릭 (V2): {displayInstanceId.Value}");
         
         if (displayInstanceId.IsEmpty)
         {
@@ -627,8 +561,6 @@ public class ShopUIController : MonoBehaviour
             // slotIndex는 -1 (사용 안 함), instanceId는 displayInstanceId 전달
             popup.Show(equipment, ItemDetailContext.Shop_Buy, slotIndex: -1, instanceId: displayInstanceId);
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopUIController] ItemDetailPopup 열림: {equipment.equipmentName} (Shop_Buy 컨텍스트)");
         }
         else
         {
@@ -651,12 +583,6 @@ public class ShopUIController : MonoBehaviour
             //     shopUI.SetSellItem(item, sellPrice, instanceId);
             // }
             
-            if (showDebugLogs)
-                Debug.Log($"💸 [ShopUIController] 인벤토리 아이템 선택: {item.equipmentName} (슬롯: {slotIndex}, ID: {instanceId.Value.Substring(0, 8)}...)");
-        }
-        else if (showDebugLogs)
-        {
-            Debug.LogWarning($"⚠️ [ShopUIController] 잘못된 아이템 선택 (item: {item?.equipmentName ?? "null"}, ID 유효: {!instanceId.IsEmpty})");
         }
     }
     
@@ -737,8 +663,7 @@ public class ShopUIController : MonoBehaviour
         // 🆕 로비 보관창고 새로고침 트리거
         StartCoroutine(RefreshLobbyInventoryDelayed());
         
-        if (showDebugLogs)
-            Debug.Log($"🛒 [ShopUIController] 구매 완료: {itemID}");
+            Dbg.Log($"🛒 [ShopUIController] 구매 완료: {itemID}");
     }
     
     /// <summary>
@@ -756,8 +681,6 @@ public class ShopUIController : MonoBehaviour
             // SendMessage로 새로고침 메서드 호출 시도
             lobbyInventoryController.SendMessage("RefreshInventoryUI", SendMessageOptions.DontRequireReceiver);
             
-            if (showDebugLogs)
-                Debug.Log($"🔄 [ShopUIController] 로비 보관창고 새로고침 요청");
         }
     }
     
@@ -775,8 +698,7 @@ public class ShopUIController : MonoBehaviour
         
         RefreshPlayerInventory();
         
-        if (showDebugLogs)
-            Debug.Log($"💸 [ShopUIController] 판매 완료: {itemID}");
+            Dbg.Log($"💸 [ShopUIController] 판매 완료: {itemID}");
     }
     
     /// <summary>
@@ -784,10 +706,8 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private void HandleTransactionFailed(string itemID)
     {
-        Debug.Log($"🔥🔥 [ShopUIController] HandleTransactionFailed 호출됨: {itemID}");
         ShowTransactionMessage("거래에 실패했습니다!");
         
-        if (showDebugLogs)
             Debug.LogWarning($"❌ [ShopUIController] 거래 실패: {itemID}");
     }
     
@@ -806,8 +726,6 @@ public class ShopUIController : MonoBehaviour
         //     shopUI.UpdateShopDisplay(equipmentType);
         // }
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [ShopUIController] {equipmentType} 아이템 목록 새로고침 완료");
     }
     
     /// <summary>
@@ -818,23 +736,19 @@ public class ShopUIController : MonoBehaviour
         // ⭐ 로비 전용: 인게임에서 호출되면 무시
         if (this == null || !this.isActiveAndEnabled)
         {
-            Debug.Log("⚠️ [ShopUIController] RefreshPlayerInventory 스킵 - 오브젝트 비활성화 또는 파괴됨 (인게임에서 호출됨)");
             return;
         }
         
-        Debug.Log("🔄 [ShopUIController] RefreshPlayerInventory 시작 (지연 로드 지원)");
         
         // ❌ 구버전 제거: 상점 패널 활성화 체크
         // if (shopUI == null || !shopUI.gameObject.activeInHierarchy)
         // {
-        //     Debug.Log("🔄 [ShopUIController] 상점 패널이 비활성화 상태 - RefreshPlayerInventory 스킵");
         //     return;
         // }
         
         // 1. 캐릭터 데이터 로드 상태 확인
         if (PlayerDataManager.Instance.IsLazyLoadRequired())
         {
-            Debug.Log("🔄 [ShopUIController] 지연 로드 필요 - 데이터 로드 후 재시도");
             StartCoroutine(RefreshPlayerInventoryWithLazyLoad());
             return;
         }
@@ -882,7 +796,6 @@ public class ShopUIController : MonoBehaviour
         
         if (playerInventoryUI != null)
         {
-            Debug.Log("✅ [ShopUIController] 참조 복구 성공 - 인벤토리 새로고침 재시도");
             RefreshPlayerInventory();
         }
         else
@@ -903,7 +816,6 @@ public class ShopUIController : MonoBehaviour
         {
             if (playerInventoryUI.gameObject.activeInHierarchy)
             {
-                Debug.Log("✅ [ShopUIController] ShopInventoryUI 정상 활성화 확인됨");
             }
             else
             {
@@ -914,7 +826,6 @@ public class ShopUIController : MonoBehaviour
                 
                 if (playerInventoryUI.gameObject.activeInHierarchy)
                 {
-                    Debug.Log("✅ [ShopUIController] ShopInventoryUI 지연 활성화 완료");
                 }
                 else
                 {
@@ -928,7 +839,6 @@ public class ShopUIController : MonoBehaviour
             if (!playerInventoryUI.enabled)
             {
                 playerInventoryUI.enabled = true;
-                Debug.Log("🔧 [ShopUIController] ShopInventoryUI Component 활성화");
             }
         }
         
@@ -941,19 +851,16 @@ public class ShopUIController : MonoBehaviour
     /// </summary>
     private IEnumerator AttemptUIStructureRecovery()
     {
-        Debug.Log("🔧 [ShopUIController] UI 구조 복구 시작 (강화 버전)");
         
         // 1. ShopInventoryUI 재참조 시도 (더 강력한 검색)
         if (playerInventoryUI == null)
         {
-            Debug.Log("�� [ShopUIController] playerInventoryUI가 null - 재검색 시작");
             
             // 방법 1: FindObjectOfType으로 검색
             var shopInventoryUI = FindObjectOfType<ShopInventoryUI>();
             if (shopInventoryUI != null)
             {
                 playerInventoryUI = shopInventoryUI;
-                Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (FindObjectOfType)");
             }
             else
             {
@@ -964,7 +871,6 @@ public class ShopUIController : MonoBehaviour
                     playerInventoryUI = shopInventoryObj.GetComponent<ShopInventoryUI>();
                     if (playerInventoryUI != null)
                     {
-                        Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (GameObject.Find)");
                     }
                 }
                 
@@ -975,7 +881,6 @@ public class ShopUIController : MonoBehaviour
                 //     if (shopInventoryInChildren != null)
                 //     {
                 //         playerInventoryUI = shopInventoryInChildren;
-                //         Debug.Log("🔧 [ShopUIController] ShopInventoryUI 재참조 성공 (GetComponentInChildren)");
                 //     }
                 // }
             }
@@ -984,12 +889,10 @@ public class ShopUIController : MonoBehaviour
         // 2. GameObject 활성화 상태 강제 수정
         if (playerInventoryUI != null)
         {
-            Debug.Log($"🔍 [ShopUIController] playerInventoryUI 상태 - GameObject: {playerInventoryUI.gameObject.name}, Active: {playerInventoryUI.gameObject.activeInHierarchy}");
             
             // GameObject가 비활성화되어 있으면 강제 활성화
             if (!playerInventoryUI.gameObject.activeInHierarchy)
             {
-                Debug.Log("🔧 [ShopUIController] playerInventoryUI GameObject 강제 활성화 시도");
                 
                 // 부모 GameObject들도 확인하여 활성화
                 Transform current = playerInventoryUI.transform;
@@ -997,7 +900,6 @@ public class ShopUIController : MonoBehaviour
                 {
                     if (!current.gameObject.activeSelf)
                     {
-                        Debug.Log($"🔧 [ShopUIController] 부모 GameObject 활성화: {current.name}");
                         current.gameObject.SetActive(true);
                     }
                     current = current.parent;
@@ -1010,7 +912,6 @@ public class ShopUIController : MonoBehaviour
             if (!playerInventoryUI.enabled)
             {
                 playerInventoryUI.enabled = true;
-                Debug.Log("🔧 [ShopUIController] ShopInventoryUI Component 활성화");
             }
         }
         
@@ -1022,7 +923,6 @@ public class ShopUIController : MonoBehaviour
         //     shopUI.SetShopPanelActive(true);
         //     yield return new WaitForSeconds(0.1f);
         //     
-        //     Debug.Log("🔧 [ShopUIController] 상점 패널 재활성화 완료");
         // }
         
         // 4. 최종 상태 확인 (더 상세한 로그)
@@ -1031,11 +931,9 @@ public class ShopUIController : MonoBehaviour
             bool isActive = playerInventoryUI.gameObject.activeInHierarchy;
             bool isEnabled = playerInventoryUI.enabled;
             
-            Debug.Log($"🔍 [ShopUIController] 최종 상태 - Active: {isActive}, Enabled: {isEnabled}");
             
             if (isActive && isEnabled)
             {
-                Debug.Log("✅ [ShopUIController] UI 구조 복구 성공");
             }
             else
             {
@@ -1101,8 +999,6 @@ public class ShopUIController : MonoBehaviour
             //     shopUI.SetSellItem(item, sellPrice);
             // }
             
-            if (showDebugLogs)
-                Debug.Log($"💸 [ShopUIController] 상점 인벤토리 슬롯 클릭: {item.equipmentName} (슬롯: {slotIndex})");
         }
     }
     
@@ -1114,8 +1010,6 @@ public class ShopUIController : MonoBehaviour
         // ✅ Phase 2: LobbyPlayerInfoUI가 PlayerDataManager.OnGoldChanged 이벤트를 구독하여 자동 업데이트
         // TradeCenterUI는 더 이상 사용하지 않음
         
-        if (showDebugLogs)
-            Debug.Log($"💰 [ShopUIController] 골드 변경됨: {newGoldAmount} (LobbyPlayerInfoUI가 자동 업데이트)");
     }
     
     /// <summary>
@@ -1129,15 +1023,12 @@ public class ShopUIController : MonoBehaviour
         //     shopUI.ShowTransactionPopup(message);
         // }
         
-        if (showDebugLogs)
-            Debug.Log($"💬 [ShopUIController] {message}");
     }
     
     #endregion
     
     void OnEnable()
     {
-        Debug.Log("🔥 [ShopUIController] OnEnable 호출됨");
         
         // 상점 패널이 활성화될 때마다 실행
         StartCoroutine(InitializeShopOnEnable());
@@ -1230,8 +1121,6 @@ public class ShopUIController : MonoBehaviour
             isValid = false;
         }
         
-        if (isValid && showDebugLogs)
-            Debug.Log("✅ [ShopUIController] 상점 시스템 유효성 검증 통과");
         
         return isValid;
     }

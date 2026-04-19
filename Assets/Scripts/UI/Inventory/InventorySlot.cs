@@ -50,7 +50,6 @@ using UI.Components; // ⭐ ItemIconGradeFrame
 public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHandler (Button.onClick 사용)
 {
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = false; // 🆕 추가: 디버그 로그 제어
     
     // ⭐ 디버깅: itemIconImage.enabled 상태 추적
     private bool lastImageEnabledState = false;
@@ -126,7 +125,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                     ? $"{itemIconTransform.parent.name}/{itemIconTransform.name}" 
                     : itemIconTransform.name;
                 
-                Debug.Log($"✅ [InventorySlot] ItemIcon 찾음: {itemIconImage != null} (경로: {path})");
             }
             else
             {
@@ -150,17 +148,9 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             {
                 bindIcon = bindIconTransform.GetComponent<Image>();
                 
-                if (showDebugLogs)
-                {
-                    string path = bindIconTransform.parent != null && bindIconTransform.parent != transform 
-                        ? $"{bindIconTransform.parent.name}/{bindIconTransform.name}" 
-                        : bindIconTransform.name;
-                    Debug.Log($"✅ [InventorySlot] BindIcon 찾음: {bindIcon != null} (경로: {path})");
-                }
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [InventorySlot] BindIcon이 없습니다 (선택적 요소). {gameObject.name}");
             }
         }
@@ -195,8 +185,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 📦 재료 슬롯 클릭 처리
         if (currentMaterial.HasValue)
         {
-            if (showDebugLogs)
-                Debug.Log($"📦 [InventorySlot] 재료 클릭: {currentMaterial.Value.GetDisplayName()}");
             
             // 🆕 인게임 환경 체크
             var activeInventory = GetComponentInParent<ActiveInventory>();
@@ -205,8 +193,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                 // 인게임: ActiveInventory의 ShowInGameDetailPanel 호출
                 activeInventory.ShowInGameDetailPanel(currentMaterial.Value);
                 
-                if (showDebugLogs)
-                    Debug.Log("🎮 [InventorySlot] 인게임 재료 패널 열기");
             }
             else
             {
@@ -228,8 +214,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 🔧 지연 갱신 최적화: 데이터 로드 상태 확인
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
         {
-            if (showDebugLogs)
-                Debug.Log("🔄 [InventorySlot] 지연 로드 필요 - 클릭 이벤트 지연 처리");
             
             // 지연 로드 후 클릭 이벤트 재처리
             StartCoroutine(HandleClickWithLazyLoad());
@@ -239,7 +223,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // ⭐ 공방 환경 감지
         bool isInWorkshop = IsInWorkshopEnvironment();
         
-        Debug.Log($"🔍 [InventorySlot] OnSlotClicked - 공방 환경: {isInWorkshop}, 아이템: {(equipmentData != null ? equipmentData.equipmentName : "null")}, 다중 선택 모드: {isMultiSelectMode}");
         
         if (isInWorkshop)
         {
@@ -260,11 +243,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         int slotIndex = GetActualSlotIndex();
         
         // 필수 로그만 유지
-        if (showDebugLogs)
-        {
-            string environment = DetectEnvironment();
-            Debug.Log($"🖱️ [InventorySlot] {environment} 슬롯 클릭: {equipmentData.equipmentName} (인덱스: {slotIndex})");
-        }
         
         // 🎯 PlayerDataManager 이벤트 발생 (상세 패널 열기)
         if (PlayerDataManager.Instance != null)
@@ -293,12 +271,10 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         }
         
         // ⭐ 강제 로그 (디버깅용)
-        Debug.Log($"🏭 [InventorySlot] 공방에서 클릭: {equipmentData.equipmentName} (다중 선택 모드: {isMultiSelectMode}, 현재 선택: {isSelected})");
         
         // 다중 선택 모드: 토글 선택
         if (isMultiSelectMode)
         {
-            Debug.Log($"🔄 [InventorySlot] ToggleSelection() 호출 - 현재: {isSelected} → 변경 예정: {!isSelected}");
             ToggleSelection();
         }
         else
@@ -317,8 +293,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                 // 이미 선택된 슬롯: 강제로 이벤트 재발생
                 OnSelectionChanged?.Invoke(itemInstanceId, true);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔄 [InventorySlot] 이미 선택된 슬롯 재클릭 - 이벤트 재발생: {itemInstanceId}");
             }
         }
     }
@@ -360,8 +334,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                         {
                             itemIconImage.sprite = spriteRenderer.sprite;
                             
-                            if (showDebugLogs)
-                                Debug.Log($"🎨 [InventorySlot] 프리팹에서 스프라이트 가져옴: {equipmentData.equipmentName}");
                         }
                         else
                         {
@@ -422,8 +394,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         {
             bindIcon.gameObject.SetActive(true);
             
-            if (showDebugLogs)
-                Debug.Log($"🔒 [InventorySlot] 귀속 아이콘 표시: {equipmentData?.equipmentName}");
         }
         else
         {
@@ -471,7 +441,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             itemIconImage.color = Color.white;
         }
         
-        Debug.Log($"🎨 [InventorySlot] 기본 아이콘 설정: {itemIconImage.color}");
     }
 
     /// <summary>
@@ -499,7 +468,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             messageText.text = message;
             messagePanel.SetActive(true);
             
-            Debug.Log($"🎨 [InventorySlot] 메시지 표시: {message}");
             
             // 지정된 시간 대기
             yield return new WaitForSeconds(duration);
@@ -507,7 +475,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             // 메시지 숨김
             messagePanel.SetActive(false);
             
-            Debug.Log($"🎨 [InventorySlot] 메시지 숨김: {message}");
         }
         else
         {
@@ -576,20 +543,14 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         // 초기에는 비활성화
         messagePanel.SetActive(false);
         
-        Debug.Log("🎨 [InventorySlot] 메시지 패널 생성 완료");
     }
 
     // 기존 메서드들 유지
     public EquipmentData GetEquipmentData() 
     {
-        Debug.Log($"🔍 [InventorySlot] GetEquipmentData() 호출됨");
-        Debug.Log($"🔍 [InventorySlot] equipmentData: {(equipmentData != null ? equipmentData.name : "NULL")}");
         
         if (equipmentData != null)
         {
-            Debug.Log($"🔍 [InventorySlot] equipmentData.equipmentName: {equipmentData.equipmentName}");
-            Debug.Log($"🔍 [InventorySlot] equipmentData.usableClass: {equipmentData.usableClass}");
-            Debug.Log($"🔍 [InventorySlot] equipmentData.WeaponType: {equipmentData.WeaponType}");
         }
         
         return equipmentData;
@@ -693,8 +654,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             // 흰색 고정 (색상 변경 제외)
             enhancementLevelText.color = Color.white;
             
-            if (showDebugLogs)
-                Debug.Log($"✨ [InventorySlot] 강화 레벨 표시: +{enhancementLevel} ({equipmentData.equipmentName})");
         }
     }
     
@@ -723,8 +682,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             enhancementLevelText.text = $"+{level}";
             enhancementLevelText.color = Color.white;
             
-            if (showDebugLogs)
-                Debug.Log($"🔮 [InventorySlot] 프리뷰 강화 레벨 설정: +{level}");
         }
     }
     
@@ -770,8 +727,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             {
                 if (activeInventoryTransform.GetChild(i) == transform)
                 {
-                    if (showDebugLogs)
-                        Debug.Log($"🎮 [InventorySlot] ActiveInventory 환경 - 인덱스: {i}");
                     return i;
                 }
             }
@@ -789,8 +744,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                 {
                     if (containerTransform.GetChild(i) == transform)
                     {
-                        if (showDebugLogs)
-                            Debug.Log($"🏠 [InventorySlot] 로비 환경 - 인덱스: {i}");
                         return i;
                     }
                 }
@@ -809,8 +762,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                 {
                     if (containerTransform.GetChild(i) == transform)
                     {
-                        if (showDebugLogs)
-                            Debug.Log($"🏪 [InventorySlot] 상점 환경 - 인덱스: {i}");
                         return i;
                     }
                 }
@@ -819,8 +770,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         
         // 🔧 4순위: 기본값 (환경을 감지하지 못한 경우)
         int siblingIndex = transform.GetSiblingIndex();
-        if (showDebugLogs)
-            Debug.Log($"❓ [InventorySlot] 알 수 없는 환경 - Sibling 인덱스 사용: {siblingIndex}");
         return siblingIndex;
     }
 
@@ -894,11 +843,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             lastImageEnabledState = true;
             framesSinceSetupMaterial = 0;
             
-            Debug.Log($"✅ [InventorySlot] SetupMaterial() 완료:\n" +
-                     $"   enabled: {itemIconImage.enabled}\n" +
-                     $"   GameObject Active: {itemIconImage.gameObject.activeSelf}\n" +
-                     $"   Sprite: {(itemIconImage.sprite != null ? itemIconImage.sprite.name : "NULL")}\n" +
-                     $"   ⭐ LateUpdate 모니터링 시작 (5프레임)");
         }
         else
         {
@@ -926,14 +870,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             rarityBorder.enabled = true;
             rarityBorder.gameObject.SetActive(true); // ⭐ GameObject도 활성화
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"[InventorySlot] 재료 테두리 설정: {materialStack.materialType} " +
-                         $"| Rarity: {data.rarity} " +
-                         $"| Color: {borderColor} " +
-                         $"| Alpha: {borderColor.a} " +
-                         $"| GameObject Active: {rarityBorder.gameObject.activeSelf}");
-            }
         }
         else
         {
@@ -958,8 +894,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             slotImage.enabled = true;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"📦 [InventorySlot] 재료 설정: {data.displayName} x{materialStack.count}");
     }
     
     /// <summary>
@@ -967,9 +901,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void ClearSlot()
     {
-        Debug.Log($"🧹 [InventorySlot] ClearSlot() 호출: {gameObject.name}\n" +
-                 $"   itemIconImage.enabled 변경: {itemIconImage?.enabled} → false\n" +
-                 $"   ⭐ 호출 스택:\n{System.Environment.StackTrace}");
         
         // 장비 데이터 초기화
         equipmentData = null;
@@ -1095,8 +1026,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔘 [InventorySlot] 다중 선택 모드: {(enabled ? "활성화" : "비활성화")}");
     }
     
     /// <summary>
@@ -1115,8 +1044,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             SetSelected(false);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔘 [InventorySlot] 체크박스 표시: {visible}");
     }
     
     /// <summary>
@@ -1124,7 +1051,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void ToggleSelection()
     {
-        Debug.Log($"🔄 [InventorySlot] ToggleSelection() 호출 - 다중 선택 모드: {isMultiSelectMode}, 현재 선택: {isSelected}");
         
         if (!isMultiSelectMode)
         {
@@ -1132,7 +1058,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             return;
         }
         
-        Debug.Log($"🔄 [InventorySlot] SetSelected({!isSelected}) 호출 예정");
         SetSelected(!isSelected);
     }
     
@@ -1141,7 +1066,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
     /// </summary>
     public void SetSelected(bool selected, bool notifyEvent = true)
     {
-        Debug.Log($"🔍 [InventorySlot] SetSelected() 진입 - 요청: {selected}, 현재 isSelected: {isSelected}, 같은가? {isSelected == selected}");
         
         if (isSelected == selected)
         {
@@ -1149,7 +1073,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             return; // 중복 호출 방지
         }
         
-        Debug.Log($"✅ [InventorySlot] SetSelected() 계속 진행 - {isSelected} → {selected}");
         isSelected = selected;
         
         // ⭐ 다중 선택 모드: Checkmark 사용
@@ -1159,7 +1082,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
             if (selectionCheckmark != null)
             {
                 selectionCheckmark.enabled = selected;
-                Debug.Log($"✅ [InventorySlot] Checkmark 설정: {(selected ? "표시" : "숨김")} | enabled: {selectionCheckmark.enabled}, gameObject.activeSelf: {selectionCheckmark.gameObject.activeSelf}");
             }
             else
             {
@@ -1192,11 +1114,6 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
                 
                 selectionHighlight.color = highlightColor;
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log($"🎨 [InventorySlot] SelectionHighlight 색상 설정: " +
-                             $"R={highlightColor.r:F2}, G={highlightColor.g:F2}, B={highlightColor.b:F2}, A={highlightColor.a:F2}");
-                }
             }
         }
         
@@ -1204,10 +1121,8 @@ public class InventorySlot : MonoBehaviour  // 🗑️ 제거: IPointerClickHand
         if (notifyEvent)
         {
             OnSelectionChanged?.Invoke(itemInstanceId, selected);
-            Debug.Log($"📣 [InventorySlot] OnSelectionChanged 이벤트 발생: {itemInstanceId}, selected: {selected}");
         }
         
-        Debug.Log($"🔘 [InventorySlot] 선택 상태 변경: {equipmentData?.equipmentName} → {(selected ? "선택됨" : "해제됨")} (모드: {(isMultiSelectMode ? "다중" : "단일")})");
     }
     
     /// <summary>

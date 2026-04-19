@@ -41,7 +41,6 @@ public class CharacterSlotItem : MonoBehaviour
             deleteButton.onClick.AddListener(OnDeleteButtonClicked);
         }
         
-        Debug.Log($"[CharacterSlotItem] 슬롯 {index} 초기화 완료");
     }
     
     /// <summary>

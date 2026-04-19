@@ -20,7 +20,6 @@ namespace UI.Inventory
         [Header("Settings")]
         [SerializeField] private Color boundColor = new Color(1f, 0.3f, 0.3f); // 귀속 (빨강)
         [SerializeField] private Color unboundColor = new Color(0.8f, 0.8f, 0.8f); // 미귀속 (회색)
-        [SerializeField] private bool enableDebugLogs = false;
         
         private ItemInstanceID _currentItemId;
         private bool _isBound;
@@ -172,10 +171,6 @@ namespace UI.Inventory
         
         private void Log(string message)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log(message);
-            }
         }
     }
 }

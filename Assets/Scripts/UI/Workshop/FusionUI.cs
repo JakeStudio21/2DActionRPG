@@ -53,7 +53,6 @@ namespace UI.Workshop
         [SerializeField] private ResultFeedbackPopup resultFeedbackPopup;
 
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool showDebugLogs = true;
 
         // 상태 관리
         private List<ItemInstanceID> selectedItemIds = new List<ItemInstanceID>();
@@ -81,8 +80,6 @@ namespace UI.Workshop
         /// </summary>
         public void Initialize()
         {
-            if (showDebugLogs)
-                Debug.Log("📦 [FusionUI] 초기화 시작");
             
             // ⭐ WorkshopInventoryUI 이벤트 구독
             if (workshopInventoryUI != null)
@@ -90,8 +87,6 @@ namespace UI.Workshop
                 workshopInventoryUI.OnSelectionChanged -= OnInventorySelectionChanged;
                 workshopInventoryUI.OnSelectionChanged += OnInventorySelectionChanged;
                 
-                if (showDebugLogs)
-                    Debug.Log("✅ [FusionUI] WorkshopInventoryUI 이벤트 구독 완료");
             }
             else
             {
@@ -102,8 +97,6 @@ namespace UI.Workshop
             selectedItemIds.Clear();
             UpdateUI();
             
-            if (showDebugLogs)
-                Debug.Log("✅ [FusionUI] 초기화 완료");
         }
 
         private void OnDisable()
@@ -120,8 +113,6 @@ namespace UI.Workshop
         /// </summary>
         private void OnInventorySelectionChanged(List<ItemInstanceID> selectedIds)
         {
-            if (showDebugLogs)
-                Debug.Log($"🔔 [FusionUI] 선택 변경 이벤트: {selectedIds.Count}개");
             
             selectedItemIds = new List<ItemInstanceID>(selectedIds);
             UpdateUI();
@@ -132,12 +123,10 @@ namespace UI.Workshop
         /// </summary>
         private void OnCancelButtonClicked()
         {
-            Debug.Log("🚫 [FusionUI] 취소 버튼 클릭 - 선택 초기화 시작");
             
             if (workshopInventoryUI != null)
             {
                 workshopInventoryUI.ClearSelection();
-                Debug.Log("✅ [FusionUI] WorkshopInventoryUI.ClearSelection() 호출 완료");
             }
             else
             {
@@ -187,8 +176,6 @@ namespace UI.Workshop
             // 등급별 그룹핑
             var gradeGroups = GroupItemsByGrade(selectedItemIds);
 
-            if (showDebugLogs)
-                Debug.Log($"📊 [FusionUI] 등급별 그룹: {gradeGroups.Count}개");
 
             // 각 등급 그룹 표시
             foreach (var gradeGroup in gradeGroups.OrderByDescending(g => g.Key))
@@ -327,8 +314,6 @@ namespace UI.Workshop
                 }
             }
 
-            if (showDebugLogs)
-                Debug.Log($"📦 [FusionUI] {grade}등급 그룹 생성: {currentCount}개 ({fusionTimes}회 합성, 나머지 {remainder}개)");
         }
 
         /// <summary>
@@ -362,8 +347,6 @@ namespace UI.Workshop
                 DestroyImmediate(child.gameObject);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🧹 [FusionUI] 기존 그룹 {childCount}개 제거 완료");
         }
 
         /// <summary>
@@ -395,20 +378,11 @@ namespace UI.Workshop
                 totalSlotCount += result.Value;
             }
 
-            if (showDebugLogs)
-            {
-                Debug.Log($"💎 [FusionUI] 합성 결과: {fusionResults.Count}종류, 총 {totalSlotCount}개");
-                foreach (var result in fusionResults)
-                {
-                    Debug.Log($"   ├─ {result.Key} x{result.Value}개");
-                }
-            }
+                Dbg.Log($"💎 [FusionUI] 합성 결과: {fusionResults.Count}종류, 총 {totalSlotCount}개");
 
             // 2. 슬롯 크기 계산 (총 개수 기준)
             int slotSize = CalculateSlotSize(totalSlotCount);
             
-            if (showDebugLogs)
-                Debug.Log($"📏 [FusionUI] 슬롯 크기: {slotSize}px (총 {totalSlotCount}개)");
 
             // 3. 기존 슬롯 제거
             ClearRewardSlots();
@@ -416,8 +390,6 @@ namespace UI.Workshop
             // 4. ⭐ Phase 0 교훈: Panel 활성화 후 1프레임 대기
             if (rewardPreview != null && !rewardPreview.activeSelf)
             {
-                if (showDebugLogs)
-                    Debug.Log("🔍 [FusionUI] rewardPreview 활성화 → 1프레임 대기 후 슬롯 설정");
                 
                 rewardPreview.SetActive(true);
                 StartCoroutine(UpdateRewardPreviewDelayed(fusionResults, slotSize));
@@ -497,8 +469,6 @@ namespace UI.Workshop
                     results[resultTemplateName] = fusionTimes;
                 }
 
-                if (showDebugLogs)
-                    Debug.Log($"💎 [FusionUI] {currentGrade} {detailedType} x{count}개 → {resultGrade} {detailedType} x{fusionTimes}개 ({resultTemplateName})");
             }
 
             return results;
@@ -511,8 +481,6 @@ namespace UI.Workshop
         {
             yield return null; // 1프레임 대기 (Layout Group 초기화)
             
-            if (showDebugLogs)
-                Debug.Log("⏰ [FusionUI] 1프레임 대기 완료 → 보상 슬롯 생성 시작");
             
             UpdateRewardPreviewImmediate(results, slotSize);
         }
@@ -530,8 +498,6 @@ namespace UI.Workshop
                 {
                     gridLayout.cellSize = new Vector2(slotSize, slotSize);
                     
-                    if (showDebugLogs)
-                        Debug.Log($"📐 [FusionUI] GridLayoutGroup Cell Size 설정: {slotSize}x{slotSize}");
                 }
             }
             
@@ -548,13 +514,9 @@ namespace UI.Workshop
                     CreateResultSlot(templateName, slotSize);
                     displayCount++;
                     
-                    if (showDebugLogs)
-                        Debug.Log($"📦 [FusionUI] 결과 슬롯 생성: {templateName} ({i+1}/{count})");
                 }
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [FusionUI] 결과 슬롯 {displayCount}개 생성 완료");
         }
 
         /// <summary>
@@ -608,8 +570,6 @@ namespace UI.Workshop
 
             slot.SetEquipmentData(equipData, previewId);
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [FusionUI] 결과 슬롯 설정 완료: {equipData.equipmentName}");
         }
 
         /// <summary>
@@ -638,8 +598,6 @@ namespace UI.Workshop
                 DestroyImmediate(child.gameObject);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🧹 [FusionUI] 기존 슬롯 {childCount}개 즉시 제거 완료");
         }
 
         /// <summary>
@@ -761,8 +719,6 @@ namespace UI.Workshop
                 return;
             }
 
-            if (showDebugLogs)
-                Debug.Log($"🔨 [FusionUI] 합성 버튼 클릭 - {selectedItemIds.Count}개 아이템");
             
             // 강화 경고 체크
             if (FusionSystem.NeedsEnhancementWarning(selectedItemIds, out int maxEnhancementLevel))
@@ -806,8 +762,6 @@ namespace UI.Workshop
                 onCancel: OnConfirmationCancelled
             );
 
-            if (showDebugLogs)
-                Debug.Log($"💬 [FusionUI] 강화 경고 팝업 표시: 최대 +{maxEnhancementLevel}");
         }
 
         /// <summary>
@@ -842,8 +796,6 @@ namespace UI.Workshop
                 onCancel: OnConfirmationCancelled
             );
 
-            if (showDebugLogs)
-                Debug.Log($"💬 [FusionUI] 확인 팝업 표시: {selectedItemIds.Count}개 아이템");
         }
 
         /// <summary>
@@ -851,7 +803,6 @@ namespace UI.Workshop
         /// </summary>
         private void OnConfirmationCancelled()
         {
-            Debug.Log("🚫 [FusionUI] 확인 팝업 취소 - 선택 초기화");
             
             if (workshopInventoryUI != null)
             {
@@ -871,8 +822,6 @@ namespace UI.Workshop
             // ⭐ 스냅샷: 현재 선택된 아이템 목록을 복사 (이벤트 체인으로 인한 손실 방지)
             var targetItemIds = new List<ItemInstanceID>(selectedItemIds);
             
-            if (showDebugLogs)
-                Debug.Log($"⚙️ [FusionUI] 합성 실행 시작 - {targetItemIds.Count}개 (스냅샷 생성)");
 
             // ⭐ UI 참조 먼저 해제 (이벤트 타이밍 이슈 방지)
             // ClearSelection() 호출 시 OnSelectionChanged 이벤트로 selectedItemIds가 비워지지만,
@@ -880,8 +829,6 @@ namespace UI.Workshop
             if (workshopInventoryUI != null)
             {
                 workshopInventoryUI.ClearSelection();
-                if (showDebugLogs)
-                    Debug.Log("🔄 [FusionUI] 선택 해제 완료 (합성 전) - selectedItemIds 비워짐");
             }
 
             // ⭐ 등급+타입별로 그룹핑 (스냅샷 사용)
@@ -899,8 +846,6 @@ namespace UI.Workshop
                 int requiredCount = fusionRule.GetRequiredCount(grade);
                 int fusionTimes = itemsInGroup.Count / requiredCount;
 
-                if (showDebugLogs)
-                    Debug.Log($"⚙️ [FusionUI] {grade} {detailedType} 그룹: {itemsInGroup.Count}개 → {fusionTimes}회 합성 예정");
 
                 // 각 합성 횟수만큼 실행
                 for (int i = 0; i < fusionTimes; i++)
@@ -936,8 +881,6 @@ namespace UI.Workshop
                 }
             }
 
-            if (showDebugLogs)
-                Debug.Log($"✅ [FusionUI] 합성 완료 - 성공: {successCount}, 실패: {failCount}");
 
             // 결과 팝업 표시
             if (resultFeedbackPopup != null && successCount > 0)
@@ -954,8 +897,6 @@ namespace UI.Workshop
             {
                 workshopInventoryUI.RefreshInventoryDisplay();
                 
-                if (showDebugLogs)
-                    Debug.Log("🔄 [FusionUI] 인벤토리 UI 갱신 완료");
             }
             else
             {
@@ -985,12 +926,9 @@ namespace UI.Workshop
         /// </summary>
         private bool IsSingleFusion()
         {
-            Debug.Log($"🔍 [FusionUI] IsSingleFusion() 체크 시작");
-            Debug.Log($"   selectedItemIds.Count: {selectedItemIds.Count}");
             
             if (selectedItemIds.Count == 0)
             {
-                Debug.Log($"   ❌ 선택된 아이템 없음 → Multi");
                 return false;
             }
             
@@ -1002,22 +940,18 @@ namespace UI.Workshop
             }
             
             bool isIndividualMode = workshopInventoryUI.IsIndividualSelectionMode;
-            Debug.Log($"   IsIndividualSelectionMode: {isIndividualMode}");
             
             if (!isIndividualMode)
             {
-                Debug.Log($"   ❌ 일괄 선택 모드 → Multi");
                 return false;
             }
             
             // ⭐ 개별 클릭 모드에서만:
             // 1. 단일 타입이어야 함
             var gradeAndTypeGroups = GroupItemsByGradeAndType(selectedItemIds);
-            Debug.Log($"   gradeAndTypeGroups.Count: {gradeAndTypeGroups.Count}");
             
             if (gradeAndTypeGroups.Count != 1)
             {
-                Debug.Log($"   ❌ 여러 타입 선택됨 → Multi");
                 return false;
             }
             
@@ -1026,10 +960,8 @@ namespace UI.Workshop
             ItemGrade grade = firstGroup.Key.grade;
             int requiredCount = fusionRule != null ? fusionRule.GetRequiredCount(grade) : 3;
             
-            Debug.Log($"   등급: {grade}, requiredCount: {requiredCount}, selectedItemIds.Count: {selectedItemIds.Count}");
             
             bool result = selectedItemIds.Count <= requiredCount;
-            Debug.Log($"   ✅ 최종 결과: {(result ? "Single" : "Multi")}");
             
             return result;
         }
@@ -1071,8 +1003,6 @@ namespace UI.Workshop
                 {
                     materialSlots[i].ClearSlot();
                     
-                    if (showDebugLogs)
-                        Debug.Log($"🧹 [FusionUI] MaterialSlot{i+1} 초기화 완료");
                 }
             }
             
@@ -1081,8 +1011,6 @@ namespace UI.Workshop
             {
                 singleResultSlot.ClearSlot();
                 
-                if (showDebugLogs)
-                    Debug.Log($"🧹 [FusionUI] ResultSlot 초기화 완료");
             }
         }
         
@@ -1132,8 +1060,6 @@ namespace UI.Workshop
                 // ⭐ 슬롯 설정 + 강화 레벨 표시
                 materialSlots[i].SetEquipmentData(equipData, selectedItemIds[i]);
                 
-                if (showDebugLogs)
-                    Debug.Log($"📦 [FusionUI] MaterialSlot{i+1}: {equipData.equipmentName} +{instance.enhancementLevel}");
             }
             
             // 5. 결과 아이템 미리보기
@@ -1147,8 +1073,6 @@ namespace UI.Workshop
                 {
                     singleResultSlot.SetEquipmentData(resultEquipData, default);
                     
-                    if (showDebugLogs)
-                        Debug.Log($"🎁 [FusionUI] ResultSlot: {resultEquipData.equipmentName} +0 (초기화)");
                 }
             }
         }

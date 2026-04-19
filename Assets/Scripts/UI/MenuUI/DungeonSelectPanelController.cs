@@ -50,9 +50,6 @@ public class DungeonSelectPanelController : MonoBehaviour
     [SerializeField] private Sprite dungeonBg_DG01_SB03_Slow;   // 둔화저항 정수 던전 ⭐
     [SerializeField] private Sprite dungeonBg_DG01_SB04_Burn;   // 화상저항 정수 던전 ⭐
     
-    [Header("Debug")]
-    [SerializeField] private bool enableDebugLogs = true;
-    
     [Header("⚡ 경고 팝업")]
     [SerializeField] private ContentEntryWarningPopup warningPopup; // 입장 제한 경고 팝업
     
@@ -118,8 +115,6 @@ public class DungeonSelectPanelController : MonoBehaviour
             dungeonInfoPanel.SetActive(false);
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[DungeonSelect] 초기화: DungeonLayer 비활성화");
     }
     
     /// <summary>
@@ -132,8 +127,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         {
             PlayerDataManager.Instance.OnLevelChanged += OnPlayerLevelChanged;
             
-            if (enableDebugLogs)
-                Debug.Log("[DungeonSelect] OnLevelChanged 이벤트 구독 완료");
         }
     }
     
@@ -147,8 +140,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         {
             PlayerDataManager.Instance.OnLevelChanged -= OnPlayerLevelChanged;
             
-            if (enableDebugLogs)
-                Debug.Log("[DungeonSelect] OnLevelChanged 이벤트 구독 해제");
         }
     }
     
@@ -173,8 +164,6 @@ public class DungeonSelectPanelController : MonoBehaviour
             dungeonSelectPanel.SetActive(true);
             RefreshCategoryList();
             
-            if (enableDebugLogs)
-                Debug.Log("[DungeonSelect] 패널 표시");
         }
     }
     
@@ -197,8 +186,7 @@ public class DungeonSelectPanelController : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 🏰 던전 입장 이벤트 발행: {selectedDungeonId} -> {config.SceneName}");
+            Dbg.Log($"[DungeonSelect] 🏰 던전 입장 이벤트 발행: {selectedDungeonId} -> {config.SceneName}");
         
         // 이벤트 발행 (LobbyUIController에서 검증 및 씬 이동 처리)
         OnDungeonPlayButtonClicked?.Invoke(config.SceneName);
@@ -227,8 +215,6 @@ public class DungeonSelectPanelController : MonoBehaviour
             selectedCategoryId = "";
             selectedDungeonId = "";
             
-            if (enableDebugLogs)
-                Debug.Log("[DungeonSelect] 패널 숨김 (상태 초기화)");
         }
     }
     
@@ -343,15 +329,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         // ========================================
         dungeonsByCategory["Material_Farm"] = new List<DungeonInfo>();
         
-        if (enableDebugLogs)
-        {
-            int totalDungeons = 0;
-            foreach (var kvp in dungeonsByCategory)
-            {
-                totalDungeons += kvp.Value.Count;
-            }
-            Debug.Log($"[DungeonSelect] 던전 데이터 초기화: {categories.Count}개 카테고리, {totalDungeons}개 던전");
-        }
     }
     
     /// <summary>
@@ -381,16 +358,12 @@ public class DungeonSelectPanelController : MonoBehaviour
             CreateCategoryButton(categoryInfo);
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 카테고리 목록 갱신: {categories.Count}개 표시");
         
         // 🏰 DungeonLayer 전체 비활성화 (배경 포함)
         if (dungeonLayer != null)
         {
             dungeonLayer.SetActive(false);
             
-            if (enableDebugLogs)
-                Debug.Log("[DungeonSelect] DungeonLayer 비활성화 (배경 포함)");
         }
         
         // 정보 패널 숨김
@@ -432,8 +405,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                 buttonUI.SetComingSoon(true);
                 buttonUI.SetInteractable(false);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 카테고리 생성 (Coming Soon): {categoryInfo.categoryName}");
             }
             else if (!categoryInfo.isUnlocked)
             {
@@ -441,8 +412,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                 buttonUI.SetLocked(true);
                 buttonUI.SetInteractable(false);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 카테고리 생성 (잠금): {categoryInfo.categoryName}");
             }
             else
             {
@@ -456,8 +425,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                     buttonUI.button.onClick.AddListener(() => OnCategorySelected(categoryInfo.categoryId));
                 }
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 카테고리 생성 (활성화): {categoryInfo.categoryName}");
             }
         }
         else
@@ -494,8 +461,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         
         RefreshDungeonList(categoryId);
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 카테고리 선택: {categoryId}");
     }
     
     /// <summary>
@@ -517,8 +482,6 @@ public class DungeonSelectPanelController : MonoBehaviour
             {
                 dungeonNameText.text = category.categoryName; // ✅ 카테고리 이름!
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 카테고리 이름 표시: {category.categoryName}");
             }
         }
         
@@ -527,8 +490,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         {
             dungeonLayer.SetActive(true);
             
-            if (enableDebugLogs)
-                Debug.Log($"[DungeonSelect] DungeonLayer 활성화 (카테고리: {categoryId})");
         }
         
         // ⚡ 입장 횟수 표시 (DungeonLayer 열릴 때 바로 표시)
@@ -550,8 +511,6 @@ public class DungeonSelectPanelController : MonoBehaviour
             CreateDungeonButton(dungeonInfo);
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 던전 목록 갱신: {dungeons.Count}개 던전 표시");
         
         // 정보 패널 숨김 (던전 선택 전까지)
         if (dungeonInfoPanel != null)
@@ -604,8 +563,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                 List<RewardSlotData> rewards = ExtractRewardSlots(config);
                 buttonUI.SetRewardSlots(rewards);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 보상 슬롯 설정: {dungeonInfo.dungeonName} - {rewards.Count}개 슬롯");
             }
             
             // 잠금 처리
@@ -614,8 +571,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                 buttonUI.SetLocked(true);
                 buttonUI.SetInteractable(false);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 던전 생성 (잠금): {dungeonInfo.dungeonName}");
             }
             else
             {
@@ -630,8 +585,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                     buttonUI.button.onClick.AddListener(() => OnDungeonSelected(dungeonInfo.dungeonId));
                 }
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[DungeonSelect] 던전 생성 (활성화): {dungeonInfo.dungeonName}");
             }
         }
         else
@@ -701,8 +654,7 @@ public class DungeonSelectPanelController : MonoBehaviour
         // 던전 정보 표시
         DisplayDungeonInfo(dungeonId);
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 던전 선택: {dungeonId}");
+            Dbg.Log($"[DungeonSelect] 던전 선택: {dungeonId}");
     }
     
     /// <summary>
@@ -854,13 +806,10 @@ public class DungeonSelectPanelController : MonoBehaviour
         
         if (dropTable == null || dropTable.Items == null || dropTable.Items.Count == 0)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[DungeonSelect] 보상 아이템이 없습니다: {config.StageID}");
             return rewards;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 보상 슬롯 추출 시작: {config.StageID}, 총 {dropTable.Items.Count}개 아이템");
         
         // 최대 3개만 추출
         int maxSlots = Mathf.Min(dropTable.Items.Count, 3);
@@ -869,8 +818,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         {
             var item = dropTable.Items[i];
             
-            if (enableDebugLogs)
-                Debug.Log($"[DungeonSelect] 아이템 {i+1}/{maxSlots}: {item.ItemID} x{item.Amount}");
             
             // 1. 장비 아이템 확인
             var equipmentData = ItemTemplateResolver.Load(item.ItemID);
@@ -884,8 +831,6 @@ public class DungeonSelectPanelController : MonoBehaviour
                     dropRate = item.DropRate
                 });
                 
-                if (enableDebugLogs)
-                    Debug.Log($"  ✅ 장비 아이템: {equipmentData.equipmentName}");
                 continue;
             }
             
@@ -907,18 +852,13 @@ public class DungeonSelectPanelController : MonoBehaviour
                     dropRate = item.DropRate
                 });
                 
-                if (enableDebugLogs)
-                    Debug.Log($"  ✅ 재료 아이템: {materialType.GetDisplayName()} (MaterialType: {materialType})");
                 continue;
             }
             
             // 3. 알 수 없는 아이템 (스킵)
-            if (enableDebugLogs)
                 Debug.LogWarning($"  ❌ 알 수 없는 아이템 ID: {item.ItemID} (장비도 아니고 재료도 아님)");
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 보상 슬롯 추출 완료: {rewards.Count}개 슬롯 생성됨");
         
         return rewards;
     }
@@ -929,8 +869,6 @@ public class DungeonSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnPlayerLevelChanged(int newLevel)
     {
-        if (enableDebugLogs)
-            Debug.Log($"🆙 [DungeonSelect] 레벨 변경 감지: Lv.{newLevel} - 던전 해금 상태 갱신 시작");
         
         // 현재 선택된 카테고리의 던전 목록만 갱신
         if (!string.IsNullOrEmpty(selectedCategoryId))
@@ -946,7 +884,6 @@ public class DungeonSelectPanelController : MonoBehaviour
     {
         if (!dungeonsByCategory.ContainsKey(categoryId))
         {
-            if (enableDebugLogs)
                 Debug.LogWarning($"[DungeonSelect] 존재하지 않는 카테고리: {categoryId}");
             return;
         }
@@ -954,8 +891,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         int currentLevel = GetPlayerLevel();
         List<DungeonInfo> dungeons = dungeonsByCategory[categoryId];
         
-        if (enableDebugLogs)
-            Debug.Log($"[DungeonSelect] 던전 해금 상태 갱신 시작: 카테고리={categoryId}, 플레이어Lv.{currentLevel}, 던전수={dungeons.Count}");
         
         // dungeonsByCategory의 isUnlocked 값 업데이트
         foreach (var dungeonInfo in dungeons)
@@ -963,24 +898,16 @@ public class DungeonSelectPanelController : MonoBehaviour
             bool wasUnlocked = dungeonInfo.isUnlocked;
             dungeonInfo.isUnlocked = (currentLevel >= dungeonInfo.recommendedLevel);
             
-            if (enableDebugLogs && wasUnlocked != dungeonInfo.isUnlocked)
-            {
-                Debug.Log($"  🔓 [DungeonSelect] 던전 해금 상태 변경: {dungeonInfo.dungeonName} (요구Lv.{dungeonInfo.recommendedLevel}) → {(dungeonInfo.isUnlocked ? "해금" : "잠김")}");
-            }
         }
         
         // UI가 현재 표시 중이면 던전 버튼 재생성
         if (dungeonLayer != null && dungeonLayer.activeSelf)
         {
-            if (enableDebugLogs)
-                Debug.Log($"[DungeonSelect] UI 표시 중 → 던전 버튼 재생성");
             
             RefreshDungeonList(categoryId);
         }
         else
         {
-            if (enableDebugLogs)
-                Debug.Log($"[DungeonSelect] UI 비표시 중 → 데이터만 갱신 (다음 ShowPanel()에서 반영됨)");
         }
     }
     
@@ -993,8 +920,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         {
             int level = PlayerDataManager.Instance.CurrentLevel;
             
-            if (enableDebugLogs)
-                Debug.Log($"[DungeonSelect] 플레이어 레벨: {level}");
             
             return level;
         }
@@ -1011,8 +936,6 @@ public class DungeonSelectPanelController : MonoBehaviour
     {
         HidePanel();
         
-        if (enableDebugLogs)
-            Debug.Log("[DungeonSelect] 뒤로 가기 이벤트 발행");
         
         // 이벤트 발행 (LobbyUIController가 처리) ⭐
         OnDungeonBackButtonClicked?.Invoke();
@@ -1026,10 +949,6 @@ public class DungeonSelectPanelController : MonoBehaviour
         string path = $"Stages/Configs/Dungeons/{dungeonId}_Config";
         var config = Resources.Load<StageConfig>(path);
         
-        if (config == null && enableDebugLogs)
-        {
-            Debug.LogWarning($"[DungeonSelect] Config 로드 실패: {path}");
-        }
         
         return config;
     }

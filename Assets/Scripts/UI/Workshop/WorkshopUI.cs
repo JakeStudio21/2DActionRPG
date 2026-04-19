@@ -56,7 +56,6 @@ namespace UI.Workshop
         [SerializeField] private DismantleUI dismantleUI;
         
         [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = false;
         
         // 현재 활성 탭
         private WorkshopTabType currentTab = WorkshopTabType.Enhancement;
@@ -66,8 +65,6 @@ namespace UI.Workshop
         
         void Awake()
         {
-            if (showDebugLogs)
-                Debug.Log("🏭 [WorkshopUI] Awake() - 공방 UI 초기화");
         }
         
         void Start()
@@ -77,8 +74,6 @@ namespace UI.Workshop
             // 초기 탭 설정 (강화)
             SwitchTab(WorkshopTabType.Enhancement);
             
-            if (showDebugLogs)
-                Debug.Log("✅ [WorkshopUI] Start() - 공방 UI 준비 완료");
         }
         
         /// <summary>
@@ -90,8 +85,6 @@ namespace UI.Workshop
             if (enhancementTabButton != null)
             {
                 enhancementTabButton.onClick.AddListener(() => SwitchTab(WorkshopTabType.Enhancement));
-                if (showDebugLogs)
-                    Debug.Log("✅ [WorkshopUI] 강화 탭 버튼 이벤트 연결");
             }
             else
             {
@@ -101,8 +94,6 @@ namespace UI.Workshop
             if (fusionTabButton != null)
             {
                 fusionTabButton.onClick.AddListener(() => SwitchTab(WorkshopTabType.Fusion));
-                if (showDebugLogs)
-                    Debug.Log("✅ [WorkshopUI] 합성 탭 버튼 이벤트 연결");
             }
             else
             {
@@ -112,8 +103,6 @@ namespace UI.Workshop
             if (dismantleTabButton != null)
             {
                 dismantleTabButton.onClick.AddListener(() => SwitchTab(WorkshopTabType.Dismantle));
-                if (showDebugLogs)
-                    Debug.Log("✅ [WorkshopUI] 분해 탭 버튼 이벤트 연결");
             }
             else
             {
@@ -124,8 +113,6 @@ namespace UI.Workshop
             if (closeButton != null)
             {
                 closeButton.onClick.AddListener(OnCloseButtonClicked);
-                if (showDebugLogs)
-                    Debug.Log("✅ [WorkshopUI] 닫기 버튼 이벤트 연결");
             }
             else
             {
@@ -138,8 +125,6 @@ namespace UI.Workshop
         /// </summary>
         public void SwitchTab(WorkshopTabType tab)
         {
-            if (showDebugLogs)
-                Debug.Log($"🔄 [WorkshopUI] 탭 전환: {currentTab} → {tab}");
             
             currentTab = tab;
             
@@ -158,16 +143,12 @@ namespace UI.Workshop
                         if (enhancementUI != null)
                         {
                             enhancementUI.Initialize();
-                            if (showDebugLogs)
-                                Debug.Log("🔨 [WorkshopUI] 강화 UI 초기화 완료");
                         }
                         else
                         {
                             Debug.LogError("🔴 [WorkshopUI] EnhancementUI 참조가 null입니다!");
                         }
                         
-                        if (showDebugLogs)
-                            Debug.Log("🔨 [WorkshopUI] 강화 패널 활성화");
                     }
                     break;
                     
@@ -180,16 +161,12 @@ namespace UI.Workshop
                         if (fusionUI != null)
                         {
                             fusionUI.Initialize();
-                            if (showDebugLogs)
-                                Debug.Log("⚗️ [WorkshopUI] 합성 UI 초기화 완료");
                         }
                         else
                         {
                             Debug.LogError("🔴 [WorkshopUI] FusionUI 참조가 null입니다!");
                         }
                         
-                        if (showDebugLogs)
-                            Debug.Log("⚗️ [WorkshopUI] 합성 패널 활성화");
                     }
                     break;
                     
@@ -202,16 +179,12 @@ namespace UI.Workshop
                         if (dismantleUI != null)
                         {
                             dismantleUI.Initialize();
-                            if (showDebugLogs)
-                                Debug.Log("🔧 [WorkshopUI] 분해 UI 초기화 완료");
                         }
                         else
                         {
                             Debug.LogError("🔴 [WorkshopUI] DismantleUI 참조가 null입니다!");
                         }
                         
-                        if (showDebugLogs)
-                            Debug.Log("🔧 [WorkshopUI] 분해 패널 활성화");
                     }
                     break;
             }
@@ -224,8 +197,6 @@ namespace UI.Workshop
             {
                 workshopInventoryUI.SetMultiSelectMode(false);
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔄 [WorkshopUI] 다중 선택 모드 OFF (탭: {tab})");
             }
             
             // 이벤트 발행
@@ -276,8 +247,6 @@ namespace UI.Workshop
                 dismantleTabText.color = color;
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [WorkshopUI] 탭 버튼 상태 업데이트: {currentTab}");
         }
         
         /// <summary>
@@ -285,8 +254,6 @@ namespace UI.Workshop
         /// </summary>
         private void OnCloseButtonClicked()
         {
-            if (showDebugLogs)
-                Debug.Log("🚪 [WorkshopUI] 닫기 버튼 클릭");
             
             // LobbyUIController를 통해 로비로 복귀
             var lobbyUIController = FindObjectOfType<LobbyUIController>();
@@ -305,8 +272,6 @@ namespace UI.Workshop
         /// </summary>
         public void OnPanelOpened()
         {
-            if (showDebugLogs)
-                Debug.Log("🏭 [WorkshopUI] 공방 패널 열림");
             
             // 초기 탭으로 리셋
             SwitchTab(WorkshopTabType.Enhancement);
@@ -319,8 +284,6 @@ namespace UI.Workshop
         /// </summary>
         public void OnPanelClosed()
         {
-            if (showDebugLogs)
-                Debug.Log("🏭 [WorkshopUI] 공방 패널 닫힘");
             
             // 필요한 정리 작업 (Phase 2 이후)
         }

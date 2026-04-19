@@ -36,7 +36,6 @@ public class ActiveInventory : MonoBehaviour
     [Header("📊 디버그")]
     [SerializeField] 
     #pragma warning disable 0414
-    private bool showDebugLogs = false;
     #pragma warning restore 0414
 
     private PlayerControls playerControls;
@@ -60,8 +59,6 @@ public class ActiveInventory : MonoBehaviour
 
     void Start()
     {
-        if (showDebugLogs)
-            Debug.Log("🎒 [ActiveInventory] 디버그 모드 활성화");
         
         // 🔑 안전한 초기화를 위해 코루틴으로 실행
         StartCoroutine(SafeInitialization());
@@ -75,7 +72,6 @@ public class ActiveInventory : MonoBehaviour
         // ActiveWeapon이 준비될 때까지 대기
         while (FindObjectOfType<ActiveWeapon>() == null)
         {
-            Debug.Log("⏰ [ActiveInventory] ActiveWeapon 대기 중...");
             yield return new WaitForSeconds(0.1f);
         }
         
@@ -92,7 +88,6 @@ public class ActiveInventory : MonoBehaviour
         
         // 🔧 수정: 자동 비활성화 제거 (IntegratedInventoryController가 관리)
         OnActiveInventoryInitialized?.Invoke();
-        Debug.Log("✅ [ActiveInventory] 모든 초기화 완료 - 이벤트 발행됨");
     }
 
     /// <summary>
@@ -140,7 +135,6 @@ public class ActiveInventory : MonoBehaviour
             }
         }
         
-        Debug.Log($"✅ [ActiveInventory] {activeSlots.Count}개 슬롯 동적 생성 완료 (최대: {maxDisplaySlots})");
     }
     
     /// <summary>
@@ -148,12 +142,10 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private IEnumerator InitializeInventoryConnection()
     {
-        Debug.Log("🔗 [ActiveInventory] PlayerDataManager 연동 시작 (지연 갱신 지원)");
         
         // PlayerDataManager가 준비될 때까지 대기
         while (PlayerDataManager.Instance == null)
         {
-            Debug.Log("⏰ [ActiveInventory] PlayerDataManager 대기 중...");
             yield return new WaitForSeconds(0.1f);
         }
         
@@ -170,7 +162,6 @@ public class ActiveInventory : MonoBehaviour
             // 🆕 지연 로드 완료 이벤트 구독
             PlayerDataManager.Instance.OnSlotLazyLoaded += OnSlotLazyLoadedForInGame;
             
-            Debug.Log("✅ [ActiveInventory] PlayerDataManager 이벤트 구독 완료 (장비 + 재료 통합)");
         }
         
         // 🆕 인게임 상세 패널 닫기 버튼 이벤트 연결
@@ -178,8 +169,6 @@ public class ActiveInventory : MonoBehaviour
         {
             closeDetailButton.onClick.AddListener(CloseDetailPanel);
             
-            if (showDebugLogs)
-                Debug.Log("✅ [ActiveInventory] 인게임 상세 패널 닫기 버튼 연결 완료");
         }
         
         // 🆕 인게임 상세 패널 초기 비활성화
@@ -197,8 +186,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void OnSlotLazyLoadedForInGame(int slotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [ActiveInventory] 슬롯 {slotIndex} 지연 로드 완료 - 인벤토리 갱신");
         
         // 인게임에서는 항상 즉시 갱신 (무기 교체 등에 필요)
         RefreshInventoryUI();
@@ -212,7 +199,6 @@ public class ActiveInventory : MonoBehaviour
         if (!useDynamicInventory || PlayerDataManager.Instance == null)
             return;
         
-        Debug.Log("🔄 [ActiveInventory] 캐릭터 가방 UI 새로고침 시작 (장비 + 재료 통합)");
         
         // 1. 통합 표시 아이템 목록 생성
         var displayItems = new List<InventoryDisplayItem>();
@@ -253,7 +239,6 @@ public class ActiveInventory : MonoBehaviour
             return a.GetDisplayName().CompareTo(b.GetDisplayName());
         });
         
-        Debug.Log($"📊 [ActiveInventory] 통합 가방 상태: 장비 {equipments.Count}개, 재료 {slotData?.characterBagMaterials.Count ?? 0}개 (총 {displayItems.Count}개)");
         
         // 3. 슬롯에 표시 (동적 생성된 activeSlots 사용)
         if (activeSlots.Count == 0)
@@ -280,14 +265,10 @@ public class ActiveInventory : MonoBehaviour
                 if (item.type == ItemDisplayType.Equipment)
                 {
                     slot.SetEquipmentData(item.equipmentData, item.itemInstanceId);  // ⭐ ItemInstanceID 전달
-                    if (showDebugLogs)
-                        Debug.Log($"🎒 [ActiveInventory] 슬롯 {i}: 장비 - {item.equipmentData.equipmentName} (ID: {(!item.itemInstanceId.IsEmpty ? item.itemInstanceId.Value.Substring(0, 8) + "..." : "없음")})");
                 }
                 else if (item.type == ItemDisplayType.Material)
                 {
                     slot.SetupMaterial(item.materialStack);
-                    if (showDebugLogs)
-                        Debug.Log($"📦 [ActiveInventory] 슬롯 {i}: 재료 - {item.materialStack.GetDisplayName()} x{item.materialStack.count}");
                 }
                 
                 displayedCount++;
@@ -299,7 +280,6 @@ public class ActiveInventory : MonoBehaviour
             }
         }
         
-        Debug.Log($"✅ [ActiveInventory] UI 새로고침 완료 - 총 {displayedCount}개 표시 (장비 + 재료 통합)");
     }
     
     /// <summary>
@@ -337,13 +317,10 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     public void OnSlotClickedForInGame(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId = default)
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 시작 =============");
         
         // 🆕 NULL 체크 추가
         if (equipmentData == null)
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [ActiveInventory] 슬롯 {slotIndex}의 equipmentData가 null입니다 (빈 슬롯 클릭)");
             return;
         }
@@ -351,10 +328,6 @@ public class ActiveInventory : MonoBehaviour
         // ⭐ 수정: V2: 상세 패널 표시 (ItemInstanceID 전달)
         ShowInGameDetailPanel(equipmentData, instanceId);
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [ActiveInventory] 인게임 슬롯 클릭 처리 완료: {equipmentData.equipmentName} (인덱스: {slotIndex})");
-        }
         
         // 🗑️ Legacy 제거: 인게임에서는 더 이상 자동 장착하지 않음
         // - 이전 구조: 아이템 클릭 → 바로 장착 (Legacy 장비창 사용)
@@ -379,14 +352,7 @@ public class ActiveInventory : MonoBehaviour
         
         EquipmentData clickedEquipment = clickedSlot.GetEquipmentData();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔍 [ActiveInventory] 슬롯 클릭 상세:");
-            Debug.Log($"   - 슬롯 인덱스: {slotIndex}");
-            Debug.Log($"   - 아이템: {clickedEquipment.equipmentName}");
-        }
         
-        Debug.Log($"🎯 [ActiveInventory] 클릭한 아이템: {clickedEquipment.equipmentName} (슬롯 {slotIndex})");
         
         // 🆕 호환성 검사 먼저 수행
         if (!IsCompatibleWithCurrentPlayer(clickedEquipment))
@@ -398,13 +364,11 @@ public class ActiveInventory : MonoBehaviour
         // 🔧 수정: 다시 EquipItemFromSlot 직접 호출
         if (PlayerDataManager.Instance != null)
         {
-            Debug.Log($"📞 [ActiveInventory] EquipItemFromSlot 호출: 아이템={clickedEquipment.equipmentName}, 인덱스={slotIndex}");
             
             // 새로운 메서드 호출: 슬롯 인덱스를 포함한 장착
             bool success = PlayerDataManager.Instance.EquipItemFromSlot(clickedEquipment, slotIndex);
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 슬롯 {slotIndex} 아이템 장착 성공: {clickedEquipment.equipmentName}");
             }
             else
             {
@@ -417,7 +381,6 @@ public class ActiveInventory : MonoBehaviour
         UpdateSlotHighlights();
         */
         
-        Debug.Log($"🖱️ [ActiveInventory] ============= 슬롯 클릭 분석 완료 =============");
     }
     
     /// <summary>
@@ -437,10 +400,6 @@ public class ActiveInventory : MonoBehaviour
         // 장비 호환성 검사
         bool isCompatible = IsEquipmentCompatible(equipment, currentPlayerType);
         
-        Debug.Log($"🔍 [ActiveInventory] 호환성 검사:");
-        Debug.Log($"   - 장비: {equipment.equipmentName} (클래스 제한: {equipment.usableClass})");
-        Debug.Log($"   - 현재 플레이어: {currentPlayerType}");
-        Debug.Log($"   - 호환 여부: {(isCompatible ? "✅ 호환" : "❌ 비호환")}");
         
         return isCompatible;
     }
@@ -499,19 +458,16 @@ public class ActiveInventory : MonoBehaviour
         PlayerType selectedType = GameManager.Instance.selectedPlayerData.selectedPlayerType;
         string expectedWeaponType = GetExpectedWeaponType(selectedType);
         
-        Debug.Log($"🎯 [ActiveInventory] 캐릭터: {selectedType}, 기대 무기: {expectedWeaponType}");
         
         // 2. 인벤토리에서 해당 캐릭터에 맞는 무기 찾기
         int compatibleSlotIndex = FindCompatibleWeaponSlot(expectedWeaponType);
         
         if (compatibleSlotIndex >= 0)
         {
-            Debug.Log($"✅ [ActiveInventory] {selectedType}에 맞는 {expectedWeaponType} 무기를 슬롯 {compatibleSlotIndex}에서 발견");
             ToggleActiveHighlight(compatibleSlotIndex);
         }
         else
         {
-            Debug.Log($"🚀 [ActiveInventory] 인벤토리에 {expectedWeaponType} 무기 없음 - PlayerSpawner 할당 무기 유지");
             // PlayerSpawner가 이미 올바른 무기를 할당했으므로 그대로 유지
             HighlightCurrentWeaponSlot();
         }
@@ -550,7 +506,6 @@ public class ActiveInventory : MonoBehaviour
                 // 무기 이름에 기대하는 무기 타입이 포함되어 있는지 확인
                 if (weaponName.Contains(weaponType))
                 {
-                    Debug.Log($"🔍 [ActiveInventory] 호환 무기 발견: 슬롯 {i} - {weaponName}");
                     return i;
                 }
             }
@@ -579,7 +534,6 @@ public class ActiveInventory : MonoBehaviour
                 // 하이라이트만 설정 (실제 무기 교체는 하지 않음)
                 activeSlotIndexNum = i;
                 UpdateSlotHighlights();
-                Debug.Log($"💡 [ActiveInventory] 현재 무기에 맞는 슬롯 {i} 하이라이트");
                 return;
             }
         }
@@ -600,15 +554,10 @@ public class ActiveInventory : MonoBehaviour
             {
                 highlight.gameObject.SetActive(i == activeSlotIndexNum);
             }
-            else if (showDebugLogs)
-            {
-                Debug.Log($"🔍 [ActiveInventory] {inventorySlot.name}에 Highlight 없음 (정상 - 새 구조)");
-            }
         }
     }
 
     public void EquipStartingweapon() {
-        Debug.Log("🚀 [ActiveInventory] 시작 무기 장착 중...");
         ToggleActiveHighlight(0);
     }
 
@@ -620,7 +569,6 @@ public class ActiveInventory : MonoBehaviour
     private void ToggleActiveHighlight(int indexNum) {
         activeSlotIndexNum = indexNum;
         
-        Debug.Log($"🔄 [ActiveInventory] 슬롯 {indexNum}번으로 변경 중...");
 
         // 🔧 수정: GetChild(0) 대신 이름으로 Highlight 찾기 (UIButtonClickEffect 호환)
         foreach (Transform inventorySlot in this.transform)
@@ -629,10 +577,6 @@ public class ActiveInventory : MonoBehaviour
             if (highlight != null)
             {
                 highlight.gameObject.SetActive(false);
-            }
-            else if (showDebugLogs)
-            {
-                Debug.Log($"🔍 [ActiveInventory] {inventorySlot.name}에 Highlight 없음 (정상 - 새 구조)");
             }
         }
 
@@ -644,10 +588,6 @@ public class ActiveInventory : MonoBehaviour
             if (targetHighlight != null)
             {
                 targetHighlight.gameObject.SetActive(true);
-            }
-            else if (showDebugLogs)
-            {
-                Debug.Log($"🔍 [ActiveInventory] 슬롯 {indexNum}에 Highlight 없음 (정상 - 새 구조)");
             }
         }
         else
@@ -661,7 +601,6 @@ public class ActiveInventory : MonoBehaviour
     // 🗑️ 제거: ChangeActiveWeapon - 새로운 이벤트 시스템에서 불필요
     /*
     private void ChangeActiveWeapon() {
-        Debug.Log("⚔️ [ActiveInventory] 장비 교체 시작...");
         // ... 기존 코드 제거됨 ...
     }
     */
@@ -673,7 +612,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void HandleWeaponEquip(EquipmentData weaponData)
     {
-        Debug.Log($"⚔️ [ActiveInventory] 무기 장착: {weaponData.equipmentName}");
         
         // 🆕 호환성 검증 추가
         if (!IsCompatibleWithCurrentPlayer(weaponData))
@@ -688,7 +626,6 @@ public class ActiveInventory : MonoBehaviour
             bool success = PlayerDataManager.Instance.EquipItem(weaponData, EquipmentSlot.MainWeapon);
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 무기 장착 성공: {weaponData.equipmentName}");
             }
             else
             {
@@ -707,7 +644,6 @@ public class ActiveInventory : MonoBehaviour
         //     return;
         // }
         // activeWeapon.EquipWeapon(weaponData);
-        // Debug.Log($"🎯 [ActiveInventory] 무기 교체 완료: {weaponData.equipmentName}");
     }
 
     /// <summary>
@@ -715,7 +651,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void HandleArmorEquip(EquipmentData armorData)
     {
-        Debug.Log($"🛡️ [ActiveInventory] 방어구 장착: {armorData.equipmentName}");
         
         // 🆕 호환성 검증 추가
         if (!IsCompatibleWithCurrentPlayer(armorData))
@@ -731,7 +666,6 @@ public class ActiveInventory : MonoBehaviour
             bool success = PlayerDataManager.Instance.EquipItem(armorData); // 슬롯 제거!
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 방어구 장착 성공: {armorData.equipmentName}");
             }
             else
             {
@@ -749,7 +683,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void HandleAccessoryEquip(EquipmentData accessoryData)
     {
-        Debug.Log($"💍 [ActiveInventory] 악세서리 장착: {accessoryData.equipmentName}");
         
         // 🆕 호환성 검증 추가
         if (!IsCompatibleWithCurrentPlayer(accessoryData))
@@ -764,7 +697,6 @@ public class ActiveInventory : MonoBehaviour
             bool success = PlayerDataManager.Instance.EquipItem(accessoryData, EquipmentSlot.Ring1); // 또는 적절한 슬롯
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 악세서리 장착 성공: {accessoryData.equipmentName}");
             }
             else
             {
@@ -810,7 +742,6 @@ public class ActiveInventory : MonoBehaviour
     void Update() {
 #if UNITY_EDITOR || UNITY_STANDALONE
         if (Input.GetKeyDown(KeyCode.T)) {
-            Debug.Log("🔧 [DEBUG] T키로 강제 무기 교체 테스트");
             ToggleActiveHighlight(1);
         }
 #endif
@@ -824,13 +755,11 @@ public class ActiveInventory : MonoBehaviour
         // 🗑️ 제거: OnSlotClicked - OnSlotClickedForInGame으로 통합됨
 
 
-
     /// <summary>
     /// 무기 장착 처리 (기존 로직)
     /// </summary>
     private void HandleWeaponEquip(EquipmentData weaponData, int slotIndex)
     {
-        Debug.Log($"⚔️ [ActiveInventory] 무기 장착: {weaponData.equipmentName}");
         
         // 🆕 호환성 검증 추가
         if (!IsCompatibleWithCurrentPlayer(weaponData))
@@ -845,7 +774,6 @@ public class ActiveInventory : MonoBehaviour
             bool success = PlayerDataManager.Instance.EquipItemFromSlot(weaponData, slotIndex);
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 무기 장착 성공: {weaponData.equipmentName}");
             }
             else
             {
@@ -863,7 +791,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void HandleArmorEquip(EquipmentData armorData, int slotIndex)
     {
-        Debug.Log($"🛡️ [ActiveInventory] 방어구 장착: {armorData.equipmentName}");
         
         // 🆕 호환성 검증 추가
         if (!IsCompatibleWithCurrentPlayer(armorData))
@@ -878,7 +805,6 @@ public class ActiveInventory : MonoBehaviour
             bool success = PlayerDataManager.Instance.EquipItemFromSlot(armorData, slotIndex);
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 방어구 장착 성공: {armorData.equipmentName}");
             }
             else
             {
@@ -896,7 +822,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void HandleAccessoryEquip(EquipmentData accessoryData, int slotIndex)
     {
-        Debug.Log($"💍 [ActiveInventory] 악세서리 장착: {accessoryData.equipmentName}");
         
         // 🆕 호환성 검증 추가
         if (!IsCompatibleWithCurrentPlayer(accessoryData))
@@ -911,7 +836,6 @@ public class ActiveInventory : MonoBehaviour
             bool success = PlayerDataManager.Instance.EquipItemFromSlot(accessoryData, slotIndex);
             if (success)
             {
-                Debug.Log($"✅ [ActiveInventory] 악세서리 장착 성공: {accessoryData.equipmentName}");
             }
             else
             {
@@ -932,7 +856,6 @@ public class ActiveInventory : MonoBehaviour
     {
         if (inGameDetailPanel == null)
         {
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [ActiveInventory] 인게임 상세 패널이 설정되지 않았습니다");
             return;
         }
@@ -959,8 +882,6 @@ public class ActiveInventory : MonoBehaviour
         // ⭐ 동적 스탯 표시
         UpdateInGameDynamicStats(equipmentData, instanceId);
         
-        if (showDebugLogs)
-            Debug.Log($"📋 [ActiveInventory] 인게임 상세 패널 표시: {equipmentData.equipmentName}");
     }
     
     /// <summary>
@@ -980,7 +901,6 @@ public class ActiveInventory : MonoBehaviour
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [ActiveInventory] EquipmentInstance 생성 실패: {instanceId.Value} → baseStats 표시");
                 // ⭐ Fallback: 동적 스탯 실패 시 baseStats 표시
                 UpdateInGameLegacyStats(data);
@@ -1069,11 +989,6 @@ public class ActiveInventory : MonoBehaviour
     /// </summary>
     private void UpdateInGameLegacyStats(EquipmentData data)
     {
-        Debug.Log($"🔍 [ActiveInventory] UpdateInGameLegacyStats 시작");
-        Debug.Log($"   아이템: {data.equipmentName}");
-        Debug.Log($"   타입: {data.equipmentType}");
-        Debug.Log($"   슬롯: {data.equipmentSlot}");
-        Debug.Log($"   baseStats: {(data.baseStats != null ? data.baseStats.Count.ToString() : "null")}개");
         
         // ⭐ baseStats 내용 상세 출력
         if (data.baseStats != null && data.baseStats.Count > 0)
@@ -1081,13 +996,9 @@ public class ActiveInventory : MonoBehaviour
             for (int i = 0; i < data.baseStats.Count; i++)
             {
                 var stat = data.baseStats[i];
-                Debug.Log($"   baseStats[{i}]: statId={stat.statId}, value={stat.value}, displayName={stat.displayName}");
             }
         }
         
-        Debug.Log($"   stat1Text: {(stat1Text != null ? "연결됨" : "null")}");
-        Debug.Log($"   stat2Text: {(stat2Text != null ? "연결됨" : "null")}");
-        Debug.Log($"   stat3Text: {(stat3Text != null ? "연결됨" : "null")}");
         
         // ⭐ V2 시스템: baseStats에서 스탯 읽기
         if (data.baseStats != null && data.baseStats.Count > 0)
@@ -1096,13 +1007,11 @@ public class ActiveInventory : MonoBehaviour
             ItemStat mainStat = data.baseStats[0];
             EStatType mainStatType = ConvertStatIdToStatType(mainStat.statId);
             
-            Debug.Log($"🔍 주옵션: statId={mainStat.statId}, type={mainStatType}, value={mainStat.value}");
             
             if (stat1Text != null && mainStatType != EStatType.None)
             {
                 string mainStatText = StatFormatHelper.FormatMainStat(mainStatType, mainStat.value);
                 stat1Text.text = mainStatText;
-                Debug.Log($"✅ Stat1 설정: {mainStatText}");
             }
             else
             {
@@ -1125,23 +1034,19 @@ public class ActiveInventory : MonoBehaviour
                         if (i > 1) subStats.AppendLine(); // 두 번째 줄부터 줄바꿈
                         subStats.Append(subStatText);
                         
-                        Debug.Log($"🔍 부옵션[{i}]: statId={subStat.statId}, type={subStatType}, value={subStat.value}");
                     }
                     
                     stat2Text.text = subStats.ToString();
-                    Debug.Log($"✅ Stat2 설정: {data.baseStats.Count - 1}개 부옵션");
                 }
                 else
                 {
                     stat2Text.text = "";
-                    Debug.Log($"ℹ️ Stat2: 부옵션 없음");
                 }
             }
             
             if (stat3Text != null)
             {
                 stat3Text.text = ""; // 강화 레벨은 Instance가 없으면 비워둠
-                Debug.Log($"ℹ️ Stat3: 강화 레벨 없음");
             }
         }
         else
@@ -1150,7 +1055,6 @@ public class ActiveInventory : MonoBehaviour
             Debug.LogWarning($"⚠️ [ActiveInventory] {data.equipmentName}: baseStats 없음 또는 비어있음");
             
             // Legacy: baseStats 없으면 기존 필드 사용 (하위 호환)
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [ActiveInventory] {data.equipmentName}: baseStats 없음, Legacy 필드 사용");
             
             if (stat1Text != null)
@@ -1159,29 +1063,24 @@ public class ActiveInventory : MonoBehaviour
                 if (data.IsWeapon)
                 {
                     stat1Text.text = $"공격력: +{data.attackDamage}";
-                    Debug.Log($"✅ Stat1 (Legacy): 공격력: +{data.attackDamage}");
                 }
                 else
                 {
                     stat1Text.text = $"방어력: +{data.defenseBonus}";
-                    Debug.Log($"✅ Stat1 (Legacy): 방어력: +{data.defenseBonus}");
                 }
             }
             
             if (stat2Text != null)
             {
                 stat2Text.text = $"체력: +{data.healthBonus}";
-                Debug.Log($"✅ Stat2 (Legacy): 체력: +{data.healthBonus}");
             }
             
             if (stat3Text != null)
             {
                 stat3Text.text = $"이동속도: +{data.speedBonus:F1}";
-                Debug.Log($"✅ Stat3 (Legacy): 이동속도: +{data.speedBonus:F1}");
             }
         }
         
-        Debug.Log($"🏁 [ActiveInventory] UpdateInGameLegacyStats 완료");
     }
     
     /// <summary>
@@ -1211,7 +1110,6 @@ public class ActiveInventory : MonoBehaviour
             case "LIFESTEAL": return EStatType.LIFESTEAL;
             case "ARMOR_PENETRATION": return EStatType.ARMOR_PENETRATION;
             default:
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [ActiveInventory] 알 수 없는 StatId: {statId}");
                 return EStatType.None;
         }
@@ -1254,7 +1152,6 @@ public class ActiveInventory : MonoBehaviour
         
         if (inGameDetailPanel == null)
         {
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [ActiveInventory] 인게임 상세 패널이 설정되지 않았습니다");
             return;
         }
@@ -1265,8 +1162,6 @@ public class ActiveInventory : MonoBehaviour
         // 재료 정보 표시
         UpdateInGameMaterialInfo(materialData);
         
-        if (showDebugLogs)
-            Debug.Log($"📦 [ActiveInventory] 인게임 재료 패널 표시: {materialData.displayName}");
     }
     
     /// <summary>
@@ -1346,8 +1241,6 @@ public class ActiveInventory : MonoBehaviour
         {
             inGameDetailPanel.SetActive(false);
             
-            if (showDebugLogs)
-                Debug.Log($"📋 [ActiveInventory] 인게임 상세 패널 닫기");
         }
     }
     

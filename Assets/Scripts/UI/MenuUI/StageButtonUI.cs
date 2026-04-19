@@ -42,7 +42,6 @@ public class StageButtonUI : MonoBehaviour
     public Color selectedColor = new Color(1f, 1f, 0.6f, 1f);
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 내부 상태
     private string stageId;
@@ -92,8 +91,6 @@ public class StageButtonUI : MonoBehaviour
         // 시각적 상태 업데이트
         UpdateVisualState(isUnlocked, isCleared, false);
         
-        if (enableDebugLogs)
-            Debug.Log($"[StageButtonUI] Setup 완료: {stageId} (Index: {stageIndex}, Unlocked: {isUnlocked}, Cleared: {isCleared}, Boss: {isBoss})");
     }
     
     /// <summary>
@@ -147,8 +144,6 @@ public class StageButtonUI : MonoBehaviour
             button.interactable = isUnlocked;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[StageButtonUI] 시각 상태 업데이트: {stageId} (Unlocked: {isUnlocked}, Cleared: {isCleared}, Selected: {isSelected})");
     }
     
     /// <summary>
@@ -158,13 +153,9 @@ public class StageButtonUI : MonoBehaviour
     {
         if (!isUnlocked)
         {
-            if (enableDebugLogs)
-                Debug.Log($"[StageButtonUI] 잠긴 스테이지 클릭: {stageId}");
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[StageButtonUI] 스테이지 선택: {stageId}");
         
         // 이벤트 발생
         OnStageSelected?.Invoke(stageId);

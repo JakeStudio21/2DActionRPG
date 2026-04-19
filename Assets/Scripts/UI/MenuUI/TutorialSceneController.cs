@@ -12,7 +12,6 @@ public class TutorialSceneController : MonoBehaviour
     [Header("컷신 설정")]
     [SerializeField] private string tutorialStartCutsceneId = "Tutorial_Start";
     [SerializeField] private string tutorialEndCutsceneId = "Tutorial_End";
-    [SerializeField] private bool enableDebugLogs = true;
     
     [Header("튜토리얼 단계")]
     [SerializeField] private TutorialStepController stepController;
@@ -26,8 +25,7 @@ public class TutorialSceneController : MonoBehaviour
     
     void Start()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialScene] 튜토리얼 씬 시작");
+            Dbg.Log("[TutorialScene] 튜토리얼 씬 시작");
         
         // BGM 재생
         if (BGMController.Instance != null)
@@ -62,8 +60,6 @@ public class TutorialSceneController : MonoBehaviour
             skipButton.onClick.AddListener(OnSkipButtonClicked);
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[TutorialScene] 스킵 버튼 표시: {showSkipButton}");
     }
     
     /// <summary>
@@ -74,8 +70,6 @@ public class TutorialSceneController : MonoBehaviour
         if (isTransitioning)
             return;
         
-        if (enableDebugLogs)
-            Debug.Log("[TutorialScene] 스킵 버튼 클릭 - 튜토리얼 전체 스킵");
         
         // 컷신 강제 종료
         if (CutsceneManager.Instance != null)
@@ -111,8 +105,6 @@ public class TutorialSceneController : MonoBehaviour
         {
             CutsceneManager.Instance.OnCutsceneEnd -= OnStartCutsceneEnd;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialScene] 시작 컷신 종료 → 튜토리얼 단계 시작");
             
             // ⭐ 컷신 종료 후 페이드 인으로 튜토리얼 씬 표시
             StartCoroutine(FadeInAndStartTutorial());
@@ -124,8 +116,6 @@ public class TutorialSceneController : MonoBehaviour
         // 페이드 인 (검은 화면 → 튜토리얼 씬)
         if (SceneTransitionManager.Instance != null)
         {
-            if (enableDebugLogs)
-                Debug.Log("[TutorialScene] 튜토리얼 씬 페이드 인 시작 ✅");
             
             SceneTransitionManager.Instance.StartFadeIn(0.5f);
         }
@@ -156,8 +146,6 @@ public class TutorialSceneController : MonoBehaviour
     /// </summary>
     private IEnumerator WaitForPlayerAndStartTutorial()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialScene] ⏳ 플레이어 스폰 대기 중...");
         
         // PlayerController가 나타날 때까지 대기
         int maxRetries = 50; // 최대 5초 대기 (0.1초 * 50)
@@ -169,8 +157,6 @@ public class TutorialSceneController : MonoBehaviour
             
             if (player != null)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"[TutorialScene] ✅ 플레이어 발견! (시도 {retryCount + 1}회, {(retryCount * 0.1f):F1}초 대기)");
                 
                 // 추가로 0.5초 대기 (컴포넌트 초기화 완료 보장)
                 yield return new WaitForSeconds(0.5f);
@@ -200,8 +186,6 @@ public class TutorialSceneController : MonoBehaviour
         if (isTransitioning)
             return;
         
-        if (enableDebugLogs)
-            Debug.Log("[TutorialScene] 튜토리얼 모든 단계 완료 → 종료 컷신 재생");
         
         if (stepController != null)
         {
@@ -227,8 +211,6 @@ public class TutorialSceneController : MonoBehaviour
         {
             CutsceneManager.Instance.OnCutsceneEnd -= OnEndCutsceneEnd;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialScene] 종료 컷신 완료 → Tutorial 완료 처리");
             
             // ⭐ Tutorial 완료 알림 (최초 실행 플래그 저장)
             if (GameManager.Instance != null)
@@ -239,8 +221,6 @@ public class TutorialSceneController : MonoBehaviour
             // ⭐ 즉시 검은 화면 + 씬 전환 (튜토리얼 씬이 전혀 보이지 않음)
             if (SceneTransitionManager.Instance != null)
             {
-                if (enableDebugLogs)
-                    Debug.Log("[TutorialScene] 즉시 페이드 아웃 + 로비 씬 전환 시작 ✅");
                 
                 SceneTransitionManager.Instance.FadeOutImmediateAndLoadScene("Lobby");
                 isTransitioning = true;

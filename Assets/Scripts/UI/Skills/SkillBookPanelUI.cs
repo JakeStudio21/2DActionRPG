@@ -44,7 +44,6 @@ public class SkillBookPanelUI : MonoBehaviour
     [SerializeField] private SpiritBlessingTabController spiritBlessingTabController;  // 정령의 가호 탭
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 현재 활성 탭
     private SkillBookTabType currentTab = SkillBookTabType.Skill;
@@ -54,8 +53,6 @@ public class SkillBookPanelUI : MonoBehaviour
     
     void Awake()
     {
-        if (showDebugLogs)
-            Debug.Log("📚 [SkillBookPanelUI] Awake() - 스킬북 패널 초기화");
     }
     
     void Start()
@@ -65,8 +62,6 @@ public class SkillBookPanelUI : MonoBehaviour
         // 초기 탭 설정 (스킬)
         SwitchTab(SkillBookTabType.Skill);
         
-        if (showDebugLogs)
-            Debug.Log("✅ [SkillBookPanelUI] Start() - 스킬북 패널 준비 완료");
     }
     
     /// <summary>
@@ -78,8 +73,6 @@ public class SkillBookPanelUI : MonoBehaviour
         if (skillTabButton != null)
         {
             skillTabButton.onClick.AddListener(() => SwitchTab(SkillBookTabType.Skill));
-            if (showDebugLogs)
-                Debug.Log("✅ [SkillBookPanelUI] 스킬 탭 버튼 이벤트 연결");
         }
         else
         {
@@ -89,8 +82,6 @@ public class SkillBookPanelUI : MonoBehaviour
         if (spiritStoneTabButton != null)
         {
             spiritStoneTabButton.onClick.AddListener(() => SwitchTab(SkillBookTabType.SpiritStone));
-            if (showDebugLogs)
-                Debug.Log("✅ [SkillBookPanelUI] 정령 수호석 탭 버튼 이벤트 연결");
         }
         else
         {
@@ -100,8 +91,6 @@ public class SkillBookPanelUI : MonoBehaviour
         if (spiritBlessingTabButton != null)
         {
             spiritBlessingTabButton.onClick.AddListener(() => SwitchTab(SkillBookTabType.SpiritBlessing));
-            if (showDebugLogs)
-                Debug.Log("✅ [SkillBookPanelUI] 정령의 가호 탭 버튼 이벤트 연결");
         }
         else
         {
@@ -112,8 +101,6 @@ public class SkillBookPanelUI : MonoBehaviour
         if (closeButton != null)
         {
             closeButton.onClick.AddListener(OnCloseButtonClicked);
-            if (showDebugLogs)
-                Debug.Log("✅ [SkillBookPanelUI] 닫기 버튼 이벤트 연결");
         }
         else
         {
@@ -126,8 +113,6 @@ public class SkillBookPanelUI : MonoBehaviour
     /// </summary>
     public void SwitchTab(SkillBookTabType tab)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [SkillBookPanelUI] 탭 전환: {currentTab} → {tab}");
         
         currentTab = tab;
         
@@ -146,16 +131,12 @@ public class SkillBookPanelUI : MonoBehaviour
                     if (skillTabController != null)
                     {
                         skillTabController.OnTabActivated();
-                        if (showDebugLogs)
-                            Debug.Log("📚 [SkillBookPanelUI] 스킬 탭 컨트롤러 초기화 완료");
                     }
                     else
                     {
                         Debug.LogError("🔴 [SkillBookPanelUI] SkillTabController 참조가 null입니다!");
                     }
                     
-                    if (showDebugLogs)
-                        Debug.Log("📚 [SkillBookPanelUI] 스킬 패널 활성화");
                 }
                 break;
                 
@@ -168,16 +149,12 @@ public class SkillBookPanelUI : MonoBehaviour
                     if (runePanelUI != null)
                     {
                         runePanelUI.OnTabActivated();
-                        if (showDebugLogs)
-                            Debug.Log("🔮 [SkillBookPanelUI] 정령 수호석 탭 컨트롤러 초기화 완료");
                     }
                     else
                     {
                         Debug.LogError("🔴 [SkillBookPanelUI] RunePanelUI 참조가 null입니다!");
                     }
                     
-                    if (showDebugLogs)
-                        Debug.Log("🔮 [SkillBookPanelUI] 정령 수호석 패널 활성화");
                 }
                 else
                 {
@@ -194,16 +171,12 @@ public class SkillBookPanelUI : MonoBehaviour
                     if (spiritBlessingTabController != null)
                     {
                         spiritBlessingTabController.OnTabActivated();
-                        if (showDebugLogs)
-                            Debug.Log("🌟 [SkillBookPanelUI] 정령의 가호 탭 컨트롤러 초기화 완료");
                     }
                     else
                     {
                         Debug.LogError("🔴 [SkillBookPanelUI] SpiritBlessingTabController 참조가 null입니다!");
                     }
                     
-                    if (showDebugLogs)
-                        Debug.Log("🌟 [SkillBookPanelUI] 정령의 가호 패널 활성화");
                 }
                 else
                 {
@@ -263,8 +236,6 @@ public class SkillBookPanelUI : MonoBehaviour
             spiritBlessingTabText.color = color;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [SkillBookPanelUI] 탭 버튼 상태 업데이트: {currentTab}");
     }
     
     /// <summary>
@@ -272,8 +243,6 @@ public class SkillBookPanelUI : MonoBehaviour
     /// </summary>
     private void OnCloseButtonClicked()
     {
-        if (showDebugLogs)
-            Debug.Log("🚪 [SkillBookPanelUI] 닫기 버튼 클릭");
         
         // LobbyUIController를 통해 로비로 복귀
         var lobbyUIController = FindObjectOfType<LobbyUIController>();
@@ -292,8 +261,6 @@ public class SkillBookPanelUI : MonoBehaviour
     /// </summary>
     public void OnPanelOpened()
     {
-        if (showDebugLogs)
-            Debug.Log("📚 [SkillBookPanelUI] 스킬북 패널 열림");
         
         // 초기 탭으로 리셋
         SwitchTab(SkillBookTabType.Skill);
@@ -304,8 +271,6 @@ public class SkillBookPanelUI : MonoBehaviour
     /// </summary>
     public void OnPanelClosed()
     {
-        if (showDebugLogs)
-            Debug.Log("📚 [SkillBookPanelUI] 스킬북 패널 닫힘");
         
         // 필요한 정리 작업
         if (skillTabController != null)

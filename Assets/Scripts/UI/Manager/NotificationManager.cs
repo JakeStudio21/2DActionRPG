@@ -54,7 +54,6 @@ public class NotificationManager : MonoBehaviour
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
         
-        Debug.Log("[NotificationManager] 인스턴스 생성 (DontDestroyOnLoad 제거됨)");
     }
     
     private void OnDestroy()
@@ -62,7 +61,6 @@ public class NotificationManager : MonoBehaviour
         if (Instance == this)
         {
             Instance = null;
-            Debug.Log("[NotificationManager] 인스턴스 파괴됨 (씬 전환)");
         }
     }
     
@@ -84,7 +82,6 @@ public class NotificationManager : MonoBehaviour
             
             if (isOnCooldown)
             {
-                Debug.Log($"[NotificationManager] 쿨타임 중입니다. (남은 시간: {cooldownTime - (Time.time - lastResetTime):F1}초)");
                 return;
             }
             
@@ -96,7 +93,6 @@ public class NotificationManager : MonoBehaviour
             {
                 isOnCooldown = true;
                 lastResetTime = Time.time;
-                Debug.Log($"[NotificationManager] 최대 표시 횟수 도달. 쿨타임 시작: {cooldownTime}초");
             }
         }
         
@@ -119,7 +115,6 @@ public class NotificationManager : MonoBehaviour
             // 쿨타임 종료 → 리셋
             isOnCooldown = false;
             currentDisplayCount = 0;
-            Debug.Log("[NotificationManager] 쿨타임 종료. 카운터 리셋.");
         }
     }
     

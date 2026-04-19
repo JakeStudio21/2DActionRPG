@@ -27,7 +27,6 @@ public class TutorialStepController : MonoBehaviour
     [SerializeField] private TutorialSpotlight tutorialSpotlight;
     
     [Header("설정")]
-    [SerializeField] private bool enableDebugLogs = true;
     [SerializeField] private float minTimePerStep = 0.5f; // 각 단계 최소 시간
     
     [Header("⏱️ 타이밍 설정 (테스트용)")]
@@ -94,8 +93,6 @@ public class TutorialStepController : MonoBehaviour
         {
             playerController = FindObjectOfType<PlayerController>();
             
-            if (playerController != null && enableDebugLogs)
-                Debug.Log("[TutorialStep] PlayerController 자동 탐색 성공");
         }
         
         // TutorialSpotlight 자동 탐색
@@ -103,9 +100,6 @@ public class TutorialStepController : MonoBehaviour
         {
             tutorialSpotlight = FindObjectOfType<TutorialSpotlight>();
             
-            if (tutorialSpotlight != null && enableDebugLogs)
-                Debug.Log("[TutorialStep] ✅ TutorialSpotlight 자동 탐색 성공");
-            else if (enableDebugLogs)
                 Debug.LogWarning("[TutorialStep] ⚠️ TutorialSpotlight를 찾을 수 없습니다!");
         }
         
@@ -118,17 +112,12 @@ public class TutorialStepController : MonoBehaviour
     
     public void StartTutorial()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] 🎯 튜토리얼 시작 - 5단계 시스템");
         
         // ⭐ 플레이어가 스폰된 후 호출되므로 여기서 재탐색!
         if (playerController == null)
         {
             playerController = FindObjectOfType<PlayerController>();
             
-            if (playerController != null && enableDebugLogs)
-                Debug.Log("[TutorialStep] ✅ PlayerController 재탐색 성공 (스폰 후)");
-            else if (enableDebugLogs)
                 Debug.LogError("[TutorialStep] ❌ PlayerController를 찾을 수 없습니다!");
         }
         
@@ -140,8 +129,6 @@ public class TutorialStepController : MonoBehaviour
         {
             lastPosition = playerController.transform.position;
             
-            if (enableDebugLogs)
-                Debug.Log($"[TutorialStep] 이동 시작 위치 초기화: {lastPosition}");
         }
         
         if (instructionPanel != null)
@@ -160,8 +147,6 @@ public class TutorialStepController : MonoBehaviour
         {
             tutorialSpotlight.ShowSpotlight(currentStep);
             
-            if (enableDebugLogs)
-                Debug.Log($"[TutorialStep] 💡 스포트라이트 활성화: {currentStep}");
         }
         
         // 이벤트 발생
@@ -178,10 +163,6 @@ public class TutorialStepController : MonoBehaviour
             return;
         
         // 디버그: Update 실행 확인 (5초마다)
-        if (enableDebugLogs && Time.frameCount % 300 == 0)
-        {
-            Debug.Log($"[TutorialStep] ⏰ Update 실행 중... 현재 단계: {currentStep}, 경과 시간: {(Time.time - tutorialStartTime):F1}초");
-        }
         
         CheckStepProgress();
     }
@@ -204,8 +185,6 @@ public class TutorialStepController : MonoBehaviour
             playerAnimController.OnSkill1Used += OnSkill1ButtonPressed;
             playerAnimController.OnSkill2Used += OnSkill2ButtonPressed;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] ✅ 스킬 사용 이벤트 구독 완료");
         }
         
         // ⭐ 튜토리얼 몬스터 피격 이벤트 구독
@@ -228,8 +207,6 @@ public class TutorialStepController : MonoBehaviour
                 }
             }
             
-            if (tutorialEnemy != null && enableDebugLogs)
-                Debug.Log($"[TutorialStep] ✅ 튜토리얼 몬스터 자동 탐색 성공: {tutorialEnemy.name}");
         }
         
         if (tutorialEnemy != null)
@@ -239,8 +216,6 @@ public class TutorialStepController : MonoBehaviour
             {
                 enemyHealth.OnTakeDamageEvent += OnEnemyHit;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[TutorialStep] ✅ 몬스터 피격 이벤트 구독: {tutorialEnemy.name}");
             }
             else
             {
@@ -252,8 +227,6 @@ public class TutorialStepController : MonoBehaviour
             Debug.LogWarning("[TutorialStep] ⚠️ 튜토리얼 몬스터를 찾을 수 없습니다! Inspector에서 직접 할당해주세요.");
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] 게임 이벤트 구독 완료");
     }
     
     /// <summary>
@@ -323,7 +296,6 @@ public class TutorialStepController : MonoBehaviour
         
         if (playerController == null)
         {
-            if (enableDebugLogs && Time.frameCount % 120 == 0) // 2초마다
                 Debug.LogWarning("[TutorialStep] ⚠️ PlayerController가 없어서 이동 체크 불가!");
             return;
         }
@@ -338,10 +310,6 @@ public class TutorialStepController : MonoBehaviour
             lastPosition = currentPosition;
             
             // 디버그 로그 (1초마다 한 번씩만)
-            if (enableDebugLogs && Time.frameCount % 60 == 0)
-            {
-                Debug.Log($"[TutorialStep] 🚶 이동 거리: {totalMovedDistance:F2}m / {moveRequiredDistance}m");
-            }
         }
         
         // 클리어 조건: N미터 이상 이동
@@ -354,8 +322,6 @@ public class TutorialStepController : MonoBehaviour
     
     private void CompleteMoveStep()
     {
-        if (enableDebugLogs)
-            Debug.Log($"[TutorialStep] ✅ 이동 단계 완료! (총 {totalMovedDistance:F2}m 이동)");
         
         AdvanceToNextStep(TutorialStep.Attack);
     }
@@ -376,8 +342,6 @@ public class TutorialStepController : MonoBehaviour
     
     private void CompleteAttackStep()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] ✅ 공격 단계 완료! (몬스터 피격)");
         
         attackStepCompleted = true;
         AdvanceToNextStep(TutorialStep.Dash);
@@ -407,37 +371,27 @@ public class TutorialStepController : MonoBehaviour
     /// </summary>
     private void OnEnemyHit()
     {
-        if (enableDebugLogs)
-            Debug.Log($"[TutorialStep] 🎯 몬스터 피격! 현재 단계: {currentStep}");
         
         // 현재 단계에 따라 피격 플래그 설정
         if (currentStep == TutorialStep.Attack && !attackStepCompleted)
         {
             hasHitMonsterInAttackStep = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] ✅ Attack 단계 몬스터 피격 확인!");
         }
         else if (currentStep == TutorialStep.Skill1 && hasUsedSkill1 && !skill1StepCompleted)
         {
             skill1HitMonster = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] ✅ Skill1 단계 몬스터 피격 확인!");
         }
         else if (currentStep == TutorialStep.Skill2 && hasUsedSkill2 && !skill2StepCompleted)
         {
             skill2HitMonster = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] ✅ Skill2 단계 몬스터 피격 확인!");
         }
     }
     
     private void CompleteDashStep()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] ✅ 대시 단계 완료!");
         
         dashStepCompleted = true;
         AdvanceToNextStep(TutorialStep.Skill1);
@@ -459,8 +413,6 @@ public class TutorialStepController : MonoBehaviour
         {
             hasUsedSkill1 = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] 스킬1 사용 감지! 몬스터 피격 대기 중...");
             
             // 스킬 발동 후 몬스터 피격 체크 (타임아웃)
             StartCoroutine(CheckSkill1HitAfterDelay());
@@ -482,8 +434,6 @@ public class TutorialStepController : MonoBehaviour
         {
             hasUsedSkill1 = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] 🔥 스킬1 UI 버튼 클릭 감지! 몬스터 피격 대기 중...");
             
             // 스킬 발동 후 몬스터 피격 체크 (타임아웃)
             StartCoroutine(CheckSkill1HitAfterDelay());
@@ -504,7 +454,6 @@ public class TutorialStepController : MonoBehaviour
         // 3초 안에 피격되지 않으면 경고
         if (!skill1HitMonster && !skill1StepCompleted)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning("[TutorialStep] ⚠️ 스킬1이 몬스터를 맞추지 못했습니다. 다시 시도하세요!");
             
             // 다시 시도할 수 있도록 플래그 리셋
@@ -514,8 +463,6 @@ public class TutorialStepController : MonoBehaviour
     
     private void CompleteSkill1Step()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] ✅ 스킬1 단계 완료! (스킬 발동 + 몬스터 피격)");
         
         skill1StepCompleted = true;
         AdvanceToNextStep(TutorialStep.Skill2);
@@ -537,8 +484,6 @@ public class TutorialStepController : MonoBehaviour
         {
             hasUsedSkill2 = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] 스킬2 사용 감지! 몬스터 피격 대기 중...");
             
             // 스킬 발동 후 몬스터 피격 체크 (타임아웃)
             StartCoroutine(CheckSkill2HitAfterDelay());
@@ -560,8 +505,6 @@ public class TutorialStepController : MonoBehaviour
         {
             hasUsedSkill2 = true;
             
-            if (enableDebugLogs)
-                Debug.Log("[TutorialStep] 🔥 스킬2 UI 버튼 클릭 감지! 몬스터 피격 대기 중...");
             
             // 스킬 발동 후 몬스터 피격 체크 (타임아웃)
             StartCoroutine(CheckSkill2HitAfterDelay());
@@ -582,7 +525,6 @@ public class TutorialStepController : MonoBehaviour
         // 3초 안에 피격되지 않으면 경고
         if (!skill2HitMonster && !skill2StepCompleted)
         {
-            if (enableDebugLogs)
                 Debug.LogWarning("[TutorialStep] ⚠️ 스킬2가 몬스터를 맞추지 못했습니다. 다시 시도하세요!");
             
             // 다시 시도할 수 있도록 플래그 리셋
@@ -592,8 +534,6 @@ public class TutorialStepController : MonoBehaviour
     
     private void CompleteSkill2Step()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] ✅ 스킬2 단계 완료! (스킬 발동 + 몬스터 피격)");
         
         skill2StepCompleted = true;
         
@@ -606,8 +546,6 @@ public class TutorialStepController : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator DelayedCompleteStep()
     {
-        if (enableDebugLogs)
-            Debug.Log($"[TutorialStep] ⏰ 스킬2 성공 확인 중... ({skill2SuccessConfirmDelay}초 대기)");
         
         yield return new WaitForSeconds(skill2SuccessConfirmDelay);
         
@@ -636,8 +574,6 @@ public class TutorialStepController : MonoBehaviour
             {
                 tutorialSpotlight.HideSpotlight();
                 
-                if (enableDebugLogs)
-                    Debug.Log("[TutorialStep] 💡 스포트라이트 비활성화 (완료)");
             }
         }
         else
@@ -647,16 +583,12 @@ public class TutorialStepController : MonoBehaviour
             {
                 tutorialSpotlight.ShowSpotlight(nextStep);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"[TutorialStep] 💡 스포트라이트 이동: {nextStep}");
             }
         }
         
         // 이벤트 발생
         OnStepChanged?.Invoke(currentStep);
         
-        if (enableDebugLogs)
-            Debug.Log($"[TutorialStep] 🎯 단계 진행: {nextStep}");
         
         // 완료 단계 처리
         if (nextStep == TutorialStep.Completed)
@@ -668,8 +600,6 @@ public class TutorialStepController : MonoBehaviour
     private System.Collections.IEnumerator CompleteTutorialAfterDelay()
     {
         // ⭐ 마지막 성공 메시지를 읽을 시간 추가
-        if (enableDebugLogs)
-            Debug.Log($"[TutorialStep] ⏰ 마지막 메시지 표시 중... ({completionMessageReadDelay}초 대기)");
         
         yield return new WaitForSeconds(completionMessageReadDelay);
         
@@ -687,8 +617,6 @@ public class TutorialStepController : MonoBehaviour
         // 이벤트 구독 해제
         UnsubscribeFromGameEvents();
         
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] 🎉 튜토리얼 완전 완료! 컷신 재생 준비");
         
         OnTutorialCompleted?.Invoke();
     }
@@ -756,8 +684,6 @@ public class TutorialStepController : MonoBehaviour
     /// </summary>
     public void ForceComplete()
     {
-        if (enableDebugLogs)
-            Debug.Log("[TutorialStep] ⚠️ 튜토리얼 강제 완료");
         
         currentStep = TutorialStep.Completed;
         

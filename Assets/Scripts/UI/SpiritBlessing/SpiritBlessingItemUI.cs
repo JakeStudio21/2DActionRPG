@@ -35,7 +35,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
     [SerializeField] [Range(0f, 1f)] private float lockedOpacity = 1f;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 데이터
     private SpiritBlessingData blessingData;
@@ -89,8 +88,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
             receiveButton.onClick.AddListener(OnReceiveButtonClicked);
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [SpiritBlessingItemUI] Setup 완료: {data.blessingName}");
     }
     
     /// <summary>
@@ -124,8 +121,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
         // 상태 판단 및 Grayscale 적용
         DetermineStateAndApplyVisuals();
         
-        if (enableDebugLogs)
-            Debug.Log($"🔄 [SpiritBlessingItemUI] 값 갱신: {blessingData.blessingName} - {currentResist * 100:F0}% (최대치: {isMaxLevel})");
     }
     
     /// <summary>
@@ -148,8 +143,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
         // 컨트롤러에 선택 알림
         controller.OnBlessingItemClicked(blessingData, this);
         
-        if (enableDebugLogs)
-            Debug.Log($"🎯 [SpiritBlessingItemUI] 아이템 클릭: {blessingData.blessingName}");
     }
     
     /// <summary>
@@ -169,8 +162,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"🎯 [SpiritBlessingItemUI] [가호 받기] 클릭: {blessingData.blessingName}");
         
         // 1. 먼저 아이템 선택 (하단 패널 갱신)
         controller.OnBlessingItemClicked(blessingData, this);
@@ -386,8 +377,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
                 ApplyGrayscaleToAllChildren();
                 isGrayscaleApplied = true;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎨 [SpiritBlessingItemUI] {blessingData.blessingName}: 전체 Grayscale (비활성화 - 저항 0% AND 재료 부족)");
             }
         }
         else if (isActivatable)
@@ -402,8 +391,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
             // [가호 받기] 버튼만 원본 색상으로 복구 (강조)
             RestoreReceiveButtonColor();
             
-            if (enableDebugLogs)
-                Debug.Log($"🎨 [SpiritBlessingItemUI] {blessingData.blessingName}: 전체 Grayscale + [가호 받기] 버튼만 컬러 (활성화 가능 - 저항 0% + 재료 충분)");
         }
         else if (isActiveButMaterialInsufficient)
         {
@@ -417,8 +404,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
             // [가호 받기] 버튼만 Grayscale 적용
             ApplyGrayscaleToReceiveButtonOnly();
             
-            if (enableDebugLogs)
-                Debug.Log($"🎨 [SpiritBlessingItemUI] {blessingData.blessingName}: 전체 원래색 + [가호 받기] 버튼만 Grayscale (활성화 - 저항 {currentResist * 100:F0}% + 재료 부족)");
         }
         else if (isFullyActive)
         {
@@ -428,8 +413,6 @@ public class SpiritBlessingItemUI : MonoBehaviour
                 RestoreOriginalColors();
                 isGrayscaleApplied = false;
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎨 [SpiritBlessingItemUI] {blessingData.blessingName}: 전체 원래색 (완전 활성화 - 저항 {currentResist * 100:F0}% + 재료 충분)");
             }
         }
     }

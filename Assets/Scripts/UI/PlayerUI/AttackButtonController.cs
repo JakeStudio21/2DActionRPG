@@ -11,7 +11,6 @@ using UnityEngine;
 public class AttackButtonController : MonoBehaviour
 {
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false;
 
     private PlayerAttackInput playerAttackInput;
 
@@ -22,15 +21,11 @@ public class AttackButtonController : MonoBehaviour
     {
         playerAttackInput = input;
 
-        if (showDebugLogs)
-            Debug.Log($"[AttackButtonController] PlayerAttackInput 바인딩 완료: {(input != null ? input.name : "null")}");
     }
 
     /// <summary>HUD 기본공격 버튼 — 자동 타겟팅 포함</summary>
     public void OnAttackButtonPressed()
     {
-        if (showDebugLogs)
-            Debug.Log("[AttackButtonController] 공격 버튼 클릭됨");
 
         if (playerAttackInput == null)
         {
@@ -44,8 +39,6 @@ public class AttackButtonController : MonoBehaviour
     /// <summary>HUD 스킬1 버튼</summary>
     public void OnSkill1ButtonPressed()
     {
-        if (showDebugLogs)
-            Debug.Log("[AttackButtonController] 스킬1 버튼 클릭됨");
 
         if (playerAttackInput == null)
         {
@@ -59,8 +52,6 @@ public class AttackButtonController : MonoBehaviour
     /// <summary>HUD 스킬2 버튼</summary>
     public void OnSkill2ButtonPressed()
     {
-        if (showDebugLogs)
-            Debug.Log("[AttackButtonController] 스킬2 버튼 클릭됨");
 
         if (playerAttackInput == null)
         {

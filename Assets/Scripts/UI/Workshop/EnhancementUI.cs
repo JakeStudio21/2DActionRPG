@@ -26,7 +26,6 @@ namespace UI.Workshop
     public class EnhancementUI : MonoBehaviour
     {
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = false; // 🔧 디버깅 완료
         
         [Header("📌 선택된 아이템 정보")]
         [SerializeField] private TMP_Text itemNameText;
@@ -78,8 +77,6 @@ namespace UI.Workshop
         
         void OnEnable()
         {
-            if (showDebugLogs)
-                Debug.Log("🟢 [EnhancementUI] OnEnable() 호출됨");
             
             // 🆕 골드 변경 이벤트 구독
             if (PlayerDataManager.Instance != null)
@@ -87,8 +84,6 @@ namespace UI.Workshop
                 PlayerDataManager.Instance.OnGoldChanged -= OnGoldChanged;
                 PlayerDataManager.Instance.OnGoldChanged += OnGoldChanged;
                 
-                if (showDebugLogs)
-                    Debug.Log("✅ [EnhancementUI] PlayerDataManager.OnGoldChanged 구독 완료");
             }
             else
             {
@@ -101,8 +96,6 @@ namespace UI.Workshop
                 AccountDataManager.Instance.OnMaterialChanged -= OnMaterialChanged;
                 AccountDataManager.Instance.OnMaterialChanged += OnMaterialChanged;
                 
-                if (showDebugLogs)
-                    Debug.Log("✅ [EnhancementUI] AccountDataManager.OnMaterialChanged 구독 완료");
             }
             else
             {
@@ -111,8 +104,6 @@ namespace UI.Workshop
             
             // 초기 골드 표시
             int currentGold = GetPlayerGold();
-            if (showDebugLogs)
-                Debug.Log($"🔍 [EnhancementUI] OnEnable() - 현재 골드: {currentGold}");
             
             UpdatePlayerGoldDisplay();
         }
@@ -149,8 +140,6 @@ namespace UI.Workshop
                 // TODO: WorkshopInventoryUI에서 이벤트 추가 필요
             }
             
-            if (showDebugLogs)
-                Debug.Log("✅ [EnhancementUI] 초기화 완료");
         }
         
         /// <summary>
@@ -158,7 +147,6 @@ namespace UI.Workshop
         /// </summary>
         public void Initialize()
         {
-            Debug.Log("📦 [EnhancementUI] 초기화 시작");
             
             // 선택 상태 초기화
             selectedItemId = default;
@@ -168,7 +156,6 @@ namespace UI.Workshop
             // UI 갱신
             RefreshUI();
             
-            Debug.Log("✅ [EnhancementUI] 초기화 완료");
         }
         
         /// <summary>
@@ -181,8 +168,6 @@ namespace UI.Workshop
             {
                 itemIconImage.gameObject.SetActive(false);
                 
-                if (showDebugLogs)
-                    Debug.Log("🔄 [EnhancementUI] ItemIcon 숨김 처리 (BeforeAfterComparisonUI와 중복)");
             }
             
             // 모든 패널 비활성화
@@ -257,8 +242,7 @@ namespace UI.Workshop
                 return;
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [EnhancementUI] 아이템 선택: {selectedEquipmentData.equipmentName} +{selectedItemData.enhancementLevel} (ID: {itemId})");
+                Dbg.Log($"🎯 [EnhancementUI] 아이템 선택: {selectedEquipmentData.equipmentName} +{selectedItemData.enhancementLevel} (ID: {itemId})");
             
             // UI 갱신
             RefreshUI();
@@ -302,8 +286,6 @@ namespace UI.Workshop
             
             InitializeUI();
             
-            if (showDebugLogs)
-                Debug.Log("🔄 [EnhancementUI] 선택 해제");
         }
         
         // ========================================
@@ -403,8 +385,6 @@ namespace UI.Workshop
                     totalStatBonusText.text = "";
                 }
                 
-                if (showDebugLogs)
-                    Debug.Log($"📊 [EnhancementUI] 이번 강화: +{thisLevelStatRate:F1}%, 누적: {currentTotalBonus:F1}% → {nextTotalBonus:F1}%");
             }
         }
         
@@ -442,7 +422,6 @@ namespace UI.Workshop
             // 이유: Unity UI Layout 시스템이 활성화 직후 재계산하면서 Image.enabled를 false로 설정하는 문제 방지
             if (materialCostPanel != null && !materialCostPanel.activeSelf)
             {
-                Debug.Log("🔍 [EnhancementUI] materialCostPanel 활성화 → 코루틴으로 1프레임 대기 후 슬롯 설정");
                 materialCostPanel.SetActive(true);
                 StartCoroutine(UpdateMaterialSlotsDelayed());
                 return;
@@ -460,7 +439,6 @@ namespace UI.Workshop
             // 1프레임 대기 (Unity UI Layout 계산 완료 대기)
             yield return null;
             
-            Debug.Log("⏰ [EnhancementUI] 1프레임 대기 완료 → MaterialSlot 설정 시작");
             UpdateMaterialSlotsImmediate();
         }
         
@@ -470,24 +448,15 @@ namespace UI.Workshop
         private void UpdateMaterialSlotsImmediate()
         {
             // 모든 슬롯 Clear (이전 데이터 제거)
-            Debug.Log("🧹 [EnhancementUI] 모든 MaterialSlot Clear 시작");
             if (materialSlot1 != null)
                 materialSlot1.ClearSlot();
             if (materialSlot2 != null)
                 materialSlot2.ClearSlot();
             if (materialSlot3 != null)
                 materialSlot3.ClearSlot();
-            Debug.Log("✅ [EnhancementUI] 모든 MaterialSlot Clear 완료");
             
             // 필요 재료 계산
             var requiredMaterials = CalculateRequiredMaterials();
-            if (showDebugLogs)
-            {
-                foreach (var kvp in requiredMaterials)
-                {
-                    Debug.Log($"💎 [EnhancementUI] 필요 재료: {kvp.Key.GetDisplayName()} x{kvp.Value}");
-                }
-            }
             
             // 재료 슬롯 업데이트
             int slotIndex = 0;
@@ -514,18 +483,12 @@ namespace UI.Workshop
                         count = requiredAmount
                     };
                     
-                    if (showDebugLogs)
-                        Debug.Log($"🔧 [EnhancementUI] {targetSlot.name}.SetupMaterial() 호출: {materialType.GetDisplayName()}");
                     targetSlot.SetupMaterial(materialStack);
                     
                     // ⭐ 더 이상 코루틴 불필요: materialCostPanel 활성화 후 1프레임 대기했으므로 Image가 정상 작동
                     
                     // 부족 시 빨간색 표시 (TODO: InventorySlot에 부족 표시 기능 추가 필요)
                     bool isInsufficient = ownedAmount < requiredAmount;
-                    if (isInsufficient && showDebugLogs)
-                    {
-                        Debug.LogWarning($"⚠️ [EnhancementUI] 재료 부족: {materialType.GetDisplayName()} (필요: {requiredAmount}, 보유: {ownedAmount})");
-                    }
                 }
                 
                 slotIndex++;
@@ -538,8 +501,6 @@ namespace UI.Workshop
                 int ownedGold = GetPlayerGold();
                 bool isGoldInsufficient = ownedGold < requiredGold;
                 
-                if (showDebugLogs)
-                    Debug.Log($"💰 [EnhancementUI] UpdateMaterialSlotsImmediate() - 골드: {requiredGold}, 보유 골드: {ownedGold}, 부족: {isGoldInsufficient}");
                 
                 // 골드 부족 시 빨간색
                 if (isGoldInsufficient)
@@ -585,8 +546,6 @@ namespace UI.Workshop
             
             result[materialType] = materialAmount;
             
-            if (showDebugLogs)
-                Debug.Log($"💎 [EnhancementUI] 필요 재료: {materialType.GetDisplayName()} x{materialAmount}");
             
             return result;
         }
@@ -659,13 +618,10 @@ namespace UI.Workshop
             {
                 int gold = PlayerDataManager.Instance.CurrentGold;
                 
-                if (showDebugLogs)
-                    Debug.Log($"🔍 [EnhancementUI] GetPlayerGold() - {gold}");
                 
                 return gold;
             }
             
-            if (showDebugLogs)
                 Debug.LogWarning("⚠️ [EnhancementUI] GetPlayerGold() - PlayerDataManager.Instance가 NULL!");
             
             return 0;
@@ -737,8 +693,6 @@ namespace UI.Workshop
                 successRateBar.color = GetSuccessRateColor(successRate);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"📊 [EnhancementUI] 성공 확률: {successRate:F1}%");
         }
         
         /// <summary>
@@ -810,8 +764,6 @@ namespace UI.Workshop
                 };
             }
             
-            if (showDebugLogs)
-                Debug.Log($"⚠️ [EnhancementUI] 실패 타입: {failureType} (레벨: +{currentLevel})");
         }
         
         /// <summary>
@@ -863,7 +815,6 @@ namespace UI.Workshop
                 }
             }
             
-            if (showDebugLogs && !canEnhance)
                 Debug.LogWarning($"⚠️ [EnhancementUI] 강화 불가: {reason}");
         }
         
@@ -878,8 +829,6 @@ namespace UI.Workshop
                 return;
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🔨 [EnhancementUI] 강화 버튼 클릭: {selectedEquipmentData.equipmentName} +{selectedItemData.enhancementLevel}");
             
             // 귀속 경고 체크 (Phase 4에서 구현 예정)
             bool isBound = AccountDataManager.Instance.IsBound(selectedItemId);
@@ -887,8 +836,6 @@ namespace UI.Workshop
             {
                 // 귀속되지 않은 아이템 → 귀속 경고 표시 (BindWarningPopup)
                 // TODO: Phase 4에서 구현
-                if (showDebugLogs)
-                    Debug.Log("⚠️ [EnhancementUI] 귀속 경고 팝업 표시 (미구현)");
                 
                 // 임시로 바로 강화 진행
                 ExecuteEnhancement();
@@ -911,8 +858,6 @@ namespace UI.Workshop
                 return;
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🔨 [EnhancementUI] 강화 실행 시작: {selectedEquipmentData.equipmentName} +{selectedItemData.enhancementLevel}");
             
             // EnhancementSystem.ExecuteEnhancement() 호출
             var result = EnhancementSystem.ExecuteEnhancement(selectedItemId);
@@ -920,7 +865,6 @@ namespace UI.Workshop
             // 강화 결과 로그
             if (result.success)
             {
-                Debug.Log($"✨ [EnhancementUI] 강화 성공! +{selectedItemData.enhancementLevel - 1} → +{selectedItemData.enhancementLevel}");
                 
                 // TODO: CueSystem으로 성공 이펙트/사운드 재생
                 // CueManager.EmitCue("enhancement.success", transform.position);
@@ -929,14 +873,12 @@ namespace UI.Workshop
             {
                 if (result.wasDestroyed)
                 {
-                    Debug.Log($"💥 [EnhancementUI] 강화 실패 (파괴): {selectedEquipmentData.equipmentName}");
                     
                     // TODO: CueSystem으로 파괴 이펙트/사운드 재생
                     // CueManager.EmitCue("enhancement.destroy", transform.position);
                 }
                 else
                 {
-                    Debug.Log($"⚠️ [EnhancementUI] 강화 실패: {result.errorMessage}");
                     
                     // TODO: CueSystem으로 실패 이펙트/사운드 재생
                     // CueManager.EmitCue("enhancement.fail", transform.position);
@@ -985,8 +927,6 @@ namespace UI.Workshop
                 UpdateEnhanceButton();
             }
             
-            if (showDebugLogs)
-                Debug.Log($"💰 [EnhancementUI] 골드 변경: {newGold}G");
         }
         
         /// <summary>
@@ -1001,8 +941,6 @@ namespace UI.Workshop
                 UpdateEnhanceButton();
             }
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [EnhancementUI] 재료 변경: {materialType.GetDisplayName()} x{newCount}");
         }
         
         /// <summary>
@@ -1015,8 +953,6 @@ namespace UI.Workshop
                 int currentGold = GetPlayerGold();
                 playerGoldText.text = currentGold.ToString(); // ⭐ 상점과 동일: 숫자만 표시
                 
-                if (showDebugLogs)
-                    Debug.Log($"💰 [EnhancementUI] 플레이어 골드 표시 업데이트: {currentGold}");
             }
             else
             {
@@ -1039,10 +975,6 @@ namespace UI.Workshop
             // ⭐ ItemTemplateResolver 사용
             var equipData = ItemTemplateResolver.Load(templateName);
             
-            if (equipData == null && showDebugLogs)
-            {
-                Debug.LogWarning($"⚠️ [EnhancementUI] EquipmentData를 찾을 수 없습니다: {templateName}");
-            }
             
             return equipData;
         }

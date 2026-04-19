@@ -29,7 +29,6 @@ public class ShopBuyPanel : MonoBehaviour
     [SerializeField] private TMP_Text goldText;                 // 플레이어 골드 표시
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private PlayerClass currentClass = PlayerClass.Assasin;   // 기본값: Assasin
@@ -58,8 +57,6 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private System.Collections.IEnumerator InitialLoadCoroutine()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [ShopBuyPanel] InitialLoadCoroutine 시작");
         
         // 1프레임 대기 (모든 Awake() 실행 완료 보장)
         yield return null;
@@ -99,28 +96,19 @@ public class ShopBuyPanel : MonoBehaviour
         
         isInitialized = true;
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopBuyPanel] 초기 데이터 로드 완료: {currentClass}");
     }
     
     void OnEnable()
     {
-        Debug.Log($"🔍 [ShopBuyPanel] OnEnable 호출됨");
-        Debug.Log($"   - PlayerDataManager: {(PlayerDataManager.Instance != null ? "있음" : "NULL")}");
-        Debug.Log($"   - AccountDataManager: {(AccountDataManager.Instance != null ? "있음" : "NULL")}");
-        Debug.Log($"   - goldText: {(goldText != null ? "할당됨" : "NULL")}");
         
         if (goldText != null)
         {
-            Debug.Log($"   - goldText.gameObject: {goldText.gameObject.name}");
-            Debug.Log($"   - goldText.gameObject.activeInHierarchy: {goldText.gameObject.activeInHierarchy}");
         }
         
         // ✅ 골드 변경 이벤트 구독 (PlayerDataManager)
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnGoldChanged += UpdateGoldDisplay;
-            Debug.Log($"✅ [ShopBuyPanel] PlayerDataManager.OnGoldChanged 구독 완료");
         }
         else
         {
@@ -131,7 +119,6 @@ public class ShopBuyPanel : MonoBehaviour
         if (AccountDataManager.Instance != null)
         {
             AccountDataManager.Instance.OnGoldChanged += UpdateGoldDisplay;
-            Debug.Log($"✅ [ShopBuyPanel] AccountDataManager.OnGoldChanged 구독 완료");
         }
         else
         {
@@ -140,7 +127,6 @@ public class ShopBuyPanel : MonoBehaviour
         
         // ✅ 초기 골드 표시
         int currentGold = PlayerDataManager.Instance?.CurrentGold ?? 0;
-        Debug.Log($"🔍 [ShopBuyPanel] 현재 골드: {currentGold}");
         UpdateGoldDisplay(currentGold);
         
         // ✅ Start() 이후에만 데이터 갱신 (상점 재진입 시)
@@ -148,8 +134,6 @@ public class ShopBuyPanel : MonoBehaviour
         {
             SwitchToClass(currentClass);
             
-            if (showDebugLogs)
-                Debug.Log($"🔄 [ShopBuyPanel] OnEnable - 데이터 새로고침 + 골드 표시: {currentClass}");
         }
     }
     
@@ -167,8 +151,6 @@ public class ShopBuyPanel : MonoBehaviour
             AccountDataManager.Instance.OnGoldChanged -= UpdateGoldDisplay;
         }
         
-        if (showDebugLogs)
-            Debug.Log("🔄 [ShopBuyPanel] OnDisable - 골드 이벤트 구독 해제");
     }
     
     /// <summary>
@@ -204,8 +186,6 @@ public class ShopBuyPanel : MonoBehaviour
         // ShopController에서 데이터 가져오기
         LoadShopData(playerClass);
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [ShopBuyPanel] 클래스 탭 전환: {playerClass}");
     }
     
     /// <summary>
@@ -229,7 +209,6 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private void LoadShopData(PlayerClass playerClass)
     {
-        Debug.Log($"🔄 [ShopBuyPanel] LoadShopData({playerClass}) 시작");
         
         if (ShopController.Instance == null)
         {
@@ -237,13 +216,10 @@ public class ShopBuyPanel : MonoBehaviour
             return;
         }
         
-        Debug.Log("   ✅ ShopController.Instance 확인됨");
         
         // ShopController에서 클래스별 데이터 가져오기
-        Debug.Log($"   🔄 GetShopDataByClass({playerClass}) 호출...");
         List<ShopInventoryData> shopData = ShopController.Instance.GetShopDataByClass(playerClass);
         
-        Debug.Log($"   ✅ GetShopDataByClass 반환: {(shopData != null ? shopData.Count.ToString() : "null")}개 카테고리");
         
         if (shopData == null || shopData.Count == 0)
         {
@@ -255,17 +231,13 @@ public class ShopBuyPanel : MonoBehaviour
         // 각 카테고리의 아이템 개수 확인
         foreach (var data in shopData)
         {
-            Debug.Log($"   📦 {data.slot}: {data.items.Count}개 아이템");
         }
         
         // 카테고리 행 생성/업데이트
-        Debug.Log($"   🔄 EnsureCategoryRowsExist({shopData.Count}) 호출...");
         EnsureCategoryRowsExist(shopData.Count);
         
-        Debug.Log("   🔄 UpdateCategoryRows() 호출...");
         UpdateCategoryRows(shopData);
         
-        Debug.Log($"✅ [ShopBuyPanel] 상점 데이터 로드 완료: {playerClass} ({shopData.Count}개 카테고리)");
     }
     
     /// <summary>
@@ -273,7 +245,6 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private void EnsureCategoryRowsExist(int requiredCount)
     {
-        Debug.Log($"   🔍 EnsureCategoryRowsExist() - 현재 행: {categoryRows.Count}개, 필요: {requiredCount}개");
         
         if (categoryListContainer == null)
         {
@@ -287,12 +258,9 @@ public class ShopBuyPanel : MonoBehaviour
             return;
         }
         
-        Debug.Log($"   ✅ categoryListContainer: {categoryListContainer.name}");
-        Debug.Log($"   ✅ categoryRowPrefab: {categoryRowPrefab.name}");
         
         // 부족한 행 생성
         int rowsToCreate = requiredCount - categoryRows.Count;
-        Debug.Log($"   🔧 생성할 행 개수: {rowsToCreate}개");
         
         while (categoryRows.Count < requiredCount)
         {
@@ -302,11 +270,9 @@ public class ShopBuyPanel : MonoBehaviour
         // 초과 행 비활성화
         for (int i = requiredCount; i < categoryRows.Count; i++)
         {
-            Debug.Log($"   ⚪ 행 {i}: 비활성화");
             categoryRows[i].gameObject.SetActive(false);
         }
         
-        Debug.Log($"   ✅ 행 생성/조정 완료 - 총 {categoryRows.Count}개 (활성: {requiredCount}개)");
     }
     
     /// <summary>
@@ -314,7 +280,6 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private void CreateNewCategoryRow()
     {
-        Debug.Log($"      🔨 CreateNewCategoryRow() 호출 - 현재 행 수: {categoryRows.Count}");
         
         if (categoryRowPrefab == null)
         {
@@ -329,11 +294,8 @@ public class ShopBuyPanel : MonoBehaviour
         }
         
         GameObject rowObj = Instantiate(categoryRowPrefab, categoryListContainer);
-        Debug.Log($"      ✅ GameObject 생성: {rowObj.name}");
         
-        Debug.Log($"      🔍 GetComponent<ShopCategoryRow>() 시도...");
         ShopCategoryRow row = rowObj.GetComponent<ShopCategoryRow>();
-        Debug.Log($"      🔍 row = {(row != null ? "NOT NULL" : "NULL")}");
         
         if (row == null)
         {
@@ -347,13 +309,10 @@ public class ShopBuyPanel : MonoBehaviour
             return;
         }
         
-        Debug.Log($"      ✅ ShopCategoryRow 컴포넌트 찾음");
         categoryRows.Add(row);
-        Debug.Log($"      ✅ categoryRows.Add() 완료 - 총 {categoryRows.Count}개");
         
         // 아이템 클릭 이벤트 연결
         row.OnItemClicked += HandleItemClicked;
-        Debug.Log($"      ✅ 이벤트 연결 완료");
     }
     
     /// <summary>
@@ -361,7 +320,6 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private void UpdateCategoryRows(List<ShopInventoryData> shopData)
     {
-        Debug.Log($"   🔄 UpdateCategoryRows() 시작 - shopData: {shopData.Count}개, categoryRows: {categoryRows.Count}개");
         
         // ShopCategory 순서로 정렬 (Weapon → Armor → Boots → Helmet → Belt → Gloves)
         var sortedData = new List<ShopInventoryData>(shopData);
@@ -370,15 +328,12 @@ public class ShopBuyPanel : MonoBehaviour
         for (int i = 0; i < sortedData.Count && i < categoryRows.Count; i++)
         {
             ShopCategory category = EquipmentSlotToShopCategory(sortedData[i].slot);
-            Debug.Log($"   🔄 카테고리 행 {i}: {category} (아이템 {sortedData[i].items.Count}개) - SetupCategory 호출...");
             
             categoryRows[i].SetupCategory(category, sortedData[i].items);
             categoryRows[i].gameObject.SetActive(true);
             
-            Debug.Log($"   ✅ 카테고리 행 {i}: {category} 설정 완료");
         }
         
-        Debug.Log($"   ✅ UpdateCategoryRows() 완료");
         
         // 🆕 Layout 강제 갱신 (UI가 즉시 표시되도록)
         StartCoroutine(ForceRefreshLayoutNextFrame());
@@ -397,11 +352,9 @@ public class ShopBuyPanel : MonoBehaviour
             if (rectTransform != null)
             {
                 UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
-                Debug.Log("🔄 [ShopBuyPanel] Layout 강제 갱신 완료");
                 
                 // Canvas도 강제 갱신
                 Canvas.ForceUpdateCanvases();
-                Debug.Log("🔄 [ShopBuyPanel] Canvas 강제 갱신 완료");
             }
         }
     }
@@ -445,8 +398,6 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private void HandleItemClicked(ItemInstanceID instanceId)
     {
-        if (showDebugLogs)
-            Debug.Log($"🛒 [ShopBuyPanel] 아이템 클릭: {instanceId.Value}");
         
         OnItemClicked?.Invoke(instanceId);
     }
@@ -494,12 +445,10 @@ public class ShopBuyPanel : MonoBehaviour
     /// </summary>
     private void UpdateGoldDisplay(int gold)
     {
-        Debug.Log($"🔍 [ShopBuyPanel] UpdateGoldDisplay 호출됨 - gold: {gold}, goldText: {(goldText != null ? "할당됨" : "NULL")}");
         
         if (goldText != null)
         {
             goldText.text = gold.ToString();
-            Debug.Log($"💰 [ShopBuyPanel] 골드 텍스트 업데이트 완료: {gold}");
         }
         else
         {

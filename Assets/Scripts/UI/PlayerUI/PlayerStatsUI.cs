@@ -24,7 +24,6 @@ public class PlayerStatsUI : MonoBehaviour
     
     [Header("🔧 설정")]
     [SerializeField] private bool autoFindComponents = true;
-    [SerializeField] private bool showDebugLogs = true;
     
     private PlayerRuntimeStats playerRuntimeStats;
     private bool isSubscribed = false;
@@ -59,15 +58,6 @@ public class PlayerStatsUI : MonoBehaviour
         if (defenseText == null)
             defenseText = transform.Find("Defense/Text")?.GetComponent<TextMeshProUGUI>();
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"🔍 [PlayerStatsUI] UI 컴포넌트 찾기 결과:");
-            Debug.Log($"   - 공격력: {(attackDamageText != null ? "✅" : "❌")}");
-            Debug.Log($"   - 이동속도: {(moveSpeedText != null ? "✅" : "❌")}");
-            Debug.Log($"   - 최대체력: {(maxHealthText != null ? "✅" : "❌")}");
-            Debug.Log($"   - 크리티컬: {(criticalChanceText != null ? "✅" : "❌")}");
-            Debug.Log($"   - 방어력: {(defenseText != null ? "✅" : "❌")}");
-        }
     }
     
     /// <summary>
@@ -94,8 +84,6 @@ public class PlayerStatsUI : MonoBehaviour
             // 초기 스탯 표시
             RefreshAllStats();
             
-            if (showDebugLogs)
-                Debug.Log($"🎯 [PlayerStatsUI] PlayerRuntimeStats 연결 완료");
         }
         else if (playerRuntimeStats == null)
         {
@@ -130,8 +118,6 @@ public class PlayerStatsUI : MonoBehaviour
         UpdateCriticalChanceText(playerRuntimeStats.FinalCriticalChance);
         UpdateDefenseText(playerRuntimeStats.FinalDefense);
         
-        if (showDebugLogs)
-            Debug.Log($"📊 [PlayerStatsUI] 모든 스탯 새로고침 완료");
     }
     
     #region 개별 스탯 변경 이벤트 핸들러

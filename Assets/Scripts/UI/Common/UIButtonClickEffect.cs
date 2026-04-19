@@ -43,7 +43,6 @@ public class UIButtonClickEffect : MonoBehaviour
     [Tooltip("자동: ui.button.{타입명} / 수동: customCueKey 입력")]
     
     [Header("디버그")]
-    [SerializeField] private bool showDebugLogs = false;
     
     #endregion
     
@@ -104,11 +103,6 @@ public class UIButtonClickEffect : MonoBehaviour
             button.onClick.AddListener(OnClickEffectOnly);
         }
         
-        if (showDebugLogs)
-        {
-            int persistentCount = button.onClick.GetPersistentEventCount();
-            Debug.Log($"🎯 [UIButtonClickEffect] {gameObject.name}: 설정 완료 (딜레이: {enableClickDelay}, Persistent 이벤트: {persistentCount}개)");
-        }
     }
     
     private void OnDisable()
@@ -139,8 +133,6 @@ public class UIButtonClickEffect : MonoBehaviour
         {
             originalScale = scaleTarget.localScale;
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [UIButtonClickEffect] {gameObject.name}: scaleTarget 이미 설정됨 (수동 설정)");
             
             return;
         }
@@ -148,8 +140,6 @@ public class UIButtonClickEffect : MonoBehaviour
         // 자동 탐색
         if (autoCreateScaleTarget)
         {
-            if (showDebugLogs)
-                Debug.Log($"🔍 [UIButtonClickEffect] {gameObject.name}: scaleTarget 자동 탐색 시작 (자식 수: {transform.childCount})");
             
             // 첫 번째 자식 RectTransform 찾기
             if (transform.childCount > 0)
@@ -160,20 +150,16 @@ public class UIButtonClickEffect : MonoBehaviour
                 {
                     originalScale = scaleTarget.localScale;
                     
-                    if (showDebugLogs)
-                        Debug.Log($"✅ [UIButtonClickEffect] {gameObject.name}: 자식 RectTransform을 scaleTarget으로 설정 ({scaleTarget.name})");
                     
                     return;
                 }
                 else
                 {
-                    if (showDebugLogs)
                         Debug.LogWarning($"⚠️ [UIButtonClickEffect] {gameObject.name}: 첫 번째 자식이 RectTransform이 아님 ({transform.GetChild(0).GetType()})");
                 }
             }
             else
             {
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [UIButtonClickEffect] {gameObject.name}: 자식이 없음 (childCount: 0)");
             }
         }
@@ -182,8 +168,6 @@ public class UIButtonClickEffect : MonoBehaviour
         scaleTarget = GetComponent<RectTransform>();
         originalScale = scaleTarget.localScale;
         
-        if (showDebugLogs)
-            Debug.Log($"⚠️ [UIButtonClickEffect] {gameObject.name}: 버튼 자체를 scaleTarget으로 사용 (Layout Group 주의!)");
     }
     
     /// <summary>
@@ -199,23 +183,11 @@ public class UIButtonClickEffect : MonoBehaviour
         // 1. 기존 onClick 백업 (Persistent + Runtime 이벤트 모두 포함)
         originalOnClick = button.onClick;
         
-        if (showDebugLogs)
-        {
-            int persistentCount = originalOnClick.GetPersistentEventCount();
-            
-            Debug.Log($"📦 [UIButtonClickEffect] {gameObject.name}: onClick 백업 완료\n" +
-                     $"   - Button Type: {buttonType}\n" +
-                     $"   - Delay: {effectDelayTime}초\n" +
-                     $"   - Persistent 이벤트: {persistentCount}개\n" +
-                     $"   - Runtime 이벤트도 포함됨 (백업 완료)");
-        }
         
         // 2. 새로운 onClick으로 완전 교체 (효과 핸들러만)
         button.onClick = new Button.ButtonClickedEvent();
         button.onClick.AddListener(OnClickWithDelay);
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [UIButtonClickEffect] {gameObject.name}: 클릭 딜레이 시스템 설정 완료");
     }
     
     #endregion
@@ -227,8 +199,6 @@ public class UIButtonClickEffect : MonoBehaviour
     /// </summary>
     private void OnClickEffectOnly()
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [UIButtonClickEffect] {gameObject.name} 클릭! (타입: {buttonType}, 딜레이 비활성화)");
         
         PlayClickEffect();
         EmitCueEvent();
@@ -239,8 +209,6 @@ public class UIButtonClickEffect : MonoBehaviour
     /// </summary>
     private void OnClickWithDelay()
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [UIButtonClickEffect] {gameObject.name} 클릭! (타입: {buttonType}, 딜레이: {effectDelayTime}초)");
         
         StartCoroutine(ClickEffectSequence());
     }
@@ -250,35 +218,23 @@ public class UIButtonClickEffect : MonoBehaviour
     /// </summary>
     private IEnumerator ClickEffectSequence()
     {
-        if (showDebugLogs)
-            Debug.Log($"🎬 [UIButtonClickEffect] {gameObject.name}: ClickEffectSequence 시작");
         
         // 1. 효과 재생
-        if (showDebugLogs)
-            Debug.Log($"1️⃣ [UIButtonClickEffect] {gameObject.name}: PlayClickEffect 호출");
         
         PlayClickEffect();
         
         // 2. Cue 이벤트 발행
-        if (showDebugLogs)
-            Debug.Log($"2️⃣ [UIButtonClickEffect] {gameObject.name}: EmitCueEvent 호출");
         
         EmitCueEvent();
         
         // 3. 딜레이 (효과를 볼 시간 제공)
-        if (showDebugLogs)
-            Debug.Log($"3️⃣ [UIButtonClickEffect] {gameObject.name}: {effectDelayTime}초 대기 중...");
         
         yield return new WaitForSecondsRealtime(effectDelayTime);
         
         // 4. 원래 onClick 이벤트 실행
-        if (showDebugLogs)
-            Debug.Log($"4️⃣ [UIButtonClickEffect] {gameObject.name}: 딜레이 완료, onClick 실행 시작");
         
         InvokeOriginalClickEvents();
         
-        if (showDebugLogs)
-            Debug.Log($"🏁 [UIButtonClickEffect] {gameObject.name}: ClickEffectSequence 완료");
     }
     
     /// <summary>
@@ -288,22 +244,14 @@ public class UIButtonClickEffect : MonoBehaviour
     {
         if (originalOnClick == null)
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [UIButtonClickEffect] {gameObject.name}: 백업된 onClick 이벤트가 없습니다!");
             return;
         }
         
-        if (showDebugLogs)
-        {
-            int persistentCount = originalOnClick.GetPersistentEventCount();
-            Debug.Log($"▶️ [UIButtonClickEffect] {gameObject.name}: 백업된 onClick 실행 중... (Persistent: {persistentCount}개)");
-        }
         
         // 백업된 onClick 실행 (Persistent + Runtime 이벤트 모두 포함)
         originalOnClick.Invoke();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [UIButtonClickEffect] {gameObject.name}: onClick 실행 완료!");
     }
     
     #endregion
@@ -315,8 +263,6 @@ public class UIButtonClickEffect : MonoBehaviour
     /// </summary>
     private void PlayClickEffect()
     {
-        if (showDebugLogs)
-            Debug.Log($"🎨 [UIButtonClickEffect] {gameObject.name}: PlayClickEffect 시작 (타입: {buttonType}, scaleTarget: {scaleTarget != null})");
         
         // scaleTarget 필수 체크
         if (scaleTarget == null)
@@ -351,8 +297,6 @@ public class UIButtonClickEffect : MonoBehaviour
                 break;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [UIButtonClickEffect] {gameObject.name}: PlayClickEffect 완료");
     }
     
     /// <summary>
@@ -382,8 +326,6 @@ public class UIButtonClickEffect : MonoBehaviour
     {
         if (scaleTarget != null)
         {
-            if (showDebugLogs)
-                Debug.Log($"💥 [UIButtonClickEffect] {gameObject.name}: Action Punch 효과 시작 (punchScale: {punchScale})");
             
             currentScaleTween = scaleTarget.DOPunchScale(Vector3.one * punchScale, scaleDuration * 3f, 5, 0.5f)
                 .SetEase(Ease.OutElastic)
@@ -392,8 +334,6 @@ public class UIButtonClickEffect : MonoBehaviour
                 {
                     currentScaleTween = null;
                     
-                    if (showDebugLogs)
-                        Debug.Log($"✅ [UIButtonClickEffect] {gameObject.name}: Action Punch 효과 완료");
                 });
         }
         else
@@ -461,8 +401,6 @@ public class UIButtonClickEffect : MonoBehaviour
         var context = CueContext.From(transform, 1.0f);
         bool success = CueEmitter.Emit(eventKey, "UI", context);
         
-        if (showDebugLogs)
-            Debug.Log($"🎵 [UIButtonClickEffect] Cue 발행: {eventKey} → {(success ? "성공" : "실패")}");
     }
     
     /// <summary>

@@ -42,7 +42,6 @@ namespace UI.Workshop
         [SerializeField] private ResultFeedbackPopup resultFeedbackPopup;
 
         [Header("=== 디버그 ===")]
-        [SerializeField] private bool showDebugLogs = true;
 
         // 상태 관리
         private List<ItemInstanceID> selectedItemIds = new List<ItemInstanceID>();
@@ -62,8 +61,6 @@ namespace UI.Workshop
         /// </summary>
         public void Initialize()
         {
-            if (showDebugLogs)
-                Debug.Log("📦 [DismantleUI] 초기화 시작");
             
             // ⭐ WorkshopInventoryUI 이벤트 구독
             if (workshopInventoryUI != null)
@@ -71,8 +68,6 @@ namespace UI.Workshop
                 workshopInventoryUI.OnSelectionChanged -= OnInventorySelectionChanged;
                 workshopInventoryUI.OnSelectionChanged += OnInventorySelectionChanged;
                 
-                if (showDebugLogs)
-                    Debug.Log("✅ [DismantleUI] WorkshopInventoryUI 이벤트 구독 완료");
             }
             else
             {
@@ -83,8 +78,6 @@ namespace UI.Workshop
             selectedItemIds.Clear();
             UpdateUI();
             
-            if (showDebugLogs)
-                Debug.Log("✅ [DismantleUI] 초기화 완료");
         }
 
         private void OnDisable()
@@ -101,8 +94,6 @@ namespace UI.Workshop
         /// </summary>
         private void OnInventorySelectionChanged(List<ItemInstanceID> selectedIds)
         {
-            if (showDebugLogs)
-                Debug.Log($"🔔 [DismantleUI] 선택 변경 이벤트: {selectedIds.Count}개");
             
             selectedItemIds = new List<ItemInstanceID>(selectedIds);
             UpdateUI();
@@ -113,12 +104,10 @@ namespace UI.Workshop
         /// </summary>
         private void OnCancelButtonClicked()
         {
-            Debug.Log("🚫 [DismantleUI] 취소 버튼 클릭 - 선택 초기화 시작");
             
             if (workshopInventoryUI != null)
             {
                 workshopInventoryUI.ClearSelection();
-                Debug.Log("✅ [DismantleUI] WorkshopInventoryUI.ClearSelection() 호출 완료");
             }
             else
             {
@@ -197,8 +186,6 @@ namespace UI.Workshop
                 }
             }
 
-            if (showDebugLogs)
-                Debug.Log($"📊 [DismantleUI] 선택 요약 - 대표: {equipData.equipmentName}, 총 {selectedItemIds.Count}개");
         }
 
         /// <summary>
@@ -305,20 +292,10 @@ namespace UI.Workshop
             // 1. 선택된 아이템들로 보상 계산 (재료만, 골드 제외)
             Dictionary<MaterialType, int> rewards = CalculateTotalDismantleRewards(selectedItemIds);
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"💎 [DismantleUI] 보상 계산 완료 - 재료 {rewards.Count}종류");
-                foreach (var reward in rewards)
-                {
-                    Debug.Log($"   ├─ {reward.Key.GetDisplayName()}: {reward.Value}개");
-                }
-            }
 
             // 2. 슬롯 크기 계산
             int slotSize = CalculateSlotSize(rewards.Count);
             
-            if (showDebugLogs)
-                Debug.Log($"📏 [DismantleUI] 슬롯 크기: {slotSize}px (재료 {rewards.Count}종류)");
 
             // 3. 기존 슬롯 제거
             ClearRewardSlots();
@@ -326,8 +303,6 @@ namespace UI.Workshop
             // 4. ⭐ Phase 0 교훈: Panel 활성화 후 1프레임 대기
             if (rewardPreview != null && !rewardPreview.activeSelf)
             {
-                if (showDebugLogs)
-                    Debug.Log("🔍 [DismantleUI] rewardPreview 활성화 → 1프레임 대기 후 슬롯 설정");
                 
                 rewardPreview.SetActive(true);
                 StartCoroutine(UpdateRewardPreviewDelayed(rewards, slotSize));
@@ -345,8 +320,6 @@ namespace UI.Workshop
         {
             var totalRewards = new Dictionary<MaterialType, int>();
             
-            if (showDebugLogs)
-                Debug.Log($"💰 [DismantleUI] 보상 계산 시작 - 아이템 {itemIds.Count}개");
 
             int processedCount = 0;
             foreach (var itemId in itemIds)
@@ -354,8 +327,6 @@ namespace UI.Workshop
                 var itemRewards = DismantleSystem.CalculateDismantleReward(itemId);
                 processedCount++;
                 
-                if (showDebugLogs)
-                    Debug.Log($"   [{processedCount}] {itemId} → 재료 {itemRewards.Count}종류");
                 
                 foreach (var reward in itemRewards)
                 {
@@ -374,8 +345,6 @@ namespace UI.Workshop
                 }
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [DismantleUI] 보상 계산 완료 - 처리된 아이템: {processedCount}개");
 
             // ⭐ 최종적으로 count가 0 이하인 재료 제거 (안전장치)
             var filteredRewards = new Dictionary<MaterialType, int>();
@@ -397,8 +366,6 @@ namespace UI.Workshop
         {
             yield return null; // 1프레임 대기 (Layout Group 초기화)
             
-            if (showDebugLogs)
-                Debug.Log("⏰ [DismantleUI] 1프레임 대기 완료 → 보상 슬롯 생성 시작");
             
             UpdateRewardPreviewImmediate(rewards, slotSize);
         }
@@ -416,8 +383,6 @@ namespace UI.Workshop
                 {
                     gridLayout.cellSize = new Vector2(slotSize, slotSize);
                     
-                    if (showDebugLogs)
-                        Debug.Log($"📐 [DismantleUI] GridLayoutGroup Cell Size 설정: {slotSize}x{slotSize}");
                 }
             }
             
@@ -426,8 +391,6 @@ namespace UI.Workshop
                 CreateMaterialSlot(reward.Key, reward.Value, slotSize);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [DismantleUI] 보상 슬롯 {rewards.Count}개 생성 완료");
         }
 
         /// <summary>
@@ -479,8 +442,6 @@ namespace UI.Workshop
 
             slot.SetupMaterial(materialStack);
             
-            if (showDebugLogs)
-                Debug.Log($"📦 [DismantleUI] 재료 슬롯 설정 완료: {materialType.GetDisplayName()} x{count}");
         }
 
         /// <summary>
@@ -508,8 +469,6 @@ namespace UI.Workshop
                 DestroyImmediate(child.gameObject);
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🧹 [DismantleUI] 기존 슬롯 {childCount}개 즉시 제거 완료");
         }
 
         /// <summary>
@@ -546,8 +505,6 @@ namespace UI.Workshop
                 return;
             }
 
-            if (showDebugLogs)
-                Debug.Log($"🔨 [DismantleUI] 분해 버튼 클릭 - {selectedItemIds.Count}개 아이템");
             
             ShowConfirmation();
         }
@@ -581,8 +538,6 @@ namespace UI.Workshop
                 onCancel: OnConfirmationCancelled // ⭐ 취소 시 선택 초기화
             );
 
-            if (showDebugLogs)
-                Debug.Log($"💬 [DismantleUI] 확인 팝업 표시: {selectedItemIds.Count}개 아이템");
         }
 
         /// <summary>
@@ -590,7 +545,6 @@ namespace UI.Workshop
         /// </summary>
         private void OnConfirmationCancelled()
         {
-            Debug.Log("🚫 [DismantleUI] 확인 팝업 취소 - 선택 초기화");
             
             if (workshopInventoryUI != null)
             {
@@ -607,8 +561,6 @@ namespace UI.Workshop
         /// </summary>
         private void ExecuteDismantle()
         {
-            if (showDebugLogs)
-                Debug.Log($"⚙️ [DismantleUI] 분해 실행 시작 - {selectedItemIds.Count}개");
 
             // 다중 아이템 분해
             var totalRewards = new Dictionary<MaterialType, int>();
@@ -642,8 +594,7 @@ namespace UI.Workshop
                 }
             }
 
-            if (showDebugLogs)
-                Debug.Log($"✅ [DismantleUI] 분해 완료 - 성공: {successCount}, 실패: {failCount}, 재료 {totalRewards.Count}종류 획득");
+                Dbg.Log($"✅ [DismantleUI] 분해 완료 - 성공: {successCount}, 실패: {failCount}, 재료 {totalRewards.Count}종류 획득");
 
             // 결과 팝업 표시
             if (resultFeedbackPopup != null && successCount > 0)
@@ -661,8 +612,6 @@ namespace UI.Workshop
                 workshopInventoryUI.ClearSelection();
                 workshopInventoryUI.RefreshInventoryDisplay(); // ⭐ 분해된 아이템 즉시 UI에서 제거
                 
-                if (showDebugLogs)
-                    Debug.Log("🔄 [DismantleUI] 인벤토리 UI 갱신 완료");
             }
             else
             {

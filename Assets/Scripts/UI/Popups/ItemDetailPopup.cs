@@ -74,7 +74,6 @@ namespace UI.Popups
         [SerializeField] private Button backgroundButton;            // 배경 클릭 버튼 (닫기)
         
         [Header("📊 디버그")]
-        [SerializeField] private bool showDebugLogs = false; // ⭐ 프로덕션 기본값
         
         #endregion
         
@@ -844,7 +843,6 @@ namespace UI.Popups
             Hide();
             
             // TODO: DismantleUI 팝업 열기 (Phase 5 UI 구현 시)
-            Debug.Log($"[TODO] 분해 UI 열기: {currentItem?.equipmentName}");
         }
         
         /// <summary>
@@ -858,7 +856,6 @@ namespace UI.Popups
             Hide();
             
             // TODO: EnhancementUI 팝업 열기 (Phase 7 UI 구현 시)
-            Debug.Log($"[TODO] 강화 UI 열기: {currentItem?.equipmentName}");
         }
         
         /// <summary>
@@ -872,7 +869,6 @@ namespace UI.Popups
             Hide();
             
             // TODO: FusionUI 팝업 열기 (Phase 6 UI 구현 시)
-            Debug.Log($"[TODO] 합성 UI 열기: {currentItem?.equipmentName}");
         }
         
         /// <summary>
@@ -920,7 +916,6 @@ namespace UI.Popups
             // }
             
             // ⭐ 임시: TODO 구현 전까지는 메시지만 표시하고 팝업 닫기
-            Debug.Log($"[TODO] BatchSellUI에 추가: {currentItem.equipmentName}");
             StartCoroutine(ShowTransactionResult(true, "일괄판매 리스트에 추가됨! (TODO)"));
         }
         
@@ -1683,10 +1678,6 @@ namespace UI.Popups
         /// </summary>
         private void Log(string message)
         {
-            if (showDebugLogs)
-            {
-                Debug.Log(message);
-            }
         }
         
         #endregion

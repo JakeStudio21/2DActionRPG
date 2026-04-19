@@ -82,7 +82,6 @@ public class LobbyUIController : MonoBehaviour
     
     void Start()
     {
-        Debug.Log("🚀 [LobbyUIController] Start() 시작");
         
         // LobbyInitializer로 모든 UI 초기화 위임
         if (lobbyInitializer != null)
@@ -117,7 +116,6 @@ public class LobbyUIController : MonoBehaviour
         // ⚡ 스태미나 UI 갱신 시작 (1초마다)
         InvokeRepeating(nameof(UpdateStaminaUI), 0f, 1f);
         
-        Debug.Log("✅ [LobbyUIController] Start() 완료");
     }
     
     /// <summary>
@@ -201,7 +199,6 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return;
         
-        Debug.Log("🏪 [LobbyUIController] ShowShopPanel 호출됨");
         
         // 패널 전환 (LobbyPanelManager로 위임)
         if (panelManager != null)
@@ -212,7 +209,6 @@ public class LobbyUIController : MonoBehaviour
         // 상점 데이터 동기화
         StartCoroutine(SafeRefreshShopData());
         
-        Debug.Log("[LobbyUIController] 상점 패널 표시 완료");
     }
 
     /// <summary>
@@ -231,7 +227,6 @@ public class LobbyUIController : MonoBehaviour
             
             if (loadSuccess)
             {
-                Debug.Log($"🔄 [LobbyUIController] 상점 진입 시 캐릭터 {selectedSlot} 데이터 로드 완료");
             }
             else
             {
@@ -262,7 +257,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnMapButtonClicked()
     {
-        Debug.Log("[LobbyUIController] Map 버튼 클릭! 스테이지 선택으로 전환합니다.");
         
         // 캐릭터가 선택되었는지 확인
         if (LobbyManager.Instance == null)
@@ -329,8 +323,7 @@ public class LobbyUIController : MonoBehaviour
             return; // 검증 실패 시 씬 이동 취소
         }
         
-        Debug.Log($"[LobbyUIController] 게임 시작: {sceneName}");
-        Debug.Log($"[LobbyUIController] 플레이어 정보: {playerData.selectedPlayerType}");
+        Dbg.Log($"[LobbyUIController] 게임 시작: {sceneName}");
         
         // 게임 씬으로 이동
         GameManager.Instance.LoadGameScene(sceneName);
@@ -345,7 +338,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnDungeonButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 🏰 Dungeon 버튼 클릭!");
         
         // 캐릭터 선택 체크
         if (!EnsureCharacterSelected()) return;
@@ -393,8 +385,7 @@ public class LobbyUIController : MonoBehaviour
             return; // 검증 실패 시 씬 이동 취소
         }
         
-        Debug.Log($"[LobbyUIController] 🏰 던전 입장: {sceneName}");
-        Debug.Log($"[LobbyUIController] 🏰 플레이어 정보: {playerData.selectedPlayerType}");
+        Dbg.Log($"[LobbyUIController] 🏰 던전 입장: {sceneName}");
         
         // 던전 씬으로 이동
         GameManager.Instance.LoadGameScene(sceneName);
@@ -405,7 +396,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void OnDungeonBackButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 🏰 던전 선택에서 로비로 돌아갑니다.");
         
         // 로비 패널로 전환
         if (panelManager != null)
@@ -419,7 +409,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void OnStageBackButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 캐릭터 선택 화면으로 돌아갑니다.");
         
         // 로비 패널로 전환
         if (panelManager != null)
@@ -441,7 +430,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnBackToCharacterSelect()
     {
-        Debug.Log("[LobbyUIController] 캐릭터 선택으로 돌아갑니다");
         ShowLobbyPanel();
     }
     
@@ -450,12 +438,10 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnBackToLobby()
     {
-        Debug.Log("[LobbyUIController] 로비 메인으로 돌아갑니다");
         
         // ✅ 명확한 저장 시점: 로비로 돌아가기 = 인벤토리/상점 작업 완료
         if (PlayerDataManager.Instance != null)
         {
-            Debug.Log("💾 [LobbyUIController] 로비 복귀 - 데이터 저장");
             PlayerDataManager.Instance.SaveOnMeaningfulEvent("ReturnToLobby");
         }
         
@@ -507,7 +493,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void ShowInventoryPanel()
     {
-        Debug.Log($"🎒 [LobbyUIController] ShowInventoryPanel() 호출 (슬롯 {selectedSlotIndex})");
         
         if (!EnsureCharacterSelected()) 
         {
@@ -530,7 +515,6 @@ public class LobbyUIController : MonoBehaviour
         
         if (inventoryUI != null)
         {
-            Debug.Log($"🔄 [LobbyUIController] ForceRefreshWithLobbySelectedCharacter({selectedSlotIndex}) 호출");
             inventoryUI.ForceRefreshWithLobbySelectedCharacter(selectedSlotIndex);
         }
         else
@@ -538,7 +522,6 @@ public class LobbyUIController : MonoBehaviour
             Debug.LogError("❌ [LobbyUIController] LobbyInventoryUI 컴포넌트를 찾을 수 없습니다!");
         }
         
-        Debug.Log($"✅ [LobbyUIController] 인벤토리 패널 표시 완료");
     }
     
     /// <summary>
@@ -546,7 +529,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private IEnumerator LazyLoadAndShowInventory()
     {
-        Debug.Log("🔄 [LobbyUIController] 인벤토리 진입 - 캐릭터 데이터 지연 로드 시작");
         
         // 1. 선택된 캐릭터 데이터 완전 로드
         int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
@@ -576,8 +558,6 @@ public class LobbyUIController : MonoBehaviour
             panelManager.ShowInventoryPanel();
         }
         
-        Debug.Log("[LobbyUIController] 인벤토리 패널 활성화");
-        Debug.Log("✅ [LobbyUIController] 인벤토리 진입 완료 (지연 로드)");
     }
 
     /// <summary>
@@ -585,7 +565,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private IEnumerator RefreshInventoryRelatedUIs()
     {
-        Debug.Log("🔄 [LobbyUIController] 인벤토리 관련 UI 갱신 시작");
         
         // LobbyInventoryUI 갱신 대기
         var lobbyInventoryUI = FindObjectOfType<LobbyInventoryUI>();
@@ -595,7 +574,6 @@ public class LobbyUIController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
-        Debug.Log("✅ [LobbyUIController] 인벤토리 관련 UI 갱신 완료");
     }
 
     /// <summary>
@@ -603,7 +581,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private IEnumerator LazyLoadAndShowCharacterInfo()
     {
-        Debug.Log("🔄 [LobbyUIController] 캐릭터 정보창 진입 - 캐릭터 데이터 지연 로드 시작");
         
         // 1. 선택된 캐릭터 데이터 완전 로드
         int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
@@ -633,8 +610,6 @@ public class LobbyUIController : MonoBehaviour
             panelManager.ShowCharacterInfoPanel();
         }
         
-        Debug.Log("[LobbyUIController] 캐릭터 정보 패널 활성화");
-        Debug.Log("✅ [LobbyUIController] 캐릭터 정보창 진입 완료 (지연 로드)");
     }
 
     /// <summary>
@@ -642,7 +617,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private IEnumerator RefreshCharacterInfoRelatedUIs()
     {
-        Debug.Log("🔄 [LobbyUIController] 캐릭터 정보 관련 UI 갱신 시작");
         
         // CharacterInfoUI 갱신 대기
         var characterInfoUI = FindObjectOfType<CharacterInfoUI>();
@@ -652,7 +626,6 @@ public class LobbyUIController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
-        Debug.Log("✅ [LobbyUIController] 캐릭터 정보 관련 UI 갱신 완료");
     }
     
     private void SetPanelVisibility(GameObject panel, bool isVisible)
@@ -660,7 +633,6 @@ public class LobbyUIController : MonoBehaviour
         if (panel != null)
         {
             //  디버그: 어떤 패널이 언제 변경되는지 확인
-            Debug.Log($"�� [LobbyUIController] SetPanelVisibility: {panel.name} → {isVisible}");
             panel.SetActive(isVisible);
         }
     }
@@ -671,7 +643,6 @@ public class LobbyUIController : MonoBehaviour
     
     public void OnLogoutButton()
     {
-        Debug.Log("[LobbyUIController] 로그아웃 버튼 클릭!");
     }
     
     // 🗑️ [삭제됨] public void OnCharacterSelectButton()
@@ -701,7 +672,6 @@ public class LobbyUIController : MonoBehaviour
                 bool success = PlayerDataManager.Instance.SelectSlot(slotIndex);
                 if (success)
                 {
-                    Debug.Log($"🔄 [LobbyUIController] 슬롯 완전 전환 완료: {className} → 슬롯 {slotIndex}");
                     // OnClassSelected(className); // 🗑️ 제거
                 }
                 else
@@ -721,7 +691,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     // public void OnBagButton()
     // {
-    //     Debug.Log("[LobbyUIController] Bag 버튼 클릭!");
     //     ShowInventoryPanel();
     // }
     
@@ -730,7 +699,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnShopButton()
     {
-        Debug.Log("[LobbyUIController] Shop 버튼 클릭!");
         ShowShopPanel();
     }
 
@@ -739,7 +707,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnHeroButton()
     {
-        Debug.Log("[LobbyUIController] Hero 버튼 클릭!");
         ShowCharacterInfoPanel();
     }
     
@@ -748,7 +715,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnWorkshopButton()
     {
-        Debug.Log("[LobbyUIController] Workshop 버튼 클릭!");
         ShowWorkshopPanel();
     }
     
@@ -758,7 +724,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnSkillBookButton()
     {
-        Debug.Log("[LobbyUIController] SkillBook 버튼 클릭!");
         ShowSkillBookPanel();
     }
     
@@ -781,7 +746,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnSlotButtonClicked(int slotIndex)
     {
-        Debug.Log($"[LobbyUIController] 슬롯 {slotIndex} 버튼 클릭");
         
         if (PlayerDataManager.Instance == null) return;
         
@@ -812,7 +776,6 @@ public class LobbyUIController : MonoBehaviour
         var slotData = PlayerDataManager.Instance?.GetSlotData(slotIndex);
         if (slotData == null || !slotData.isSlotUsed) return;
         
-        Debug.Log($"🎯 [LobbyUIController] 슬롯 {slotIndex} 선택됨: {slotData.playerName}");
         
         // 내부 selectedSlotIndex 동기화
         selectedSlotIndex = slotIndex;
@@ -833,13 +796,11 @@ public class LobbyUIController : MonoBehaviour
         // StageSelectPanelController 초기화
         stageSelectPanelController?.RefreshStageProgressUI();
         
-        Debug.Log($"✅ [LobbyUIController] 슬롯 선택 완료");
     }
     
     // 🔧 Step 2-2: 캐릭터 생성 시작 (빈 슬롯)
     private void StartCharacterCreation(int slotIndex)
     {
-        Debug.Log($"[LobbyUIController] 🎯 캐릭터 생성 시작: 슬롯 {slotIndex}");
         
         // 🔍 디버그: CharacterCreationController 참조 상태
         if (characterCreationController == null)
@@ -859,9 +820,7 @@ public class LobbyUIController : MonoBehaviour
             }
         }
         
-        Debug.Log($"[LobbyUIController] ✅ CharacterCreationController 참조 정상, StartCharacterCreation() 호출 중...");
         characterCreationController.StartCharacterCreation(slotIndex);
-        Debug.Log($"[LobbyUIController] ✅ CharacterCreationController.StartCharacterCreation() 호출 완료");
     }
     
     // 🔧 Step 2-2: 선택된 캐릭터 정보 업데이트
@@ -886,7 +845,6 @@ public class LobbyUIController : MonoBehaviour
     // 🔧 Step 2-2: 캐릭터 삭제 버튼 클릭
     public void OnDeleteSlotButtonClicked(int slotIndex)
     {
-        Debug.Log($"[LobbyUIController] 슬롯 {slotIndex} 삭제 버튼 클릭");
         
         if (PlayerDataManager.Instance == null) return;
         
@@ -903,7 +861,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void ShowDeleteConfirmationPopup(int slotIndex, PlayerSlotData slotData)
     {
-        Debug.Log($"[LobbyUIController] 캐릭터 삭제 확인 팝업 표시: 슬롯 {slotIndex}");
         
         // 🔍 디버그: ConfirmationPopup 참조 상태
         if (confirmationPopup == null)
@@ -927,12 +884,10 @@ public class LobbyUIController : MonoBehaviour
             message,
             detail,
             onConfirm: () => {
-                Debug.Log($"[LobbyUIController] 사용자가 삭제를 확인했습니다.");
                 DeleteCharacterSlot(slotIndex, slotData);
                 ShowLobbyPanel();  // 🆕 삭제 후 로비로 복귀
             },
             onCancel: () => {
-                Debug.Log($"[LobbyUIController] 사용자가 삭제를 취소했습니다.");
                 ShowLobbyPanel();  // 🆕 취소 시 로비로 복귀
             }
         );
@@ -943,13 +898,11 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void DeleteCharacterSlot(int slotIndex, PlayerSlotData slotData)
     {
-        Debug.Log($"[LobbyUIController] 캐릭터 삭제 실행: 슬롯 {slotIndex}, {slotData.playerName}");
         
         bool success = PlayerDataManager.Instance.DeleteSlot(slotIndex);
         
         if (success)
         {
-            Debug.Log($"[LobbyUIController] ✅ 캐릭터 삭제 성공: {slotData.playerName}");
             
             // 삭제된 슬롯이 현재 선택된 슬롯이라면 다른 슬롯 자동 선택
             if (selectedSlotIndex == slotIndex)
@@ -986,7 +939,6 @@ public class LobbyUIController : MonoBehaviour
                 }
             }
             
-            Debug.Log($"[LobbyUIController] 캐릭터 삭제 후 모든 UI 갱신 완료");
         }
         else
         {
@@ -1060,7 +1012,7 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"[LobbyUIController] 게임 시작: {slotData.playerName}({slotData.playerType})");
+        Dbg.Log($"[LobbyUIController] 게임 시작: {slotData.playerName}({slotData.playerType})");
         
         // 스테이지 선택 UI 활성화
         ShowStageSelectPanel();
@@ -1069,13 +1021,11 @@ public class LobbyUIController : MonoBehaviour
     // 🆕 게임 종료 버튼 클릭 이벤트
     public void OnQuitGameButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 게임 종료 요청 - 회사 로고 페이드 효과 시작");
         
         // 현재 데이터 저장
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
         {
             PlayerDataManager.Instance.SaveCurrentSlot();
-            Debug.Log("[LobbyUIController] 게임 종료 전 데이터 저장 완료");
         }
         
         // 🆕 회사 로고 페이드 효과 시작
@@ -1093,13 +1043,11 @@ public class LobbyUIController : MonoBehaviour
     // 🆕 회사 로고 페이드 효과 코루틴 (페이드아웃 제거 버전)
     private IEnumerator ShowCompanyLogoAndQuit()
     {
-        Debug.Log("[LobbyUIController] 회사 로고 표시 및 종료 시작");
         
         // 🎯 0단계: CompanyLogoImage를 최상위로 이동 (모든 UI 위에 표시)
         if (companyLogoImage != null)
         {
             companyLogoImage.transform.SetAsLastSibling();
-            Debug.Log($"[LobbyUIController] 🔝 CompanyLogoImage를 최상위로 이동 (Sibling Index: {companyLogoImage.transform.GetSiblingIndex()})");
         }
         
         // 초기 설정: 알파값 0으로 시작
@@ -1108,7 +1056,6 @@ public class LobbyUIController : MonoBehaviour
         companyLogoImage.color = logoColor;
         
         // 1단계: 페이드인 (1초)
-        Debug.Log("[LobbyUIController] 페이드인 시작");
         float elapsedTime = 0f;
         while (elapsedTime < fadeInDuration)
         {
@@ -1122,13 +1069,11 @@ public class LobbyUIController : MonoBehaviour
         // 완전히 불투명하게 설정
         logoColor.a = 1f;
         companyLogoImage.color = logoColor;
-        Debug.Log("[LobbyUIController] 페이드인 완료 - 로고 표시 중");
         
         // 2단계: 로고 표시 유지 (2초)
         yield return new WaitForSeconds(displayDuration);
         
         // 🎯 3단계: 페이드아웃 제거 - 로고가 보이는 상태에서 바로 종료!
-        Debug.Log("[LobbyUIController] 로고 표시 완료 - 게임 종료 (페이드아웃 없음)");
         
         // 게임 종료
         QuitGameDirectly();
@@ -1172,7 +1117,6 @@ public class LobbyUIController : MonoBehaviour
         // 캐릭터가 없으면 온보딩
         if (!PlayerDataManager.Instance.HasAnyCharacter())
         {
-            Debug.Log("[Lobby] No characters → Onboarding");
             StartCharacterCreationOnboarding();
             return;
         }
@@ -1183,7 +1127,6 @@ public class LobbyUIController : MonoBehaviour
         {
             characterSlotController.SelectSlot(targetSlot);
             string reason = GetSelectionReason(targetSlot);
-            Debug.Log($"[Lobby] AutoSelect → Slot {targetSlot} (reason: {reason})");
         }
         else
         {
@@ -1227,7 +1170,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     private void StartCharacterCreationOnboarding()
     {
-        Debug.Log("[LobbyUI] 📝 캐릭터 생성 온보딩 시작: Slot 0");
         
         // 🔍 디버그: PlayerDataManager 상태 확인
         if (PlayerDataManager.Instance == null)
@@ -1243,12 +1185,9 @@ public class LobbyUIController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"[LobbyUI] 🔍 슬롯 0 상태: isSlotUsed={slotData.isSlotUsed}, playerName={slotData.playerName}");
         
         // 첫 번째 빈 슬롯으로 캐릭터 생성 시작
-        Debug.Log("[LobbyUI] 🚀 StartCharacterCreation(0) 호출");
         StartCharacterCreation(0);
-        Debug.Log("[LobbyUI] ✅ StartCharacterCreation(0) 호출 완료");
     }
     
     /// <summary>
@@ -1266,12 +1205,10 @@ public class LobbyUIController : MonoBehaviour
         // 여전히 실패하면 온보딩
         if (!PlayerDataManager.Instance.IsSlotSelected)
         {
-            Debug.Log("[Panel] Recovery failed → Onboarding");
             StartCharacterCreationOnboarding();
             return false;
         }
         
-        Debug.Log($"[Panel] Auto-recovered → Slot {selectedSlotIndex}");
         return true;
     }
     
@@ -1285,7 +1222,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnCharacterCreationCompleted(int slotIndex)
     {
-        Debug.Log($"[LobbyUIController] 캐릭터 생성 완료: 슬롯 {slotIndex}");
         
         // 안전성 검사
         if (PlayerDataManager.Instance == null)
@@ -1308,10 +1244,8 @@ public class LobbyUIController : MonoBehaviour
         if (characterSlotController != null)
         {
             characterSlotController.SelectSlot(slotIndex);
-            Debug.Log($"[Lobby] New character selected → Slot {slotIndex}");
         }
         
-        Debug.Log($"[LobbyUIController] 신규 캐릭터 {slotIndex} 설정 완료");
     }
 
     // 🔍 매니저 초기화 상태 확인 메서드 추가
@@ -1319,7 +1253,6 @@ public class LobbyUIController : MonoBehaviour
     // 🔍 매니저 초기화 완료 대기 메서드
     private IEnumerator WaitForManagersInitialization(System.Action onComplete)
     {
-        Debug.Log("⏳ [LobbyUIController] 매니저 초기화 완료 대기 중...");
         
         float timeout = 5f; // 5초 타임아웃
         float elapsed = 0f;
@@ -1348,7 +1281,6 @@ public class LobbyUIController : MonoBehaviour
             
             if (allReady)
             {
-                Debug.Log("✅ [LobbyUIController] 모든 매니저 초기화 완료!");
                 onComplete?.Invoke();
                 yield break;
             }
@@ -1368,7 +1300,6 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return;
         
-        Debug.Log("👤 [LobbyUIController] ShowCharacterInfoPanel 호출됨 (Z-Order 방식)");
         
         // Cue 이벤트 발행
         var context = new CueContext
@@ -1392,7 +1323,6 @@ public class LobbyUIController : MonoBehaviour
             }
         }
         
-        Debug.Log($"[LobbyUIController] 캐릭터 정보 패널 표시 완료 (슬롯 {selectedSlotIndex})");
     }
     
     /// <summary>
@@ -1402,7 +1332,6 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return;
         
-        Debug.Log("🏭 [LobbyUIController] ShowWorkshopPanel 호출됨");
         
         // 패널 전환 (LobbyPanelManager로 위임)
         if (panelManager != null)
@@ -1410,7 +1339,6 @@ public class LobbyUIController : MonoBehaviour
             panelManager.ShowWorkshopPanel();
         }
         
-        Debug.Log("[LobbyUIController] 공방 패널 표시 완료");
     }
     
     /// <summary>
@@ -1420,7 +1348,6 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return;
         
-        Debug.Log("📚 [LobbyUIController] ShowSkillBookPanel 호출됨");
         
         // 패널 전환 (LobbyPanelManager로 위임)
         if (panelManager != null)
@@ -1428,7 +1355,6 @@ public class LobbyUIController : MonoBehaviour
             panelManager.ShowSkillBookPanel();
         }
         
-        Debug.Log("[LobbyUIController] 스킬북 패널 표시 완료");
     }
 
 
@@ -1437,7 +1363,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public IEnumerator InitializeAllPanelsInBackground()
     {
-        Debug.Log("🔄 [LobbyUIController] 백그라운드 패널 초기화 시작");
         
         // 매니저 초기화 대기
         yield return StartCoroutine(WaitForManagersInitialization(() => {}));
@@ -1477,7 +1402,6 @@ public class LobbyUIController : MonoBehaviour
             }
         }
         
-        Debug.Log("✅ [LobbyUIController] 백그라운드 패널 초기화 완료");
     }
 
     /// <summary>
@@ -1495,7 +1419,6 @@ public class LobbyUIController : MonoBehaviour
         if (selectedSlotIndex != currentSelectedSlot)
         {
             selectedSlotIndex = currentSelectedSlot;
-            Debug.Log($"🔄 [LobbyUIController] 선택된 슬롯 동기화: {currentSelectedSlot}");
         }
         
         // 모든 슬롯 UI 새로고침 (CharacterSlotController로 위임)
@@ -1509,11 +1432,9 @@ public class LobbyUIController : MonoBehaviour
             {
                 UpdateSelectedCharacterInfo(selectedSlotData);
                 EnableStartGameButton(true);
-                Debug.Log($"🎯 [LobbyUIController] 선택된 캐릭터 정보 갱신: {selectedSlotData.playerName}");
             }
         }
         
-        Debug.Log($"✅ [LobbyUIController] 캐릭터 선택 UI 갱신 완료 (선택된 슬롯: {selectedSlotIndex})");
     }
 
     // 🆕 배경 오버레이 검증 (Start 메서드 끝부분에 추가)
@@ -1526,7 +1447,6 @@ public class LobbyUIController : MonoBehaviour
         if (characterSlotController != null && selectedSlotIndex >= 0)
         {
             characterSlotController.RefreshSlot(selectedSlotIndex);
-            Debug.Log($"🔄 [LobbyUIController] 캐릭터 선택 복원: 슬롯 {selectedSlotIndex}");
         }
     }
     
@@ -1538,7 +1458,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnChapterClearCutsceneEnd(int completedChapterId)
     {
-        Debug.Log($"🎉 [LobbyUIController] 챕터 {completedChapterId} 완료!");
         
         // 다음 챕터 오픈 확인
         int nextChapterId = completedChapterId + 1;
@@ -1551,7 +1470,6 @@ public class LobbyUIController : MonoBehaviour
                 var nextChapterData = StageSystem.ChapterManager.Instance.GetChapterData(nextChapterId);
                 if (nextChapterData != null)
                 {
-                    Debug.Log($"🔓 [LobbyUIController] 챕터 {nextChapterId} 오픈: {nextChapterData.chapterTitle}");
                     
                     // 다음 챕터 오픈 축하 메시지 (TODO: 나중에 UI 추가 가능)
                     // ShowChapterUnlockNotification(nextChapterId, nextChapterData.chapterTitle);
@@ -1563,7 +1481,6 @@ public class LobbyUIController : MonoBehaviour
         }
         else
         {
-            Debug.Log($"🏆 [LobbyUIController] 모든 챕터 완료! 축하합니다!");
             
             // 전체 완료 축하 메시지 (TODO: 나중에 UI 추가 가능)
             // ShowAllChaptersCompletedNotification();
@@ -1579,7 +1496,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnReplayIntroButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 인트로 다시보기 요청");
         
         // 현재 데이터 저장
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
@@ -1602,7 +1518,6 @@ public class LobbyUIController : MonoBehaviour
     /// </summary>
     public void OnReplayTutorialButtonClicked()
     {
-        Debug.Log("[LobbyUIController] 튜토리얼 다시보기 요청");
         
         // 현재 데이터 저장
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
@@ -1733,7 +1648,6 @@ public class LobbyUIController : MonoBehaviour
             return false;
         }
         
-        Debug.Log($"⚡ [LobbyUIController] 스태미나 검증 통과: {sceneName} (필요: {requiredStamina})");
         return true;
     }
     
@@ -1797,7 +1711,7 @@ public class LobbyUIController : MonoBehaviour
             return false;
         }
         
-        Debug.Log($"🏰 [LobbyUIController] 던전 입장 검증 통과: {sceneName} (카테고리: {categoryId})");
+        Dbg.Log($"🏰 [LobbyUIController] 던전 입장 검증 통과: {sceneName} (카테고리: {categoryId})");
         return true;
     }
     

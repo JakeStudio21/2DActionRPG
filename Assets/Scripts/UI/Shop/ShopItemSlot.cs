@@ -25,8 +25,6 @@ public class ShopItemSlot : MonoBehaviour
     [SerializeField] private Color cRankColor = Color.blue;
     [SerializeField] private Color dRankColor = Color.gray;
     
-    [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 이벤트
     public event Action<string> OnItemClicked;              // Legacy: itemID 기반
@@ -68,8 +66,6 @@ public class ShopItemSlot : MonoBehaviour
             priceText.color = Color.white;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔧 [ShopItemSlot] 초기 상태 강제 설정 완료");
     }
     
     /// <summary>
@@ -103,8 +99,6 @@ public class ShopItemSlot : MonoBehaviour
             UpdateSlotVisuals();
             SetInteractable(true);
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] 아이템 설정 완료: {equipment.equipmentName}");
         }
         else
         {
@@ -128,8 +122,6 @@ public class ShopItemSlot : MonoBehaviour
             UpdateSlotVisuals();
             SetInteractable(true);
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] V2 아이템 설정 완료: {equipment.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...)");
         }
         else
         {
@@ -144,15 +136,12 @@ public class ShopItemSlot : MonoBehaviour
     {
         if (currentEquipment == null) 
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [ShopItemSlot] currentEquipment가 null입니다.");
             return;
         }
         
-        Debug.Log($"🔧 [ShopItemSlot] UpdateSlotVisuals 시작: {currentEquipment.equipmentName}");
         
         // 🆕 UI 요소 null 체크 강화 (강제 디버그)
-        Debug.Log($"🔍 [ShopItemSlot] UI 요소 상태 체크:");
         
         // 아이콘 설정
         if (itemIcon != null)
@@ -166,13 +155,11 @@ public class ShopItemSlot : MonoBehaviour
             else
             {
                 itemIcon.color = Color.clear;
-                if (showDebugLogs)
                     Debug.LogWarning($"⚠️ [ShopItemSlot] 아이콘 없음: {currentEquipment.equipmentName}");
             }
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [ShopItemSlot] itemIcon이 null입니다!");
         }
         
@@ -183,12 +170,9 @@ public class ShopItemSlot : MonoBehaviour
             itemNameText.color = Color.white;
             itemNameText.gameObject.SetActive(true);
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] 아이템 이름 설정: {currentEquipment.equipmentName}");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [ShopItemSlot] itemNameText가 null!");
         }
         
@@ -198,12 +182,9 @@ public class ShopItemSlot : MonoBehaviour
             priceText.text = currentPrice.ToString();
             priceText.gameObject.SetActive(true);
             
-            if (showDebugLogs)
-                Debug.Log($"✅ [ShopItemSlot] 가격 설정: {currentPrice}");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [ShopItemSlot] priceText가 null!");
         }
         
@@ -213,8 +194,6 @@ public class ShopItemSlot : MonoBehaviour
         // 재고 정보 업데이트
         UpdateStockInfo();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [ShopItemSlot] UI 업데이트 완료: {currentEquipment.equipmentName}");
     }
     
     /// <summary>
@@ -224,14 +203,12 @@ public class ShopItemSlot : MonoBehaviour
     {
         if (gradeFrame == null)
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [ShopItemSlot] gradeFrame이 null입니다!");
             return;
         }
         
         if (currentEquipment == null)
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [ShopItemSlot] currentEquipment가 null입니다!");
             return;
         }
@@ -264,12 +241,8 @@ public class ShopItemSlot : MonoBehaviour
         gradeFrame.gameObject.SetActive(true);
         
         // 🆕 활성화 상태 확인
-        Debug.Log($"   🔍 gradeFrame.gameObject.SetActive(true) 호출 완료");
-        Debug.Log($"      - activeInHierarchy: {gradeFrame.gameObject.activeInHierarchy}");
-        Debug.Log($"      - activeSelf: {gradeFrame.gameObject.activeSelf}");
         
         // 🔧 수정: 과도한 디버깅 로그 제거
-        // Debug.Log($"🌈 [ShopItemSlot] 등급 프레임 색상 설정: {currentEquipment.itemGrade} → {frameColor}");
     }
     
     /// <summary>
@@ -352,32 +325,23 @@ public class ShopItemSlot : MonoBehaviour
     /// </summary>
     private void HandleSlotClicked()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔥 [ShopItemSlot] HandleSlotClicked 호출됨!");
         
         if (!string.IsNullOrEmpty(currentItemID) && currentEquipment != null)
         {
-            if (showDebugLogs)
-                Debug.Log($"🛒 [ShopItemSlot] 상점 아이템 클릭됨: {currentEquipment.equipmentName} (ID: {currentItemID}, 가격: {currentPrice})");
             
             // V2 이벤트 우선 발생
             if (!currentInstanceId.IsEmpty)
             {
                 OnItemClickedV2?.Invoke(currentInstanceId);
                 
-                if (showDebugLogs)
-                    Debug.Log($"📤 [ShopItemSlot] OnItemClickedV2 이벤트 발생 완료 (InstanceId: {currentInstanceId.Value.Substring(0, 8)}...)");
             }
             
             // Legacy 이벤트도 발생 (하위 호환성)
             OnItemClicked?.Invoke(currentItemID);
             
-            if (showDebugLogs)
-                Debug.Log($"📤 [ShopItemSlot] OnItemClicked 이벤트 발생 완료");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [ShopItemSlot] 클릭했지만 아이템 정보가 없음: ItemID='{currentItemID}', Equipment={currentEquipment != null}");
         }
     }

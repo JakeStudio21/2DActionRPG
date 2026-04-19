@@ -12,7 +12,6 @@ using UnityEngine.EventSystems;
 public class BackgroundOverlayHandler : MonoBehaviour, IPointerClickHandler
 {
     [Header("🎯 디버그 설정")]
-    [SerializeField] private bool showDebugLogs = true;
     
     [Header("🔗 참조")]
     [SerializeField] private LobbyUIController lobbyUIController;
@@ -37,18 +36,10 @@ public class BackgroundOverlayHandler : MonoBehaviour, IPointerClickHandler
     /// <param name="eventData">클릭 이벤트 데이터</param>
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (showDebugLogs)
-        {
-            Debug.Log("🖱️ [BackgroundOverlay] 배경 클릭됨 - 캐릭터 선택 보호 시작");
-        }
         
         // 🎯 핵심: 현재 선택된 GameObject 백업 및 복원
         GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
         
-        if (currentSelected != null && showDebugLogs)
-        {
-            Debug.Log($"🔒 [BackgroundOverlay] 현재 선택된 객체 보호: {currentSelected.name}");
-        }
         
         // 🔄 다음 프레임에서 선택 상태 복원 (EventSystem 처리 후)
         StartCoroutine(RestoreSelectionNextFrame(currentSelected));
@@ -67,10 +58,6 @@ public class BackgroundOverlayHandler : MonoBehaviour, IPointerClickHandler
         {
             EventSystem.current.SetSelectedGameObject(targetToRestore);
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"✅ [BackgroundOverlay] 선택 상태 복원 완료: {targetToRestore.name}");
-            }
         }
         else
         {
@@ -79,10 +66,6 @@ public class BackgroundOverlayHandler : MonoBehaviour, IPointerClickHandler
             {
                 lobbyUIController.RestoreCharacterSelection();
                 
-                if (showDebugLogs)
-                {
-                    Debug.Log("🔄 [BackgroundOverlay] LobbyUIController를 통한 캐릭터 선택 복원");
-                }
             }
         }
     }

@@ -55,7 +55,6 @@ public class IntegratedInventoryController : MonoBehaviour
     [SerializeField] private KeyCode closeKey = KeyCode.Escape;   // 패널 닫기 키 (ESC키)
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private bool isInventoryOpen = false;
@@ -71,7 +70,6 @@ public class IntegratedInventoryController : MonoBehaviour
             SceneManager.GetActiveScene().name.Contains("Lobby"))
         {
             this.enabled = false;
-            Debug.Log("🔒 [IntegratedInventoryController] 로비에서 비활성화됨");
             return;
         }
         
@@ -100,7 +98,6 @@ public class IntegratedInventoryController : MonoBehaviour
                 activeInventoryCanvasGroup.interactable = false;
             }
             
-            Debug.Log($"✅ [IntegratedInventoryController] ActiveInventory 참조 연결 완료");
             
             // ActiveInventory 초기화 완료 이벤트 구독
             ActiveInventory.OnActiveInventoryInitialized += OnActiveInventoryInitialized;
@@ -121,7 +118,6 @@ public class IntegratedInventoryController : MonoBehaviour
                 equippedItemsCanvasGroup.interactable = false;
             }
             
-            Debug.Log($"✅ [IntegratedInventoryController] EquippedItemsPanel 참조 연결 완료");
         }
         else
         {
@@ -132,7 +128,6 @@ public class IntegratedInventoryController : MonoBehaviour
         if (bagButton != null)
         {
             bagButton.onClick.AddListener(ToggleInventoryPanel);
-            Debug.Log($"✅ [IntegratedInventoryController] BagButton 이벤트 연결 완료");
         }
         else
         {
@@ -141,8 +136,6 @@ public class IntegratedInventoryController : MonoBehaviour
         
         isInventoryOpen = false;
         
-        if (showDebugLogs)
-            Debug.Log("✅ [IntegratedInventoryController] 참조 방식 초기화 완료");
     }
 
     /// <summary>
@@ -151,7 +144,6 @@ public class IntegratedInventoryController : MonoBehaviour
     /// </summary>
     private void OnActiveInventoryInitialized()
     {
-        Debug.Log("🎯 [IntegratedInventoryController] ActiveInventory 초기화 완료 - 패널 비활성화 시작");
         
         if (activeInventoryPanel != null)
         {
@@ -176,7 +168,6 @@ public class IntegratedInventoryController : MonoBehaviour
             equippedItemsPanel.SetActive(false);
         }
         
-        Debug.Log("✅ [IntegratedInventoryController] 인벤토리 초기화 및 비활성화 완료");
     }
 
     /// <summary>
@@ -184,7 +175,6 @@ public class IntegratedInventoryController : MonoBehaviour
     /// </summary>
     private IEnumerator WaitForInventoryInitializationThenHide()
     {
-        Debug.Log("⏰ [IntegratedInventoryController] ActiveInventory 초기화 대기 중...");
         
         // 2초 대기 (ActiveInventory 초기화 완료 시간)
         yield return new WaitForSeconds(2f);
@@ -193,13 +183,11 @@ public class IntegratedInventoryController : MonoBehaviour
         if (activeInventoryPanel != null)
         {
             activeInventoryPanel.SetActive(false);
-            Debug.Log("🔒 [IntegratedInventoryController] ActiveInventory 초기화 완료 후 숨김");
         }
         
         if (equippedItemsPanel != null)
         {
             equippedItemsPanel.SetActive(false);
-            Debug.Log("🔒 [IntegratedInventoryController] EquippedItemsPanel 초기화 완료 후 숨김");
         }
     }
     
@@ -257,8 +245,6 @@ public class IntegratedInventoryController : MonoBehaviour
             bagButton.colors = colors;
         }
         
-        if (showDebugLogs)
-            Debug.Log("🎒 [IntegratedInventoryController] 인벤토리 패널 열림");
     }
     
     /// <summary>
@@ -286,8 +272,6 @@ public class IntegratedInventoryController : MonoBehaviour
             bagButton.colors = colors;
         }
         
-        if (showDebugLogs)
-            Debug.Log("🎒 [IntegratedInventoryController] 인벤토리 패널 닫힘");
     }
     
     /// <summary>
@@ -311,8 +295,6 @@ public class IntegratedInventoryController : MonoBehaviour
         //     });
         // }
         
-        if (showDebugLogs)
-            Debug.Log("✅ [IntegratedInventoryController] 컨트롤러 이벤트 설정 완료");
     }
     
     /// <summary>
@@ -323,8 +305,6 @@ public class IntegratedInventoryController : MonoBehaviour
         // 🔧 수정: ActiveInventory는 자체적으로 PlayerDataManager 이벤트를 구독하므로
         // 추가 새로고침 호출이 불필요함
         
-        if (showDebugLogs)
-            Debug.Log("🎮 [IntegratedInventoryController] 인벤토리 변경 감지됨");
         
         // 필요시 인게임 전용 UI 업데이트 로직 추가
         // (예: 인벤토리 개수 표시, 가방 버튼 상태 등)
@@ -350,8 +330,6 @@ public class IntegratedInventoryController : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎮 [IntegratedInventoryController] 인게임 슬롯 클릭: {equipmentData.equipmentName}");
     }
     
     void OnDestroy()

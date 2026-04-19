@@ -14,9 +14,6 @@ public class LobbyPlayerInfoUI : MonoBehaviour
     [SerializeField] private Slider expSlider;
     [SerializeField] private TextMeshProUGUI expText;
     
-    [Header("Debug")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     private PlayerDataManager playerDataManager;
     
     void Start()

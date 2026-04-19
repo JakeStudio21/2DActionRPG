@@ -31,7 +31,6 @@ public class CharacterSlotController : MonoBehaviour
     /// </summary>
     public void Initialize()
     {
-        Debug.Log("[CharacterSlotController] 초기화 시작");
         
         // 슬롯 아이템 검증
         for (int i = 0; i < slotItems.Length; i++)
@@ -47,7 +46,6 @@ public class CharacterSlotController : MonoBehaviour
             }
         }
         
-        Debug.Log("[CharacterSlotController] 초기화 완료");
     }
     
     /// <summary>
@@ -55,7 +53,6 @@ public class CharacterSlotController : MonoBehaviour
     /// </summary>
     public void RefreshAllSlots()
     {
-        Debug.Log("[CharacterSlotController] 모든 슬롯 UI 새로고침");
         
         for (int i = 0; i < 3; i++)
         {
@@ -106,7 +103,6 @@ public class CharacterSlotController : MonoBehaviour
         // 이벤트 발행
         OnSlotSelected?.Invoke(slotIndex);
         
-        Debug.Log($"[CharacterSlotController] 슬롯 {slotIndex} 선택");
     }
     
     /// <summary>
@@ -136,7 +132,6 @@ public class CharacterSlotController : MonoBehaviour
     /// </summary>
     public void HandleSlotClicked(int slotIndex)
     {
-        Debug.Log($"[CharacterSlotController] 슬롯 {slotIndex} 클릭됨");
         OnSlotClicked?.Invoke(slotIndex);
     }
     
@@ -145,7 +140,6 @@ public class CharacterSlotController : MonoBehaviour
     /// </summary>
     public void HandleDeleteClicked(int slotIndex)
     {
-        Debug.Log($"[CharacterSlotController] 슬롯 {slotIndex} 삭제 버튼 클릭됨");
         OnDeleteClicked?.Invoke(slotIndex);
     }
 }

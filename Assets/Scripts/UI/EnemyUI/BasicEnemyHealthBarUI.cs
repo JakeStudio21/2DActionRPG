@@ -43,7 +43,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
     [SerializeField] private bool enableBillboard = true;
     
     [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     #endregion
     
@@ -110,10 +109,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         SetHealthImmediate(1f);
         HideHealthBar();
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"✅ [BasicHealthBarUI] {gameObject.name} 초기화 완료 (초기: 숨김)");
-        }
     }
     
     private void Update()
@@ -164,10 +159,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         // 새 자동 숨김 타이머 시작
         autoHideCoroutine = StartCoroutine(AutoHideCoroutine(actualDelay));
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏱️ [BasicHealthBarUI] 자동 숨김 타이머 시작: {actualDelay}초");
-        }
     }
     
     /// <summary>
@@ -191,10 +182,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         
         wasOutOfScreen = false;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"👁️ [BasicHealthBarUI] 체력바 표시");
-        }
     }
     
     /// <summary>
@@ -224,10 +211,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         
         wasOutOfScreen = false;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🙈 [BasicHealthBarUI] 체력바 숨김");
-        }
     }
     
     /// <summary>
@@ -237,10 +220,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"⏰ [BasicHealthBarUI] 자동 숨김 타이머 완료 ({delay}초)");
-        }
         
         HideHealthBar();
     }
@@ -250,20 +229,12 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
     /// </summary>
     private IEnumerator OutOfScreenHideCoroutine()
     {
-        if (enableDebugLogs)
-        {
-            Debug.Log($"📺 [BasicHealthBarUI] 화면 밖 → {outOfScreenHideDelay}초 대기 시작");
-        }
         
         yield return new WaitForSeconds(outOfScreenHideDelay);
         
         // 2초 후에도 여전히 화면 밖이면 숨김
         if (IsOutOfScreen())
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🚫 [BasicHealthBarUI] 화면 밖 {outOfScreenHideDelay}초 경과 → 숨김");
-            }
             
             HideHealthBar();
         }
@@ -282,10 +253,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         float distance = GetDistanceToPlayer();
         if (distance > maxVisibleDistance)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"🚫 [BasicHealthBarUI] 거리 초과 ({distance:F1} > {maxVisibleDistance}) → 즉시 숨김");
-            }
             HideHealthBar();
             return;
         }
@@ -318,10 +285,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
                     StopCoroutine(outOfScreenHideCoroutine);
                     outOfScreenHideCoroutine = null;
                     
-                    if (enableDebugLogs)
-                    {
-                        Debug.Log($"✅ [BasicHealthBarUI] 화면 안으로 복귀 → 타이머 취소");
-                    }
                 }
             }
         }
@@ -385,10 +348,6 @@ public class BasicEnemyHealthBarUI : MonoBehaviour
         
         UpdateHealthColor(targetHealthRatio);
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($"🩹 [BasicHealthBarUI] 체력바 업데이트: {targetHealthRatio:P0}");
-        }
     }
     
     /// <summary>

@@ -25,11 +25,8 @@ public class SkillDetailPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nextStatsText;
     [SerializeField] private GameObject statsComparePanel;
     
-    [Header("🔗 참조")]
     private SkillInstance currentSkill;
     
-    [Header("🔧 디버그")]
-    public bool showDebugLogs = false;
     
     /// <summary>
     /// 스킬 상세 정보 표시
@@ -77,8 +74,6 @@ public class SkillDetailPanel : MonoBehaviour
         // 스탯 정보
         UpdateStatsInfo(skill);
         
-        if (showDebugLogs)
-            Debug.Log($"📋 [SkillDetailPanel] {skill.skillData.skillName} 상세 정보 표시");
     }
     
     /// <summary>

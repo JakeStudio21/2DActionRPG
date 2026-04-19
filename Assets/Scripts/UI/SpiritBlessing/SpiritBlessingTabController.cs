@@ -30,7 +30,6 @@ public class SpiritBlessingTabController : MonoBehaviour
     [SerializeField] private TMP_Text costText;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 현재 선택된 가호
     private SpiritBlessingData selectedBlessing;
@@ -44,8 +43,6 @@ public class SpiritBlessingTabController : MonoBehaviour
     
     void Awake()
     {
-        if (enableDebugLogs)
-            Debug.Log("🌟 [SpiritBlessingTabController] Awake()");
     }
     
     void Start()
@@ -69,10 +66,6 @@ public class SpiritBlessingTabController : MonoBehaviour
                 {
                     Debug.LogError("🔴 [SpiritBlessingTabController] SelectedPlayerData를 찾을 수 없습니다!");
                 }
-                else if (enableDebugLogs)
-                {
-                    Debug.Log("✅ [SpiritBlessingTabController] SelectedPlayerData 가져오기 완료");
-                }
             }
             else
             {
@@ -86,8 +79,6 @@ public class SpiritBlessingTabController : MonoBehaviour
     /// </summary>
     public void OnTabActivated()
     {
-        if (enableDebugLogs)
-            Debug.Log("🌟 [SpiritBlessingTabController] 탭 활성화");
         
         RefreshLeftPanelStats();     // 좌측 종합 스탯 갱신
         PopulateBlessingList();      // 우측 리스트 생성
@@ -99,8 +90,6 @@ public class SpiritBlessingTabController : MonoBehaviour
     /// </summary>
     public void OnTabDeactivated()
     {
-        if (enableDebugLogs)
-            Debug.Log("🌟 [SpiritBlessingTabController] 탭 비활성화");
         
         // 정리 작업
         selectedBlessing = null;
@@ -149,8 +138,6 @@ public class SpiritBlessingTabController : MonoBehaviour
         else
             Debug.LogError("🔴 [SpiritBlessingTabController] slowResistText가 null입니다! Inspector에서 연결하세요!");
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [SpiritBlessingTabController] 좌측 스탯 갱신 완료 - Bind: {bindResist * 100:F0}%, Poison: {poisonResist * 100:F0}%");
     }
     
     /// <summary>
@@ -180,8 +167,6 @@ public class SpiritBlessingTabController : MonoBehaviour
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"📋 [SpiritBlessingTabController] 리스트 생성 시작 - Database Count: {blessingDatabase.Count}");
         
         // 데이터베이스 순회하며 리스트 아이템 생성
         foreach (var blessingData in blessingDatabase)
@@ -207,8 +192,6 @@ public class SpiritBlessingTabController : MonoBehaviour
                 itemUI.Setup(blessingData, this);
                 instantiatedItems.Add(itemUI);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"✅ [SpiritBlessingTabController] 리스트 아이템 생성: {blessingData.blessingName}");
             }
             else
             {
@@ -217,8 +200,6 @@ public class SpiritBlessingTabController : MonoBehaviour
             }
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [SpiritBlessingTabController] 리스트 생성 완료 - 총 {instantiatedItems.Count}개");
     }
     
     /// <summary>
@@ -234,8 +215,6 @@ public class SpiritBlessingTabController : MonoBehaviour
         
         instantiatedItems.Clear();
         
-        if (enableDebugLogs)
-            Debug.Log("🗑️ [SpiritBlessingTabController] 리스트 아이템 제거 완료");
     }
     
     /// <summary>
@@ -248,8 +227,6 @@ public class SpiritBlessingTabController : MonoBehaviour
         
         ShowBottomPanelDetails(data);
         
-        if (enableDebugLogs)
-            Debug.Log($"🎯 [SpiritBlessingTabController] 정령 선택: {data.blessingName}");
     }
     
     /// <summary>
@@ -299,8 +276,6 @@ public class SpiritBlessingTabController : MonoBehaviour
             }
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"✅ [SpiritBlessingTabController] 하단 패널 표시: {data.blessingName}");
     }
     
     /// <summary>
@@ -314,8 +289,6 @@ public class SpiritBlessingTabController : MonoBehaviour
         selectedBlessing = null;
         selectedItemUI = null;
         
-        if (enableDebugLogs)
-            Debug.Log("🗑️ [SpiritBlessingTabController] 하단 패널 초기화");
     }
     
     /// <summary>
@@ -329,7 +302,6 @@ public class SpiritBlessingTabController : MonoBehaviour
             return;
         }
         
-        Debug.Log($"🎯 [SpiritBlessingTabController] [가호 받기] 처리 시작: {data.blessingName}");
         
         // 1. 최대치 체크
         float currentResist = selectedPlayerData.GetResistanceStat(data.targetEffectType);
@@ -350,13 +322,11 @@ public class SpiritBlessingTabController : MonoBehaviour
         selectedPlayerData.AddResistanceStat(data.targetEffectType, data.incrementPerLevel);
         float newResist = selectedPlayerData.GetResistanceStat(data.targetEffectType);
         
-        Debug.Log($"✅ [SpiritBlessingTabController] 저항 증가: {data.GetEffectTypeName()} {currentResist * 100:F0}% → {newResist * 100:F0}%");
         
         // 4. PlayerDataManager.SaveOnMeaningfulEvent() 호출하여 즉시 JSON 저장
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.SaveOnMeaningfulEvent("BlessingUpgraded");
-            Debug.Log("✅ [SpiritBlessingTabController] 데이터 저장 완료");
         }
         
         // 5. UI 전체 갱신 (재료 소모 + 저항 증가로 Grayscale 상태 변경될 수 있음)
@@ -392,7 +362,6 @@ public class SpiritBlessingTabController : MonoBehaviour
             string materialName = materialType.GetDisplayName();
             ShowInsufficientMaterialNotification(materialName, required, current);
             
-            if (enableDebugLogs)
                 Debug.LogWarning($"⚠️ [SpiritBlessingTabController] {materialName} 부족 (필요: {required}, 보유: {current})");
             
             return false;
@@ -410,11 +379,6 @@ public class SpiritBlessingTabController : MonoBehaviour
         // 3. 계정 데이터 저장 (재료 변경사항)
         account.Save();
         
-        if (enableDebugLogs)
-        {
-            string materialName = materialType.GetDisplayName();
-            Debug.Log($"✅ [SpiritBlessingTabController] 재료 소모 성공: {materialName} -{required}개 (남은: {account.GetMaterialCount(materialType)}개)");
-        }
         
         return true;
     }
@@ -432,7 +396,6 @@ public class SpiritBlessingTabController : MonoBehaviour
         else
         {
             // 로비에서는 Debug.Log만 (나중에 로비 전용 팝업으로 교체 가능)
-            Debug.Log($"💬 [알림] {materialName}이(가) 부족합니다! (보유: {current}개, 필요: {required}개)");
         }
     }
     
@@ -459,7 +422,6 @@ public class SpiritBlessingTabController : MonoBehaviour
             ShowBottomPanelDetails(selectedBlessing);
         }
         
-        Debug.Log("🔄 [SpiritBlessingTabController] 전체 UI 갱신 완료");
     }
 }
 

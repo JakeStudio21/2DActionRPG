@@ -43,12 +43,10 @@ public class LobbyInitializer : MonoBehaviour
     /// </summary>
     private IEnumerator InitializeLobbyCoroutine()
     {
-        Debug.Log("📋 [LobbyInitializer] 로비 초기화 시작");
         
         // ⭐ GamePoolManager 풀 로딩 완료 대기
         if (GamePoolManager.Instance != null)
         {
-            Debug.Log("⏳ [LobbyInitializer] GamePoolManager 풀 로딩 대기 중...");
             
             float timeout = 5f; // 5초 타임아웃
             float elapsed = 0f;
@@ -65,7 +63,6 @@ public class LobbyInitializer : MonoBehaviour
             }
             else
             {
-                Debug.Log("✅ [LobbyInitializer] GamePoolManager 풀 로딩 완료!");
             }
         }
         
@@ -78,19 +75,17 @@ public class LobbyInitializer : MonoBehaviour
         StartCoroutine(CheckPendingChapterClearCutscene());
         ValidateBackgroundOverlay();
         
-        Debug.Log("✅ [LobbyInitializer] 로비 초기화 완료");
+        Dbg.Log("✅ [LobbyInitializer] 로비 초기화 완료");
     }
     
     #region 매니저 초기화 상태 확인
     
     private void CheckManagerInitializationStatus()
     {
-        Debug.Log("🔍 [LobbyInitializer] 매니저 초기화 상태 확인:");
         
         // GamePoolManager 상태
         if (GamePoolManager.Instance != null)
         {
-            Debug.Log($"   - GamePoolManager: ✅ 존재, 로딩 중: {GamePoolManager.Instance.IsLoadingPools}");
         }
         else
         {
@@ -100,7 +95,6 @@ public class LobbyInitializer : MonoBehaviour
         // SoundManager 상태
         if (SoundManager.Instance != null)
         {
-            Debug.Log("   - SoundManager: ✅ 존재");
         }
         else
         {
@@ -110,7 +104,6 @@ public class LobbyInitializer : MonoBehaviour
         // CuePlayer 상태 (CueSystem)
         if (CueSystem.CuePlayer.Instance != null)
         {
-            Debug.Log("   - CuePlayer: ✅ 존재");
         }
         else
         {
@@ -120,7 +113,6 @@ public class LobbyInitializer : MonoBehaviour
         // CueRegistry 상태
         if (CueSystem.CueRegistry.Instance != null)
         {
-            Debug.Log("   - CueRegistry: ✅ 존재");
         }
         else
         {
@@ -130,7 +122,6 @@ public class LobbyInitializer : MonoBehaviour
         // StageProgressManager 상태
         if (StageProgressManager.Instance != null)
         {
-            Debug.Log($"   - StageProgressManager: ✅ 존재, 초기화됨: {StageProgressManager.Instance.IsInitialized}");
         }
         else
         {
@@ -140,7 +131,6 @@ public class LobbyInitializer : MonoBehaviour
         // BossRewardManager 상태 (Phase 2)
         if (BossRewardManager.Instance != null)
         {
-            Debug.Log("   - BossRewardManager: ✅ 존재");
         }
         else
         {
@@ -150,7 +140,6 @@ public class LobbyInitializer : MonoBehaviour
         // PlayerDataManager 상태
         if (PlayerDataManager.Instance != null)
         {
-            Debug.Log($"   - PlayerDataManager: ✅ 존재, 슬롯 선택됨: {PlayerDataManager.Instance.IsSlotSelected}");
         }
         else
         {
@@ -164,7 +153,6 @@ public class LobbyInitializer : MonoBehaviour
     
     private void ValidateUIElements()
     {
-        Debug.Log("🔍 [LobbyInitializer] UI 요소 검증 시작");
         
         if (lobbyUIController == null)
             Debug.LogError("[LobbyInitializer] LobbyUIController 참조가 없습니다!");
@@ -190,7 +178,6 @@ public class LobbyInitializer : MonoBehaviour
         if (quitGameButton == null) 
             Debug.LogWarning("[LobbyInitializer] quitGameButton 누락!");
         
-        Debug.Log("✅ [LobbyInitializer] UI 요소 검증 완료");
     }
     
     #endregion
@@ -199,7 +186,6 @@ public class LobbyInitializer : MonoBehaviour
     
     private void ConnectButtonEvents()
     {
-        Debug.Log("🔗 [LobbyInitializer] 버튼 이벤트 연결 시작");
         
         if (lobbyUIController == null)
         {
@@ -214,7 +200,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.OnStartGameButtonClicked();
             });
-            Debug.Log("   ✅ 게임 시작 버튼");
         }
         
         // 인벤토리 버튼
@@ -224,7 +209,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.ShowInventoryPanel();
             });
-            Debug.Log("   ✅ 인벤토리 버튼");
         }
         
         // 캐릭터 정보 버튼
@@ -234,7 +218,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.ShowCharacterInfoPanel();
             });
-            Debug.Log("   ✅ 캐릭터 정보 버튼");
         }
         
         // 상점 버튼
@@ -244,7 +227,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.ShowShopPanel();
             });
-            Debug.Log("   ✅ 상점 버튼");
         }
         
         // 🆕 공방 버튼
@@ -254,7 +236,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.ShowWorkshopPanel();
             });
-            Debug.Log("   ✅ 공방 버튼");
         }
         
         // 게임 종료 버튼
@@ -264,7 +245,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.OnQuitGameButtonClicked();
             });
-            Debug.Log("   ✅ 게임 종료 버튼");
         }
         
         // 인트로 다시보기 버튼
@@ -274,7 +254,6 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.OnReplayIntroButtonClicked();
             });
-            Debug.Log("   ✅ 인트로 다시보기 버튼");
         }
         
         // 튜토리얼 다시보기 버튼
@@ -284,10 +263,8 @@ public class LobbyInitializer : MonoBehaviour
                 EmitButtonClickCue();
                 lobbyUIController.OnReplayTutorialButtonClicked();
             });
-            Debug.Log("   ✅ 튜토리얼 다시보기 버튼");
         }
         
-        Debug.Log("✅ [LobbyInitializer] 버튼 이벤트 연결 완료");
     }
     
     private void EmitButtonClickCue()
@@ -306,7 +283,6 @@ public class LobbyInitializer : MonoBehaviour
     
     private void InitializeSlotSystem()
     {
-        Debug.Log("🎮 [LobbyInitializer] 슬롯 시스템 초기화 시작");
         
         // PlayerDataManager에서 모든 슬롯 로드
         if (PlayerDataManager.Instance != null)
@@ -338,7 +314,6 @@ public class LobbyInitializer : MonoBehaviour
                 StageProgressManager.Instance.GetCurrentSlotIndex() != currentSlot)
             {
                 StageProgressManager.Instance.InitializeFor(currentSlot);
-                Debug.Log($"   🔄 StageProgressManager 재초기화: 슬롯 {currentSlot}");
             }
         }
         
@@ -354,7 +329,6 @@ public class LobbyInitializer : MonoBehaviour
             panelManager.stageSelectPanelController.RefreshStageProgressUI();
         }
         
-        Debug.Log("✅ [LobbyInitializer] 슬롯 시스템 초기화 완료");
     }
     
     #endregion
@@ -363,7 +337,6 @@ public class LobbyInitializer : MonoBehaviour
     
     private void InitializePanelManager()
     {
-        Debug.Log("🎨 [LobbyInitializer] 패널 관리자 초기화 시작");
         
         if (panelManager != null)
         {
@@ -374,7 +347,6 @@ public class LobbyInitializer : MonoBehaviour
             Debug.LogError("[LobbyInitializer] LobbyPanelManager 참조가 없습니다!");
         }
         
-        Debug.Log("✅ [LobbyInitializer] 패널 관리자 초기화 완료");
     }
     
     #endregion
@@ -383,7 +355,6 @@ public class LobbyInitializer : MonoBehaviour
     
     private void SetInitialState()
     {
-        Debug.Log("⚙️ [LobbyInitializer] 초기 상태 설정 시작");
         
         if (panelManager != null)
         {
@@ -404,7 +375,6 @@ public class LobbyInitializer : MonoBehaviour
             lobbyUIController.StartCoroutine(lobbyUIController.InitializeAllPanelsInBackground());
         }
         
-        Debug.Log("✅ [LobbyInitializer] 초기 상태 설정 완료");
     }
     
     private void SetPanelVisibility(GameObject panel, bool isActive)
@@ -426,7 +396,6 @@ public class LobbyInitializer : MonoBehaviour
         
         if (PlayerDataManager.Instance == null || !PlayerDataManager.Instance.IsSlotSelected)
         {
-            Debug.Log("   [LobbyInitializer] 슬롯이 선택되지 않음 - 챕터 종료 컷신 체크 스킵");
             yield break;
         }
         
@@ -441,14 +410,12 @@ public class LobbyInitializer : MonoBehaviour
         // pendingCutsceneId 확인
         if (string.IsNullOrEmpty(selectedData.pendingCutsceneId))
         {
-            Debug.Log("   [LobbyInitializer] 예약된 챕터 종료 컷신 없음");
             yield break;
         }
         
         string cutsceneId = selectedData.pendingCutsceneId;
         int chapterId = selectedData.pendingChapterId;
         
-        Debug.Log($"   🎬 챕터 {chapterId} 종료 컷신 발견: {cutsceneId}");
         
         // pendingCutsceneId 정리 (재생 전에 먼저 제거)
         selectedData.pendingCutsceneId = null;
@@ -464,13 +431,11 @@ public class LobbyInitializer : MonoBehaviour
         }
         
         // 챕터 종료 컷신 재생 (오버레이 모드)
-        Debug.Log($"   🎬 챕터 종료 컷신 재생: {cutsceneId}");
         CutsceneSystem.CutsceneManager.Instance.PlayCutscene(cutsceneId);
         
         // 컷신 종료 대기
         yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
         
-        Debug.Log($"   ✅ 챕터 종료 컷신 재생 완료");
         
         // 컷신 종료 후 처리
         if (lobbyUIController != null)
@@ -492,7 +457,6 @@ public class LobbyInitializer : MonoBehaviour
             if (siblingIndex != 0)
             {
                 backgroundOverlay.transform.SetAsFirstSibling();
-                Debug.Log($"   🔧 BackgroundOverlay를 최하위 레이어로 이동 (Index: {siblingIndex} → 0)");
             }
             
             // Image 컴포넌트 Raycast Target 확인
@@ -509,7 +473,6 @@ public class LobbyInitializer : MonoBehaviour
                 Debug.LogWarning("   ⚠️ BackgroundOverlay에 BackgroundOverlayHandler가 없습니다!");
             }
             
-            Debug.Log("   ✅ BackgroundOverlay 검증 완료");
         }
         else
         {

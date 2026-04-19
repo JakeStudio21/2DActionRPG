@@ -42,7 +42,6 @@ public class CharacterInfoUI : MonoBehaviour
     [SerializeField] private GameObject emptySlotDisplay; // 🆕 빈 슬롯 클릭 시 표시할 이미지 (2개 영역 포함)
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 내부 상태
     private int currentSelectedSlot = -1; // 현재 선택된 슬롯 (-1: 미선택)
@@ -54,8 +53,6 @@ public class CharacterInfoUI : MonoBehaviour
             !SceneManager.GetActiveScene().name.Contains("Lobby"))
         {
             this.enabled = false;
-            if (showDebugLogs)
-                Debug.Log("🔒 [CharacterInfoUI] 인게임에서 비활성화됨");
             return;
         }
         
@@ -93,8 +90,6 @@ public class CharacterInfoUI : MonoBehaviour
                 }
             }
             
-            if (showDebugLogs)
-                Debug.Log($"🎮 [CharacterInfoUI] 패널 활성화 - 상태 갱신 완료");
         }
     }
 
@@ -132,8 +127,6 @@ public class CharacterInfoUI : MonoBehaviour
         // 초기 캐릭터 슬롯 정보 표시 (지연 갱신 지원)
         StartCoroutine(InitializeCharacterSlotsWithLazyLoad());
         
-        if (showDebugLogs)
-            Debug.Log("🎮 [CharacterInfoUI] 캐릭터 정보창 초기화 완료 (지연 갱신 지원)");
     }
 
     /// <summary>
@@ -144,7 +137,6 @@ public class CharacterInfoUI : MonoBehaviour
         // 캐릭터 데이터 로드 상태 확인
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
         {
-            Debug.Log("🔄 [CharacterInfoUI] 지연 로드 필요 - 캐릭터 데이터 로드 중...");
             
             int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
             bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
@@ -187,8 +179,6 @@ public class CharacterInfoUI : MonoBehaviour
     /// </summary>
     private void OnSlotLazyLoadedForCharacterInfo(int slotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [CharacterInfoUI] 슬롯 {slotIndex} 지연 로드 완료 - 캐릭터 정보 갱신");
         
         // 캐릭터 정보창이 활성화된 상태에서만 갱신
         if (gameObject.activeInHierarchy)
@@ -211,8 +201,6 @@ public class CharacterInfoUI : MonoBehaviour
                 int slotIndex = i; // 람다 캡처 문제 방지
                 characterSlotButtons[i].onClick.AddListener(() => OnCharacterSlotClicked(slotIndex));
                 
-                if (showDebugLogs)
-                    Debug.Log($"🖱️ [CharacterInfoUI] 슬롯 {i} 버튼 이벤트 연결 완료");
             }
         }
     }
@@ -230,8 +218,6 @@ public class CharacterInfoUI : MonoBehaviour
             UpdateCharacterSlotDisplay(i, slotData);
         }
         
-        if (showDebugLogs)
-            Debug.Log("🔄 [CharacterInfoUI] 모든 캐릭터 슬롯 새로고침 완료");
     }
     
     /// <summary>
@@ -287,8 +273,6 @@ public class CharacterInfoUI : MonoBehaviour
                 slotEmptyPanels[slotIndex].SetActive(true);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎭 [CharacterInfoUI] 슬롯 {slotIndex} 표시 업데이트 - 캐릭터 존재: {hasCharacter}");
     }
     
     /// <summary>
@@ -296,8 +280,6 @@ public class CharacterInfoUI : MonoBehaviour
     /// </summary>
     public void OnCharacterSlotClicked(int slotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [CharacterInfoUI] 슬롯 {slotIndex} 클릭됨");
         
         if (PlayerDataManager.Instance == null) return;
         
@@ -311,8 +293,6 @@ public class CharacterInfoUI : MonoBehaviour
         else
         {
             // 🆕 빈 슬롯 클릭 - EmptySlotDisplay 표시
-            if (showDebugLogs)
-                Debug.Log($"🖼️ [CharacterInfoUI] 빈 슬롯 {slotIndex} 클릭 - EmptySlotDisplay 표시");
             
             ShowEmptySlotDisplay();
         }
@@ -328,8 +308,6 @@ public class CharacterInfoUI : MonoBehaviour
         {
             equippedItemsUI.ShowEmptySlotState();
             
-            if (showDebugLogs)
-                Debug.Log($"🎒 [CharacterInfoUI] 빈 슬롯 {slotIndex} - EquippedItemsPanel 빈 상태로 초기화");
         }
         
         // 선택된 슬롯의 EmptyPanel 정보 표시
@@ -354,8 +332,6 @@ public class CharacterInfoUI : MonoBehaviour
             if (playerClassIcon != null)
                 playerClassIcon.sprite = emptySlotIcon;
             
-            if (showDebugLogs)
-                Debug.Log($"🖼️ [CharacterInfoUI] 빈 슬롯 {slotIndex} 정보 표시 완료");
         }
     }
     
@@ -364,9 +340,6 @@ public class CharacterInfoUI : MonoBehaviour
     /// </summary>
     private void SelectCharacterSlot(int slotIndex)
     {
-        Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"🎮 [CharacterInfoUI] SelectCharacterSlot({slotIndex}) 호출");
-        Debug.Log($"═══════════════════════════════════════════════════════");
         
         if (PlayerDataManager.Instance == null) 
         {
@@ -381,31 +354,11 @@ public class CharacterInfoUI : MonoBehaviour
         }
         
         // 🆕 디버그: 슬롯 선택 전 상태 확인
-        Debug.Log($"📊 [CharacterInfoUI] 슬롯 선택 전 상태:");
-        Debug.Log($"   - 현재 선택된 슬롯: {currentSelectedSlot}");
-        Debug.Log($"   - 요청된 슬롯: {slotIndex}");
         
         // 🔧 수정: 완전 로드로 변경하여 데이터 손상 방지
-        Debug.Log($"🔄 [CharacterInfoUI] PlayerDataManager.SelectSlot({slotIndex}) 호출 중...");
         PlayerDataManager.Instance.SelectSlot(slotIndex);
         currentSelectedSlot = slotIndex;
         
-        // 🆕 디버그: 슬롯 선택 후 SelectedPlayerData 상태 확인
-        if (PlayerDataManager.Instance.selectedPlayerData != null)
-        {
-            Debug.Log($"📊 [CharacterInfoUI] 슬롯 선택 후 SelectedPlayerData 상태:");
-            Debug.Log($"   - selectedSlotIndex: {PlayerDataManager.Instance.selectedPlayerData.selectedSlotIndex}");
-            Debug.Log($"   - playerName: {PlayerDataManager.Instance.selectedPlayerData.playerName}");
-            Debug.Log($"   - playerType: {PlayerDataManager.Instance.selectedPlayerData.selectedPlayerType}");
-            Debug.Log($"   - 인벤토리 아이템: {PlayerDataManager.Instance.selectedPlayerData.runtimeInventoryItems.Count}개");
-            Debug.Log($"   - 장착 아이템: {PlayerDataManager.Instance.selectedPlayerData.RuntimeEquippedItems.Count}개");
-            
-            foreach (var equipped in PlayerDataManager.Instance.selectedPlayerData.RuntimeEquippedItems)
-            {
-                if (equipped.Value != null)
-                    Debug.Log($"     ⚔️ 장착[{equipped.Key}]: {equipped.Value.equipmentName}");
-            }
-        }
         
         // 🆕 슬롯 선택 시각적 피드백 (즉시 적용)
         UpdateSlotSelectionVisual(slotIndex);
@@ -416,14 +369,9 @@ public class CharacterInfoUI : MonoBehaviour
         // 🆕 EquippedItemsPanel도 즉시 갱신
         if (equippedItemsUI != null)
         {
-            Debug.Log($"🎒 [CharacterInfoUI] EquippedItemsPanel 갱신 중...");
             equippedItemsUI.ForceRefreshEquippedItems();
-            Debug.Log($"✅ [CharacterInfoUI] EquippedItemsPanel 갱신 완료");
         }
         
-        Debug.Log($"═══════════════════════════════════════════════════════");
-        Debug.Log($"✅ [CharacterInfoUI] 슬롯 {slotIndex} 선택 완료 (장비 포함)");
-        Debug.Log($"═══════════════════════════════════════════════════════");
     }
     
     /// <summary>
@@ -451,8 +399,6 @@ public class CharacterInfoUI : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🎯 [CharacterInfoUI] 슬롯 {selectedSlot} 선택 시각적 피드백 적용");
     }
     
     /// <summary>
@@ -491,8 +437,6 @@ public class CharacterInfoUI : MonoBehaviour
             playerClassIcon.sprite = GetClassIcon(slotData.playerType);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"📊 [CharacterInfoUI] 플레이어 정보 업데이트 완료 - 슬롯: {currentSelectedSlot}");
     }
     
     /// <summary>
@@ -545,8 +489,6 @@ public class CharacterInfoUI : MonoBehaviour
         // 🔧 지연 갱신: 캐릭터 정보창이 활성화된 상태에서만 즉시 갱신
         if (!gameObject.activeInHierarchy)
         {
-            if (showDebugLogs)
-                Debug.Log($"🔄 [CharacterInfoUI] 캐릭터 정보창 비활성화 상태 - 갱신 지연");
             return;
         }
         
@@ -554,8 +496,6 @@ public class CharacterInfoUI : MonoBehaviour
         UpdateSlotSelectionVisual(newSlotIndex);
         UpdatePlayerInfoDisplay();
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [CharacterInfoUI] 플레이어 슬롯 변경됨: {newSlotIndex}");
     }
     
     /// <summary>
@@ -575,8 +515,6 @@ public class CharacterInfoUI : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [CharacterInfoUI] 슬롯 선택 시각적 피드백 초기화 완료");
     }
     
     /// <summary>
@@ -588,8 +526,6 @@ public class CharacterInfoUI : MonoBehaviour
         {
             emptySlotDisplay.SetActive(true);
             
-            if (showDebugLogs)
-                Debug.Log($"🖼️ [CharacterInfoUI] EmptySlotDisplay 표시");
         }
         else
         {
@@ -610,8 +546,6 @@ public class CharacterInfoUI : MonoBehaviour
     /// </summary>
     public void ClosePanel()
     {
-        if (showDebugLogs)
-            Debug.Log($"🏠 [CharacterInfoUI] ClosePanel 호출 - 로비로 전환 시작");
         
         // 🆕 1. EmptySlotDisplay 숨김 (열려있다면)
         if (emptySlotDisplay != null)
@@ -629,16 +563,12 @@ public class CharacterInfoUI : MonoBehaviour
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected)
         {
             currentSelectedSlot = PlayerDataManager.Instance.CurrentSlotIndex;
-            if (showDebugLogs)
-                Debug.Log($"🔧 [CharacterInfoUI] 캐릭터 선택 상태 유지: 슬롯 {currentSelectedSlot}");
         }
         
         // 4. LobbyUIController를 찾아서 로비 전환 요청
         LobbyUIController lobbyUIController = FindObjectOfType<LobbyUIController>();
         if (lobbyUIController != null)
         {
-            if (showDebugLogs)
-                Debug.Log($"🏠 [CharacterInfoUI] 로비로 전환 요청 - LobbyUIController.OnBackToLobby() 호출");
             
             lobbyUIController.OnBackToLobby();
         }
@@ -664,8 +594,6 @@ public class CharacterInfoUI : MonoBehaviour
     /// </summary>
     public void ForceRefreshWithCurrentSlot(int currentSlot)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [CharacterInfoUI] 현재 슬롯 {currentSlot}로 강제 갱신 (UI만)");
         
         // 모든 캐릭터 슬롯 정보 갱신
         RefreshAllCharacterSlots();
@@ -683,13 +611,9 @@ public class CharacterInfoUI : MonoBehaviour
         // ✅ 장비창 UI만 Refresh (SelectedPlayerData에서 읽기)
         if (equippedItemsUI != null)
         {
-            Debug.Log($"🎒 [CharacterInfoUI] 장비창 UI Refresh 시작...");
             equippedItemsUI.ForceRefreshEquippedItems();
-            Debug.Log($"✅ [CharacterInfoUI] 장비창 UI Refresh 완료");
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [CharacterInfoUI] 슬롯 {currentSlot} UI 갱신 완료 (데이터 재로딩 없음)");
     }
     
 }

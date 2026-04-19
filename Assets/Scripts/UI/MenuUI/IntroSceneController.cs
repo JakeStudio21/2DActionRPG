@@ -12,7 +12,6 @@ public class IntroSceneController : MonoBehaviour
 {
     [Header("컷신 설정")]
     [SerializeField] private string[] introCutsceneIds = { "Intro_001", "Intro_002" };
-    [SerializeField] private bool enableDebugLogs = true;
     
     [Header("스킵 버튼 (선택사항)")]
     [SerializeField] private Button skipButton;
@@ -23,8 +22,6 @@ public class IntroSceneController : MonoBehaviour
     
     void Start()
     {
-        if (enableDebugLogs)
-            Debug.Log("[IntroScene] 인트로 씬 시작");
         
         // BGM 재생
         if (BGMController.Instance != null)
@@ -59,8 +56,6 @@ public class IntroSceneController : MonoBehaviour
             skipButton.onClick.AddListener(OnSkipButtonClicked);
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[IntroScene] 스킵 버튼 표시: {showSkipButton}");
     }
     
     /// <summary>
@@ -71,8 +66,6 @@ public class IntroSceneController : MonoBehaviour
         if (isTransitioning)
             return;
         
-        if (enableDebugLogs)
-            Debug.Log("[IntroScene] 스킵 버튼 클릭 - 모든 컷신 스킵");
         
         // 컷신 강제 종료
         if (CutsceneManager.Instance != null)
@@ -110,8 +103,6 @@ public class IntroSceneController : MonoBehaviour
         {
             string cutsceneId = introCutsceneIds[currentCutsceneIndex];
             
-            if (enableDebugLogs)
-                Debug.Log($"[IntroScene] 컷신 재생: {cutsceneId} ({currentCutsceneIndex + 1}/{introCutsceneIds.Length})");
             
             CutsceneManager.Instance.PlayCutscene(cutsceneId);
         }
@@ -125,8 +116,6 @@ public class IntroSceneController : MonoBehaviour
     {
         if (System.Array.Exists(introCutsceneIds, id => id == cutsceneId))
         {
-            if (enableDebugLogs)
-                Debug.Log($"[IntroScene] 컷신 종료: {cutsceneId}");
             
             currentCutsceneIndex++;
             
@@ -146,8 +135,6 @@ public class IntroSceneController : MonoBehaviour
     {
         if (System.Array.Exists(introCutsceneIds, id => id == cutsceneId))
         {
-            if (enableDebugLogs)
-                Debug.Log($"[IntroScene] 컷신 ESC 스킵: {cutsceneId}");
             
             // ESC 스킵은 현재 컷신만 스킵하고 다음 컷신 재생
             currentCutsceneIndex++;
@@ -176,8 +163,6 @@ public class IntroSceneController : MonoBehaviour
             CutsceneManager.Instance.OnCutsceneSkip -= OnCutsceneSkip;
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[IntroScene] 모든 컷신 완료 - 다음 씬으로 전환");
         
         TransitionToNextScene();
     }
@@ -190,15 +175,11 @@ public class IntroSceneController : MonoBehaviour
             
             if (flowType == GameManager.FlowType.FirstTime)
             {
-                if (enableDebugLogs)
-                    Debug.Log("[IntroScene] 최초 실행 → 튜토리얼 씬으로");
                 
                 GameManager.Instance.LoadTutorialScene();
             }
             else if (flowType == GameManager.FlowType.ReplayIntro)
             {
-                if (enableDebugLogs)
-                    Debug.Log("[IntroScene] 다시보기 → 로비로 복귀");
                 
                 GameManager.Instance.LoadLobbyScene();
             }

@@ -67,8 +67,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     public void SetReadOnly(bool value) => isReadOnly = value;
     
-    [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     private void Start()
     {
@@ -77,8 +75,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             !SceneManager.GetActiveScene().name.Contains("Lobby"))
         {
             this.enabled = false;
-            if (showDebugLogs)
-                Debug.Log("🔒 [LobbyEquippedItemsUI] 인게임에서 비활성화됨");
             return;
         }
         
@@ -111,8 +107,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         // 초기 정보 표시 (지연 갱신 지원)
         StartCoroutine(InitializeEquippedItemsWithLazyLoad());
         
-        if (showDebugLogs)
-            Debug.Log("🏠 [LobbyEquippedItemsUI] 로비 착용 장비 시스템 초기화 완료 (지연 갱신 지원)");
     }
 
     /// <summary>
@@ -123,7 +117,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         // 캐릭터 데이터 로드 상태 확인
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
         {
-            Debug.Log("🔄 [LobbyEquippedItemsUI] 지연 로드 필요 - 캐릭터 데이터 로드 중...");
             
             int selectedSlot = PlayerDataManager.Instance.GetSelectedSlotIndex();
             bool loadSuccess = PlayerDataManager.Instance.LazyLoadSlotData(selectedSlot);
@@ -148,8 +141,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnSlotLazyLoadedForEquippedItems(int slotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyEquippedItemsUI] 슬롯 {slotIndex} 지연 로드 완료 - 착용 장비 갱신");
         
         // 캐릭터 정보창이 활성화된 상태에서만 갱신
         if (gameObject.activeInHierarchy)
@@ -176,8 +167,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         SetupSlotClickEvent(ring2Slot, EquipmentSlot.Ring2);
         SetupSlotClickEvent(necklaceSlot, EquipmentSlot.Necklace);
         
-        if (showDebugLogs)
-            Debug.Log("🖱️ [LobbyEquippedItemsUI] 9개 슬롯 클릭 이벤트 설정 완료");
     }
     
     /// <summary>
@@ -213,11 +202,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             button.onClick.AddListener(() => OnEquippedSlotClicked(equipmentSlot));
             button.interactable = true;
             
-            if (showDebugLogs)
-            {
-                string mode = isReadOnly ? "읽기 전용 (정보 보기)" : "읽기/쓰기 (장비 해제)";
-                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 클릭 이벤트 연결: {mode}");
-            }
         }
         else
         {
@@ -230,8 +214,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnEquippedSlotClicked(EquipmentSlot slot)
     {
-        if (showDebugLogs)
-            Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot} 슬롯 클릭됨 (ReadOnly: {isReadOnly})");
         
         // PlayerDataManager에서 해당 슬롯의 장비 확인
         if (PlayerDataManager.Instance == null) return;
@@ -254,8 +236,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         }
         else
         {
-            if (showDebugLogs)
-                Debug.Log($"🖱️ [LobbyEquippedItemsUI] {slot} 슬롯이 비어있습니다");
         }
     }
     
@@ -283,8 +263,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         ItemInstanceID instanceId = GetItemInstanceIDForSlot(slot);
         popup.Show(equipmentData, ItemDetailContext.ReadOnly, -1, instanceId);
         
-        if (showDebugLogs)
-            Debug.Log($"📖 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (읽기 전용)");
     }
     
     /// <summary>
@@ -313,8 +291,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         // ⭐ Equipment 컨텍스트로 팝업 열기 (slot 명시 전달 → Ring1/Ring2 정확히 구분)
         popup.Show(equipmentData, ItemDetailContext.Equipment, -1, instanceId, slot);
         
-        if (showDebugLogs)
-            Debug.Log($"🎒 [LobbyEquippedItemsUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (해제 모드, ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
     }
     
     /// <summary>
@@ -337,13 +313,10 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             var instanceId = equippedInstanceIds[slot];
             if (!instanceId.IsEmpty)
             {
-                if (showDebugLogs)
-                    Debug.Log($"✅ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceID 찾음: {instanceId.Value.Substring(0, 8)}...");
                 return instanceId;
             }
         }
         
-        if (showDebugLogs)
             Debug.LogWarning($"⚠️ [LobbyEquippedItemsUI] {slot} 슬롯의 ItemInstanceID를 찾을 수 없습니다.");
         return default;
     }
@@ -353,8 +326,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnItemEquipped(EquipmentSlot slot, EquipmentData item)
     {
-        if (showDebugLogs)
-            Debug.Log($"🎮 [LobbyEquippedItemsUI] {item.equipmentName} 장착됨 → {slot}");
         
         RefreshAllEquippedItems();
         UpdatePlayerStats();
@@ -365,8 +336,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     private void OnItemUnequipped(EquipmentSlot slot, EquipmentData item)
     {
-        if (showDebugLogs)
-            Debug.Log($"🎮 [LobbyEquippedItemsUI] {item.equipmentName} 해제됨 ← {slot}");
         
         RefreshAllEquippedItems();
         UpdatePlayerStats();
@@ -398,8 +367,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         if (playerNameText != null)
         {
             playerNameText.text = playerData.playerName;
-            if (showDebugLogs)
-                Debug.Log($"🎮 [LobbyEquippedItemsUI] 플레이어명 업데이트: {playerData.playerName}");
         }
         
         // 클래스 아이콘 업데이트
@@ -410,8 +377,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             {
                 playerClassIcon.sprite = classIcon;
                 playerClassIcon.color = Color.white;
-                if (showDebugLogs)
-                    Debug.Log($"🎮 [LobbyEquippedItemsUI] 클래스 아이콘 업데이트: {playerData.selectedPlayerType}");
             }
         }
     }
@@ -450,8 +415,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         UpdateSlot(ring2Slot, EquipmentSlot.Ring2, equippedItems);
         UpdateSlot(necklaceSlot, EquipmentSlot.Necklace, equippedItems);
         
-        if (showDebugLogs)
-            Debug.Log($"🎮 [LobbyEquippedItemsUI] 9개 착용 장비 슬롯 새로고침 완료");
     }
     
     /// <summary>
@@ -467,16 +430,12 @@ public class LobbyEquippedItemsUI : MonoBehaviour
             var equipment = equippedItems[equipmentSlot];
             uiSlot.SetEquipmentData(equipment);
             
-            if (showDebugLogs)
-                Debug.Log($"🎮 [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 업데이트: {equipment.equipmentName}");
         }
         else
         {
             // 장비가 없는 경우
             uiSlot.SetEquipmentData(null);
             
-            if (showDebugLogs)
-                Debug.Log($"🎮 [LobbyEquippedItemsUI] {equipmentSlot} 슬롯 비움");
         }
     }
     
@@ -553,8 +512,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         if (statScrollRect != null)
             statScrollRect.verticalNormalizedPosition = 1f;
 
-        if (showDebugLogs)
-            Debug.Log($"🎮 [LobbyEquippedItemsUI] 스탯 업데이트 완료 — ATK:{snap.AttackDamage:F0} DEF:{snap.Defense:F0} SPD:{snap.AttackSpeed:F2} MOV:{snap.MoveSpeed:F1}");
     }
 
     /// <summary>
@@ -581,21 +538,15 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         // 🔧 지연 갱신: 캐릭터 정보창이 활성화된 상태에서만 즉시 갱신
         if (!gameObject.activeInHierarchy)
         {
-            if (showDebugLogs)
-                Debug.Log($"🔄 [LobbyEquippedItemsUI] 캐릭터 정보창 비활성화 상태 - 갱신 지연");
             return;
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🔄 [LobbyEquippedItemsUI] 플레이어 슬롯 전환됨: {newSlotIndex}");
         
         // 플레이어 정보 및 장비 정보 전체 갱신
         UpdatePlayerInfo();
         RefreshAllEquippedItems();
         UpdatePlayerStats();
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [LobbyEquippedItemsUI] 슬롯 {newSlotIndex} 전환 완료");
     }
 
     private void OnDestroy()
@@ -616,8 +567,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     public void ForceRefreshEquippedItems()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [LobbyEquippedItemsUI] 강제 갱신 시작");
         
         // 지연 로드가 필요한 경우 처리
         if (PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsLazyLoadRequired())
@@ -637,8 +586,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         RefreshAllEquippedItems();
         UpdatePlayerStats();
         
-        if (showDebugLogs)
-            Debug.Log("✅ [LobbyEquippedItemsUI] 강제 갱신 완료");
     }
 
     /// <summary>
@@ -646,8 +593,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
     /// </summary>
     public void ShowEmptySlotState()
     {
-        if (showDebugLogs)
-            Debug.Log("🔄 [LobbyEquippedItemsUI] 빈 슬롯 상태로 전환 (9개)");
         
         // 모든 장비 슬롯을 빈 상태로 설정 (9개)
         ClearSlot(weaponSlot);
@@ -683,8 +628,6 @@ public class LobbyEquippedItemsUI : MonoBehaviour
         foreach (var t in statTexts)
             if (t != null) t.text = "-";
         
-        if (showDebugLogs)
-            Debug.Log("✅ [LobbyEquippedItemsUI] 빈 슬롯 상태 표시 완료");
     }
 
     /// <summary>

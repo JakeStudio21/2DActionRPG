@@ -17,7 +17,6 @@ public class LobbyInventoryController : MonoBehaviour
     // [SerializeField] private bool enableInventoryToggle = true;
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 🆕 로비 UI 컨트롤러 참조
     private LobbyUIController lobbyUIController;
@@ -28,7 +27,6 @@ public class LobbyInventoryController : MonoBehaviour
             !SceneManager.GetActiveScene().name.Contains("Lobby"))
         {
             this.enabled = false;
-            Debug.Log("🔒 [LobbyInventoryController] 인게임에서 비활성화됨");
             return;
         }
         
@@ -54,19 +52,11 @@ public class LobbyInventoryController : MonoBehaviour
             PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
             PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
             
-            if (showDebugLogs)
-                Debug.Log("✅ [LobbyInventoryController] PlayerDataManager 이벤트 구독 완료");
         }
         
         InitializeIntegratedInventory();
         
         // 🗑️ 제거: 삭제된 필드 참조 제거
-        if (showDebugLogs)
-        {
-            Debug.Log($"✅ [LobbyInventoryController] 초기화 완료");
-            // Debug.Log($"   - DetailPanel 활성화: {enableDetailPanel}"); // 🗑️ 제거
-            // Debug.Log($"   - 인벤토리 토글 활성화: {enableInventoryToggle}"); // 🗑️ 제거
-        }
     }
 
     /// <summary>
@@ -89,8 +79,6 @@ public class LobbyInventoryController : MonoBehaviour
         {
             lobbyUIController.ShowInventoryPanel();
             
-            if (showDebugLogs)
-                Debug.Log("🏠 [LobbyInventoryController] 인벤토리 패널 열기 완료");
         }
         else
         {
@@ -135,8 +123,6 @@ public class LobbyInventoryController : MonoBehaviour
     /// </summary>
     private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId = default)
     {
-        if (showDebugLogs)
-            Debug.Log($"🏠 [LobbyInventoryController] 슬롯 클릭: {equipmentData?.equipmentName} (ID: {(!instanceId.IsEmpty ? instanceId.Value.Substring(0, 8) + "..." : "없음")})");
         
         // 필요시 추가 처리 (DetailPanel 표시 등)
         // ItemDetailPopup이 OnSlotClicked 이벤트를 구독하여 자동으로 팝업 표시

@@ -33,7 +33,6 @@ public class ChapterMapUI : MonoBehaviour
     
     [Header("=== 설정 ===")]
     [SerializeField] private int maxChapterId = 5;
-    [SerializeField] private bool enableDebugLogs = true;
     
     // 내부 상태
     private int currentChapterId = 1;
@@ -69,8 +68,6 @@ public class ChapterMapUI : MonoBehaviour
             Debug.LogWarning("[ChapterMapUI] nextChapterButton이 null입니다! Inspector에서 할당해주세요.");
         }
         
-        if (enableDebugLogs)
-            Debug.Log("[ChapterMapUI] 버튼 이벤트 등록 완료");
     }
     
     /// <summary>
@@ -86,8 +83,6 @@ public class ChapterMapUI : MonoBehaviour
         
         currentChapterId = chapterId;
         
-        if (enableDebugLogs)
-            Debug.Log($"[ChapterMapUI] 챕터 {chapterId} 표시");
         
         RefreshChapterUI();
     }
@@ -101,13 +96,9 @@ public class ChapterMapUI : MonoBehaviour
         
         if (newChapterId < 1)
         {
-            if (enableDebugLogs)
-                Debug.Log("[ChapterMapUI] 이미 첫 번째 챕터입니다.");
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[ChapterMapUI] 이전 챕터로 이동: {currentChapterId} → {newChapterId}");
         
         currentChapterId = newChapterId;
         RefreshChapterUI();
@@ -130,21 +121,15 @@ public class ChapterMapUI : MonoBehaviour
         
         if (newChapterId > maxChapterId)
         {
-            if (enableDebugLogs)
-                Debug.Log("[ChapterMapUI] 이미 마지막 챕터입니다.");
             return;
         }
         
         // 해금 체크
         if (!IsChapterUnlocked(newChapterId))
         {
-            if (enableDebugLogs)
-                Debug.Log($"[ChapterMapUI] 챕터 {newChapterId}는 아직 잠겨있습니다.");
             return;
         }
         
-        if (enableDebugLogs)
-            Debug.Log($"[ChapterMapUI] 다음 챕터로 이동: {currentChapterId} → {newChapterId}");
         
         // 🎬 챕터 시작 컷신 재생 후 챕터 전환
         StartCoroutine(PlayChapterStartAndChangeChapter(newChapterId));
@@ -155,8 +140,6 @@ public class ChapterMapUI : MonoBehaviour
     /// </summary>
     private void RefreshChapterUI()
     {
-        if (enableDebugLogs)
-            Debug.Log($"[ChapterMapUI] RefreshChapterUI 호출됨 (Chapter {currentChapterId})");
         
         // ChapterData 로드
         ChapterData chapterData = null;
@@ -204,8 +187,6 @@ public class ChapterMapUI : MonoBehaviour
         // 버튼 상태 업데이트
         UpdateButtonStates();
         
-        if (enableDebugLogs)
-            Debug.Log($"[ChapterMapUI] 챕터 UI 갱신 완료: {chapterData.chapterTitle}");
     }
     
     /// <summary>
@@ -318,8 +299,6 @@ public class ChapterMapUI : MonoBehaviour
         {
             PlayerDataManager.Instance.selectedPlayerData.currentChapterId = chapterId;
             
-            if (enableDebugLogs)
-                Debug.Log($"📍 [ChapterMapUI] 현재 챕터 ID 업데이트: {chapterId}");
         }
     }
     
@@ -358,27 +337,19 @@ public class ChapterMapUI : MonoBehaviour
             
             if (shouldPlay)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 재생: {stageConfig.chapterStartCutsceneId}");
                 
                 CutsceneSystem.CutsceneManager.Instance.PlayCutscene(stageConfig.chapterStartCutsceneId);
                 
                 // 컷신 종료 대기
                 yield return new WaitUntil(() => !CutsceneSystem.CutsceneManager.Instance.IsPlaying);
                 
-                if (enableDebugLogs)
-                    Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 완료");
             }
             else
             {
-                if (enableDebugLogs)
-                    Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 스킵 (이미 시청)");
             }
         }
         else
         {
-            if (enableDebugLogs)
-                Debug.Log($"🎬 [ChapterMapUI] 챕터 {newChapterId} 시작 컷신 없음");
         }
         
         // 챕터 전환
@@ -391,8 +362,6 @@ public class ChapterMapUI : MonoBehaviour
         // 이벤트 발생
         OnChapterChanged?.Invoke(currentChapterId);
         
-        if (enableDebugLogs)
-            Debug.Log($"[ChapterMapUI] 챕터 전환 완료: {newChapterId}");
     }
     
     #region Unity Editor Helper

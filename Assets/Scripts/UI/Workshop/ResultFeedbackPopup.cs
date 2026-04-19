@@ -52,7 +52,6 @@ namespace UI.Workshop
         
         [Header("⚙️ 설정")]
         [SerializeField] private float autoCloseDelay = 3f; // 3초 후 자동 닫기 (0이면 비활성화)
-        [SerializeField] private bool enableDebugLogs = false;
         
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // 내부 상태
@@ -650,10 +649,6 @@ namespace UI.Workshop
         
         private void Log(string message)
         {
-            if (enableDebugLogs)
-            {
-                Debug.Log($"[ResultFeedbackPopup] {message}");
-            }
         }
     }
 }

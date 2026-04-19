@@ -61,7 +61,6 @@ public class ShopInventoryUI : MonoBehaviour
     // ❌ 제거: maxDisplaySlots (AccountData에서 가져옴)
     
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = false; // 🔧 수정: 기본값 false
     
     // 내부 상태
     private List<InventorySlot> shopInventorySlots = new List<InventorySlot>();
@@ -74,8 +73,6 @@ public class ShopInventoryUI : MonoBehaviour
     
     void Awake()
     {
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] 상점 전용 인벤토리 UI 초기화");
         
         SetupEventListeners();
     }
@@ -91,8 +88,6 @@ public class ShopInventoryUI : MonoBehaviour
     /// </summary>
     void OnEnable()
     {
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] OnEnable() - 상점 패널 활성화");
         
         // 슬롯이 초기화된 경우에만 갱신 (Start() 전에 호출 방지)
         if (shopInventorySlots != null && shopInventorySlots.Count > 0)
@@ -157,8 +152,6 @@ public class ShopInventoryUI : MonoBehaviour
         // 🆕 근본 해결: Button.onClick 이벤트 직접 등록
         SetupShopSlotClickEvents();
         
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] {shopInventorySlots.Count}개 슬롯 생성 완료 (최대: {maxSlots})");
     }
     
     /// <summary>
@@ -185,8 +178,6 @@ public class ShopInventoryUI : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] {shopInventorySlots.Count}개 슬롯 클릭 이벤트 등록 완료");
     }
     
     /// <summary>
@@ -194,11 +185,7 @@ public class ShopInventoryUI : MonoBehaviour
     /// </summary>
     public void RefreshInventoryUI()
     {
-        if (showDebugLogs)
-            Debug.Log($"═══════════════════════════════════════════════════════");
             
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] RefreshInventoryUI() 호출 (V2: 계정 공유 창고)");
         
         // ⭐ ScrollRect Position 저장 (스크롤 위치 유지)
         Vector2 savedScrollPosition = Vector2.zero;
@@ -206,12 +193,9 @@ public class ShopInventoryUI : MonoBehaviour
         if (hasScrollRect)
         {
             savedScrollPosition = scrollRect.normalizedPosition;
-            if (showDebugLogs)
-                Debug.Log($"💾 [ShopInventoryUI] 스크롤 위치 저장: {savedScrollPosition} (vertical: {savedScrollPosition.y})");
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogWarning($"⚠️ [ShopInventoryUI] scrollRect가 null입니다! Unity Editor에서 ScrollRect 컴포넌트를 할당하세요.");
         }
         
@@ -226,13 +210,6 @@ public class ShopInventoryUI : MonoBehaviour
         var accountData = AccountDataManager.Instance.GetAccountData();
         var sharedInventoryIds = accountData?.sharedInventoryIds;
         
-        if (showDebugLogs)
-        {
-            Debug.Log($"📦 [ShopInventoryUI] 계정 공유 창고 데이터 확인:");
-            Debug.Log($"   - 공유 창고 아이템 수: {sharedInventoryIds?.Count ?? 0}");
-            Debug.Log($"   - 슬롯 수: {shopInventorySlots?.Count ?? 0}");
-            Debug.Log($"🔍 [ShopInventoryUI] accountData 해시코드: {accountData?.GetHashCode() ?? 0}");
-        }
         
         // 🆕 V2: ItemInstanceID → EquipmentData 변환 (ID도 함께 저장)
         List<(EquipmentData equipment, ItemInstanceID instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceID)>();
@@ -253,23 +230,14 @@ public class ShopInventoryUI : MonoBehaviour
                         {
                             inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
                             
-                            if (i < 5 && showDebugLogs) // 처음 5개만 로그
-                            {
-                                string idPreview = instanceId.Value != null && instanceId.Value.Length >= 8 
-                                    ? instanceId.Value.Substring(0, 8) 
-                                    : instanceId.Value;
-                                Debug.Log($"   📦 공유창고[{i}]: {template.equipmentName} (ID: {idPreview}...)");
-                            }
                         }
                         else
                         {
-                            if (showDebugLogs)
                                 Debug.LogWarning($"⚠️ [ShopInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
                         }
                     }
                     else
                     {
-                        if (showDebugLogs)
                             Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.Value}");
                     }
                 }
@@ -288,8 +256,6 @@ public class ShopInventoryUI : MonoBehaviour
             {
                 shopInventorySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);  // 🆕 ID 전달
                 
-                if (inventoryItems[i].equipment != null && showDebugLogs)
-                    Debug.Log($"   ✅ 상점 슬롯 {i}에 설정: {inventoryItems[i].equipment.equipmentName}");
             }
             else
             {
@@ -297,14 +263,6 @@ public class ShopInventoryUI : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
-        {
-            int maxSlots = AccountDataManager.IsInitialized() 
-                ? AccountDataManager.Instance.GetAccountData().maxSharedInventorySize 
-                : 64;
-            Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 새로고침 완료: {inventoryItems.Count}/{maxSlots}");
-            Debug.Log($"═══════════════════════════════════════════════════════");
-        }
         
         // ⭐ ScrollRect Position 복원 (다음 프레임에 실행하여 Layout 재계산 완료 후 적용)
         if (hasScrollRect)
@@ -318,8 +276,6 @@ public class ShopInventoryUI : MonoBehaviour
     /// </summary>
     private IEnumerator RestoreScrollPositionNextFrame(Vector2 position)
     {
-        if (showDebugLogs)
-            Debug.Log($"⏳ [ShopInventoryUI] 스크롤 복원 대기 중... (목표: {position})");
         
         yield return null; // 1프레임 대기 (Layout 재계산 완료)
         
@@ -329,18 +285,9 @@ public class ShopInventoryUI : MonoBehaviour
             scrollRect.normalizedPosition = position;
             Vector2 afterPosition = scrollRect.normalizedPosition;
             
-            if (showDebugLogs)
-            {
-                Debug.Log($"🔄 [ShopInventoryUI] 스크롤 위치 복원 시도:");
-                Debug.Log($"   - 목표 위치: {position}");
-                Debug.Log($"   - 복원 전: {beforePosition}");
-                Debug.Log($"   - 복원 후: {afterPosition}");
-                Debug.Log($"   - 성공 여부: {Vector2.Distance(afterPosition, position) < 0.01f}");
-            }
         }
         else
         {
-            if (showDebugLogs)
                 Debug.LogError($"❌ [ShopInventoryUI] scrollRect가 null입니다! (복원 실패)");
         }
     }
@@ -359,12 +306,6 @@ public class ShopInventoryUI : MonoBehaviour
             // ⭐ ItemDetailPopup 열기 (Shop_Sell 컨텍스트)
             ShowItemDetailPopup(equipmentData, slotIndex, instanceId);
             
-            if (showDebugLogs)
-                Debug.Log($"🏪 [ShopInventoryUI] 인벤토리 아이템 클릭: {equipmentData.equipmentName} (ID: {instanceId.Value.Substring(0, 8)}...)");
-        }
-        else if (showDebugLogs)
-        {
-            Debug.LogWarning($"⚠️ [ShopInventoryUI] 빈 슬롯 클릭 또는 잘못된 ID (슬롯: {slotIndex})");
         }
     }
     
@@ -385,8 +326,6 @@ public class ShopInventoryUI : MonoBehaviour
         // Shop_Sell 컨텍스트로 팝업 열기
         popup.Show(equipmentData, ItemDetailContext.Shop_Sell, slotIndex, instanceId);
         
-        if (showDebugLogs)
-            Debug.Log($"🏪 [ShopInventoryUI] ItemDetailPopup 열기: {equipmentData.equipmentName} (판매 모드)");
     }
     
     /// <summary>
@@ -402,8 +341,6 @@ public class ShopInventoryUI : MonoBehaviour
     /// </summary>
     private void OnSlotLazyLoadedForShop(int slotIndex)
     {
-        if (showDebugLogs)
-            Debug.Log($"🔄 [ShopInventoryUI] 슬롯 {slotIndex} 지연 로드 완료 - 상점 인벤토리 갱신");
         
         // 상점이 활성화된 상태에서만 갱신
         if (gameObject.activeInHierarchy)

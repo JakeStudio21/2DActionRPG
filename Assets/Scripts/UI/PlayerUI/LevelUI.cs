@@ -26,7 +26,6 @@ public class LevelUI : MonoBehaviour
                 // 🔧 즉시 현재 레벨 표시
                 UpdateLevelText(PlayerDataManager.Instance.CurrentLevel);
                 
-                Debug.Log($"🎯 [LevelUI] PlayerDataManager 연결 완료, 현재 레벨: {PlayerDataManager.Instance.CurrentLevel}");
             }
         }
     }
@@ -47,6 +46,5 @@ public class LevelUI : MonoBehaviour
     {
         _levelText.text = $"{newLevel}";
         // _levelText.text = $" {newLevel}";  // Lv. 제거
-        Debug.Log($"🎯 [LevelUI] 레벨 UI 업데이트: Lv. {newLevel}");
     }
 } 

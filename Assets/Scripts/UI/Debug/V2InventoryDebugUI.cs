@@ -25,7 +25,6 @@ public class V2InventoryDebugUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F12))
         {
             showUI = !showUI;
-            if (showUI) Debug.Log("🎮 [V2InventoryDebugUI] 디버그 UI 열림");
         }
 #endif
     }
@@ -100,7 +99,6 @@ public class V2InventoryDebugUI : MonoBehaviour
             if (GUILayout.Button("🔄 AccountDataManager 초기화"))
             {
                 AccountDataManager.Initialize();
-                Debug.Log("✅ [Debug] AccountDataManager 초기화 완료");
             }
             
             return;
@@ -178,7 +176,6 @@ public class V2InventoryDebugUI : MonoBehaviour
             DrawItemRow(itemId, "창고", () =>
             {
                 // ❌ 삭제됨: MoveFromAccountStorage() - V2 시스템에서는 보관창고 → 직접 착용 방식 사용
-                Debug.Log($"⚠️ [V2InventoryDebugUI] '가방으로 이동' 기능은 제거되었습니다. 보관창고에서 직접 착용하세요.");
             });
         }
     }
@@ -207,7 +204,6 @@ public class V2InventoryDebugUI : MonoBehaviour
                 // 창고로 이동
                 if (playerData.MoveToAccountStorage(itemId))
                 {
-                    Debug.Log($"✅ 가방 → 창고: {itemId}");
                 }
             });
         }
@@ -238,7 +234,6 @@ public class V2InventoryDebugUI : MonoBehaviour
                 // 가방으로 수령
                 if (PlayerDataManager.Instance.ClaimFromMailbox(itemId))
                 {
-                    Debug.Log($"✅ 우편함 → 가방: {itemId}");
                 }
             });
         }
@@ -281,7 +276,6 @@ public class V2InventoryDebugUI : MonoBehaviour
             {
                 if (playerData.UnequipV2(record.slot))
                 {
-                    Debug.Log($"✅ 장착 해제: {record.slot}");
                 }
             }
             
@@ -328,7 +322,6 @@ public class V2InventoryDebugUI : MonoBehaviour
         // if (GUILayout.Button("🗑️", GUILayout.Width(40)))
         // {
         //     account.DeleteItem(itemId);
-        //     Debug.Log($"🗑️ 아이템 삭제: {itemId}");
         // }
         
         GUILayout.EndHorizontal();
@@ -349,14 +342,12 @@ public class V2InventoryDebugUI : MonoBehaviour
         
         if (GUILayout.Button("🔄 데이터 새로고침", GUILayout.Height(40)))
         {
-            Debug.Log("🔄 [Debug] 데이터 새로고침");
         }
         
         if (GUILayout.Button("💾 강제 저장", GUILayout.Height(40)))
         {
             AccountDataManager.Instance.Save();
             PlayerDataManager.Instance.SaveCurrentSlot();
-            Debug.Log("💾 [Debug] 강제 저장 완료");
         }
         
         GUILayout.EndHorizontal();
@@ -390,7 +381,6 @@ public class V2InventoryDebugUI : MonoBehaviour
         
         account.Save();
         
-        Debug.Log($"✅ [Debug] 가방에 아이템 추가: {newItemTemplate} +{newItemEnhancement} ({itemId})");
     }
     
     private void CreateAndAddToStorage()
@@ -413,7 +403,6 @@ public class V2InventoryDebugUI : MonoBehaviour
         if (account.TryAddToShared(itemId))
         {
             account.Save();
-            Debug.Log($"✅ [Debug] 창고에 아이템 추가: {newItemTemplate} +{newItemEnhancement} ({itemId})");
         }
         else
         {
@@ -446,7 +435,6 @@ public class V2InventoryDebugUI : MonoBehaviour
         // 장착
         if (playerData.EquipV2(itemId, EquipmentSlot.MainWeapon))
         {
-            Debug.Log($"✅ [Debug] 아이템 생성 및 장착: {newItemTemplate} +{newItemEnhancement} ({itemId})");
         }
         else
         {
@@ -466,7 +454,6 @@ public class V2InventoryDebugUI : MonoBehaviour
             var go = new GameObject("StageEndItemTransfer_Debug");
             transfer = go.AddComponent<StageEndItemTransfer>();
             transfer.enableLogs = true;
-            Debug.Log("✨ [Debug] StageEndItemTransfer 임시 생성");
         }
         
         // 전송 실행

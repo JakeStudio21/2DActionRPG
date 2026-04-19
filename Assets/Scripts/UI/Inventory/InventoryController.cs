@@ -10,8 +10,6 @@ public class InventoryController : MonoBehaviour
 {
     public static InventoryController Instance { get; private set; }
     
-    [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = true;
     
     // 이벤트 시스템
     public event System.Action<bool> OnInventoryStateChanged;
@@ -53,7 +51,6 @@ public class InventoryController : MonoBehaviour
                     lobbyUIController.ShowInventoryPanel();
                 }
             };
-            Debug.Log("✅ [InventoryController] LobbyUIController 연결 완료");
         }
     }
     
@@ -62,25 +59,20 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     public void OpenInventory()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔥 [InventoryController] OpenInventory 호출됨! 현재 상태: {isInventoryOpen}");
         
         // 이미 열려있으면 아무것도 하지 않음
         if (isInventoryOpen)
         {
-            Debug.Log($"⚠️ [InventoryController] 이미 열려있음 - 아무것도 하지 않음");
             return;
         }
         
         isInventoryOpen = true;
         
-        Debug.Log($"📢 [InventoryController] OnInventoryStateChanged 이벤트 발송 시작");
         
         // 구독자 확인
         if (OnInventoryStateChanged != null)
         {
             var subscriberCount = OnInventoryStateChanged.GetInvocationList().Length;
-            Debug.Log($"👥 [InventoryController] 구독자 수: {subscriberCount}명");
             OnInventoryStateChanged.Invoke(isInventoryOpen);
         }
         else
@@ -88,8 +80,6 @@ public class InventoryController : MonoBehaviour
             Debug.LogError($"🔴 [InventoryController] 구독자가 없습니다!");
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [InventoryController] 인벤토리 열림");
     }
     
     /// <summary>
@@ -97,12 +87,9 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     public void CloseInventory()
     {
-        if (showDebugLogs)
-            Debug.Log($"🔥 [InventoryController] CloseInventory 호출됨! 현재 상태: {isInventoryOpen}");
         
         if (!isInventoryOpen)
         {
-            Debug.Log($"⚠️ [InventoryController] 이미 닫혀있음 - 아무것도 하지 않음");
             return;
         }
         
@@ -113,8 +100,6 @@ public class InventoryController : MonoBehaviour
             OnInventoryStateChanged.Invoke(isInventoryOpen);
         }
         
-        if (showDebugLogs)
-            Debug.Log($"✅ [InventoryController] 인벤토리 닫힘");
     }
     
     public bool IsInventoryOpen => isInventoryOpen;
