@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UI.Components;
 
 /// <summary>
 /// 🏪 상점 아이템 슬롯 (개별 상품 표시)
@@ -17,13 +18,8 @@ public class ShopItemSlot : MonoBehaviour
     [SerializeField] private GameObject soldOutOverlay;   // 품절 오버레이
     [SerializeField] private TMP_Text stockText;          // 재고 수량 표시
     
-    [Header("🎨 등급별 색상")]
-    [SerializeField] private Image gradeFrame;            // 등급 테두리
-    [SerializeField] private Color sRankColor = Color.red;
-    [SerializeField] private Color aRankColor = Color.yellow;
-    [SerializeField] private Color bRankColor = Color.green;
-    [SerializeField] private Color cRankColor = Color.blue;
-    [SerializeField] private Color dRankColor = Color.gray;
+    [Header("🎨 등급 프레임")]
+    [SerializeField] private ItemIconGradeFrame itemIconGradeFrame; // 등급별 배경 색상
     
     
     // 이벤트
@@ -197,52 +193,15 @@ public class ShopItemSlot : MonoBehaviour
     }
     
     /// <summary>
-    /// 🔧 수정: 등급별 테두리 색상 업데이트
+    /// 등급 프레임 색상 업데이트 (ItemGradeColorManager 중앙 관리)
     /// </summary>
     private void UpdateGradeFrame()
     {
-        if (gradeFrame == null)
-        {
-                Debug.LogError($"❌ [ShopItemSlot] gradeFrame이 null입니다!");
-            return;
-        }
-        
-        if (currentEquipment == null)
-        {
-                Debug.LogError($"❌ [ShopItemSlot] currentEquipment가 null입니다!");
-            return;
-        }
-        
-        Color frameColor = Color.white;
-        
-        switch (currentEquipment.itemGrade)
-        {
-            case ItemGrade.S:
-                frameColor = sRankColor;
-                break;
-            case ItemGrade.A:
-                frameColor = aRankColor;
-                break;
-            case ItemGrade.B:
-                frameColor = bRankColor;
-                break;
-            case ItemGrade.C:
-                frameColor = cRankColor;
-                break;
-            case ItemGrade.D:
-                frameColor = dRankColor;
-                break;
-            default:
-                frameColor = Color.white;
-                break;
-        }
-        
-        gradeFrame.color = frameColor;
-        gradeFrame.gameObject.SetActive(true);
-        
-        // 🆕 활성화 상태 확인
-        
-        // 🔧 수정: 과도한 디버깅 로그 제거
+        if (itemIconGradeFrame == null) return;
+        if (currentEquipment == null) return;
+
+        itemIconGradeFrame.gameObject.SetActive(true);
+        itemIconGradeFrame.SetGrade(currentEquipment.itemGrade);
     }
     
     /// <summary>
@@ -294,8 +253,8 @@ public class ShopItemSlot : MonoBehaviour
             stockText.gameObject.SetActive(false);
         if (soldOutOverlay != null)
             soldOutOverlay.SetActive(false);
-        if (gradeFrame != null)
-            gradeFrame.color = Color.white;
+        if (itemIconGradeFrame != null)
+            itemIconGradeFrame.gameObject.SetActive(false);
         
         SetInteractable(false);
     }
