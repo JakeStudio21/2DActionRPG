@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
@@ -87,7 +87,7 @@ public class CreateMaterialDatabase
             "장판 철벽 룬 조각", "적의 범위 공격 데미지를 크게 줄여주는 룬을 만들 때 사용하는 조각입니다.\nAOE 공격을 사용하는 몬스터 처치 시 획득할 수 있습니다.", 
             "장판 철벽 룬 합성", "AOE 몬스터 처치", MaterialRarity.Uncommon, 206));
         
-        materialDataList.Add(CreateMaterialDataAsset("RUNE_FRAG_RUNE_VAMPIRE", MaterialType.RUNE_FRAG_RUNE_VAMPIRE, 
+        materialDataList.Add(CreateMaterialDataAsset("RUNE_FRAG_RUNE_LIFESTEAL", MaterialType.RUNE_FRAG_RUNE_LIFESTEAL, 
             "흡혈 룬 조각", "적에게 준 데미지의 일부를 체력으로 흡수하는 룬을 만들 때 사용하는 조각입니다.\n언데드 계열 몬스터 처치 시 획득할 수 있습니다.", 
             "흡혈 룬 합성", "언데드 몬스터 처치", MaterialRarity.Uncommon, 207));
         

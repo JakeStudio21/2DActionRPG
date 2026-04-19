@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 02a8cc4a7e44e3f4bbc96700d9172fa2, type: 3}
-  m_Name: RUNE_FRAG_RUNE_VAMPIRE
+  m_Name: RUNE_FRAG_RUNE_LIFESTEAL
   m_EditorClassIdentifier: 
-  materialId: RUNE_FRAG_RUNE_VAMPIRE
+  materialId: RUNE_FRAG_RUNE_LIFESTEAL
   materialType: 207
   displayName: "\uD761\uD608 \uB8EC \uC870\uAC01"
   icon: {fileID: -1050100020, guid: d0cc316ba2f62c24bbe35f98df8b43d9, type: 3}

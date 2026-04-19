@@ -350,7 +350,7 @@ public class PlayerDebugTools : EditorWindow
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("흡혈 룬"))
         {
-            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_VAMPIRE, runeFragmentToAdd);
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_LIFESTEAL, runeFragmentToAdd);
             Debug.Log($"✅ 흡혈 룬 조각 {runeFragmentToAdd}개 추가!");
         }
         EditorGUILayout.EndHorizontal();
@@ -650,7 +650,7 @@ public class PlayerDebugTools : EditorWindow
         AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_EXECUTIONER, amount);
         AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_SURVIVOR, amount);
         AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER, amount);
-        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_VAMPIRE, amount);
+        AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_LIFESTEAL, amount);
         
         AccountDataManager.Instance.Save();
         Debug.Log($"✅ 모든 룬 조각 {amount}개씩 추가 완료! (총 8종류)");

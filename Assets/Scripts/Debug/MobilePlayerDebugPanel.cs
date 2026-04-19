@@ -249,7 +249,7 @@ namespace DebugTools
         public void AddRuneBossDefender()   => AddRuneFrag(MaterialType.RUNE_FRAG_RUNE_BOSS_DEFENDER);
         public void AddRuneSurvivor()       => AddRuneFrag(MaterialType.RUNE_FRAG_RUNE_SURVIVOR);
         public void AddRuneAreaDefender()   => AddRuneFrag(MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER);
-        public void AddRuneVampire()        => AddRuneFrag(MaterialType.RUNE_FRAG_RUNE_VAMPIRE);
+        public void AddRuneVampire()        => AddRuneFrag(MaterialType.RUNE_FRAG_RUNE_LIFESTEAL);
         public void AddAllRuneFragments100()  => AddAllRuneFragments(100);
         public void AddAllRuneFragments1000() => AddAllRuneFragments(1000);
 
@@ -272,7 +272,7 @@ namespace DebugTools
             AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_EXECUTIONER,     amount);
             AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_SURVIVOR,        amount);
             AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER,   amount);
-            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_VAMPIRE,         amount);
+            AccountDataManager.Instance.AddMaterial(MaterialType.RUNE_FRAG_RUNE_LIFESTEAL,        amount);
             AccountDataManager.Instance.Save();
             Debug.Log($"✅ [MobileDebug] 모든 룬 조각 +{amount} (8종)");
         }

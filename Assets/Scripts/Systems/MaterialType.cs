@@ -50,7 +50,7 @@ public enum MaterialType
     RUNE_FRAG_RUNE_EXECUTIONER = 204,      // 처형자 룬 조각
     RUNE_FRAG_RUNE_SURVIVOR = 205,         // 불굴의 생존자 룬 조각
     RUNE_FRAG_RUNE_AREA_DEFENDER = 206,    // 장판 철벽 룬 조각
-    RUNE_FRAG_RUNE_VAMPIRE = 207,          // 흡혈 룬 조각
+    RUNE_FRAG_RUNE_LIFESTEAL = 207,        // 흡혈 룬 조각
     
     // 🌟 정령의 정수 (Phase 9: 4종류, 저항 시스템 재료)
     SPIRIT_ESSENCE_FOREST = 300,   // 숲의 정수 (속박 저항용, Bind Resistance)
@@ -98,7 +98,7 @@ public static class MaterialTypeExtensions
             MaterialType.RUNE_FRAG_RUNE_EXECUTIONER => "처형자 룬 조각",
             MaterialType.RUNE_FRAG_RUNE_SURVIVOR => "불굴의 생존자 룬 조각",
             MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER => "장판 철벽 룬 조각",
-            MaterialType.RUNE_FRAG_RUNE_VAMPIRE => "흡혈 룬 조각",
+            MaterialType.RUNE_FRAG_RUNE_LIFESTEAL => "흡혈 룬 조각",
             
             // 정령의 정수 (Phase 9)
             MaterialType.SPIRIT_ESSENCE_FOREST => "숲의 정수",
@@ -244,7 +244,7 @@ public static class MaterialTypeExtensions
             MaterialType.RUNE_FRAG_RUNE_EXECUTIONER => "RUNE_FRAG_RUNE_EXECUTIONER",
             MaterialType.RUNE_FRAG_RUNE_SURVIVOR => "RUNE_FRAG_RUNE_SURVIVOR",
             MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER => "RUNE_FRAG_RUNE_AREA_DEFENDER",
-            MaterialType.RUNE_FRAG_RUNE_VAMPIRE => "RUNE_FRAG_RUNE_VAMPIRE",
+            MaterialType.RUNE_FRAG_RUNE_LIFESTEAL => "RUNE_FRAG_RUNE_LIFESTEAL",
             
             // 정령의 정수 (Phase 9) - DropTable용 itemId ⭐
             MaterialType.SPIRIT_ESSENCE_FOREST => "SPIRIT_ESSENCE_FOREST",
@@ -290,7 +290,7 @@ public static class MaterialTypeExtensions
             "RUNE_FRAG_RUNE_EXECUTIONER" => MaterialType.RUNE_FRAG_RUNE_EXECUTIONER,
             "RUNE_FRAG_RUNE_SURVIVOR" => MaterialType.RUNE_FRAG_RUNE_SURVIVOR,
             "RUNE_FRAG_RUNE_AREA_DEFENDER" => MaterialType.RUNE_FRAG_RUNE_AREA_DEFENDER,
-            "RUNE_FRAG_RUNE_VAMPIRE" => MaterialType.RUNE_FRAG_RUNE_VAMPIRE,
+            "RUNE_FRAG_RUNE_LIFESTEAL" => MaterialType.RUNE_FRAG_RUNE_LIFESTEAL,
             
             // 정령의 정수 (Phase 9) - DropTable itemId 역변환 ⭐
             "SPIRIT_ESSENCE_FOREST" => MaterialType.SPIRIT_ESSENCE_FOREST,
