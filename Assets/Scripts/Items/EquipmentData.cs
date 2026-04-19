@@ -245,9 +245,6 @@ public class EquipmentData : ScriptableObject
     /// </summary>
     public WeaponInfo ToWeaponInfo()
     {
-        Debug.Log($" [EquipmentData] ToWeaponInfo 시작: {equipmentName}");
-        Debug.Log($"🔄 [EquipmentData] IsWeapon: {IsWeapon}");
-        Debug.Log($"🔄 [EquipmentData] equipmentType: {equipmentType}");
         
         if (!IsWeapon) {
             Debug.LogError($"🔴 [EquipmentData] 무기가 아닙니다: {equipmentType}");
@@ -260,7 +257,6 @@ public class EquipmentData : ScriptableObject
             return null;
         }
         
-        Debug.Log($"🔄 [EquipmentData] equipmentPrefab: {equipmentPrefab.name}");
         
         // 런타임에서 WeaponInfo 생성
         var weaponInfo = ScriptableObject.CreateInstance<WeaponInfo>();
@@ -273,11 +269,6 @@ public class EquipmentData : ScriptableObject
         weaponInfo.weaponDamage = 0; // 무기 자체 데미지는 별도 시스템에서 관리
         weaponInfo.weaponRange = WeaponRange;
         
-        Debug.Log($"✅ [EquipmentData] WeaponInfo 변환 완료: {equipmentName}");
-        Debug.Log($"   - 프리팹: {weaponInfo.weaponPrefab.name}");
-        Debug.Log($"   - 쿨다운: {weaponInfo.weaponCooldown}");
-        Debug.Log($"   - 데미지: {weaponInfo.weaponDamage}");
-        Debug.Log($"   - 사거리: {weaponInfo.weaponRange}");
         
         return weaponInfo;
     }

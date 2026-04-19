@@ -37,7 +37,7 @@ namespace ItemSystem
                 
                 playerManager.AddGold(amount);
                 
-                Debug.Log($"💰 [GoldItem] 골드 획득: +{amount}");
+                Dbg.Log($"💰 [GoldItem] 골드 획득: +{amount}");
             }
         }
         

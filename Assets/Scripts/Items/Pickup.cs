@@ -116,10 +116,6 @@ public class Pickup : MonoBehaviour
         {
             itemData.UseItem(PlayerDataManager.Instance);
             
-            if (enableDebugLogs)
-            {
-                Debug.Log($" [Pickup] 아이템 사용: {itemData.itemName}");
-            }
         }
         else
         {
@@ -137,7 +133,6 @@ public class Pickup : MonoBehaviour
             bool success = PlayerDataManager.Instance.AddToInventory(equipmentData);
             if (success)
             {
-                Debug.Log($"🎒 [Pickup] 장비 획득: {equipmentData.equipmentName}");
             }
             else
             {
@@ -161,7 +156,6 @@ public class Pickup : MonoBehaviour
                 if (PlayerDataManager.Instance != null)
                 {
                     PlayerDataManager.Instance.AddGold(1);
-                    Debug.Log($" [Pickup] 골드 획득: +1");
                 }
                 break;
                     
@@ -170,7 +164,6 @@ public class Pickup : MonoBehaviour
                 if (playerHealth != null)
                 {
                     playerHealth.HealPlayer();
-                    Debug.Log($"❤️ [Pickup] 체력 회복");
                 }
                 break;
                     
@@ -216,7 +209,6 @@ public class Pickup : MonoBehaviour
         if (GamePoolManager.Instance != null)
         {
             GamePoolManager.Instance.ReturnToPool(poolTag, gameObject);
-            Debug.Log($"[Pickup] {poolTag} 픽업을 풀에 정상 반환");
         }
         else
         {
@@ -233,10 +225,6 @@ public class Pickup : MonoBehaviour
     {
         equipmentData = data;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($" [Pickup] EquipmentData 연결: {data?.equipmentName ?? "null"}");
-        }
     }
 
     /// <summary>
@@ -246,16 +234,10 @@ public class Pickup : MonoBehaviour
     {
         itemData = data;
         
-        if (enableDebugLogs)
-        {
-            Debug.Log($" [Pickup] ItemData 연결: {data?.itemName ?? "null"}");
-        }
     }
 
     [Header("🎒 아이템 설정")]
     [SerializeField] private BaseItemData itemData; // 모든 아이템 타입 지원 (우선순위 1)
     [SerializeField] private EquipmentData equipmentData; // 장비 아이템 (우선순위 2, 호환성)
     
-    [Header("디버그 설정")]
-    [SerializeField] private bool enableDebugLogs = true; // 디버그 로그 활성화
 }

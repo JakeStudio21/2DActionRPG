@@ -31,7 +31,6 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
     [SerializeField] private float autoCollectDelay = 0.5f;
 
     [Header("📊 디버그")]
-    [SerializeField] private bool showDebugLogs = false;
 
     // 컴포넌트
     private Rigidbody2D rb;
@@ -129,8 +128,6 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
         UpdateIcon();
         StartCoroutine(PopAnimationRoutine(position));
 
-        if (showDebugLogs)
-            Debug.Log($"📦 [MaterialPickup] 스폰: {materialType.GetDisplayName()} x{amount} at {position}");
     }
 
     #endregion
@@ -142,8 +139,6 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
         gameObject.SetActive(true);
         isCollected = false;
 
-        if (showDebugLogs)
-            Debug.Log($"📦 [MaterialPickup] 풀에서 스폰: {materialType}");
     }
 
     public void OnReturnToPool()
@@ -159,8 +154,6 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
 
         gameObject.SetActive(false);
 
-        if (showDebugLogs)
-            Debug.Log($"📦 [MaterialPickup] 풀로 반환: {materialType}");
     }
 
     #endregion
@@ -200,8 +193,6 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
             };
             spriteRenderer.color = iconColor;
 
-            if (showDebugLogs)
-                Debug.Log($"📦 [MaterialPickup] 기본 색상 적용: {materialType}");
         }
     }
 
@@ -247,9 +238,7 @@ public class MaterialPickup : MonoBehaviour, IPoolableObject
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.AddMaterialToCharacterBag(materialType, amount);
-
-            if (showDebugLogs)
-                Debug.Log($"✅ [MaterialPickup] 재료 획득 → 캐릭터 가방: {materialType.GetDisplayName()} x{amount}");
+            Dbg.Log($"[MaterialPickup] 재료 획득: {materialType} x{amount}");
         }
         else
         {

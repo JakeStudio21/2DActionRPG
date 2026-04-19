@@ -44,7 +44,6 @@ public static class DropResolver
         
         if (validEntries.Count == 0)
         {
-            Debug.Log($"[DropResolver] {dropTable.dropGroupId}: 스테이지 레벨 {stageLevel}에서 유효한 드롭이 없습니다.");
             return new List<DropResult>();
         }
 

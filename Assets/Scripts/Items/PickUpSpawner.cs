@@ -24,13 +24,9 @@ public class PickUpSpawner : MonoBehaviour
     [SerializeField] private EquipmentData[] possibleEquipmentDrops; // 드롭 가능한 장비들
 
     public void DropItems() {
-        Debug.Log($"🎯 [PickUpSpawner] DropItems 호출! 몬스터: {gameObject.name}");
-        Debug.Log($"🎯 [PickUpSpawner] 현재 플레이어 타입: {(PlayerDataManager.Instance != null && PlayerDataManager.Instance.IsSlotSelected ? PlayerDataManager.Instance.CurrentPlayerType.ToString() : "NULL")}");
-        Debug.Log($"🎯 [PickUpSpawner] GamePoolManager 상태: {(GamePoolManager.Instance != null ? "정상" : "NULL")}");
         
         // Health 드랍 체크 (새로운 방식)
         if (canDropHealth && Random.Range(0f, 100f) <= healthDropChance) {
-            Debug.Log($"💊 [PickUpSpawner] Health 드랍 성공! 개수: {healthDropAmount}");
             
             for (int i = 0; i < healthDropAmount; i++) {
                 SpawnPickupItem("ITEM_HEALTH_POTION");
@@ -40,7 +36,6 @@ public class PickUpSpawner : MonoBehaviour
         // Gold 드랍 체크 (새로운 방식)  
         if (canDropGold && Random.Range(0f, 100f) <= goldDropChance) {
             int goldAmount = Random.Range(goldDropMinAmount, goldDropMaxAmount + 1);
-            Debug.Log($"💰 [PickUpSpawner] Gold 드랍 성공! 개수: {goldAmount}");
             
             for (int i = 0; i < goldAmount; i++) {
                 SpawnPickupItem("ITEM_GOLD_COIN");
@@ -51,7 +46,6 @@ public class PickUpSpawner : MonoBehaviour
         if (canDropEquipment && possibleEquipmentDrops != null && 
             possibleEquipmentDrops.Length > 0 && Random.Range(0f, 100f) <= equipmentDropChance) {
             
-            Debug.Log($"🎒 [PickUpSpawner] Equipment 드랍 성공!");
             
             // 🔍 유효한 장비만 필터링
             EquipmentData[] validEquipments = System.Array.FindAll(possibleEquipmentDrops, 
@@ -65,7 +59,6 @@ public class PickUpSpawner : MonoBehaviour
                 GameObject equipmentPickup = CreateEquipmentPickup(randomEquipment);
                 if (equipmentPickup != null)
                 {
-                    Debug.Log($"🎒 [PickUpSpawner] 장비 드롭 성공: {randomEquipment.equipmentName}");
                 }
                 else
                 {
@@ -77,10 +70,8 @@ public class PickUpSpawner : MonoBehaviour
                 Debug.LogWarning($"⚠️ [PickUpSpawner] {gameObject.name}에 유효한 장비가 설정되지 않았습니다!");
             }
         } else {
-            Debug.Log($"🎒 [PickUpSpawner] Equipment 드랍 실패 - canDrop: {canDropEquipment}, 확률: {equipmentDropChance}%");
         }
         
-        Debug.Log($"🎯 [PickUpSpawner] DropItems 완료!");
     }
 
     /// <summary>
@@ -97,7 +88,6 @@ public class PickUpSpawner : MonoBehaviour
         if (equipmentPickup != null)
         {
             SetupPickupComponent(equipmentPickup, equipmentData);
-            Debug.Log($"✅ [PickUpSpawner] {poolTag} 드롭: {equipmentData.equipmentName}");
         }
         else
         {
@@ -115,7 +105,6 @@ public class PickUpSpawner : MonoBehaviour
         
         if (pickup != null && pickup.activeInHierarchy)
         {
-            Debug.Log($"🔄 [PickUpSpawner] 지연된 외형 설정: {equipmentData.equipmentName}");
             SetupEquipmentAppearance(pickup, equipmentData);
         }
     }
@@ -125,8 +114,6 @@ public class PickUpSpawner : MonoBehaviour
         SpriteRenderer spriteRenderer = pickup.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            Debug.Log($"🔍 [PickUpSpawner] 외형 설정 시작: {equipmentData.equipmentName}");
-            Debug.Log($"🔍 [PickUpSpawner] 현재 스프라이트: {spriteRenderer.sprite?.name}");
             
             if (equipmentData.icon != null)
             {
@@ -137,7 +124,6 @@ public class PickUpSpawner : MonoBehaviour
                 spriteRenderer.enabled = false;
                 spriteRenderer.enabled = true;
                 
-                Debug.Log($"✅ [PickUpSpawner] 아이콘 강제 변경: {spriteRenderer.sprite.name}");
             }
             
             // 크기 및 색상 설정
@@ -179,7 +165,6 @@ public class PickUpSpawner : MonoBehaviour
             Color itemColor = GetItemGradeColor(equipmentData.itemGrade);
             spriteRenderer.color = itemColor;
             
-            Debug.Log($"🎨 [PickUpSpawner] 외형 변경: {equipmentData.equipmentName} ({equipmentData.itemGrade})");
         }
     }
     
@@ -207,7 +192,6 @@ public class PickUpSpawner : MonoBehaviour
         Pickup pickupComponent = pickup.GetComponent<Pickup>();
         if (pickupComponent != null)
         {
-            Debug.Log($"🔧 [PickUpSpawner] Pickup 컴포넌트 설정 시작");
             
             // 리플렉션으로 private 필드들 설정
             var pickUpTypeField = typeof(Pickup).GetField("pickUpType", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -221,7 +205,6 @@ public class PickUpSpawner : MonoBehaviour
                 // EquipmentData 설정
                 equipmentDataField.SetValue(pickupComponent, equipmentData);
                 
-                Debug.Log($"✅ [PickUpSpawner] PickUpType을 EquipmentItem으로 변경");
             }
             else
             {
@@ -253,7 +236,6 @@ public class PickUpSpawner : MonoBehaviour
             if (spriteRenderer != null && equipmentData.icon != null)
             {
                 spriteRenderer.sprite = equipmentData.icon;
-                Debug.Log($"✅ [PickUpSpawner] 아이콘 변경 완료: {equipmentData.icon.name}");
             }
         }
     }
@@ -300,7 +282,6 @@ public class PickUpSpawner : MonoBehaviour
             if (GamePoolManager.Instance != null)
             {
                 spawnedItem = GamePoolManager.Instance.SpawnFromPool(itemID, transform.position, Quaternion.identity);
-                Debug.Log($"[PickUpSpawner] 풀에서 아이템 스폰 성공: {itemID}");
             }
             else
             {

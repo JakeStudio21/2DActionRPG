@@ -29,7 +29,6 @@ public class CurrencyPickup : MonoBehaviour, IPoolableObject
     [SerializeField] private float popDuration = 1f;
     
     [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // 현재 데이터
     private string currentItemId;
@@ -196,8 +195,6 @@ public class CurrencyPickup : MonoBehaviour, IPoolableObject
         // 5. 스폰 애니메이션 시작
         StartCoroutine(PopAnimationRoutine());
         
-        if (enableDebugLogs)
-            Debug.Log($"💰 [CurrencyPickup] 초기화 완료: {itemId} ({type}) x{amount}");
     }
     
     /// <summary>
@@ -217,8 +214,7 @@ public class CurrencyPickup : MonoBehaviour, IPoolableObject
             {
                 case CurrencyType.Gold:
                     PlayerDataManager.Instance.AddGold(currentAmount);
-                    if (enableDebugLogs)
-                        Debug.Log($"💰 [CurrencyPickup] 골드 획득: +{currentAmount}");
+                        Dbg.Log($"💰 [CurrencyPickup] 골드 획득: +{currentAmount}");
                     break;
                     
                 case CurrencyType.Heart:
@@ -226,8 +222,7 @@ public class CurrencyPickup : MonoBehaviour, IPoolableObject
                     if (playerHealth != null)
                     {
                         playerHealth.HealPlayerAmount(currentAmount);
-                        if (enableDebugLogs)
-                            Debug.Log($"❤️ [CurrencyPickup] 체력 회복: +{currentAmount}");
+                            Dbg.Log($"❤️ [CurrencyPickup] 체력 회복: +{currentAmount}");
                     }
                     break;
             }

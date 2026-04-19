@@ -34,7 +34,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     [SerializeField] private float outlineWidth = 0.05f;
     
     [Header("디버그")]
-    [SerializeField] private bool enableDebugLogs = false;
     
     // ⭐ 현재 부착된 FX 참조 (핵심!)
     private GameObject attachedFxInstance;
@@ -162,12 +161,10 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // ⭐ 디버깅: OnTriggerEnter2D 호출 확인
-        Debug.Log($"🔍 [DEBUG] OnTriggerEnter2D 호출 - GameObject: {gameObject.name} (InstanceID: {gameObject.GetInstanceID()}), ItemData: {currentEquipmentData?.equipmentName ?? "NULL"}");
         
         // 플레이어와 충돌 시 픽업
         if (collision.CompareTag("Player"))
         {
-            Debug.Log($"🔍 [DEBUG] Player 태그 확인 완료 - OnPickup() 호출 예정");
             OnPickup();
         }
     }
@@ -184,12 +181,10 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         }
         
         // 🔍 디버그: ItemRarity → EquipmentRank 변환 과정 확인
-        Debug.Log($"🔍 [DEBUG] Initialize 호출: itemId={equipmentData.itemID}, ItemRarity={rarity}");
         
         // ItemRarity → EquipmentRank 변환
         EquipmentRank rank = EquipmentRankExtensions.FromItemRarity(rarity);
         
-        Debug.Log($"🔍 [DEBUG] 변환 완료: ItemRarity.{rarity} → EquipmentRank.{rank} ({rank.GetRankName()})");
         
         // 초기화
         Initialize(equipmentData.itemID, equipmentData.icon, rank, equipmentData);
@@ -228,8 +223,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         // 5. 스폰 애니메이션 시작
         StartCoroutine(PopAnimationRoutine());
         
-        if (enableDebugLogs)
-            Debug.Log($"⚔️ [EquipmentPickup] 초기화 완료: {itemId} (등급: {rank.GetRankName()})");
     }
     
     /// <summary>
@@ -271,8 +264,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             // 5. 참조 저장 ⭐
             attachedFxInstance = fxInstance;
             
-            if (enableDebugLogs)
-                Debug.Log($"✨ [EquipmentPickup] FX 부착: {fxPoolTag}");
         }
         else
         {
@@ -308,8 +299,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             // 참조 초기화 ⭐
             attachedFxInstance = null;
             
-            if (enableDebugLogs)
-                Debug.Log($"✨ [EquipmentPickup] FX 분리: {fxTag}");
         }
     }
     
@@ -319,12 +308,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
     private void OnPickup()
     {
         // ⭐ 디버깅: OnPickup 호출 확인
-        Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        Debug.Log($"🔍 [DEBUG] OnPickup() 호출됨!");
-        Debug.Log($"  GameObject: {gameObject.name} (InstanceID: {gameObject.GetInstanceID()})");
-        Debug.Log($"  ItemData: {currentEquipmentData?.equipmentName ?? "NULL"}");
-        Debug.Log($"  Active: {gameObject.activeSelf}");
-        Debug.Log($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         
         if (currentEquipmentData == null)
         {
@@ -339,26 +322,21 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
             // ItemTemplateResolver가 자동으로 "_Equipment" 붙은 Asset 파일을 찾아줌
             string templateName = currentEquipmentData.itemID;
             
-            Debug.Log($"🔍 [DEBUG] AddItemV2 호출 직전 - templateName: {templateName}");
             
             // V2 아이템 추가 (가방 가득 차면 우편함 처리)
             ItemInstanceID newItemId = PlayerDataManager.Instance.AddItemV2(templateName, 0, true);
             
-            Debug.Log($"🔍 [DEBUG] AddItemV2 호출 완료 - newItemId.IsEmpty: {newItemId.IsEmpty}, ID: {(!newItemId.IsEmpty ? newItemId.Value : "INVALID")}");
             
             if (!newItemId.IsEmpty)
             {
-                if (enableDebugLogs)
-                    Debug.Log($"🎒 [EquipmentPickup] 장비 획득 (V2): {currentEquipmentData.equipmentName} (등급: {currentRank.GetRankName()}, ID: {newItemId.Value})");
+                    Dbg.Log($"🎒 [EquipmentPickup] 장비 획득 (V2): {currentEquipmentData.equipmentName} (등급: {currentRank.GetRankName()}, ID: {newItemId.Value})");
                 
                 // TODO: 사운드 재생 (추후 추가)
                 
-                Debug.Log($"🔍 [EquipmentPickup] ReturnToPool() 호출 예정 - GameObject: {gameObject.name}");
                 
                 // 풀 반환
                 ReturnToPool();
                 
-                Debug.Log($"✅ [EquipmentPickup] ReturnToPool() 호출 완료");
             }
             else
             {
@@ -449,8 +427,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         moveDirection = Vector3.zero;
         rb.velocity = Vector2.zero;
         
-        if (enableDebugLogs)
-            Debug.Log($"🛑 [EquipmentPickup] 감속 정지 완료: {currentItemId}");
         
         // ⭐ 완전 정지 → 그림자 다시 표시
         ShowShadow();
@@ -479,8 +455,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         // PropertyBlock 적용
         spriteRenderer.SetPropertyBlock(propertyBlock);
         
-        if (enableDebugLogs)
-            Debug.Log($"✨ [EquipmentPickup] 아웃라인 설정 완료: Color={color}, Width={outlineWidth}");
     }
     
     /// <summary>
@@ -498,8 +472,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         // 스프라이트 색상도 리셋
         spriteRenderer.color = Color.white;
         
-        if (enableDebugLogs)
-            Debug.Log($"🔄 [EquipmentPickup] 아웃라인 리셋 완료");
     }
     
     /// <summary>
@@ -591,8 +563,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         {
             shadowSpriteRenderer.enabled = true;
             
-            if (enableDebugLogs)
-                Debug.Log($"🌑 [EquipmentPickup] 그림자 표시: {currentItemId}");
         }
     }
     
@@ -605,8 +575,6 @@ public class EquipmentPickup : MonoBehaviour, IPoolableObject
         {
             shadowSpriteRenderer.enabled = false;
             
-            if (enableDebugLogs)
-                Debug.Log($"☀️ [EquipmentPickup] 그림자 숨김: {currentItemId}");
         }
     }
 }

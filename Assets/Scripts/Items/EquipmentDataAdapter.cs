@@ -57,7 +57,6 @@ public static class EquipmentDataAdapter
         // ✅ 대체 코드 (기본값 사용)
         weaponInfo.weaponDamage = 0; // 무기 데미지는 별도 시스템에서 관리
         
-        Debug.Log($"🔄 [Adapter] EquipmentData → WeaponInfo 변환: {equipmentData.equipmentName} (쿨다운: {equipmentData.WeaponCooldown})");
         
         return weaponInfo;
     }
