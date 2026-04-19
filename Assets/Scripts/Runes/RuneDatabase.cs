@@ -54,7 +54,6 @@ public static class RuneDatabase
             return;
         }
         
-        Debug.Log("[RuneDatabase] 초기화 시작...");
         
         runeDataCache = new Dictionary<string, RuneData>();
         
@@ -104,8 +103,7 @@ public static class RuneDatabase
         
         isInitialized = true;
         
-        Debug.Log($"[RuneDatabase] 초기화 완료!");
-        Debug.Log($"  ✅ 성공: {successCount}개");
+        Dbg.Log($"[RuneDatabase] 초기화 완료! ({successCount}개 로드)");
         if (duplicateCount > 0)
             Debug.LogWarning($"  ⚠️ 중복: {duplicateCount}개");
         if (invalidCount > 0)
@@ -208,33 +206,6 @@ public static class RuneDatabase
         }
         
         return !string.IsNullOrEmpty(runeId) && runeDataCache.ContainsKey(runeId);
-    }
-    
-    #endregion
-    
-    #region 디버그
-    
-    /// <summary>
-    /// 캐시된 모든 룬 데이터 로그 출력
-    /// </summary>
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    public static void DebugPrintAll()
-    {
-        if (!isInitialized)
-        {
-            Initialize();
-        }
-        
-        Debug.Log("========== [RuneDatabase] 캐시 목록 ==========");
-        Debug.Log($"총 {runeDataCache.Count}개의 룬 데이터:");
-        
-        foreach (var kvp in runeDataCache)
-        {
-            var rune = kvp.Value;
-            Debug.Log($"  [{kvp.Key}] {rune.runeName} ({rune.runeType})");
-        }
-        
-        Debug.Log("==========================================");
     }
     
     #endregion

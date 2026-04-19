@@ -60,8 +60,6 @@ public class RuneTooltipUI : MonoBehaviour
     [SerializeField] private GameObject tooltipPanel;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -112,9 +110,7 @@ public class RuneTooltipUI : MonoBehaviour
             tooltipPanel.SetActive(true);
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneTooltipUI] 툴팁 표시: {rune}");
         }
     }
     
@@ -281,9 +277,7 @@ public class RuneTooltipUI : MonoBehaviour
             mainStatValueText.text = valueStr;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneTooltipUI] 주옵션: {modifier.displayName} = {scaledValue:F3} (원본: {modifier.value:F3}, 배율: {currentRune.GetMainStatMultiplier():F3})");
         }
     }
     

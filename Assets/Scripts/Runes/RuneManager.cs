@@ -107,7 +107,7 @@ public class RuneManager : MonoBehaviour
             equippedRunes.Add(null);
         }
         
-        Debug.Log($"[RuneManager] 초기화 완료. 최대 슬롯: {maxRuneSlots}");
+        Dbg.Log($"[RuneManager] 초기화 완료. 최대 슬롯: {maxRuneSlots}");
     }
     
     #endregion
@@ -173,7 +173,7 @@ public class RuneManager : MonoBehaviour
         equippedRunes[slotIndex] = instance;
         isDirty = true; // 캐시 무효화
         
-        Debug.Log($"[RuneManager] 룬 장착: {instance} → 슬롯 {slotIndex}");
+        Dbg.Log($"[RuneManager] 룬 장착: {instance} → 슬롯 {slotIndex}");
         
         // 이벤트 발생
         OnRuneEquipped?.Invoke(instance);
@@ -229,7 +229,7 @@ public class RuneManager : MonoBehaviour
         equippedRunes[slotIndex] = null;
         isDirty = true; // 캐시 무효화
         
-        Debug.Log($"[RuneManager] 룬 해제: {instance} ← 슬롯 {slotIndex}");
+        Dbg.Log($"[RuneManager] 룬 해제: {instance} ← 슬롯 {slotIndex}");
         
         // 이벤트 발생
         OnRuneUnequipped?.Invoke(instance, slotIndex);
@@ -380,7 +380,7 @@ public class RuneManager : MonoBehaviour
             }
         }
         
-        Debug.Log($"[RuneManager] 활성 조건부 모디파이어: {result.Count}개 (레벨 보정 적용)");
+        Dbg.Log($"[RuneManager] 활성 조건부 모디파이어: {result.Count}개 (레벨 보정 적용)");
         return result;
     }
     
@@ -404,64 +404,7 @@ public class RuneManager : MonoBehaviour
         var modifiers = GetActiveConditionalModifiers();
         playerStats.SetConditionalModifiers(modifiers);
         
-        Debug.Log($"[RuneManager] PlayerRuntimeStats에 {modifiers.Count}개 조건부 모디파이어 전달");
-    }
-    
-    #endregion
-    
-    #region 디버그
-    
-    [ContextMenu("Print Equipped Runes")]
-    private void PrintEquippedRunes()
-    {
-        Debug.Log("========== 장착된 룬 ==========");
-        int equippedCount = 0;
-        
-        for (int i = 0; i < equippedRunes.Count; i++)
-        {
-            var instance = equippedRunes[i];
-            if (instance != null && instance.baseData != null)
-            {
-                equippedCount++;
-                Debug.Log($"  슬롯 {i}: {instance}");
-                Debug.Log($"    타입: {instance.baseData.runeType}");
-                string mainStatInfo = string.IsNullOrEmpty(instance.baseData.MainStatModifierId) 
-                    ? "없음" 
-                    : $"{instance.baseData.MainStatModifierId} (배율: {instance.GetMainStatMultiplier():F2}x)";
-                Debug.Log($"    주옵션: {mainStatInfo}");
-                Debug.Log($"    부옵션: {instance.allocatedSubStatModifierIds.Count}개");
-                Debug.Log($"    잠금: {(instance.isLocked ? "🔒" : "🔓")}");
-            }
-            else
-            {
-                Debug.Log($"  슬롯 {i}: (비어있음)");
-            }
-        }
-        
-        Debug.Log($"총 {equippedCount}/{maxRuneSlots}개 룬 장착");
-        Debug.Log("============================");
-    }
-    
-    [ContextMenu("Print Active Modifiers")]
-    private void PrintActiveModifiers()
-    {
-        var modifiers = GetActiveConditionalModifiers();
-        Debug.Log($"========== 활성 조건부 모디파이어: {modifiers.Count}개 ==========");
-        
-        // Phase별로 그룹화
-        var phaseGroups = modifiers.GroupBy(m => m.applyPhase).OrderBy(g => g.Key);
-        
-        foreach (var group in phaseGroups)
-        {
-            Debug.Log($"--- Phase {group.Key} ---");
-            foreach (var mod in group)
-            {
-                Debug.Log($"  [{mod.modifierId}] {mod.displayName}: {mod.effectType}");
-                Debug.Log($"    값: {mod.value:F3} | 조건: {mod.conditionType} | 출처: {mod.source}");
-            }
-        }
-        
-        Debug.Log("====================================================");
+        Dbg.Log($"[RuneManager] PlayerRuntimeStats에 {modifiers.Count}개 조건부 모디파이어 전달");
     }
     
     #endregion

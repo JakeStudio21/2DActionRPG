@@ -58,8 +58,6 @@ public class RunePanelUI : MonoBehaviour
     [SerializeField] private Color lockedSubStatColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = true;
-    
     #endregion
     
     #region 내부 데이터
@@ -138,9 +136,13 @@ public class RunePanelUI : MonoBehaviour
             runeManager.OnRunesChanged += OnRunesChanged;
         }
         
-        if (showDebugLogs)
+        if (enhanceManager != null)
         {
-            Debug.Log("[RunePanelUI] 패널 활성화");
+            enhanceManager.OnLevelUp += OnLevelUpHandler;
+            enhanceManager.OnLimitBreak += OnLimitBreakHandler;
+        }
+        
+        {
         }
     }
     
@@ -150,9 +152,7 @@ public class RunePanelUI : MonoBehaviour
     /// </summary>
     public void OnTabActivated()
     {
-        if (showDebugLogs)
         {
-            Debug.Log("🔮 [RunePanelUI] 탭 활성화 - RefreshUI() 호출");
         }
         
         RefreshUI();
@@ -164,9 +164,7 @@ public class RunePanelUI : MonoBehaviour
     /// </summary>
     public void OnTabDeactivated()
     {
-        if (showDebugLogs)
         {
-            Debug.Log("🔮 [RunePanelUI] 탭 비활성화");
         }
         
         // 필요한 정리 작업
@@ -186,9 +184,13 @@ public class RunePanelUI : MonoBehaviour
             runeManager.OnRunesChanged -= OnRunesChanged;
         }
         
-        if (showDebugLogs)
+        if (enhanceManager != null)
         {
-            Debug.Log("[RunePanelUI] 패널 비활성화");
+            enhanceManager.OnLevelUp -= OnLevelUpHandler;
+            enhanceManager.OnLimitBreak -= OnLimitBreakHandler;
+        }
+        
+        {
         }
     }
     
@@ -213,9 +215,7 @@ public class RunePanelUI : MonoBehaviour
         // 4. Bottom Panel: 스탯 변화량 (선택된 룬이 있을 때만)
         UpdateBottomPanel();
         
-        if (showDebugLogs)
         {
-            Debug.Log("[RunePanelUI] 전체 UI 갱신 완료");
         }
     }
     
@@ -317,9 +317,7 @@ public class RunePanelUI : MonoBehaviour
             }
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RunePanelUI] 룬 목록 갱신: {runeListItemUIList.Count}개");
         }
     }
     
@@ -613,11 +611,10 @@ public class RunePanelUI : MonoBehaviour
         // Bottom Panel 업데이트
         UpdateBottomPanel();
         
-        if (showDebugLogs)
         {
             var rune = clickedItem.GetRuneInstance();
             var data = clickedItem.GetRuneData();
-            Debug.Log($"[RunePanelUI] 선택: {(rune != null ? rune.ToString() : data.runeName)}");
+            Dbg.Log($"[RunePanelUI] 선택: {(rune != null ? rune.ToString() : data.runeName)}");
         }
     }
     
@@ -650,9 +647,8 @@ public class RunePanelUI : MonoBehaviour
         UpdateStatComparison(rune);
         UpdateSubStatInfo(rune);
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RunePanelUI] 장착 슬롯에서 선택: {rune}");
+            Dbg.Log($"[RunePanelUI] 장착 슬롯에서 선택: {rune}");
         }
     }
     
@@ -677,9 +673,7 @@ public class RunePanelUI : MonoBehaviour
         // 일정 시간 후 자동 숨김
         StartCoroutine(HideWarningMessageAfterDelay());
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RunePanelUI] 경고 메시지: {message}");
         }
     }
     
@@ -703,9 +697,7 @@ public class RunePanelUI : MonoBehaviour
     {
         RefreshUI();
         
-        if (showDebugLogs)
         {
-            Debug.Log("[RunePanelUI] 인벤토리 변경 감지 → UI 갱신");
         }
     }
     
@@ -718,10 +710,28 @@ public class RunePanelUI : MonoBehaviour
         UpdateEquipSlots();
         UpdateRuneList();
         
-        if (showDebugLogs)
         {
-            Debug.Log("[RunePanelUI] 장착 룬 변경 감지 → 슬롯/목록 갱신");
         }
+    }
+    
+    /// <summary>
+    /// 룬 레벨업 이벤트 핸들러
+    /// OnInventoryChanged(조각 차감)가 구버전 레벨로 목록을 먼저 그리므로,
+    /// currentLevel이 실제로 올라간 이후 이 이벤트로 목록을 재갱신
+    /// </summary>
+    private void OnLevelUpHandler(string runeUID, int newLevel)
+    {
+        UpdateRuneList();
+    }
+    
+    /// <summary>
+    /// 룬 한계돌파 이벤트 핸들러
+    /// OnInventoryChanged(조각 차감)가 구버전 상태로 목록을 먼저 그리므로,
+    /// currentLimitBreak가 실제로 올라간 이후 이 이벤트로 목록을 재갱신
+    /// </summary>
+    private void OnLimitBreakHandler(string runeUID, int newLimitBreak)
+    {
+        UpdateRuneList();
     }
     
     #endregion

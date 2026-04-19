@@ -105,7 +105,7 @@ public class RuneInventoryManager : MonoBehaviour
     /// </summary>
     private void Initialize()
     {
-        Debug.Log("[RuneInventoryManager] 초기화");
+        Dbg.Log("[RuneInventoryManager] 초기화");
         
         // Phase 9: PlayerSlotData에서 자동 로드
         // LoadInventory는 PlayerSlotDataManager에서 호출됨
@@ -142,7 +142,7 @@ public class RuneInventoryManager : MonoBehaviour
         // 인벤토리에 추가
         runeInventory.Add(newInstance);
         
-        Debug.Log($"[RuneInventoryManager] 룬 추가: {newInstance} | 총 {runeInventory.Count}개");
+        Dbg.Log($"[RuneInventoryManager] 룬 추가: {newInstance} | 총 {runeInventory.Count}개");
         
         // 이벤트 발생
         OnRuneAdded?.Invoke(newInstance);
@@ -174,7 +174,7 @@ public class RuneInventoryManager : MonoBehaviour
         
         runeInventory.Add(instance);
         
-        Debug.Log($"[RuneInventoryManager] 룬 인스턴스 추가: {instance} | 총 {runeInventory.Count}개");
+        Dbg.Log($"[RuneInventoryManager] 룬 인스턴스 추가: {instance} | 총 {runeInventory.Count}개");
         
         OnRuneAdded?.Invoke(instance);
         OnInventoryChanged?.Invoke();
@@ -220,7 +220,6 @@ public class RuneInventoryManager : MonoBehaviour
         // 삭제
         runeInventory.Remove(targetRune);
         
-        Debug.Log($"[RuneInventoryManager] 룬 삭제: {targetRune} | 남은 룬: {runeInventory.Count}개");
         
         // 이벤트 발생
         OnRuneRemoved?.Invoke(instanceUID);
@@ -341,7 +340,6 @@ public class RuneInventoryManager : MonoBehaviour
     {
         try
         {
-            Debug.Log($"[RuneInventoryManager] 저장 시작... (총 {runeInventory.Count}개 룬)");
             
             // RuneInstance → RuneSaveData 변환
             var saveData = new RuneInventorySaveData
@@ -383,8 +381,7 @@ public class RuneInventoryManager : MonoBehaviour
             PlayerPrefs.SetString(SAVE_KEY, json);
             PlayerPrefs.Save();
             
-            Debug.Log($"[RuneInventoryManager] ✅ 저장 완료! ({saveData.runeInstances.Count}개 룬)");
-            Debug.Log($"  저장 시간: {saveData.saveTimestamp}");
+            Dbg.Log($"[RuneInventoryManager] ✅ 저장 완료! ({saveData.runeInstances.Count}개 룬)");
             
             return true;
         }
@@ -406,7 +403,6 @@ public class RuneInventoryManager : MonoBehaviour
             // PlayerPrefs에서 JSON 불러오기
             if (!PlayerPrefs.HasKey(SAVE_KEY))
             {
-                Debug.Log("[RuneInventoryManager] 저장된 데이터가 없습니다. (초기 상태)");
                 return false;
             }
             
@@ -418,7 +414,6 @@ public class RuneInventoryManager : MonoBehaviour
                 return false;
             }
             
-            Debug.Log("[RuneInventoryManager] 로드 시작...");
             
             // JSON 역직렬화
             var saveData = JsonUtility.FromJson<RuneInventorySaveData>(json);
@@ -429,9 +424,6 @@ public class RuneInventoryManager : MonoBehaviour
                 return false;
             }
             
-            Debug.Log($"  저장 시간: {saveData.saveTimestamp}");
-            Debug.Log($"  저장 버전: {saveData.saveVersion}");
-            Debug.Log($"  룬 개수: {saveData.runeInstances.Count}개");
             
             // 기존 인벤토리 초기화
             runeInventory.Clear();
@@ -464,8 +456,7 @@ public class RuneInventoryManager : MonoBehaviour
                 }
             }
             
-            Debug.Log($"[RuneInventoryManager] ✅ 로드 완료!");
-            Debug.Log($"  성공: {successCount}개");
+            Dbg.Log($"[RuneInventoryManager] ✅ 로드 완료!");
             if (failCount > 0)
                 Debug.LogWarning($"  실패: {failCount}개");
             
@@ -516,7 +507,6 @@ public class RuneInventoryManager : MonoBehaviour
         }
         
         rune.isLocked = locked;
-        Debug.Log($"[RuneInventoryManager] 잠금 설정: {rune} → {(locked ? "🔒" : "🔓")}");
         
         return true;
     }
@@ -531,7 +521,6 @@ public class RuneInventoryManager : MonoBehaviour
             .ThenByDescending(r => r.currentLimitBreak)
             .ToList();
         
-        Debug.Log("[RuneInventoryManager] 인벤토리 정렬 완료");
         OnInventoryChanged?.Invoke();
     }
     
@@ -598,7 +587,6 @@ public class RuneInventoryManager : MonoBehaviour
         
         if (success)
         {
-            Debug.Log($"[RuneInventoryManager] 조각 소모: {runeId} -{amount}개 (남은 개수: {GetFragmentCount(runeId)}개)");
             OnInventoryChanged?.Invoke(); // UI 갱신
         }
         else
@@ -630,68 +618,6 @@ public class RuneInventoryManager : MonoBehaviour
     }
     
     #endregion
-    
-    #region 디버그
-    
-    /// <summary>
-    /// 인벤토리 전체 출력
-    /// </summary>
-    [ContextMenu("Print Inventory")]
-    public void PrintInventory()
-    {
-        Debug.Log("========== [RuneInventoryManager] 인벤토리 ==========");
-        Debug.Log($"총 {runeInventory.Count}개의 룬:");
-        
-        if (runeInventory.Count == 0)
-        {
-            Debug.Log("  (비어있음)");
-        }
-        else
-        {
-            for (int i = 0; i < runeInventory.Count; i++)
-            {
-                var rune = runeInventory[i];
-                Debug.Log($"  [{i + 1}] {rune} {(rune.isLocked ? "🔒" : "")}");
-            }
-        }
-        
-        Debug.Log("====================================================");
-    }
-    
-    #endregion
-    
-    #region 디버그 & 테스트 (Phase 8-1)
-    
-    /// <summary>
-    /// [ContextMenu] 테스트용 룬 조각 획득 (보스 사냥꾼 +100)
-    /// </summary>
-    [ContextMenu("테스트: 보스 사냥꾼 조각 +100")]
-    private void DebugAddBossHunterFragments()
-    {
-        const string testRuneId = "RUNE_BOSS_HUNTER";
-        const int testAmount = 100;
-        
-        AddRuneFragment(testRuneId, testAmount);
-        
-        Debug.Log($"[DEBUG] {testRuneId} 조각 {testAmount}개 추가 완료!");
-    }
-    
-    /// <summary>
-    /// [ContextMenu] 테스트용 모든 룬 조각 +50
-    /// </summary>
-    [ContextMenu("테스트: 모든 룬 조각 +50")]
-    private void DebugAddAllFragments()
-    {
-        var allFragments = GetAllFragments();
-        
-        foreach (var runeId in allFragments.Keys)
-        {
-            AddRuneFragment(runeId, 50);
-        }
-        
-        Debug.Log($"[DEBUG] 모든 룬 조각 50개씩 추가 완료! (총 {allFragments.Count}종류)");
-    }
-    
-    #endregion
+
 }
 

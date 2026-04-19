@@ -47,8 +47,6 @@ public class RuneInventoryUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI inventoryCountText;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -106,9 +104,7 @@ public class RuneInventoryUI : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log("[RuneInventoryUI] 인벤토리 갱신 시작");
         }
         
         // 1. 기존 슬롯 제거
@@ -119,7 +115,6 @@ public class RuneInventoryUI : MonoBehaviour
         
         if (allRunes == null || allRunes.Count == 0)
         {
-            Debug.Log("[RuneInventoryUI] 인벤토리가 비어있습니다.");
             UpdateInventoryCount(0);
             
             // 툴팁 숨김
@@ -146,9 +141,7 @@ public class RuneInventoryUI : MonoBehaviour
             SelectSlot(runeSlots[0]);
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneInventoryUI] 인벤토리 갱신 완료: {allRunes.Count}개");
         }
     }
     
@@ -279,9 +272,7 @@ public class RuneInventoryUI : MonoBehaviour
             SelectSlot(clickedSlot);
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneInventoryUI] 슬롯 클릭: {rune}");
         }
     }
     

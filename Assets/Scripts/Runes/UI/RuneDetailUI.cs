@@ -50,8 +50,6 @@ public class RuneDetailUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI actionMessageText; // 결과 메시지
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -131,9 +129,7 @@ public class RuneDetailUI : MonoBehaviour
         gameObject.SetActive(true);
         RefreshUI();
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneDetailUI] 보유 룬 선택: {rune}");
         }
     }
     
@@ -155,9 +151,7 @@ public class RuneDetailUI : MonoBehaviour
         gameObject.SetActive(true);
         RefreshUI();
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneDetailUI] 미보유 룬 선택: {runeData.runeName}");
         }
     }
     

@@ -71,8 +71,6 @@ public class RuneListItemUI : MonoBehaviour
     [SerializeField] [Range(0f, 1f)] private float lockedOpacity = 1f;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -655,9 +653,6 @@ public class RuneListItemUI : MonoBehaviour
         {
             actionButtonText.color = originalTextColors[actionButtonText];
         }
-        
-        if (showDebugLogs)
-            Debug.Log($"🎨 [RuneListItemUI] {runeData.runeName}: ActionButton 색상 복구 완료");
     }
     
     /// <summary>
@@ -687,9 +682,6 @@ public class RuneListItemUI : MonoBehaviour
             {
                 ApplyGrayscaleToAllChildren();
                 isGrayscaleApplied = true;
-                
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [RuneListItemUI] {runeData.runeName}: 전체 Grayscale (조각 부족)");
             }
         }
         else if (isUnlockable)
@@ -703,9 +695,6 @@ public class RuneListItemUI : MonoBehaviour
             
             // ActionButton만 원본 색상으로 복구 (강조)
             RestoreActionButtonColor();
-            
-            if (showDebugLogs)
-                Debug.Log($"🎨 [RuneListItemUI] {runeData.runeName}: 전체 Grayscale + ActionButton만 컬러 (해금 가능)");
         }
         else if (isUnlocked)
         {
@@ -714,9 +703,6 @@ public class RuneListItemUI : MonoBehaviour
             {
                 RestoreOriginalColors();
                 isGrayscaleApplied = false;
-                
-                if (showDebugLogs)
-                    Debug.Log($"🎨 [RuneListItemUI] {runeData.runeName}: 전체 원본 색상 복구 (해금 완료)");
             }
         }
     }
@@ -755,9 +741,7 @@ public class RuneListItemUI : MonoBehaviour
     /// </summary>
     private void OnItemClicked()
     {
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneListItemUI] 클릭: {(isOwned ? runeInstance.ToString() : $"{runeData.runeName} (미보유)")}");
         }
         
         onItemClicked?.Invoke(this);
@@ -783,7 +767,7 @@ public class RuneListItemUI : MonoBehaviour
             
             if (success)
             {
-                Debug.Log($"✅ [{runeData.runeName}] 해금 성공!");
+                Dbg.Log($"✅ [{runeData.runeName}] 해금 성공!");
                 
                 // 해금 후 보유 룬으로 전환
                 var unlockedRune = inventoryManager.GetRunesByDataId(runeData.runeId);
@@ -807,7 +791,7 @@ public class RuneListItemUI : MonoBehaviour
                 
                 if (success)
                 {
-                    Debug.Log($"✅ [{runeData.runeName}] 한계돌파 성공!");
+                    Dbg.Log($"✅ [{runeData.runeName}] 한계돌파 성공!");
                 }
             }
             // 만렙 미달 시 → 레벨업
@@ -818,7 +802,7 @@ public class RuneListItemUI : MonoBehaviour
                 
                 if (success)
                 {
-                    Debug.Log($"✅ [{runeData.runeName}] 레벨업 성공!");
+                    Dbg.Log($"✅ [{runeData.runeName}] 레벨업 성공!");
                 }
             }
         }
@@ -853,7 +837,7 @@ public class RuneListItemUI : MonoBehaviour
                 
                 if (success)
                 {
-                    Debug.Log($"✅ [{runeData.runeName}] 해제 성공!");
+                    Dbg.Log($"✅ [{runeData.runeName}] 해제 성공!");
                     RefreshUI();
                 }
             }
@@ -890,7 +874,7 @@ public class RuneListItemUI : MonoBehaviour
             
             if (success)
             {
-                Debug.Log($"✅ [{runeData.runeName}] 슬롯 {emptySlotIndex}에 장착 성공!");
+                Dbg.Log($"✅ [{runeData.runeName}] 슬롯 {emptySlotIndex}에 장착 성공!");
                 RefreshUI();
             }
         }

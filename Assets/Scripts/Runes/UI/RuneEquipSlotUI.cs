@@ -61,8 +61,6 @@ public class RuneEquipSlotUI : MonoBehaviour, IPointerClickHandler
     private RuneInstance equippedRune;
     private RunePanelUI panelUI;
     
-    [Header("🔧 디버그")]
-    public bool showDebugLogs = false;
     
     void Start()
     {
@@ -134,9 +132,6 @@ public class RuneEquipSlotUI : MonoBehaviour, IPointerClickHandler
             // 배경 색상 (장착됨)
             if (backgroundImage != null)
                 backgroundImage.color = equippedColor;
-            
-            if (showDebugLogs)
-                Debug.Log($"[RuneEquipSlotUI] 슬롯 {slotIndex}: {equippedRune}");
         }
         else
         {
@@ -159,9 +154,6 @@ public class RuneEquipSlotUI : MonoBehaviour, IPointerClickHandler
             // 배경 색상 (비어있음)
             if (backgroundImage != null)
                 backgroundImage.color = emptyColor;
-            
-            if (showDebugLogs)
-                Debug.Log($"[RuneEquipSlotUI] 슬롯 {slotIndex}: 비어있음");
         }
     }
     
@@ -174,14 +166,6 @@ public class RuneEquipSlotUI : MonoBehaviour, IPointerClickHandler
         {
             // 장착된 룬 클릭 시 하단창에 상세 정보 표시
             panelUI.ShowEquippedRuneDetail(equippedRune);
-            
-            if (showDebugLogs)
-                Debug.Log($"[RuneEquipSlotUI] 슬롯 {slotIndex} 클릭: {equippedRune}");
-        }
-        else
-        {
-            if (showDebugLogs)
-                Debug.Log($"[RuneEquipSlotUI] 슬롯 {slotIndex} 클릭: 비어있음");
         }
     }
     

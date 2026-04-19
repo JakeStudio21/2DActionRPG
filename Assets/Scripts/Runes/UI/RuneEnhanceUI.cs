@@ -62,8 +62,6 @@ public class RuneEnhanceUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI limitBreakMessageText;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -182,9 +180,7 @@ public class RuneEnhanceUI : MonoBehaviour
     {
         selectedRune = rune;
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneEnhanceUI] 룬 선택: {rune}");
         }
         
         // 공통 정보 갱신
@@ -366,9 +362,7 @@ public class RuneEnhanceUI : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneEnhanceUI] 레벨업 시도: {selectedRune.instanceUID}");
         }
         
         // 레벨업 실행
@@ -376,9 +370,7 @@ public class RuneEnhanceUI : MonoBehaviour
         
         if (result == RuneEnhanceManager.LevelUpResult.Success)
         {
-            if (showDebugLogs)
             {
-                Debug.Log($"[RuneEnhanceUI] ✅ 레벨업 성공: Lv.{selectedRune.currentLevel}");
             }
             
             // UI 갱신
@@ -388,7 +380,6 @@ public class RuneEnhanceUI : MonoBehaviour
         }
         else
         {
-            if (showDebugLogs)
             {
                 Debug.LogWarning($"[RuneEnhanceUI] ❌ 레벨업 실패: {result}");
             }
@@ -547,9 +538,7 @@ public class RuneEnhanceUI : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneEnhanceUI] 한계돌파 시도: {selectedRune.instanceUID}");
         }
         
         // 한계돌파 실행 (파편 200개 소모)
@@ -557,9 +546,7 @@ public class RuneEnhanceUI : MonoBehaviour
         
         if (result == RuneEnhanceManager.LimitBreakResult.Success)
         {
-            if (showDebugLogs)
             {
-                Debug.Log($"[RuneEnhanceUI] ✅ 한계돌파 성공: +{selectedRune.currentLimitBreak}");
             }
             
             // UI 갱신
@@ -569,7 +556,6 @@ public class RuneEnhanceUI : MonoBehaviour
         }
         else
         {
-            if (showDebugLogs)
             {
                 Debug.LogWarning($"[RuneEnhanceUI] ❌ 한계돌파 실패: {result}");
             }

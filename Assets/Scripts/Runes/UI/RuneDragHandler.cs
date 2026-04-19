@@ -38,8 +38,6 @@ public class RuneDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     [SerializeField] [Range(0f, 1f)] private float draggedSlotAlpha = 0.3f;
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -97,9 +95,7 @@ public class RuneDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             return;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneDragHandler] 드래그 시작: {rune}");
         }
         
         // 원본 슬롯 반투명 처리
@@ -138,9 +134,7 @@ public class RuneDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             dragIcon = null;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneDragHandler] 드래그 종료");
         }
     }
     

@@ -144,7 +144,6 @@ public class RuneEnhanceManager : MonoBehaviour
     /// <returns>해금 결과</returns>
     public UnlockResult TryUnlockRune(string runeId)
     {
-        Debug.Log($"[RuneEnhanceManager] 룬 해금 시도: {runeId}");
         
         // 1. RuneData 가져오기
         RuneData runeData = RuneDatabase.GetRuneData(runeId);
@@ -155,7 +154,6 @@ public class RuneEnhanceManager : MonoBehaviour
             return UnlockResult.InvalidRuneData;
         }
         
-        Debug.Log($"  대상 룬: {runeData.runeName}");
         
         // 2. 이미 보유 중인지 확인
         var inventoryManager = RuneInventoryManager.Instance;
@@ -195,9 +193,8 @@ public class RuneEnhanceManager : MonoBehaviour
             return UnlockResult.InvalidRuneData;
         }
         
-        Debug.Log($"[RuneEnhanceManager] ✅ 룬 해금 성공!");
-        Debug.Log($"  생성된 룬: {newRune}");
-        Debug.Log($"  소모된 파편: {UNLOCK_COST}개");
+        Dbg.Log($"[RuneEnhanceManager] ✅ 룬 해금 성공!");
+        Dbg.Log($"  생성된 룬: {newRune}");
         
         return UnlockResult.Success;
     }
@@ -236,7 +233,6 @@ public class RuneEnhanceManager : MonoBehaviour
     /// <returns>레벨업 결과</returns>
     public LevelUpResult TryLevelUp(string targetRuneUID)
     {
-        Debug.Log($"[RuneEnhanceManager] 레벨업 시도: {targetRuneUID}");
         
         // 1. 룬 찾기
         RuneInstance targetRune = RuneInventoryManager.Instance.GetRuneByUID(targetRuneUID);
@@ -247,7 +243,6 @@ public class RuneEnhanceManager : MonoBehaviour
             return LevelUpResult.RuneNotFound;
         }
         
-        Debug.Log($"  대상 룬: {targetRune}");
         
         // 2. 최대 레벨 체크
         int currentMaxLevel = targetRune.GetCurrentMaxLevel();
@@ -282,7 +277,7 @@ public class RuneEnhanceManager : MonoBehaviour
         targetRune.currentLevel++;
         int newLevel = targetRune.currentLevel;
         
-        Debug.Log($"[RuneEnhanceManager] ✅ 레벨업 성공: Lv.{oldLevel} → Lv.{newLevel}");
+        Dbg.Log($"[RuneEnhanceManager] ✅ 레벨업 성공: Lv.{oldLevel} → Lv.{newLevel}");
         
         // 6. 이벤트 발생
         OnLevelUp?.Invoke(targetRuneUID, newLevel);
@@ -290,7 +285,6 @@ public class RuneEnhanceManager : MonoBehaviour
         // 7. [중요] 3, 6, 9레벨 도달 시 부옵션 추첨
         if (newLevel == 3 || newLevel == 6 || newLevel == 9)
         {
-            Debug.Log($"[RuneEnhanceManager] 🎲 부옵션 추첨 마일스톤 달성! (Lv.{newLevel})");
             RollAndAddSubStat(targetRune);
         }
         
@@ -320,7 +314,6 @@ public class RuneEnhanceManager : MonoBehaviour
             return;
         }
         
-        Debug.Log($"  부옵션 후보: {subStatPool.Count}개");
         
         // 2. 총 가중치 계산
         int totalWeight = 0;
@@ -335,7 +328,6 @@ public class RuneEnhanceManager : MonoBehaviour
             return;
         }
         
-        Debug.Log($"  총 가중치: {totalWeight}");
         
         // 3. 가중치 기반 랜덤 뽑기
         int randomValue = UnityEngine.Random.Range(0, totalWeight);
@@ -370,11 +362,6 @@ public class RuneEnhanceManager : MonoBehaviour
         
         float probability = (float)selectedWeight / totalWeight * 100f;
         
-        Debug.Log($"[RuneEnhanceManager] 🎉 부옵션 추첨 성공!");
-        Debug.Log($"  추첨값: {randomValue} / {totalWeight}");
-        Debug.Log($"  선택: [{selectedModifierId}] {modifierName}");
-        Debug.Log($"  가중치: {selectedWeight} (확률: {probability:F1}%)");
-        Debug.Log($"  현재 부옵션 개수: {targetRune.allocatedSubStatModifierIds.Count}개");
         
         // 6. 이벤트 발생
         OnSubStatAdded?.Invoke(targetRune.instanceUID, selectedModifierId);
@@ -394,8 +381,6 @@ public class RuneEnhanceManager : MonoBehaviour
     /// <returns>한계돌파 결과</returns>
     public LimitBreakResult TryLimitBreak(string baseRuneUID)
     {
-        Debug.Log($"[RuneEnhanceManager] 한계돌파 시도");
-        Debug.Log($"  베이스 룬: {baseRuneUID}");
         
         // 1. 베이스 룬 찾기
         var inventoryManager = RuneInventoryManager.Instance;
@@ -407,7 +392,6 @@ public class RuneEnhanceManager : MonoBehaviour
             return LimitBreakResult.BaseRuneNotFound;
         }
         
-        Debug.Log($"  대상: {baseRune}");
         
         // 2. [예외 처리] 베이스 룬이 최대 레벨에 도달했는지 확인
         if (baseRune.currentLevel < baseRune.GetCurrentMaxLevel())
@@ -458,17 +442,14 @@ public class RuneEnhanceManager : MonoBehaviour
         int newLimitBreak = baseRune.currentLimitBreak;
         int newMaxLevel = baseRune.GetCurrentMaxLevel();
         
-        Debug.Log($"[RuneEnhanceManager] ✅ 한계돌파 성공!");
-        Debug.Log($"  한계돌파: {oldLimitBreak} → {newLimitBreak}");
-        Debug.Log($"  최대 레벨: Lv.{oldMaxLevel} → Lv.{newMaxLevel}");
-        Debug.Log($"  소모된 파편: {LIMIT_BREAK_COST}개");
+        Dbg.Log($"[RuneEnhanceManager] ✅ 한계돌파 성공!");
+        Dbg.Log($"  한계돌파: {oldLimitBreak} → {newLimitBreak}");
+        Dbg.Log($"  최대 레벨: Lv.{oldMaxLevel} → Lv.{newMaxLevel}");
         
         // 7. 이벤트 발생
         OnLimitBreak?.Invoke(baseRuneUID, newLimitBreak);
         
         // 8. 중요 안내 로그
-        Debug.Log("  ⚠️ 한계돌파는 부옵션을 주지 않습니다.");
-        Debug.Log("  💡 부옵션은 3, 6, 9레벨 도달 시에만 획득 가능합니다.");
         
         return LimitBreakResult.Success;
     }
@@ -529,54 +510,6 @@ public class RuneEnhanceManager : MonoBehaviour
         
         // 9레벨 이상이면 더 이상 부옵션 없음
         return -1;
-    }
-    
-    #endregion
-    
-    #region 디버그
-    
-    /// <summary>
-    /// 룬 강화 정보 출력
-    /// </summary>
-    [ContextMenu("Print Rune Enhance Info")]
-    public void PrintRuneEnhanceInfo()
-    {
-        Debug.Log("========== [RuneEnhanceManager] 강화 정보 ==========");
-        
-        var allRunes = RuneInventoryManager.Instance.GetAllRunes();
-        
-        if (allRunes.Count == 0)
-        {
-            Debug.Log("  (인벤토리가 비어있음)");
-        }
-        else
-        {
-            foreach (var rune in allRunes)
-            {
-                Debug.Log($"\n[{rune.baseData.runeName}]");
-                Debug.Log($"  레벨: Lv.{rune.currentLevel} / {rune.GetCurrentMaxLevel()}");
-                Debug.Log($"  한계돌파: {rune.currentLimitBreak} / {rune.baseData.maxLimitBreak}");
-                Debug.Log($"  부옵션: {rune.allocatedSubStatModifierIds.Count}개");
-                Debug.Log($"  레벨업 가능: {(CanLevelUp(rune.instanceUID) ? "✅" : "❌")}");
-                Debug.Log($"  한계돌파 가능: {(CanLimitBreak(rune.instanceUID) ? "✅" : "❌")}");
-                
-                int levelsUntilNext = GetLevelsUntilNextSubStat(rune.instanceUID);
-                if (levelsUntilNext > 0)
-                {
-                    Debug.Log($"  다음 부옵션: {levelsUntilNext}레벨 후");
-                }
-                else if (levelsUntilNext == 0)
-                {
-                    Debug.Log($"  다음 부옵션: 다음 레벨업!");
-                }
-                else
-                {
-                    Debug.Log($"  다음 부옵션: 없음 (9레벨 이상)");
-                }
-            }
-        }
-        
-        Debug.Log("\n====================================================");
     }
     
     #endregion

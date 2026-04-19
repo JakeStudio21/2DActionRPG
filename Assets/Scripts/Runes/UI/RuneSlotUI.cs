@@ -49,8 +49,6 @@ public class RuneSlotUI : MonoBehaviour
     [SerializeField] private Color equippedColor = new Color(0.5f, 0.8f, 1f, 1f);
     
     [Header("=== 디버그 ===")]
-    [SerializeField] private bool showDebugLogs = false;
-    
     #endregion
     
     #region 내부 데이터
@@ -112,9 +110,7 @@ public class RuneSlotUI : MonoBehaviour
         gameObject.SetActive(true);
         UpdateUI();
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneSlotUI] Setup: {rune}");
         }
     }
     
@@ -140,9 +136,7 @@ public class RuneSlotUI : MonoBehaviour
         // 미보유 상태 UI 표시
         UpdateUIForLockedRune(runeData, onClickCallback);
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneSlotUI] Setup (미보유): {runeData.runeName}");
         }
     }
     
@@ -286,9 +280,7 @@ public class RuneSlotUI : MonoBehaviour
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() =>
             {
-                if (showDebugLogs)
                 {
-                    Debug.Log($"[RuneSlotUI] 미보유 룬 클릭: {runeData.runeName}");
                 }
                 onClickCallback?.Invoke(runeData);
             });
@@ -429,9 +421,7 @@ public class RuneSlotUI : MonoBehaviour
             return;
         }
         
-        if (showDebugLogs)
         {
-            Debug.Log($"[RuneSlotUI] 클릭: {runeInstance}");
         }
         
         // 콜백 호출 (툴팁 표시)
