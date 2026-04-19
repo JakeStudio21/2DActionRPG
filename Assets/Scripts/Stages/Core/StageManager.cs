@@ -655,11 +655,6 @@ public class StageManager : MonoBehaviour
                     {
                         bool inTime = elapsedTime <= stageConfig.TimeLimitSec;
                         
-                        {
-                            if (inTime)
-                            else
-                        }
-                        
                         return inTime;
                     }
                     
@@ -673,11 +668,6 @@ public class StageManager : MonoBehaviour
                     if (stageConfig.hasTimeLimit && bossKilled)
                     {
                         bool inTime = elapsedTime <= stageConfig.TimeLimitSec;
-                        
-                        {
-                            if (inTime)
-                            else
-                        }
                         
                         return inTime;
                     }
