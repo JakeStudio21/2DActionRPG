@@ -58,17 +58,6 @@ namespace UI.Popups
         [SerializeField] private TextMeshProUGUI primaryActionButtonText; // 버튼 텍스트
         [SerializeField] private TextMeshProUGUI warningText;        // 경고 메시지 텍스트 (클래스 불일치 등)
         
-        [Header("📦 일괄 액션 버튼 (상점 전용)")]
-        [SerializeField] private GameObject batchActionGroup;        // 일괄 액션 버튼 그룹
-        [SerializeField] private Button batchSellButton;             // "일괄판매 추가" 버튼
-        [SerializeField] private TextMeshProUGUI batchSellButtonText; // 버튼 텍스트
-        
-        [Header("⚡ 고급 액션 버튼")]
-        [SerializeField] private GameObject advancedActionGroup;     // 고급 액션 버튼 그룹
-        [SerializeField] private Button dismantleButton;             // 분해 버튼
-        [SerializeField] private Button enhanceButton;               // 강화 버튼
-        [SerializeField] private Button fusionButton;                // 합성 버튼
-        
         [Header("🔧 제어 버튼")]
         [SerializeField] private Button closeButton;                 // 닫기 버튼 (X)
         [SerializeField] private Button backgroundButton;            // 배경 클릭 버튼 (닫기)
@@ -159,33 +148,6 @@ namespace UI.Popups
             {
                 primaryActionButton.onClick.RemoveAllListeners();
                 primaryActionButton.onClick.AddListener(OnPrimaryActionButtonClicked);
-            }
-            
-            // ⭐ 일괄 액션 버튼 (신규)
-            if (batchSellButton != null)
-            {
-                batchSellButton.onClick.RemoveAllListeners();
-                batchSellButton.onClick.AddListener(OnBatchSellButtonClicked);
-                Log("✅ [ItemDetailPopup] 일괄판매 버튼 이벤트 연결");
-            }
-            
-            // 고급 액션 버튼들
-            if (dismantleButton != null)
-            {
-                dismantleButton.onClick.RemoveAllListeners();
-                dismantleButton.onClick.AddListener(OnDismantleButtonClicked);
-            }
-            
-            if (enhanceButton != null)
-            {
-                enhanceButton.onClick.RemoveAllListeners();
-                enhanceButton.onClick.AddListener(OnEnhanceButtonClicked);
-            }
-            
-            if (fusionButton != null)
-            {
-                fusionButton.onClick.RemoveAllListeners();
-                fusionButton.onClick.AddListener(OnFusionButtonClicked);
             }
             
             // 닫기 버튼
@@ -300,12 +262,6 @@ namespace UI.Popups
             if (priceGroup != null)
             {
                 priceGroup.SetActive(false);
-            }
-            
-            // ⭐ 일괄판매 버튼 숨김
-            if (batchActionGroup != null)
-            {
-                batchActionGroup.SetActive(false);
             }
             
             // ⭐ PopupPanel과 Background 모두 비활성화
@@ -631,55 +587,37 @@ namespace UI.Popups
             switch (currentContext)
             {
                 case ItemDetailContext.Inventory:
-                    // 보관창고: "착용" + 고급 액션 표시
                     SetPrimaryButtonActive(true, "착용");
-                    SetBatchActionActive(false);        // ⭐ 일괄판매 숨김
-                    SetAdvancedButtonsActive(true);
-                    UpdatePriceDisplay(false);          // ⭐ 가격 숨김
-                    Log("🎒 [ItemDetailPopup] 보관창고 모드: 착용 + 고급 액션");
+                    UpdatePriceDisplay(false);
+                    Log("🎒 [ItemDetailPopup] 보관창고 모드: 착용");
                     break;
                     
                 case ItemDetailContext.Equipment:
-                    // 장비창: "해제" + 고급 액션 표시
                     SetPrimaryButtonActive(true, "해제");
-                    SetBatchActionActive(false);        // ⭐ 일괄판매 숨김
-                    SetAdvancedButtonsActive(true);
-                    UpdatePriceDisplay(false);          // ⭐ 가격 숨김
-                    Log("🎒 [ItemDetailPopup] 장비창 모드: 해제 + 고급 액션");
+                    UpdatePriceDisplay(false);
+                    Log("🎒 [ItemDetailPopup] 장비창 모드: 해제");
                     break;
                     
                 case ItemDetailContext.Shop_Sell:
-                    // 상점(판매): "판매" + "일괄판매" + 가격 표시
                     SetPrimaryButtonActive(true, "판매");
-                    SetBatchActionActive(true, "일괄판매");  // ⭐ 일괄판매 표시
-                    SetAdvancedButtonsActive(false);
-                    UpdatePriceDisplay(true, currentItem);        // ⭐ 가격 표시
-                    Log("🏪 [ItemDetailPopup] 상점(판매) 모드: 판매 + 일괄판매 + 가격 표시");
+                    UpdatePriceDisplay(true, currentItem);
+                    Log("🏪 [ItemDetailPopup] 상점(판매) 모드: 판매 + 가격 표시");
                     break;
                     
                 case ItemDetailContext.Shop_Buy:
-                    // 상점(구매): "구매" + 구매가 표시
                     SetPrimaryButtonActive(true, "구매");
-                    SetBatchActionActive(false);        // ⭐ 일괄판매 숨김
-                    SetAdvancedButtonsActive(false);
-                    UpdatePriceDisplay(true, currentItem, true);  // ⭐ 구매가 표시 (isBuyPrice = true)
+                    UpdatePriceDisplay(true, currentItem, true);
                     Log("🏪 [ItemDetailPopup] 상점(구매) 모드: 구매 + 구매가 표시");
                     break;
                     
                 case ItemDetailContext.ReadOnly:
-                    // 캐릭터 정보창: 모든 버튼 숨김 (읽기 전용)
                     SetPrimaryButtonActive(false, "");
-                    SetBatchActionActive(false);        // ⭐ 일괄판매 숨김
-                    SetAdvancedButtonsActive(false);
-                    UpdatePriceDisplay(false);          // ⭐ 가격 숨김
+                    UpdatePriceDisplay(false);
                     Log("📖 [ItemDetailPopup] 읽기 전용 모드: 정보만 표시");
                     break;
                     
                 case ItemDetailContext.Material:
-                    // 📦 재료: 모든 버튼 숨김 (정보만 표시)
                     SetPrimaryButtonActive(false, "");
-                    SetBatchActionActive(false);
-                    SetAdvancedButtonsActive(false);
                     UpdatePriceDisplay(false);
                     Log("📦 [ItemDetailPopup] 재료 모드: 정보만 표시");
                     break;
@@ -699,33 +637,6 @@ namespace UI.Popups
             if (primaryActionButtonText != null && active)
             {
                 primaryActionButtonText.text = buttonText;
-            }
-        }
-        
-        /// <summary>
-        /// 고급 액션 버튼 그룹 활성화/비활성화
-        /// </summary>
-        private void SetAdvancedButtonsActive(bool active)
-        {
-            if (advancedActionGroup != null)
-            {
-                advancedActionGroup.SetActive(active);
-            }
-        }
-        
-        /// <summary>
-        /// ⭐ 일괄 액션 버튼 활성화/비활성화 (상점 전용)
-        /// </summary>
-        private void SetBatchActionActive(bool active, string buttonText = "")
-        {
-            if (batchActionGroup != null)
-            {
-                batchActionGroup.SetActive(active);
-            }
-            
-            if (batchSellButtonText != null && active)
-            {
-                batchSellButtonText.text = buttonText;
             }
         }
         
@@ -830,93 +741,6 @@ namespace UI.Popups
             {
                 Hide();
             }
-        }
-        
-        /// <summary>
-        /// 분해 버튼 클릭
-        /// </summary>
-        private void OnDismantleButtonClicked()
-        {
-            Log($"🔨 [ItemDetailPopup] 분해 버튼 클릭: {currentItem?.equipmentName}");
-            
-            // 현재 팝업 닫기
-            Hide();
-            
-            // TODO: DismantleUI 팝업 열기 (Phase 5 UI 구현 시)
-        }
-        
-        /// <summary>
-        /// 강화 버튼 클릭
-        /// </summary>
-        private void OnEnhanceButtonClicked()
-        {
-            Log($"⚡ [ItemDetailPopup] 강화 버튼 클릭: {currentItem?.equipmentName}");
-            
-            // 현재 팝업 닫기
-            Hide();
-            
-            // TODO: EnhancementUI 팝업 열기 (Phase 7 UI 구현 시)
-        }
-        
-        /// <summary>
-        /// 합성 버튼 클릭
-        /// </summary>
-        private void OnFusionButtonClicked()
-        {
-            Log($"🔥 [ItemDetailPopup] 합성 버튼 클릭: {currentItem?.equipmentName}");
-            
-            // 현재 팝업 닫기
-            Hide();
-            
-            // TODO: FusionUI 팝업 열기 (Phase 6 UI 구현 시)
-        }
-        
-        /// <summary>
-        /// ⭐ 일괄판매 추가 버튼 클릭
-        /// </summary>
-        private void OnBatchSellButtonClicked()
-        {
-            if (currentItem == null || currentItemInstanceID.IsEmpty)
-            {
-                Debug.LogError("❌ [ItemDetailPopup] 추가할 아이템이 없습니다!");
-                return;
-            }
-            
-            // 판매 가능 여부 체크
-            if (!currentItem.isTradable)
-            {
-                Log($"⚠️ {currentItem.equipmentName}은(는) 판매할 수 없는 아이템입니다!");
-                
-                // ⭐ 판매 불가 메시지 표시 (3초 후 사라짐, 팝업은 유지)
-                StartCoroutine(ShowTransactionResult(false, $"{currentItem.equipmentName}은(는) 판매할 수 없습니다."));
-                return;
-            }
-            
-            Log($"📦 [ItemDetailPopup] 일괄판매 리스트에 추가: {currentItem.equipmentName} (ID: {currentItemInstanceID.Value.Substring(0, 8)}...)");
-            
-            // TODO: BatchSellUI 열기 및 아이템 추가 (미래 구현)
-            // if (BatchSellUI.Instance != null)
-            // {
-            //     bool added = BatchSellUI.Instance.AddItem(currentItem, currentItemInstanceID);
-            //     if (added)
-            //     {
-            //         // 리스트 추가 성공 메시지 표시 (1초 후 팝업 자동 닫기)
-            //         StartCoroutine(ShowTransactionResult(true, "일괄판매 리스트에 추가됨!"));
-            //         BatchSellUI.Instance.Show();
-            //     }
-            //     else
-            //     {
-            //         // 리스트 추가 실패 (이미 추가됨 등)
-            //         StartCoroutine(ShowTransactionResult(false, "이미 리스트에 추가된 아이템입니다."));
-            //     }
-            // }
-            // else
-            // {
-            //     Debug.LogError("❌ [ItemDetailPopup] BatchSellUI.Instance를 찾을 수 없습니다!");
-            // }
-            
-            // ⭐ 임시: TODO 구현 전까지는 메시지만 표시하고 팝업 닫기
-            StartCoroutine(ShowTransactionResult(true, "일괄판매 리스트에 추가됨! (TODO)"));
         }
         
         #endregion

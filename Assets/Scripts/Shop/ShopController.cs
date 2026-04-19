@@ -219,6 +219,42 @@ public class ShopController : MonoBehaviour
     }
     
     /// <summary>
+    /// 일괄 판매 시도 (등급별 일괄 판매용)
+    /// </summary>
+    /// <returns>(성공 개수, 총 획득 골드)</returns>
+    public (int soldCount, int totalGold) TryBatchSellItems(List<(EquipmentData equipment, ItemInstanceID instanceId)> items)
+    {
+        if (items == null || items.Count == 0) return (0, 0);
+
+        int soldCount = 0;
+        int totalGold = 0;
+
+        foreach (var (equipment, instanceId) in items)
+        {
+            if (equipment == null || instanceId.IsEmpty) continue;
+            if (!equipment.isTradable) continue;
+
+            var account = AccountDataManager.Instance;
+            if (!account.IsInSharedInventory(instanceId)) continue;
+
+            int sellPrice = priceProvider?.GetSellPrice(equipment.itemID) ?? 0;
+            account.DestroyItemInstance(instanceId);
+            PlayerDataManager.Instance.AddGold(sellPrice);
+
+            totalGold += sellPrice;
+            soldCount++;
+        }
+
+        if (soldCount > 0)
+        {
+            AccountDataManager.Instance.Save();
+            OnItemSold?.Invoke($"BATCH_{soldCount}");
+        }
+
+        return (soldCount, totalGold);
+    }
+
+    /// <summary>
     /// 아이템 가격 조회 (UI용)
     /// </summary>
     public int GetItemBuyPrice(string itemID)

@@ -1,79 +1,64 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UI.Popups; // ⭐ ItemDetailPopup
+using UI.Popups;
 
 /// <summary>
-/// 🏪 상점 전용 인벤토리 UI (View Only)
-/// - 판매용 아이템 선택만 담당 (착용, 상세 정보 표시 제외)
-/// - ShopUIController와 연동하여 판매 처리
-/// 🏠 LobbyInventoryUI - 로비 전용 인벤토리 UI
+/// 🏪 ShopInventoryUI - 상점 전용 인벤토리 UI
 /// 책임:
-/// - 인벤토리 아이템 표시
-/// - 아이템 상세 정보 표시 (DetailPanel)
-/// - 아이템 착용/해제 기능
-/// - 로비 전용 UI 상호작용
-/// 
-/// 의존성:
-/// - PlayerDataManager (데이터 소스)
-/// - LobbyInventoryController (제어)
-/// </summary>
-
-/// <summary>
-/// 🏪 ShopInventoryUI - 상점 전용 인벤토리 UI  
-/// 책임:
-/// - 판매용 아이템 선택 표시
-/// - 상점 거래를 위한 아이템 클릭 처리
-/// 
-/// 제외 기능:
-/// - 아이템 착용 (로비 전용)
-/// - 상세 정보 표시 (상점은 DetailPanel 별도)
-/// 
-/// 의존성:
-/// - PlayerDataManager (데이터 소스)
-/// - ShopUIController (거래 제어)
-/// </summary>
-
-/// <summary>
-/// 🎮 IntegratedInventoryController - 인게임 전용 컨트롤러
-/// 책임:
-/// - 인게임 인벤토리 토글 (I키, 가방 버튼)
-/// - 무기 교체 중심 상호작용
-/// - ActiveInventory와 연동
-/// 
-/// 의존성:
-/// - PlayerDataManager (데이터 소스)
-/// - ActiveInventory (인게임 UI)
-/// - ActiveWeapon (무기 교체)
-
-
+/// - 판매용 아이템 표시 및 단건/일괄 판매 처리
+/// - 등급별 빠른 선택 → 체크마크(플래그) 방식 다중선택
+/// - SS급 이상은 일괄판매 제외 (단일판매 전용)
+///
+/// 단건 판매: 슬롯 클릭 → ItemDetailPopup(Shop_Sell) → 판매
+/// 일괄 판매: 등급 버튼 → 체크마크 선택 → 선택판매 버튼 → ConfirmationPopup → 실행
 /// </summary>
 public class ShopInventoryUI : MonoBehaviour
 {
     [Header("🎒 상점 인벤토리 설정")]
-    [SerializeField] private ScrollRect scrollRect;         // ⭐ ScrollView의 ScrollRect 컴포넌트
-    [SerializeField] private Transform slotContainer;       // 슬롯들이 들어갈 컨테이너 (ScrollView의 Content)
-    [SerializeField] private GameObject slotPrefab;         // 상점용 슬롯 프리팹
-    
-    // ❌ 제거: maxDisplaySlots (AccountData에서 가져옴)
-    
-    [Header("📊 디버그")]
-    
-    // 내부 상태
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private Transform slotContainer;
+    [SerializeField] private GameObject slotPrefab;
+
+    [Header("🎯 등급별 빠른 선택 버튼 (D~S, SS 이상 제외)")]
+    [SerializeField] private Button selectDGradeButton;
+    [SerializeField] private Button selectCGradeButton;
+    [SerializeField] private Button selectBGradeButton;
+    [SerializeField] private Button selectAGradeButton;
+    [SerializeField] private Button selectSGradeButton;
+
+    [Header("🔘 일괄 판매 옵션")]
+    [SerializeField] private Toggle excludeEquippedToggle;
+
+    [Header("📊 선택 정보 표시")]
+    [SerializeField] private TextMeshProUGUI selectionInfoText;   // "선택: N개 | 예상 획득: N 골드"
+
+    [Header("💰 일괄 판매 실행 버튼")]
+    [SerializeField] private Button batchSellButton;
+    [SerializeField] private TextMeshProUGUI batchSellButtonText;
+
+    [Header("🗑️ 선택 해제 버튼 (선택 시 활성화)")]
+    [SerializeField] private Button clearSelectionButton;
+
+    [Header("🔔 확인 팝업")]
+    [SerializeField] private ConfirmationPopup confirmationPopup;
+
+    // ─── 내부 상태 ───────────────────────────────────────────────
     private List<InventorySlot> shopInventorySlots = new List<InventorySlot>();
-    
-    // 🔧 수정: 상점 전용 이벤트 (판매용) - 🆕 V2: ItemInstanceID 추가
+    private List<ItemInstanceID> selectedItemIds   = new List<ItemInstanceID>();
+    private bool isMultiSelectMode = false;
+
+    // 단건 판매용 이벤트 (외부 호환성 유지)
     public event Action<EquipmentData, int, ItemInstanceID> OnInventoryItemClicked;
-    
-    // 🗑️ 제거: 착용, 상세 정보 등 로비 전용 기능 제거
-    // (상점에서는 단순히 판매할 아이템 선택만)
-    
+
+    // ─── Unity 생명주기 ───────────────────────────────────────────
+
     void Awake()
     {
-        
         SetupEventListeners();
     }
 
@@ -81,283 +66,431 @@ public class ShopInventoryUI : MonoBehaviour
     {
         InitializeShopInventorySlots();
         RefreshInventoryUI();
+
+        // 선택 해제 버튼 초기 비활성 (분해 패널과 동일)
+        if (clearSelectionButton != null)
+            clearSelectionButton.interactable = false;
+
+        UpdateSelectionInfo();
     }
-    
-    /// <summary>
-    /// 🆕 V2: 패널 활성화 시 자동 갱신
-    /// </summary>
+
     void OnEnable()
     {
-        
-        // 슬롯이 초기화된 경우에만 갱신 (Start() 전에 호출 방지)
         if (shopInventorySlots != null && shopInventorySlots.Count > 0)
         {
             RefreshInventoryUI();
         }
     }
-    
-    /// <summary>
-    /// 이벤트 리스너 설정 (근본 해결: OnSlotClicked 구독 제거)
-    /// </summary>
+
+    // ─── 초기화 ───────────────────────────────────────────────────
+
     private void SetupEventListeners()
     {
-        // PlayerDataManager 이벤트 구독
         if (PlayerDataManager.Instance != null)
-        {
             PlayerDataManager.Instance.OnInventoryChanged += RefreshInventoryUI;
-            // 🗑️ 제거: OnSlotClicked 구독 (Button.onClick으로 직접 처리)
-            // PlayerDataManager.Instance.OnSlotClicked += HandleSlotClicked;
-        }
+
+        // 등급별 빠른 선택 버튼
+        if (selectDGradeButton != null)
+            selectDGradeButton.onClick.AddListener(() => SelectAllByGrade(ItemGrade.D));
+        if (selectCGradeButton != null)
+            selectCGradeButton.onClick.AddListener(() => SelectAllByGrade(ItemGrade.C));
+        if (selectBGradeButton != null)
+            selectBGradeButton.onClick.AddListener(() => SelectAllByGrade(ItemGrade.B));
+        if (selectAGradeButton != null)
+            selectAGradeButton.onClick.AddListener(() => SelectAllByGrade(ItemGrade.A));
+        if (selectSGradeButton != null)
+            selectSGradeButton.onClick.AddListener(() => SelectAllByGrade(ItemGrade.S));
+
+        // 일괄 판매 버튼
+        if (batchSellButton != null)
+            batchSellButton.onClick.AddListener(OnBatchSellButtonClicked);
+
+        // 선택 해제 버튼
+        if (clearSelectionButton != null)
+            clearSelectionButton.onClick.AddListener(ClearSelection);
     }
-    
-    /// <summary>
-    /// 상점 인벤토리 슬롯 초기화
-    /// </summary>
+
     private void InitializeShopInventorySlots()
     {
         if (slotContainer == null || slotPrefab == null)
         {
-            Debug.LogError($"❌ [ShopInventoryUI] slotContainer 또는 slotPrefab이 할당되지 않음");
+            Debug.LogError("❌ [ShopInventoryUI] slotContainer 또는 slotPrefab이 할당되지 않음");
             return;
         }
-        
-        // 기존 슬롯들 정리
+
         foreach (Transform child in slotContainer)
         {
             if (Application.isPlaying)
                 Destroy(child.gameObject);
         }
         shopInventorySlots.Clear();
-        
-        // ⭐ AccountData에서 최대 크기 가져오기 (기본 64칸, 확장 가능)
-        int maxSlots = 64; // 기본값 (8x8 그리드)
+
+        int maxSlots = 64;
         if (AccountDataManager.IsInitialized())
-        {
             maxSlots = AccountDataManager.Instance.GetAccountData().maxSharedInventorySize;
-        }
-        
-        // 새 슬롯들 생성
+
         for (int i = 0; i < maxSlots; i++)
         {
             GameObject slotObj = Instantiate(slotPrefab, slotContainer);
             slotObj.name = $"ShopInventorySlot_{i}";
-            
+
             InventorySlot inventorySlot = slotObj.GetComponent<InventorySlot>();
             if (inventorySlot != null)
-            {
                 shopInventorySlots.Add(inventorySlot);
-            }
         }
-        
-        // 🆕 근본 해결: Button.onClick 이벤트 직접 등록
+
         SetupShopSlotClickEvents();
-        
     }
-    
-    /// <summary>
-    /// 🆕 Shop 슬롯 클릭 이벤트 등록 (근본 해결)
-    /// </summary>
+
     private void SetupShopSlotClickEvents()
     {
         for (int i = 0; i < shopInventorySlots.Count; i++)
         {
-            if (shopInventorySlots[i] != null)
+            if (shopInventorySlots[i] == null) continue;
+
+            int slotIndex = i;
+            var button = shopInventorySlots[i].GetComponent<Button>();
+            if (button != null)
             {
-                int slotIndex = i; // 클로저 문제 방지
-                
-                var button = shopInventorySlots[i].GetComponent<Button>();
-                if (button != null)
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() =>
                 {
-                    button.onClick.RemoveAllListeners();
-                    button.onClick.AddListener(() => {
-                        var equipmentData = shopInventorySlots[slotIndex].GetEquipmentData();
-                        var instanceId = shopInventorySlots[slotIndex].GetItemInstanceID();  // 🆕 V2: ID 가져오기
-                        HandleSlotClicked(equipmentData, slotIndex, instanceId);
-                    });
-                }
+                    var equipmentData = shopInventorySlots[slotIndex].GetEquipmentData();
+                    var instanceId    = shopInventorySlots[slotIndex].GetItemInstanceID();
+                    HandleSlotClicked(equipmentData, slotIndex, instanceId);
+                });
             }
         }
-        
     }
-    
-    /// <summary>
-    /// 🆕 V2: 인벤토리 UI 새로고침 (계정 공유 창고 표시)
-    /// </summary>
+
+    // ─── 인벤토리 갱신 ───────────────────────────────────────────
+
     public void RefreshInventoryUI()
     {
-            
-        
-        // ⭐ ScrollRect Position 저장 (스크롤 위치 유지)
         Vector2 savedScrollPosition = Vector2.zero;
         bool hasScrollRect = scrollRect != null;
         if (hasScrollRect)
-        {
             savedScrollPosition = scrollRect.normalizedPosition;
-        }
-        else
-        {
-                Debug.LogWarning($"⚠️ [ShopInventoryUI] scrollRect가 null입니다! Unity Editor에서 ScrollRect 컴포넌트를 할당하세요.");
-        }
-        
-        // 🆕 V2: AccountDataManager 확인
+
         if (AccountDataManager.Instance == null)
         {
-            Debug.LogError("❌ [ShopInventoryUI] AccountDataManager.Instance가 null입니다");
+            Debug.LogError("❌ [ShopInventoryUI] AccountDataManager.Instance가 null");
             return;
         }
-        
-        // 🆕 V2: 계정 공유 창고 데이터 가져오기 (로비 보관창고와 동일)
-        var accountData = AccountDataManager.Instance.GetAccountData();
+
+        var accountData      = AccountDataManager.Instance.GetAccountData();
         var sharedInventoryIds = accountData?.sharedInventoryIds;
-        
-        
-        // 🆕 V2: ItemInstanceID → EquipmentData 변환 (ID도 함께 저장)
-        List<(EquipmentData equipment, ItemInstanceID instanceId)> inventoryItems = new List<(EquipmentData, ItemInstanceID)>();
-        
+
+        var inventoryItems = new List<(EquipmentData equipment, ItemInstanceID instanceId)>();
         if (sharedInventoryIds != null)
         {
-            for (int i = 0; i < sharedInventoryIds.Count; i++)
+            foreach (var instanceId in sharedInventoryIds)
             {
                 try
                 {
-                    var instanceId = sharedInventoryIds[i];
                     var instanceData = AccountDataManager.Instance.GetInstance(instanceId);
-                    
-                    if (instanceData != null)
-                    {
-                        var template = ItemTemplateResolver.Load(instanceData.templateName);
-                        if (template != null)
-                        {
-                            inventoryItems.Add((template, instanceId));  // 🆕 ID도 함께 저장
-                            
-                        }
-                        else
-                        {
-                                Debug.LogWarning($"⚠️ [ShopInventoryUI] 템플릿 로드 실패: {instanceData.templateName}");
-                        }
-                    }
-                    else
-                    {
-                            Debug.LogWarning($"⚠️ [ShopInventoryUI] 인스턴스 데이터 없음: {instanceId.Value}");
-                    }
+                    if (instanceData == null) continue;
+
+                    var template = ItemTemplateResolver.Load(instanceData.templateName);
+                    if (template != null)
+                        inventoryItems.Add((template, instanceId));
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
-                    Debug.LogError($"❌ [ShopInventoryUI] 아이템 로드 중 예외 발생 (인덱스: {i}): {ex.Message}\n{ex.StackTrace}");
-                    // 루프 계속 진행 (다른 아이템도 로드)
+                    Debug.LogError($"❌ [ShopInventoryUI] 아이템 로드 오류: {ex.Message}");
                 }
             }
         }
 
-        // 슬롯 데이터 설정 (🆕 ItemInstanceID도 함께 전달)
         for (int i = 0; i < shopInventorySlots.Count; i++)
         {
             if (i < inventoryItems.Count)
-            {
-                shopInventorySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);  // 🆕 ID 전달
-                
-            }
+                shopInventorySlots[i].SetEquipmentData(inventoryItems[i].equipment, inventoryItems[i].instanceId);
             else
-            {
-                shopInventorySlots[i].SetEquipmentData(null);  // ID는 default
-            }
+                shopInventorySlots[i].SetEquipmentData(null);
         }
-        
-        
-        // ⭐ ScrollRect Position 복원 (다음 프레임에 실행하여 Layout 재계산 완료 후 적용)
+
+        // 인벤 갱신 후 선택 목록에서 사라진 아이템 정리
+        RefreshSelectedItemValidity();
+
         if (hasScrollRect)
-        {
             StartCoroutine(RestoreScrollPositionNextFrame(savedScrollPosition));
-        }
     }
-    
-    /// <summary>
-    /// ⭐ ScrollRect Position 복원 (다음 프레임)
-    /// </summary>
+
     private IEnumerator RestoreScrollPositionNextFrame(Vector2 position)
     {
-        
-        yield return null; // 1프레임 대기 (Layout 재계산 완료)
-        
+        yield return null;
         if (scrollRect != null)
-        {
-            Vector2 beforePosition = scrollRect.normalizedPosition;
             scrollRect.normalizedPosition = position;
-            Vector2 afterPosition = scrollRect.normalizedPosition;
-            
+    }
+
+    // ─── 슬롯 클릭 처리 ──────────────────────────────────────────
+
+    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId)
+    {
+        if (equipmentData == null || instanceId.IsEmpty) return;
+
+        if (isMultiSelectMode)
+        {
+            // 다중선택 모드: 슬롯 체크마크 토글
+            ToggleSlotSelection(shopInventorySlots[slotIndex], instanceId);
         }
         else
         {
-                Debug.LogError($"❌ [ShopInventoryUI] scrollRect가 null입니다! (복원 실패)");
-        }
-    }
-    
-    /// <summary>
-    /// 🆕 V2: 슬롯 클릭 처리 (ItemInstanceID 포함)
-    /// </summary>
-    private void HandleSlotClicked(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId)
-    {
-        // Shop 환경에서만 처리 (이미 Button.onClick으로 호출되므로 활성화 상태 보장됨)
-        if (equipmentData != null && !instanceId.IsEmpty)
-        {
-            // ⭐ 기존 이벤트 유지 (다른 시스템 호환성)
-            OnInventoryItemClicked?.Invoke(equipmentData, slotIndex, instanceId);  // 🆕 V2: ID 전달
-            
-            // ⭐ ItemDetailPopup 열기 (Shop_Sell 컨텍스트)
+            // 단건 판매 모드: ItemDetailPopup 열기
+            OnInventoryItemClicked?.Invoke(equipmentData, slotIndex, instanceId);
             ShowItemDetailPopup(equipmentData, slotIndex, instanceId);
-            
         }
     }
-    
-    /// <summary>
-    /// ⭐ 아이템 상세 팝업 표시 (상점 판매용)
-    /// </summary>
+
     private void ShowItemDetailPopup(EquipmentData equipmentData, int slotIndex, ItemInstanceID instanceId)
     {
-        // PopupCanvas에서 ItemDetailPopup 찾기
-        var popup = FindObjectOfType<ItemDetailPopup>(true); // includeInactive = true
-        
+        var popup = FindObjectOfType<ItemDetailPopup>(true);
         if (popup == null)
         {
             Debug.LogError("❌ [ShopInventoryUI] ItemDetailPopup을 찾을 수 없습니다!");
             return;
         }
-        
-        // Shop_Sell 컨텍스트로 팝업 열기
         popup.Show(equipmentData, ItemDetailContext.Shop_Sell, slotIndex, instanceId);
-        
     }
-    
+
+    // ─── 등급별 일괄 선택 ────────────────────────────────────────
+
     /// <summary>
-    /// 강제 새로고침 (외부 호출용)
+    /// 등급별 일괄 선택. SS 이상은 제외.
+    /// 다른 등급 버튼 클릭 시 이전 선택 초기화 후 새 등급 선택 (분해 패널과 동일한 UX).
+    /// 선택 해제는 clearSelectionButton으로 처리.
     /// </summary>
+    public void SelectAllByGrade(ItemGrade grade)
+    {
+        // SS 이상 등급은 일괄판매 불가
+        if (grade >= ItemGrade.SS)
+        {
+            Debug.LogWarning($"[ShopInventoryUI] {grade} 등급은 단일 판매만 가능합니다.");
+            return;
+        }
+
+        // 이전 선택 초기화 후 해당 등급 선택 (분해 패널 동일 방식)
+        ClearSelection();
+
+        bool excludeEquipped = excludeEquippedToggle != null && excludeEquippedToggle.isOn;
+        List<ItemInstanceID> equippedIds = new List<ItemInstanceID>();
+
+        if (excludeEquipped && PlayerDataManager.Instance?.selectedPlayerData != null)
+        {
+            equippedIds = PlayerDataManager.Instance.selectedPlayerData
+                .RuntimeEquippedInstanceIds.Values.ToList();
+        }
+
+        foreach (var slot in shopInventorySlots)
+        {
+            var itemData   = slot.GetEquipmentData();
+            var instanceId = slot.GetItemInstanceID();
+
+            if (itemData == null || instanceId.IsEmpty) continue;
+            if (itemData.itemGrade != grade) continue;
+            if (excludeEquipped && equippedIds.Contains(instanceId)) continue;
+
+            slot.SetSelected(true, notifyEvent: false);
+            if (!selectedItemIds.Contains(instanceId))
+                selectedItemIds.Add(instanceId);
+        }
+
+        // 해당 등급 아이템이 없으면 안내 텍스트 표시
+        if (selectedItemIds.Count == 0)
+        {
+            if (selectionInfoText != null)
+                selectionInfoText.text = $"{grade}등급 판매 가능한 아이템이 없습니다";
+            return;
+        }
+
+        // 선택된 아이템이 있을 때만 다중선택 모드 활성화
+        SetMultiSelectMode(true);
+        UpdateSelectionInfo();
+    }
+
+    // ─── 다중선택 모드 제어 ───────────────────────────────────────
+
+    private void SetMultiSelectMode(bool enabled)
+    {
+        isMultiSelectMode = enabled;
+        foreach (var slot in shopInventorySlots)
+            slot.SetMultiSelectMode(enabled);
+    }
+
+    private void ToggleSlotSelection(InventorySlot slot, ItemInstanceID instanceId)
+    {
+        bool nowSelected = !slot.IsSelected();
+        slot.SetSelected(nowSelected, notifyEvent: false);
+
+        if (nowSelected)
+        {
+            if (!selectedItemIds.Contains(instanceId))
+                selectedItemIds.Add(instanceId);
+        }
+        else
+        {
+            selectedItemIds.Remove(instanceId);
+        }
+
+        // 선택된 항목이 없으면 다중선택 모드 해제
+        if (selectedItemIds.Count == 0)
+            SetMultiSelectMode(false);
+
+        UpdateSelectionInfo();
+    }
+
+    public void ClearSelection()
+    {
+        foreach (var slot in shopInventorySlots)
+        {
+            if (slot.IsSelected())
+                slot.SetSelected(false, notifyEvent: false);
+        }
+        selectedItemIds.Clear();
+        SetMultiSelectMode(false);
+        UpdateSelectionInfo();
+    }
+
+    /// <summary>
+    /// 인벤 갱신 후 존재하지 않는 아이템 ID를 선택 목록에서 제거
+    /// </summary>
+    private void RefreshSelectedItemValidity()
+    {
+        if (selectedItemIds.Count == 0) return;
+
+        var validIds = shopInventorySlots
+            .Where(s => !s.GetItemInstanceID().IsEmpty)
+            .Select(s => s.GetItemInstanceID())
+            .ToHashSet();
+
+        selectedItemIds.RemoveAll(id => !validIds.Contains(id));
+
+        if (selectedItemIds.Count == 0)
+            SetMultiSelectMode(false);
+
+        UpdateSelectionInfo();
+    }
+
+    // ─── 선택 정보 UI 갱신 ───────────────────────────────────────
+
+    private void UpdateSelectionInfo()
+    {
+        int count     = selectedItemIds.Count;
+        int totalGold = CalculateTotalSellPrice();
+
+        if (selectionInfoText != null)
+        {
+            selectionInfoText.text = count > 0
+                ? $"선택: {count}개 | 예상 획득: {totalGold:N0} 골드"
+                : "등급 버튼을 눌러 아이템을 선택하세요";
+        }
+
+        if (batchSellButton != null)
+            batchSellButton.interactable = count > 0;
+
+        if (batchSellButtonText != null)
+        {
+            batchSellButtonText.text = count > 0
+                ? $"선택 판매 ({count}개)"
+                : "선택 판매";
+        }
+
+        // 선택 해제 버튼: 분해 패널과 동일하게 선택 시만 활성화
+        if (clearSelectionButton != null)
+            clearSelectionButton.interactable = count > 0;
+    }
+
+    private int CalculateTotalSellPrice()
+    {
+        if (ShopController.Instance == null) return 0;
+
+        int total = 0;
+        foreach (var instanceId in selectedItemIds)
+        {
+            var slot = shopInventorySlots.FirstOrDefault(s => s.GetItemInstanceID().Equals(instanceId));
+            if (slot == null) continue;
+
+            var itemData = slot.GetEquipmentData();
+            if (itemData == null) continue;
+
+            total += ShopController.Instance.GetItemSellPrice(itemData.itemID);
+        }
+        return total;
+    }
+
+    // ─── 일괄 판매 실행 ───────────────────────────────────────────
+
+    private void OnBatchSellButtonClicked()
+    {
+        if (selectedItemIds.Count == 0) return;
+
+        int count     = selectedItemIds.Count;
+        int totalGold = CalculateTotalSellPrice();
+
+        if (confirmationPopup == null)
+        {
+            Debug.LogError("❌ [ShopInventoryUI] ConfirmationPopup이 연결되지 않았습니다!");
+            ExecuteBatchSell();
+            return;
+        }
+
+        confirmationPopup.Show(
+            title   : "아이템 일괄 판매",
+            message : $"선택한 {count}개의 아이템을 판매하시겠습니까?",
+            detail  : $"예상 획득: {totalGold:N0} 골드",
+            onConfirm: ExecuteBatchSell,
+            onCancel : null
+        );
+    }
+
+    private void ExecuteBatchSell()
+    {
+        if (ShopController.Instance == null)
+        {
+            Debug.LogError("❌ [ShopInventoryUI] ShopController.Instance가 null입니다!");
+            return;
+        }
+
+        // 선택된 아이템 데이터 수집
+        var itemsToSell = new List<(EquipmentData equipment, ItemInstanceID instanceId)>();
+        foreach (var instanceId in selectedItemIds)
+        {
+            var slot = shopInventorySlots.FirstOrDefault(s => s.GetItemInstanceID().Equals(instanceId));
+            if (slot == null) continue;
+
+            var itemData = slot.GetEquipmentData();
+            if (itemData != null)
+                itemsToSell.Add((itemData, instanceId));
+        }
+
+        var (soldCount, totalGold) = ShopController.Instance.TryBatchSellItems(itemsToSell);
+
+        Debug.Log($"✅ [ShopInventoryUI] 일괄 판매 완료: {soldCount}개, {totalGold:N0} 골드 획득");
+
+        ClearSelection();
+        RefreshInventoryUI();
+    }
+
+    // ─── 외부 호출용 ─────────────────────────────────────────────
+
     public void ForceRefreshInventory()
     {
         RefreshInventoryUI();
     }
-    
-    /// <summary>
-    /// 🆕 추가: 캐릭터 지연 로드 완료 시 상점 인벤토리 갱신
-    /// </summary>
+
     private void OnSlotLazyLoadedForShop(int slotIndex)
     {
-        
-        // 상점이 활성화된 상태에서만 갱신
         if (gameObject.activeInHierarchy)
-        {
             RefreshInventoryUI();
-        }
     }
 
     void OnDestroy()
     {
-        // 이벤트 구독 해제
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnInventoryChanged -= RefreshInventoryUI;
-            // 🗑️ 제거: OnSlotClicked 구독 해제 (더 이상 구독 안 함)
-            // PlayerDataManager.Instance.OnSlotClicked -= HandleSlotClicked;
-            PlayerDataManager.Instance.OnSlotLazyLoaded -= OnSlotLazyLoadedForShop;
+            PlayerDataManager.Instance.OnSlotLazyLoaded   -= OnSlotLazyLoadedForShop;
         }
     }
 }
