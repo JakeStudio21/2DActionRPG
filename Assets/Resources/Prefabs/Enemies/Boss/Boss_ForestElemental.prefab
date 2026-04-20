@@ -12,15 +12,11 @@ GameObject:
   - component: {fileID: 2106861080513923722}
   - component: {fileID: 2593015259640542914}
   - component: {fileID: 2142061137914716384}
-  - component: {fileID: 5709947880115937855}
   - component: {fileID: 5752732880782816917}
   - component: {fileID: 4792411720221729903}
   - component: {fileID: 4045494338668433670}
   - component: {fileID: -8070876538002613510}
-  - component: {fileID: -752092573500323026}
-  - component: {fileID: 3746799392073795553}
   - component: {fileID: 8403660534966338527}
-  - component: {fileID: 8998232531007038718}
   - component: {fileID: -3420654551023502779}
   - component: {fileID: -314822390102949845}
   - component: {fileID: -6477805641063854489}
@@ -29,7 +25,9 @@ GameObject:
   - component: {fileID: 3412258947461422548}
   - component: {fileID: -6743165854896849057}
   - component: {fileID: -7579856380117773579}
+  - component: {fileID: 3141592653589793}
   - component: {fileID: -6062580378683552115}
+  - component: {fileID: 8998232531007038718}
   - component: {fileID: 8850095142723809195}
   - component: {fileID: 8542788501196903482}
   m_Layer: 6
@@ -169,19 +167,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &5709947880115937855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed0ae84d404e7494e87c94d22761211d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 2
 --- !u!114 &5752732880782816917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,7 +200,6 @@ MonoBehaviour:
   animator: {fileID: 4045494338668433670}
   spriteRenderer: {fileID: 0}
   useIsometricData: 1
-  showDebugLogs: 0
   startMoveThreshold: 0.12
   stopMoveThreshold: 0.06
 --- !u!95 &4045494338668433670
@@ -251,40 +235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa5797a34ca77554ebccf12991cbfa2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-752092573500323026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858c7c3bd4d1964aa08cb554cf3fded, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canDropHealth: 1
-  canDropGold: 1
-  healthDropChance: 50
-  healthDropAmount: 1
-  goldDropChance: 50
-  goldDropMinAmount: 30
-  goldDropMaxAmount: 50
-  canDropEquipment: 1
-  equipmentDropChance: 50
-  possibleEquipmentDrops: []
---- !u!114 &3746799392073795553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50d40584c0dabc34bb1b662a2cf18afb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8403660534966338527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,24 +248,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whiteFlashMat: {fileID: 2100000, guid: 1432d3f137a158c40911d1c0c7391034, type: 2}
---- !u!114 &8998232531007038718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f900f912e45dc04cb967cf245078a55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
-  showMonsterRanges: 1
-  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
-  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
-  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &-3420654551023502779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,7 +300,6 @@ MonoBehaviour:
   currentPhaseIndex: 0
   isTransitioning: 0
   isInvincible: 0
-  enableDebugLogs: 1
 --- !u!114 &-6477805641063854489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,7 +323,7 @@ MonoBehaviour:
   meleeAttack: {fileID: 0}
   globalAttackCooldown: 1.5
   meleeAttackRange: 6
-  enableDebugLogs: 1
+  rangedSkillRange: 10
 --- !u!114 &-193883574415130873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,10 +341,10 @@ MonoBehaviour:
   currentLevel: 1
   cueProfile: {fileID: 0}
   useNavMesh: 1
+  navMeshAcceleration: 0
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
-  enableDebugLogs: 1
   meleeAttack: {fileID: 0}
   phaseController: {fileID: 0}
   bossAttack: {fileID: 0}
@@ -463,6 +394,7 @@ MonoBehaviour:
   dashSkill: {fileID: 0}
   aoeSkill: {fileID: 0}
   multiShotSkill: {fileID: 0}
+  meteorShowerSkill: {fileID: 3141592653589793}
   currentSkillEntry:
     skillData: {fileID: 0}
     weight: 15
@@ -472,7 +404,6 @@ MonoBehaviour:
     skillDescription: 
   isCasting: 0
   isActionExecuting: 0
-  enableDebugLogs: 1
 --- !u!114 &3412258947461422548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,7 +418,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
   baseDashSpeed: 15
-  enableDebugLogs: 1
 --- !u!114 &-6743165854896849057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,7 +431,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
-  enableDebugLogs: 1
 --- !u!114 &-7579856380117773579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -523,7 +452,29 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
   projectileSpeed: 8
   projectileLifetime: 5
-  enableDebugLogs: 1
+--- !u!114 &3141592653589793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97e63d9ba3382b84781a851cbff4f29b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseEnemy: {fileID: 0}
+  meteorCount: 6
+  meteorDelay: 0.3
+  playerNearRadius: 7
+  arenaRadius: 16
+  minSpacingBetweenMeteors: 4
+  positionRetryCount: 10
+  meteorFallDuration: 0.2
+  warningBlinkDuration: 0.25
+  meteorFallVFXPrefab: {fileID: 0}
+  meteorImpactVFXPrefab: {fileID: 0}
 --- !u!195 &-6062580378683552115
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -546,6 +497,24 @@ NavMeshAgent:
   m_BaseOffset: 1.44
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!114 &8998232531007038718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f900f912e45dc04cb967cf245078a55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gizmoColor: {r: 0.7375602, g: 1, b: 0.5529412, a: 1}
+  showMonsterRanges: 1
+  attackRangeColor: {r: 1, g: 0, b: 0, a: 1}
+  roamingRangeColor: {r: 1, g: 0, b: 1, a: 1}
+  detectionRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  chaseRangeColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &8850095142723809195
 MonoBehaviour:
   m_ObjectHideFlags: 0

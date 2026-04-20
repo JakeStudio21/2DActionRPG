@@ -20,8 +20,8 @@ MonoBehaviour:
   duration: 8
   easeType: 1
   bumpStrength: 0.01
-  bumpVibrato: 3
-  rollingShakeInterval: 0.2
+  bumpVibrato: 2
+  rollingShakeInterval: 0.4
   splitCount: 3
   splitScatterForce: 4
   splitSnapDelay: 0.3

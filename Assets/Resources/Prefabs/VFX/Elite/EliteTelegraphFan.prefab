@@ -5031,7 +5031,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeInDuration: 0.2
   fadeOutDuration: 0.2
-  enableDebugLogs: 0
 --- !u!1 &981163552841187060
 GameObject:
   m_ObjectHideFlags: 0
@@ -15056,7 +15055,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeInDuration: 0.2
   fadeOutDuration: 0.2
-  enableDebugLogs: 0
 --- !u!1 &981163553653979359
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,7 +36,7 @@ public class EnemyChaseState : IEnemyState
         moveSpeed = baseMoveSpeed * 1.1f; // BaseEnemy의 GetScaledMoveSpeed() * 1.1
         
         // 보스 전용 추격 시스템 초기화
-        if (enemy is Boss_SandElemental)
+        if (GetBossAttack(enemy) != null)
         {
             isChasing = false;
             isSpeedBoostActive = false;
@@ -69,7 +69,7 @@ public class EnemyChaseState : IEnemyState
             // ⭐ 엘리트/일반: 공격 범위 안쪽에서 자동 정지 (물리 밀기 방지)
             // attackCheckRange = 0.8x이므로 stoppingDistance는 반드시 0.8x 미만이어야 Attack 전환 조건 충족
             // 0.7x: 멈춘 지점(0.7x)이 attackCheckRange(0.8x) 안쪽 → 즉시 Attack 전환
-            if (!(enemy is Boss_SandElemental))
+            if (GetBossAttack(enemy) == null)
             {
                 baseEnemy.Agent.stoppingDistance = enemy.AttackRange * 0.7f;
             }
@@ -77,7 +77,7 @@ public class EnemyChaseState : IEnemyState
         }
         
         // ⭐ 보스 전용: 추격 시작 시간 기록
-        if (enemy is Boss_SandElemental)
+        if (GetBossAttack(enemy) != null)
         {
             chaseStartTime = Time.time;
             isSpeedBoostActive = false;
@@ -101,7 +101,7 @@ public class EnemyChaseState : IEnemyState
         
         // ⭐ 보스 전용: 리드 타겟팅 (플레이어 앞쪽 오프셋 지점으로 이동)
         Vector2 targetPosition = enemy.TargetPlayer.transform.position;
-        if (enemy is Boss_SandElemental)
+        if (GetBossAttack(enemy) != null)
         {
             Vector2 toPlayer = targetPosition - (Vector2)enemy.transform.position;
             Vector2 playerDirection = toPlayer.sqrMagnitude > 0.0001f ? toPlayer.normalized : Vector2.zero;
@@ -119,7 +119,7 @@ public class EnemyChaseState : IEnemyState
             }
             
             // ⭐ 보스 전용: 속도 증가 체크 및 적용
-            if (enemy is Boss_SandElemental)
+            if (GetBossAttack(enemy) != null)
             {
                 UpdateBossChaseSpeed();
                 baseEnemy.Agent.speed = moveSpeed; // NavMeshAgent 속도 동기화
@@ -136,7 +136,7 @@ public class EnemyChaseState : IEnemyState
             Vector2 dir = toTarget.sqrMagnitude > 0.0001f ? toTarget.normalized : Vector2.zero;
             
             // ⭐ 보스 전용: 속도 증가 체크 및 적용
-            if (enemy is Boss_SandElemental)
+            if (GetBossAttack(enemy) != null)
             {
                 UpdateBossChaseSpeed();
             }
@@ -155,28 +155,18 @@ public class EnemyChaseState : IEnemyState
         float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
         
         // ⭐ 보스 전용: 히스테리시스 적용 공격 범위 체크
-        if (enemy is Boss_SandElemental boss)
+        if (GetBossAttack(enemy) is BossAttackBehaviour bossAttackBehaviour)
         {
-            float attackRange = boss.AttackRange;
+            float attackRange = enemy.AttackRange;
             float chaseEndRange = attackRange - chaseEndHysteresis; // 추격 종료 거리
             float chaseStartRange = attackRange + chaseStartHysteresis; // 추격 시작 거리
-            float rangedSkillRange = 10f; // 원거리 스킬 사용 가능 범위
+            float rangedSkillRange = bossAttackBehaviour.RangedSkillRange;
             
-            // 평타 범위 내 진입 → Attack 상태 (평타 7:3 비율 적용)
-            if (!isChasing && dist <= chaseEndRange)
+            // 평타 범위 내 진입 → Attack 상태
+            if (dist <= chaseEndRange)
             {
                 isChasing = false;
-                isSpeedBoostActive = false; // 속도 증가 해제
-                moveSpeed = baseMoveSpeed * 1.1f;
-                enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
-                return;
-            }
-            
-            // 추격 중 범위 내 진입 → Attack 상태
-            if (isChasing && dist <= chaseEndRange)
-            {
-                isChasing = false;
-                isSpeedBoostActive = false; // 속도 증가 해제
+                isSpeedBoostActive = false;
                 moveSpeed = baseMoveSpeed * 1.1f;
                 enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                 return;
@@ -186,29 +176,25 @@ public class EnemyChaseState : IEnemyState
             if (!isChasing && dist > chaseStartRange)
             {
                 isChasing = true;
-                chaseStartTime = Time.time; // 추격 시작 시간 재설정
+                chaseStartTime = Time.time;
             }
             
             // 원거리 스킬 범위 내 → Attack 상태 (스킬 사용 가능할 때만)
-            if (dist <= rangedSkillRange)
+            if (dist <= rangedSkillRange && bossAttackBehaviour.CanAttack())
             {
-                // ⭐ 스킬 사용 가능할 때만 Attack 상태로 전환 (빈 공격 방지)
-                var bossAttack = boss.GetComponent<BossAttackBehaviour>();
-                if (bossAttack != null && bossAttack.CanAttack())
-                {
-                    enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
-                    return;
-                }
-                else
-                {
-                    // Chase 상태 유지, 평타 범위까지 계속 접근
-                }
+                isChasing = false;
+                isSpeedBoostActive = false;
+                moveSpeed = baseMoveSpeed * 1.1f;
+                enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                return;
             }
+            
+            return; // 보스는 아래 일반/엘리트 로직 건너뜀
         }
         
         // ⭐ 일반/엘리트 몬스터 공격 전환
         float attackCheckRange = enemy.AttackRange * 0.8f;
-        if (!(enemy is Boss_SandElemental) && dist <= attackCheckRange)
+        if (dist <= attackCheckRange)
         {
             // ⭐ 엘리트 전용: CanAttack() 확인 후 Attack 전환 (보스와 동일 방식)
             // 쿨다운 중에는 Attack 상태에 진입해도 no-op이 되므로 Chase 유지
@@ -265,11 +251,16 @@ public class EnemyChaseState : IEnemyState
         }
         
         // ⭐ 보스 전용: 추격 종료 시 상태 초기화
-        if (enemy is Boss_SandElemental)
+        if (GetBossAttack(enemy) != null)
         {
             isSpeedBoostActive = false;
             moveSpeed = baseMoveSpeed * 1.1f;
         }
+    }
+    
+    private BossAttackBehaviour GetBossAttack(IEnemy e)
+    {
+        return (e as BaseEnemy)?.GetComponent<BossAttackBehaviour>();
     }
     
     /// <summary>

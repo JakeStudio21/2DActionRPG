@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
+  m_Name: Enemy_Boss_ForesetElemental_profile
+  m_EditorClassIdentifier: 
+  profileId: Elite_Boar_profile
+  domain: Enemy
+  baseProfile: {fileID: 11400000, guid: ee84b71fff1a591459c185521fa40793, type: 2}
+  vfxCatalog:
+  - vfxId: DeathEnemyEffect
+    poolKey: Fx_EnemyDeath_Soul
+    duration: 1.5
+    offset: {x: 0, y: 0.5, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC804\uAC08 \uB3C5\uCE68 \uC77C\uBC18 \uACF5\uACA9 \uC774\uD399\uD2B8"
+  sfxCatalog:
+  - sfxId: DeathEnemySound
+    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    volume: 0.7
+    pitch: 1.2
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 50
+    cooldown: 0
+    note: "\uC804\uAC08 \uB3C5\uCE68 \uACF5\uACA9\uC74C (\uB192\uC740 \uD1A4)"
+  entries:
+  - eventKey: death.enemy.normal
+    vfxIds:
+    - DeathEnemyEffect
+    sfxIds:
+    - DeathEnemySound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 40
+    note: "\uC804\uAC08 \uC77C\uBC18 \uB3C5\uCE68 \uACF5\uACA9 (\uB3C5 \uC774\uD399\uD2B8
+      \uD3EC\uD568)"
+  - eventKey: death.enemy.boss
+    vfxIds:
+    - DeathEnemyEffect
+    sfxIds:
+    - DeathEnemySound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 40
+    note: "\uC804\uAC08 \uC77C\uBC18 \uB3C5\uCE68 \uACF5\uACA9 (\uB3C5 \uC774\uD399\uD2B8
+      \uD3EC\uD568)"
+  description: "\uC2A4\uCF5C\uD53C\uC628(\uC804\uAC08) \uC804\uC6A9 Cue \uD504\uB85C\uD544
+    - \uB3C5\uCE68 \uACF5\uACA9\uACFC \uB3C5 \uC774\uD399\uD2B8 \uD2B9\uD654"

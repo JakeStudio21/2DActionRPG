@@ -20,15 +20,17 @@ public class EnemyAttackState : IEnemyState
     public void Enter()
     {
         
-        // ⭐ 1번: 공격 시작 전 거리 체크 (엄격한 범위 체크로 허공 공격 방지)
+        // ⭐ 1번: 공격 시작 전 거리 체크
         if (enemy.TargetPlayer != null)
         {
             float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
             
-            // ⭐⭐⭐ 모든 몬스터 실제 공격 범위로 엄격하게 체크 (플레이어 넉백 고려)
-            float rangeThreshold = enemy.AttackRange; // 1.0배 (엄격)
+            // 보스는 원거리 스킬 범위까지 허용, 일반/엘리트는 평타 범위로 엄격 체크
+            float rangeThreshold = enemy.AttackRange;
+            var bossAttack = GetBossAttack(enemy);
+            if (bossAttack != null)
+                rangeThreshold = bossAttack.RangedSkillRange;
             
-            // 공격 범위 밖이면 추격 상태로 전환
             if (dist > rangeThreshold)
             {
                 enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
@@ -83,11 +85,10 @@ public class EnemyAttackState : IEnemyState
             {
                 float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
                 
-                // ⭐⭐⭐ 공격 범위 밖이면 즉시 추격 상태로 전환 (엄격한 체크)
-                if (enemy is Boss_SandElemental)
+                var bossAttack = GetBossAttack(enemy);
+                if (bossAttack != null)
                 {
-                    float chaseStartRange = enemy.AttackRange + 1.5f;
-                    if (dist > chaseStartRange)
+                    if (dist > bossAttack.RangedSkillRange)
                     {
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                         return;
@@ -120,24 +121,25 @@ public class EnemyAttackState : IEnemyState
             {
                 float dist = Vector2.Distance(enemy.transform.position, enemy.TargetPlayer.transform.position);
                 
-                // ⭐ 보스 전용: 히스테리시스 적용
-                if (enemy is Boss_SandElemental)
+                // ⭐ 보스 전용: 히스테리시스 적용 (평타 범위 / 원거리 스킬 범위 기반)
+                var bossAttack = GetBossAttack(enemy);
+                if (bossAttack != null)
                 {
                     float attackRange = enemy.AttackRange;
                     float chaseEndRange = attackRange - 0.5f;
                     float chaseStartRange = attackRange + 1.5f;
-                    float rangedSkillRange = 10f;
+                    float rangedSkillRange = bossAttack.RangedSkillRange;
                     
                     if (dist <= chaseEndRange)
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                     else if (dist <= chaseStartRange)
                         enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
-                    else if (dist <= rangedSkillRange)
+                    else if (dist <= rangedSkillRange && bossAttack.CanAttack())
                         enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
                     else
-                        enemy.FSMController.ChangeState(new EnemyIdleState(enemy));
+                        enemy.FSMController.ChangeState(new EnemyChaseState(enemy));
                 }
-                // 일반 몬스터는 엄격한 범위 체크 적용
+                // 일반/엘리트 몬스터는 엄격한 범위 체크 적용
                 else
                 {
                     if (dist <= enemy.AttackRange * 0.95f)
@@ -177,6 +179,11 @@ public class EnemyAttackState : IEnemyState
         }
         
         // 상태 종료 시 미스 카운트는 유지 (다음 공격 상태 진입 시 연속성 유지)
+    }
+    
+    private BossAttackBehaviour GetBossAttack(IEnemy e)
+    {
+        return (e as BaseEnemy)?.GetComponent<BossAttackBehaviour>();
     }
     
     /// <summary>

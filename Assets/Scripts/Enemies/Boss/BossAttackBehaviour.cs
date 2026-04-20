@@ -21,6 +21,11 @@ public class BossAttackBehaviour : BaseAttackBehaviour
     [Header("📏 거리 설정")]
     [Tooltip("근거리 공격 범위 (이 안에 있으면 근거리 스킬 사용)")]
     [SerializeField] private float meleeAttackRange = 6f;
+    [Tooltip("원거리 스킬 사용 범위 (이 안에 있으면 Attack 상태 진입)")]
+    [SerializeField] private float rangedSkillRange = 10f;
+    
+    public float MeleeAttackRange => meleeAttackRange;
+    public float RangedSkillRange => rangedSkillRange;
     
     [Header("⏱️ 스킬 개별 쿨다운")]
     private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();

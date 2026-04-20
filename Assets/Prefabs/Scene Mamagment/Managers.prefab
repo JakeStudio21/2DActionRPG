@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ImpulseDefinition:
     m_ImpulseChannel: 1
-    m_ImpulseShape: 2
+    m_ImpulseShape: 3
     m_CustomImpulseShape:
       serializedVersion: 2
       m_Curve: []
@@ -100,7 +100,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   globalShakeMultiplier: 1
   shakeCooldown: 0.05
-  showDebugLogs: 0
 --- !u!1 &1149777301974655105
 GameObject:
   m_ObjectHideFlags: 0

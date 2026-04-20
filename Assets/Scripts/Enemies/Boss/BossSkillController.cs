@@ -18,6 +18,7 @@ public class BossSkillController : MonoBehaviour
     [SerializeField] private BossDashSkill dashSkill;
     [SerializeField] private BossAOESkill aoeSkill;
     [SerializeField] private BossMultiShotSkill multiShotSkill;
+    [SerializeField] private BossMeteorShowerSkill meteorShowerSkill;
     
     [Header("🎯 현재 스킬 상태")]
     [SerializeField] private BossSkillEntry currentSkillEntry; // 스킬 + 스케일 정보
@@ -26,6 +27,10 @@ public class BossSkillController : MonoBehaviour
     
     [Header("📍 텔레그래프")]
     private GameObject activeTelegraph;
+    
+    // 메테오 샤워 코루틴 완료 대기 플래그
+    // StateMachineBehaviour의 OnSkillActionComplete 조기 호출 방지
+    private bool meteorShowerPending = false;
     
     [Header("🎯 스킬 타겟 정보")]
     private Vector3 cachedTargetDirection; // Cast 시작 시점의 플레이어 방향 (싱크 맞춤용)
@@ -57,6 +62,9 @@ public class BossSkillController : MonoBehaviour
         
         if (multiShotSkill == null)
             multiShotSkill = GetComponent<BossMultiShotSkill>();
+        
+        if (meteorShowerSkill == null)
+            meteorShowerSkill = GetComponent<BossMeteorShowerSkill>();
     }
     
     private void Start()
@@ -118,8 +126,19 @@ public class BossSkillController : MonoBehaviour
         // Cast 이펙트 생성
         SpawnCastEffect();
         
-        // Telegraph 생성 (경고 표시)
-        SpawnTelegraph();
+        string castSkillName = currentSkillEntry?.skillData?.SkillName;
+        
+        if (castSkillName == "Boss_MeteorShower" && meteorShowerSkill != null)
+        {
+            // 메테오 샤워: 위치 생성 → 다중 텔레그래프 동시 표시
+            meteorShowerSkill.PreparePositions(cachedTargetPosition, currentSkillEntry);
+            meteorShowerSkill.SpawnAllTelegraphs(currentSkillEntry);
+        }
+        else
+        {
+            // 일반 스킬: 단일 텔레그래프
+            SpawnTelegraph();
+        }
         
         // ⭐ Cast Time 후 자동으로 Action 트리거 (StateMachineBehaviour Exit 대신)
         StartCoroutine(AutoTriggerSkillActionAfterCastTime());
@@ -174,6 +193,12 @@ public class BossSkillController : MonoBehaviour
                     
                     case "Boss_SpiralFire":
                         animator.SetTrigger("Skill4Action");
+                        break;
+                    
+                    case "Boss_MeteorShower":
+                        // 전용 액션 애니메이션이 없으므로 Skill2Action 재사용 (SkillAction 트리거는 Transition 미연결)
+                        animator.SetTrigger("Skill2Action");
+                        animator.SetBool("isSkillCasting", false);
                         break;
                     
                     default:
@@ -265,6 +290,20 @@ public class BossSkillController : MonoBehaviour
                 }
                 break;
             
+            case "Boss_MeteorShower":
+                // 텔레그래프는 BossMeteorShowerSkill이 직접 관리하므로 RemoveTelegraph() 불필요
+                if (meteorShowerSkill != null)
+                {
+                    meteorShowerPending = true;
+                    meteorShowerSkill.ExecuteMeteorShower(currentSkillEntry, OnMeteorShowerComplete);
+                }
+                else
+                {
+                    Debug.LogError($"[BossSkillController] BossMeteorShowerSkill 컴포넌트가 없습니다!");
+                    OnSkillActionComplete();
+                }
+                break;
+            
             default:
                 Debug.LogWarning($"[BossSkillController] 알 수 없는 스킬: {skillName}");
                 break;
@@ -272,10 +311,23 @@ public class BossSkillController : MonoBehaviour
     }
     
     /// <summary>
+    /// 메테오 샤워 코루틴 완료 콜백 (BossMeteorShowerSkill → 여기로 복귀)
+    /// </summary>
+    private void OnMeteorShowerComplete()
+    {
+        meteorShowerPending = false;
+        OnSkillActionComplete();
+    }
+    
+    /// <summary>
     /// 스킬 액션 완료 (StateMachineBehaviour 콜백)
     /// </summary>
     public void OnSkillActionComplete()
     {
+        // 메테오 샤워 코루틴이 아직 실행 중이면 완료를 미룸
+        // (StateMachineBehaviour의 조기 호출 방지 - 실제 완료는 OnMeteorShowerComplete에서)
+        if (meteorShowerPending) return;
+        
         if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
         
         isActionExecuting = false;
@@ -337,12 +389,17 @@ public class BossSkillController : MonoBehaviour
             }
         }
         
-        // 텔레그래프 정리
+        // 텔레그래프 정리 (단일)
         if (activeTelegraph != null)
         {
             Destroy(activeTelegraph);
             activeTelegraph = null;
         }
+        
+        // 메테오 샤워 취소 (다중 텔레그래프 + 진행 중 코루틴 + VFX 전부 정리)
+        meteorShowerPending = false;
+        if (meteorShowerSkill != null)
+            meteorShowerSkill.Cancel();
         
         // 스킬 엔트리 초기화 (OnSkillComplete는 호출하지 않음 - 강제 취소이므로)
         currentSkillEntry = null;

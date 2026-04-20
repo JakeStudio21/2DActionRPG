@@ -147,6 +147,10 @@ public class SkillData : ScriptableObject
     [Tooltip("데미지 윈도우 지속시간 (초, 0이면 즉시 판정)")]
     [SerializeField] private float damageWindow = 0f;
 
+    [Header("📳 카메라 진동")]
+    [Tooltip("스킬 착탄/발동 시 카메라 진동 설정\nuseShake = false 면 비활성화 (기존 스킬 영향 없음)")]
+    [SerializeField] private ShakeData impactShake;
+
     [Header("⚡ 데미지 정책 (Phase 3: Window/Tick)")]
     [Tooltip("Once: 즉시 1회 판정 (기본값, 플레이어 스킬)\nWindow: 지속시간 동안 1회만 (보스 지속 장판)\nTick: 주기적 반복 판정 (DoT 장판)")]
     [SerializeField] private AOEDamagePolicy aoeDamagePolicy = AOEDamagePolicy.Once;
@@ -192,6 +196,8 @@ public class SkillData : ScriptableObject
     public SkillTimingMode DamageMode => damageMode;
     public float DamageTime => damageTime;
     public float DamageWindow => damageWindow;
+    
+    public ShakeData ImpactShake => impactShake;
     
     // ⭐ Phase 3: 데미지 정책 Properties
     public AOEDamagePolicy AoeDamagePolicy => aoeDamagePolicy;
