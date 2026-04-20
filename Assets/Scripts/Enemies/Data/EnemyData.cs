@@ -32,6 +32,11 @@ public class EnemyData : ScriptableObject
     [Header("⚡ 피격 효과 설정")]
     [Tooltip("넉백 강도")]
     [SerializeField] private float knockBackThrust = 15f;
+
+    [Tooltip("피격 반응 설정 (포이즈·스태거·넉백 배율)\n" +
+             "비워두면 항상 스태거 (일반 몬스터 기본 동작 유지)\n" +
+             "Elite → HitReaction_Elite / Boss → HitReaction_Boss 할당")]
+    [SerializeField] private HitReactionData hitReactionData;
     
     [Tooltip("사망 이펙트 프리팹 경로 (Resources 폴더 기준)")]
     [SerializeField] private string deathVFXPrefabPath = "";
@@ -117,6 +122,7 @@ public class EnemyData : ScriptableObject
     
     // ⭐ 새 필드들 Properties
     public float KnockBackThrust => knockBackThrust;
+    public HitReactionData HitReactionData => hitReactionData;
     public string DeathVFXPrefabPath => deathVFXPrefabPath;
     
     // ⭐ 프리팹 참조 Properties (풀링 시스템용)

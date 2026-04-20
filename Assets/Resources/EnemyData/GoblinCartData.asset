@@ -23,6 +23,7 @@ MonoBehaviour:
   chaseRange: 12
   patrolRadius: 8
   knockBackThrust: 5
+  hitReactionData: {fileID: 11400000, guid: ec4fe6e1c1f4f8940a62aedb37cbff59, type: 2}
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
   deathVFXPrefab: {fileID: 0}

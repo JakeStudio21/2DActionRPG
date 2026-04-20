@@ -30,6 +30,8 @@ GameObject:
   - component: {fileID: 8998232531007038718}
   - component: {fileID: 8850095142723809195}
   - component: {fileID: 8542788501196903482}
+  - component: {fileID: -1960853343549409276}
+  - component: {fileID: -6325526096749746255}
   m_Layer: 6
   m_Name: Boss_ForestElemental
   m_TagString: Enemy
@@ -546,6 +548,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   propEnabled: _OutlineEnabled
   propThicknessMult: _ThicknessMult
+--- !u!114 &-1960853343549409276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff41a3ed02e4bf34aad681a3cd968f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-6325526096749746255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41372ac070812194cb3f3e859e7c8941, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActive: 1
 --- !u!1 &3912020419606282628
 GameObject:
   m_ObjectHideFlags: 0

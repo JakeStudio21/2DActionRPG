@@ -41,6 +41,9 @@ public class BossSkillController : MonoBehaviour
     public bool IsActionExecuting => isActionExecuting;
     public SkillData CurrentSkill => currentSkillEntry?.skillData;
     
+    // 슈퍼아머 컴포넌트 (있을 경우에만 동작, 없으면 무시)
+    private SuperArmorHandler superArmorHandler;
+    
     private void Awake()
     {
         // 컴포넌트 자동 참조
@@ -52,6 +55,8 @@ public class BossSkillController : MonoBehaviour
         
         if (phaseController == null)
             phaseController = GetComponent<BossPhaseController>();
+        
+        superArmorHandler = GetComponent<SuperArmorHandler>();
         
         // ⭐ 스킬 패턴 스크립트 자동 참조
         if (dashSkill == null)
@@ -90,6 +95,8 @@ public class BossSkillController : MonoBehaviour
         currentSkillEntry = skillEntry;
         isCasting = true;
         
+        // 스킬 시작 시 슈퍼아머 활성화
+        superArmorHandler?.Activate();
         
         // 애니메이션 트리거
         if (animController != null)
@@ -330,6 +337,9 @@ public class BossSkillController : MonoBehaviour
         
         if (currentSkillEntry == null || currentSkillEntry.skillData == null) return;
         
+        // 슈퍼아머 비활성화 (스킬 정상 완료)
+        superArmorHandler?.Deactivate();
+        
         isActionExecuting = false;
         
         // ⭐ Animator 파라미터 업데이트
@@ -367,6 +377,8 @@ public class BossSkillController : MonoBehaviour
         // 스킬 실행 중이 아니면 무시
         if (!isCasting && !isActionExecuting) return;
         
+        // 슈퍼아머 비활성화
+        superArmorHandler?.Deactivate();
         
         // 상태 플래그 리셋
         isCasting = false;

@@ -90,6 +90,12 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
     /// ⚠️ Agent.enabled 체크 제거 (순환 논리 방지)
     /// </summary>
     public bool IsUsingNavMesh => useNavMesh && Agent != null;
+
+    /// <summary>
+    /// 다음 스태거 시 적용할 넉백 배율 (0 = 넉백 없음, 1 = 기본)
+    /// EnemyHealth.TakeDamage → PoiseHandler → 이 값을 설정 → PerformKnockbackEffect에서 소비
+    /// </summary>
+    public float PendingKnockbackScale { get; set; } = 1f;
     
     #endregion
     
@@ -822,9 +828,14 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             yield break;
         }
         
+        // 넉백 배율 소비 (0이면 넉백 없이 종료)
+        float scale = PendingKnockbackScale;
+        PendingKnockbackScale = 1f; // 소비 후 기본값 복원
+        if (scale <= 0f) yield break;
+        
         // ⚙️ 연출 넉백 설정값
-        float retreatDistance = 0.8f;  // 후퇴 거리 (0.8 유닛)
-        float retreatDuration = 0.25f; // 후퇴 시간 (0.25초)
+        float retreatDistance = 0.8f * scale; // 후퇴 거리에 배율 적용
+        float retreatDuration = 0.25f;         // 후퇴 시간 (0.25초)
         float elapsed = 0f;
         
         // 후퇴 방향 계산 (데미지 받은 반대쪽)

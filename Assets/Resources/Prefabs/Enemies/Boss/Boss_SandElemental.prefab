@@ -32,6 +32,8 @@ GameObject:
   - component: {fileID: -207883506805998640}
   - component: {fileID: -6330058761899472109}
   - component: {fileID: -4060484971758967982}
+  - component: {fileID: -3311042846892124236}
+  - component: {fileID: 4694411465107003453}
   m_Layer: 6
   m_Name: Boss_SandElemental
   m_TagString: Enemy
@@ -215,7 +217,6 @@ MonoBehaviour:
   animator: {fileID: 4045494338668433670}
   spriteRenderer: {fileID: 0}
   useIsometricData: 1
-  showDebugLogs: 0
   startMoveThreshold: 0.12
   stopMoveThreshold: 0.06
 --- !u!95 &4045494338668433670
@@ -368,7 +369,6 @@ MonoBehaviour:
   currentPhaseIndex: 0
   isTransitioning: 0
   isInvincible: 0
-  enableDebugLogs: 1
 --- !u!114 &-6477805641063854489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,7 +392,7 @@ MonoBehaviour:
   meleeAttack: {fileID: 0}
   globalAttackCooldown: 1.5
   meleeAttackRange: 6
-  enableDebugLogs: 1
+  rangedSkillRange: 10
 --- !u!114 &5093505229533745824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,10 +410,10 @@ MonoBehaviour:
   currentLevel: 1
   cueProfile: {fileID: 0}
   useNavMesh: 1
+  navMeshAcceleration: 0
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
-  enableDebugLogs: 1
   meleeAttack: {fileID: 0}
   phaseController: {fileID: 0}
   bossAttack: {fileID: 0}
@@ -463,6 +463,7 @@ MonoBehaviour:
   dashSkill: {fileID: 0}
   aoeSkill: {fileID: 0}
   multiShotSkill: {fileID: 0}
+  meteorShowerSkill: {fileID: 0}
   currentSkillEntry:
     skillData: {fileID: 0}
     weight: 15
@@ -472,7 +473,6 @@ MonoBehaviour:
     skillDescription: 
   isCasting: 0
   isActionExecuting: 0
-  enableDebugLogs: 1
 --- !u!114 &3412258947461422548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,7 +487,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
   baseDashSpeed: 15
-  enableDebugLogs: 1
 --- !u!114 &-6743165854896849057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,7 +500,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
-  enableDebugLogs: 1
 --- !u!114 &-7579856380117773579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -523,7 +521,6 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
   projectileSpeed: 8
   projectileLifetime: 5
-  enableDebugLogs: 1
 --- !u!195 &-207883506805998640
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -577,6 +574,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   propEnabled: _OutlineEnabled
   propThicknessMult: _ThicknessMult
+--- !u!114 &-3311042846892124236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff41a3ed02e4bf34aad681a3cd968f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4694411465107003453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41372ac070812194cb3f3e859e7c8941, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActive: 1
 --- !u!1 &3912020419606282628
 GameObject:
   m_ObjectHideFlags: 0

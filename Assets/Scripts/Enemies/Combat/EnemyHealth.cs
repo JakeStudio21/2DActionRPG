@@ -31,6 +31,10 @@ public class EnemyHealth : MonoBehaviour
     // ⭐ 데이터 기반 시스템
     private BaseEnemy baseEnemy;
     
+    // 포이즈 / 슈퍼아머 시스템
+    private PoiseHandler poiseHandler;
+    private SuperArmorHandler superArmorHandler;
+    
     // ⭐ 사망 관련 상태 플래그들을 명확히 분리
     public bool isDead = false;                    // 데미지 받기 차단용 (즉시 설정)
     private bool isDeathAnimationPlaying = false;  // 사망 애니메이션 재생 중
@@ -64,6 +68,10 @@ public class EnemyHealth : MonoBehaviour
         
         // ⭐ 새 시스템: BaseEnemy 참조 획득
         baseEnemy = GetComponent<BaseEnemy>();
+        
+        // 포이즈 / 슈퍼아머 컴포넌트 (없어도 정상 동작 — 기존 스태거 폴백)
+        poiseHandler = GetComponent<PoiseHandler>();
+        superArmorHandler = GetComponent<SuperArmorHandler>();
     }
 
     private void Start()
@@ -71,6 +79,9 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 새 시스템: 데이터 기반 체력 계산
         currentHealth = CalculateMaxHealth();
         
+        // PoiseHandler 초기화 (HitReactionData 주입)
+        if (poiseHandler != null && baseEnemy?.EnemyData?.HitReactionData != null)
+            poiseHandler.Initialize(baseEnemy.EnemyData.HitReactionData);
         
         // ⭐ 엘리트/보스 체력바 생성
         InitializeHealthBar();
@@ -311,37 +322,42 @@ public class EnemyHealth : MonoBehaviour
             // ⭐ 살아있을 때만 넉백 및 Hit 상태 전환
             StartCoroutine(flash.FlashRoutine());
             
-            // ⭐⭐⭐ 넉백 분기 처리 (NavMesh vs 물리 넉백)
-            if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+            // 포이즈 시스템: 스태거 여부 판단
+            bool shouldStagger = poiseHandler != null
+                ? poiseHandler.TryApplyHitReaction()
+                : true; // PoiseHandler 없음 → 항상 스태거 (기존 동작 유지)
+
+            if (shouldStagger && !(superArmorHandler != null && superArmorHandler.IsActive))
             {
-                // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행
-                // Knockback 컴포넌트 불필요!
-            }
-            else
-            {
-                // 비-NavMesh 몬스터: 기존 물리 넉백 사용
-                if (knockback != null)
+                float knockbackScale = poiseHandler != null ? poiseHandler.KnockbackMultiplier : 1f;
+                
+                // ⭐⭐⭐ 넉백 분기 처리 (NavMesh vs 물리 넉백)
+                if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
                 {
-                    float knockBackThrust = CalculateKnockBackThrust();
-                    knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
+                    // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행 (knockbackScale은 BaseEnemy에서 참조)
+                    baseEnemy.PendingKnockbackScale = knockbackScale;
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name} 비-NavMesh 몬스터인데 Knockback 컴포넌트가 없습니다!");
+                    // 비-NavMesh 몬스터: 기존 물리 넉백 사용
+                    if (knockback != null && knockbackScale > 0f)
+                    {
+                        float knockBackThrust = CalculateKnockBackThrust() * knockbackScale;
+                        knockback.GetKnockedBack(FindObjectOfType<PlayerController>().transform, knockBackThrust);
+                    }
+                    else if (knockback == null)
+                    {
+                        Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name} 비-NavMesh 몬스터인데 Knockback 컴포넌트가 없습니다!");
+                    }
                 }
-            }
-            
-            // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
-            var bossSkillController = GetComponent<BossSkillController>();
-            if (bossSkillController != null)
-            {
-                bossSkillController.ForceCancelSkill();
-            }
-            
-            if (enemyFSM != null && enemyFSM.FSMController != null)
-            {
-                // 현재 상태를 저장하고 Hit 상태로 전환
-                enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
+                
+                // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
+                var bossSkillController = GetComponent<BossSkillController>();
+                if (bossSkillController != null)
+                    bossSkillController.ForceCancelSkill();
+                
+                if (enemyFSM != null && enemyFSM.FSMController != null)
+                    enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
             }
         }
     }
@@ -434,37 +450,42 @@ public class EnemyHealth : MonoBehaviour
             // ⭐ 살아있을 때만 넉백 및 Hit 상태 전환
             StartCoroutine(flash.FlashRoutine());
             
-            // ⭐⭐⭐ 넉백 분기 처리 (NavMesh vs 물리 넉백)
-            if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
+            // 포이즈 시스템: 스태거 여부 판단
+            bool shouldStagger = poiseHandler != null
+                ? poiseHandler.TryApplyHitReaction()
+                : true; // PoiseHandler 없음 → 항상 스태거 (기존 동작 유지)
+
+            if (shouldStagger && !(superArmorHandler != null && superArmorHandler.IsActive))
             {
-                // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행
-                // Knockback 컴포넌트 불필요!
-            }
-            else
-            {
-                // 비-NavMesh 몬스터: 기존 물리 넉백 사용
-                if (knockback != null)
+                float knockbackScale = poiseHandler != null ? poiseHandler.KnockbackMultiplier : 1f;
+                
+                // ⭐⭐⭐ 넉백 분기 처리 (NavMesh vs 물리 넉백)
+                if (baseEnemy != null && baseEnemy.IsUsingNavMesh)
                 {
-                    float knockBackThrust = CalculateKnockBackThrust();
-                    knockback.GetKnockedBack(hitTransform, knockBackThrust);
+                    // NavMesh 몬스터: EnemyHitState에서 연출 넉백 실행 (knockbackScale은 BaseEnemy에서 참조)
+                    baseEnemy.PendingKnockbackScale = knockbackScale;
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name} 비-NavMesh 몬스터인데 Knockback 컴포넌트가 없습니다!");
+                    // 비-NavMesh 몬스터: 기존 물리 넉백 사용
+                    if (knockback != null && knockbackScale > 0f)
+                    {
+                        float knockBackThrust = CalculateKnockBackThrust() * knockbackScale;
+                        knockback.GetKnockedBack(hitTransform, knockBackThrust);
+                    }
+                    else if (knockback == null)
+                    {
+                        Debug.LogWarning($"⚠️ [EnemyHealth] {gameObject.name} 비-NavMesh 몬스터인데 Knockback 컴포넌트가 없습니다!");
+                    }
                 }
-            }
-            
-            // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
-            var bossSkillController = GetComponent<BossSkillController>();
-            if (bossSkillController != null)
-            {
-                bossSkillController.ForceCancelSkill();
-            }
-            
-            if (enemyFSM != null && enemyFSM.FSMController != null)
-            {
-                // 현재 상태를 저장하고 Hit 상태로 전환
-                enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
+                
+                // ⭐ 보스 스킬 실행 중이면 강제 취소 (피격 시 스킬 상태가 막히는 버그 방지)
+                var bossSkillController = GetComponent<BossSkillController>();
+                if (bossSkillController != null)
+                    bossSkillController.ForceCancelSkill();
+                
+                if (enemyFSM != null && enemyFSM.FSMController != null)
+                    enemyFSM.FSMController.ChangeState(new EnemyHitState(enemyFSM, null));
             }
         }
     }

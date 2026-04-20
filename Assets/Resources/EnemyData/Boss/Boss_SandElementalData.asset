@@ -23,6 +23,7 @@ MonoBehaviour:
   chaseRange: 20
   patrolRadius: 5
   knockBackThrust: 1.5
+  hitReactionData: {fileID: 11400000, guid: 737e6c887f7e365469c23ebdeeea8c15, type: 2}
   deathVFXPrefabPath: 
   enemyPrefab: {fileID: 3235174918318939483, guid: 6512646250efc2742a7ab424a84ea442, type: 3}
   deathVFXPrefab: {fileID: 0}
@@ -43,6 +44,7 @@ MonoBehaviour:
   bossId: 
   baseGoldReward: 20
   baseExpReward: 40
+  bossReward: {fileID: 0}
   dropGroupId: DROP_BLUESLIME_001
   dropRolls: 1
   patrolTuning: {fileID: 11400000, guid: 8f7cfd435d142544cb5ea88f11c38f38, type: 2}

@@ -28,6 +28,7 @@ GameObject:
   - component: {fileID: 3765800727767382200}
   - component: {fileID: -4932067162203504823}
   - component: {fileID: 1683825158259025705}
+  - component: {fileID: 5560783738378888130}
   m_Layer: 6
   m_Name: Elite_SandGolem
   m_TagString: Enemy
@@ -212,7 +213,6 @@ MonoBehaviour:
   animator: {fileID: 4045494338668433670}
   spriteRenderer: {fileID: 0}
   useIsometricData: 1
-  showDebugLogs: 0
   startMoveThreshold: 0.12
   stopMoveThreshold: 0.06
 --- !u!95 &4045494338668433670
@@ -376,10 +376,10 @@ MonoBehaviour:
   currentLevel: 1
   cueProfile: {fileID: 0}
   useNavMesh: 1
+  navMeshAcceleration: 0
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 3
   spawnPosition: {x: 0, y: 0, z: 0}
-  enableDebugLogs: 1
   meleeAttack: {fileID: 0}
   skillController: {fileID: 0}
   eliteAttack: {fileID: 0}
@@ -428,9 +428,9 @@ MonoBehaviour:
   currentSkill: {fileID: 0}
   isCasting: 0
   isActionExecuting: 0
+  dashSkill: {fileID: 0}
   aoeOffset: {x: 0, y: 3, z: 0}
   skillSpawnPoint: {fileID: 505429217177140206}
-  enableDebugLogs: 1
 --- !u!114 &5211488974049482479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,7 +452,6 @@ MonoBehaviour:
   skillController: {fileID: 0}
   meleeAttack: {fileID: 0}
   globalAttackCooldown: 1.5
-  enableDebugLogs: 1
   trackStatistics: 1
 --- !u!195 &3765800727767382200
 NavMeshAgent:
@@ -507,6 +506,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   propEnabled: _OutlineEnabled
   propThicknessMult: _ThicknessMult
+--- !u!114 &5560783738378888130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff41a3ed02e4bf34aad681a3cd968f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5935677080312344865
 GameObject:
   m_ObjectHideFlags: 0
