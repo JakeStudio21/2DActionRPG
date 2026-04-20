@@ -96,7 +96,40 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
     /// EnemyHealth.TakeDamage → PoiseHandler → 이 값을 설정 → PerformKnockbackEffect에서 소비
     /// </summary>
     public float PendingKnockbackScale { get; set; } = 1f;
-    
+
+    /// <summary>
+    /// FSM이 AttackState에 진입하는 기준 거리 (범용 유틸)
+    /// 근접 공격 범위 · 엘리트 스킬 범위 · 보스 원거리 스킬 범위 중 최댓값을 반환한다.
+    ///
+    /// 사용처: Elite/Boss 클래스의 AttackRange override
+    ///   public override float AttackRange => GetFSMAttackRange();
+    ///
+    /// 주의: GenericMeleeEnemy / GenericRangedEnemy 등 스킬이 없는 클래스는
+    ///       각자의 AttackRange 구현을 유지하고 이 메서드를 호출하지 않는다.
+    /// </summary>
+    protected float GetFSMAttackRange()
+    {
+        float meleeRange = 0f;
+        float skillRange = 0f;
+
+        // 평타 공격 범위
+        var melee = GetComponent<MeleeAttack>();
+        if (melee?.AttackData != null)
+            meleeRange = melee.AttackData.AttackRange;
+
+        // 엘리트 스킬 최대 사거리 (SkillData.MaxRange 중 최대)
+        var eliteSkill = GetComponent<EliteSkillController>();
+        if (eliteSkill != null)
+            skillRange = Mathf.Max(skillRange, eliteSkill.GetMaxSkillRange());
+
+        // 보스 원거리 스킬 사거리 (BossAttackBehaviour.RangedSkillRange)
+        var bossAttack = GetComponent<BossAttackBehaviour>();
+        if (bossAttack != null)
+            skillRange = Mathf.Max(skillRange, bossAttack.RangedSkillRange);
+
+        return Mathf.Max(meleeRange, skillRange);
+    }
+
     #endregion
     
     /// <summary>

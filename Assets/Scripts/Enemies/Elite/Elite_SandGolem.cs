@@ -14,15 +14,8 @@ public class Elite_SandGolem : BaseEnemy
 
     #region ⭐ BaseEnemy 추상 속성 구현 - 완전한 데이터 기반
 
-    public override float AttackRange 
-    { 
-        get 
-        {
-            if (meleeAttack != null && meleeAttack.AttackData != null)
-                return meleeAttack.AttackData.AttackRange;
-            return 1.5f;
-        } 
-    }
+    // FSM AttackState 진입 거리: 평타 범위 vs 스킬 범위 중 큰 값 (BaseEnemy 유틸 사용)
+    public override float AttackRange => GetFSMAttackRange();
     
     public override float DetectionRange
     {

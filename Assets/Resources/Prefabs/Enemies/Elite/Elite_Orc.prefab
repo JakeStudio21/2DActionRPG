@@ -29,6 +29,7 @@ GameObject:
   - component: {fileID: -6354375214195294112}
   - component: {fileID: -4866438399711206347}
   - component: {fileID: -3635631379248133973}
+  - component: {fileID: -3041231887483114920}
   m_Layer: 6
   m_Name: Elite_Orc
   m_TagString: Enemy
@@ -413,6 +414,7 @@ MonoBehaviour:
   isCasting: 0
   isActionExecuting: 0
   dashSkill: {fileID: 0}
+  jumpSkill: {fileID: 0}
   aoeOffset: {x: 0, y: 3, z: 0}
   skillSpawnPoint: {fileID: 505429217177140206}
 --- !u!114 &5211488974049482479
@@ -502,6 +504,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff41a3ed02e4bf34aad681a3cd968f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-3041231887483114920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bea302936e0b974bb0d23344b07e4fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpHeight: 3.5
+  jumpDuration: 0.8
+  landingShakeData:
+    useShake: 1
+    intensity: 1
+    duration: 0.2
+    delay: 0
 --- !u!1 &5935677080312344865
 GameObject:
   m_ObjectHideFlags: 0

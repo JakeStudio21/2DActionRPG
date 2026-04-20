@@ -26,6 +26,10 @@ public class EliteSkillController : MonoBehaviour
     [Tooltip("SkillType.Dash 전용 실행 컴포넌트")]
     [SerializeField] private EliteDashSkill dashSkill;
 
+    [Header("🦘 점프 스킬")]
+    [Tooltip("SkillType.Jump 전용 실행 컴포넌트")]
+    [SerializeField] private EliteJumpSkill jumpSkill;
+
     [Header("📍 텔레그래프")]
     private GameObject activeTelegraph;
     
@@ -57,6 +61,9 @@ public class EliteSkillController : MonoBehaviour
 
         if (dashSkill == null)
             dashSkill = GetComponent<EliteDashSkill>();
+
+        if (jumpSkill == null)
+            jumpSkill = GetComponent<EliteJumpSkill>();
     }
 
     private void Start()
@@ -243,11 +250,15 @@ public class EliteSkillController : MonoBehaviour
         // Telegraph 제거 (데미지 판정 직전)
         RemoveTelegraph();
 
-        // ⭐ SkillType 분기: Dash는 EliteDashSkill, 나머지는 기존 DamageArea
+        // ⭐ SkillType 분기: Dash/Jump는 전용 컴포넌트, 나머지는 기존 DamageArea
         switch (currentSkill.SkillType)
         {
             case SkillType.Dash:
                 ExecuteDashSkill();
+                break;
+
+            case SkillType.Jump:
+                ExecuteJumpSkill();
                 break;
 
             default:
@@ -265,13 +276,42 @@ public class EliteSkillController : MonoBehaviour
         {
             Debug.LogError($"[EliteSkillController] {gameObject.name}: EliteDashSkill 컴포넌트가 없습니다! " +
                            "GameObject에 EliteDashSkill을 추가하거나 Inspector에서 할당해주세요.");
-            // 폴백: 기존 DamageArea로 대체
             SpawnDamageArea();
             return;
         }
 
-
         dashSkill.Execute(currentSkill, cachedTargetDirection, baseEnemy);
+    }
+
+    /// <summary>
+    /// SkillType.Jump 실행 - EliteJumpSkill 컴포넌트에 위임
+    /// 착지 완료 시 OnJumpLanded() 콜백으로 DamageArea 생성
+    /// </summary>
+    private void ExecuteJumpSkill()
+    {
+        if (jumpSkill == null)
+        {
+            Debug.LogError($"[EliteSkillController] {gameObject.name}: EliteJumpSkill 컴포넌트가 없습니다! " +
+                           "GameObject에 EliteJumpSkill을 추가하거나 Inspector에서 할당해주세요.");
+            SpawnDamageArea();
+            return;
+        }
+
+        // 목표 위치: AtTarget이면 플레이어 위치, 아니면 전방 위치
+        Vector3 jumpTarget = currentSkill.TelegraphPositionMode == TelegraphPositionMode.AtTarget
+            ? cachedTargetPosition
+            : cachedOrigin + cachedTargetDirection * currentSkill.AoeRadius;
+
+        jumpSkill.Execute(currentSkill, jumpTarget, baseEnemy, OnJumpLanded);
+    }
+
+    /// <summary>
+    /// EliteJumpSkill 착지 콜백 — DamageArea 생성 (착지 후 데미지 판정)
+    /// </summary>
+    private void OnJumpLanded()
+    {
+        if (currentSkill == null) return;
+        SpawnDamageArea();
     }
     
     /// <summary>
@@ -346,14 +386,18 @@ public class EliteSkillController : MonoBehaviour
 
     /// <summary>
     /// ⭐ Phase 3: Telegraph 생성 (보스 방식 적용 - Origin 기준 + Center Mode 조정)
+    /// TelegraphPositionMode.AtTarget이면 플레이어 위치에 배치
     /// </summary>
     private void SpawnTelegraph()
     {
         if (currentSkill == null || currentSkill.TelegraphPrefab == null) return;
-        
+
+        // TelegraphPositionMode 분기: AtTarget이면 플레이어 위치 사용
+        bool atTarget = currentSkill.TelegraphPositionMode == TelegraphPositionMode.AtTarget;
+
         // telegraphOffset이 설정된 경우: forward/right 방향 기준 오프셋 적용
         // telegraphOffset == Vector2.zero인 경우: 기존 AdjustTelegraphPositionForCenterMode() 로직으로 fallback
-        Vector3 spawnPosition = cachedOrigin;
+        Vector3 spawnPosition = atTarget ? cachedTargetPosition : cachedOrigin;
         Vector2 offset = currentSkill.TelegraphOffset;
         if (offset != Vector2.zero)
         {
@@ -377,11 +421,12 @@ public class EliteSkillController : MonoBehaviour
         if (indicator != null)
         {
             indicator.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
-            
-            // telegraphOffset == zero인 경우만 기존 CenterMode 방식으로 fallback (하위 호환성)
-            if (currentSkill.TelegraphOffset == Vector2.zero)
+
+            // AtTarget 모드: 이미 타겟 위치에 배치했으므로 CenterMode 보정 불필요
+            // AtCaster 모드: telegraphOffset == zero인 경우 기존 CenterMode 방식 fallback (하위 호환성)
+            if (!atTarget && currentSkill.TelegraphOffset == Vector2.zero)
                 AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
-            
+
             Dbg.Log($"✅ [EliteSkillController] TelegraphIndicator 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
         }
         else
@@ -391,11 +436,11 @@ public class EliteSkillController : MonoBehaviour
             if (indicatorMesh != null)
             {
                 indicatorMesh.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
-                
-                // telegraphOffset == zero인 경우만 기존 CenterMode 방식으로 fallback (하위 호환성)
-                if (currentSkill.TelegraphOffset == Vector2.zero)
+
+                // AtTarget 모드: CenterMode 보정 불필요
+                if (!atTarget && currentSkill.TelegraphOffset == Vector2.zero)
                     AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
-                
+
                 Dbg.Log($"✅ [EliteSkillController] TelegraphIndicatorMesh 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
             }
             else
@@ -525,11 +570,16 @@ public class EliteSkillController : MonoBehaviour
             Destroy(damageAreaGO);
             return;
         }
+
+        // TelegraphPositionMode 분기: AtTarget이면 플레이어 위치를 원점으로 사용
+        Vector3 damageOrigin = currentSkill.TelegraphPositionMode == TelegraphPositionMode.AtTarget
+            ? cachedTargetPosition
+            : cachedOrigin;
         
         // ⭐ Phase 3: SkillData에서 정책 읽어오기
         damageArea.Initialize(
             skillData: currentSkill,                   // SkillData
-            origin: cachedOrigin,                      // Origin (Cast 시작 시점 저장됨)
+            origin: damageOrigin,                      // AtTarget이면 플레이어 위치 사용
             forward: cachedTargetDirection,            // Forward (Cast 시작 시점 저장됨)
             enemy: baseEnemy,                          // BaseEnemy
             scaleMultiplier: 1.0f,                     // scaleMultiplier (엘리트는 기본 1.0)
@@ -538,8 +588,12 @@ public class EliteSkillController : MonoBehaviour
         
         
         // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성
-        Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
-        SpawnAOEEffectAtCenter(effectPosition);
+        // Jump 타입은 EliteJumpSkill에서 착지 시 직접 생성 (currentSkill 타이밍 문제 우회)
+        if (currentSkill.SkillType != SkillType.Jump)
+        {
+            Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
+            SpawnAOEEffectAtCenter(effectPosition);
+        }
         
         
         // ⭐ PerformDamage()는 Initialize() → ExecuteDamagePolicy() 내부에서 이미 호출됨

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c4ada57f186b8c4cb4422257d3cb493, type: 3}
   m_Name: EliteSkill_GroundSlam
   m_EditorClassIdentifier: 
-  skillType: 0
+  skillType: 2
   skillName: "\"\uB300\uC9C0 \uAC15\uD0C0\""
   skillId: ELITESKILL_GROUNDSLAM_001
   description: "\"\uB545\uC744 \uB0B4\uB9AC\uCCD0 \uCDA9\uACA9\uD30C \uC0DD\uC131\""
@@ -29,6 +29,7 @@ MonoBehaviour:
   aoeOffset: {x: 0, y: 0}
   aoeCenterMode: 1
   aoeCenterOffset: 4
+  telegraphPositionMode: 1
   telegraphPrefab: {fileID: 614329605402219767, guid: d7b751e350300e84e81746897bcaef64, type: 3}
   telegraphDuration: 0.8
   telegraphColor: {r: 0, g: 0.2463131, b: 1, a: 0.5}
@@ -38,7 +39,7 @@ MonoBehaviour:
   castSound: {fileID: 0}
   skillSound: {fileID: 0}
   hitCueKey: 
-  minRange: 0
+  minRange: 4
   maxRange: 10
   stopMovingWhileCasting: 1
   vfxMode: 1
@@ -46,6 +47,11 @@ MonoBehaviour:
   damageMode: 1
   damageTime: 0.5
   damageWindow: 0
+  impactShake:
+    useShake: 0
+    intensity: 1
+    duration: 0.2
+    delay: 0
   aoeDamagePolicy: 2
   aoeDuration: 2.5
   aoeTickInterval: 0.5

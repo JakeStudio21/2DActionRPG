@@ -30,22 +30,8 @@ public class Elite_Boar : BaseEnemy
         } 
     }
     
-    public override float AttackRange 
-    { 
-        get 
-        {
-            // 평타 사거리
-            float meleeRange = 1.8f;
-            if (meleeAttack != null && meleeAttack.AttackData != null)
-                meleeRange = meleeAttack.AttackData.AttackRange;
-
-            // 스킬 최대 사거리 (대시 등 원거리 스킬 포함)
-            float skillRange = skillController != null ? skillController.GetMaxSkillRange() : 0f;
-
-            // 둘 중 큰 값으로 FSM Attack 상태 진입 범위 결정
-            return Mathf.Max(meleeRange, skillRange);
-        } 
-    }
+    // FSM AttackState 진입 거리: 평타 범위 vs 스킬 범위 중 큰 값 (BaseEnemy 유틸 사용)
+    public override float AttackRange => GetFSMAttackRange();
     
     public override float DetectionRange
     {

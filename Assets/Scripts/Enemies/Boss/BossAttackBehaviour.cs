@@ -110,12 +110,16 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         // 해당 거리에서 사용 가능한 스킬 필터링
         List<BossSkillEntry> availableSkills = GetAvailableSkills(phase, distanceCategory);
         
-        // ⭐ 평타 범위 체크: 평타 범위 내에서만 평타 가중치 적용 (7:3 비율 유지)
-        // - 평타 범위 내(≤ AttackRange): 평타 70%, 스킬 30%
-        // - 평타 범위 밖, 근거리(AttackRange ~ 6f): 스킬만 사용
-        // - 원거리(> 6f): 스킬만 사용
+        // 평타 실제 타격 가능 거리 (MeleeAttack.AttackData.AttackRange 사용)
+        // baseEnemy.AttackRange는 FSM 진입 범위(스킬 포함)이므로 평타 가드에 사용하면 안 됨
+        float actualMeleeRange = meleeAttack?.AttackData?.AttackRange ?? meleeAttackRange;
+
+        // ⭐ 평타 범위 체크: 실제 평타 타격 거리 이내일 때만 평타 가중치 적용
+        // - 실제 평타 범위 내: 평타 70%, 스킬 30%
+        // - 실제 평타 범위 밖 ~ meleeAttackRange: 스킬만 사용
+        // - 원거리(> meleeAttackRange): 스킬만 사용
         float meleeWeight = 0f;
-        if (distanceCategory == BossSkillDistance.Melee && distanceToPlayer <= baseEnemy.AttackRange)
+        if (distanceCategory == BossSkillDistance.Melee && distanceToPlayer <= actualMeleeRange)
         {
             meleeWeight = phase.meleeAttackWeight;
         }
@@ -158,8 +162,8 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             }
         }
         
-        // Fallback: 평타 범위 내에 있을 때만 평타 실행
-        if (distanceToPlayer <= baseEnemy.AttackRange)
+        // Fallback: 실제 평타 타격 거리 내에 있을 때만 평타 실행
+        if (distanceToPlayer <= actualMeleeRange)
         {
             ExecuteMeleeAttack();
         }

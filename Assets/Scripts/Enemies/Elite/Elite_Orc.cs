@@ -30,15 +30,8 @@ public class Elite_Orc : BaseEnemy
         } 
     }
     
-    public override float AttackRange 
-    { 
-        get 
-        {
-            if (meleeAttack != null && meleeAttack.AttackData != null)
-                return meleeAttack.AttackData.AttackRange;
-            return 1.8f;
-        } 
-    }
+    // FSM AttackState 진입 거리: 평타 범위 vs 스킬 범위 중 큰 값 (BaseEnemy 유틸 사용)
+    public override float AttackRange => GetFSMAttackRange();
     
     public override float DetectionRange
     {

@@ -8,9 +8,19 @@ public enum SkillType
 {
     AOE,        // 일반 AOE (Circle, Fan, Rectangle)
     Dash,       // 돌진 스킬
+    Jump,       // 점프 낙하 스킬 (포물선 이동 → 착지 데미지)
     Projectile, // 멀티샷/발사체
     Buff,       // 버프/디버프 (향후 확장)
     Summon      // 소환 (향후 확장)
+}
+
+/// <summary>
+/// 텔레그래프 / DamageArea 기준점 모드
+/// </summary>
+public enum TelegraphPositionMode
+{
+    AtCaster,  // 시전자(몬스터) 위치 기준 — 기본값, 기존 스킬 영향 없음
+    AtTarget   // 타겟(플레이어) 위치 기준 — GroundSlam·Jump 낙하 스팟 등
 }
 
 /// <summary>
@@ -89,6 +99,11 @@ public class SkillData : ScriptableObject
     [SerializeField] private float aoeCenterOffset = 0f;
 
     [Header("📍 텔레그래프 (경고 표시)")]
+    [Tooltip("텔레그래프 / DamageArea 기준점 모드\n" +
+             "AtCaster(기본): 시전자 위치 기준 — 기존 스킬 동작 유지\n" +
+             "AtTarget: 플레이어 위치 기준 — GroundSlam·Jump 등 낙하 스킬")]
+    [SerializeField] private TelegraphPositionMode telegraphPositionMode = TelegraphPositionMode.AtCaster;
+
     [Tooltip("텔레그래프 프리팹 (바닥 경고 이펙트)")]
     [SerializeField] private GameObject telegraphPrefab;
     
@@ -179,6 +194,7 @@ public class SkillData : ScriptableObject
     public Vector2 AoeOffset => aoeOffset;
     public AOECenterMode AoeCenterMode => aoeCenterMode;
     public float AoeCenterOffset => aoeCenterOffset;
+    public TelegraphPositionMode TelegraphPositionMode => telegraphPositionMode;
     public GameObject TelegraphPrefab => telegraphPrefab;
     public float TelegraphDuration => telegraphDuration;
     public Color TelegraphColor => telegraphColor;

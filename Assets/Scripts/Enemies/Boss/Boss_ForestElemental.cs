@@ -34,18 +34,8 @@ public class Boss_ForestElemental : BaseEnemy
         } 
     }
     
-    public override float AttackRange 
-    { 
-        get 
-        {
-            // 1순위: AttackData (평타)
-            if (meleeAttack != null && meleeAttack.AttackData != null)
-                return meleeAttack.AttackData.AttackRange;
-                
-            Debug.LogError($"[Boss_ForestElemental] {gameObject.name}: MeleeAttack 또는 AttackData가 없습니다!");
-            return 2.5f; // 보스는 긴 공격 범위
-        } 
-    }
+    // FSM AttackState 진입 거리: 평타 범위 vs BossAttackBehaviour.RangedSkillRange 중 큰 값 (BaseEnemy 유틸 사용)
+    public override float AttackRange => GetFSMAttackRange();
     
     public override float DetectionRange
     {
