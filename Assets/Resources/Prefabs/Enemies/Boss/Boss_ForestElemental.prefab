@@ -466,7 +466,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
   meteorCount: 6
-  meteorDelay: 0.3
+  meteorDelay: 0.15
   playerNearRadius: 7
   arenaRadius: 16
   minSpacingBetweenMeteors: 4

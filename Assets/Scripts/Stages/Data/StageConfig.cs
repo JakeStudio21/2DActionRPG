@@ -88,6 +88,10 @@ namespace StageSystem
         public string FirstClearDropGroupId;
         public string RepeatClearDropGroupId;
         
+        [Header("📷 카메라 줌")]
+        [Tooltip("스테이지 시작 시 카메라 줌 설정\nuseZoom = false면 기본 OrthographicSize 유지 (기존 스테이지 영향 없음)")]
+        public CameraZoomData cameraZoom = new CameraZoomData();
+
         [Header("오디오/비주얼")]
         public string BGMPath;
         [TextArea(3, 5)]

@@ -286,6 +286,18 @@ public class StageManager : MonoBehaviour
             // 4단계: Volume 이펙트 적용 (fogVolumeProfile이 null이면 스킵)
             StageVolumeController.Instance?.ApplyStageVolume(stageConfig);
 
+            // 📷 카메라 줌 적용 (useZoom = true인 스테이지만)
+            if (stageConfig.cameraZoom != null && stageConfig.cameraZoom.useZoom)
+            {
+                if (stageConfig.cameraZoom.preZoomDelay > 0f)
+                    yield return new WaitForSeconds(stageConfig.cameraZoom.preZoomDelay);
+
+                CameraController.Instance?.SetZoom(stageConfig.cameraZoom);
+
+                // 줌 전환이 완료될 때까지 대기 후 웨이브 시작
+                yield return new WaitForSeconds(stageConfig.cameraZoom.transitionDuration);
+            }
+
             // 5단계: 첫 번째 웨이브 시작
             OnStageStarted?.Invoke(stageConfig);
             
@@ -739,6 +751,12 @@ public class StageManager : MonoBehaviour
             if (!isStageActive) return;
             
             isStageActive = false;
+
+            // 📷 카메라 줌 복귀 (줌이 적용된 스테이지였을 때만)
+            if (stageConfig?.cameraZoom != null && stageConfig.cameraZoom.useZoom)
+            {
+                CameraController.Instance?.ResetZoom(1.0f);
+            }
             
             // AutoAfterDelay 대기 코루틴 전부 취소
             foreach (var c in pendingAutoDelayCoroutines)
