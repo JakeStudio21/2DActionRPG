@@ -303,12 +303,11 @@ public class DamageArea : MonoBehaviour
             ApplyDamageToTarget(hit);
             hitCount++;
             
-            // 🎵 피격 대상 위치에 타격 연출 발동 (CueSystem 위임)
-            if (!string.IsNullOrEmpty(hitCueKey))
+            // 🎵 플레이어 스킬 → 몬스터 타격 연출 (Player 도메인)
+            // Enemy → Player 방향은 PlayerHealth.TakeDamage(DamageResult) 내부에서 발행하므로 스킵
+            if (!string.IsNullOrEmpty(hitCueKey) && casterType == AOECasterType.Player)
             {
-                string hitDomain = casterType == AOECasterType.Player ? "Player" : "Enemy";
-                CueEmitter.Emit(hitCueKey, hitDomain, new CueContext { position = hit.transform.position });
-                
+                CueEmitter.Emit(hitCueKey, "Player", new CueContext { position = hit.transform.position });
             }
         }
         
@@ -564,8 +563,16 @@ public class DamageArea : MonoBehaviour
             PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                
-                playerHealth.TakeDamage(rawDamage, baseEnemy != null ? baseEnemy.transform : transform);
+                // DamageResult로 전달: PlayerHealth.EmitHitEffect()가 "피격자 책임" 원칙에 따라
+                // "Player" 도메인으로 hit.player.normal 등을 발행하도록 신버전 오버로드 사용
+                var damageResult = new CombatFormula.DamageResult
+                {
+                    finalDamage   = rawDamage,
+                    hitPosition   = hit.transform.position,
+                    sourceType    = CombatFormula.DamageSourceType.Normal,
+                    attackerGrade = ItemGrade.C
+                };
+                playerHealth.TakeDamage(damageResult, baseEnemy != null ? baseEnemy.transform : transform);
             }
             else
             {

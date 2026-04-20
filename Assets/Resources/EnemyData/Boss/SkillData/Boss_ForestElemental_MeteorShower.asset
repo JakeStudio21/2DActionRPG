@@ -39,7 +39,7 @@ MonoBehaviour:
   aoeEffect: {fileID: 7722072588384670577, guid: 052157785e83cd047aa3ab9177ddfda2, type: 3}
   castSound: {fileID: 0}
   skillSound: {fileID: 0}
-  hitCueKey: 
+  hitCueKey: hit.player.normal
   minRange: 0
   maxRange: 999
   stopMovingWhileCasting: 1
