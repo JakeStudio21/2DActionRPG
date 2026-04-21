@@ -159,7 +159,6 @@ MonoBehaviour:
   tutorialEnemy: {fileID: 0}
   moveRequiredDistance: 2
   tutorialSpotlight: {fileID: 0}
-  enableDebugLogs: 1
   minTimePerStep: 2
   skill2SuccessConfirmDelay: 2
   completionMessageReadDelay: 3
@@ -177,7 +176,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialStartCutsceneId: Tutorial_Start
   tutorialEndCutsceneId: Tutorial_End
-  enableDebugLogs: 1
   stepController: {fileID: 28830903}
   skipButton: {fileID: 264082960}
   skipButtonObj: {fileID: 902982911}
@@ -1027,7 +1025,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 723758139c5b98a4d936b09bd2d3a20d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 1
 --- !u!114 &209548003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1309,7 +1306,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 524eb29bb0a389b4bb8363229db6b65a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
 --- !u!114 &281848214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1464,7 +1460,6 @@ MonoBehaviour:
   dashButtonTarget: {fileID: 0}
   skill1ButtonTarget: {fileID: 0}
   skill2ButtonTarget: {fileID: 0}
-  showDebugLogs: 1
 --- !u!1 &439513762
 GameObject:
   m_ObjectHideFlags: 0
@@ -1499,7 +1494,6 @@ MonoBehaviour:
   wizardPrefab: {fileID: 7542120236176968360, guid: 84e73233890426b4880d50f618a47421, type: 3}
   spawnPoint: {fileID: 1239835592}
   waitForTutorialManager: 1
-  showDebugLogs: 1
 --- !u!4 &439513764
 Transform:
   m_ObjectHideFlags: 0
@@ -1700,14 +1694,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_Color: {r: 1, g: 0.003921569, b: 0.003921569, a: 0.5019608}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3961,7 +3955,6 @@ MonoBehaviour:
   bgmEventKey: bgm.tutorial
   stageId: 
   delay: 0.5
-  enableDebugLogs: 1
 --- !u!4 &619878466
 Transform:
   m_ObjectHideFlags: 0
@@ -4476,7 +4469,6 @@ MonoBehaviour:
   attackPanel: {fileID: 0}
   healthPanel: {fileID: 0}
   goldPanel: {fileID: 0}
-  showDebugLogs: 1
 --- !u!1 &836077372
 GameObject:
   m_ObjectHideFlags: 0
@@ -6217,7 +6209,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultPlayerClass: 2
-  showDebugLogs: 1
   bowEquipment: {fileID: 11400000, guid: fe036a3299713f24696324e86ceedac0, type: 2}
   swordEquipment: {fileID: 11400000, guid: b5041a6633f130b48b3dc3790cc08121, type: 2}
   staffEquipment: {fileID: 11400000, guid: 5f42915b95a6eb84ca463ca4ebcefebe, type: 2}
@@ -6855,14 +6846,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_Color: {r: 0.003921569, g: 0.5058824, b: 1, a: 0.5019608}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1

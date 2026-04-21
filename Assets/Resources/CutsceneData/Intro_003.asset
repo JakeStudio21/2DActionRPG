@@ -21,6 +21,7 @@ MonoBehaviour:
     imageSprite: {fileID: 21300000, guid: a43fd79f238d9564dbc1e2241e112394, type: 3}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: 0, y: 0}
     imageScale: 1
@@ -42,6 +43,7 @@ MonoBehaviour:
     imageSprite: {fileID: 21300000, guid: 7d8bbabab62201d40be70c16daba9442, type: 3}
     isFade: 0
     isPortrait: 1
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: -540, y: -140}
     imageScale: 4
@@ -63,6 +65,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -87,6 +90,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -106,6 +110,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -127,6 +132,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -146,6 +152,7 @@ MonoBehaviour:
     imageSprite: {fileID: 21300000, guid: b6b503d3f05b95d409040f5157124b8c, type: 3}
     isFade: 0
     isPortrait: 1
+    useDynamicPlayerPortrait: 0
     fadeIn: 1
     imagePosition: {x: -540, y: -140}
     imageScale: 4
@@ -167,6 +174,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -189,6 +197,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -208,6 +217,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -231,68 +241,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 0
-    duration: 0
-    imageSprite: {fileID: 21300000, guid: 1b0a68cdeaa793e4cbf810c99f680930, type: 3}
-    isFade: 0
-    isPortrait: 1
-    fadeIn: 1
-    imagePosition: {x: 400, y: -240}
-    imageScale: 3
-    imageDuration: 0.1
-    speakerName: 
-    dialogueText: '
-
-'
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 1
-    duration: 0
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: "\uCE5C\uC704\uB300\uC7A5"
-    dialogueText: "\"\uC800\uAE30 \uD6C8\uB828\uC6A9 \uD5C8\uC218\uC544\uBE44\uB97C
-      \uACF5\uACA9\uD558\uACE0 \uC788\uB294... \uC544\uB2C8, \uC7A0\uAE50. \uC800
-      \uB140\uC11D \uBA38\uB9AC\uB97C \uBD10\uB77C. \uB0C4\uBE44 \uB69C\uAED1? \uB188\uB4E4\uC740
-      \uB2E8\uC21C\uD788 \uBBF8\uCCD0 \uB0A0\uB6F0\uB294 \uAC8C \uC544\uB2C8\uAD70.\""
-    typingSpeed: 15
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 2
-    duration: 1.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -312,69 +261,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: "\uCE5C\uC704\uB300\uC7A5"
-    dialogueText: "\"\uBCF8\uB2A5\uC801\uC73C\uB85C '\uCCA0'\uC744 \uC57D\uD0C8\uD558\uACE0
-      \uC788\uC5B4! \uC774 \uAE30\uC774\uD55C \uC5B4\uB460\uC758 \uC190\uAE38\uC774
-      \uBC8C\uC368 \uC655\uAD6D \uD131\uBC11\uAE4C\uC9C0 \uB4E4\uC774\uB2E5\uCCE4\uB2E4\uB294
-      \uC99D\uAC70\uB2E4. \uB354 \uC774\uC0C1 \uC9C0\uCCB4\uD560 \uC2DC\uAC04\uC774
-      \uC5C6\uB2E4.\""
-    typingSpeed: 15
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 2
-    duration: 1.5
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
-    fadeIn: 0
-    imagePosition: {x: 0, y: 0}
-    imageScale: 0
-    imageDuration: 0
-    speakerName: 
-    dialogueText: 
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 0
-    duration: 0
-    imageSprite: {fileID: 21300000, guid: 7d8bbabab62201d40be70c16daba9442, type: 3}
-    isFade: 0
-    isPortrait: 1
-    fadeIn: 1
-    imagePosition: {x: -540, y: -140}
-    imageScale: 4
-    imageDuration: 0.1
-    speakerName: 
-    dialogueText: '
-
-'
-    typingSpeed: 0
-    sfxEventKey: 
-    sfxDomain: 
-    bgmEventKey: 
-    bgmFadeTime: 1
-    bgmWaitTime: 0
-    callbackMethodName: 
-    note: 
-  - stepType: 1
-    duration: 0
-    imageSprite: {fileID: 0}
-    isFade: 0
-    isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -395,6 +282,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -414,6 +302,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -438,6 +327,7 @@ MonoBehaviour:
     imageSprite: {fileID: 0}
     isFade: 0
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 0
@@ -457,6 +347,7 @@ MonoBehaviour:
     imageSprite: {fileID: 21300000, guid: 7476d6135dfce2c47a3cc6b7d8d94fd6, type: 3}
     isFade: 1
     isPortrait: 0
+    useDynamicPlayerPortrait: 0
     fadeIn: 0
     imagePosition: {x: 0, y: 0}
     imageScale: 1
