@@ -16,7 +16,7 @@ MonoBehaviour:
   enemyName: "\uC624\uD06C\uB450\uBAA9"
   enemyType: 1
   description: "\"\uC5D8\uB9AC\uD2B8 \uC624\uD06C\uB450\uBAA9\""
-  baseHealth: 200
+  baseHealth: 1500
   baseDefense: 20
   baseMoveSpeed: 5
   detectionRange: 15

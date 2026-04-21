@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// 엘리트 몬스터 점프 낙하 스킬
@@ -26,6 +27,11 @@ public class EliteJumpSkill : MonoBehaviour
 
     // VFX는 EliteSkillController.SpawnDamageArea() → SpawnAOEEffectAtCenter()에서 일괄 처리
     // (Telegraph 피봇과 동기화되므로 별도 override 없음)
+
+    /// <summary>
+    /// EliteSkillController에서 예측 시간 계산에 사용
+    /// </summary>
+    public float JumpDuration => jumpDuration > 0f ? jumpDuration : 0.5f;
 
     // 내부 참조
     private BaseEnemy baseEnemy;
@@ -95,7 +101,17 @@ public class EliteJumpSkill : MonoBehaviour
         // 체공 시간 결정
         float duration = jumpDuration > 0f ? jumpDuration : skill.ActionDuration;
 
-        // ① NavMesh 이동 중단 (공중 이동 중 경로 재계산 방지)
+        // ① 점프 전 플레이어 방향으로 스프라이트 전환
+        // landPos 기준 수평 방향으로 flipX 결정 (점프 중 방향 유지)
+        Vector3 toTarget = landPos - startPos;
+        if (toTarget.sqrMagnitude > 0.001f && baseEnemy?.AnimationController != null)
+        {
+            Vector2 jumpDir = new Vector2(toTarget.x, toTarget.y).normalized;
+            bool shouldFlip = jumpDir.x < 0;
+            baseEnemy.AnimationController.UpdateAttackDirectionWithFlip(jumpDir, shouldFlip);
+        }
+
+        // ② NavMesh 이동 중단 (공중 이동 중 경로 재계산 방지)
         PauseNavMesh();
 
         float elapsed = 0f;
@@ -124,15 +140,8 @@ public class EliteJumpSkill : MonoBehaviour
         // ④ 착지 카메라 진동
         ScreenShakeManager.Instance?.PlayShake(landingShakeData);
 
-        // ⑤ 착지 VFX: skill 파라미터(코루틴 캡처, 항상 유효)로 직접 생성
-        // SpawnAOEEffectAtCenter는 currentSkill에 의존하므로 점프 착지 타이밍에는 신뢰 불가
-        if (skill.AoeEffect != null)
-        {
-            GameObject vfxObj = Instantiate(skill.AoeEffect, landPos, Quaternion.identity);
-            Destroy(vfxObj, 2f);
-        }
-
-        // ⑥ 착지 콜백 → EliteSkillController.SpawnDamageArea()가 DamageArea 생성
+        // ⑤ 착지 콜백 → EliteSkillController.OnJumpLanded() → SpawnDamageArea() + VFX 일괄 처리
+        // (isAsyncSkillPending 덕분에 currentSkill이 유효하므로 SpawnAOEEffectAtCenter 정상 동작)
         onLanded?.Invoke();
 
         jumpCoroutine = null;
@@ -153,9 +162,29 @@ public class EliteJumpSkill : MonoBehaviour
     {
         if (baseEnemy == null || !baseEnemy.IsUsingNavMesh) return;
 
-        if (baseEnemy.Agent.enabled && baseEnemy.Agent.isOnNavMesh)
-            baseEnemy.Agent.Warp(transform.position);
+        var agent = baseEnemy.Agent;
+        if (!agent.enabled) return;
 
-        baseEnemy.Agent.isStopped = false;
+        // 점프 중 transform 직접 조작으로 NavMeshAgent 위치가 어긋나 있을 수 있음.
+        // isOnNavMesh 여부와 관계없이 항상 Warp로 동기화 시도.
+        if (agent.isOnNavMesh)
+        {
+            agent.Warp(transform.position);
+        }
+        else
+        {
+            // isOnNavMesh = false → 가장 가까운 NavMesh 지점으로 스냅
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+            {
+                transform.position = hit.position;
+                agent.Warp(hit.position);
+            }
+            else
+            {
+                Debug.LogWarning($"[EliteJumpSkill] NavMesh 위치 복구 실패: {transform.position}");
+            }
+        }
+
+        agent.isStopped = false;
     }
 }

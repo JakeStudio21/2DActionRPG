@@ -16,7 +16,7 @@ MonoBehaviour:
   enemyName: "\uC232\uC758\uC815\uB839"
   enemyType: 2
   description: "\"\uAC15\uD654\uB41C \uC232\uC815\uB839\""
-  baseHealth: 3000
+  baseHealth: 2000
   baseDefense: 15
   baseMoveSpeed: 3
   detectionRange: 15

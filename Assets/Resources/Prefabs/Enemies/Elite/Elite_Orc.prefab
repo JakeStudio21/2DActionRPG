@@ -437,7 +437,7 @@ MonoBehaviour:
   attackSound: {fileID: 0}
   skillController: {fileID: 0}
   meleeAttack: {fileID: 0}
-  globalAttackCooldown: 1.5
+  globalAttackCooldown: 0.5
   trackStatistics: 1
 --- !u!195 &658459730470574127
 NavMeshAgent:
@@ -516,8 +516,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bea302936e0b974bb0d23344b07e4fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jumpHeight: 3.5
-  jumpDuration: 0.8
+  jumpHeight: 6
+  jumpDuration: 0.5
   landingShakeData:
     useShake: 1
     intensity: 1

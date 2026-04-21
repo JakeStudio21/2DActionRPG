@@ -20,6 +20,10 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     private EliteAttackDecision attackDecision;
     private EliteAttackDecision.AttackStatistics statistics;
     
+    // EnemyAttackState가 Skip 여부를 즉시 확인하여 빈 대기를 없애기 위한 플래그
+    private bool lastAttackSkipped = false;
+    public bool LastAttackSkipped => lastAttackSkipped;
+    
     [Header("🎮 디버그")]
     [SerializeField] private bool trackStatistics = true;
 
@@ -85,14 +89,13 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         // 결정에 따라 실행
         if (decision.IsSkip)
         {
-            // 스킬 쿨다운 대기 중 - 짧은 재시도 타이머 설정
+            lastAttackSkipped = true;
             lastAttackTime = Time.time - globalAttackCooldown * 0.5f;
-
-
             return;
         }
         else if (decision.IsSkill)
         {
+            lastAttackSkipped = false;
             ExecuteSkillAttack(decision.SelectedSkill);
 
             if (trackStatistics && decision.SelectedSkill != null)
@@ -100,6 +103,7 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         }
         else
         {
+            lastAttackSkipped = false;
             ExecuteMeleeAttack();
 
             if (trackStatistics)
@@ -108,13 +112,22 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     }
 
     /// <summary>
-    /// 평타 유효 사거리 반환 (EliteAttackDecision에 전달)
+    /// 평타 유효 사거리 반환 (EliteAttackDecision 및 EnemyChaseState에서 사용)
     /// </summary>
-    private float GetMeleeRange()
+    public float GetMeleeRange()
     {
         if (meleeAttack != null && meleeAttack.AttackData != null)
             return meleeAttack.AttackData.AttackRange;
         return 1.8f;
+    }
+    
+    /// <summary>
+    /// 플레이어까지 거리 (CanAttack 내부 판단용)
+    /// </summary>
+    private float GetDistanceToPlayer()
+    {
+        if (cachedPlayer == null || baseEnemy == null) return 999f;
+        return Vector2.Distance(baseEnemy.transform.position, cachedPlayer.transform.position);
     }
     
     #endregion
@@ -169,33 +182,44 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
     /// </summary>
     public override void Attack()
     {
-        // ⭐ 초기화 상태 체크
-        
-        // EliteAttackBehaviour는 attackData가 필요 없으므로
-        // BaseAttackBehaviour.Attack()를 우회하고 직접 공격 로직 실행
-        
         if (!CanAttack())
         {
+            lastAttackSkipped = true;
             return;
         }
         
-        // 공격 실행 (OnAttack 직접 호출)
         OnAttack();
     }
 
     public override bool CanAttack()
     {
-        // ⭐ 전역 공격 쿨다운 체크 (스킬/평타 모두 1.5초 대기)
-        if (Time.time < lastAttackTime + globalAttackCooldown)
-        {
-            return false;
-        }
-        
-        // 평타 또는 스킬 중 하나라도 사용 가능하면 true
-        bool meleeReady = meleeAttack != null && meleeAttack.CanAttack();
+        if (IsGlobalCooldownActive()) return false;
+
+        float dist = GetDistanceToPlayer();
+        bool meleeReady = meleeAttack != null
+            && meleeAttack.CanAttack()
+            && dist <= GetMeleeRange();
+
         bool skillReady = HasAvailableSkill();
-        
+
         return meleeReady || skillReady;
+    }
+
+    /// <summary>
+    /// 전역 쿨다운이 아직 활성화 중인지 (Chase에서 이동/대기 판단용)
+    /// </summary>
+    public bool IsGlobalCooldownActive()
+    {
+        return Time.time < lastAttackTime + globalAttackCooldown;
+    }
+
+    /// <summary>
+    /// 현재 위치에서 스킬이 준비됐는지 (Chase에서 stoppingDistance 결정용)
+    /// </summary>
+    public bool HasSkillReadyAndInRange()
+    {
+        if (IsGlobalCooldownActive()) return false;
+        return HasAvailableSkill();
     }
 
     /// <summary>
@@ -216,10 +240,7 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
         }
         
         if (!baseEnemy.EnemyData.HasSkillData)
-        {
-                Debug.LogWarning($"[EliteAttackBehaviour] HasAvailableSkill: SkillDataList가 비어있음!");
             return false;
-        }
 
         float distanceToPlayer = cachedPlayer != null ? 
             Vector2.Distance(baseEnemy.transform.position, cachedPlayer.transform.position) : 999f;
@@ -235,12 +256,9 @@ public class EliteAttackBehaviour : BaseAttackBehaviour
             
             
             if (canUse && inRange)
-            {
                 return true;
-            }
         }
 
-            Debug.LogWarning($"[EliteAttackBehaviour] 사용 가능한 스킬 없음!");
         return false;
     }
 

@@ -144,7 +144,7 @@ public abstract class BaseEnemy : MonoBehaviour, IEnemy, IEnemyTarget, ITargetab
             // 엘리트 스킬 체크
             var eliteSkill = GetComponent<EliteSkillController>();
             if (eliteSkill != null)
-                return eliteSkill.IsCasting || eliteSkill.IsActionExecuting;
+                return eliteSkill.IsCasting || eliteSkill.IsActionExecuting || eliteSkill.IsAsyncSkillPending;
             
             // 보스 스킬 체크
             var bossSkill = GetComponent<BossSkillController>();

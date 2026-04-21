@@ -72,6 +72,15 @@ public class EnemyChaseState : IEnemyState
             if (GetBossAttack(enemy) == null)
             {
                 baseEnemy.Agent.stoppingDistance = enemy.AttackRange * 0.7f;
+
+                // ⭐ 엘리트 전용: PatrolState SmoothDamp 도중 Chase 진입 시
+                // Agent.speed가 가속 중간값에 고착되는 문제 방지
+                // 일반 몬스터는 느려도 티가 나지 않으므로 적용 제외
+                var eliteAttack = baseEnemy.GetComponent<EliteAttackBehaviour>();
+                if (eliteAttack != null)
+                {
+                    baseEnemy.Agent.speed = enemy.MoveSpeed * 1.1f; // Chase는 기본 속도의 1.1배
+                }
             }
             
         }
@@ -193,20 +202,51 @@ public class EnemyChaseState : IEnemyState
         }
         
         // ⭐ 일반/엘리트 몬스터 공격 전환
+        // 엘리트: 스킬 준비 여부에 따라 stoppingDistance를 동적으로 변경
+        //   스킬 준비됨 → 스킬 사거리(AttackRange*0.7)에서 대기 후 스킬 공격
+        //   스킬 쿨다운 → 평타 사거리(MeleeRange*0.9)까지 접근 후 평타 공격
+        if (enemy is BaseEnemy baseEnemyForElite)
+        {
+            var eliteAttack = baseEnemyForElite.GetComponent<EliteAttackBehaviour>();
+            if (eliteAttack != null)
+            {
+                bool skillReady = eliteAttack.HasSkillReadyAndInRange();
+                float meleeRange = eliteAttack.GetMeleeRange();
+
+                // stoppingDistance를 목표에 맞게 업데이트 (매 프레임)
+                if (baseEnemyForElite.IsUsingNavMesh)
+                {
+                    baseEnemyForElite.Agent.stoppingDistance = skillReady
+                        ? enemy.AttackRange * 0.7f  // 스킬 범위에서 대기
+                        : meleeRange * 0.9f;         // 평타 범위까지 접근
+                }
+
+                // 전역 쿨다운 중: NavMesh가 목표 위치로 이동하는 동안 대기
+                if (eliteAttack.IsGlobalCooldownActive()) return;
+
+                // 스킬 준비 + 스킬 사거리 안 → 스킬 공격
+                if (skillReady && dist <= enemy.AttackRange * 0.8f)
+                {
+                    enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                    return;
+                }
+
+                // 스킬 없음 + 평타 사거리 안 → 평타 공격
+                if (!skillReady && dist <= meleeRange)
+                {
+                    enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
+                    return;
+                }
+
+                // 아직 목표 거리에 미달 → NavMesh가 계속 접근
+                return;
+            }
+        }
+
+        // 일반 몬스터 (EliteAttackBehaviour 없음): 기존 로직 유지
         float attackCheckRange = enemy.AttackRange * 0.8f;
         if (dist <= attackCheckRange)
         {
-            // ⭐ 엘리트 전용: CanAttack() 확인 후 Attack 전환 (보스와 동일 방식)
-            // 쿨다운 중에는 Attack 상태에 진입해도 no-op이 되므로 Chase 유지
-            if (enemy is BaseEnemy baseEnemyForElite)
-            {
-                var eliteAttack = baseEnemyForElite.GetComponent<EliteAttackBehaviour>();
-                if (eliteAttack != null && !eliteAttack.CanAttack())
-                {
-                    return; // 쿨다운 해제까지 Chase 유지 (NavMesh stoppingDistance로 정지 상태)
-                }
-            }
-            
             enemy.FSMController.ChangeState(new EnemyAttackState(enemy));
         }
         else 

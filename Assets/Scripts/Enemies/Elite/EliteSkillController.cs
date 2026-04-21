@@ -18,6 +18,9 @@ public class EliteSkillController : MonoBehaviour
     [SerializeField] private SkillData currentSkill;
     [SerializeField] private bool isCasting = false;
     [SerializeField] private bool isActionExecuting = false;
+    // Jump처럼 애니메이션 종료 후에도 스킬 효과가 진행 중인 비동기 스킬 플래그
+    // true인 동안 OnSkillActionComplete()는 currentSkill을 null로 리셋하지 않음
+    private bool isAsyncSkillPending = false;
     
     [Header("⏱️ 쿨다운 관리")]
     private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();
@@ -41,6 +44,14 @@ public class EliteSkillController : MonoBehaviour
     [Header("📐 위치 조정")]
     [Tooltip("AOE 중심점 오프셋 (Y값 음수로 발쪽 이동)")]
     [SerializeField] private Vector3 aoeOffset = new Vector3(0, -0.5f, 0);
+
+    [Header("🎯 점프 착지 예측 (Lead Targeting)")]
+    [Tooltip("플레이어 이동 속도 예측 배율\n" +
+             "1.0 = jumpDuration 만큼 정확히 예측 (이동 방향 유지 시 명중)\n" +
+             "0.0 = 예측 없음 (현재 위치 고정)\n" +
+             "플레이어는 cast 중 방향 전환으로 회피 가능")]
+    [Range(0f, 1.5f)]
+    [SerializeField] private float leadPredictionMultiplier = 1.0f;
     
     [Tooltip("⭐ 스킬 스폰 위치 (PlantsMonster 방식) - 프리팹 내부 Transform")]
     [SerializeField] private Transform skillSpawnPoint;
@@ -48,7 +59,22 @@ public class EliteSkillController : MonoBehaviour
     // 프로퍼티
     public bool IsCasting => isCasting;
     public bool IsActionExecuting => isActionExecuting;
+    public bool IsAsyncSkillPending => isAsyncSkillPending;
     public SkillData CurrentSkill => currentSkill;
+
+    /// <summary>
+    /// 스킬 상태 강제 초기화 (SafetyTimeout 등 비정상 중단 시 호출)
+    /// isCasting/isActionExecuting/isAsyncSkillPending이 true로 고착되면
+    /// CanUseSkill()이 영구 false가 되어 공격이 완전히 멈추는 문제를 방지
+    /// </summary>
+    public void ResetToIdle()
+    {
+        isCasting          = false;
+        isActionExecuting  = false;
+        isAsyncSkillPending = false;
+        currentSkill       = null;
+        RemoveTelegraph();
+    }
 
     private void Awake()
     {
@@ -187,13 +213,35 @@ public class EliteSkillController : MonoBehaviour
             Vector3 elitePos = transform.position;
             Vector3 toPlayer = cachedTargetPosition - elitePos;
             cachedTargetDirection = toPlayer.normalized;
-            
+
+            // ── Jump 스킬 전용: 발사체 예측 (Lead Targeting) ──────────────
+            // 플레이어가 이동 방향을 유지하면 착지 지점에 명중,
+            // 방향을 바꾸면 빗나감 → 회피 전략 유도
+            if (currentSkill != null && currentSkill.SkillType == SkillType.Jump
+                && leadPredictionMultiplier > 0f && jumpSkill != null)
+            {
+                Vector2 playerVelocity = GetPlayerVelocity(player);
+                if (playerVelocity.sqrMagnitude > 0.01f)
+                {
+                    float predictionTime = jumpSkill.JumpDuration * leadPredictionMultiplier;
+                    Vector3 predicted = cachedTargetPosition + (Vector3)(playerVelocity * predictionTime);
+
+                    // 예측 위치가 스킬 최대 사거리를 벗어나지 않도록 클램프
+                    float maxRange = currentSkill.MaxRange > 0f ? currentSkill.MaxRange : 8f;
+                    Vector3 toPredict = predicted - elitePos;
+                    if (toPredict.magnitude > maxRange)
+                        predicted = elitePos + toPredict.normalized * maxRange;
+
+                    cachedTargetPosition = predicted;
+                    // direction도 예측 위치 기준으로 재계산
+                    cachedTargetDirection = (predicted - elitePos).normalized;
+                }
+            }
         }
         else
         {
             cachedTargetDirection = Vector3.down; // fallback
             cachedTargetPosition = transform.position + Vector3.down * 5f;
-            
         }
         
         
@@ -297,21 +345,39 @@ public class EliteSkillController : MonoBehaviour
             return;
         }
 
-        // 목표 위치: AtTarget이면 플레이어 위치, 아니면 전방 위치
-        Vector3 jumpTarget = currentSkill.TelegraphPositionMode == TelegraphPositionMode.AtTarget
-            ? cachedTargetPosition
-            : cachedOrigin + cachedTargetDirection * currentSkill.AoeRadius;
+        // 착지 목표 위치 계산
+        Vector3 jumpTarget;
+        if (currentSkill.TelegraphPositionMode == TelegraphPositionMode.AtTarget)
+        {
+            // ForwardAnchored 오프셋이 있으면 착지를 그만큼 앞당김
+            // → 몬스터가 플레이어 앞(9시)에 착지하고 DamageArea가 플레이어 위치(3시)를 덮음
+            float landOffset = (currentSkill.AoeCenterMode == AOECenterMode.ForwardAnchored)
+                ? currentSkill.AoeCenterOffset
+                : 0f;
+            Vector3 forward = cachedTargetDirection.normalized;
+            jumpTarget = cachedTargetPosition - forward * landOffset;
+        }
+        else
+        {
+            jumpTarget = cachedOrigin + cachedTargetDirection * currentSkill.AoeRadius;
+        }
 
+        // 비동기 스킬 시작: 착지 전까지 currentSkill 유지
+        isAsyncSkillPending = true;
         jumpSkill.Execute(currentSkill, jumpTarget, baseEnemy, OnJumpLanded);
     }
 
     /// <summary>
-    /// EliteJumpSkill 착지 콜백 — DamageArea 생성 (착지 후 데미지 판정)
+    /// EliteJumpSkill 착지 콜백 — DamageArea 생성 후 스킬 완료 처리
     /// </summary>
     private void OnJumpLanded()
     {
+        isAsyncSkillPending = false;
+
         if (currentSkill == null) return;
+
         SpawnDamageArea();
+        FinishSkillCompletion();
     }
     
     /// <summary>
@@ -328,6 +394,7 @@ public class EliteSkillController : MonoBehaviour
 
     /// <summary>
     /// 스킬 액션 완료 (StateMachineBehaviour 콜백)
+    /// 비동기 스킬(Jump 등)이 진행 중이면 Animator 정리만 하고 완료 처리는 착지 콜백에 위임
     /// </summary>
     public void OnSkillActionComplete()
     {
@@ -335,39 +402,42 @@ public class EliteSkillController : MonoBehaviour
         
         isActionExecuting = false;
         
-        // ⭐⭐⭐ 핵심 수정: Animator 파라미터 업데이트!
+        // Animator 파라미터 정리 (비동기 스킬과 무관하게 항상 실행)
         if (animController != null)
         {
             animController.SetSkillAction(false);
-            
-            // ⭐⭐ 추가: Attack 트리거 리셋 (혹시 남아있을 수 있음)
             var animator = animController.GetComponent<Animator>();
             if (animator != null)
-            {
                 animator.ResetTrigger("Attack");
-                
-            }
-            
         }
         else
         {
             Debug.LogError($"❌ [EliteSkillController] {gameObject.name}: EnemyAnimationController가 없습니다!");
         }
-        
-        // ⭐⭐⭐ EliteAttackBehaviour에 스킬 완료 알림 (전역 쿨다운 시작)
+
+        // 비동기 스킬(Jump 등) 진행 중: 완료 처리를 착지 콜백(FinishAsyncSkill)으로 위임
+        if (isAsyncSkillPending)
+            return;
+
+        FinishSkillCompletion();
+    }
+
+    /// <summary>
+    /// 스킬 완료 공통 처리 (쿨다운, currentSkill 리셋, 전역 쿨다운 알림)
+    /// 동기 스킬: OnSkillActionComplete()에서 직접 호출
+    /// 비동기 스킬(Jump): OnJumpLanded() → FinishAsyncSkill()에서 호출
+    /// </summary>
+    private void FinishSkillCompletion()
+    {
+        if (currentSkill == null) return;
+
         var eliteAttack = GetComponent<EliteAttackBehaviour>();
         if (eliteAttack != null)
-        {
             eliteAttack.OnSkillComplete();
-        }
-        
-        // 쿨다운 시작
+
         if (skillCooldowns.ContainsKey(currentSkill))
-        {
             skillCooldowns[currentSkill] = currentSkill.Cooldown;
-        }
-        
-        
+
         currentSkill = null;
     }
 
@@ -422,9 +492,9 @@ public class EliteSkillController : MonoBehaviour
         {
             indicator.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
 
-            // AtTarget 모드: 이미 타겟 위치에 배치했으므로 CenterMode 보정 불필요
-            // AtCaster 모드: telegraphOffset == zero인 경우 기존 CenterMode 방식 fallback (하위 호환성)
-            if (!atTarget && currentSkill.TelegraphOffset == Vector2.zero)
+            // TelegraphOffset이 없을 때: AoeCenterMode(ForwardAnchored 등) 기반 보정 적용
+            // AtTarget/AtCaster 공통으로 적용해야 DamageArea 위치와 일치
+            if (currentSkill.TelegraphOffset == Vector2.zero)
                 AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
 
             Dbg.Log($"✅ [EliteSkillController] TelegraphIndicator 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
@@ -437,8 +507,8 @@ public class EliteSkillController : MonoBehaviour
             {
                 indicatorMesh.Initialize(currentSkill, currentSkill.TelegraphDuration, scaleMultiplier);
 
-                // AtTarget 모드: CenterMode 보정 불필요
-                if (!atTarget && currentSkill.TelegraphOffset == Vector2.zero)
+                // TelegraphOffset이 없을 때: AoeCenterMode 보정 적용 (AtTarget/AtCaster 공통)
+                if (currentSkill.TelegraphOffset == Vector2.zero)
                     AdjustTelegraphPositionForCenterMode(activeTelegraph, scaleMultiplier);
 
                 Dbg.Log($"✅ [EliteSkillController] TelegraphIndicatorMesh 초기화 완료 (최종 위치: {activeTelegraph.transform.position})");
@@ -587,13 +657,9 @@ public class EliteSkillController : MonoBehaviour
         );
         
         
-        // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성
-        // Jump 타입은 EliteJumpSkill에서 착지 시 직접 생성 (currentSkill 타이밍 문제 우회)
-        if (currentSkill.SkillType != SkillType.Jump)
-        {
-            Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
-            SpawnAOEEffectAtCenter(effectPosition);
-        }
+        // ⭐ Phase 4: DamageArea의 Left Pivot 보정 위치를 사용하여 VFX 생성 (모든 스킬 공통)
+        Vector3 effectPosition = damageArea.GetEffectSpawnPositionForLeftPivot();
+        SpawnAOEEffectAtCenter(effectPosition);
         
         
         // ⭐ PerformDamage()는 Initialize() → ExecuteDamagePolicy() 내부에서 이미 호출됨
@@ -881,6 +947,21 @@ public class EliteSkillController : MonoBehaviour
                 float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                 return Quaternion.Euler(0f, 0f, angle);
         }
+    }
+
+    /// <summary>
+    /// 플레이어의 현재 이동 속도 (Lead Targeting 예측용)
+    /// </summary>
+    private Vector2 GetPlayerVelocity(GameObject player)
+    {
+        if (player == null) return Vector2.zero;
+        var rb = player.GetComponent<Rigidbody2D>();
+        if (rb == null) return Vector2.zero;
+#if UNITY_6000_0_OR_NEWER
+        return rb.linearVelocity;
+#else
+        return rb.velocity;
+#endif
     }
 
     /// <summary>
