@@ -60,6 +60,7 @@ namespace UI.Workshop
         [Header("🔗 연동 컴포넌트")]
         [SerializeField] private BeforeAfterComparisonUI comparisonUI;
         [SerializeField] private WorkshopInventoryUI workshopInventoryUI;
+        [SerializeField] private EnhancementMessageUI enhancementMessageUI;
         
         // ========== 상태 ==========
         private ItemInstanceID selectedItemId;
@@ -859,54 +860,72 @@ namespace UI.Workshop
             }
             
             
+            // 강화 버튼 비활성화 (메세지 연출 중 중복 클릭 방지)
+            if (enhanceButton != null)
+                enhanceButton.interactable = false;
+
             // EnhancementSystem.ExecuteEnhancement() 호출
             var result = EnhancementSystem.ExecuteEnhancement(selectedItemId);
             
-            // 강화 결과 로그
-            if (result.success)
-            {
-                
-                // TODO: CueSystem으로 성공 이펙트/사운드 재생
-                // CueManager.EmitCue("enhancement.success", transform.position);
-            }
-            else
-            {
-                if (result.wasDestroyed)
-                {
-                    
-                    // TODO: CueSystem으로 파괴 이펙트/사운드 재생
-                    // CueManager.EmitCue("enhancement.destroy", transform.position);
-                }
-                else
-                {
-                    
-                    // TODO: CueSystem으로 실패 이펙트/사운드 재생
-                    // CueManager.EmitCue("enhancement.fail", transform.position);
-                }
-            }
-            
-            // 결과 팝업 표시 (Step 2-3에서 구현 예정)
-            // TODO: EnhancementResultPopup.Show(result);
+            // 강화 결과 메세지 연출
+            ShowEnhancementMessage(result);
             
             // 이벤트 발생
             OnEnhancementComplete?.Invoke(result);
             
-            // 인벤토리 갱신
+            // 인벤토리 갱신 및 UI 업데이트
             if (workshopInventoryUI != null)
-            {
                 workshopInventoryUI.RefreshInventoryDisplay();
-            }
-            
-            // 아이템이 파괴되었으면 선택 해제
+
             if (result.wasDestroyed)
-            {
                 ClearSelection();
+            else
+                RefreshUI();
+        }
+
+        /// <summary>
+        /// 강화 결과에 따라 메세지 연출 재생 및 버튼 재활성화 예약
+        /// </summary>
+        private void ShowEnhancementMessage(EnhancementResult result)
+        {
+            if (enhancementMessageUI == null) return;
+
+            if (result.success)
+            {
+                enhancementMessageUI.ShowSuccess(result.previousLevel, result.newLevel);
+            }
+            else if (result.wasDestroyed)
+            {
+                enhancementMessageUI.ShowDestroy(result.previousLevel);
             }
             else
             {
-                // UI 갱신 (강화 레벨 변경 반영)
-                RefreshUI();
+                switch (result.failureType)
+                {
+                    case EnhancementFailureType.Downgrade:
+                        enhancementMessageUI.ShowFailDowngrade(result.previousLevel, result.newLevel);
+                        break;
+                    default:
+                        enhancementMessageUI.ShowFailMaintain(result.previousLevel);
+                        break;
+                }
             }
+
+            // 파괴가 아닌 경우 메세지 연출 후 버튼 재활성화
+            if (!result.wasDestroyed)
+                StartCoroutine(ReEnableEnhanceButtonAfterDelay());
+        }
+
+        /// <summary>
+        /// 메세지 연출 시간(displayDuration + fadeOut)이 지난 후 강화 버튼 재활성화
+        /// </summary>
+        private System.Collections.IEnumerator ReEnableEnhanceButtonAfterDelay()
+        {
+            // EnhancementMessageUI의 기본 표시 시간(2.0s) + 퇴장(0.4s) + 여유 0.1s
+            yield return new WaitForSecondsRealtime(2.5f);
+
+            if (enhanceButton != null)
+                UpdateEnhanceButton();
         }
         
         // ========================================

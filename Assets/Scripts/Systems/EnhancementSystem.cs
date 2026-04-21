@@ -255,6 +255,8 @@ namespace Systems
                 
                 
                 // 4. 결과 적용
+                result.previousLevel = currentLevel;
+
                 if (enhancementSuccess)
                 {
                     // 성공: 레벨 증가
@@ -271,6 +273,8 @@ namespace Systems
                     // 실패: 실패 타입에 따라 처리 (⭐ 새 SO 기반)
                     var failureType = LevelTable.GetFailureType(targetLevel);
                     itemData.enhancementAttempts++;
+
+                    result.failureType = failureType;
                     
                     switch (failureType)
                     {
@@ -416,10 +420,12 @@ namespace Systems
     /// </summary>
     public class EnhancementResult
     {
-        public bool success;            // 강화 성공 여부
-        public int newLevel;            // 새 강화 레벨
-        public bool wasDestroyed;       // 아이템 파괴 여부
-        public string errorMessage;     // 에러 메시지
+        public bool success;                        // 강화 성공 여부
+        public int newLevel;                        // 새 강화 레벨
+        public int previousLevel;                   // 강화 전 레벨
+        public bool wasDestroyed;                   // 아이템 파괴 여부
+        public EnhancementFailureType failureType;  // 실패 타입 (실패 시에만 유효)
+        public string errorMessage;                 // 에러 메시지
     }
 }
 

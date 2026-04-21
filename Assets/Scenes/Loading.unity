@@ -5856,7 +5856,6 @@ MonoBehaviour:
   pauseGameOnCutscene: 1
   cutsceneCueProfile: {fileID: 11400000, guid: 20f6268d6f220cc42bcbf2e3ecc39925, type: 2}
   autoRegisterCueProfile: 1
-  enableDebugLogs: 1
 --- !u!4 &595186071
 Transform:
   m_ObjectHideFlags: 0
@@ -6043,7 +6042,6 @@ MonoBehaviour:
   bgmEventKey: bgm.Login
   stageId: 
   delay: 0.5
-  enableDebugLogs: 1
 --- !u!4 &619878466
 Transform:
   m_ObjectHideFlags: 0
@@ -18030,7 +18028,6 @@ MonoBehaviour:
   maxSFX: 20
   maxUI: 8
   defaultCooldown: 0.05
-  showDebugLogs: 1
   enableCongestionControl: 1
 --- !u!114 &1770825723
 MonoBehaviour:
@@ -18050,7 +18047,6 @@ MonoBehaviour:
   uiProfile: {fileID: 11400000, guid: 7c0843d405741f44bb0384bd92d04f0c, type: 2}
   bgmProfile: {fileID: 11400000, guid: 07d5992aaec74824088081e55e9d3300, type: 2}
   globalDefaults: {fileID: 11400000, guid: 64ef782efab9dd743b4b8eccbba0f564, type: 2}
-  showDebugLogs: 1
   missingKeyPolicy: 1
 --- !u!4 &1770825724
 Transform:
