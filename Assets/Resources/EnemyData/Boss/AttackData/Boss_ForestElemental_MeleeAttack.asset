@@ -15,9 +15,9 @@ MonoBehaviour:
   attackName: "\"\uBCF4\uC2A4 \uC232\uC815\uB839 \uADFC\uC811 \uACF5\uACA9\""
   attackType: 0
   description: "\"\uAC15\uD654\uB41C \uADFC\uC811 \uACF5\uACA9\"\n"
-  baseDamage: 20
+  baseDamage: 12
   criticalChance: 0.12
-  criticalMultiplier: 2
+  criticalMultiplier: 1.7
   attackCooldown: 1
   animationDuration: 1
   animationTrigger: Attack
@@ -29,6 +29,7 @@ MonoBehaviour:
   arcHeight: 3
   projectileSpeed: 10
   projectileLifetime: 5
+  explosionRadius: 0
   projectileCount: 1
   multiShotAngle: 15
   aoeEffectPrefab: {fileID: 0}

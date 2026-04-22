@@ -21,32 +21,20 @@ MonoBehaviour:
     weight: 15
     distanceType: 2
     individualCooldown: 5
-    skillScaleMultiplier: 2
+    skillScaleMultiplier: 1.2
     skillDescription: "\uC2A4\uD0AC"
   - skillData: {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
     weight: 15
     distanceType: 2
     individualCooldown: 8
-    skillScaleMultiplier: 2
+    skillScaleMultiplier: 1.3
     skillDescription: "\uC2A4\uD0AC2"
   - skillData: {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
     weight: 15
     distanceType: 2
     individualCooldown: 10
-    skillScaleMultiplier: 2
-    skillDescription: 
-  - skillData: {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
-    weight: 25
-    distanceType: 2
-    individualCooldown: 5
     skillScaleMultiplier: 1.5
     skillDescription: 
-  - skillData: {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
-    weight: 30
-    distanceType: 2
-    individualCooldown: 10
-    skillScaleMultiplier: 1.2
-    skillDescription: "\uBA54\uD14C\uC624 \uC0E4\uC6CC"
   hasTransitionAnimation: 1
   transitionInvincibleTime: 1
   resetCooldownsOnTransition: 1

@@ -242,6 +242,12 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: Fx_EnemyDeath_Soul
+    prefab: {fileID: 6190469637602000563, guid: b5f27bc70ff7df84c8b5624b0be9f95a, type: 3}
+    size: 3
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 3
   - tag: Fx_PlayerHit_Spark_White
     prefab: {fileID: 8683933021285538514, guid: ac8b3a5cef3b95446892f27e7d319fa3, type: 3}
     size: 5

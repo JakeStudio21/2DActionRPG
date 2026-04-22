@@ -22,9 +22,9 @@ MonoBehaviour:
   maxLevel: 10
   passiveType: 1
   statModifiers:
-  - statType: 2
-    baseValue: 5
-    modifierType: 1
+  - statType: 40
+    baseValue: 100
+    modifierType: 0
   isTriggerBased: 0
   triggerType: 0
   triggerChance: 0

@@ -21,7 +21,7 @@ MonoBehaviour:
     weight: 100
     distanceType: 2
     individualCooldown: 5
-    skillScaleMultiplier: 1.5
+    skillScaleMultiplier: 1.1
     skillDescription: "\uC2A4\uD0AC"
   hasTransitionAnimation: 1
   transitionInvincibleTime: 1

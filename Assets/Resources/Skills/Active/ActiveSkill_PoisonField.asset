@@ -25,7 +25,7 @@ MonoBehaviour:
   isProjectile: 0
   animTriggerName: Skill1
   baseCooldown: 3
-  baseDamageMultiplier: 150
+  baseDamageMultiplier: 0.75
   range: 8
   castCueKey: 
   aoeCueKey: skill.poisonfield.aoe
@@ -59,7 +59,15 @@ MonoBehaviour:
   explosionCueKey: 
   isBurstFire: 0
   burstInterval: 0.15
+  isChainShot: 0
+  maxChainCount: 4
+  chainRadius: 5
+  chainDamageReduction: 0.1
+  chainHitCueKey: 
+  chainDelay: 0.05
   isDotAoe: 1
   dotDuration: 6
   dotTickRate: 0.5
   slowPercentage: 0.25
+  targetingProfile: {fileID: 0}
+  useLiveTargetOnCast: 0

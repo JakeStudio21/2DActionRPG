@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9b3a93c690b9840a80d0a52213c8a0, type: 3}
   m_Name: Enemy_Boss_ForesetElemental_profile
   m_EditorClassIdentifier: 
-  profileId: Elite_Boar_profile
+  profileId: Boss_ForestElemental_profile
   domain: Enemy
   baseProfile: {fileID: 11400000, guid: ee84b71fff1a591459c185521fa40793, type: 2}
   vfxCatalog:
