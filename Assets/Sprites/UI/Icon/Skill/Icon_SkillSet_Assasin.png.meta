@@ -194,7 +194,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_4
+      name: Active_Single_05
       rect:
         serializedVersion: 2
         x: 512
@@ -215,7 +215,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_5
+      name: Active_Single_06
       rect:
         serializedVersion: 2
         x: 640
@@ -236,7 +236,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_6
+      name: Active_Single_07
       rect:
         serializedVersion: 2
         x: 768
@@ -362,7 +362,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_12
+      name: Active_Wave_05
       rect:
         serializedVersion: 2
         x: 512
@@ -383,7 +383,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_13
+      name: Active_Wave_06
       rect:
         serializedVersion: 2
         x: 640
@@ -530,7 +530,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_20
+      name: Passive_Combat_05
       rect:
         serializedVersion: 2
         x: 512
@@ -551,7 +551,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_21
+      name: Passive_Combat_06
       rect:
         serializedVersion: 2
         x: 640
@@ -572,7 +572,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icon_SkillSet_Assasin_22
+      name: Passive_Combat_07
       rect:
         serializedVersion: 2
         x: 768
@@ -1468,17 +1468,17 @@ TextureImporter:
       Active_Single_02: 743790921
       Active_Single_03: 517858564
       Active_Single_04: 945803801
+      Active_Single_05: 1272405549
+      Active_Single_06: 1137714181
+      Active_Single_07: -791671420
       Active_Wave_01: -1033301321
       Active_Wave_02: 189570280
       Active_Wave_03: 417366317
       Active_Wave_04: 1106091394
-      Icon_SkillSet_Assasin_12: -2119455187
-      Icon_SkillSet_Assasin_13: -566429552
+      Active_Wave_05: -2119455187
+      Active_Wave_06: -566429552
       Icon_SkillSet_Assasin_14: -268859148
       Icon_SkillSet_Assasin_15: -1002052871
-      Icon_SkillSet_Assasin_20: -1590104996
-      Icon_SkillSet_Assasin_21: 389527811
-      Icon_SkillSet_Assasin_22: -570267873
       Icon_SkillSet_Assasin_23: -918915445
       Icon_SkillSet_Assasin_28: -1085180534
       Icon_SkillSet_Assasin_29: 503459279
@@ -1488,7 +1488,6 @@ TextureImporter:
       Icon_SkillSet_Assasin_37: 1504083996
       Icon_SkillSet_Assasin_38: -530056043
       Icon_SkillSet_Assasin_39: 1473485836
-      Icon_SkillSet_Assasin_4: 1272405549
       Icon_SkillSet_Assasin_40: 185617378
       Icon_SkillSet_Assasin_41: 951529705
       Icon_SkillSet_Assasin_42: -1627063016
@@ -1499,7 +1498,6 @@ TextureImporter:
       Icon_SkillSet_Assasin_47: -1290941852
       Icon_SkillSet_Assasin_48: -541502190
       Icon_SkillSet_Assasin_49: -1673456633
-      Icon_SkillSet_Assasin_5: 1137714181
       Icon_SkillSet_Assasin_50: -279335631
       Icon_SkillSet_Assasin_51: 1287938903
       Icon_SkillSet_Assasin_52: -1047471155
@@ -1510,7 +1508,6 @@ TextureImporter:
       Icon_SkillSet_Assasin_57: -1791163325
       Icon_SkillSet_Assasin_58: 1335155008
       Icon_SkillSet_Assasin_59: 1856436057
-      Icon_SkillSet_Assasin_6: -791671420
       Icon_SkillSet_Assasin_60: 651590646
       Icon_SkillSet_Assasin_61: -341128636
       Icon_SkillSet_Assasin_62: 940634357
@@ -1520,6 +1517,9 @@ TextureImporter:
       Passive_Combat_02: 1168110155
       Passive_Combat_03: 1698166752
       Passive_Combat_04: -1844853645
+      Passive_Combat_05: -1590104996
+      Passive_Combat_06: 389527811
+      Passive_Combat_07: -570267873
       Passive_Survival_01: 1783920097
       Passive_Survival_02: 1501901096
       Passive_Survival_03: -1019743102

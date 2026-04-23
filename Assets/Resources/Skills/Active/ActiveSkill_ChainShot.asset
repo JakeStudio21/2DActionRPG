@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillID: SKILL_CHAIN_SHOT
   skillName: "\uCCB4\uC778 \uC0F7"
-  icon: {fileID: 417366317, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
+  icon: {fileID: -566429552, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
   description: "\uCCAB \uBC88\uC9F8 \uC801\uC744 \uB9DE\uCD98 \uD6C4 \uC8FC\uBCC0
     \uC801\uC5D0\uAC8C \uD654\uC0B4 \uC5D0\uB108\uC9C0\uAC00 \uC5F0\uC1C4\uB41C\uB2E4."
   unlockLevel: 30
