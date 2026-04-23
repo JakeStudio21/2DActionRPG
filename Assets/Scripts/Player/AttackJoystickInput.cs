@@ -51,8 +51,36 @@ public class AttackJoystickInput : MonoBehaviour
 
     public Vector2 GetAttackDirection()
     {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        // PC 빌드: 조이스틱 입력이 없거나 미미하면 마우스 방향을 사용
+        Vector2 joystickDir = (joystickFound && attackJoystick != null)
+            ? attackJoystick.Direction
+            : Vector2.zero;
+
+        if (joystickDir.sqrMagnitude < 0.01f)
+            return GetMouseDirection();
+
+        return joystickDir;
+#else
         return (joystickFound && attackJoystick != null) ? attackJoystick.Direction : Vector2.zero;
+#endif
     }
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+    /// <summary>플레이어 → 마우스 월드 방향 (PC 전용)</summary>
+    private Vector2 GetMouseDirection()
+    {
+        if (Camera.main == null) return Vector2.zero;
+        var player = FindObjectOfType<PlayerController>();
+        if (player == null) return Vector2.zero;
+
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(
+            new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
+        mouseWorld.z = player.transform.position.z;
+        Vector2 dir = (Vector2)mouseWorld - (Vector2)player.transform.position;
+        return dir.sqrMagnitude > 0.001f ? dir.normalized : Vector2.zero;
+    }
+#endif
 
     /// <summary>
     /// 외부에서 조이스틱 참조를 다시 설정할 수 있는 메서드 (강제 재연결)

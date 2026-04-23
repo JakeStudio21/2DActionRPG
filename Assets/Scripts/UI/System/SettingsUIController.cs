@@ -67,6 +67,9 @@ public class SettingsUIController : MonoBehaviour
 
     private SettingsOpenMode _currentOpenMode = SettingsOpenMode.FromHUD;
 
+    /// <summary>설정 패널이 현재 열려있는지 여부 (InGamePCInputHandler · MiniMapUIManager 에서 참조)</summary>
+    public bool IsOpen => gameObject.activeSelf;
+
     // ───────────────────────────────────────────
     //  PlayerPrefs 키 상수
     // ───────────────────────────────────────────

@@ -123,6 +123,9 @@ public class PlayerSpawner : MonoBehaviour
         // AttackButtonController에 PlayerAttackInput 주입
         BindAttackButtonController();
 
+        // PC 액션 HUD 초기화 (쿨다운 아이콘)
+        SetupPCActionHUD();
+
         // 카메라 설정 (더 안전한 방식) - 즉시 실행
         yield return StartCoroutine(SetupPlayerCameraCoroutine());
         
@@ -434,11 +437,33 @@ public class PlayerSpawner : MonoBehaviour
     }
 
     /// <summary>
+    /// PC 액션 HUD(쿨다운 아이콘)에 플레이어 레퍼런스를 주입한다.
+    /// PC/에디터 빌드에서만 실행된다.
+    /// </summary>
+    private void SetupPCActionHUD()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        var hud = FindObjectOfType<PCActionHUDController>(true);
+        if (hud == null) return;
+
+        if (spawnedPlayer == null) return;
+
+        var pc  = spawnedPlayer.GetComponent<PlayerController>();
+        var pac = spawnedPlayer.GetComponent<PlayerAnimationController>();
+        var psm = spawnedPlayer.GetComponent<PlayerSkillManager>();
+
+        hud.SetupPlayer(pc, pac, psm);
+#endif
+    }
+
+    /// <summary>
     /// AttackButtonController에 PlayerAttackInput 참조를 주입한다.
-    /// 플레이어 스폰 + AddPlayerAttackInput() 완료 직후 1회 호출.
+    /// PC 빌드에서는 모바일 버튼이 비활성화되므로 바인딩을 스킵한다.
     /// </summary>
     private void BindAttackButtonController()
     {
+#if !(UNITY_EDITOR || UNITY_STANDALONE)
+        // 모바일 빌드에서만 바인딩 (PC/에디터: InGamePCInputHandler가 입력 처리)
         if (spawnedPlayer == null) return;
 
         var input = spawnedPlayer.GetComponent<PlayerAttackInput>();
@@ -456,6 +481,7 @@ public class PlayerSpawner : MonoBehaviour
         }
 
         attackButtonController.Bind(input);
+#endif
     }
 
     /// <summary>

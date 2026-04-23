@@ -162,8 +162,12 @@ public class DungeonSelectPanelController : MonoBehaviour
         if (dungeonSelectPanel != null)
         {
             dungeonSelectPanel.SetActive(true);
+
+            // 패널을 열 때마다 모든 카테고리의 해금 상태를 현재 레벨로 갱신
+            // (Start() 시점에는 PlayerDataManager 로드 전일 수 있으므로 여기서 보정)
+            RefreshAllUnlockStates();
+
             RefreshCategoryList();
-            
         }
     }
     
@@ -458,9 +462,10 @@ public class DungeonSelectPanelController : MonoBehaviour
     {
         selectedCategoryId = categoryId;
         selectedDungeonId = ""; // 던전 선택 초기화
-        
+
+        // 카테고리 선택 시 해금 상태를 최신 레벨로 갱신 후 목록 표시
+        RefreshDungeonUnlockStates(categoryId);
         RefreshDungeonList(categoryId);
-        
     }
     
     /// <summary>
@@ -869,11 +874,26 @@ public class DungeonSelectPanelController : MonoBehaviour
     /// </summary>
     private void OnPlayerLevelChanged(int newLevel)
     {
-        
         // 현재 선택된 카테고리의 던전 목록만 갱신
         if (!string.IsNullOrEmpty(selectedCategoryId))
         {
             RefreshDungeonUnlockStates(selectedCategoryId);
+        }
+    }
+
+    /// <summary>
+    /// 모든 카테고리의 던전 해금 상태를 현재 레벨로 일괄 갱신합니다.
+    /// ShowPanel() 호출 시 실행되어 Start() 시점의 레벨 오류를 보정합니다.
+    /// </summary>
+    private void RefreshAllUnlockStates()
+    {
+        int currentLevel = GetPlayerLevel();
+        foreach (var category in dungeonsByCategory)
+        {
+            foreach (var dungeonInfo in category.Value)
+            {
+                dungeonInfo.isUnlocked = (currentLevel >= dungeonInfo.recommendedLevel);
+            }
         }
     }
     

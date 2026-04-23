@@ -60,6 +60,9 @@ public class PauseMenuController : MonoBehaviour
     //  공개 API
     // ───────────────────────────────────────────
 
+    /// <summary>현재 일시정지 메뉴가 열려있는지 여부</summary>
+    public bool IsPauseMenuOpen => pauseMenuPanel != null && pauseMenuPanel.activeSelf;
+
     /// <summary>
     /// 인게임 종료 버튼에 연결. 게임 일시정지 + PauseMenuPanel 표시.
     /// </summary>
@@ -67,6 +70,14 @@ public class PauseMenuController : MonoBehaviour
     {
         Time.timeScale = 0f;
         pauseMenuPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ESC 키 등으로 일시정지 메뉴를 닫음 (계속하기와 동일 효과).
+    /// </summary>
+    public void HidePauseMenu()
+    {
+        ContinuePlaying();
     }
 
     // ───────────────────────────────────────────

@@ -29,6 +29,10 @@ public class PlayerAttackInput : MonoBehaviour
     [Header("디버그")]
     [SerializeField] private bool showDebugLogs = false;
 
+    // PC 빌드 전용: InGamePCInputHandler 가 공격 직전에 설정하는 마우스 에임 방향
+    private Vector2 _pcAimDirOverride = Vector2.zero;
+    private bool    _hasPCAimOverride = false;
+
     // ──────────────────────────────────────────────────────────────────────────
     #region Unity Lifecycle
 
@@ -53,13 +57,7 @@ public class PlayerAttackInput : MonoBehaviour
 
     void Update()
     {
-#if UNITY_EDITOR || UNITY_STANDALONE
-        if (!enableKeyboardInput) return;
-
-        if (Input.GetKeyDown(KeyCode.A)) PerformAttack();
-        if (Input.GetKeyDown(KeyCode.S)) PerformSkill();
-        if (Input.GetKeyDown(KeyCode.D)) PerformSkill2();
-#endif
+        // 공격/스킬 키 입력은 InGamePCInputHandler 에서 일괄 처리
     }
 
     #endregion
@@ -95,16 +93,21 @@ public class PlayerAttackInput : MonoBehaviour
 
     /// <summary>
     /// 자동 타겟팅으로 공격 방향을 결정합니다.
-    /// 탐지된 타겟이 있으면 그 방향, 없으면 이동 방향(또는 FacingDirection)을 반환합니다.
+    /// - PC: SetPCAimDirection() 으로 주입된 마우스 방향을 기준으로 스코어링.
+    ///        타겟이 있으면 그 방향, 없으면 마우스 방향을 반환.
+    /// - 모바일: 이동/facing 방향 기준 자동 타겟팅, 없으면 FacingDirection 반환.
     /// </summary>
     private Vector2 ResolveAttackDirection()
     {
-        if (autoTargetResolver == null || basicAttackProfile == null)
-        {
-            return GetFacingDirection();
-        }
+        // PC 마우스 에임 오버라이드 소비 (한 번만 사용)
+        bool hasPCDir = _hasPCAimOverride;
+        Vector2 pcDir = _pcAimDirOverride;
+        _hasPCAimOverride = false;
 
-        Vector2 aimDir = GetAimDir();
+        if (autoTargetResolver == null || basicAttackProfile == null)
+            return hasPCDir ? pcDir : GetFacingDirection();
+
+        Vector2 aimDir = hasPCDir ? pcDir : GetAimDir();
         ITargetable target = autoTargetResolver.FindBestTarget(aimDir, basicAttackProfile);
 
         if (target != null && target.IsAlive())
@@ -119,8 +122,8 @@ public class PlayerAttackInput : MonoBehaviour
             }
         }
 
-
-        return GetFacingDirection();
+        // 타겟 없음: PC면 마우스 방향, 모바일이면 facing 방향
+        return hasPCDir ? pcDir : GetFacingDirection();
     }
 
     /// <summary>
@@ -144,8 +147,18 @@ public class PlayerAttackInput : MonoBehaviour
     }
 
     /// <summary>
-    /// 이동 중이면 이동 벡터, 정지 중이면 FacingDirection을 반환합니다.
-    /// 이 값은 AutoTargetResolver 스코어링의 각도 가중치(AngleWeight)에만 사용됩니다.
+    /// PC: InGamePCInputHandler 가 공격 전 SetPCAimDirection() 으로 마우스 방향을 주입.
+    /// 주입된 방향이 있으면 그것을 우선 사용하고 1회 소비(클리어)한다.
+    /// </summary>
+    public void SetPCAimDirection(Vector2 dir)
+    {
+        _pcAimDirOverride = dir;
+        _hasPCAimOverride = true;
+    }
+
+    /// <summary>
+    /// 자동 타겟팅 스코어링에 사용할 에임 방향을 반환합니다.
+    /// PC 오버라이드는 ResolveAttackDirection() 에서 직접 소비하므로 여기서는 처리하지 않습니다.
     /// </summary>
     private Vector2 GetAimDir()
     {

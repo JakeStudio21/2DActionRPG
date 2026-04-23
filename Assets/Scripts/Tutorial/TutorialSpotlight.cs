@@ -53,51 +53,46 @@ public class TutorialSpotlight : MonoBehaviour
     /// </summary>
     private void InitializeSpotlight()
     {
-        // UI 타겟 자동 탐색
+#if !UNITY_EDITOR && UNITY_STANDALONE
+        // PC 빌드: 모바일 버튼이 존재하지 않으므로 자동 탐색 스킵
+        // GetTargetForStep() 에서 null 반환 시 HideSpotlight() 로 안전하게 처리됨
+#else
+        // UI 타겟 자동 탐색 (모바일 / 에디터)
         if (joystickTarget == null)
         {
             GameObject joystickObj = GameObject.Find("Dynamic Joystick");
             if (joystickObj != null)
-            {
                 joystickTarget = joystickObj.GetComponent<RectTransform>();
-            }
         }
-        
+
         if (attackButtonTarget == null)
         {
             GameObject attackObj = GameObject.Find("AttackButton");
             if (attackObj != null)
-            {
                 attackButtonTarget = attackObj.GetComponent<RectTransform>();
-            }
         }
-        
+
         if (dashButtonTarget == null)
         {
             GameObject dashObj = GameObject.Find("DashButton");
             if (dashObj != null)
-            {
                 dashButtonTarget = dashObj.GetComponent<RectTransform>();
-            }
         }
-        
+
         if (skill1ButtonTarget == null)
         {
             GameObject skill1Obj = GameObject.Find("Skill1Button");
             if (skill1Obj != null)
-            {
                 skill1ButtonTarget = skill1Obj.GetComponent<RectTransform>();
-            }
         }
-        
+
         if (skill2ButtonTarget == null)
         {
             GameObject skill2Obj = GameObject.Find("Skill2Button");
             if (skill2Obj != null)
-            {
                 skill2ButtonTarget = skill2Obj.GetComponent<RectTransform>();
-            }
         }
+#endif
         
         // Dimmer Image 설정
         if (dimmerImage != null && spotlightMaterial != null)
@@ -173,30 +168,26 @@ public class TutorialSpotlight : MonoBehaviour
     }
     
     /// <summary>
-    /// 단계에 맞는 타겟 반환
+    /// 단계에 맞는 타겟 반환.
+    /// PC 빌드에서 모바일 버튼이 비활성화된 경우 null 을 반환하여 스포트라이트를 숨긴다.
     /// </summary>
     private RectTransform GetTargetForStep(TutorialStepController.TutorialStep step)
     {
-        switch (step)
+        RectTransform target = step switch
         {
-            case TutorialStepController.TutorialStep.Move:
-                return joystickTarget;
-            
-            case TutorialStepController.TutorialStep.Attack:
-                return attackButtonTarget;
-            
-            case TutorialStepController.TutorialStep.Dash:
-                return dashButtonTarget;
-            
-            case TutorialStepController.TutorialStep.Skill1:
-                return skill1ButtonTarget;
-            
-            case TutorialStepController.TutorialStep.Skill2:
-                return skill2ButtonTarget;
-            
-            default:
-                return null;
-        }
+            TutorialStepController.TutorialStep.Move   => joystickTarget,
+            TutorialStepController.TutorialStep.Attack => attackButtonTarget,
+            TutorialStepController.TutorialStep.Dash   => dashButtonTarget,
+            TutorialStepController.TutorialStep.Skill1 => skill1ButtonTarget,
+            TutorialStepController.TutorialStep.Skill2 => skill2ButtonTarget,
+            _                                          => null,
+        };
+
+        // 타겟이 비활성화된 경우 null 반환 (PC에서 모바일 버튼 숨김 대응)
+        if (target != null && !target.gameObject.activeInHierarchy)
+            return null;
+
+        return target;
     }
     
     /// <summary>

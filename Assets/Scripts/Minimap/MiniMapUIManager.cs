@@ -70,6 +70,17 @@ public class MiniMapUIManager : MonoBehaviour
         SetPanelState(showRadar: false);
     }
 
+    /// <summary>
+    /// M 키 등으로 레이더맵 ↔ 전체 미니맵을 토글한다.
+    /// </summary>
+    public void ToggleMinimap()
+    {
+        if (IsRadarMapVisible)
+            ShowMinimap();
+        else
+            ShowRadarMap();
+    }
+
     /// <summary>현재 레이더맵이 활성화되어 있는지 여부.</summary>
     public bool IsRadarMapVisible => radarMapPanel != null && radarMapPanel.activeSelf;
 

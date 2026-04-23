@@ -87,6 +87,43 @@ public class PlayerController : MonoBehaviour
         attackDirectionMarker?.Hide();
     }
 
+    /// <summary>
+    /// 스킬 발동 전용: flipX + moveX/moveY + facingLeft 를 즉시 전환하되 Lock 은 걸지 않습니다.
+    /// LockAnimationDirection() 과 달리 _attackDirectionLocked 를 변경하지 않으므로
+    /// 스킬 발사 후 WASD 이동 시 방향이 정상적으로 갱신됩니다.
+    /// </summary>
+    public void SetFacingDirectionForSkill(Vector2 dir)
+    {
+        if (dir.sqrMagnitude < 0.001f) return;
+        dir = dir.normalized;
+
+        if (myAnimator != null && mySpriteRender != null)
+        {
+            if (dir.x < -0.1f)
+            {
+                mySpriteRender.flipX = true;
+                facingLeft = true;
+                myAnimator.SetFloat("moveX", Mathf.Abs(dir.x));
+                myAnimator.SetFloat("moveY", dir.y);
+            }
+            else if (dir.x > 0.1f)
+            {
+                mySpriteRender.flipX = false;
+                facingLeft = false;
+                myAnimator.SetFloat("moveX", dir.x);
+                myAnimator.SetFloat("moveY", dir.y);
+            }
+            else
+            {
+                myAnimator.SetFloat("moveX", 0f);
+                myAnimator.SetFloat("moveY", dir.y);
+            }
+        }
+
+        // 정지 시 이 방향을 유지하도록 lastMoveDirection 도 갱신
+        lastMoveDirection = dir;
+    }
+
     /// <summary>미니맵 마커 회전에 사용할 플레이어 이동 방향 (정규화된 벡터)</summary>
     public Vector2 FacingDirection { get; private set; } = Vector2.down;
 
@@ -311,31 +348,30 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerInput()
     {
-        // 조이스틱 전용: 키보드 입력 제거
         movement = Vector2.zero;
 
-        // 조이스틱이 발견되었고 유효하면 조이스틱 입력 사용
+        // 조이스틱이 발견되었고 유효하면 조이스틱 입력 우선 사용
         if (joystickFound && fixedJoystick != null)
         {
             movement = fixedJoystick.Direction;
         }
-        else
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+        // PC 빌드: 조이스틱 입력이 없으면 WASD 입력 사용
+        if (movement.sqrMagnitude < 0.01f)
         {
-            // ⭐ 디버그: 1초마다 한 번씩만 로그
-            if (Time.frameCount % 60 == 0)
-            {
-                Debug.LogWarning($"[PlayerController] 조이스틱 없음 - joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick}");
-
-                // ⭐ 추가: 실제 씬에 조이스틱이 있는지 확인
-                var joystickInScene = FindObjectOfType<DynamicJoystick>();
-
-                // ⭐ 씬에 조이스틱이 있는데 연결 안된 경우 강제 재연결
-                if (joystickInScene != null && (!joystickFound || fixedJoystick == null))
-                {
-                    RefreshJoystickReference();
-                }
-            }
+            movement = playerControls.Movement.Move.ReadValue<Vector2>();
         }
+#else
+        // 모바일: 조이스틱 없으면 60프레임마다 재연결 시도
+        if (movement.sqrMagnitude < 0.01f && Time.frameCount % 60 == 0)
+        {
+            Debug.LogWarning($"[PlayerController] 조이스틱 없음 - joystickFound: {joystickFound}, fixedJoystick: {fixedJoystick}");
+            var joystickInScene = FindObjectOfType<DynamicJoystick>();
+            if (joystickInScene != null && (!joystickFound || fixedJoystick == null))
+                RefreshJoystickReference();
+        }
+#endif
 
         // ❌ moveX/moveY를 여기서 세팅하지 않습니다 (E5 미러링 충돌 방지)
         // myAnimator.SetFloat("moveX", movement.x);
