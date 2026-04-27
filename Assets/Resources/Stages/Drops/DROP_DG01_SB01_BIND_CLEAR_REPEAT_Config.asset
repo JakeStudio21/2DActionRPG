@@ -15,18 +15,18 @@ MonoBehaviour:
   DropGroupID: DROP_DG01_SB01_BIND_CLEAR_REPEAT
   StageID: DG01_SB01_BIND
   GroupType: 1
-  Gold: 100
-  Exp: 20
+  Gold: 250
+  Exp: 80
   Items:
+  - ItemID: GEN_EQUIP_D_C
+    Amount: 1
+    DropRate: 1
+    ItemPrefab: {fileID: 0}
   - ItemID: RUNE_FRAG_RUNE_BOSS_HUNTER
-    Amount: 11
+    Amount: 2
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: RUNE_FRAG_RUNE_DEFENSE_BREAKER
-    Amount: 11
-    DropRate: 1
-    ItemPrefab: {fileID: 0}
-  - ItemID: ITEM_ARMOR_WARRIOR_B
-    Amount: 11
+  - ItemID: RUNE_FRAG_RUNE_BOSS_DEFENDER
+    Amount: 2
     DropRate: 1
     ItemPrefab: {fileID: 0}

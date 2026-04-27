@@ -26,7 +26,7 @@ MonoBehaviour:
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: RUNE_FRAG_RUNE_AREA_DEFENDER
+  - ItemID: RUNE_FRAG_RUNE_BOSS_DEFENDER
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}

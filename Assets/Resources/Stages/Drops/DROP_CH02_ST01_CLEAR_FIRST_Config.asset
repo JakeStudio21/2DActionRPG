@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: caebb815a80113343a9fcac2e9ae1631, type: 3}
-  m_Name: DROP_CH01_ST10_CLEAR_REPEAT_Config
+  m_Name: DROP_CH02_ST01_CLEAR_FIRST_Config
   m_EditorClassIdentifier: 
-  DropGroupID: DROP_CH01_ST10_CLEAR_REPEAT
-  StageID: CH01_ST10
-  GroupType: 1
-  Gold: 500
-  Exp: 110
+  DropGroupID: DROP_CH02_ST01_CLEAR_FIRST
+  StageID: CH02_ST01
+  GroupType: 0
+  Gold: 900
+  Exp: 350
   Items:
-  - ItemID: GEN_EQUIP_D_C
+  - ItemID: GEN_EQUIP_C_B
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: GEN_EQUIP_D_C
+  - ItemID: GEN_EQUIP_C_B
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}

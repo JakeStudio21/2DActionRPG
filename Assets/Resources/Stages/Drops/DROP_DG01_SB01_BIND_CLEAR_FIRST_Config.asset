@@ -15,18 +15,18 @@ MonoBehaviour:
   DropGroupID: DROP_DG01_SB01_BIND_CLEAR_FIRST
   StageID: DG01_SB01_BIND
   GroupType: 0
-  Gold: 350
-  Exp: 100
+  Gold: 500
+  Exp: 200
   Items:
-  - ItemID: RUNE_FRAG_RUNE_DEFENSE_BREAKER
+  - ItemID: GEN_EQUIP_C_B
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: SPIRIT_ESSENCE_EARTH
-    Amount: 1
+  - ItemID: RUNE_FRAG_RUNE_BOSS_DEFENDER
+    Amount: 3
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: MAT_WEAPON_FRAGMENT
-    Amount: 1
+  - ItemID: RUNE_FRAG_RUNE_BOSS_HUNTER
+    Amount: 3
     DropRate: 1
     ItemPrefab: {fileID: 0}

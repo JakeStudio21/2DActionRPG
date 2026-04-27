@@ -71,8 +71,8 @@ MonoBehaviour:
   BGMPath: Prefab/BGM/SCENE_CH01
   Description: "Chapter 1 - Stage 10 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uBCF4\uC2A4 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST09"
-  fogVolumeProfile: {fileID: 0}
-  clearVolumeProfile: {fileID: 0}
+  fogVolumeProfile: {fileID: 11400000, guid: 05d30628d8c68e74e9db36e44e236058, type: 2}
+  clearVolumeProfile: {fileID: 11400000, guid: 621b913244e4be340bc984f5a766aa13, type: 2}
   volumeTransitionDuration: 2
   targetFarmingEntries: []
   overrideRangeTable: {fileID: 0}

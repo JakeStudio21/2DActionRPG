@@ -18,11 +18,11 @@ MonoBehaviour:
   Gold: 1000
   Exp: 350
   Items:
-  - ItemID: GEN_EQUIP_D_C
+  - ItemID: GEN_EQUIP_C_B
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: GEN_EQUIP_D_C
+  - ItemID: GEN_EQUIP_C_B
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
