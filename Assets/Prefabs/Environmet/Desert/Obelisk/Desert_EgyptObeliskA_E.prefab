@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3324376815505280979}
   - component: {fileID: 3301551944808263491}
+  - component: {fileID: 1220941266784199296}
   m_Layer: 0
   m_Name: Desert_EgyptObeliskA_E
   m_TagString: Untagged
@@ -84,6 +85,29 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1220941266784199296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108486075890720913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footPosition: {fileID: 0}
+  footOffset: {x: 0, y: -0.8}
+  baseLayer: 1000
+  heightOffset: 0
+  useIsometricData: 1
+  enableDynamicHeight: 1
+  updatePolicy: 1
+  updateInterval: 0.1
+  moveThreshold: 0.01
+  showDebugGizmo: 0
+  showOrderInInspector: 0
 --- !u!1 &3554243721165318028
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5483560549312924466}
   - component: {fileID: 5488248951383677413}
   - component: {fileID: 8364777170881205740}
+  - component: {fileID: 6316144343298278387}
   m_Layer: 0
   m_Name: Desert_EgyptObeliskA_NW
   m_TagString: Untagged
@@ -110,7 +111,6 @@ MonoBehaviour:
   moveThreshold: 0.01
   showDebugGizmo: 0
   showOrderInInspector: 0
-  enableDebugLogs: 0
 --- !u!60 &5488248951383677413
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -176,6 +176,29 @@ MonoBehaviour:
   m_Area: 1
   m_IgnoreFromBuild: 0
   m_AffectedAgents: ffffffff
+--- !u!114 &6316144343298278387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167588657988918069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footPosition: {fileID: 0}
+  footOffset: {x: 0, y: -0.8}
+  baseLayer: 1000
+  heightOffset: 0
+  useIsometricData: 1
+  enableDynamicHeight: 1
+  updatePolicy: 1
+  updateInterval: 0.1
+  moveThreshold: 0.01
+  showDebugGizmo: 0
+  showOrderInInspector: 0
 --- !u!1 &1221780353360511238
 GameObject:
   m_ObjectHideFlags: 0

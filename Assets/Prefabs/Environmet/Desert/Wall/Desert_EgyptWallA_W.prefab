@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3210895943770599164}
   - component: {fileID: 5718853399966420385}
   - component: {fileID: 1289032995816801208}
+  - component: {fileID: 9019940293010086855}
   m_Layer: 10
   m_Name: Desert_EgyptWallA_W
   m_TagString: Wall
@@ -159,7 +160,6 @@ MonoBehaviour:
   moveThreshold: 0.01
   showDebugGizmo: 0
   showOrderInInspector: 0
-  enableDebugLogs: 0
 --- !u!114 &1289032995816801208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,6 +176,29 @@ MonoBehaviour:
   m_Area: 1
   m_IgnoreFromBuild: 0
   m_AffectedAgents: ffffffff
+--- !u!114 &9019940293010086855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4413770869240263806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footPosition: {fileID: 0}
+  footOffset: {x: 0, y: -0.8}
+  baseLayer: 1000
+  heightOffset: 0
+  useIsometricData: 1
+  enableDynamicHeight: 1
+  updatePolicy: 1
+  updateInterval: 0.1
+  moveThreshold: 0.01
+  showDebugGizmo: 0
+  showOrderInInspector: 0
 --- !u!1 &4651713686148114120
 GameObject:
   m_ObjectHideFlags: 0
