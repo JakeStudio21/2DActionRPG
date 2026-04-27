@@ -28,16 +28,57 @@ MonoBehaviour:
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
+  requiredStamina: 5
+  categoryId: 
   WaveCount: 3
   Victory: 0
+  objectiveType: 0
+  targetBossName: 
   StageBaseLevel: 13
   hasTimeLimit: 0
   TimeLimitSec: 300
   FirstClearDropGroupId: DROP_CH02_ST01_FIRST
   RepeatClearDropGroupId: DROP_CH02_ST01_REPEAT
+  cameraZoom:
+    useZoom: 0
+    targetSize: 12
+    transitionDuration: 1
+    preZoomDelay: 0.5
+    easeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   BGMPath: Prefab/BGM/SCENE_CH02
   Description: "Chapter 2 - Stage 1 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uC77C\uBC18 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH01_ST10"
-  WaveConfigs: []
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  fogVolumeProfile: {fileID: 0}
+  clearVolumeProfile: {fileID: 0}
+  volumeTransitionDuration: 2
+  targetFarmingEntries: []
+  overrideRangeTable: {fileID: 0}
+  WaveConfigs:
+  - {fileID: 11400000, guid: e93652d15fd2ad043bdcae322009ce6a, type: 2}
+  - {fileID: 11400000, guid: 2494d509f7e6e58498838f7b0140720a, type: 2}
+  - {fileID: 11400000, guid: e9e513096c580d340ace563e97168519, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: a29ba3de337aeb34599379557cd4bfb9, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: a18f4f98cf48d7644b628fb93ce8c2e9, type: 2}
