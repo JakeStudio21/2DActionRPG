@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: caebb815a80113343a9fcac2e9ae1631, type: 3}
-  m_Name: DROP_CH02_ST01_CLEAR_FIRST_Config
+  m_Name: DROP_CH02_ST07_CLEAR_REPEAT_Config
   m_EditorClassIdentifier: 
-  DropGroupID: DROP_CH02_ST01_CLEAR_FIRST
-  StageID: CH02_ST01
-  GroupType: 0
-  Gold: 1000
-  Exp: 350
+  DropGroupID: DROP_CH02_ST07_CLEAR_REPEAT
+  StageID: CH02_ST07
+  GroupType: 1
+  Gold: 800
+  Exp: 110
   Items:
-  - ItemID: GEN_EQUIP_C_B
+  - ItemID: GEN_EQUIP_D_C
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: GEN_EQUIP_C_B
+  - ItemID: GEN_EQUIP_D_C
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}
-  - ItemID: RUNE_FRAG_RUNE_BOSS_DEFENDER
+  - ItemID: RUNE_FRAG_RUNE_AREA_DEFENDER
     Amount: 1
     DropRate: 1
     ItemPrefab: {fileID: 0}

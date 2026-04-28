@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: caebb815a80113343a9fcac2e9ae1631, type: 3}
-  m_Name: DROP_CH02_ST01_CLEAR_FIRST_Config
+  m_Name: DROP_CH02_ST08_CLEAR_FIRST_Config
   m_EditorClassIdentifier: 
-  DropGroupID: DROP_CH02_ST01_CLEAR_FIRST
-  StageID: CH02_ST01
+  DropGroupID: DROP_CH02_ST08_CLEAR_FIRST
+  StageID: CH02_ST08
   GroupType: 0
-  Gold: 1000
+  Gold: 1700
   Exp: 350
   Items:
   - ItemID: GEN_EQUIP_C_B
