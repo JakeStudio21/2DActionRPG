@@ -260,7 +260,7 @@ public class EnemyHealth : MonoBehaviour
             return;
         }
 
-        currentHealth -= damage;
+        currentHealth = Mathf.Max(0, currentHealth - damage);
         
         // ⭐ 데미지 넘버 표시 (Phase 1 + 앵커 시스템)
         if (DamageNumberManager.Instance != null)
@@ -374,7 +374,7 @@ public class EnemyHealth : MonoBehaviour
         }
 
         // 1️⃣ 실제 HP 차감
-        currentHealth -= result.finalDamage;
+        currentHealth = Mathf.Max(0, currentHealth - result.finalDamage);
         
         // 2️⃣ 데미지 넘버 표시 (Phase 4-C: DamageResult 통합 - 크리티컬, 면역 연출 포함)
         if (DamageNumberManager.Instance != null)

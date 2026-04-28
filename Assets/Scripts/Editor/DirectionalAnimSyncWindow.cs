@@ -20,7 +20,7 @@ public class DirectionalAnimSyncWindow : EditorWindow
 
     private const string SPRITE_PROP = "m_Sprite";
 
-    [MenuItem("Tools/Directional Anim Sync")]
+    [MenuItem("Tools/Sprites/Directional Anim Sync")]
     private static void Open()
     {
         GetWindow<DirectionalAnimSyncWindow>("Directional Anim Sync");

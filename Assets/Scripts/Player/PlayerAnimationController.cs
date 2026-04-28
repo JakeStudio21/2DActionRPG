@@ -1000,6 +1000,24 @@ public class PlayerAnimationController : MonoBehaviour
             animator.SetBool(IS_HIT_HASH, false);
         }
         
+        // ⭐ 피격으로 공격 애니메이션이 중단된 경우 OnAttackComplete가 호출되지 않으므로
+        //    여기서 공격 상태를 강제 복구 — 미복구 시 canAttack이 false로 영구 고착됨
+        if (!canAttack)
+        {
+            canAttack = true;
+            isAttacking = false;
+            if (HasParameter(animator, "isAttacking"))
+                animator.SetBool(IS_ATTACKING_HASH, false);
+            
+            if (playerController != null)
+            {
+                playerController.RestoreNormalMovement();
+                playerController.UnlockAnimationDirection();
+            }
+            if (activeWeapon != null)
+                activeWeapon.UnlockAttackDirection();
+        }
+        
     }
 
     /// <summary>

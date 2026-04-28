@@ -260,7 +260,7 @@ public class BossHealthUI : MonoBehaviour
             // HP 텍스트 업데이트
             if (hpText != null)
             {
-                hpText.text = $"{Mathf.RoundToInt(currentHealth)}/{Mathf.RoundToInt(maxHealth)}";
+                hpText.text = $"{Mathf.RoundToInt(Mathf.Max(0f, currentHealth))}/{Mathf.RoundToInt(maxHealth)}";
             }
             
             // HP 색상 업데이트

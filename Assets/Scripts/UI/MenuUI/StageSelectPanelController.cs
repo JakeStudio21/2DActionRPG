@@ -265,6 +265,9 @@ public class StageSelectPanelController : MonoBehaviour
         
         currentChapterId = newChapterId;
         
+        // 챕터 타이틀 텍스트 강제 갱신 (컷신 후 타이밍 문제 방지)
+        chapterMapUI?.ForceRefresh();
+        
         // 스테이지 버튼 재생성
         CreateStageButtons(currentChapterId);
         

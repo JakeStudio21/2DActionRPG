@@ -158,7 +158,13 @@ public class ScreenShakeManager : Singleton<ScreenShakeManager>
         // Duration 동적 적용 — ImpulseDefinition TimeEnvelope 수정
         ApplyDuration(duration);
 
-        _source.GenerateImpulse(finalIntensity);
+        // 카메라 위치에서 임펄스 생성 — ScreenShakeManager가 DontDestroyOnLoad로
+        // 월드 원점에 머물 경우, 카메라가 멀리 있는 씬(CH02 이후)에서
+        // ImpactRadius를 벗어나 임펄스가 감쇠되는 문제를 방지
+        Vector3 impulsePos = Camera.main != null
+            ? Camera.main.transform.position
+            : transform.position;
+        _source.GenerateImpulseAt(impulsePos, _source.m_DefaultVelocity * finalIntensity);
 
         // 쿨다운 갱신
         _cooldownTimer    = shakeCooldown;

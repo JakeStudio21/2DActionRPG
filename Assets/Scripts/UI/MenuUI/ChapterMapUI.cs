@@ -329,10 +329,8 @@ public class ChapterMapUI : MonoBehaviour
             !string.IsNullOrEmpty(stageConfig.chapterStartCutsceneId) &&
             CutsceneSystem.CutsceneManager.Instance != null)
         {
-            bool shouldPlay = CutsceneSystem.CutsceneManager.Instance.ShouldPlayCutscene(
-                stageConfig.chapterStartCutsceneId, 
-                false, 
-                false
+            bool shouldPlay = !CutsceneSystem.CutsceneProgressTracker.HasSeen(
+                stageConfig.chapterStartCutsceneId
             );
             
             if (shouldPlay)

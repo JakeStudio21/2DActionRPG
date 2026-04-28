@@ -16,7 +16,7 @@ public class ContentEntryManager : MonoBehaviour
     public int maxStamina = 50;
     
     [Tooltip("스태미나 1회복당 소요 시간 (분)")]
-    public int staminaRecoveryIntervalMinutes = 5;
+    public int staminaRecoveryIntervalMinutes = 1;
     
     [Header("🏰 던전 설정")]
     [Tooltip("일일 던전 기본 입장 횟수")]
