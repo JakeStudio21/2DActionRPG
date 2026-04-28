@@ -15,7 +15,7 @@ MonoBehaviour:
   hpGrowthRate: 0.15
   atkGrowthRate: 0.12
   defGrowthRate: 0.08
-  speedGrowthRate: 0.05
+  speedGrowthRate: 0.01
   growthCurve: 1.1
   eliteMultiplier: 1.5
   bossMultiplier: 3

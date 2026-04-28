@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SimpleMob_RedScorpionMini_AC
+  m_Controller: {fileID: 9100000, guid: 84f74d0cbf088db43885447b5e320546, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: ea5cf883d5dc3b647bc2f337c3662adb, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 24ecf76d74bd0d8408278f9329773e3f, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 54ee05d2226f22f47ac1af705ec3e1dc, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 785c6221a404dd54cbe59919e39290be, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 79ff5821f3915394e8dd7309b2db9026, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 4c5be3c580609b54aa45c4220a44a925, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 5861dd1642d48224fa1e71a9465d0235, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: d82450f5782eb224288f66c843729643, type: 2}

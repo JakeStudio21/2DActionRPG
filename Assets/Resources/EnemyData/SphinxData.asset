@@ -18,7 +18,7 @@ MonoBehaviour:
   description: "\uAE30\uBCF8 \uADFC\uC811 \uACF5\uACA9 \uC2A4\uD551\uD06C\uC2A4\n"
   baseHealth: 100
   baseDefense: 50
-  baseMoveSpeed: 2
+  baseMoveSpeed: 3.5
   detectionRange: 8
   chaseRange: 12
   patrolRadius: 10

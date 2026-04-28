@@ -40,8 +40,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -195,7 +195,6 @@ MonoBehaviour:
   animator: {fileID: 1996716122504307104}
   spriteRenderer: {fileID: 0}
   useIsometricData: 1
-  showDebugLogs: 0
   startMoveThreshold: 0.12
   stopMoveThreshold: 0.06
 --- !u!114 &-8070876538002613510
@@ -327,10 +326,10 @@ MonoBehaviour:
   currentLevel: 1
   cueProfile: {fileID: 0}
   useNavMesh: 1
+  navMeshAcceleration: 0
   homePosition: {x: 0, y: 0, z: 0}
   patrolRadius: 0
   spawnPosition: {x: 0, y: 0, z: 0}
-  enableDebugLogs: 1
   meleeAttack: {fileID: 0}
   isometricData:
     directionPreset: 0
