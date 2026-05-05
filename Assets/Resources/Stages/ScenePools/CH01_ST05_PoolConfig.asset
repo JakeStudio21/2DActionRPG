@@ -488,6 +488,18 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
+  - tag: Fx_Hit_Explosion_SmallBomb
+    prefab: {fileID: 2487952251765402218, guid: 401cef4307d0c874ab8a8346614c7429, type: 3}
+    size: 10
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 10
+  - tag: Fx_Hit_Fire_SmallFire
+    prefab: {fileID: 160310376962735225, guid: 55a79ace48a33274b9bbea6f544f464a, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   - tag: Arrow_ExplosiveArrow
     prefab: {fileID: 4149642069968341746, guid: ac1f715d4734d594ca8817ecded3f68e, type: 3}
     size: 5
@@ -554,5 +566,16 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 10
+  - tag: Fx_Muzzle_PurpleStar
+    prefab: {fileID: 4186470608034871016, guid: 184d424bc785675408c2ae11b6667432, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ChainShot
+    prefab: {fileID: 4149642069968341746, guid: 813e5e9d20e98ad47b20770346aab3eb, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
-  enableDebugLogs: 0

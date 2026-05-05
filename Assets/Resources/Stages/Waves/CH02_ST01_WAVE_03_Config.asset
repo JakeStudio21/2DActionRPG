@@ -16,7 +16,7 @@ MonoBehaviour:
   StageID: CH02_ST01
   WaveIndex: 3
   StartCondition: 1
-  WaveDelaySec: 2
+  WaveDelaySec: 1
   TriggerId: 2
   EnablesBossGate: 0
   BossGateTag: 

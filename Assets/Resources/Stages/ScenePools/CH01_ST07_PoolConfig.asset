@@ -578,6 +578,18 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
+  - tag: Fx_Muzzle_PurpleStar
+    prefab: {fileID: 4186470608034871016, guid: 184d424bc785675408c2ae11b6667432, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ChainShot
+    prefab: {fileID: 4149642069968341746, guid: 813e5e9d20e98ad47b20770346aab3eb, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools:
   - tag: SimpleMobHit
     prefab: {fileID: 1758473627833946668, guid: 2725e023b8880c24e96895ef1c943061, type: 3}
@@ -591,4 +603,3 @@ MonoBehaviour:
     preloadOnSceneStart: 0
     clearOnSceneExit: 0
     maxInstancesPerFrame: 0
-  enableDebugLogs: 0

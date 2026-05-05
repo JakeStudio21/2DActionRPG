@@ -20,8 +20,8 @@ MonoBehaviour:
   chapterId: 2
   stageIndexInChapter: 1
   chapterStartCutsceneId: CH02_START
-  enterCutsceneId: 
-  clearCutsceneId: 
+  enterCutsceneId: CH02_ST01_START
+  clearCutsceneId: CH02_ST01_CLEAR
   isReplaySkipCutscene: 1
   RequiredLevel: 10
   UnlockCondition: Clear:CH01_ST10

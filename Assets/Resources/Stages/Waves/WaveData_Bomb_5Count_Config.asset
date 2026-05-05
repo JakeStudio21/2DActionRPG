@@ -20,7 +20,7 @@ MonoBehaviour:
     spawnInterval: 0.1
     moveSpeed: 2
     spawnPattern: 0
-    spawnRadius: 5
+    spawnRadius: 2
     lineStart: {x: -5, y: 0}
     lineEnd: {x: 5, y: 0}
     gridRows: 3

@@ -78015,10 +78015,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2102256484657845110, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -27.499878
-      objectReference: {fileID: 0}
     - target: {fileID: 2381635598843211151, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -78059,10 +78055,6 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3256524802767211490, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
-      propertyPath: m_Value
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3853517369541735903, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -78073,7 +78065,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4521040761456763334, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00001475215
+      value: -0.000019642272
       objectReference: {fileID: 0}
     - target: {fileID: 4588062696437094028, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchorMax.y
@@ -78162,10 +78154,6 @@ PrefabInstance:
     - target: {fileID: 5542874721922474036, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5613582118685496822, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
-      propertyPath: m_Material
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6387630768491685656, guid: d65808a5e7d3b3049a0db048f51a3e05, type: 3}
       propertyPath: m_AnchorMax.y
@@ -85178,6 +85166,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: NavigationSurface
       objectReference: {fileID: 0}
+    - target: {fileID: 886293362258339275, guid: d6ee185ea4f19ef44b5980b56b5d1771, type: 3}
+      propertyPath: m_Size.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 886293362258339275, guid: d6ee185ea4f19ef44b5980b56b5d1771, type: 3}
+      propertyPath: m_NavMeshData
+      value: 
+      objectReference: {fileID: 23800000, guid: d42d9cd3f8864034fb69f5846625ee56, type: 2}
     - target: {fileID: 4163312978629872782, guid: d6ee185ea4f19ef44b5980b56b5d1771, type: 3}
       propertyPath: m_LocalPosition.x
       value: 77

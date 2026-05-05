@@ -434,9 +434,9 @@ MonoBehaviour:
   currentWaveData: {fileID: 0}
   playerTransform: {fileID: 0}
   customSpawnCenter: {fileID: 528358233}
+  linkedWaveConfig: {fileID: 11400000, guid: 1b0a8f7002536fe459f127c582a491ea, type: 2}
   autoStartWave: 1
   waveStartDelay: 0
-  enableDebugLogs: 0
   showSpawnGizmos: 1
 --- !u!4 &47371357
 Transform:
@@ -3636,7 +3636,6 @@ MonoBehaviour:
   spawnPoints: []
   playerSpawner: {fileID: 1334837840}
   playerSpawnPoint: {fileID: 907817520}
-  enableDebugLogs: 1
   showAllGizmos: 1
 --- !u!1001 &675547407
 PrefabInstance:
@@ -81661,7 +81660,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b93eab8a2d3406408ae6707962cecf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugLogs: 0
   showSpawnGizmos: 1
   groupSpawnDelay: 3
 --- !u!1001 &2001722243
@@ -85089,7 +85087,6 @@ MonoBehaviour:
   forceCompleteCurrentWave: 1
   directWaveSpawner: {fileID: 0}
   gizmoColor: {r: 1, g: 0.5, b: 0, a: 0.3}
-  enableDebugLogs: 1
 --- !u!114 &6569754236541749173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85108,7 +85105,6 @@ MonoBehaviour:
   forceCompleteCurrentWave: 1
   directWaveSpawner: {fileID: 0}
   gizmoColor: {r: 1, g: 0.5, b: 0, a: 0.3}
-  enableDebugLogs: 1
 --- !u!1001 &6697738805194749230
 PrefabInstance:
   m_ObjectHideFlags: 0

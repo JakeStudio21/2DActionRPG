@@ -20,24 +20,65 @@ MonoBehaviour:
   chapterId: 2
   stageIndexInChapter: 6
   chapterStartCutsceneId: 
-  enterCutsceneId: 
-  clearCutsceneId: 
+  enterCutsceneId: CH02_ST06_START
+  clearCutsceneId: CH02_ST06_CLEAR
   isReplaySkipCutscene: 1
   RequiredLevel: 10
   UnlockCondition: Clear:CH02_ST05
   unlockData:
     IsAlwaysUnlocked: 0
     RequiredStageId: 
+  requiredStamina: 5
+  categoryId: 
   WaveCount: 3
-  Victory: 1
+  Victory: 0
+  objectiveType: 0
+  targetBossName: 
   StageBaseLevel: 19
   hasTimeLimit: 0
   TimeLimitSec: 600
   FirstClearDropGroupId: DROP_CH02_ST06_FIRST
   RepeatClearDropGroupId: DROP_CH02_ST06_REPEAT
+  cameraZoom:
+    useZoom: 0
+    targetSize: 12
+    transitionDuration: 1
+    preZoomDelay: 0.5
+    easeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
   BGMPath: Prefab/BGM/SCENE_CH02
   Description: "Chapter 2 - Stage 6 \uB354\uBBF8 \uB370\uC774\uD130\n\uD0C0\uC785:
     \uBCF4\uC2A4 \uC2A4\uD14C\uC774\uC9C0\n\uD574\uAE08 \uC870\uAC74: Clear:CH02_ST05"
-  WaveConfigs: []
-  FirstClearDropTable: {fileID: 0}
-  RepeatClearDropTable: {fileID: 0}
+  fogVolumeProfile: {fileID: 0}
+  clearVolumeProfile: {fileID: 0}
+  volumeTransitionDuration: 2
+  targetFarmingEntries: []
+  overrideRangeTable: {fileID: 0}
+  WaveConfigs:
+  - {fileID: 11400000, guid: 48bd767d06d6e4d4d9654a93696b8885, type: 2}
+  - {fileID: 11400000, guid: 2b40f7fa2078d1e498bfd6a35fd44f95, type: 2}
+  - {fileID: 11400000, guid: b80404dde7f354e4f9ca996366990710, type: 2}
+  FirstClearDropTable: {fileID: 11400000, guid: f47087afdac15664f829894416d59ecd, type: 2}
+  RepeatClearDropTable: {fileID: 11400000, guid: 845a8eb11b0dc00408f5992bc5524122, type: 2}

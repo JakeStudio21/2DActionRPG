@@ -38,12 +38,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: Grape Projectile Splatter
-    prefab: {fileID: 8241566449722613216, guid: 6fc13cc823337b94899a25bb84387e60, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: SpawnEffect
     prefab: {fileID: 724470073289127030, guid: bb777d6d1b97f9e40836295c84cffeda, type: 3}
     size: 10
@@ -152,54 +146,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
-  - tag: MON_BLUESLIME_001
-    prefab: {fileID: 3235174918318939483, guid: 3d4b9342267097642bd90872b835c36e, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: MON_GRAPE_001
-    prefab: {fileID: 8853189013130719682, guid: 6773a2d36a49ef64d8fc681f2515b5c3, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: MON_BEETLE_001
-    prefab: {fileID: 3235174918318939483, guid: da345819ff16abb4c9ba445356e0f844, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_LADYBUG_001
-    prefab: {fileID: 3235174918318939483, guid: 3cde090539b39994c8206abbc917c689, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_PLANTS_001
-    prefab: {fileID: 3235174918318939483, guid: c40cffd48c2084e458aa480204ffdcda, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_SPIDER_001
-    prefab: {fileID: 3235174918318939483, guid: 75cf8d93cf5504b4b9edd4bd6df13190, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_BEAR_001
-    prefab: {fileID: 3235174918318939483, guid: 06aa1ebb2d5a4a149a47426fceafdb3c, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_MUSHROOM_001
-    prefab: {fileID: 3235174918318939483, guid: 679e8731eaf3fba43a9df576331b96ed, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: StraightProjectile
     prefab: {fileID: 6830296691463287077, guid: 83ae11102c63fd94594904bd0df3e079, type: 3}
     size: 10
@@ -524,24 +470,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: MON_GOBLINBOMB_001
-    prefab: {fileID: 3235174918318939483, guid: 3b68f7fb88e24d846ba30225868168b8, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_GOBLINWARRIOR_001
-    prefab: {fileID: 3235174918318939483, guid: 8615660418c0bc44ea7441cb3db65351, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: MON_GOBLINCART_001
-    prefab: {fileID: 3235174918318939483, guid: 9cf34d62ef5dc994a9679f90a115c8f0, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: Fx_Hit_Impact_Chain
     prefab: {fileID: 4186470608034871016, guid: b3061650a8ceac2469d5aa777bcd08bd, type: 3}
     size: 10
@@ -596,4 +524,16 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 1
+  - tag: Fx_Muzzle_PurpleStar
+    prefab: {fileID: 4186470608034871016, guid: 184d424bc785675408c2ae11b6667432, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
+  - tag: Arrow_ChainShot
+    prefab: {fileID: 4149642069968341746, guid: 813e5e9d20e98ad47b20770346aab3eb, type: 3}
+    size: 5
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 5
   optionalPools: []
