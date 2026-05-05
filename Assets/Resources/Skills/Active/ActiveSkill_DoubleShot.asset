@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 1272405549, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
   description: "\uC9E7\uC740 \uC2DC\uAC04 \uB3D9\uC548 \uD654\uC0B4 2\uBC1C\uC744
     \uBE60\uB974\uAC8C \uC5F0\uC18D \uBC1C\uC0AC\uD55C\uB2E4."
-  unlockLevel: 1
+  unlockLevel: 30
   maxLevel: 10
   requiredClass: 0
   skillType: 1

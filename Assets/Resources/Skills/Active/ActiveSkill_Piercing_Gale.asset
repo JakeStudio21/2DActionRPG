@@ -17,18 +17,18 @@ MonoBehaviour:
   icon: {fileID: 417366317, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
   description: "[\uC9C1\uC120 \uAD00\uD1B5] \uCE90\uB9AD\uD130\uAC00 \uC790\uC138\uB97C
     \uB0AE\uCD94\uACE0, \uD654\uBA74 \uB05D\uAE4C\uC9C0 \uB0A0\uC544\uAC00\uB294
-    \uAC70\uB300\uD55C \uD68C\uC624\uB9AC \uBAA8\uC591\uC758 \uAD75\uC740 \uD654\uC0B4\uC744
+    \uAC70\uB300\uD55C \uBC18\uB2EC \uBAA8\uC591\uC758 \uAD75\uC740 \uD654\uC0B4\uC744
     \uC3E9\uB2C8\uB2E4. \uC77C\uC9C1\uC120\uC73C\uB85C \uC624\uB294 \uBAB9\uB4E4\uC744
     \uC2DC\uC6D0\uD558\uAC8C \uC9C0\uC6C1\uB2C8\uB2E4."
-  unlockLevel: 30
+  unlockLevel: 5
   maxLevel: 10
   requiredClass: 0
   skillType: 0
-  isProjectile: 0
+  isProjectile: 1
   animTriggerName: Skill1
   baseCooldown: 3
   baseDamageMultiplier: 150
-  range: 8
+  range: 10
   castCueKey: skill.Piercing_Gale.cast
   aoeCueKey: skill.Piercing_Gale.aoe
   hitCueKey: 
@@ -56,3 +56,20 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
+  hasExplosionOnHit: 0
+  explosionDamageRatio: 1.2
+  explosionCueKey: 
+  isBurstFire: 0
+  burstInterval: 0.15
+  isChainShot: 0
+  maxChainCount: 4
+  chainRadius: 5
+  chainDamageReduction: 0.1
+  chainHitCueKey: 
+  chainDelay: 0.05
+  isDotAoe: 0
+  dotDuration: 4
+  dotTickRate: 0.5
+  slowPercentage: 0.25
+  targetingProfile: {fileID: 0}
+  useLiveTargetOnCast: 0

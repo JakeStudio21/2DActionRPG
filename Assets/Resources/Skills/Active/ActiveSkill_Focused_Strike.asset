@@ -55,3 +55,20 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
+  hasExplosionOnHit: 0
+  explosionDamageRatio: 1.2
+  explosionCueKey: 
+  isBurstFire: 0
+  burstInterval: 0.15
+  isChainShot: 0
+  maxChainCount: 4
+  chainRadius: 5
+  chainDamageReduction: 0.1
+  chainHitCueKey: 
+  chainDelay: 0.05
+  isDotAoe: 0
+  dotDuration: 4
+  dotTickRate: 0.5
+  slowPercentage: 0.25
+  targetingProfile: {fileID: 0}
+  useLiveTargetOnCast: 0

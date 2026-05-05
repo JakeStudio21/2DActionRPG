@@ -17,13 +17,13 @@ MonoBehaviour:
   icon: {fileID: -566429552, guid: 1df6bfcebf7df894a81438f01bfb9cfe, type: 3}
   description: "\uCCAB \uBC88\uC9F8 \uC801\uC744 \uB9DE\uCD98 \uD6C4 \uC8FC\uBCC0
     \uC801\uC5D0\uAC8C \uD654\uC0B4 \uC5D0\uB108\uC9C0\uAC00 \uC5F0\uC1C4\uB41C\uB2E4."
-  unlockLevel: 30
+  unlockLevel: 10
   maxLevel: 10
   requiredClass: 0
   skillType: 0
   isProjectile: 1
   animTriggerName: Skill1
-  baseCooldown: 3
+  baseCooldown: 8
   baseDamageMultiplier: 150
   range: 8
   castCueKey: 
@@ -42,11 +42,11 @@ MonoBehaviour:
   isPiercing: 0
   multiHitCount: 1
   projectileCount: 1
-  projectilePrefab: {fileID: 4149642069968341746, guid: 89d421f72cf263742a6150806d213c0b, type: 3}
+  projectilePrefab: {fileID: 4149642069968341746, guid: 813e5e9d20e98ad47b20770346aab3eb, type: 3}
   projectileSpeed: 15
   spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
-  projectilePoolName: Arrow_GreenBullet
+  projectilePoolName: Arrow_ChainShot
   dashSpeed: 20
   dashRange: 8
   attackCount: 1

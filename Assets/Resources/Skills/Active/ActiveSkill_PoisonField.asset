@@ -27,7 +27,7 @@ MonoBehaviour:
   baseCooldown: 3
   baseDamageMultiplier: 0.75
   range: 8
-  castCueKey: 
+  castCueKey: skill.poisonfield.cast
   aoeCueKey: skill.poisonfield.aoe
   hitCueKey: 
   aoeShape: 0

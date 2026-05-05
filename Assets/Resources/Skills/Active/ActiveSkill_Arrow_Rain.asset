@@ -20,7 +20,7 @@ MonoBehaviour:
     \uADA4\uC801\uC758 \uD654\uC0B4\uBE44\uAC00 \uC3DF\uC544\uC9D1\uB2C8\uB2E4. \uBC14\uB2E5\uC5D0
     \uB9CC\uD654\uC801\uC778 \uD759\uBA3C\uC9C0 \uC774\uD399\uD2B8\uAC00 \uD321\uD321
     \uD130\uC9D1\uB2C8\uB2E4."
-  unlockLevel: 10
+  unlockLevel: 5
   maxLevel: 10
   requiredClass: 0
   skillType: 0
@@ -56,3 +56,20 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
+  hasExplosionOnHit: 0
+  explosionDamageRatio: 1.2
+  explosionCueKey: 
+  isBurstFire: 0
+  burstInterval: 0.15
+  isChainShot: 0
+  maxChainCount: 4
+  chainRadius: 5
+  chainDamageReduction: 0.1
+  chainHitCueKey: 
+  chainDelay: 0.05
+  isDotAoe: 0
+  dotDuration: 4
+  dotTickRate: 0.5
+  slowPercentage: 0.25
+  targetingProfile: {fileID: 0}
+  useLiveTargetOnCast: 0

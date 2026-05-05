@@ -19,7 +19,7 @@ MonoBehaviour:
     \uD654\uC0B4\uC744 \uC3D8\uB294 \uC794\uC0C1\uC774 \uC0DD\uAE30\uBA70, \uB208\uC5D0
     \uBCF4\uC774\uC9C0 \uC54A\uC744 \uC18D\uB3C4\uB85C 10\uBC1C\uC758 \uD654\uC0B4\uC744
     \uAE30\uAD00\uCD1D\uCC98\uB7FC \uC3DF\uC544\uBD93\uC2B5\uB2C8\uB2E4."
-  unlockLevel: 20
+  unlockLevel: 30
   maxLevel: 10
   requiredClass: 0
   skillType: 1
@@ -30,6 +30,7 @@ MonoBehaviour:
   range: 8
   castCueKey: skill.RapidMirage.cast
   aoeCueKey: skill.RapidMirage.aoe
+  hitCueKey: 
   aoeShape: 2
   aoeSize: {x: 3, y: 3}
   aoeRadius: 5
@@ -37,6 +38,9 @@ MonoBehaviour:
   aoeDuration: 0.3
   telegraphPrefab: {fileID: 0}
   telegraphDuration: 0.3
+  telegraphOffset: {x: 0, y: 0}
+  castEffectDelay: 0
+  aoeEffectDelay: 0
   isPiercing: 0
   multiHitCount: 1
   projectileCount: 3
@@ -51,3 +55,20 @@ MonoBehaviour:
   attackDelay: 0.3
   attackRadius: 2
   stunDuration: 1
+  hasExplosionOnHit: 0
+  explosionDamageRatio: 1.2
+  explosionCueKey: 
+  isBurstFire: 0
+  burstInterval: 0.15
+  isChainShot: 0
+  maxChainCount: 4
+  chainRadius: 5
+  chainDamageReduction: 0.1
+  chainHitCueKey: 
+  chainDelay: 0.05
+  isDotAoe: 0
+  dotDuration: 4
+  dotTickRate: 0.5
+  slowPercentage: 0.25
+  targetingProfile: {fileID: 0}
+  useLiveTargetOnCast: 0

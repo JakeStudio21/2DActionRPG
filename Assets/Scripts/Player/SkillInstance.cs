@@ -79,8 +79,9 @@ public class SkillInstance
             
             if (levelInfo.level > 0)
             {
-                // StatType2가 BURST_INTERVAL이면 value2는 발사 간격 — 쿨다운은 SO 기본값 사용
-                if (levelInfo.statType2Raw == "BURST_INTERVAL")
+                // value2가 쿨다운이 아닌 다른 스탯에 사용되는 경우 SO 기본값 사용
+                if (levelInfo.statType2Raw == "BURST_INTERVAL" ||
+                    levelInfo.statType2Raw == "CHAIN_COUNT")
                     return activeData.baseCooldown;
                 
                 return levelInfo.value2; // Value2 = COOLDOWN
