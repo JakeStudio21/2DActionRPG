@@ -35,7 +35,8 @@ namespace StageSystem
         None,             // 미설정 (ObjectiveComplete 외 조건에서 사용)
         BarricadeDestroy, // isVictoryTarget=true 바리케이드를 모두 파괴
         ProtectObject,    // 특정 오브젝트가 파괴되지 않도록 보호 (향후 구현)
-        ItemCollect       // 지정 수량의 아이템 수집 (향후 구현)
+        ItemCollect,      // 지정 수량의 아이템 수집 (향후 구현)
+        ExitReach         // 출구에 도달(접촉)하여 탈출 — 미로/장애물 코스 탈출 스테이지용
     }
     
     [System.Serializable]

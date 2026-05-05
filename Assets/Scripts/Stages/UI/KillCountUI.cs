@@ -36,6 +36,7 @@ namespace StageSystem
         // 애니메이션 참조
         private Coroutine countAnimCoroutine;
         private Vector3 originalScale;
+
         
         private void Start()
         {
@@ -77,29 +78,55 @@ namespace StageSystem
         }
         
         /// <summary>
-        /// 목표 처치수 계산
+        /// 목표 처치수 사전 계산
+        /// ① WaveConfig 기반: UseSimpleMobWave=true → SimpleMobWaveData 합산
+        ///                    UseSimpleMobWave=false → SpawnGroups 합산
+        /// ② 씬 직접 배치 WaveSpawner (방식 A): WaveConfig에서 참조되지 않은 WaveData만 합산
+        ///    (WaveConfig.SimpleMobWaveData와 동일한 WaveData는 ①에서 이미 계산 → 제외)
         /// </summary>
         private int CalculateTargetKillCount()
         {
             int totalEnemies = 0;
-            
+
+            // ① WaveConfig 기반 계산 + 중복 방지용 WaveData Set 구성
+            var waveDataCountedByConfig = new System.Collections.Generic.HashSet<WaveData>();
+
             if (StageManager.Instance != null && StageManager.Instance.CurrentStage != null)
             {
                 var stageConfig = StageManager.Instance.CurrentStage;
-                
-                // 모든 웨이브의 몬스터 수 계산
+
                 foreach (var waveConfig in stageConfig.WaveConfigs)
                 {
-                    foreach (var spawnGroup in waveConfig.SpawnGroups)
+                    if (waveConfig.UseSimpleMobWave && waveConfig.SimpleMobWaveData != null)
                     {
-                        foreach (var monster in spawnGroup.Monsters)
-                        {
-                            totalEnemies += monster.Count;
-                        }
+                        // WaveController가 제어하는 SimpleMob 웨이브 (방식 B)
+                        foreach (var spawnConfig in waveConfig.SimpleMobWaveData.spawnConfigs)
+                            totalEnemies += spawnConfig.spawnCount;
+
+                        waveDataCountedByConfig.Add(waveConfig.SimpleMobWaveData);
+                    }
+                    else
+                    {
+                        // 일반 웨이브
+                        foreach (var spawnGroup in waveConfig.SpawnGroups)
+                            foreach (var monster in spawnGroup.Monsters)
+                                totalEnemies += monster.Count;
                     }
                 }
             }
-            
+
+            // ② 씬 직접 배치 WaveSpawner (방식 A)
+            // - inactive 오브젝트 포함(true)으로 전체 탐색
+            // - WaveConfig에서 이미 참조된 WaveData는 제외 (중복 방지)
+            foreach (var spawner in FindObjectsOfType<WaveSpawner>(true))
+            {
+                if (spawner.CurrentWaveData != null
+                    && !waveDataCountedByConfig.Contains(spawner.CurrentWaveData))
+                {
+                    totalEnemies += spawner.TotalSpawnCount;
+                }
+            }
+
             return totalEnemies;
         }
         
@@ -109,9 +136,7 @@ namespace StageSystem
         private void SubscribeToEnemyEvents()
         {
             if (StageManager.Instance != null && StageManager.Instance.WaveController != null)
-            {
                 StageManager.Instance.WaveController.OnEnemyDeath += OnEnemyKilled;
-            }
         }
         
         /// <summary>
@@ -120,9 +145,7 @@ namespace StageSystem
         private void OnDestroy()
         {
             if (StageManager.Instance != null && StageManager.Instance.WaveController != null)
-            {
                 StageManager.Instance.WaveController.OnEnemyDeath -= OnEnemyKilled;
-            }
         }
         
         /// <summary>

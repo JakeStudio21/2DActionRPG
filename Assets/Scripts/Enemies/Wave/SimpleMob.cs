@@ -50,6 +50,9 @@ public class SimpleMob : MonoBehaviour, ITargetable
 
     // 풀링
     protected string poolTag;
+
+    // SimpleMobManager 캐시 (FindObjectOfType 반복 호출 방지)
+    private SimpleMobManager _cachedManager;
     
     public bool IsDead => isDead;
     public int CurrentHealth => currentHealth;
@@ -190,22 +193,15 @@ public class SimpleMob : MonoBehaviour, ITargetable
             }
         }
         
-        // SimpleMobManager에 등록
-        SimpleMobManager manager = FindObjectOfType<SimpleMobManager>();
-        if (manager != null)
-        {
-            manager.RegisterMob(this);
-        }
+        // SimpleMobManager에 등록 (캐시 없으면 한 번만 탐색)
+        if (_cachedManager == null)
+            _cachedManager = FindObjectOfType<SimpleMobManager>();
+        _cachedManager?.RegisterMob(this);
     }
     
     protected virtual void OnDisable()
     {
-        // SimpleMobManager에서 제거
-        SimpleMobManager manager = FindObjectOfType<SimpleMobManager>();
-        if (manager != null)
-        {
-            manager.UnregisterMob(this);
-        }
+        _cachedManager?.UnregisterMob(this);
     }
     
     /// <summary>
@@ -373,6 +369,9 @@ public class SimpleMob : MonoBehaviour, ITargetable
         
         isDead = true;
         rb.velocity = Vector2.zero;
+
+        // KillCountUI·WaveController 파이프라인에 사망 통보
+        _cachedManager?.ReportMobDeath(this);
         
 
         // 체력바 즉시 숨김

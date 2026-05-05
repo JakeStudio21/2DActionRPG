@@ -227,6 +227,7 @@ namespace StageSystem
                 ObjectiveType.BarricadeDestroy => "바리케이드 파괴",
                 ObjectiveType.ProtectObject    => "오브젝트 방어",
                 ObjectiveType.ItemCollect      => "아이템 수집",
+                ObjectiveType.ExitReach        => "출구 탈출",
                 _                              => "특수 미션 완료"
             };
         }

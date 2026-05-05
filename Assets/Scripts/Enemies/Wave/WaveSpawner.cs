@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AI; // NavMesh 검증용
+using StageSystem;
 
 /// <summary>
 /// SimpleMob 웨이브 스폰 관리자
@@ -16,6 +17,10 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private WaveData currentWaveData;
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Transform customSpawnCenter; // 커스텀 스폰 중심 (옵션)
+
+    [Header("WaveController 연동 (KillAll 조건)")]
+    [Tooltip("이 WaveSpawner가 담당하는 WaveConfig. 설정 시 해당 웨이브 완료 전까지 다음 웨이브가 열리지 않음.")]
+    [SerializeField] private WaveConfig linkedWaveConfig;
     
     [Header("Spawn Settings")]
     [SerializeField] private bool autoStartWave = true;
@@ -26,6 +31,7 @@ public class WaveSpawner : MonoBehaviour
     
     // 웨이브 상태
     private bool isSpawning = false;
+    private bool isCompleted = false;
     private int currentWaveNumber = 0;
     private int totalSpawnedCount = 0;
     private int totalKilledCount = 0;
@@ -38,6 +44,8 @@ public class WaveSpawner : MonoBehaviour
     public System.Action<int> OnWaveStart;
     public System.Action<int> OnWaveComplete;
     public System.Action<int, int> OnMobKilled; // (killedCount, totalCount)
+    /// <summary>스폰 완료 시 발동 — 이번 웨이브에서 실제 스폰된 총 수 전달 (KillCountUI 목표치 보정용)</summary>
+    public System.Action<int> OnSpawnComplete;
     
     private void Start()
     {
@@ -84,6 +92,7 @@ public class WaveSpawner : MonoBehaviour
         currentWaveNumber = waveData.waveNumber;
         totalSpawnedCount = 0;
         totalKilledCount = 0;
+        isCompleted = false;
         spawnedMobs.Clear();
         
             Dbg.Log($"🌊 [WaveSpawner] Wave {currentWaveNumber} 시작!");
@@ -156,6 +165,9 @@ public class WaveSpawner : MonoBehaviour
         }
         
             Dbg.Log($"✅ [WaveSpawner] 스폰 완료: {totalSpawnedCount}마리");
+
+        // KillCountUI 목표치 보정용 — 실제 스폰 수 통보
+        OnSpawnComplete?.Invoke(totalSpawnedCount);
         
         // 클리어 조건 체크 시작
         StartCoroutine(CheckClearConditionCoroutine());
@@ -490,6 +502,7 @@ public class WaveSpawner : MonoBehaviour
     private void CompleteWave()
     {
         isSpawning = false;
+        isCompleted = true;
         
             Dbg.Log($"🏆 [WaveSpawner] Wave {currentWaveNumber} 완료!");
         
@@ -525,6 +538,30 @@ public class WaveSpawner : MonoBehaviour
         }
     }
     
+    /// <summary>현재 설정된 WaveData (KillCountUI 중복 카운트 방지 판단용)</summary>
+    public WaveData CurrentWaveData => currentWaveData;
+
+    /// <summary>이 WaveSpawner가 담당하는 WaveConfig (WaveController 연동용)</summary>
+    public WaveConfig LinkedWaveConfig => linkedWaveConfig;
+
+    /// <summary>이번 웨이브의 모든 SimpleMob이 처치되어 완료됐는지 여부</summary>
+    public bool IsCompleted => isCompleted;
+
+    /// <summary>
+    /// 현재 WaveData의 총 스폰 예정 수 (KillCountUI 초기 목표치 사전 계산용)
+    /// </summary>
+    public int TotalSpawnCount
+    {
+        get
+        {
+            if (currentWaveData == null) return 0;
+            int total = 0;
+            foreach (var config in currentWaveData.spawnConfigs)
+                total += config.spawnCount;
+            return total;
+        }
+    }
+
     /// <summary>
     /// 웨이브 중지
     /// </summary>

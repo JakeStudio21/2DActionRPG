@@ -27,6 +27,11 @@ public class SimpleMobManager : MonoBehaviour
     // 관리 중인 SimpleMob 리스트
     private List<SimpleMob> activeMobs = new List<SimpleMob>();
     private Camera mainCamera;
+
+    /// <summary>
+    /// SimpleMob 사망 시 발동 — 브리지 이벤트 (WaveController 등이 구독)
+    /// </summary>
+    public System.Action<SimpleMob> OnSimpleMobDied;
     
     // 화면 경계
     private Plane[] frustumPlanes;
@@ -53,6 +58,14 @@ public class SimpleMobManager : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// SimpleMob 사망 통보 — SimpleMob.Die()에서 호출
+    /// </summary>
+    public void ReportMobDeath(SimpleMob mob)
+    {
+        OnSimpleMobDied?.Invoke(mob);
+    }
+
     /// <summary>
     /// SimpleMob 제거
     /// </summary>

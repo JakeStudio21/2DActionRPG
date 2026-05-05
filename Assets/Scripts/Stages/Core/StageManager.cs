@@ -1609,6 +1609,19 @@ public class StageManager : MonoBehaviour
         }
         
         /// <summary>
+        /// 출구 포털 진입 시 StageExitPortal에서 호출
+        /// Victory=ObjectiveComplete, objectiveType=ExitReach 스테이지에서만 유효
+        /// </summary>
+        public void NotifyExitReached()
+        {
+            if (stageConfig == null || stageConfig.Victory != VictoryCondition.ObjectiveComplete) return;
+            if (stageConfig.objectiveType != ObjectiveType.ExitReach) return;
+            if (!isStageActive) return;
+
+            StartCoroutine(VictorySequence(true, victoryDelay));
+        }
+
+        /// <summary>
         /// isVictoryTarget=true 바리케이드가 파괴될 때 Barricade.cs에서 호출
         /// Victory=ObjectiveComplete, objectiveType=BarricadeDestroy 스테이지에서만 유효
         /// 씬에 남은 isVictoryTarget=true 바리케이드가 없으면 승리 처리

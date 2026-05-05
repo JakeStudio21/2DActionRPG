@@ -53,6 +53,18 @@ public class WaveController : MonoBehaviour
 
             // 적 사망 이벤트 구독
             OnEnemyDeath += HandleEnemyDeath;
+
+            // SimpleMob 사망 이벤트 구독 (SimpleMobManager 브리지)
+            var simpleMobManager = FindObjectOfType<SimpleMobManager>();
+            if (simpleMobManager != null)
+                simpleMobManager.OnSimpleMobDied += HandleSimpleMobDeath;
+        }
+
+        private void OnDestroy()
+        {
+            var simpleMobManager = FindObjectOfType<SimpleMobManager>();
+            if (simpleMobManager != null)
+                simpleMobManager.OnSimpleMobDied -= HandleSimpleMobDeath;
         }
         
         /// <summary>
@@ -719,21 +731,45 @@ public class WaveController : MonoBehaviour
         
         /// <summary>
         /// 웨이브 완료 대기
+        /// ① 일반 몬스터 전멸 대기
+        /// ② KillAll 조건이고 LinkedWaveSpawner가 있으면 SimpleMob 전멸까지 추가 대기
         /// </summary>
         private IEnumerator WaitForWaveCompletion()
         {
+            // ① 일반 몬스터 전멸 대기
             while (currentWaveEnemies.Count > 0)
-            {
                 yield return new WaitForSeconds(0.5f);
-            }
-            
-            // 웨이브 완료
-            isWaveActive = false;
-            
+
+            // ② KillAll 조건일 때만: 연동된 WaveSpawner의 완료 대기
+            if (StageManager.Instance != null
+                && StageManager.Instance.CurrentStage != null
+                && StageManager.Instance.CurrentStage.Victory == VictoryCondition.KillAll)
             {
+                var linkedSpawners = FindLinkedWaveSpawners(currentWave);
+                if (linkedSpawners.Count > 0)
+                {
+                    bool allCompleted = false;
+                    while (!allCompleted)
+                    {
+                        allCompleted = linkedSpawners.All(s => s.IsCompleted);
+                        if (!allCompleted)
+                            yield return new WaitForSeconds(0.5f);
+                    }
+                }
             }
-            
+
+            isWaveActive = false;
             OnWaveCompleted?.Invoke(currentWave);
+        }
+
+        /// <summary>
+        /// 현재 웨이브에 연동된 WaveSpawner 목록 반환 (inactive 포함)
+        /// </summary>
+        private List<WaveSpawner> FindLinkedWaveSpawners(WaveConfig waveConfig)
+        {
+            return FindObjectsOfType<WaveSpawner>(true)
+                .Where(s => s.LinkedWaveConfig == waveConfig)
+                .ToList();
         }
         
         /// <summary>
@@ -827,6 +863,17 @@ public class WaveController : MonoBehaviour
             
         }
         
+        /// <summary>
+        /// SimpleMob 사망 브리지 핸들러
+        /// SimpleMobManager.OnSimpleMobDied → WaveController.OnEnemyDeath / StageManager 파이프라인 연결
+        /// </summary>
+        private void HandleSimpleMobDeath(SimpleMob mob)
+        {
+            if (mob == null) return;
+            OnEnemyDeath?.Invoke(mob.gameObject);
+            StageManager.Instance?.NotifyEnemyKilled(mob.gameObject);
+        }
+
         /// <summary>
         /// 현재 웨이브 상태 정보
         /// </summary>
