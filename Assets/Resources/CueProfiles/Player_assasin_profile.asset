@@ -196,7 +196,27 @@ MonoBehaviour:
     priority: 70
     cooldown: 0
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0 VFX"
+  - vfxId: PoisonFieldCast
+    poolKey: Fx_Muzzle_PurpleStar
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 1
+    priority: 50
+    cooldown: 0
+    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
   - vfxId: HitChainShot
+    poolKey: Fx_Hit_Impact_Chain
+    duration: 2
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 1
+    priority: 50
+    cooldown: 0
+    note: "\uBCF5\uD569 \uACF5\uACA9 \uBC84\uC2A4\uD2B8"
+  - vfxId: ChainShotCast
     poolKey: Fx_Hit_Impact_Chain
     duration: 2
     offset: {x: 0, y: 0, z: 0}
@@ -472,9 +492,48 @@ MonoBehaviour:
       delay: 0
     timeStopMs: 70
     note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
+  - eventKey: skill.poisonfield.cast
+    vfxIds:
+    - PoisonFieldCast
+    sfxIds:
+    - 
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 70
+    note: "\uC5B4\uC314\uC2E0 \uD30C\uC6CC \uC560\uB85C\uC6B0"
   - eventKey: hit.enemy.chainshot
     vfxIds:
     - HitChainShot
+    sfxIds:
+    - HitSound
+    priority: 1
+    shakeData:
+      useShake: 1
+      intensity: 0.5
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uC77C\uBC18 \uD53C\uACA9"
+  - eventKey: skill.chainshot.aoe
+    vfxIds:
+    - ChainShotAoe
+    sfxIds:
+    - HitSound
+    priority: 1
+    shakeData:
+      useShake: 1
+      intensity: 0.5
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uC77C\uBC18 \uD53C\uACA9"
+  - eventKey: skill.chainshot.cast
+    vfxIds:
+    - ChainShotCast
     sfxIds:
     - HitSound
     priority: 1

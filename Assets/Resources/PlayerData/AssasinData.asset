@@ -26,7 +26,7 @@ MonoBehaviour:
   baseCritRate: 0.05
   baseCritDamage: 1.3
   baseAttackSpeed: 1
-  baseMoveSpeed: 4.5
+  baseMoveSpeed: 5.5
   baseDashSpeed: 8
   healMultiplier: 1
   baseKnockbackThrust: 3
