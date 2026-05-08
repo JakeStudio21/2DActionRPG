@@ -18,12 +18,6 @@ MonoBehaviour:
   RepeatCount: 1
   RepeatIntervalSec: 0
   Monsters:
-  - MonsterID: MON_MIMIC_001
-    Count: 2
-    SpawnCount: 0.3
-    IsBoss: 0
-    LevelOffset: 0
-    MonsterPrefab: {fileID: 0}
   - MonsterID: MON_SPHINX_001
     Count: 2
     SpawnCount: 0.3

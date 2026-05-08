@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bba35875f0684c4f8eee39af96c53e9, type: 3}
-  m_Name: DefaultGrowthProfile
+  m_Script: {fileID: 11500000, guid: 20d39468664b7a54bab28970551be5ac, type: 3}
+  m_Name: CH02_ST04_MinimapData
   m_EditorClassIdentifier: 
-  hpGrowthRate: 0.15
-  atkGrowthRate: 0.3
-  defGrowthRate: 0.15
-  speedGrowthRate: 0.01
-  growthCurve: 1.1
-  eliteMultiplier: 1.5
-  bossMultiplier: 3
-  rewardMultiplier: 1.1
+  mapSprite: {fileID: 21300000, guid: 34199a52d3483e246a26376e74df69f8, type: 3}
+  worldMin: {x: 74.7, y: -104.649994}
+  worldMax: {x: 232.2, y: 52.850002}

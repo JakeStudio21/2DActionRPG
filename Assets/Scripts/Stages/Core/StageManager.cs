@@ -1084,6 +1084,27 @@ public class StageManager : MonoBehaviour
                     return;
                 }
             }
+
+            // ✅ Case 3: ObjectiveComplete + ProtectObject + hasTimeLimit - 시간 만료 시 생존 여부로 판정
+            if (stageConfig.Victory == VictoryCondition.ObjectiveComplete &&
+                stageConfig.objectiveType == ObjectiveType.ProtectObject &&
+                stageConfig.hasTimeLimit)
+            {
+                if (elapsedTime >= stageConfig.TimeLimitSec)
+                {
+                    var registry = ProtectedBarricadeRegistry.Instance;
+                    bool anyAlive = registry != null && registry.AliveCount > 0;
+
+                    if (BGMController.Instance != null)
+                    {
+                        BGMController.Instance.OnBossEnd();
+                        BGMController.Instance.OnBattleEnd();
+                    }
+
+                    CompleteStage(anyAlive);
+                    return;
+                }
+            }
             
             // 패배 조건 체크 (플레이어 사망 등)
             if (CheckDefeatCondition())
@@ -1642,6 +1663,25 @@ public class StageManager : MonoBehaviour
             }
             
             StartCoroutine(VictorySequence(true, victoryDelay));
+        }
+
+        /// <summary>
+        /// isProtectTarget=true 바리케이드가 파괴될 때 Barricade.cs에서 호출됩니다.
+        /// Victory=ObjectiveComplete, objectiveType=ProtectObject 스테이지에서만 유효합니다.
+        /// 살아있는 보호 오브젝트가 없으면 즉시 패배 처리합니다.
+        /// </summary>
+        public void NotifyProtectTargetDestroyed(Barricade destroyedBarricade)
+        {
+            if (stageConfig == null || stageConfig.Victory != VictoryCondition.ObjectiveComplete) return;
+            if (stageConfig.objectiveType != ObjectiveType.ProtectObject) return;
+            if (!isStageActive) return;
+
+            var registry = ProtectedBarricadeRegistry.Instance;
+            if (registry == null || registry.AliveCount == 0)
+            {
+                // 보호 오브젝트 전부 파괴 → 즉시 패배
+                CompleteStage(false);
+            }
         }
 
         #region ✅ 🎵 BGM 시스템 연동 (Phase 1.3 추가)

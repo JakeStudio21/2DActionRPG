@@ -572,12 +572,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: ELITEMON_SANDGOLEM_001
-    prefab: {fileID: 3235174918318939483, guid: d5876ef400ab1ef488957fc8a6249bf9, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: Fx_AOE_GroundDust
     prefab: {fileID: 7861703329210907134, guid: c85f9c4bc23e8ee418e6ceac21460c57, type: 3}
     size: 10

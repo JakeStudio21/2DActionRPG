@@ -31,11 +31,11 @@ MonoBehaviour:
   requiredStamina: 5
   categoryId: 
   WaveCount: 3
-  Victory: 0
-  objectiveType: 0
+  Victory: 3
+  objectiveType: 2
   targetBossName: 
   StageBaseLevel: 16
-  hasTimeLimit: 0
+  hasTimeLimit: 1
   TimeLimitSec: 300
   FirstClearDropGroupId: DROP_CH02_ST04_FIRST
   RepeatClearDropGroupId: DROP_CH02_ST04_REPEAT

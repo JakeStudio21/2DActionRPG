@@ -24,6 +24,10 @@ public class Barricade : MonoBehaviour, ITargetable
     [Tooltip("true: 이 바리케이드가 파괴되면 StageManager에 알림 (ObjectiveComplete 판정 대상)\n" +
              "false: 일반 장애물, 파괴해도 승리 조건에 영향 없음")]
     [SerializeField] private bool isVictoryTarget = false;
+
+    [Tooltip("true: 몬스터가 파괴를 목표로 공격하는 보호 대상 오브젝트 (ProtectObject 모드)\n" +
+             "전부 파괴되면 스테이지 즉시 실패. SimpleMob이 이 오브젝트로 돌진합니다.")]
+    [SerializeField] private bool isProtectTarget = false;
     
     [Tooltip("isVictoryTarget=true일 때 표시할 미션 마커 비주얼 설정\n" +
              "null이면 마커 UI를 표시하지 않음")]
@@ -82,7 +86,7 @@ public class Barricade : MonoBehaviour, ITargetable
         // true  → 미니맵/레이더에 미션 목표로 표시 (OnEnable에서 자동 등록)
         // false → 등록하지 않음 (일반 장애물은 맵에 표시하지 않음)
         if (minimapMarker != null)
-            minimapMarker.enabled = isVictoryTarget;
+            minimapMarker.enabled = isVictoryTarget || isProtectTarget;
 
         // 미션 목표 오브젝트이고 Config가 연결되어 있으면 마커 UI 초기화
         if (isVictoryTarget && objectiveMarkerUI != null && objectiveMarkerConfig != null)
@@ -90,6 +94,17 @@ public class Barricade : MonoBehaviour, ITargetable
             objectiveMarkerUI.Initialize(objectiveMarkerConfig);
             UpdateObjectiveMarkerProgress();
         }
+
+        // ProtectObject 모드: Registry에 등록 (SimpleMob 타겟 탐색용)
+        if (isProtectTarget)
+            ProtectedBarricadeRegistry.Instance?.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        // ProtectObject 모드: 비활성화(파괴 포함) 시 Registry에서 해제
+        if (isProtectTarget)
+            ProtectedBarricadeRegistry.Instance?.Unregister(this);
     }
     
     private void InitializeFromPreset()
@@ -110,8 +125,18 @@ public class Barricade : MonoBehaviour, ITargetable
                 currentHP = preset.maxHP;
                 break;
             case BreakMode.Condition:
-                // Condition 모드는 별도 처리
                 break;
+        }
+
+        // ProtectObject 모드는 preset.breakMode에 관계없이 HP 방식으로 몬스터 데미지를 처리
+        // Hits 모드 프리셋이더라도 maxHP가 설정되어 있으면 currentHP를 초기화
+        if (isProtectTarget)
+        {
+            if (preset.maxHP > 0)
+                currentHP = preset.maxHP;
+            else
+                Dbg.LogWarning($"[Barricade] {gameObject.name}: isProtectTarget=true이지만 preset.maxHP가 0입니다. " +
+                               $"프리셋의 maxHP를 설정해주세요.");
         }
         
         // 시각 초기화
@@ -202,6 +227,9 @@ public class Barricade : MonoBehaviour, ITargetable
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isBroken) return;
+
+        // ProtectObject 모드: 플레이어 공격에 반응하지 않음 (Wall과 동일)
+        if (isProtectTarget) return;
         
         // 중복 호출 방지 (0.1초 쿨다운)
         if (Time.time < lastHitTime + HIT_COOLDOWN)
@@ -321,6 +349,34 @@ public class Barricade : MonoBehaviour, ITargetable
         return 0f;
     }
     
+    // ========================================
+    // 몬스터 공격 피격 (ProtectObject 모드 전용)
+    // ========================================
+
+    /// <summary>
+    /// SimpleMob 등 몬스터가 직접 호출하는 피격 처리입니다.
+    /// preset.breakMode와 무관하게 항상 HP 방식으로 처리합니다.
+    /// 이를 통해 몬스터 종류(레벨, 타입)에 따라 데미지가 차별화됩니다.
+    /// </summary>
+    public void TakeDamageFromEnemy(float damage)
+    {
+        if (isBroken) return;
+
+        currentHP -= damage;
+        if (currentHP < 0) currentHP = 0;
+
+        if (preset.showDamageNumbers)
+            ShowDamageNumber(damage);
+
+        PlayHitFeedback();
+        UpdateVisualStage();
+        UpdateHPDisplay();
+        UpdateObjectiveMarkerProgress();
+
+        if (currentHP <= 0)
+            Break();
+    }
+
     // ========================================
     // Condition 모드
     // ========================================
@@ -853,9 +909,13 @@ public class Barricade : MonoBehaviour, ITargetable
         if (objectiveMarkerUI != null)
             objectiveMarkerUI.ShowComplete();
         
-        // 승리 조건 대상이면 StageManager에 파괴 통지
+        // BarricadeDestroy 모드: 파괴 시 승리 통보
         if (isVictoryTarget)
             StageManager.Instance?.NotifyBarricadeDestroyed(this);
+
+        // ProtectObject 모드: 파괴 시 실패 판정 통보
+        if (isProtectTarget)
+            StageManager.Instance?.NotifyProtectTargetDestroyed(this);
     }
     
     private IEnumerator DestroyAfterDelay(float delay)
@@ -868,6 +928,7 @@ public class Barricade : MonoBehaviour, ITargetable
     // 공개 속성 (StageManager 등 외부 참조용)
     // ========================================
     public bool IsVictoryTarget => isVictoryTarget;
+    public bool IsProtectTarget => isProtectTarget;
     public bool IsBroken => isBroken;
 
     // ========================================
@@ -875,7 +936,8 @@ public class Barricade : MonoBehaviour, ITargetable
     // ========================================
     private TargetOutlineEffect _outlineEffect;
 
-    bool ITargetable.IsAlive() => !isBroken;
+    // isProtectTarget=true이면 오토타겟 후보에서 완전 제외 (플레이어가 공격 불가 오브젝트)
+    bool ITargetable.IsAlive() => !isBroken && !isProtectTarget;
 
     EnemyRank ITargetable.GetRank() =>
         isVictoryTarget ? EnemyRank.MissionObject : EnemyRank.Obstacle;

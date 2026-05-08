@@ -210,30 +210,30 @@ public class SimpleMob : MonoBehaviour, ITargetable
     /// <param name="aiUpdateInterval">Manager의 호출 주기(초) — 타이머 누적에 사용</param>
     public virtual void UpdateAI(float aiUpdateInterval)
     {
-        if (isDead || playerTransform == null) return;
+        if (isDead) return;
 
-        Vector2 myPos       = transform.position;
-        Vector2 playerPos   = playerTransform.position;
-        float distToPlayer  = Vector2.Distance(myPos, playerPos);
+        // 이동 목표 결정: isProtectTarget 오브젝트 우선, 없으면 플레이어(fallback)
+        Transform moveTarget = GetMoveTarget();
+        if (moveTarget == null) return;
 
-        float stopRange  = mobData != null ? mobData.contactRange      : 1.0f;
-        float deadzone   = mobData != null ? mobData.targetStopDistance : 0.15f;
+        Vector2 myPos      = transform.position;
+        Vector2 targetPos  = moveTarget.position;
+
+        float stopRange = mobData != null ? mobData.contactRange       : 1.0f;
+        float deadzone  = mobData != null ? mobData.targetStopDistance : 0.15f;
 
         // ─────────────────────────────────────────────────
-        // [1단계] 플레이어 contactRange 이내 → 완전 정지
-        //   - rb.velocity 초기화로 관성 즉시 제거
+        // [1단계] 타겟 contactRange 이내 → 완전 정지 (공격 사거리)
         //   - IsInContactRange = true → Manager가 분리력 스킵
         // ─────────────────────────────────────────────────
-        if (distToPlayer <= stopRange)
+        float distToTarget = Vector2.Distance(myPos, targetPos);
+        if (distToTarget <= stopRange)
         {
             _isInContactRange = true;
             rb.velocity = Vector2.zero;
 
-            // 스프라이트는 플레이어 방향 유지
             if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = (playerPos.x - myPos.x) < 0;
-            }
+                spriteRenderer.flipX = (targetPos.x - myPos.x) < 0;
             return;
         }
 
@@ -244,17 +244,15 @@ public class SimpleMob : MonoBehaviour, ITargetable
         // ─────────────────────────────────────────────────
         _isInContactRange = false;
 
-        Vector2 personalTarget  = playerPos + _personalTargetOffset;
-        float   distToTarget    = Vector2.Distance(myPos, personalTarget);
+        Vector2 personalTarget = targetPos + _personalTargetOffset;
+        float   distToPersonal = Vector2.Distance(myPos, personalTarget);
 
-        if (distToTarget <= deadzone)
+        if (distToPersonal <= deadzone)
         {
             rb.velocity = Vector2.zero;
 
             if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = (playerPos.x - myPos.x) < 0;
-            }
+                spriteRenderer.flipX = (targetPos.x - myPos.x) < 0;
             return;
         }
 
@@ -265,9 +263,21 @@ public class SimpleMob : MonoBehaviour, ITargetable
         rb.velocity = direction * moveSpeed;
 
         if (spriteRenderer != null)
-        {
             spriteRenderer.flipX = direction.x < 0;
-        }
+    }
+
+    /// <summary>
+    /// 이동 목표를 결정합니다.
+    /// ProtectObject 모드(Registry에 살아있는 오브젝트가 있으면) → 가장 가까운 Barricade
+    /// 없으면 → 플레이어 (기존 동작)
+    /// </summary>
+    private Transform GetMoveTarget()
+    {
+        Barricade nearest = ProtectedBarricadeRegistry.Instance?.GetNearest(transform.position);
+        if (nearest != null)
+            return nearest.transform;
+
+        return playerTransform;
     }
     
     /// <summary>
@@ -412,19 +422,38 @@ public class SimpleMob : MonoBehaviour, ITargetable
     }
     
     /// <summary>
-    /// 트리거 지속 체크 (플레이어 접촉 데미지)
+    /// 트리거 지속 체크 — 플레이어 접촉 데미지 및 보호 오브젝트 공격
     /// </summary>
     protected virtual void OnTriggerStay2D(Collider2D collision)
     {
         if (isDead) return;
-        
+        if (Time.time < lastAttackTime + attackCooldown) return;
+
+        // 플레이어 공격 (기존 동작 유지)
         if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            // 쿨다운 체크
-            if (Time.time < lastAttackTime + attackCooldown) return;
-            
             AttackPlayer(collision);
+            return;
         }
+
+        // 보호 오브젝트 공격 (ProtectObject 모드)
+        Barricade barricade = collision.GetComponent<Barricade>();
+        if (barricade != null && barricade.IsProtectTarget && !barricade.IsBroken)
+        {
+            AttackBarricade(barricade);
+        }
+    }
+
+    /// <summary>
+    /// 보호 오브젝트 공격 — 기존 박치기 공격 모션과 쿨다운을 재사용합니다.
+    /// </summary>
+    protected virtual void AttackBarricade(Barricade barricade)
+    {
+        barricade.TakeDamageFromEnemy(contactDamage);
+        lastAttackTime = Time.time;
+
+        if (animator != null)
+            animator.SetTrigger("Attack");
     }
     
     /// <summary>
