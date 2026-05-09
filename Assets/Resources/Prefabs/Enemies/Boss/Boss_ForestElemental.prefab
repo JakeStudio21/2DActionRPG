@@ -447,7 +447,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
   projectileSpawnPoint: {fileID: 0}
-  spiralProjectileCount: 24
+  spiralProjectileCount: 36
   spiralRotationSpeed: 360
   fireInterval: 0.05
   startingDistance: 0.5
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
-  meteorCount: 6
+  meteorCount: 8
   meteorDelay: 0.15
   playerNearRadius: 7
   arenaRadius: 16

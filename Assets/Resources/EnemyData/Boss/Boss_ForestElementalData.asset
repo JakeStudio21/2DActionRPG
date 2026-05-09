@@ -30,7 +30,7 @@ MonoBehaviour:
   primaryAttackType: 0
   skillDataList:
   - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
-  - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
+  - {fileID: 11400000, guid: eed491a02c4e4e64c893078a8b355790, type: 2}
   - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
   - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
   meleeAttackProbability: 60
