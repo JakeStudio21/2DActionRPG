@@ -52,6 +52,7 @@ namespace UI.Workshop
         private Sequence currentSequence;
         private Vector2   panelOriginalPos;
         private RectTransform panelRect;
+        private GameObject currentVFXInstance;
 
         // ════════════════════════════════════════════════════════════
         //  Unity Lifecycle
@@ -76,6 +77,9 @@ namespace UI.Workshop
         private void OnDisable()
         {
             KillCurrentSequence();
+
+            if (currentVFXInstance != null)
+                Destroy(currentVFXInstance);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -233,10 +237,14 @@ namespace UI.Workshop
         {
             if (prefab == null) return;
 
-            // Screen Space - Overlay 환경에서 파티클 Canvas가 올바르게 동작하려면
-            // 씬 루트 레벨(parent=null)로 스폰해야 자체 Canvas Sort Order가 적용됨
+            // 이전 VFX가 아직 재생 중이면 즉시 제거 (연속 강화 시 중첩 방지)
+            if (currentVFXInstance != null)
+                Destroy(currentVFXInstance);
+
+            // LobbyCanvas 하위에 스폰 → UIParticleSystem이 Canvas를 탐색할 수 있어야 렌더링됨
+            // transform을 부모로 지정하면 LobbyCanvas 계층을 자동으로 상속
             Vector3 spawnPos = vfxAnchor != null ? vfxAnchor.position : transform.position;
-            Instantiate(prefab, spawnPos, Quaternion.identity);
+            currentVFXInstance = Instantiate(prefab, spawnPos, Quaternion.identity, transform);
         }
 
         // ════════════════════════════════════════════════════════════

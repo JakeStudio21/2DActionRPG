@@ -135,11 +135,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -544,9 +553,9 @@ RectTransform:
   - {fileID: 1401127892161250577}
   m_Father: {fileID: 6609953252120214916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 295, y: -65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3847041580007991633
@@ -17127,24 +17136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b46b96f88f3263418ebf1929cf39985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponSlot: {fileID: 385175530102590318}
-  armorSlot: {fileID: 5899891073509447778}
-  bootsSlot: {fileID: 755578302847090460}
-  helmetSlot: {fileID: 0}
-  shieldSlot: {fileID: 0}
-  ring1Slot: {fileID: 0}
-  ring2Slot: {fileID: 0}
-  necklaceSlot: {fileID: 0}
-  playerNameText: {fileID: 4885789556628119983}
-  playerClassIcon: {fileID: 576146822084363442}
-  finalAttackDamageText: {fileID: 5899347871508189877}
-  finalDefenseText: {fileID: 7862966967491399508}
-  finalAttackSpeedText: {fileID: 6718993717783019771}
-  finalMoveSpeedText: {fileID: 7227775852400538133}
-  warriorClassIcon: {fileID: 21300000, guid: 02f7e13c728bc8e47b09b708f1c02066, type: 3}
-  assassinClassIcon: {fileID: 21300000, guid: e2a0a5dea7fc06e45922585b38d3e657, type: 3}
-  wizardClassIcon: {fileID: 21300000, guid: 585502b8bda0fc741ab2e5c0a04dcc8e, type: 3}
-  showDebugLogs: 1
 --- !u!1 &1391943882265134288
 GameObject:
   m_ObjectHideFlags: 0
@@ -17280,11 +17271,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -17464,11 +17464,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -23714,10 +23723,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4086287269566172872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -50}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7101661025912518376
 CanvasRenderer:
@@ -24702,11 +24711,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -25388,11 +25406,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -25562,7 +25589,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4086287269566172872
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25689,8 +25716,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenuPanel: {fileID: 2501711031870759492}
-  returnToLobbyButton: {fileID: 3857233161695910005}
   continueButton: {fileID: 8307947441804059996}
+  returnToLobbyButton: {fileID: 3857233161695910005}
+  resultPopupController: {fileID: 0}
 --- !u!1 &3190786083298813932
 GameObject:
   m_ObjectHideFlags: 0
@@ -25826,11 +25854,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -26339,9 +26376,9 @@ RectTransform:
   - {fileID: 2276258714482510577}
   m_Father: {fileID: 6609953252120214916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 465, y: -65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4215716327925003214
@@ -26664,11 +26701,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -27420,7 +27466,6 @@ MonoBehaviour:
   goldFormat: D3
   goldPrefix: 
   goldSuffix: 
-  showDebugLogs: 1
 --- !u!1 &3801547791304602586
 GameObject:
   m_ObjectHideFlags: 0
@@ -27545,10 +27590,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4086287269566172872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 160, y: -50}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4663098585463646617
 CanvasRenderer:
@@ -28164,7 +28209,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 723758139c5b98a4d936b09bd2d3a20d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 1
 --- !u!1 &4147200193555688621
 GameObject:
   m_ObjectHideFlags: 0
@@ -28891,11 +28935,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -29064,7 +29117,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5858189719451590357
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29123,9 +29176,9 @@ RectTransform:
   - {fileID: 3259330783768225913}
   m_Father: {fileID: 6609953252120214916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 635, y: -65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &84218710334643298
@@ -29758,6 +29811,8 @@ MonoBehaviour:
   skill2Button: {fileID: 0}
   skill1Button_Radial: {fileID: 0}
   skill2Button_Radial: {fileID: 0}
+  attackButton_Radial: {fileID: 0}
+  dashButton_Radial: {fileID: 0}
   healthUI: {fileID: 0}
   goldUI: {fileID: 0}
   levelPanel: {fileID: 0}
@@ -29765,7 +29820,6 @@ MonoBehaviour:
   attackPanel: {fileID: 0}
   healthPanel: {fileID: 0}
   goldPanel: {fileID: 0}
-  showDebugLogs: 1
 --- !u!114 &8071381076169875434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29783,7 +29837,6 @@ MonoBehaviour:
   bagButton: {fileID: 575693035017068477}
   toggleKey: 105
   closeKey: 27
-  showDebugLogs: 1
 --- !u!114 &3904067735345167481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29804,7 +29857,7 @@ MonoBehaviour:
   bossHealthUI: {fileID: 2323462141980844862}
   killCountUI: {fileID: 9192268283560838362}
   victoryConditionText: {fileID: 7444553813148536537}
-  enableDebugLogs: 1
+  settingsUIController: {fileID: 0}
 --- !u!1 &4639000082406024969
 GameObject:
   m_ObjectHideFlags: 0
@@ -30181,11 +30234,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -31501,9 +31563,9 @@ RectTransform:
   - {fileID: 4805569754429774508}
   m_Father: {fileID: 3978404821396128497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 295, y: -65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4137692402459272358
@@ -31607,6 +31669,16 @@ MonoBehaviour:
   victoryImage: {fileID: 4421413069522360876}
   defeatImage: {fileID: 1411930864379603279}
   confirmButton: {fileID: 138333680918349026}
+  confirmButtonText: {fileID: 0}
+  rewardPanel: {fileID: 0}
+  rewardGoldText: {fileID: 0}
+  rewardExpText: {fileID: 0}
+  rewardItemsContainer: {fileID: 0}
+  itemSlotPrefab: {fileID: 0}
+  largeSlotSize: {x: 110, y: 110}
+  smallSlotSize: {x: 80, y: 80}
+  largeSpacing: 20
+  smallSpacing: 15
 --- !u!1 &5177275029491822023
 GameObject:
   m_ObjectHideFlags: 0
@@ -33005,11 +33077,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -33455,11 +33536,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -35382,11 +35472,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -35487,7 +35586,6 @@ MonoBehaviour:
   warningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   criticalColor: {r: 1, g: 0, b: 0, a: 1}
   blinkSpeed: 2
-  enableDebugLogs: 0
 --- !u!1 &6915732763585236084
 GameObject:
   m_ObjectHideFlags: 0
@@ -56144,9 +56242,9 @@ RectTransform:
   - {fileID: 3085589030431809277}
   m_Father: {fileID: 3978404821396128497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 635, y: -65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7497660770832781698
@@ -56415,7 +56513,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6090248757212779469
 RectTransform:
   m_ObjectHideFlags: 0
@@ -57156,9 +57254,9 @@ RectTransform:
   - {fileID: 490520338959145938}
   m_Father: {fileID: 3978404821396128497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 465, y: -65}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1541396628530364989
@@ -57380,7 +57478,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthSlider: {fileID: 0}
   autoFindSlider: 1
-  showDebugLogs: 1
 --- !u!1 &7795794168850736851
 GameObject:
   m_ObjectHideFlags: 0
@@ -57719,11 +57816,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -57862,11 +57968,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -57978,7 +58093,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useDynamicInventory: 1
   maxDisplaySlots: 16
-  showDebugLogs: 1
+  scrollRect: {fileID: 0}
+  slotContainer: {fileID: 0}
+  slotPrefab: {fileID: 0}
+  inGameDetailPanel: {fileID: 0}
+  detailItemIcon: {fileID: 0}
+  detailItemIconGradeFrame: {fileID: 0}
+  itemNameText: {fileID: 0}
+  itemGradeText: {fileID: 0}
+  stat1Text: {fileID: 0}
+  stat2Text: {fileID: 0}
+  stat3Text: {fileID: 0}
+  closeDetailButton: {fileID: 0}
 --- !u!114 &6721694909846630177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58183,10 +58309,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 4086287269566172872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -50}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7635698671573335913
 CanvasRenderer:
@@ -58799,11 +58925,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -59584,7 +59719,6 @@ MonoBehaviour:
   countUpDuration: 0.3
   scaleAnimDuration: 0.2
   scaleUpSize: {x: 1.2, y: 1.2, z: 1.2}
-  enableDebugLogs: 0
 --- !u!1 &8320321778379264331
 GameObject:
   m_ObjectHideFlags: 0
@@ -59720,11 +59854,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -60405,11 +60548,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -60723,11 +60875,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -66088,11 +66249,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 441e993323d824f449e2cdca45b7de43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showDebugLogs: 0
   equipmentData: {fileID: 0}
   slotImage: {fileID: 0}
   itemIconImage: {fileID: 0}
+  itemIconGradeFrame: {fileID: 0}
   slotButton: {fileID: 0}
+  bindIcon: {fileID: 0}
+  countText: {fileID: 0}
+  rarityBorder: {fileID: 0}
+  enhancementLevelText: {fileID: 0}
+  selectionCheckbox: {fileID: 0}
+  selectionCheckmark: {fileID: 0}
+  selectionHighlight: {fileID: 0}
+  highlightColorSelected: {r: 1, g: 0.84, b: 0, a: 0.3}
+  highlightColorUnselected: {r: 1, g: 1, b: 1, a: 0}
   messagePanel: {fileID: 0}
   messageText: {fileID: 0}
   isSelected: 0
@@ -66201,8 +66371,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   expSlider: {fileID: 0}
+  expText: {fileID: 0}
   autoFindSlider: 1
-  showDebugLogs: 1
+  autoFindText: 1
 --- !u!1 &8710752308424778738
 GameObject:
   m_ObjectHideFlags: 0
@@ -66814,11 +66985,14 @@ MonoBehaviour:
   criticalColor: {r: 1, g: 0, b: 0, a: 1}
   criticalThreshold: 0.3
   damagedThreshold: 0.7
+  usePhaseColors: 1
+  phase1Color: {r: 0.2, g: 1, b: 0.2, a: 1}
+  phase2Color: {r: 1, g: 0.9, b: 0, a: 1}
+  phase3Color: {r: 1, g: 0.2, b: 0.2, a: 1}
   hpChangeAnimSpeed: 2
   enableDamageShake: 1
   shakeIntensity: 5
   shakeDuration: 0.2
-  enableDebugLogs: 0
 --- !u!1 &8945127415586094862
 GameObject:
   m_ObjectHideFlags: 0
