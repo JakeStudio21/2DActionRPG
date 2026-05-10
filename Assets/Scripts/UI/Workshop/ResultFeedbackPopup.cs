@@ -358,10 +358,9 @@ namespace UI.Workshop
         /// </summary>
         private void DisplayRewardsImmediate(Dictionary<MaterialType, int> rewards)
         {
-            // 이전 슬롯 제거
             ClearRewardSlots();
+            ApplyGridLayout(rewards.Count);
             
-            // 새 슬롯 생성
             foreach (var kvp in rewards)
             {
                 CreateMaterialSlot(kvp.Key, kvp.Value);
@@ -375,16 +374,51 @@ namespace UI.Workshop
         /// </summary>
         private void DisplayFusionResultsImmediate(Dictionary<string, int> results)
         {
-            // 이전 슬롯 제거
             ClearRewardSlots();
             
-            // 새 슬롯 생성
+            int totalSlotCount = 0;
+            foreach (var kvp in results)
+                totalSlotCount += kvp.Value;
+            
+            ApplyGridLayout(totalSlotCount);
+            
             foreach (var kvp in results)
             {
-                CreateEquipmentSlot(kvp.Key, kvp.Value);
+                for (int i = 0; i < kvp.Value; i++)
+                    CreateEquipmentSlot(kvp.Key);
             }
             
-            Log($"결과 슬롯 {currentRewardSlots.Count}개 생성 완료");
+            Log($"결과 슬롯 {currentRewardSlots.Count}개 생성 완료 (개별 표시)");
+        }
+        
+        /// <summary>
+        /// 슬롯 수에 따라 GridLayoutGroup의 열 수와 셀 크기를 동적으로 조절
+        /// </summary>
+        private void ApplyGridLayout(int totalCount)
+        {
+            if (rewardSlotsContainer == null) return;
+            
+            var grid = rewardSlotsContainer.GetComponent<GridLayoutGroup>();
+            if (grid == null)
+            {
+                Debug.LogWarning("[ResultFeedbackPopup] rewardSlotsContainer에 GridLayoutGroup이 없습니다!");
+                return;
+            }
+            
+            // 한 행에 5개씩 고정, 넘치면 자동으로 다음 행으로
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 5;
+            
+            if (totalCount <= 10)
+            {
+                grid.cellSize = new Vector2(120, 120); // 1~2행: 120px
+            }
+            else
+            {
+                grid.cellSize = new Vector2(90, 90); // 3행 이상: 90px
+            }
+            
+            Log($"GridLayout 적용: {totalCount}개 → {grid.constraintCount}열, 셀 {grid.cellSize.x}px");
         }
         
         /// <summary>
@@ -447,9 +481,9 @@ namespace UI.Workshop
         }
         
         /// <summary>
-        /// 장비 슬롯 동적 생성 (합성 결과)
+        /// 장비 슬롯 동적 생성 (합성 결과 - 아이템 1개당 슬롯 1개)
         /// </summary>
-        private void CreateEquipmentSlot(string templateName, int count)
+        private void CreateEquipmentSlot(string templateName)
         {
             if (materialSlotPrefab == null || rewardSlotsContainer == null)
             {
@@ -457,24 +491,20 @@ namespace UI.Workshop
                 return;
             }
             
-            // InventorySlot 프리팹 인스턴스화
             GameObject slotObj = Instantiate(materialSlotPrefab, rewardSlotsContainer);
-            
-            // 슬롯 추적 (먼저 추가)
             currentRewardSlots.Add(slotObj);
             
             // ⭐ Instantiate() 후 1프레임 대기한 다음 SetupEquipment() 호출
-            StartCoroutine(SetupEquipmentSlotDelayed(slotObj, templateName, count));
+            StartCoroutine(SetupEquipmentSlotDelayed(slotObj, templateName));
             
-            Log($"장비 슬롯 생성 예약: {templateName} x{count}");
+            Log($"장비 슬롯 생성 예약: {templateName}");
         }
         
         /// <summary>
         /// ⭐ Instantiate() 후 1프레임 대기한 다음 장비 설정 (합성 결과)
         /// </summary>
-        private IEnumerator SetupEquipmentSlotDelayed(GameObject slotObj, string templateName, int count)
+        private IEnumerator SetupEquipmentSlotDelayed(GameObject slotObj, string templateName)
         {
-            // 1프레임 대기 (Layout Group 재계산 완료 대기)
             yield return null;
             
             if (slotObj == null)
@@ -487,19 +517,13 @@ namespace UI.Workshop
             
             if (slot != null)
             {
-                // 장비 데이터 로드
                 EquipmentData equipData = ItemTemplateResolver.Load(templateName);
                 
                 if (equipData != null)
                 {
-                    // ⭐ 임시 ItemInstanceID (미리보기용)
                     ItemInstanceID previewId = default;
-                    
                     slot.SetEquipmentData(equipData, previewId);
-                    
-                    // TODO: 개수 표시 (InventorySlot에 countText 추가 필요)
-                    
-                    Log($"장비 슬롯 설정 완료: {equipData.equipmentName} x{count}");
+                    Log($"장비 슬롯 설정 완료: {equipData.equipmentName}");
                 }
                 else
                 {
