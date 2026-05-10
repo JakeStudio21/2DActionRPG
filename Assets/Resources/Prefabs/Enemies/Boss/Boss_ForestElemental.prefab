@@ -22,9 +22,9 @@ GameObject:
   - component: {fileID: -6477805641063854489}
   - component: {fileID: -193883574415130873}
   - component: {fileID: 6376443038196798269}
-  - component: {fileID: 3412258947461422548}
   - component: {fileID: -6743165854896849057}
   - component: {fileID: -7579856380117773579}
+  - component: {fileID: 3559526808081693056}
   - component: {fileID: 3141592653589793}
   - component: {fileID: -6062580378683552115}
   - component: {fileID: 8998232531007038718}
@@ -397,6 +397,7 @@ MonoBehaviour:
   aoeSkill: {fileID: 0}
   multiShotSkill: {fileID: 0}
   meteorShowerSkill: {fileID: 3141592653589793}
+  boulderSkill: {fileID: 0}
   currentSkillEntry:
     skillData: {fileID: 0}
     weight: 15
@@ -406,20 +407,6 @@ MonoBehaviour:
     skillDescription: 
   isCasting: 0
   isActionExecuting: 0
---- !u!114 &3412258947461422548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3235174918318939483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4324e21bf3fb0bc4f87f07dbe4c0be38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseEnemy: {fileID: 0}
-  baseDashSpeed: 15
 --- !u!114 &-6743165854896849057
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,6 +441,30 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
   projectileSpeed: 8
   projectileLifetime: 5
+--- !u!114 &3559526808081693056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3235174918318939483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca5314726bf9ead4d98e23212f7b6c8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseEnemy: {fileID: 0}
+  largeBoulderPrefab: {fileID: 8962294267068437915, guid: 30e01fe853f52434197867ed8904f950, type: 3}
+  boulderCount: 6
+  skillDuration: 8
+  initialSpeed: 6
+  earlyCompleteWhenAllDead: 0
+  telegraphPrefab: {fileID: 614329605402219767, guid: d7b751e350300e84e81746897bcaef64, type: 3}
+  arenaCenterTransform: {fileID: 0}
+  bossArenaTag: BossArena
+  arenaRadius: 18
+  minSpawnDistanceFromPlayer: 3
+  spawnPositionRetryCount: 8
 --- !u!114 &3141592653589793
 MonoBehaviour:
   m_ObjectHideFlags: 0

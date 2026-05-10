@@ -14,30 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: CH01_ST10
   requiredPools:
-  - tag: Arrow_B
-    prefab: {fileID: 4149642069968341746, guid: e47ee699ac38fad45b651e49e3d67ef3, type: 3}
-    size: 20
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
-  - tag: Arrow_B_Arc
-    prefab: {fileID: 4149642069968341746, guid: 14fb6f06e0fc89849bac9d3a8c549643, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: Grape Projectile
-    prefab: {fileID: 6774872879692375580, guid: 04ff1809e923b95448370fac4de6cd67, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: Grape_Shadow
-    prefab: {fileID: 4040728627607984930, guid: 214664c51c2bac94f986e6a2cd0a0972, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
   - tag: SpawnEffect
     prefab: {fileID: 724470073289127030, guid: bb777d6d1b97f9e40836295c84cffeda, type: 3}
     size: 10
@@ -83,24 +59,6 @@ MonoBehaviour:
   - tag: ButtonClickVFX
     prefab: {fileID: 724470073289127030, guid: 8d5a74abab342ac4daa100220e87326c, type: 3}
     size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: WaveCompleteEffect
-    prefab: {fileID: 724470073289127030, guid: b427819ddc3c8274987e52fcfa62c856, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: Golem Projectile
-    prefab: {fileID: 6830296691463287077, guid: 61357f20c7386224bb4654399e49ddd5, type: 3}
-    size: 2
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 5
-  - tag: VFX_CrystalGolem_Attack
-    prefab: {fileID: 7883441628179305771, guid: 12cfa14e89836e84c88056d5c7a5bf83, type: 3}
-    size: 2
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 5
@@ -154,12 +112,6 @@ MonoBehaviour:
     maxInstancesPerFrame: 10
   - tag: BossProjectile
     prefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
-    size: 10
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 10
-  - tag: SandRec_AOE_Effect
-    prefab: {fileID: 4892599479126619859, guid: 7b8c9c2f6c5f20b4380940b18fc6667b, type: 3}
     size: 10
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
@@ -218,12 +170,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 0
     maxInstancesPerFrame: 10
-  - tag: GoblinMini
-    prefab: {fileID: 6075384399065925802, guid: 3a57c2a6b8607a1408b46aa9066d2db3, type: 3}
-    size: 30
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 0
-    maxInstancesPerFrame: 30
   - tag: Fx_Attack_Spore_Poison
     prefab: {fileID: 4912645067155827441, guid: 54beec8f69623fe42ba4b6be69924631, type: 3}
     size: 5
@@ -392,36 +338,6 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
-  - tag: MON_RABBIT_001
-    prefab: {fileID: 3235174918318939483, guid: e4765c3296266b34c9157f6b3fe30dc7, type: 3}
-    size: 5
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 10
-  - tag: SimpleMob_GoblinMini
-    prefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
-    size: 30
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 50
-  - tag: SimpleMob_SpiderMini
-    prefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
-    size: 30
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 50
-  - tag: SimpleMob_LadyBugMini
-    prefab: {fileID: 329721555528023218, guid: 83bf43f6d67180340b5a2898b1ca434e, type: 3}
-    size: 30
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 50
-  - tag: SimpleMob_BeetleMini
-    prefab: {fileID: 329721555528023218, guid: 2443fe66d1cc8f343b32d53b2ecfb8a1, type: 3}
-    size: 30
-    preloadOnSceneStart: 1
-    clearOnSceneExit: 1
-    maxInstancesPerFrame: 50
   - tag: FX_Hit_Explosion_Bomb
     prefab: {fileID: 5033180708955247871, guid: b4aa5ee5c6da51a429ad16a67d781d7e, type: 3}
     size: 30
@@ -536,4 +452,10 @@ MonoBehaviour:
     preloadOnSceneStart: 1
     clearOnSceneExit: 1
     maxInstancesPerFrame: 5
+  - tag: Fx_Hit_Dust_Gray
+    prefab: {fileID: 1142702751281481445, guid: 538067518b5f06a4cbe324da145dcd26, type: 3}
+    size: 20
+    preloadOnSceneStart: 1
+    clearOnSceneExit: 1
+    maxInstancesPerFrame: 20
   optionalPools: []

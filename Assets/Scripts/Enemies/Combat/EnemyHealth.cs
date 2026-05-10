@@ -500,6 +500,11 @@ public class EnemyHealth : MonoBehaviour
         // ⭐ 체력바 제거
         DestroyHealthBar();
 
+        // ⭐ 보스 스킬 강제 취소 (진행 중인 스킬 및 스폰된 오브젝트 정리)
+        var bossSkillController = GetComponent<BossSkillController>();
+        if (bossSkillController != null)
+            bossSkillController.ForceCancelSkill();
+
         // ⭐ 모든 물리 효과 즉시 중지 (넉백, 이동 등)
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)

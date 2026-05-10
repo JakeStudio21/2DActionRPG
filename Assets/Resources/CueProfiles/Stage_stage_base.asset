@@ -106,6 +106,36 @@ MonoBehaviour:
     priority: 50
     cooldown: 0
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - vfxId: BoulderSplitEffect
+    poolKey: Fx_Hit_Dust_Gray
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - vfxId: BoulderDestroyEffect
+    poolKey: Fx_Hit_Dust_Gray
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - vfxId: BoulderHitDamageEffect
+    poolKey: Fx_Hit_Dust_Gray
+    duration: 1
+    offset: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+    followTarget: 0
+    rotationMode: 0
+    priority: 50
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
   sfxCatalog:
   - sfxId: SpawnSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
@@ -261,7 +291,7 @@ MonoBehaviour:
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
   - eventKey: boulder.split
     vfxIds:
-    - 
+    - BoulderSplitEffect
     sfxIds:
     - 
     priority: 4
@@ -274,7 +304,7 @@ MonoBehaviour:
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
   - eventKey: boulder.destroy
     vfxIds:
-    - 
+    - BoulderDestroyEffect
     sfxIds:
     - 
     priority: 4
@@ -285,6 +315,19 @@ MonoBehaviour:
       delay: 0
     timeStopMs: 120
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
+  - eventKey: boulder.hit.damage
+    vfxIds:
+    - BoulderHitDamageEffect
+    sfxIds:
+    - 
+    priority: 4
+    shakeData:
+      useShake: 1
+      intensity: 0.1
+      duration: 0.1
+      delay: 0
+    timeStopMs: 80
+    note: "\uB9DD\uCE58\uAE30\uBBF9\uC7A5\uCE58"
   - eventKey: boulder.hit.player
     vfxIds:
     - BoulderHitPlayerEffect

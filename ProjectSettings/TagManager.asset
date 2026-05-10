@@ -12,6 +12,7 @@ TagManager:
   - PlayerReachedPoint
   - MustBeDisabled
   - SimpleMobArrow
+  - BossArena
   layers:
   - Default
   - TransparentFX
