@@ -71,7 +71,6 @@ public class LobbyPanelManager : MonoBehaviour
     {
         
         // Cue 이벤트 발행
-        EmitButtonClickCue();
         EmitShopOpenCue();
         
         // 패널 전환
@@ -86,7 +85,6 @@ public class LobbyPanelManager : MonoBehaviour
     {
         
         // Cue 이벤트 발행
-        EmitButtonClickCue();
         EmitInventoryOpenCue();
         
         // 패널 전환
@@ -101,7 +99,6 @@ public class LobbyPanelManager : MonoBehaviour
     {
         
         // Cue 이벤트 발행
-        EmitButtonClickCue();
         EmitCharacterOpenCue();
         
         // 패널 전환
@@ -137,7 +134,6 @@ public class LobbyPanelManager : MonoBehaviour
     {
         
         // Cue 이벤트 발행
-        EmitButtonClickCue();
         EmitDungeonOpenCue();
         
         // 패널 전환
@@ -162,7 +158,6 @@ public class LobbyPanelManager : MonoBehaviour
     {
         
         // Cue 이벤트 발행
-        EmitButtonClickCue();
         EmitWorkshopOpenCue();
         
         // 패널 전환
@@ -188,7 +183,6 @@ public class LobbyPanelManager : MonoBehaviour
     {
         
         // Cue 이벤트 발행
-        EmitButtonClickCue();
         EmitSkillBookOpenCue();
         
         // 패널 전환
@@ -246,16 +240,6 @@ public class LobbyPanelManager : MonoBehaviour
     }
     
     #region Cue 이벤트 발행
-    
-    private void EmitButtonClickCue()
-    {
-        var context = new CueContext
-        {
-            position = Vector3.zero,
-            actorType = ActorType.UI
-        };
-        CueEmitter.Emit("ui.button.click", "UI", context);
-    }
     
     private void EmitPanelCloseCue()
     {

@@ -1300,17 +1300,8 @@ public class LobbyUIController : MonoBehaviour
     {
         if (!EnsureCharacterSelected()) return;
         
-        
-        // Cue 이벤트 발행
-        var context = new CueContext
-        {
-            position = Vector3.zero,
-            actorType = ActorType.UI
-        };
-        CueEmitter.Emit("ui.button.click", "UI", context);
-        CueEmitter.Emit("ui.character.open", "UI", context);
-        
         // 패널 전환 (LobbyPanelManager로 위임)
+        // 클릭 사운드: UIButtonClickEffect, 패널 오픈 사운드: LobbyPanelManager
         if (panelManager != null)
         {
             panelManager.ShowCharacterInfoPanel();
