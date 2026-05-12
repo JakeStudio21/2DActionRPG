@@ -18,7 +18,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
     spawnCount: 20
     spawnInterval: 1.7
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -29,7 +29,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: 8ed35b2285c571045ba5db40539d780c, type: 3}
     spawnCount: 20
     spawnInterval: 1.7
-    moveSpeed: 2
+    moveSpeed: 2.5
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -40,7 +40,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: 48bc13dad20629041844083e76af1ac2, type: 3}
     spawnCount: 20
     spawnInterval: 1.7
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -51,7 +51,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
     spawnCount: 20
     spawnInterval: 1.7
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -62,7 +62,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: 48bc13dad20629041844083e76af1ac2, type: 3}
     spawnCount: 20
     spawnInterval: 1.5
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -73,7 +73,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
     spawnCount: 20
     spawnInterval: 1.5
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -84,7 +84,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: 48bc13dad20629041844083e76af1ac2, type: 3}
     spawnCount: 20
     spawnInterval: 1.5
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -95,7 +95,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: c94e71ab134e0234d8f4a34e68797013, type: 3}
     spawnCount: 30
     spawnInterval: 1.5
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}
@@ -106,7 +106,7 @@ MonoBehaviour:
   - mobPrefab: {fileID: 329721555528023218, guid: 48bc13dad20629041844083e76af1ac2, type: 3}
     spawnCount: 30
     spawnInterval: 1.5
-    moveSpeed: 2.5
+    moveSpeed: 3
     spawnPattern: 0
     spawnRadius: 2
     lineStart: {x: -5, y: 0}

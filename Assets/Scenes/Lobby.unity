@@ -39025,7 +39025,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.1
+  m_fontSize: 26.2
   m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -75167,8 +75167,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clickVFXPrefab: {fileID: 1242426392424966659, guid: 7eb793890590d744299c4cd1e411713f, type: 3}
-  targetCanvas: {fileID: 7627492261987226909}
-  vfxParent: {fileID: 6651754947011118134}
+  targetCanvas: {fileID: 1385460804}
+  vfxParent: {fileID: 1385460805}
   isActive: 1
 --- !u!1 &721587304
 GameObject:
@@ -90638,7 +90638,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1789122105}
   m_HandleRect: {fileID: 1789122104}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -118325,7 +118325,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -115}
+  m_AnchoredPosition: {x: 0, y: -120}
   m_SizeDelta: {x: 480, y: 30}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1144923639
@@ -118375,8 +118375,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -189076,7 +189076,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1484867700}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.5037037
+  m_Size: 0.5037038
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

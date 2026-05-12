@@ -8129,7 +8129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showSpawnGizmos: 1
-  groupSpawnDelay: 3
+  groupSpawnDelay: 1
 --- !u!1 &876587260
 GameObject:
   m_ObjectHideFlags: 0

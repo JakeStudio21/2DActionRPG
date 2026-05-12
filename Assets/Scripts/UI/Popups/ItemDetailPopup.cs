@@ -1441,7 +1441,7 @@ namespace UI.Popups
             warningText.gameObject.SetActive(true);
             
             // 대기 시간
-            float waitTime = success ? 1.0f : 3.0f; // 성공: 1초, 실패: 3초
+            float waitTime = success ? 0.5f : 3.0f; // 성공: 0.5초, 실패: 3초
             yield return new WaitForSeconds(waitTime);
             
             // 메시지 숨김

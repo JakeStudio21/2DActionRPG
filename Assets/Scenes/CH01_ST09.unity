@@ -937,7 +937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4da2cfab4d151b446bb32ece0a117838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentWaveData: {fileID: 0}
+  currentWaveData: {fileID: 11400000, guid: 0e7410c7f5f16244aac0d902b5725449, type: 2}
   playerTransform: {fileID: 0}
   customSpawnCenter: {fileID: 999405473}
   linkedWaveConfig: {fileID: 0}
@@ -7968,30 +7968,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 9083205748952842261, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 513384488}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
---- !u!1 &513384487 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9083205748952842261, guid: ab81aa3fa14446b4bb1cf56f152a9b27, type: 3}
-  m_PrefabInstance: {fileID: 513384486}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &513384488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 513384487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b93eab8a2d3406408ae6707962cecf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  showSpawnGizmos: 1
-  groupSpawnDelay: 3
 --- !u!1001 &515565634
 PrefabInstance:
   m_ObjectHideFlags: 0

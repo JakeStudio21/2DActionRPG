@@ -19,8 +19,8 @@ MonoBehaviour:
     equipmentChanceMultiplier: 1
     minRarity: 0
     maxRarity: 1
-    goldLevelMultiplier: 0
-    expLevelMultiplier: 0
+    goldLevelMultiplier: 1
+    expLevelMultiplier: 1
   - minStageLevel: 6
     maxStageLevel: 10
     materialAmountMultiplier: 1.5

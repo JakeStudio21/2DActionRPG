@@ -25,7 +25,7 @@ MonoBehaviour:
     LevelOffset: 0
     MonsterPrefab: {fileID: 0}
   - MonsterID: MON_SPHINX_001
-    Count: 2
+    Count: 3
     SpawnCount: 0.3
     IsBoss: 0
     LevelOffset: 0

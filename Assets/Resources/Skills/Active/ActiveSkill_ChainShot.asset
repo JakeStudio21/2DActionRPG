@@ -43,7 +43,7 @@ MonoBehaviour:
   multiHitCount: 1
   projectileCount: 1
   projectilePrefab: {fileID: 4149642069968341746, guid: 813e5e9d20e98ad47b20770346aab3eb, type: 3}
-  projectileSpeed: 15
+  projectileSpeed: 22
   spreadAngle: 0
   projectileScale: {x: 1, y: 1, z: 1}
   projectilePoolName: Arrow_ChainShot

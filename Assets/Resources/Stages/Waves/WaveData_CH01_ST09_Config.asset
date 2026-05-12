@@ -16,8 +16,8 @@ MonoBehaviour:
   totalWaves: 2
   spawnConfigs:
   - mobPrefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
-    spawnCount: 10
-    spawnInterval: 3
+    spawnCount: 15
+    spawnInterval: 1.5
     moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 8
@@ -27,8 +27,8 @@ MonoBehaviour:
     gridColumns: 0
     gridSpacing: 2
   - mobPrefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
-    spawnCount: 10
-    spawnInterval: 3
+    spawnCount: 15
+    spawnInterval: 2
     moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 8
@@ -38,8 +38,8 @@ MonoBehaviour:
     gridColumns: 0
     gridSpacing: 2
   - mobPrefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
-    spawnCount: 10
-    spawnInterval: 4
+    spawnCount: 20
+    spawnInterval: 1
     moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 5
@@ -49,8 +49,8 @@ MonoBehaviour:
     gridColumns: 0
     gridSpacing: 2
   - mobPrefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
-    spawnCount: 10
-    spawnInterval: 4
+    spawnCount: 20
+    spawnInterval: 1.5
     moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 5
@@ -60,8 +60,8 @@ MonoBehaviour:
     gridColumns: 0
     gridSpacing: 2
   - mobPrefab: {fileID: 329721555528023218, guid: e359c46caaac47d469833db71eb0a439, type: 3}
-    spawnCount: 10
-    spawnInterval: 5
+    spawnCount: 30
+    spawnInterval: 1
     moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 5
@@ -71,8 +71,8 @@ MonoBehaviour:
     gridColumns: 0
     gridSpacing: 2
   - mobPrefab: {fileID: 5445624778298339401, guid: 9859436c5e2339940a6007649febe994, type: 3}
-    spawnCount: 10
-    spawnInterval: 5
+    spawnCount: 30
+    spawnInterval: 1.5
     moveSpeed: 2
     spawnPattern: 0
     spawnRadius: 5

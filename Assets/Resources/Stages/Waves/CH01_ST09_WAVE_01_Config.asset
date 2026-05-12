@@ -22,7 +22,7 @@ MonoBehaviour:
   BossGateTag: BossGate
   TriggerToActivate: 1
   UseSimpleMobWave: 1
-  SimpleMobWaveData: {fileID: 11400000, guid: 3770339d9e316f2438982ba7fa9e58e2, type: 2}
+  SimpleMobWaveData: {fileID: 11400000, guid: 0e7410c7f5f16244aac0d902b5725449, type: 2}
   SimpleMobSpawnCenter: {fileID: 0}
   SpawnGroups:
   - {fileID: 11400000, guid: 8b2be6ce0f72beb43abceec57b6e8ad9, type: 2}

@@ -24,3 +24,9 @@ MonoBehaviour:
     IsBoss: 0
     LevelOffset: 0
     MonsterPrefab: {fileID: 0}
+  - MonsterID: MON_COBRA_001
+    Count: 3
+    SpawnCount: 0.3
+    IsBoss: 0
+    LevelOffset: 0
+    MonsterPrefab: {fileID: 0}
