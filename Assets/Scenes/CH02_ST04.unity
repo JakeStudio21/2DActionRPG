@@ -1643,6 +1643,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: BGMStarter_Stage
       objectReference: {fileID: 0}
+    - target: {fileID: 3394781878674941660, guid: 543ec2dc98f88a94aabd929730c274d6, type: 3}
+      propertyPath: stageId
+      value: desert
+      objectReference: {fileID: 0}
+    - target: {fileID: 3394781878674941660, guid: 543ec2dc98f88a94aabd929730c274d6, type: 3}
+      propertyPath: bgmEventKey
+      value: bgm.stage.default
+      objectReference: {fileID: 0}
     - target: {fileID: 9074426280691466082, guid: 543ec2dc98f88a94aabd929730c274d6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 113.98977

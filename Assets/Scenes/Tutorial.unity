@@ -174,6 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecc913570b03a9e4c9820711621776a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgmEventKey: bgm.tutorial
   tutorialStartCutsceneId: Tutorial_Start
   tutorialEndCutsceneId: Tutorial_End
   stepController: {fileID: 28830903}
@@ -1008,11 +1009,11 @@ RectTransform:
   - {fileID: 1132353029}
   m_Father: {fileID: 802697191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 579.87756, y: -416.91193}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -270, y: 30}
   m_SizeDelta: {x: 200, y: 200}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &209548002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1289,11 +1290,11 @@ RectTransform:
   - {fileID: 1031981854}
   m_Father: {fileID: 802697191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 809.82886, y: -416.91193}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -40, y: 30}
   m_SizeDelta: {x: 200, y: 200}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &281848213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1450,16 +1451,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dimmerImage: {fileID: 691010203}
   spotlightMaterial: {fileID: 2100000, guid: 30dc28eb6abe23248a09521d46160aa2, type: 2}
-  defaultAlpha: 0.7
+  defaultAlpha: 0.5
   useInspectorValues: 0
-  holeRadius: 100
+  holeRadius: 200
   softEdge: 10
   transitionDuration: 0.5
-  joystickTarget: {fileID: 0}
-  attackButtonTarget: {fileID: 0}
-  dashButtonTarget: {fileID: 0}
-  skill1ButtonTarget: {fileID: 0}
-  skill2ButtonTarget: {fileID: 0}
+  joystickTarget: {fileID: 2008668332}
+  attackButtonTarget: {fileID: 1031981854}
+  dashButtonTarget: {fileID: 1132353029}
+  skill1ButtonTarget: {fileID: 1928898215}
+  skill2ButtonTarget: {fileID: 1947845246}
 --- !u!1 &439513762
 GameObject:
   m_ObjectHideFlags: 0
@@ -4157,11 +4158,11 @@ RectTransform:
   - {fileID: 1928898215}
   m_Father: {fileID: 802697191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 700.8518, y: -255.9459}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -180, y: 240}
   m_SizeDelta: {x: 110, y: 110}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &694438500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4835,7 +4836,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 33.059998, y: -30.2}
+  m_AnchoredPosition: {x: 33.059937, y: -30.200012}
   m_SizeDelta: {x: 234, y: 720}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &903036459
@@ -5732,11 +5733,11 @@ RectTransform:
   - {fileID: 1947845246}
   m_Father: {fileID: 802697191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 874.8152, y: -255.9459}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -30, y: 240}
   m_SizeDelta: {x: 110, y: 110}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &1410856758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7531,6 +7532,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8135886326569738822, guid: 56fae09712773584fb63896d473a98ee, type: 3}
   m_PrefabInstance: {fileID: 2008668330}
   m_PrefabAsset: {fileID: 0}
+--- !u!224 &2008668332 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8135886327784587633, guid: 56fae09712773584fb63896d473a98ee, type: 3}
+  m_PrefabInstance: {fileID: 2008668330}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2009153529
 GameObject:
   m_ObjectHideFlags: 0
@@ -7566,7 +7572,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.7, y: 0}
+  m_AnchoredPosition: {x: 0.6999512, y: 0}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2009153531

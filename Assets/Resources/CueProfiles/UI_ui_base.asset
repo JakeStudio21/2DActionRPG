@@ -22,6 +22,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 0.8, y: 0.8, z: 0.8}
     followTarget: 0
+    rotationMode: 0
     priority: 30
     cooldown: 0.1
     note: "\uBC84\uD2BC \uD074\uB9AD VFX"
@@ -31,6 +32,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 40
     cooldown: 0
     note: "\uD328\uB110 \uC5F4\uAE30 VFX"
@@ -40,6 +42,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 30
     cooldown: 0
     note: "\uD328\uB110 \uB2EB\uAE30 VFX"
@@ -49,6 +52,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.2, y: 1.2, z: 1.2}
     followTarget: 0
+    rotationMode: 0
     priority: 50
     cooldown: 0
     note: "\uC544\uC774\uD15C \uC7A5\uCC29 VFX"
@@ -58,6 +62,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 45
     cooldown: 0
     note: "\uC544\uC774\uD15C \uD68D\uB4DD VFX"
@@ -67,6 +72,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1.3, y: 1.3, z: 1.3}
     followTarget: 0
+    rotationMode: 0
     priority: 55
     cooldown: 0
     note: "\uC0C1\uC810 \uAD6C\uB9E4 VFX"
@@ -76,6 +82,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 40
     cooldown: 0
     note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38 VFX"
@@ -85,6 +92,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 20
     cooldown: 0.1
     note: "\uB124\uBE44\uAC8C\uC774\uC158 \uBC84\uD2BC VFX"
@@ -94,6 +102,7 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 35
     cooldown: 0.1
     note: "\uC561\uC158 \uBC84\uD2BC VFX"
@@ -103,12 +112,13 @@ MonoBehaviour:
     offset: {x: 0, y: 0, z: 0}
     scale: {x: 1, y: 1, z: 1}
     followTarget: 0
+    rotationMode: 0
     priority: 10
     cooldown: 0.1
     note: "\uC720\uD2F8\uB9AC\uD2F0 \uBC84\uD2BC VFX"
   sfxCatalog:
   - sfxId: ButtonClickSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
     volume: 0.5
     pitch: 1
     loop: 0
@@ -118,8 +128,8 @@ MonoBehaviour:
     cooldown: 0.1
     note: "\uBC84\uD2BC \uD074\uB9AD \uC0AC\uC6B4\uB4DC"
   - sfxId: PanelOpenSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.6
+    audioClip: {fileID: 8300000, guid: e86346c15add24da4911015e6787b3be, type: 3}
+    volume: 1
     pitch: 1
     loop: 0
     is3D: 0
@@ -128,8 +138,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD328\uB110 \uC5F4\uAE30 \uC0AC\uC6B4\uB4DC"
   - sfxId: PanelCloseSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.5
+    audioClip: {fileID: 8300000, guid: e86346c15add24da4911015e6787b3be, type: 3}
+    volume: 1
     pitch: 1
     loop: 0
     is3D: 0
@@ -138,8 +148,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD328\uB110 \uB2EB\uAE30 \uC0AC\uC6B4\uB4DC"
   - sfxId: ItemEquipSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.7
+    audioClip: {fileID: 8300000, guid: 6a1d17609329a4c7ebf82bd083f146ae, type: 3}
+    volume: 0.5
     pitch: 1
     loop: 0
     is3D: 0
@@ -148,8 +158,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC544\uC774\uD15C \uC7A5\uCC29 \uC0AC\uC6B4\uB4DC"
   - sfxId: ItemPickupSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.6
+    audioClip: {fileID: 8300000, guid: a3695363efd74405b818454534e8825a, type: 3}
+    volume: 0.5
     pitch: 1.1
     loop: 0
     is3D: 0
@@ -158,8 +168,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC544\uC774\uD15C \uD68D\uB4DD \uC0AC\uC6B4\uB4DC"
   - sfxId: ShopBuySound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: a3695363efd74405b818454534e8825a, type: 3}
+    volume: 0.5
     pitch: 1
     loop: 0
     is3D: 0
@@ -168,7 +178,7 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC0C1\uC810 \uAD6C\uB9E4 \uC0AC\uC6B4\uB4DC"
   - sfxId: InventoryFullSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
+    audioClip: {fileID: 0}
     volume: 0.7
     pitch: 1
     loop: 0
@@ -179,7 +189,7 @@ MonoBehaviour:
     note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38 \uC0AC\uC6B4\uB4DC"
   - sfxId: ButtonNavigationSound
     audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
-    volume: 2
+    volume: 0.5
     pitch: 1
     loop: 0
     is3D: 0
@@ -189,7 +199,7 @@ MonoBehaviour:
     note: "\uB124\uBE44\uAC8C\uC774\uC158\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
   - sfxId: ButtonActionSound
     audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
-    volume: 2
+    volume: 0.5
     pitch: 1
     loop: 0
     is3D: 0
@@ -199,7 +209,7 @@ MonoBehaviour:
     note: "\uC561\uC158\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
   - sfxId: ButtonUtilitySound
     audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
-    volume: 2
+    volume: 0.5
     pitch: 1
     loop: 0
     is3D: 0
@@ -207,14 +217,67 @@ MonoBehaviour:
     priority: 15
     cooldown: 0.1
     note: "\uC720\uD2F8\uB9AC\uD2F0\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
+  - sfxId: ButtonTabSound
+    audioClip: {fileID: 8300000, guid: a0e63436ad3ba2047be1aeb55dc2ae0d, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 10
+    cooldown: 0.1
+    note: "\uD0ED\uBC84\uD2BC\uC0AC\uC6B4\uB4DC"
+  - sfxId: EnhanceSuccessSound
+    audioClip: {fileID: 8300000, guid: 734f02e35d5cd89419cd89e4f20c6569, type: 3}
+    volume: 0.8
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uAC15\uD654 \uC131\uACF5 \uC0AC\uC6B4\uB4DC"
+  - sfxId: EnhanceFailSound
+    audioClip: {fileID: 8300000, guid: adfabc84b8892104089c2c3479a2b8fb, type: 3}
+    volume: 0.6
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 60
+    cooldown: 0
+    note: "\uAC15\uD654 \uC2E4\uD328 \uC0AC\uC6B4\uB4DC"
+  - sfxId: FusionSound
+    audioClip: {fileID: 8300000, guid: eadf6e50a68861e40927595a55f0b6da, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 55
+    cooldown: 0
+    note: "\uD569\uC131 \uC644\uB8CC \uC0AC\uC6B4\uB4DC"
+  - sfxId: DismantleSound
+    audioClip: {fileID: 8300000, guid: eadf6e50a68861e40927595a55f0b6da, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 55
+    cooldown: 0
+    note: "\uBD84\uD574 \uC644\uB8CC \uC0AC\uC6B4\uB4DC"
   entries:
   - eventKey: ui.button.click
-    vfxIds:
-    - ButtonClickVFX
+    vfxIds: []
     sfxIds:
     - ButtonClickSound
     priority: 1
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 10
     note: "\uBC84\uD2BC \uD074\uB9AD"
   - eventKey: ui.panel.open
@@ -223,7 +286,11 @@ MonoBehaviour:
     sfxIds:
     - PanelOpenSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uD328\uB110 \uC5F4\uAE30"
   - eventKey: ui.panel.close
@@ -232,7 +299,11 @@ MonoBehaviour:
     sfxIds:
     - PanelCloseSound
     priority: 1
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 15
     note: "\uD328\uB110 \uB2EB\uAE30"
   - eventKey: ui.inventory.open
@@ -241,7 +312,11 @@ MonoBehaviour:
     sfxIds:
     - PanelOpenSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 25
     note: "\uC778\uBCA4\uD1A0\uB9AC \uC5F4\uAE30"
   - eventKey: ui.shop.open
@@ -250,7 +325,11 @@ MonoBehaviour:
     sfxIds:
     - PanelOpenSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 25
     note: "\uC0C1\uC810 \uC5F4\uAE30"
   - eventKey: ui.item.equip
@@ -259,7 +338,11 @@ MonoBehaviour:
     sfxIds:
     - ItemEquipSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 30
     note: "\uC544\uC774\uD15C \uC7A5\uCC29"
   - eventKey: ui.item.pickup
@@ -268,7 +351,11 @@ MonoBehaviour:
     sfxIds:
     - ItemPickupSound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 25
     note: "\uC544\uC774\uD15C \uD68D\uB4DD"
   - eventKey: ui.shop.buy
@@ -277,7 +364,11 @@ MonoBehaviour:
     sfxIds:
     - ShopBuySound
     priority: 2
-    cameraShakePreset: Light
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 40
     note: "\uC0C1\uC810 \uAD6C\uB9E4"
   - eventKey: ui.inventory.full
@@ -286,34 +377,172 @@ MonoBehaviour:
     sfxIds:
     - InventoryFullSound
     priority: 1
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 20
     note: "\uC778\uBCA4\uD1A0\uB9AC \uAC00\uB4DD\uCC38"
   - eventKey: ui.button.navigation
-    vfxIds:
-    - ButtonNavigationVFX
+    vfxIds: []
     sfxIds:
     - ButtonNavigationSound
     priority: 1
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 5
     note: "\uB124\uBE44\uAC8C\uC774\uC158 \uBC84\uD2BC \uD074\uB9AD"
   - eventKey: ui.button.action
-    vfxIds:
-    - ButtonActionVFX
+    vfxIds: []
     sfxIds:
     - ButtonActionSound
     priority: 1
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 15
     note: "\uC561\uC158 \uBC84\uD2BC \uD074\uB9AD"
   - eventKey: ui.button.utility
-    vfxIds:
-    - ButtonUtilityVFX
+    vfxIds: []
     sfxIds:
     - ButtonUtilitySound
     priority: 1
-    cameraShakePreset: None
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 3
     note: "\uC720\uD2F8\uB9AC\uD2F0 \uBC84\uD2BC \uD074\uB9AD"
+  - eventKey: ui.character.open
+    vfxIds:
+    - PanelOpenVFX
+    sfxIds:
+    - PanelOpenSound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uCE90\uB9AD\uD130 \uD328\uB110 \uC5F4\uAE30"
+  - eventKey: ui.workshop.open
+    vfxIds:
+    - PanelOpenVFX
+    sfxIds:
+    - PanelOpenSound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uACF5\uBC29 \uD328\uB110 \uC5F4\uAE30"
+  - eventKey: ui.skillbook.open
+    vfxIds:
+    - PanelOpenVFX
+    sfxIds:
+    - PanelOpenSound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uC2A4\uD0AC\uBD81 \uD328\uB110 \uC5F4\uAE30"
+  - eventKey: ui.dungeon.open
+    vfxIds:
+    - PanelOpenVFX
+    sfxIds:
+    - PanelOpenSound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uB358\uC804 \uD328\uB110 \uC5F4\uAE30"
+  - eventKey: ui.stage.open
+    vfxIds:
+    - PanelOpenVFX
+    sfxIds:
+    - PanelOpenSound
+    priority: 2
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 20
+    note: "\uC2A4\uD14C\uC774\uC9C0 \uC120\uD0DD \uD328\uB110 \uC5F4\uAE30"
+  - eventKey: ui.button.tab
+    vfxIds: []
+    sfxIds:
+    - ButtonTabSound
+    priority: 1
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 3
+    note: "\uD0ED \uBC84\uD2BC \uD074\uB9AD"
+  - eventKey: ui.workshop.enhance.success
+    vfxIds: []
+    sfxIds:
+    - EnhanceSuccessSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "\uAC15\uD654 \uC131\uACF5"
+  - eventKey: ui.workshop.enhance.fail
+    vfxIds: []
+    sfxIds:
+    - EnhanceFailSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "\uAC15\uD654 \uC2E4\uD328"
+  - eventKey: ui.workshop.fusion
+    vfxIds: []
+    sfxIds:
+    - FusionSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "\uD569\uC131 \uC644\uB8CC"
+  - eventKey: ui.workshop.dismantle
+    vfxIds: []
+    sfxIds:
+    - DismantleSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "\uBD84\uD574 \uC644\uB8CC"
   description: "UI \uAE30\uBCF8 \uD504\uB85C\uD544"

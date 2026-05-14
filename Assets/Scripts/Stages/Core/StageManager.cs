@@ -1705,13 +1705,17 @@ public class StageManager : MonoBehaviour
             if (hasBoss)
             {
                 // 보스 웨이브: 보스 BGM
-                BGMController.Instance.OnBossStart(currentStageId);
+                // stageId를 넘기지 않고 BGMController._currentStageId 사용
+                // (SceneBGMStarter에서 설정한 BGM 테마 ID 유지)
+                BGMController.Instance.OnBossStart();
                 
             }
             else
             {
                 // 일반 웨이브: 전투 BGM
-                BGMController.Instance.OnBattleStart(currentStageId);
+                // stageId를 넘기지 않고 BGMController._currentStageId 사용
+                // (SceneBGMStarter에서 설정한 BGM 테마 ID 유지)
+                BGMController.Instance.OnBattleStart();
                 
             }
         }

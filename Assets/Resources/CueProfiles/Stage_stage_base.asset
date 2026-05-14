@@ -138,8 +138,8 @@ MonoBehaviour:
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC644\uB8CC"
   sfxCatalog:
   - sfxId: SpawnSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: 96fa674f391c3974895a4be9c0608037, type: 3}
+    volume: 0
     pitch: 1
     loop: 0
     is3D: 0
@@ -148,8 +148,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uC2A4\uD3F0\uC74C"
   - sfxId: BossSpawnSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: 96fa674f391c3974895a4be9c0608037, type: 3}
+    volume: 0
     pitch: 1
     loop: 0
     is3D: 0
@@ -158,8 +158,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uBCF4\uC2A4 \uC2A4\uD3F0\uC74C"
   - sfxId: WaveStartSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: 96fa674f391c3974895a4be9c0608037, type: 3}
+    volume: 0
     pitch: 1
     loop: 0
     is3D: 0
@@ -168,8 +168,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC6E8\uC774\uBE0C \uC2DC\uC791\uC74C"
   - sfxId: WaveCompleteSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: 96fa674f391c3974895a4be9c0608037, type: 3}
+    volume: 0
     pitch: 1
     loop: 0
     is3D: 0
@@ -178,8 +178,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC6E8\uC774\uBE0C \uC644\uB8CC\uC74C"
   - sfxId: StageEnterSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: 96fa674f391c3974895a4be9c0608037, type: 3}
+    volume: 0
     pitch: 1
     loop: 0
     is3D: 0
@@ -188,8 +188,8 @@ MonoBehaviour:
     cooldown: 0
     note: "\uC2A4\uD14C\uC774\uC9C0 \uC785\uC7A5\uC74C"
   - sfxId: StageCompleteSound
-    audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    audioClip: {fileID: 8300000, guid: 96fa674f391c3974895a4be9c0608037, type: 3}
+    volume: 0.05
     pitch: 1
     loop: 0
     is3D: 0

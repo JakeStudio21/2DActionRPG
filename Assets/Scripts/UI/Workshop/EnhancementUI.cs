@@ -6,6 +6,7 @@ using TMPro;
 using Managers;
 using Systems;
 using UI.Popups;
+using CueSystem;
 
 namespace UI.Workshop
 {
@@ -890,16 +891,21 @@ namespace UI.Workshop
         {
             if (enhancementMessageUI == null) return;
 
+            var cueContext = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+
             if (result.success)
             {
+                CueEmitter.Emit("ui.workshop.enhance.success", "UI", cueContext);
                 enhancementMessageUI.ShowSuccess(result.previousLevel, result.newLevel);
             }
             else if (result.wasDestroyed)
             {
+                CueEmitter.Emit("ui.workshop.enhance.fail", "UI", cueContext);
                 enhancementMessageUI.ShowDestroy(result.previousLevel);
             }
             else
             {
+                CueEmitter.Emit("ui.workshop.enhance.fail", "UI", cueContext);
                 switch (result.failureType)
                 {
                     case EnhancementFailureType.Downgrade:

@@ -7,6 +7,7 @@ using TMPro;
 using Managers;
 using Systems;
 using UI.Popups;
+using CueSystem;
 
 namespace UI.Workshop
 {
@@ -881,6 +882,13 @@ namespace UI.Workshop
                 }
             }
 
+
+            // 합성 성공 사운드
+            if (successCount > 0)
+            {
+                var cueContext = new CueContext { position = Vector3.zero, actorType = ActorType.UI };
+                CueEmitter.Emit("ui.workshop.fusion", "UI", cueContext);
+            }
 
             // 결과 팝업 표시
             if (resultFeedbackPopup != null && successCount > 0)

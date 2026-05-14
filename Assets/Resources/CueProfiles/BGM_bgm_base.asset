@@ -18,7 +18,7 @@ MonoBehaviour:
   vfxCatalog: []
   sfxCatalog:
   - sfxId: bgm_Login_001
-    audioClip: {fileID: 8300000, guid: aa44eece47688bc4290a4212868495b6, type: 3}
+    audioClip: {fileID: 8300000, guid: db0b486dcc1b1b74e9a927b4cc2072aa, type: 3}
     volume: 0.5
     pitch: 1
     loop: 1
@@ -28,8 +28,8 @@ MonoBehaviour:
     cooldown: 0
     note: 
   - sfxId: bgm_lobby_001
-    audioClip: {fileID: 8300000, guid: 07d4e2ab0fb25834ebcb33ea9f14abfb, type: 3}
-    volume: 0.5
+    audioClip: {fileID: 8300000, guid: 1c736c349c2a8cb4ab4ebb38bc0ccf5c, type: 3}
+    volume: 0.2
     pitch: 1
     loop: 1
     is3D: 0
@@ -38,8 +38,8 @@ MonoBehaviour:
     cooldown: 0
     note: 
   - sfxId: bgm_stage_default_001
-    audioClip: {fileID: 8300000, guid: 4c1bf9a8c9ac5fb4695f6c9f3fbe7f3f, type: 3}
-    volume: 0.5
+    audioClip: {fileID: 8300000, guid: 77e5c7013bd8be349b7ffbcb213936f0, type: 3}
+    volume: 0.3
     pitch: 1
     loop: 1
     is3D: 0
@@ -48,8 +48,8 @@ MonoBehaviour:
     cooldown: 0
     note: 
   - sfxId: bgm.CH01_ST03_001
-    audioClip: {fileID: 8300000, guid: aa44eece47688bc4290a4212868495b6, type: 3}
-    volume: 0.5
+    audioClip: {fileID: 8300000, guid: 0b64cadd61bd2416295fdbdcac58540d, type: 3}
+    volume: 0.3
     pitch: 1
     loop: 1
     is3D: 0
@@ -58,8 +58,8 @@ MonoBehaviour:
     cooldown: 0
     note: 
   - sfxId: bgm_stage_battle_001
-    audioClip: {fileID: 8300000, guid: 2744e13c07991064c93eab4fc2ebbb06, type: 3}
-    volume: 0.5
+    audioClip: {fileID: 8300000, guid: 77e5c7013bd8be349b7ffbcb213936f0, type: 3}
+    volume: 0.3
     pitch: 1
     loop: 1
     is3D: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
     cooldown: 0
     note: 
   - sfxId: bgm_stage_boss_001
-    audioClip: {fileID: 8300000, guid: e3b7c21565612ff49bc4b5e35d3d93eb, type: 3}
+    audioClip: {fileID: 8300000, guid: d270106a348c1b742902ce499f2c04cf, type: 3}
     volume: 0.5
     pitch: 1
     loop: 1
@@ -77,13 +77,91 @@ MonoBehaviour:
     priority: 0
     cooldown: 0
     note: 
+  - sfxId: bgm_stage_desert_001
+    audioClip: {fileID: 8300000, guid: 7027eb0a77955a94588a4f496ef6431f, type: 3}
+    volume: 0.3
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: bgm_stage_desert_battle_001
+    audioClip: {fileID: 8300000, guid: 7027eb0a77955a94588a4f496ef6431f, type: 3}
+    volume: 0.3
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: bgm_stage_desert_boss_001
+    audioClip: {fileID: 8300000, guid: 7027eb0a77955a94588a4f496ef6431f, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: 
+  - sfxId: bgm_intro_001
+    audioClip: {fileID: 8300000, guid: 648a1439f029dc24e8428be741e90641, type: 3}
+    volume: 0.3
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: "Intro \uC528 BGM"
+  - sfxId: bgm_tutorial_001
+    audioClip: {fileID: 8300000, guid: cde0e3912c78dfe478ba5e849a022fc2, type: 3}
+    volume: 0.3
+    pitch: 1
+    loop: 1
+    is3D: 0
+    maxDistance: 0
+    priority: 0
+    cooldown: 0
+    note: "Tutorial \uC528 BGM"
   entries:
+  - eventKey: bgm.intro
+    vfxIds: []
+    sfxIds:
+    - bgm_intro_001
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "Intro \uC528 BGM"
+  - eventKey: bgm.tutorial
+    vfxIds: []
+    sfxIds:
+    - bgm_tutorial_001
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "Tutorial \uC528 BGM"
   - eventKey: bgm.Login
     vfxIds: []
     sfxIds:
     - bgm_Login_001
     priority: 0
-    cameraShakePreset: 
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: 
   - eventKey: bgm.lobby
@@ -91,7 +169,11 @@ MonoBehaviour:
     sfxIds:
     - bgm_lobby_001
     priority: 0
-    cameraShakePreset: 
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: 
   - eventKey: bgm.stage.default
@@ -99,7 +181,11 @@ MonoBehaviour:
     sfxIds:
     - bgm_stage_default_001
     priority: 0
-    cameraShakePreset: 
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: 
   - eventKey: bgm.stage.CH01_ST03
@@ -107,7 +193,11 @@ MonoBehaviour:
     sfxIds:
     - bgm.stage.CH01_ST03_001
     priority: 0
-    cameraShakePreset: 
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: 
   - eventKey: bgm.stage.battle
@@ -115,7 +205,11 @@ MonoBehaviour:
     sfxIds:
     - bgm_stage_battle_001
     priority: 0
-    cameraShakePreset: 
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: 
   - eventKey: bgm.stage.boss
@@ -123,7 +217,59 @@ MonoBehaviour:
     sfxIds:
     - bgm_stage_boss_001
     priority: 0
-    cameraShakePreset: 
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: 
+  - eventKey: bgm.stage.desert
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_desert_001
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: 
+  - eventKey: bgm.stage.desert.default
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_desert_001
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "Desert \uCC55\uD130 \uAE30\uBCF8 BGM"
+  - eventKey: bgm.stage.desert.battle
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_desert_battle_001
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: 
+  - eventKey: bgm.stage.desert.boss
+    vfxIds: []
+    sfxIds:
+    - bgm_stage_desert_boss_001
+    priority: 0
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
     timeStopMs: 0
     note: 
   description: 

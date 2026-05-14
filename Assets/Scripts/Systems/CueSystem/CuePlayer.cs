@@ -22,13 +22,8 @@ namespace CueSystem
         
         // 활성 이펙트 추적
         private List<GameObject> _activeVFX = new List<GameObject>();
-        private List<AudioSource> _activeSFX = new List<AudioSource>();
         private List<string> _activeUI = new List<string>();
-        
-        // BGM 추적 (루프 재생용)
-        private AudioSource _currentLoopBGM = null;
-        private GameObject _currentLoopBGMObject = null;
-        
+
         // 쿨다운 추적
         private Dictionary<string, float> _cooldowns = new Dictionary<string, float>();
         
@@ -68,9 +63,7 @@ namespace CueSystem
         /// </summary>
         private void CleanupNullReferences()
         {
-            int vfxRemoved = _activeVFX.RemoveAll(obj => obj == null);
-            int sfxRemoved = _activeSFX.RemoveAll(source => source == null);
-            
+            _activeVFX.RemoveAll(obj => obj == null);
         }
         
         private void Update()
@@ -257,228 +250,57 @@ namespace CueSystem
         }
         
         /// <summary>
-        /// 🔊 SFX 재생 (내부 전용)
+        /// 🔊 SFX 재생 (내부 전용) — SoundManager에 위임
         /// </summary>
         private bool PlaySFX(SFXCue sfxCue, CueContext context, string domain)
         {
-            // 혼잡 제어
-            if (enableCongestionControl)
-            {
-                int limit = domain == "UI" ? maxUI : maxSFX;
-                if (_activeSFX.Count >= limit)
-                {
-                    _droppedByCongestion++;
-                        Debug.LogWarning($"🚦 [CuePlayer] SFX 혼잡 제어: {sfxCue.sfxId} (활성: {_activeSFX.Count}/{limit})");
-                    return false;
-                }
-            }
-            
             if (sfxCue.audioClip == null)
             {
                 Debug.LogError($"🔴 [CuePlayer] AudioClip이 없습니다: {sfxCue.sfxId}");
                 return false;
             }
-            
-            // SoundManager 연동
-            if (SoundManager.Instance != null)
+
+            if (SoundManager.Instance == null)
             {
-                // 3D 사운드 처리
-                if (sfxCue.is3D)
-                {
-                    return Play3DSFX(sfxCue, context);
-                }
-                // BGM (Loop 필요)
-                else if (sfxCue.loop)
-                {
-                    return PlayLoopingSFX(sfxCue, context);
-                }
-                else
-                {
-                    // 2D 사운드 (기존 SoundManager 사용)
-                    SoundManager.Instance.PlaySFX(sfxCue.audioClip, sfxCue.volume, sfxCue.pitch);
-                    return true;
-                }
+                Debug.LogError("🔴 [CuePlayer] SoundManager가 없습니다!");
+                return false;
             }
-            
-            Debug.LogError("🔴 [CuePlayer] SoundManager가 없습니다!");
-            return false;
-        }
-        
-        /// <summary>
-        /// 🔊 3D SFX 재생 처리
-        /// </summary>
-        private bool Play3DSFX(SFXCue sfxCue, CueContext context)
-        {
-            // 3D AudioSource 생성 (임시)
-            var tempObj = new GameObject($"3D_SFX_{sfxCue.sfxId}");
-            tempObj.transform.position = context.position;
-            
-            var audioSource = tempObj.AddComponent<AudioSource>();
-            audioSource.clip = sfxCue.audioClip;
-            audioSource.volume = sfxCue.volume;
-            audioSource.pitch = sfxCue.pitch;
-            audioSource.loop = sfxCue.loop; // ✅ BGM 루프 지원
-            audioSource.spatialBlend = 1.0f; // 3D
-            audioSource.maxDistance = sfxCue.maxDistance;
-            audioSource.rolloffMode = AudioRolloffMode.Linear;
-            audioSource.Play();
-            
-            _activeSFX.Add(audioSource);
-            
-            // 자동 정리 (Loop가 아닐 때만)
-            if (!sfxCue.loop)
+
+            if (sfxCue.loop)
             {
-                StartCoroutine(CleanupSFXAfterPlay(audioSource, tempObj));
+                // Loop SFX → SoundManager.PlayLoopSFX (BGM 크로스페이드)
+                SoundManager.Instance.PlayLoopSFX(sfxCue.audioClip, sfxCue.volume);
             }
-            
-            return true;
-        }
-        
-        /// <summary>
-        /// 🔊 루프 SFX 재생 처리 (BGM용) - Fade 지원
-        /// </summary>
-        private bool PlayLoopingSFX(SFXCue sfxCue, CueContext context)
-        {
-            return PlayLoopingSFX(sfxCue, context, fadeTime: 0f);
-        }
-        
-        /// <summary>
-        /// 🔊 루프 SFX 재생 처리 (BGM용) - Fade 시간 지정
-        /// </summary>
-        public bool PlayLoopingSFX(SFXCue sfxCue, CueContext context, float fadeTime)
-        {
-            // 새 BGM 생성
-            var loopObj = new GameObject($"Loop_BGM_{sfxCue.sfxId}");
-            DontDestroyOnLoad(loopObj);
-            
-            var newAudioSource = loopObj.AddComponent<AudioSource>();
-            newAudioSource.clip = sfxCue.audioClip;
-            newAudioSource.pitch = sfxCue.pitch;
-            newAudioSource.loop = true; // ✅ 루프 활성화
-            newAudioSource.spatialBlend = 0f; // 2D
-            newAudioSource.playOnAwake = false; // 수동 재생
-            
-            // Fade 처리
-            if (fadeTime > 0f && _currentLoopBGM != null)
+            else if (sfxCue.is3D)
             {
-                // Fade In/Out 사용
-                StartCoroutine(FadeBGM(newAudioSource, sfxCue.volume, fadeTime));
+                // 3D SFX → SoundManager Pool (위치 지정)
+                SoundManager.Instance.PlaySFX(sfxCue.audioClip, sfxCue.volume, sfxCue.pitch,
+                    context.position, sfxCue.maxDistance);
+            }
+            else if (domain == "UI")
+            {
+                // UI SFX → UI 전용 채널
+                SoundManager.Instance.PlayUI(sfxCue.audioClip, sfxCue.volume);
             }
             else
             {
-                // ✅ 이전 BGM 즉시 정지
-                if (_currentLoopBGM != null)
-                {
-                    _currentLoopBGM.Stop();
-                    _activeSFX.Remove(_currentLoopBGM);
-                    
-                    if (_currentLoopBGMObject != null)
-                    {
-                        Destroy(_currentLoopBGMObject);
-                    }
-                }
-                
-                // 즉시 재생
-                newAudioSource.volume = sfxCue.volume;
-                newAudioSource.Play();
+                // 2D SFX → SoundManager Pool
+                SoundManager.Instance.PlaySFX(sfxCue.audioClip, sfxCue.volume, sfxCue.pitch);
             }
-            
-            // ✅ 현재 BGM 추적
-            _currentLoopBGM = newAudioSource;
-            _currentLoopBGMObject = loopObj;
-            
-            _activeSFX.Add(newAudioSource);
-            
-            {
-                Dbg.Log($"🎵 [CuePlayer] 루프 BGM 시작: {sfxCue.sfxId} (Volume: {sfxCue.volume}, Fade: {fadeTime}s, Clip: {sfxCue.audioClip?.name})");
-                
-                // ✅ 디버깅: AudioSource 상태 확인
-                StartCoroutine(CheckAudioSourceState(newAudioSource, sfxCue.sfxId));
-            }
-            
+
             return true;
         }
-        
-        /// <summary>
-        /// 🎵 BGM Fade In/Out 코루틴
-        /// </summary>
-        private IEnumerator FadeBGM(AudioSource newBGM, float targetVolume, float fadeTime)
-        {
-            AudioSource oldBGM = _currentLoopBGM;
-            GameObject oldBGMObject = _currentLoopBGMObject;
-            
-            // 새 BGM Fade In 시작 (볼륨 0에서 시작)
-            newBGM.volume = 0f;
-            newBGM.Play();
-            
-            float elapsed = 0f;
-            float oldStartVolume = oldBGM != null ? oldBGM.volume : 0f;
-            
-            // Fade In/Out 동시 진행
-            while (elapsed < fadeTime)
-            {
-                elapsed += Time.unscaledDeltaTime; // Time.timeScale 무시
-                float t = elapsed / fadeTime;
-                
-                // 새 BGM Fade In
-                if (newBGM != null)
-                {
-                    newBGM.volume = Mathf.Lerp(0f, targetVolume, t);
-                }
-                
-                // 이전 BGM Fade Out
-                if (oldBGM != null)
-                {
-                    oldBGM.volume = Mathf.Lerp(oldStartVolume, 0f, t);
-                }
-                
-                yield return null;
-            }
-            
-            // 최종 볼륨 설정
-            if (newBGM != null)
-            {
-                newBGM.volume = targetVolume;
-            }
-            
-            // 이전 BGM 정리
-            if (oldBGM != null)
-            {
-                oldBGM.Stop();
-                _activeSFX.Remove(oldBGM);
-                
-                if (oldBGMObject != null)
-                {
-                    Destroy(oldBGMObject);
-                }
-                
-            }
-            
-                Dbg.Log($"✅ [CuePlayer] BGM Fade 완료: {newBGM.gameObject.name}");
-        }
-        
+
         /// <summary>
         /// 🛑 현재 BGM 정지 (외부 호출용)
         /// </summary>
         public void StopCurrentBGM()
         {
-            if (_currentLoopBGM != null)
-            {
-                _currentLoopBGM.Stop();
-                _activeSFX.Remove(_currentLoopBGM);
-                
-                if (_currentLoopBGMObject != null)
-                {
-                    Destroy(_currentLoopBGMObject);
-                }
-                
-                _currentLoopBGM = null;
-                _currentLoopBGMObject = null;
-            }
+            SoundManager.Instance?.StopLoopSFX();
         }
-        
+
         /// <summary>
-        /// 🎵 BGM 재생 (외부 호출용) - Fade 지원
+        /// 🎵 BGM 재생 (외부 호출용) — CueProfile 해석 후 SoundManager에 위임
         /// </summary>
         public bool PlayBGMWithFade(string eventKey, string domain, float fadeTime = 0.5f)
         {
@@ -487,62 +309,31 @@ namespace CueSystem
                 Debug.LogError("🔴 [CuePlayer] CueRegistry가 없습니다!");
                 return false;
             }
-            
-            // 1. 키 해석
+
             var slot = CueRegistry.Instance.Resolve(domain, eventKey);
             if (slot == null || slot.IsEmpty)
             {
-                    Debug.LogWarning($"⚠️ [CuePlayer] 빈 슬롯: {domain}.{eventKey}");
+                Debug.LogWarning($"⚠️ [CuePlayer] 빈 슬롯: {domain}.{eventKey}");
                 return false;
             }
-            
-            // 2. SFX Cue 찾기 (BGM은 첫 번째 SFX Cue)
+
             if (slot.sfxCues.Count == 0)
             {
-                    Debug.LogWarning($"⚠️ [CuePlayer] SFX Cue 없음: {domain}.{eventKey}");
+                Debug.LogWarning($"⚠️ [CuePlayer] SFX Cue 없음: {domain}.{eventKey}");
                 return false;
             }
-            
+
             var sfxCue = slot.sfxCues[0];
-            
-            // 3. Loop SFX 재생 (Fade 적용)
-            return PlayLoopingSFX(sfxCue, new CueContext(), fadeTime);
-        }
-        
-        /// <summary>
-        /// 🔍 AudioSource 상태 확인 (디버깅용)
-        /// </summary>
-        private IEnumerator CheckAudioSourceState(AudioSource audioSource, string sfxId)
-        {
-            yield return new WaitForSeconds(0.1f); // 0.1초 대기 후 확인
-            
-            // AudioListener 확인
-            AudioListener listener = FindObjectOfType<AudioListener>();
-            if (listener == null)
+
+            if (SoundManager.Instance == null)
             {
-                Debug.LogError($"🔴 [CuePlayer] AudioListener를 찾을 수 없습니다! 씬에 AudioListener가 없으면 소리가 안 납니다!");
+                Debug.LogError("🔴 [CuePlayer] SoundManager가 없습니다!");
+                return false;
             }
-            else
-            {
-            }
-            
-            if (audioSource != null)
-            {
-                if (!audioSource.isPlaying)
-                {
-                    Debug.LogWarning($"⚠️ [CuePlayer] AudioSource가 재생 중이 아닙니다! [{sfxId}]");
-                    Debug.LogWarning($"   → Play() 호출 후에도 재생이 시작되지 않았습니다. AudioClip이 비정상이거나 AudioSource 설정 문제일 수 있습니다.");
-                }
-                
-                if (audioSource.mute)
-                {
-                    Debug.LogWarning($"⚠️ [CuePlayer] AudioSource가 Mute 상태입니다! [{sfxId}]");
-                }
-            }
-            else
-            {
-                Debug.LogError($"🔴 [CuePlayer] AudioSource가 null입니다! [{sfxId}]");
-            }
+
+            SoundManager.Instance.PlayLoopSFX(sfxCue.audioClip, sfxCue.volume, fadeTime);
+            Dbg.Log($"🎵 [CuePlayer] BGM 재생 요청 → SoundManager: {sfxCue.sfxId} (fade: {fadeTime}s)");
+            return true;
         }
         
         /// <summary>
@@ -675,21 +466,6 @@ namespace CueSystem
                     vfxObj.SetActive(false);
                 }
             }
-        }
-        
-        /// <summary>
-        /// SFX 재생 완료 후 정리
-        /// </summary>
-        private IEnumerator CleanupSFXAfterPlay(AudioSource audioSource, GameObject tempObj)
-        {
-            // 재생 완료까지 대기
-            yield return new WaitWhile(() => audioSource != null && audioSource.isPlaying);
-            
-            if (audioSource != null)
-                _activeSFX.Remove(audioSource);
-                
-            if (tempObj != null)
-                Destroy(tempObj);
         }
         
         #endregion

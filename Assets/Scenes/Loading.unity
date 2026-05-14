@@ -5674,11 +5674,11 @@ GameObject:
   - component: {fileID: 508844667}
   m_Layer: 5
   m_Name: Loading_Rotate_Blur
-  m_TagString: Untagged
+  m_TagString: MustBeDisabled
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &508844666
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6560,6 +6560,7 @@ RectTransform:
   m_Children:
   - {fileID: 1112408455}
   - {fileID: 1682162992}
+  - {fileID: 1136513058}
   - {fileID: 320136976}
   - {fileID: 1449049352}
   m_Father: {fileID: 0}
@@ -6792,9 +6793,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b520b79358247c4fb1bf8088f515747, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgmSource: {fileID: 1055302452}
-  sfxSource: {fileID: 1055302451}
-  enableCueSystemIntegration: 1
+  bgmSourceA: {fileID: 0}
+  bgmSourceB: {fileID: 0}
+  sfxPoolSize: 12
+  uiSource: {fileID: 0}
+  audioMixer: {fileID: 0}
+  bgmMixerGroup: {fileID: 5382060479972101956, guid: 9e73fb421cb88f24fb3bd8116d40b62b, type: 2}
+  sfxMixerGroup: {fileID: 5766926655121278269, guid: 9e73fb421cb88f24fb3bd8116d40b62b, type: 2}
+  uiMixerGroup: {fileID: 2727581121499193368, guid: 9e73fb421cb88f24fb3bd8116d40b62b, type: 2}
 --- !u!4 &1055302454
 Transform:
   m_ObjectHideFlags: 0
@@ -11787,6 +11793,81 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!1 &1136513057
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1136513058}
+  - component: {fileID: 1136513060}
+  - component: {fileID: 1136513059}
+  m_Layer: 5
+  m_Name: Title
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1136513058
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136513057}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.0000123, y: 1.0000123, z: 1.0000123}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 953505515}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -30}
+  m_SizeDelta: {x: 800, y: 550}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1136513059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136513057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 7d635221f3f8a0846b315311bc6689e3, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1136513060
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136513057}
+  m_CullTransparentMesh: 0
 --- !u!1 &1218100285
 GameObject:
   m_ObjectHideFlags: 0
@@ -11817,7 +11898,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bgmDomain: BGM
-  fadeTime: 1.5
+  fadeTime: 3
   enableDebugLogs: 1
 --- !u!4 &1218100287
 Transform:
@@ -17653,7 +17734,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0cbf943951c574d4aba6809f75b62b7c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8d27e5026a6a5bc48a726879a6232d65, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
