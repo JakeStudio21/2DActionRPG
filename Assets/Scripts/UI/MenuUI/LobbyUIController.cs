@@ -543,16 +543,7 @@ public class LobbyUIController : MonoBehaviour
         // 2. 인벤토리 관련 UI들 갱신 대기
         yield return StartCoroutine(RefreshInventoryRelatedUIs());
         
-        // 3. Cue 이벤트 발행
-        var context = new CueContext
-        {
-            position = Vector3.zero,
-            actorType = ActorType.UI
-        };
-        CueEmitter.Emit("ui.button.click", "UI", context);
-        CueEmitter.Emit("ui.inventory.open", "UI", context);
-        
-        // 4. 인벤토리 패널 전환
+        // 3. 인벤토리 패널 전환 (사운드는 panelManager.ShowInventoryPanel() → EmitInventoryOpenCue()에서 처리)
         if (panelManager != null)
         {
             panelManager.ShowInventoryPanel();

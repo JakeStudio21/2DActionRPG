@@ -63,7 +63,6 @@ public class LobbyInventoryUI : MonoBehaviour
     
     [Header("🎒 로비 인벤토리 설정")]
     [SerializeField] private GameObject inventoryPanel;     // 인벤토리 패널
-    [SerializeField] private Button inventoryToggleButton;  // 가방 버튼
     [SerializeField] private ScrollRect scrollRect;         // ⭐ ScrollView의 ScrollRect 컴포넌트
     [SerializeField] private Transform slotContainer;       // 슬롯들이 들어갈 컨테이너 (ScrollView의 Content)
     [SerializeField] private GameObject slotPrefab;         // 로비용 슬롯 프리팹
@@ -301,27 +300,11 @@ public class LobbyInventoryUI : MonoBehaviour
 
     private void SetupEventListeners()
     {
-        // 🔧 UI 이벤트만 처리 (InventoryController 의존성 제거)
-        if (inventoryToggleButton != null)
-        {
-            inventoryToggleButton.onClick.AddListener(() => {
-                
-                // 🔧 수정: LobbyInventoryController를 통해 처리
-                var lobbyInventoryController = FindObjectOfType<LobbyInventoryController>();
-                if (lobbyInventoryController != null)
-                {
-                    lobbyInventoryController.OpenInventory();
-                }
-                else
-                {
-                    Debug.LogWarning("⚠️ [LobbyInventoryUI] LobbyInventoryController를 찾을 수 없음");
-                }
-            });
-        }
-        else
-        {
-            Debug.LogError($"🔴 [LobbyInventoryUI] inventoryToggleButton이 null입니다!");
-        }
+        // inventoryToggleButton 리스너 제거
+        // 이유: LobbyInitializer.ConnectButtonEvents()가 이미 InventoryButton.onClick에
+        //       lobbyUIController.ShowInventoryPanel()을 등록하여 중복 처리됨.
+        //       두 리스너가 같은 버튼에 모두 연결될 경우 PanelOpen이 이중으로 발생.
+        //       Inspector의 inventoryToggleButton 필드는 비워두거나 제거할 것.
 
         // 패널 닫기 버튼
         if (closePanelButton != null)

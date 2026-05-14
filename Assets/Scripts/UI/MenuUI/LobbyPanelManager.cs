@@ -112,6 +112,9 @@ public class LobbyPanelManager : MonoBehaviour
     public void ShowStageSelectPanel()
     {
         
+        // Cue 이벤트 발행
+        EmitStageOpenCue();
+        
         // 패널 전환
         BringPanelToFront(stageSelectPanel);
         
@@ -309,6 +312,16 @@ public class LobbyPanelManager : MonoBehaviour
             actorType = ActorType.UI
         };
         CueEmitter.Emit("ui.dungeon.open", "UI", context);
+    }
+    
+    private void EmitStageOpenCue()
+    {
+        var context = new CueContext
+        {
+            position = Vector3.zero,
+            actorType = ActorType.UI
+        };
+        CueEmitter.Emit("ui.stage.open", "UI", context);
     }
     
     #endregion

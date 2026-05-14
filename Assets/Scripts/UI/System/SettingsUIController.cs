@@ -44,11 +44,11 @@ public class SettingsUIController : MonoBehaviour
     [Tooltip("현재 값을 표시할 레이블 (선택)")]
     [SerializeField] private TMP_Text screenShakeValueLabel;
 
-    [Header("🔊 BGM 볼륨 (준비됨 — 추후 연동)")]
+    [Header("🔊 BGM 볼륨")]
     [SerializeField] private Slider bgmVolumeSlider;
     [SerializeField] private TMP_Text bgmValueLabel;
 
-    [Header("🔔 SFX 볼륨 (준비됨 — 추후 연동)")]
+    [Header("🔔 SFX 볼륨")]
     [SerializeField] private Slider sfxVolumeSlider;
     [SerializeField] private TMP_Text sfxValueLabel;
 
@@ -163,17 +163,21 @@ public class SettingsUIController : MonoBehaviour
         UpdateLabel(screenShakeValueLabel, value);
     }
 
-    /// <summary>BGM 볼륨 슬라이더 값 변경 (추후 SoundManager 연동)</summary>
+    /// <summary>BGM 볼륨 슬라이더 값 변경 → AudioMixer BGM 그룹 실시간 반영</summary>
     public void OnBGMSliderValueChanged(float value)
     {
-        // TODO: SoundManager.Instance.SetBGMVolume(value);
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.SetBGMVolume(value);
+
         UpdateLabel(bgmValueLabel, value);
     }
 
-    /// <summary>SFX 볼륨 슬라이더 값 변경 (추후 SoundManager 연동)</summary>
+    /// <summary>SFX 볼륨 슬라이더 값 변경 → AudioMixer SFX 그룹 실시간 반영</summary>
     public void OnSFXSliderValueChanged(float value)
     {
-        // TODO: SoundManager.Instance.SetSFXVolume(value);
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.SetSFXVolume(value);
+
         UpdateLabel(sfxValueLabel, value);
     }
 
@@ -189,6 +193,12 @@ public class SettingsUIController : MonoBehaviour
 
         if (ScreenShakeManager.Instance != null)
             ScreenShakeManager.Instance.SetGlobalMultiplier(_loadedShakeValue);
+
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.SetBGMVolume(_loadedBGMValue);
+            SoundManager.Instance.SetSFXVolume(_loadedSFXValue);
+        }
     }
 
     private void InitializeSliders()
@@ -213,7 +223,7 @@ public class SettingsUIController : MonoBehaviour
         slider.onValueChanged.AddListener(callback);
     }
 
-    /// <summary>패널을 열 때 매니저의 현재 값으로 슬라이더를 갱신한다 (외부 변경 대비).</summary>
+    /// <summary>패널을 열 때 저장된 값으로 슬라이더를 갱신한다.</summary>
     private void SyncSlidersFromManagers()
     {
         if (screenShakeSlider != null && ScreenShakeManager.Instance != null)
@@ -221,6 +231,20 @@ public class SettingsUIController : MonoBehaviour
             float v = ScreenShakeManager.Instance.GetGlobalMultiplier();
             screenShakeSlider.SetValueWithoutNotify(v);
             UpdateLabel(screenShakeValueLabel, v);
+        }
+
+        if (bgmVolumeSlider != null)
+        {
+            float v = PlayerPrefs.GetFloat(KEY_BGM_VOLUME, DEFAULT_BGM_VOLUME);
+            bgmVolumeSlider.SetValueWithoutNotify(v);
+            UpdateLabel(bgmValueLabel, v);
+        }
+
+        if (sfxVolumeSlider != null)
+        {
+            float v = PlayerPrefs.GetFloat(KEY_SFX_VOLUME, DEFAULT_SFX_VOLUME);
+            sfxVolumeSlider.SetValueWithoutNotify(v);
+            UpdateLabel(sfxValueLabel, v);
         }
     }
 

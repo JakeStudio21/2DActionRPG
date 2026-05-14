@@ -195,86 +195,36 @@ public class LobbyInitializer : MonoBehaviour
         
         // 게임 시작 버튼
         if (startGameButton != null)
-        {
-            startGameButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.OnStartGameButtonClicked();
-            });
-        }
-        
+            startGameButton.onClick.AddListener(lobbyUIController.OnStartGameButtonClicked);
+
         // 인벤토리 버튼
         if (inventoryButton != null)
-        {
-            inventoryButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.ShowInventoryPanel();
-            });
-        }
-        
+            inventoryButton.onClick.AddListener(lobbyUIController.ShowInventoryPanel);
+
         // 캐릭터 정보 버튼
         if (characterInfoButton != null)
-        {
-            characterInfoButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.ShowCharacterInfoPanel();
-            });
-        }
-        
+            characterInfoButton.onClick.AddListener(lobbyUIController.ShowCharacterInfoPanel);
+
         // 상점 버튼
         if (shopButton != null)
-        {
-            shopButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.ShowShopPanel();
-            });
-        }
-        
-        // 🆕 공방 버튼
+            shopButton.onClick.AddListener(lobbyUIController.ShowShopPanel);
+
+        // 공방 버튼
         if (workshopButton != null)
-        {
-            workshopButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.ShowWorkshopPanel();
-            });
-        }
-        
+            workshopButton.onClick.AddListener(lobbyUIController.ShowWorkshopPanel);
+
         // 게임 종료 버튼
         if (quitGameButton != null)
-        {
-            quitGameButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.OnQuitGameButtonClicked();
-            });
-        }
-        
+            quitGameButton.onClick.AddListener(lobbyUIController.OnQuitGameButtonClicked);
+
         // 인트로 다시보기 버튼
         if (replayIntroButton != null)
-        {
-            replayIntroButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.OnReplayIntroButtonClicked();
-            });
-        }
-        
+            replayIntroButton.onClick.AddListener(lobbyUIController.OnReplayIntroButtonClicked);
+
         // 튜토리얼 다시보기 버튼
         if (replayTutorialButton != null)
-        {
-            replayTutorialButton.onClick.AddListener(() => {
-                EmitButtonClickCue();
-                lobbyUIController.OnReplayTutorialButtonClicked();
-            });
-        }
+            replayTutorialButton.onClick.AddListener(lobbyUIController.OnReplayTutorialButtonClicked);
         
-    }
-    
-    private void EmitButtonClickCue()
-    {
-        var context = new CueContext 
-        { 
-            position = Vector3.zero, 
-            actorType = ActorType.UI 
-        };
-        CueEmitter.Emit("ui.button.click", "UI", context);
     }
     
     #endregion

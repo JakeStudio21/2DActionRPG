@@ -10,6 +10,9 @@ using UnityEngine.UI;
 /// </summary>
 public class IntroSceneController : MonoBehaviour
 {
+    [Header("BGM 설정")]
+    [SerializeField] private string bgmEventKey = "bgm.intro";
+
     [Header("컷신 설정")]
     [SerializeField] private string[] introCutsceneIds = { "Intro_001", "Intro_002" };
     
@@ -26,7 +29,7 @@ public class IntroSceneController : MonoBehaviour
         // BGM 재생
         if (BGMController.Instance != null)
         {
-            BGMController.Instance.PlayDefaultBGM("bgm.lobby", null);
+            BGMController.Instance.PlayDefaultBGM(bgmEventKey, null);
         }
         
         // 🆕 스킵 버튼 설정 (다시보기 모드에만 표시)

@@ -9,6 +9,9 @@ using UnityEngine.UI;
 /// </summary>
 public class TutorialSceneController : MonoBehaviour
 {
+    [Header("BGM 설정")]
+    [SerializeField] private string bgmEventKey = "bgm.tutorial";
+
     [Header("컷신 설정")]
     [SerializeField] private string tutorialStartCutsceneId = "Tutorial_Start";
     [SerializeField] private string tutorialEndCutsceneId = "Tutorial_End";
@@ -30,7 +33,7 @@ public class TutorialSceneController : MonoBehaviour
         // BGM 재생
         if (BGMController.Instance != null)
         {
-            BGMController.Instance.PlayDefaultBGM("bgm.tutorial", null);
+            BGMController.Instance.PlayDefaultBGM(bgmEventKey, null);
         }
         
         // 🆕 스킵 버튼 설정 (다시보기 모드에만 표시)
