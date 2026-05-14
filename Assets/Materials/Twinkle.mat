@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Twinkle
-  m_Shader: {fileID: -6465566751694194690, guid: 5e090416f4f0d004d907fcdf87f5525d, type: 3}
+  m_Shader: {fileID: 4800000, guid: 6f90c35187d414e4a88d25ee8626fc20, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -40,8 +40,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
     m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
     - _Color: {r: 17.148375, g: 15.153926, b: 10.758179, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &7633334370076072882

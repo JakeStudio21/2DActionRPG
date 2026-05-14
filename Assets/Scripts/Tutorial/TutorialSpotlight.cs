@@ -30,6 +30,7 @@ public class TutorialSpotlight : MonoBehaviour
     
     
     // 내부 상태
+    private Canvas rootCanvas;
     private bool isActive = false;
     private Vector2 currentHoleCenter = Vector2.zero;
     private Vector2 targetHoleCenter = Vector2.zero;
@@ -94,6 +95,10 @@ public class TutorialSpotlight : MonoBehaviour
         }
 #endif
         
+        rootCanvas = GetComponentInParent<Canvas>();
+        if (rootCanvas != null && !rootCanvas.isRootCanvas)
+            rootCanvas = rootCanvas.rootCanvas;
+
         // Dimmer Image 설정
         if (dimmerImage != null && spotlightMaterial != null)
         {
@@ -198,8 +203,9 @@ public class TutorialSpotlight : MonoBehaviour
         if (target == null)
             return;
         
-        // 타겟의 스크린 좌표 계산
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, target.position);
+        // 타겟 Rect의 시각적 중앙을 월드 좌표로 변환 (pivot 위치와 무관)
+        Vector3 worldCenter = target.TransformPoint(target.rect.center);
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, worldCenter);
         
         // 정규화된 좌표로 변환 (0~1)
         Vector2 normalizedPos = new Vector2(
@@ -208,7 +214,8 @@ public class TutorialSpotlight : MonoBehaviour
         );
         
         targetHoleCenter = normalizedPos;
-        targetRadius = holeRadius;
+        float scaleFactor = rootCanvas != null ? rootCanvas.scaleFactor : 1f;
+        targetRadius = holeRadius * scaleFactor;
         
         
         // 전환 애니메이션 시작
@@ -263,9 +270,10 @@ public class TutorialSpotlight : MonoBehaviour
         Material mat = dimmerImage.material;
         
         // 셰이더에 파라미터 전달
+        float scaleFactor = rootCanvas != null ? rootCanvas.scaleFactor : 1f;
         mat.SetVector(HoleCenterID, currentHoleCenter);
         mat.SetFloat(HoleRadiusID, currentRadius);
-        mat.SetFloat(SoftEdgeID, softEdge);
+        mat.SetFloat(SoftEdgeID, softEdge * scaleFactor);
         mat.SetColor(ColorID, new Color(0, 0, 0, defaultAlpha));
     }
     
@@ -279,17 +287,21 @@ public class TutorialSpotlight : MonoBehaviour
         if (target == null)
             return;
         
-        // 타겟의 스크린 좌표 계산
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, target.position);
+        // 타겟 Rect의 시각적 중앙을 월드 좌표로 변환 (pivot 위치와 무관)
+        Vector3 worldCenter = target.TransformPoint(target.rect.center);
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, worldCenter);
         Vector2 normalizedPos = new Vector2(
             screenPos.x / Screen.width,
             screenPos.y / Screen.height
         );
         
+        float scaleFactor = rootCanvas != null ? rootCanvas.scaleFactor : 1f;
+        float scaledRadius = holeRadius * scaleFactor;
+        
         currentHoleCenter = normalizedPos;
         targetHoleCenter = normalizedPos;
-        currentRadius = holeRadius;
-        targetRadius = holeRadius;
+        currentRadius = scaledRadius;
+        targetRadius = scaledRadius;
         
         UpdateShaderParameters();
         
