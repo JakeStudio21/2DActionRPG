@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_SWORD_A_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Sword_A
+  equipmentName: 전사의 대검
   itemID: ITEM_SWORD_A
   equipmentType: 0
   itemGrade: 3
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 8
   resourceID: RES_WEAPON_SWORD_A
-  description: "\uBC31\uC740 \uC7A5\uAC80"
+  description: "영웅 등급의 역전의 전사가 사용하는 대검입니다."
   icon: {fileID: 654507440, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 4316638647348942652, guid: 0e4f4164f34b8f442b1f2e08b3e2f511, type: 3}
   weaponType: 1

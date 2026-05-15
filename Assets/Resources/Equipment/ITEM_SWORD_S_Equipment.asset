@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_SWORD_S_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Sword_S
+  equipmentName: 뇌전검
   itemID: ITEM_SWORD_S
   equipmentType: 0
   itemGrade: 4
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 12
   resourceID: RES_WEAPON_SWORD_S
-  description: "\uC804\uC124\uC758 \uC804\uC7C1\uAC80"
+  description: "전설 등급의 뇌전의 힘이 깃든 전설의 검입니다."
   icon: {fileID: -1586527361, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 4316638647348942652, guid: 29d74b6c195b90644969c3a88f2e2036, type: 3}
   weaponType: 1

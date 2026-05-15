@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_BOOTS_ASSASIN_B_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Assasin_Boots_B
+  equipmentName: 바람의 부츠
   itemID: ITEM_BOOTS_ASSASIN_B
   equipmentType: 1
   itemGrade: 2
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 1
   resourceID: RES_BOOTS_ASSASIN_B
-  description: "\uD76C\uADC0 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uC2E0\uBC1C\uC785\uB2C8\uB2E4."
+  description: "희귀 등급의 바람처럼 빠른 발걸음을 위한 부츠입니다."
   icon: {fileID: 1506094038, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0

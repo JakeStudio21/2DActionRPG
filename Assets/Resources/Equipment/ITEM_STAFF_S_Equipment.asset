@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_STAFF_S_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Staff_S
+  equipmentName: 폭풍의 지팡이
   itemID: ITEM_STAFF_S
   equipmentType: 0
   itemGrade: 4
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 12
   resourceID: RES_WEAPON_STAFF_S
-  description: "\uC804\uC124 \uB4F1\uAE09\uC758 Wizard \uC804\uC6A9 \uBB34\uAE30\uC785\uB2C8\uB2E4.\n"
+  description: "전설 등급의 폭풍의 힘이 담긴 전설의 지팡이입니다."
   icon: {fileID: -1476497007, guid: 0a68f7f37d5081f4eb222a57d75e31ac, type: 3}
   equipmentPrefab: {fileID: 6839322275408168106, guid: 9fd87caba49c7ad4188924a652c31e3f, type: 3}
   weaponType: 3

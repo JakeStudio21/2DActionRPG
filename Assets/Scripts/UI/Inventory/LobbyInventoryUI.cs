@@ -422,30 +422,12 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private EquipmentSlot GetTargetSlot(EquipmentData equipment)
     {
-        switch (equipment.equipmentType)
-        {
-            case EquipmentType.Weapon:
-                return EquipmentSlot.MainWeapon;
-            case EquipmentType.Armor:
-                return EquipmentSlot.Armor;
-            case EquipmentType.Accessory:
-                // 악세서리는 세부 타입에 따라 결정
-                if (equipment.equipmentName.Contains("Boots"))
-                    return EquipmentSlot.Boots;
-                else if (equipment.equipmentName.Contains("Helmet"))
-                    return EquipmentSlot.Helmet;
-                else if (equipment.equipmentName.Contains("Gloves"))
-                    return EquipmentSlot.Gloves;
-                else if (equipment.equipmentName.Contains("Belt"))
-                    return EquipmentSlot.Belt;
-                else if (equipment.equipmentName.Contains("Ring"))
-                    return GetAvailableRingSlot();
-                else if (equipment.equipmentName.Contains("Necklace"))
-                    return EquipmentSlot.Necklace;
-                break;
-        }
-        
-        return (EquipmentSlot)(-1); // 🔧 None 대신 -1 반환
+        // 반지는 빈 슬롯을 자동 선택해야 하므로 별도 처리
+        if (equipment.equipmentType == EquipmentType.Accessory &&
+            equipment.AccessoryType == AccessoryType.Ring)
+            return GetAvailableRingSlot();
+
+        return equipment.equipmentSlot;
     }
     
     /// <summary>
@@ -818,17 +800,18 @@ public class LobbyInventoryUI : MonoBehaviour
     /// </summary>
     private string GetGradeText(EquipmentData equipmentData)
     {
-        // 장비 이름에서 등급 추출 또는 기본값 반환
-        if (equipmentData.equipmentName.Contains("_S_"))
-            return "S급";
-        else if (equipmentData.equipmentName.Contains("_A_"))
-            return "A급";
-        else if (equipmentData.equipmentName.Contains("_B_"))
-            return "B급";
-        else if (equipmentData.equipmentName.Contains("_C_"))
-            return "C급";
-        else
-            return "일반";
+        return equipmentData.itemGrade switch
+        {
+            ItemGrade.D  => "D급",
+            ItemGrade.C  => "C급",
+            ItemGrade.B  => "B급",
+            ItemGrade.A  => "A급",
+            ItemGrade.S  => "S급",
+            ItemGrade.SS => "SS급",
+            ItemGrade.EX => "EX급",
+            ItemGrade.TR => "TR급",
+            _            => "일반"
+        };
     }
 
     */

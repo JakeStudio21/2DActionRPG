@@ -1120,13 +1120,13 @@ namespace UI.Popups
             if (item.equipmentType == EquipmentType.Accessory)
             {
                 // Ring은 현재 착용 상태 확인 필요 (Ring1/Ring2)
-                if (item.equipmentName.Contains("Ring"))
+                if (item.AccessoryType == AccessoryType.Ring)
                 {
                     // 기본값으로 Ring1 반환 (PlayerDataManager에서 자동 처리)
                     return EquipmentSlot.Ring1;
                 }
                 
-                if (item.equipmentName.Contains("Necklace"))
+                if (item.AccessoryType == AccessoryType.Necklace)
                 {
                     return EquipmentSlot.Necklace;
                 }
@@ -1375,7 +1375,7 @@ namespace UI.Popups
             requiredClassName = item.usableClass switch
             {
                 PlayerClass.Warrior => "전사",
-                PlayerClass.Assasin => "암살자",
+                PlayerClass.Assasin => "궁수",
                 PlayerClass.Wizard => "마법사",
                 PlayerClass.Any => "모든 클래스",
                 PlayerClass.None => "모든 클래스",

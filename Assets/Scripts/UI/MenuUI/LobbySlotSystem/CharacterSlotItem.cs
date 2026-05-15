@@ -70,7 +70,11 @@ public class CharacterSlotItem : MonoBehaviour
         
         if (characterClass != null)
         {
-            characterClass.text = slotData.playerType.ToString();
+            characterClass.text = slotData.playerType switch
+            {
+                PlayerType.Assasin => "Archer",
+                _ => slotData.playerType.ToString()
+            };
             characterClass.gameObject.SetActive(true);
         }
         

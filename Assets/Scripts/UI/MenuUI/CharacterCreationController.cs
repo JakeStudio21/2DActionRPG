@@ -46,11 +46,11 @@ public class CharacterCreationController : MonoBehaviour
         new ClassInfo 
         { 
             playerType = PlayerType.Assasin, 
-            className = "Assassin", 
+            className = "Archer", 
             attack = 9, 
             defense = 5, 
             speed = 10, 
-            description = "빠르고 치명적인 암살자\n높은 이동속도와 크리티컬 확률" 
+            description = "빠르고 정확한 궁수\n높은 이동속도와 크리티컬 확률" 
         },
         new ClassInfo 
         { 

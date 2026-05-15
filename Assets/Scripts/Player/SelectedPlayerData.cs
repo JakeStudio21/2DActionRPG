@@ -827,7 +827,7 @@ public static class PlayerTypeExtensions
         return playerType switch
         {
             PlayerType.Warrior => "전사",
-            PlayerType.Assasin => "어쌔신",
+            PlayerType.Assasin => "궁수",
             PlayerType.Wizard => "마법사",
             _ => "선택 안함"
         };

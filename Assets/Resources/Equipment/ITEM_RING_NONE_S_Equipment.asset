@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_RING_NONE_S_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: None_Ring_S
+  equipmentName: 전설의 반지
   itemID: ITEM_RING_NONE_S
   equipmentType: 2
   itemGrade: 4
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 50
   resourceID: RES_RING_NONE_S
-  description: "\uC804\uC124 \uB4F1\uAE09\uC758 \uACF5\uC6A9 \uBC18\uC9C0\uC785\uB2C8\uB2E4."
+  description: "전설 등급의 수많은 전장을 함께한 반지입니다."
   icon: {fileID: -1209931064, guid: b7d1d8e9a54f9e34d9f9b33c4c12fe04, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0

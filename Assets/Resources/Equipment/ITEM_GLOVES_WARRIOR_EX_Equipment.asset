@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_GLOVES_WARRIOR_EX_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Warrior_Gloves_EX
+  equipmentName: 고대 영웅의 건틀릿
   itemID: ITEM_GLOVES_WARRIOR_EX
   equipmentType: 1
   itemGrade: 6
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 80
   resourceID: RES_GLOVES_WARRIOR_EX
-  description: "\uACE0\uB300 \uB4F1\uAE09\uC758 Warrior \uC804\uC6A9 \uC7A5\uAC11\uC785\uB2C8\uB2E4."
+  description: "고대 등급의 태고의 영웅이 착용했던 건틀릿입니다."
   icon: {fileID: -268903099, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0

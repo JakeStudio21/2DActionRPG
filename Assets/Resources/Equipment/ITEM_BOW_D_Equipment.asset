@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_BOW_D_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Bow_D
+  equipmentName: 나무 단궁
   itemID: ITEM_BOW_D
   equipmentType: 0
   itemGrade: 0
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 10
   resourceID: RES_WEAPON_BOW_D
-  description: "\uC77C\uBC18 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uD65C\uC785\uB2C8\uB2E4."
+  description: "일반 등급의 궁수용 단궁입니다."
   icon: {fileID: -1163354591, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 4551001115370886643, guid: f197f0b558e73a341bec616eef955381, type: 3}
   weaponType: 2

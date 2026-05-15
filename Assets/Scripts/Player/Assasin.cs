@@ -11,7 +11,7 @@ public class Assasin : BaseClassBehaviour
 {
     #region IPlayerClass 기본 정보 (오버라이드)
     
-    public override string ClassName => assasinData?.className ?? "어쌔신";
+    public override string ClassName => assasinData?.className ?? "궁수";
     public override PlayerType PlayerType => assasinData?.playerType ?? PlayerType.Assasin;
     
     #endregion

@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_ARMOR_WARRIOR_B_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Warrior_Armor_B
+  equipmentName: 강철 판금갑옷
   itemID: ITEM_ARMOR_WARRIOR_B
   equipmentType: 1
   itemGrade: 2
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 1
   resourceID: RES_ARMOR_WARRIOR_B
-  description: "\uC804\uC0AC\uC6A9 \uAE30\uBCF8 \uAC11\uC637"
+  description: "희귀 등급의 강철로 제작된 판금갑옷입니다."
   icon: {fileID: 1313480459, guid: 6ec71b21b6780534c9319a0d01a5c6b7, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0

@@ -112,7 +112,7 @@ namespace CutsceneSystem
             string className = playerType switch
             {
                 PlayerType.Warrior => "전사",
-                PlayerType.Assasin => "암살자",
+                PlayerType.Assasin => "궁수",
                 PlayerType.Wizard => "마법사",
                 _ => "모험가"
             };

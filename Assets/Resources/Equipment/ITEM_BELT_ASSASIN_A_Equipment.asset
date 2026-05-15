@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_BELT_ASSASIN_A_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Assasin_Belt_A
+  equipmentName: 질풍의 허리띠
   itemID: ITEM_BELT_ASSASIN_A
   equipmentType: 1
   itemGrade: 3
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 40
   resourceID: RES_BELT_ASSASIN_A
-  description: "\uC601\uC6C5 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uD5C8\uB9AC\uB760\uC785\uB2C8\uB2E4."
+  description: "영웅 등급의 질풍의 힘이 깃든 허리띠입니다."
   icon: {fileID: 718872277, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0

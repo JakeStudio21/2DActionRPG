@@ -475,7 +475,7 @@ public class CharacterInfoUI : MonoBehaviour
         switch (playerType)
         {
             case PlayerType.Warrior: return "전사";
-            case PlayerType.Assasin: return "어쌔신";
+            case PlayerType.Assasin: return "궁수";
             case PlayerType.Wizard: return "마법사";
             default: return "";
         }

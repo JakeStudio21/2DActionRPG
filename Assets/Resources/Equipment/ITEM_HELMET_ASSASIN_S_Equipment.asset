@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0284c449f78c34d9f95d4fd9bb71cc, type: 3}
   m_Name: ITEM_HELMET_ASSASIN_S_Equipment
   m_EditorClassIdentifier: 
-  equipmentName: Assasin_Helmet_S
+  equipmentName: 폭풍의 투구
   itemID: ITEM_HELMET_ASSASIN_S
   equipmentType: 1
   itemGrade: 4
@@ -20,7 +20,7 @@ MonoBehaviour:
   isTradable: 1
   requiredLevel: 50
   resourceID: RES_HELMET_ASSASIN_S
-  description: "\uC804\uC124 \uB4F1\uAE09\uC758 Assasin \uC804\uC6A9 \uD22C\uAD6C\uC785\uB2C8\uB2E4."
+  description: "전설 등급의 폭풍의 힘을 담은 투구입니다."
   icon: {fileID: -22128411, guid: 6f46d2f56c14d6245bbc91aaf9f768eb, type: 3}
   equipmentPrefab: {fileID: 0}
   weaponType: 0
