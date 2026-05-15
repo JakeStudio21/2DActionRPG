@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   className: "\uC5B4\uC314\uC2E0"
   playerType: 2
-  classIcon: {fileID: 0}
+  classIcon: {fileID: 112326775, guid: 7751e80b7c018264e833cc2532b140ce, type: 3}
   description: 
   baseMaxHealth: 100
   hpGainPerLevel: 20

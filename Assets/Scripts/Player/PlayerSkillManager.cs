@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,8 @@ using UnityEngine;
 /// </summary>
 public class PlayerSkillManager : MonoBehaviour
 {
+    /// <summary>액티브 스킬 장착 슬롯이 변경될 때 발생합니다.</summary>
+    public event Action OnSkillEquipped;
     [Header("📋 스킬 인스턴스")]
     [Tooltip("보유 중인 액티브 스킬 목록")]
     public List<SkillInstance> unlockedActiveSkills = new List<SkillInstance>();
@@ -280,6 +283,7 @@ public class PlayerSkillManager : MonoBehaviour
         equippedActiveSkills[slotIndex] = skill;
         skill.isEquipped = true;
         
+        OnSkillEquipped?.Invoke();
         return true;
     }
     

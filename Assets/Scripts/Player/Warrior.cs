@@ -70,6 +70,8 @@ public class Warrior : BaseClassBehaviour
         return warriorData?.baseDefense ?? 0f; // WarriorData에서 가져오거나 기본값 0
     }
     
+    public override Sprite GetAttackIcon() => warriorData?.classIcon;
+    
     #endregion
     
     #region 🛡️ 워리어 고유 특성 (Phase 1: 임시 호환 속성)

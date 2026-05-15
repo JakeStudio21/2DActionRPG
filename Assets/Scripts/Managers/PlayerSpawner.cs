@@ -448,11 +448,12 @@ public class PlayerSpawner : MonoBehaviour
 
         if (spawnedPlayer == null) return;
 
-        var pc  = spawnedPlayer.GetComponent<PlayerController>();
-        var pac = spawnedPlayer.GetComponent<PlayerAnimationController>();
-        var psm = spawnedPlayer.GetComponent<PlayerSkillManager>();
+        var pc    = spawnedPlayer.GetComponent<PlayerController>();
+        var pac   = spawnedPlayer.GetComponent<PlayerAnimationController>();
+        var psm   = spawnedPlayer.GetComponent<PlayerSkillManager>();
+        var classB = spawnedPlayer.GetComponent<BaseClassBehaviour>();
 
-        hud.SetupPlayer(pc, pac, psm);
+        hud.SetupPlayer(pc, pac, psm, classB);
 #endif
     }
 

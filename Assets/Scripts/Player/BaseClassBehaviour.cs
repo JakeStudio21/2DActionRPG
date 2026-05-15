@@ -34,6 +34,10 @@ public abstract class BaseClassBehaviour : MonoBehaviour, IPlayerClass
     public abstract IsometricCharacterData GetIsometricData();
     public abstract int CalculateHeightOffset(float t);
     
+    // 🎨 UI 아이콘
+    /// <summary>기본공격 슬롯에 표시할 클래스 아이콘 (BaseClassData.classIcon)</summary>
+    public abstract Sprite GetAttackIcon();
+    
     #endregion
     
     #region ⭐ CueProfile 설정

@@ -84,6 +84,8 @@ public class Assasin : BaseClassBehaviour
         return assasinData?.baseDefense ?? 0f; // AssasinData에서 가져오거나 기본값 0
     }
     
+    public override Sprite GetAttackIcon() => assasinData?.classIcon;
+    
     #endregion
 
     #region Unity 생명주기 오버라이드 (디버깅용)

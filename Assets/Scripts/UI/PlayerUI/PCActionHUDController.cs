@@ -60,9 +60,10 @@ public class PCActionHUDController : MonoBehaviour
     //  내부 레퍼런스
     // ─────────────────────────────────────────────────────────────
 
-    private PlayerController         playerController;
+    private PlayerController          playerController;
     private PlayerAnimationController animController;
     private PlayerSkillManager        skillManager;
+    private BaseClassBehaviour        classBehaviour;
 
     private float _nextUpdateTime;
 
@@ -90,6 +91,12 @@ public class PCActionHUDController : MonoBehaviour
 #endif
     }
 
+    private void OnDestroy()
+    {
+        if (skillManager != null)
+            skillManager.OnSkillEquipped -= RefreshSkillIcons;
+    }
+
     // ─────────────────────────────────────────────────────────────
     //  외부 API — PlayerSpawner 에서 스폰 완료 후 호출
     // ─────────────────────────────────────────────────────────────
@@ -100,13 +107,42 @@ public class PCActionHUDController : MonoBehaviour
     /// </summary>
     public void SetupPlayer(PlayerController pc,
                             PlayerAnimationController pac,
-                            PlayerSkillManager psm)
+                            PlayerSkillManager psm,
+                            BaseClassBehaviour classB = null)
     {
+        if (skillManager != null)
+            skillManager.OnSkillEquipped -= RefreshSkillIcons;
+
         playerController = pc;
         animController   = pac;
         skillManager     = psm;
+        classBehaviour   = classB;
 
+        if (skillManager != null)
+            skillManager.OnSkillEquipped += RefreshSkillIcons;
+
+        // 클래스 아이콘은 즉시 반영 (classBehaviour는 이미 초기화 완료 상태)
+        RefreshAttackIcon();
+
+        // 스킬 아이콘은 1프레임 뒤 갱신 — PlayerSkillManager.Start()의
+        // SyncFromPlayerData()가 완료된 이후임을 보장하기 위해 지연
+        StartCoroutine(RefreshSkillIconsNextFrame());
+    }
+
+    private IEnumerator RefreshSkillIconsNextFrame()
+    {
+        yield return null;
         RefreshSkillIcons();
+    }
+
+    /// <summary>
+    /// 클래스에 맞는 기본공격 아이콘으로 갱신합니다.
+    /// </summary>
+    public void RefreshAttackIcon()
+    {
+        if (classBehaviour == null || attackSlot?.iconImage == null) return;
+        var icon = classBehaviour.GetAttackIcon();
+        if (icon != null) attackSlot.iconImage.sprite = icon;
     }
 
     /// <summary>
@@ -198,7 +234,8 @@ public class PCActionHUDController : MonoBehaviour
     /// </summary>
     private IEnumerator AutoFindReferencesCoroutine()
     {
-        yield return null; // PlayerSpawner 스폰 완료까지 대기
+        // 1차 대기: 플레이어 스폰 완료까지
+        yield return null;
 
         if (playerController == null)
             playerController = FindObjectOfType<PlayerController>();
@@ -207,8 +244,19 @@ public class PCActionHUDController : MonoBehaviour
             animController = FindObjectOfType<PlayerAnimationController>();
 
         if (skillManager == null)
+        {
             skillManager = FindObjectOfType<PlayerSkillManager>();
+            if (skillManager != null)
+                skillManager.OnSkillEquipped += RefreshSkillIcons;
+        }
 
+        if (classBehaviour == null)
+            classBehaviour = FindObjectOfType<BaseClassBehaviour>();
+
+        RefreshAttackIcon();
+
+        // 2차 대기: PlayerSkillManager.Start()의 SyncFromPlayerData() 완료 보장
+        yield return null;
         RefreshSkillIcons();
     }
 }

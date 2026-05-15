@@ -12,21 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abcc7e73e1f1ee749a86881dd42c6c4d, type: 3}
   m_Name: WarriorData
   m_EditorClassIdentifier: 
-  baseMaxHealth: 50
-  baseMoveSpeed: 3
-  baseDashSpeed: 8
-  baseAttackDamage: 10
-  baseDefense: 10
-  baseDamageRecoveryTime: 1
-  flashDuration: 0.5
-  knockbackTime: 0.2
-  baseKnockbackThrust: 5
-  baseExpToNextLevel: 20
-  expIncreasePerLevel: 5
   className: "\uC6CC\uB9AC\uC5B4"
   playerType: 1
-  classIcon: {fileID: 0}
+  classIcon: {fileID: 583008203, guid: 7751e80b7c018264e833cc2532b140ce, type: 3}
   description: 
+  baseMaxHealth: 50
+  hpGainPerLevel: 20
+  baseLevelAttackPower: 20
+  maxLevelTargetAttackPower: 5000
+  maxLevel: 60
+  baseDefense: 10
+  defenseGainPerLevel: 1
+  baseCritRate: 0.05
+  baseCritDamage: 1.5
+  baseAttackSpeed: 1
+  baseMoveSpeed: 3
+  baseDashSpeed: 8
+  healMultiplier: 1
+  baseKnockbackThrust: 5
+  knockbackTime: 0.2
+  flashDuration: 0.5
+  baseAttackDamage: 10
   attackPowerMultiplier: 1.1
   moveSpeedMultiplier: 0.8
   skillCooldownMultiplier: 1
