@@ -267,6 +267,26 @@ MonoBehaviour:
     priority: 55
     cooldown: 0
     note: "\uBD84\uD574 \uC644\uB8CC \uC0AC\uC6B4\uB4DC"
+  - sfxId: ResultVictorySound
+    audioClip: {fileID: 8300000, guid: 09021029d17b25a4c885509e10ac549e, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 55
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0\uD074\uB9AC\uC5B4 \uC0AC\uC6B4\uB4DC"
+  - sfxId: ResultDefeatSound
+    audioClip: {fileID: 8300000, guid: 2e80cd05c0a13394da6a8e687d3b256d, type: 3}
+    volume: 0.5
+    pitch: 1
+    loop: 0
+    is3D: 0
+    maxDistance: 50
+    priority: 55
+    cooldown: 0
+    note: "\uC2A4\uD14C\uC774\uC9C0\uC2E4\uD328 \uC0AC\uC6B4\uB4DC"
   entries:
   - eventKey: ui.button.click
     vfxIds: []
@@ -537,6 +557,30 @@ MonoBehaviour:
     vfxIds: []
     sfxIds:
     - DismantleSound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "\uBD84\uD574 \uC644\uB8CC"
+  - eventKey: ui.stage.victory
+    vfxIds: []
+    sfxIds:
+    - ResultVictorySound
+    priority: 3
+    shakeData:
+      useShake: 0
+      intensity: 1
+      duration: 0.2
+      delay: 0
+    timeStopMs: 0
+    note: "\uBD84\uD574 \uC644\uB8CC"
+  - eventKey: ui.stage.defeat
+    vfxIds: []
+    sfxIds:
+    - ResultDefeatSound
     priority: 3
     shakeData:
       useShake: 0

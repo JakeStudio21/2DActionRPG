@@ -9,15 +9,11 @@ public class FinalBossSpawner : MonoBehaviour
     public GameObject finalBossCPrefab;
 
     private GameObject currentBoss;
-    private ResultPopupController resultPopup;
 
     void Start()
     {
         // Scene 시작 시 FinalBossA 스폰
         SpawnBoss(finalBossAPrefab, transform.position);
-
-        // ResultPopupController 미리 참조
-        resultPopup = FindObjectOfType<ResultPopupController>();
     }
 
     // 보스가 죽을 때마다 호출
@@ -34,26 +30,10 @@ public class FinalBossSpawner : MonoBehaviour
     }
     else if (bossId == "FinalBossC")
     {
-
-        StartCoroutine(ShowVictoryPopupAfterDelay(1.5f));
-    // FindObjectOfType<ResultPopupController>().Show(true); // Victory
+        // Victory 처리는 StageManager → FSMStageController.TriggerVictory() 경로에서 담당
+        // (직접 호출 시 팝업과 사운드가 중복 재생되고 보상 데이터도 누락되는 문제 방지)
     }
 }
-
-    private IEnumerator ShowVictoryPopupAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        var popup = FindObjectOfType<ResultPopupController>();
-        if (popup != null && popup.gameObject != null)
-        {
-            popup.Show(true);
-        }
-        else
-        {
-            Debug.LogError("ResultPopupController를 찾을 수 없습니다!");
-        }
-    }
 
     private IEnumerator SpawnBossWithDelay(GameObject bossPrefab, Vector3 pos, float delay) // ★
     {

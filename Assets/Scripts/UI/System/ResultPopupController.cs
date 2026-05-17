@@ -27,6 +27,22 @@ public class ResultPopupController : MonoBehaviour
     [SerializeField] private Vector2 smallSlotSize = new Vector2(80f, 80f);    // 7~12개: 작은 크기
     [SerializeField] private float largeSpacing = 20f;   // 큰 슬롯 간격
     [SerializeField] private float smallSpacing = 15f;   // 작은 슬롯 간격
+
+    [Header("결과 사운드 (CueProfile 이벤트 키)")]
+    [Tooltip("승리 팝업 등장 시 재생할 SFX 이벤트 키 (UI 도메인 / 빈 문자열이면 생략)")]
+    [SerializeField] private string victorySFXKey = "ui.stage.victory";
+    [Tooltip("승리 후 루프 재생할 BGM 이벤트 키 (BGM 도메인 / 빈 문자열이면 변경 없음)")]
+    [SerializeField] private string victoryBGMKey = "";
+    [Tooltip("패배 팝업 등장 시 재생할 SFX 이벤트 키 (UI 도메인 / 빈 문자열이면 생략)")]
+    [SerializeField] private string defeatSFXKey  = "ui.stage.defeat";
+    [Tooltip("패배 후 루프 재생할 BGM 이벤트 키 (BGM 도메인 / 빈 문자열이면 변경 없음)")]
+    [SerializeField] private string defeatBGMKey  = "";
+    [Tooltip("결과 팝업 표시 시 기존 게임 BGM을 정지할지 여부")]
+    [SerializeField] private bool stopBGMOnResult = true;
+    [Tooltip("기존 BGM 페이드아웃 시간 (초)")]
+    [SerializeField] private float bgmFadeOutTime = 1f;
+    [Tooltip("결과 BGM 페이드인 시간 (초)")]
+    [SerializeField] private float bgmFadeInTime  = 0.5f;
     
 
     void Awake()
@@ -68,7 +84,8 @@ public class ResultPopupController : MonoBehaviour
         
 
         popupPanel.SetActive(true);
-        
+        PlayResultSound(victorySFXKey, victoryBGMKey);
+
         // Victory 이미지 활성화
         victoryImage.SetActive(true);
         defeatImage.SetActive(false);
@@ -100,7 +117,8 @@ public class ResultPopupController : MonoBehaviour
         
 
         popupPanel.SetActive(true);
-        
+        PlayResultSound(defeatSFXKey, defeatBGMKey);
+
         // Defeat 이미지 활성화
         victoryImage.SetActive(false);
         defeatImage.SetActive(true);
@@ -362,6 +380,25 @@ public class ResultPopupController : MonoBehaviour
         
     }
     
+    // ── 결과 사운드 ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 결과 팝업 등장 시 CueProfile 이벤트 키를 통해 사운드를 재생한다.
+    /// sfxKey : UI 도메인 CueProfile의 이벤트 키 → 팝업 등장 순간 일회성 재생
+    /// bgmKey : BGM 도메인 CueProfile의 이벤트 키 → 이후 루프 BGM (빈 문자열이면 변경 없음)
+    /// </summary>
+    private void PlayResultSound(string sfxKey, string bgmKey)
+    {
+        if (stopBGMOnResult)
+            SoundManager.Instance?.StopLoopSFX(bgmFadeOutTime);
+
+        if (!string.IsNullOrEmpty(sfxKey))
+            CueSystem.CuePlayer.Instance?.Play(sfxKey, "UI");
+
+        if (!string.IsNullOrEmpty(bgmKey))
+            CueSystem.CuePlayer.Instance?.PlayBGMWithFade(bgmKey, "BGM", bgmFadeInTime);
+    }
+
     void OnConfirm()
     {
         // 중복 클릭 방지를 위해 리스너를 잠시 제거하고, 코루틴을 통해 로비로 돌아갑니다.

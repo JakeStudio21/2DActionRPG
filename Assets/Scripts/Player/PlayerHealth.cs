@@ -21,7 +21,6 @@ public class PlayerHealth : MonoBehaviour
     private bool canTakeDamage = true;
     private Knockback knockback;
     private Flash flash;
-    private ResultPopupController resultPopup;
     private PlayerAnimationController playerAnimationController;
     
     // ✅ PlayerUIController 참조 추가
@@ -66,8 +65,6 @@ public class PlayerHealth : MonoBehaviour
     private void Start()
     {
         isDead = false;
-        resultPopup = FindObjectOfType<ResultPopupController>();
-        
         playerAnimationController = GetComponent<PlayerAnimationController>();
         if (playerAnimationController == null)
             playerAnimationController = GetComponentInChildren<PlayerAnimationController>();
@@ -96,8 +93,6 @@ public class PlayerHealth : MonoBehaviour
     {
         // ❌ 제거: healthSlider = null;
         // ❌ 제거: UpdateHealthSlider();
-        resultPopup = FindObjectOfType<ResultPopupController>();
-        
         // ✅ PlayerUIController 다시 찾기
         if (playerUIController == null)
         {
@@ -424,11 +419,9 @@ public class PlayerHealth : MonoBehaviour
     private IEnumerator DeathLoadSceneRoutine() {
         yield return new WaitForSecondsRealtime(2f);
 
-        // 팝업 표시 (Defeat)
-        if (resultPopup != null) {
-            resultPopup.Show(false);
-        }
-        
+        // Defeat 팝업은 StageManager → FSMStageController.TriggerDefeat() 경로에서 처리
+        // (PlayerHealth에서 직접 호출 시 팝업과 사운드가 중복 재생되는 문제 방지)
+
         // 기존 코드 주석 처리 (팝업에서 처리할 것이므로)
         // Destroy(gameObject);
         // SceneManager.LoadScene(TOWN_TEXT);
