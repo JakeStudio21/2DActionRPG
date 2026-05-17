@@ -84,17 +84,13 @@ public class BossSkillController : MonoBehaviour
     /// <summary>
     /// 스킬 캐스팅 시작 (BossSkillEntry로 받음 - 스케일 정보 포함)
     /// </summary>
-    public void StartSkillCast(BossSkillEntry skillEntry)
+    public bool StartSkillCast(BossSkillEntry skillEntry)
     {
         if (skillEntry == null || skillEntry.skillData == null)
-        {
-            return;
-        }
+            return false;
         
         if (isCasting || isActionExecuting)
-        {
-            return;
-        }
+            return false;
         
         currentSkillEntry = skillEntry;
         isCasting = true;
@@ -106,12 +102,13 @@ public class BossSkillController : MonoBehaviour
         if (animController != null)
         {
             animController.TriggerSkillCast();
-            
         }
         else
         {
             Debug.LogError($"❌ [BossSkillController] EnemyAnimationController가 없습니다!");
         }
+        
+        return true;
     }
     
     /// <summary>

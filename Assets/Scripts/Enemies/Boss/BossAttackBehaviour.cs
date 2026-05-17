@@ -226,15 +226,16 @@ public class BossAttackBehaviour : BaseAttackBehaviour
         }
         
         
-        // ⭐ BossSkillController로 스킬 실행
-        if (skillController != null)
-        {
-            skillController.StartSkillCast(skillEntry);
-        }
-        else
+        if (skillController == null)
         {
             Debug.LogError($"[BossAttackBehaviour] BossSkillController가 없습니다!");
+            return;
         }
+        
+        // StartSkillCast가 실제로 시전에 성공한 경우에만 쿨다운 설정
+        bool started = skillController.StartSkillCast(skillEntry);
+        if (!started)
+            return;
         
         // 스킬 쿨다운 시작
         if (skillCooldowns.ContainsKey(skillEntry.skillData))
@@ -246,7 +247,7 @@ public class BossAttackBehaviour : BaseAttackBehaviour
             skillCooldowns.Add(skillEntry.skillData, skillEntry.individualCooldown);
         }
         
-        // ⭐ 스킬 완료는 나중에 BossSkillController에서 OnSkillComplete 콜백으로 처리
+        // 스킬 완료는 나중에 BossSkillController에서 OnSkillComplete 콜백으로 처리
         // lastAttackTime은 OnSkillComplete()에서 설정됨
     }
     

@@ -18,8 +18,8 @@ MonoBehaviour:
   description: "\uD558\uB298\uC5D0\uC11C \uBA54\uD14C\uC624\uAC00 \uB79C\uB364\uD55C
     \uC704\uCE58\uC5D0 \uC2DC\uAC04\uCC28\uB85C \uB099\uD558\uD558\uB294 \uAD11\uC5ED
     \uACF5\uACA9"
-  castTime: 0.11
-  cooldown: 14
+  castTime: 1
+  cooldown: 12
   actionDuration: 0.5
   damageMultiplier: 2
   canCritical: 1

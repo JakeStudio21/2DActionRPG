@@ -199,9 +199,9 @@ MonoBehaviour:
     cooldown: 0
     note: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5 \uC0AC\uC6B4\uB4DC"
   - sfxId: PlayerDashSound
-    audioClip: {fileID: 8300000, guid: 3747e85f832a9d244b01cf2b6817ca10, type: 3}
-    volume: 0.9
-    pitch: 0.8
+    audioClip: {fileID: 8300000, guid: bbdd911b72a1b9841ac8f01d91899102, type: 3}
+    volume: 0.5
+    pitch: 1.2
     loop: 0
     is3D: 0
     maxDistance: 50

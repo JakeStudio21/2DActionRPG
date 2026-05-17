@@ -31,11 +31,10 @@ MonoBehaviour:
   skillDataList:
   - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
   - {fileID: 11400000, guid: eed491a02c4e4e64c893078a8b355790, type: 2}
-  - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
-  - {fileID: 11400000, guid: 80bce98bd13e40f4b9a018304b3792a8, type: 2}
+  - {fileID: 11400000, guid: b29f9858f1006d342877f3b7f92fdc84, type: 2}
   meleeAttackProbability: 60
   skillUseProbability: 40
-  skillProbabilities: 64000000320000002100000019000000
+  skillProbabilities: 32000000280000000a000000
   hasSkills: 0
   skillIds: []
   immuneEffects: 00000000

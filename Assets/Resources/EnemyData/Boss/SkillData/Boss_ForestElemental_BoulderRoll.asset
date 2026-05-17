@@ -19,7 +19,7 @@ MonoBehaviour:
     \uC704\uCE58\uC5D0 \uC2DC\uAC04\uCC28\uB85C \uB099\uD558\uD558\uB294 \uAD11\uC5ED
     \uACF5\uACA9"
   castTime: 1.2
-  cooldown: 14
+  cooldown: 20
   actionDuration: 0.5
   damageMultiplier: 1
   canCritical: 1
