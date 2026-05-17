@@ -311,7 +311,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4559621415483406319}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.08815648, w: -0.9961067}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -5321,6 +5321,7 @@ GameObject:
   - component: {fileID: 1569259190796681513}
   - component: {fileID: 2797420169980757731}
   - component: {fileID: 2652218961556074354}
+  - component: {fileID: 4371880275728531444}
   m_Layer: 10
   m_Name: BoulderSprite
   m_TagString: Untagged
@@ -5381,10 +5382,10 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -539430629
-  m_SortingLayer: 2
+  m_SortingLayerID: 1855332111
+  m_SortingLayer: 3
   m_SortingOrder: 100
-  m_Sprite: {fileID: 7514263454664885024, guid: 8a65216aaf285bb4c9ddfa21a9c71624, type: 3}
+  m_Sprite: {fileID: 7514263454664885024, guid: 0a128c0e99772ab49ab37a096ed2f5cd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5405,7 +5406,7 @@ Animator:
   m_GameObject: {fileID: 7270900501731538430}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 12bda735a47aeb942b74f96e3ea9e7b9, type: 2}
+  m_Controller: {fileID: 9100000, guid: 0e1d7f49bf8039d46a5b43959394e612, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5416,6 +5417,29 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4371880275728531444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7270900501731538430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04f8552094becb145998df879f161069, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footPosition: {fileID: 0}
+  footOffset: {x: 0, y: 0}
+  baseLayer: 1000
+  heightOffset: 0
+  useIsometricData: 0
+  enableDynamicHeight: 0
+  updatePolicy: 2
+  updateInterval: 0.1
+  moveThreshold: 0.01
+  showDebugGizmo: 0
+  showOrderInInspector: 0
 --- !u!1 &8962294267068437915
 GameObject:
   m_ObjectHideFlags: 0
@@ -5427,9 +5451,9 @@ GameObject:
   - component: {fileID: 7635560240081452600}
   - component: {fileID: 2594120928091520171}
   - component: {fileID: 4127891600782170597}
-  - component: {fileID: 4785508069457425766}
+  - component: {fileID: 4164740762409937759}
   m_Layer: 10
-  m_Name: BossLargeBoulder
+  m_Name: ArenaLargeBoulder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5512,10 +5536,10 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 1.5}
+  m_Offset: {x: 0, y: 1.3476589}
   serializedVersion: 2
-  m_Radius: 1.5
---- !u!114 &4785508069457425766
+  m_Radius: 1.3553967
+--- !u!114 &4164740762409937759
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5524,7 +5548,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8962294267068437915}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f77577803b7f8ef4ba2af56b2d591c1a, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d7f53aad8976e741a8629fdf897251b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   isSmall: 0
@@ -5532,11 +5556,11 @@ MonoBehaviour:
   damage: 100
   knockbackThrust: 10
   damageCooldown: 0.5
-  autoSplitTime: 3
-  smallBoulderPrefab: {fileID: 8962294267068437915, guid: 1ed8f367be722654987ec64bfa3c8526, type: 3}
-  splitCount: 2
+  autoSplitTime: 20
+  smallBoulderPrefab: {fileID: 8962294267068437915, guid: 35bff4c9c1632204bb992f5661dd1214, type: 3}
+  splitCount: 3
   splitSpreadAngle: 120
-  splitSpeedMultiplier: 1.3
+  splitSpeedMultiplier: 1.5
   playerLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -5544,8 +5568,10 @@ MonoBehaviour:
   restitution: 1
   spriteRenderer: {fileID: 0}
   animator: {fileID: 0}
-  minSpeedForDirection: 0.3
+  minSpeedForDirection: 0.1
   splitDelay: 0.15
+  hpBar: {fileID: 8972278680795712210}
+  hideHpBarAtFull: 1
   dustEffect: {fileID: 7970909175750370913}
   dustMinSpeed: 1
-  dustMaxEmissionRate: 10
+  dustMaxEmissionRate: 30
