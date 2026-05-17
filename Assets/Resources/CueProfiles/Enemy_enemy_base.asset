@@ -229,13 +229,13 @@ MonoBehaviour:
     note: "\uC77C\uBC18 \uD53C\uACA9\uC74C"
   - sfxId: WallHitSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}
-    volume: 0.8
+    volume: 0.7
     pitch: 1
     loop: 0
     is3D: 0
     maxDistance: 0
     priority: 50
-    cooldown: 0
+    cooldown: 0.5
     note: "\uC77C\uBC18 \uD53C\uACA9\uC74C"
   - sfxId: ExplosionSound
     audioClip: {fileID: 8300000, guid: 2cbe8c63103a7ca4586385471b27712c, type: 3}

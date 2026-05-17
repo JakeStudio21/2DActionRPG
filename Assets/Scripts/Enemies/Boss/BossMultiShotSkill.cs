@@ -34,8 +34,14 @@ public class BossMultiShotSkill : MonoBehaviour
     [Tooltip("발사체 수명 (초)")]
     [SerializeField] private float projectileLifetime = 5f;
     
+    [Header("🔄 연속 발사 설정")]
+    [Tooltip("연속 발사 횟수 (1 = 단발, 2~3 = 연속)")]
+    [SerializeField] private int burstCount = 1;
+    [Tooltip("연속 발사 사이 대기 시간 (초) — 이전 나선이 끝난 후 다음 나선 시작까지")]
+    [SerializeField] private float burstInterval = 0.3f;
+
     [Header("🎮 디버그")]
-    
+
     private BossSkillController skillController;
     
     private void Awake()
@@ -61,9 +67,24 @@ public class BossMultiShotSkill : MonoBehaviour
             Debug.LogError("[BossMultiShotSkill] SkillEntry가 null!");
             return;
         }
-        
-        
-        StartCoroutine(SpiralFireRoutine(skillEntry, targetDirection));
+
+        StartCoroutine(BurstFireRoutine(skillEntry, targetDirection));
+    }
+
+    /// <summary>
+    /// 연속 발사 코루틴 — SpiralFireRoutine을 burstCount만큼 반복
+    /// </summary>
+    private IEnumerator BurstFireRoutine(BossSkillEntry skillEntry, Vector3? targetDirection)
+    {
+        int count = Mathf.Max(1, burstCount);
+
+        for (int i = 0; i < count; i++)
+        {
+            yield return StartCoroutine(SpiralFireRoutine(skillEntry, targetDirection));
+
+            if (i < count - 1)
+                yield return new WaitForSeconds(burstInterval);
+        }
     }
     
     /// <summary>
@@ -142,7 +163,7 @@ public class BossMultiShotSkill : MonoBehaviour
                 proj = GamePoolManager.Instance.SpawnFromPool(poolTag, spawnPosition, Quaternion.identity);
             }
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
         }
         

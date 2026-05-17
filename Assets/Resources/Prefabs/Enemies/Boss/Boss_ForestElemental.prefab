@@ -434,13 +434,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseEnemy: {fileID: 0}
   projectileSpawnPoint: {fileID: 0}
-  spiralProjectileCount: 36
+  spiralProjectileCount: 24
   spiralRotationSpeed: 360
   fireInterval: 0.05
   startingDistance: 0.5
   projectilePrefab: {fileID: 1123438269067522335, guid: e42fd2b3a420d7249977656de2d9f64c, type: 3}
   projectileSpeed: 8
   projectileLifetime: 5
+  burstCount: 3
+  burstInterval: 0.3
 --- !u!114 &3559526808081693056
 MonoBehaviour:
   m_ObjectHideFlags: 0
