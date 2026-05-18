@@ -5556,7 +5556,7 @@ MonoBehaviour:
   damage: 100
   knockbackThrust: 10
   damageCooldown: 0.5
-  autoSplitTime: 20
+  autoSplitTime: 10
   smallBoulderPrefab: {fileID: 8962294267068437915, guid: 35bff4c9c1632204bb992f5661dd1214, type: 3}
   splitCount: 3
   splitSpreadAngle: 120

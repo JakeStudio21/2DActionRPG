@@ -5536,7 +5536,7 @@ MonoBehaviour:
   smallBoulderPrefab: {fileID: 8962294267068437915, guid: 1ed8f367be722654987ec64bfa3c8526, type: 3}
   splitCount: 2
   splitSpreadAngle: 120
-  splitSpeedMultiplier: 1.3
+  splitSpeedMultiplier: 1.5
   playerLayer:
     serializedVersion: 2
     m_Bits: 256
