@@ -26,6 +26,13 @@ public class ArcProjectile : MonoBehaviour
     [Tooltip("CueSystem을 사용하지 않는 경우 직접 스폰할 프리팹. CueSystem이 우선 적용됨.")]
     [SerializeField] private GameObject hitEffectPrefab;
     
+    [Header("🧱 벽 통과 설정")]
+    [Tooltip("true이면 비행 중 벽 충돌을 무시하고 포물선으로 넘어감\nRangedAttack → AttackData.BypassWalls에서 자동 주입됨")]
+    [SerializeField] private bool bypassWalls = false;
+    
+    [Tooltip("착지 지점 경고 인디케이터 프리팹 (발사 시 스폰, 착지 시 제거)\nRangedAttack → AttackData.TelegraphPrefab에서 자동 주입됨")]
+    [SerializeField] private GameObject telegraphPrefab;
+    
     [Header("디버그")]
     
     // 궤도 계산용
@@ -37,6 +44,9 @@ public class ArcProjectile : MonoBehaviour
     
     // 풀링 관리
     private bool isReturningToPool = false;
+    
+    // Telegraph 런타임 참조
+    private GameObject spawnedTelegraph = null;
     
     // 🛡️ Phase 1: 상태이상 적용용
     private BaseAttackBehaviour attacker = null;
@@ -70,6 +80,7 @@ public class ArcProjectile : MonoBehaviour
         isReturningToPool = false;
         isLaunched = false;
         traveledDistance = 0f;
+        spawnedTelegraph = null;
     }
     
     private void OnDisable()
@@ -77,6 +88,7 @@ public class ArcProjectile : MonoBehaviour
         StopAllCoroutines();
         isLaunched = false;
         isReturningToPool = false;
+        RemoveTelegraph();
     }
     
     /// <summary>
@@ -91,6 +103,12 @@ public class ArcProjectile : MonoBehaviour
         totalDistance = Vector3.Distance(startPosition, targetPosition);
         isLaunched = true;
         
+        // 벽 통과 모드: 비행 중 콜라이더 비활성화 (bypassWalls 단독 제어)
+        if (bypassWalls && circleCollider != null)
+            circleCollider.enabled = false;
+        
+        // Telegraph: bypassWalls 와 무관하게 프리팹이 있으면 항상 스폰
+        SpawnTelegraph();
     }
     
     /// <summary>
@@ -145,6 +163,22 @@ public class ArcProjectile : MonoBehaviour
     public void SetHitEffect(GameObject effect)
     {
         hitEffectPrefab = effect;
+    }
+    
+    /// <summary>
+    /// 벽 통과 여부 설정 (RangedAttack → AttackData.BypassWalls에서 주입)
+    /// </summary>
+    public void SetBypassWalls(bool bypass)
+    {
+        bypassWalls = bypass;
+    }
+    
+    /// <summary>
+    /// Telegraph 프리팹 설정 (RangedAttack → AttackData.TelegraphPrefab에서 주입)
+    /// </summary>
+    public void SetTelegraphPrefab(GameObject prefab)
+    {
+        telegraphPrefab = prefab;
     }
     
     private void Update()
@@ -207,6 +241,13 @@ public class ArcProjectile : MonoBehaviour
         
         // 착지 위치 정확히 설정
         transform.position = targetPosition;
+        
+        // Telegraph 제거 (착지 시점에 즉시)
+        RemoveTelegraph();
+        
+        // bypassWalls 모드였다면 콜라이더 복원 (풀 반환 후 재사용 대비)
+        if (bypassWalls && circleCollider != null)
+            circleCollider.enabled = true;
         
         // 착지 이펙트 — CueSystem 우선, 없으면 레거시 hitEffectPrefab 사용
         // 플레이어 피격 여부와 무관하게 항상 실행
@@ -293,45 +334,74 @@ public class ArcProjectile : MonoBehaviour
     {
         if (isReturningToPool) return;
         
-        // 🧱 벽 충돌 감지 (최우선 - Wall Layer 기반)
-        int wallLayerIndex = LayerMask.NameToLayer("Wall");
-        
-        if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
+        // 🧱 벽 충돌 감지 — bypassWalls 모드에서는 건너뜀
+        if (!bypassWalls)
         {
+            int wallLayerIndex = LayerMask.NameToLayer("Wall");
             
-            // 🎵 CueSystem: 벽 충돌 이펙트 + 사운드 재생
-            Vector3 hitPosition = transform.position;
-            Vector3 hitNormal = (hitPosition - other.transform.position).normalized;
-            
-            var context = new CueSystem.CueContext
+            if (wallLayerIndex != -1 && other.gameObject.layer == wallLayerIndex)
             {
-                position = hitPosition,
-                rotation = transform.rotation,
-                normal = hitNormal,
-                facingDir = transform.right,
-                follow = null,
-                actorType = CueSystem.ActorType.Enemy,
-                surfaceType = CueSystem.SurfaceType.Stone,
-                magnitude = 1.0f,
-                isCritical = false,
-                scale = 1.0f
-            };
-            
-            CueSystem.CueEmitter.Emit("projectile.hit.wall", "Enemy", context);
-            
-            // 즉시 착지 처리 (벽 앞에서 폭발)
-            targetPosition = transform.position;
-            OnProjectileLand();
-            return;
+                // 🎵 CueSystem: 벽 충돌 이펙트 + 사운드 재생
+                Vector3 hitPosition = transform.position;
+                Vector3 hitNormal = (hitPosition - other.transform.position).normalized;
+                
+                var context = new CueSystem.CueContext
+                {
+                    position = hitPosition,
+                    rotation = transform.rotation,
+                    normal = hitNormal,
+                    facingDir = transform.right,
+                    follow = null,
+                    actorType = CueSystem.ActorType.Enemy,
+                    surfaceType = CueSystem.SurfaceType.Stone,
+                    magnitude = 1.0f,
+                    isCritical = false,
+                    scale = 1.0f
+                };
+                
+                CueSystem.CueEmitter.Emit("projectile.hit.wall", "Enemy", context);
+                
+                // 즉시 착지 처리 (벽 앞에서 폭발)
+                targetPosition = transform.position;
+                OnProjectileLand();
+                return;
+            }
         }
         
-        // 플레이어와 충돌 시 즉시 착지
-        if ((playerLayerMask.value & (1 << other.gameObject.layer)) > 0)
+        // 플레이어와 비행 중 충돌은 무시 — 데미지는 착지 시 OverlapCircleAll로만 판정
+        // (StraightProjectile은 별도 클래스이므로 기존 직접 충돌 방식 유지)
+    }
+    
+    /// <summary>
+    /// Telegraph 스폰 — 발사 시 착지 위치에 경고 인디케이터 표시
+    /// </summary>
+    private void SpawnTelegraph()
+    {
+        if (telegraphPrefab == null) return;
+        
+        // 착지 위치 바닥에 스폰 (Z = 0 고정)
+        Vector3 spawnPos = new Vector3(targetPosition.x, targetPosition.y, 0f);
+        spawnPos.z = 0f;
+        
+        spawnedTelegraph = Instantiate(telegraphPrefab, spawnPos, Quaternion.identity);
+        
+        // ExplosionRadius 값으로 Telegraph 스케일 설정 (시각적 범위 일치)
+        if (spawnedTelegraph != null && damageRadius > 0f)
         {
-            if (!isLaunched) return;
-            
-            targetPosition = transform.position;
-            OnProjectileLand();
+            float diameter = damageRadius * 2f;
+            spawnedTelegraph.transform.localScale = new Vector3(diameter, diameter, 1f);
+        }
+    }
+    
+    /// <summary>
+    /// Telegraph 제거 — 착지 또는 비정상 종료 시 호출
+    /// </summary>
+    private void RemoveTelegraph()
+    {
+        if (spawnedTelegraph != null)
+        {
+            Destroy(spawnedTelegraph);
+            spawnedTelegraph = null;
         }
     }
     
@@ -355,21 +425,40 @@ public class ArcProjectile : MonoBehaviour
     }
     
     /// <summary>
-    /// 디버그용 Gizmo
+    /// 디버그용 Gizmo — 항상 표시 (씬 뷰에서 데미지 반경 확인용)
+    /// </summary>
+    private void OnDrawGizmos()
+    {
+        // 에디터 미리보기: 발사 전에도 현재 위치 기준으로 데미지 반경 표시
+        if (!Application.isPlaying || !isLaunched)
+        {
+            Gizmos.color = new Color(1f, 0.3f, 0f, 0.3f); // 반투명 주황
+            Gizmos.DrawWireSphere(transform.position, damageRadius);
+        }
+    }
+    
+    /// <summary>
+    /// 디버그용 Gizmo — 선택 시 포물선 경로 + 착지 데미지 반경 표시
     /// </summary>
     private void OnDrawGizmosSelected()
     {
+        // 발사 중: 포물선 경로 + 착지 지점 데미지 반경
         if (isLaunched)
         {
-            // 발사 경로 표시
+            // 발사 경로 직선
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(startPosition, targetPosition);
             
-            // 목표 지점 표시
+            // 착지 지점 데미지 반경 (실선 원 + 반투명 채움)
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(targetPosition, 1f);
+            Gizmos.DrawWireSphere(targetPosition, damageRadius);
             
-            // 포물선 경로 표시
+#if UNITY_EDITOR
+            UnityEditor.Handles.color = new Color(1f, 0f, 0f, 0.15f);
+            UnityEditor.Handles.DrawSolidDisc(targetPosition, Vector3.forward, damageRadius);
+#endif
+            
+            // 포물선 경로
             Gizmos.color = Color.cyan;
             Vector3 prevPos = startPosition;
             for (float i = 0; i <= 1f; i += 0.1f)
@@ -381,6 +470,20 @@ public class ArcProjectile : MonoBehaviour
                 Gizmos.DrawLine(prevPos, arcPos);
                 prevPos = arcPos;
             }
+        }
+        else
+        {
+            // 에디터 미리보기: 선택된 상태에서 데미지 반경 + 수치 표시
+            Gizmos.color = new Color(1f, 0.3f, 0f, 0.8f);
+            Gizmos.DrawWireSphere(transform.position, damageRadius);
+            
+#if UNITY_EDITOR
+            UnityEditor.Handles.color = new Color(1f, 0.3f, 0f, 0.15f);
+            UnityEditor.Handles.DrawSolidDisc(transform.position, Vector3.forward, damageRadius);
+            UnityEditor.Handles.Label(
+                transform.position + Vector3.up * (damageRadius + 0.2f),
+                $"Damage Radius: {damageRadius:F2}");
+#endif
         }
     }
 }

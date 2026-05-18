@@ -30,9 +30,11 @@ MonoBehaviour:
   arcHeight: 2.5
   projectileSpeed: 10
   projectileLifetime: 3
-  explosionRadius: 2
+  explosionRadius: 1.5
   projectileCount: 1
   multiShotAngle: 15
+  bypassWalls: 1
+  telegraphPrefab: {fileID: 9180434461190936853, guid: 5df9322ad71dd1e499e79caca18cf291, type: 3}
   aoeEffectPrefab: {fileID: 0}
   aoeDuration: 1
   aoeShape: 0

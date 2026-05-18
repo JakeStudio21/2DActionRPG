@@ -70,6 +70,13 @@ public class AttackData : ScriptableObject
     
     [Tooltip("다중 발사 각도 간격")]
     [SerializeField] private float multiShotAngle = 15f;
+    
+    [Header("🧱 벽 통과 포물선 설정 (ArcProjectile 전용)")]
+    [Tooltip("true이면 발사체가 벽을 무시하고 포물선으로 넘어감\nArcProjectile 프리팹을 사용할 때만 유효")]
+    [SerializeField] private bool bypassWalls = false;
+    
+    [Tooltip("착지 지점에 표시할 Telegraph(경고 인디케이터) 프리팹\nbypassWalls = true일 때 사용됨")]
+    [SerializeField] private GameObject telegraphPrefab;
 
     [Header("💥 AOE 설정 (Deprecated - SkillData 사용 권장)")]
     [Tooltip("⚠️ Deprecated: 스킬 AOE는 SkillData 사용")]
@@ -126,6 +133,8 @@ public class AttackData : ScriptableObject
     public int ProjectileCount => projectileCount;
     public float MultiShotAngle => multiShotAngle;
     public float ExplosionRadius => explosionRadius;
+    public bool BypassWalls => bypassWalls;
+    public GameObject TelegraphPrefab => telegraphPrefab;
     public List<StatusEffectData> OnHitEffects => onHitEffects;
     public List<float> EffectChances => effectChances;
     public GameObject AttackStartEffect => attackStartEffect;

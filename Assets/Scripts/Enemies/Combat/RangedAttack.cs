@@ -293,9 +293,6 @@ public class RangedAttack : BaseAttackBehaviour
             cachedPlayer.transform.position : 
             transform.position + Vector3.right * 5f;
         
-        // 발사
-        arcProjectile.LaunchToTarget(targetPosition);
-        
         // 🛡️ Phase 1: 공격자 설정 (상태이상 적용용)
         arcProjectile.SetAttacker(this);
         
@@ -312,7 +309,14 @@ public class RangedAttack : BaseAttackBehaviour
             {
                 arcProjectile.SetDamageRadius(attackData.ExplosionRadius);
             }
+            
+            // 🧱 벽 통과 설정 주입
+            arcProjectile.SetBypassWalls(attackData.BypassWalls);
+            arcProjectile.SetTelegraphPrefab(attackData.TelegraphPrefab);
         }
+        
+        // 발사 (SetBypassWalls/SetTelegraphPrefab 이후에 호출해야 LaunchToTarget 내부에서 Telegraph 스폰됨)
+        arcProjectile.LaunchToTarget(targetPosition);
         
         float appliedRadius = (attackData != null && attackData.ExplosionRadius > 0f) ? attackData.ExplosionRadius : 1.5f;
     }

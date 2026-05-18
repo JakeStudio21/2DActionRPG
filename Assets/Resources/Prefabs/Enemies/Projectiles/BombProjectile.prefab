@@ -213,4 +213,5 @@ MonoBehaviour:
   damageRadius: 1.5
   landingCueEventKey: attack.bombprojectile.land
   hitEffectPrefab: {fileID: 0}
-  showDebugLogs: 0
+  bypassWalls: 0
+  telegraphPrefab: {fileID: 0}
